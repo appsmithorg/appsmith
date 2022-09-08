@@ -1,6 +1,5 @@
 import React from "react";
-import { SearchInput } from "components/ads";
-import { Button, Category } from "design-system";
+import { Button, Category, SearchInput } from "design-system";
 import styled, { createGlobalStyle } from "styled-components";
 import { Spinner } from "@blueprintjs/core";
 import {

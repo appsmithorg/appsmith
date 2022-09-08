@@ -707,6 +707,7 @@ describe("Verify various Table_Filter combinations", function() {
     });
 
     table.OpenNFilterTable("FirstName", "starts with", "wa", "OR", 1);
+    agHelper.Sleep();
     agHelper
       .GetText(table._showPageItemsCount)
       .then(($count) => expect($count).contain("3"));

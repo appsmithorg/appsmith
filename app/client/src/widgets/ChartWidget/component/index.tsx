@@ -1,4 +1,5 @@
-import _, { get } from "lodash";
+import { get } from "lodash";
+import equal from "fast-deep-equal/es6";
 import React from "react";
 import styled from "styled-components";
 
@@ -496,7 +497,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   componentDidUpdate(prevProps: ChartComponentProps) {
-    if (!_.isEqual(prevProps, this.props)) {
+    if (!equal(prevProps, this.props)) {
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
       if (this.props.chartType === "CUSTOM_FUSION_CHART") {

@@ -56,7 +56,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
      * @return
      */
     @Override
-    public List<Map<String, String>> getAnalyticsEvents(Map<String, String> originalVariables, Map<String, String> changes, List<String> extraAuthEnvs) {
+    public List<Map<String, Object>> getAnalyticsEvents(Map<String, String> originalVariables, Map<String, String> changes, List<String> extraAuthEnvs) {
         // Adding extra authentication methods that are only present in EE
         extraAuthEnvs.addAll(List.of(APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), APPSMITH_SSO_SAML_ENABLED.name()));
 
@@ -72,7 +72,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
      * @return
      */
     @Override
-    public void setAnalyticsEventAction(Map<String, String> properties, String newVariable, String originalVariable, String authEnv) {
+    public void setAnalyticsEventAction(Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
         // No need to override in case of non SAML authentication methods
         if(!authEnv.equals(APPSMITH_SSO_SAML_ENABLED.name())){
             super.setAnalyticsEventAction(properties, newVariable, originalVariable, authEnv);

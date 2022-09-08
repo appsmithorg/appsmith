@@ -38,7 +38,7 @@ describe("Autocomplete bug fixes", function() {
       "[data-rbd-draggable-id='customColumn1'] .t--edit-column-btn",
     ).click();
 
-    propPane.UpdatePropertyFieldValue("Property name", "columnAlias");
+    propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
     cy.wait(500);
     // select text widget
     ee.SelectEntityByName("Text1");

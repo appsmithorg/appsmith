@@ -5,16 +5,15 @@ import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { Toaster, Variant } from "components/ads";
-import { MenuItemProps } from "design-system";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
-import { HighlightText } from "design-system";
 import { AclWrapper, AppsmithIcon } from "./components";
 import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { RoleAddEdit } from "./RoleAddEdit";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   cloneRole,
@@ -32,7 +31,11 @@ import {
   GROUP_DELETED,
   SEARCH_ROLES_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import { AppState } from "@appsmith/reducers";
+import {
+  getAclIsLoading,
+  getRoles,
+  getSelectedRole,
+} from "@appsmith/selectors/aclSelectors";
 
 const CellContainer = styled.div`
   display: flex;
@@ -49,46 +52,33 @@ type RoleProps = {
   isNew?: boolean;
 };
 
-export type RolesListingProps = {
-  cloneRole: (role: RoleProps) => void;
-  deleteRole: (id: string) => void;
-  getAllRoles: () => void;
-  getRoleById: (id: string) => void;
-  roles: RoleProps[];
-  selectedRole: RoleProps;
-};
+export function RolesListing() {
+  const params = useParams() as any;
+  const history = useHistory();
+  const dispatch = useDispatch();
 
-export function RolesListing(props: RolesListingProps) {
+  const roles = useSelector(getRoles);
+  const selectedRoleProps = useSelector(getSelectedRole);
+  const isLoading = useSelector(getAclIsLoading);
+
   const [data, setData] = useState<RoleProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [isNewGroup, setIsNewGroup] = useState(false);
-  const [selectedPermissionGroup, setSelectedPermissionGroup] = useState<any>(
-    null,
-  );
-  const params = useParams() as any;
-  const history = useHistory();
+  const [selectedRole, setSelectedRole] = useState<any>(null);
 
-  const selectedPermGrpId = params?.selected;
-  const {
-    cloneRole,
-    deleteRole,
-    getAllRoles,
-    getRoleById,
-    roles,
-    selectedRole,
-  } = props;
+  const selectedRoleId = params?.selected;
 
   useEffect(() => {
-    getAllRoles();
-  }, []);
+    setData(roles);
+  }, [roles]);
 
   useEffect(() => {
-    setSelectedPermissionGroup(selectedRole);
-  }, [selectedRole]);
+    setSelectedRole(selectedRoleProps);
+  }, [selectedRoleProps]);
 
   useEffect(() => {
-    if (isNewGroup && selectedPermGrpId) {
-      setSelectedPermissionGroup({
+    if (isNewGroup && selectedRoleId) {
+      setSelectedRole({
         id: "10102",
         isEditing: false,
         isDeleting: false,
@@ -96,17 +86,17 @@ export function RolesListing(props: RolesListingProps) {
         isAppsmithProvided: false,
         isNew: true,
       });
-    } else if (selectedPermGrpId) {
-      getRoleById(selectedPermGrpId);
+    } else if (selectedRoleId) {
+      dispatch(getRoleById({ id: selectedRoleId }));
       setIsNewGroup(false);
     } else {
-      setData(roles);
+      dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLE });
       setIsNewGroup(false);
     }
-  }, [roles, selectedPermGrpId]);
+  }, [selectedRoleId]);
 
   const onDeleteHandler = (id: string) => {
-    deleteRole(id);
+    dispatch(deleteRole(id));
     const updatedData = data.filter((role) => {
       return role.id !== id;
     });
@@ -118,7 +108,7 @@ export function RolesListing(props: RolesListingProps) {
   };
 
   const onCloneHandler = (role: RoleProps) => {
-    cloneRole(role);
+    dispatch(cloneRole(role));
     const clonedData = {
       ...role,
       id: uniqueId("pg"),
@@ -225,11 +215,12 @@ export function RolesListing(props: RolesListingProps) {
 
   return (
     <AclWrapper data-testid="t--roles-listing-wrapper">
-      {selectedPermGrpId && selectedPermissionGroup ? (
+      {selectedRoleId && selectedRole ? (
         <RoleAddEdit
+          isLoading={isLoading}
           onClone={onCloneHandler}
           onDelete={onDeleteHandler}
-          selected={selectedPermissionGroup}
+          selected={selectedRole}
         />
       ) : (
         <>
@@ -243,6 +234,7 @@ export function RolesListing(props: RolesListingProps) {
           <Listing
             columns={columns}
             data={data}
+            isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
           />
@@ -252,19 +244,3 @@ export function RolesListing(props: RolesListingProps) {
     </AclWrapper>
   );
 }
-
-const mapStateToProps = (state: AppState) => {
-  return {
-    roles: state.acl.roles,
-    selectedRole: state.acl.selectedRole,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => ({
-  getAllRoles: () => dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLE }),
-  getRoleById: (id: string) => dispatch(getRoleById({ id })),
-  deleteRole: (id: string) => dispatch(deleteRole(id)),
-  cloneRole: (role: RoleProps) => dispatch(cloneRole(role)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(RolesListing);

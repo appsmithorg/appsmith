@@ -19,7 +19,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     );
     // Change defaultValue
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "GREEN\n");
+    cy.testJsontext("defaultselectedvalues", "GREEN\n");
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -30,14 +30,14 @@ describe("MultiSelectTree Widget Functionality", function() {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Reset isDirty by changing defaultValue
-    cy.testJsontext("defaultvalue", "BLUE\n");
+    cy.testJsontext("defaultselectedvalues", "BLUE\n");
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
   it("2. Selects value with enter in default value", () => {
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalues", "RED\n");
     cy.get(formWidgetsPage.multiselecttreeWidget)
       .find(".rc-tree-select-selection-item-content")
       .first()
@@ -52,8 +52,13 @@ describe("MultiSelectTree Widget Functionality", function() {
   it("3. Clears the search field when widget is closed", () => {
     // open the multi-tree select widget
     // search for option Red in the search input
+    cy.openPropertyPane("multiselecttreewidget");
+    cy.testJsontext("defaultselectedvalues", "");
+    cy.get(formWidgetsPage.treeSelectInput)
+      .first()
+      .click({ force: true });
     cy.get(formWidgetsPage.multiTreeSelectFilterInput)
-      .click()
+      .click({ force: true })
       .type("Green");
     // select the Green option
     cy.treeMultiSelectDropdown("Green");
@@ -71,6 +76,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .invoke("val")
       .should("be.empty");
     cy.wait(100);
+    cy.testJsontext("defaultselectedvalues", "RED\n");
   });
 
   it("4. To Validate Options", function() {

@@ -13,6 +13,7 @@ const props = {
   columns: [],
   listMenuItems: [],
   keyAccessor: "",
+  isLoading: false,
 };
 
 const userListingProps = {
@@ -35,6 +36,7 @@ const userListingProps = {
     },
   ],
   keyAccessor: "userId",
+  isLoading: false,
 };
 
 function renderComponent() {

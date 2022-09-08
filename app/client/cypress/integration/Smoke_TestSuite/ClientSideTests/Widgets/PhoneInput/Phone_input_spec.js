@@ -111,7 +111,7 @@ describe("Phone input widget - ", () => {
     cy.updateCodeInput(".t--property-control-text", `{{PhoneInput1.isDirty}}`);
     // Change defaultText
     cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", "1");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "1");
     cy.closePropertyPane();
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
@@ -124,7 +124,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Reset isDirty by changing defaultText
     cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", "3");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "3");
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });

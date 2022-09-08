@@ -1,7 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import RolesListing from "./RolesListing";
+import { RolesListing } from "./RolesListing";
 import { rolesTableData } from "./mocks/RolesListingMock";
 import userEvent from "@testing-library/user-event";
 import { MenuItemProps } from "design-system";

@@ -1,18 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
-import { Menu, Table } from "components/ads";
+import { Icon, IconSize, MenuItem, MenuItemProps, Menu } from "design-system";
+import { Table } from "components/ads";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
-import { useSelector } from "react-redux";
-import { getIsLoading } from "@appsmith/selectors/aclSelectors";
 
 type ListingProps = {
   data: any[];
   columns: any[];
   listMenuItems: MenuItemProps[];
   keyAccessor: string;
+  isLoading: boolean;
 };
 
 const ListingWrapper = styled.div`
@@ -95,8 +94,7 @@ const ListingWrapper = styled.div`
 `;
 
 export function Listing(props: ListingProps) {
-  const { columns, data = [], keyAccessor, listMenuItems } = props;
-  const isLoading = useSelector(getIsLoading);
+  const { columns, data = [], isLoading, keyAccessor, listMenuItems } = props;
 
   const updatedColumns = [
     ...columns,

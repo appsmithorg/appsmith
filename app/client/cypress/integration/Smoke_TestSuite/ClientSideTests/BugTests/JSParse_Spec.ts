@@ -12,17 +12,18 @@ const assertLintErrorAndOutput = (
 ) => {
   jsEditor.EditJSObj(code);
   // Wait for parsing to be complete
-  agHelper.Sleep(3000);
+  agHelper.Sleep();
 
   hasLintError
     ? agHelper.AssertElementExist(locator._lintErrorElement)
     : agHelper.AssertElementAbsence(locator._lintErrorElement);
 
   if (output) {
-    agHelper.GetNClick(jsEditor._runButton);
-    cy.contains(
+    jsEditor.RunJSObj();
+    agHelper.AssertContains(
       output === "undefined" ? "did not return any data" : output,
-    ).should("exist");
+      "exist",
+    );
   }
 };
 
@@ -51,15 +52,15 @@ describe("Bug #15283 - Correctly parses JS Function", () => {
     // confirm there is no parse error
     jsEditor.AssertParseError(false, false);
     // Wait for parsing to be complete
-    agHelper.Sleep(2000);
+    agHelper.Sleep();
     // run
-    agHelper.GetNClick(jsEditor._runButton);
-
+    jsEditor.RunJSObj();
     // confirm there is no function execution error
     jsEditor.AssertParseError(false, false);
 
-    cy.contains("Expected results").should("exist");
+    agHelper.AssertContains("Expected results", "exist");
   });
+
   it("2. TC 1970 - Outputs expected result", () => {
     const getJSObjectBody = (expression: string) => `export default{
      myFun1: ()=>{
@@ -86,11 +87,11 @@ describe("Bug #15283 - Correctly parses JS Function", () => {
     const expression16 = `!null ?? !TreeSelect1.selectedOptionLabel || !undefined`;
     const expression17 = `null ?? TreeSelect1.selectedOptionLabel || undefined`;
 
-    assertLintErrorAndOutput(getJSObjectBody(expression1), false, "B");
-    assertLintErrorAndOutput(getJSObjectBody(expression2), false, "B");
+    assertLintErrorAndOutput(getJSObjectBody(expression1), false, "Blue");
+    assertLintErrorAndOutput(getJSObjectBody(expression2), false, "undefined");
     assertLintErrorAndOutput(getJSObjectBody(expression3), false, "true");
     assertLintErrorAndOutput(getJSObjectBody(expression4), false, "undefined");
-    assertLintErrorAndOutput(getJSObjectBody(expression5), false, "B hi");
+    assertLintErrorAndOutput(getJSObjectBody(expression5), false, "Blue hi");
     assertLintErrorAndOutput(getJSObjectBody(expression6), false, "hi");
     assertLintErrorAndOutput(getJSObjectBody(expression7), false, "false that");
     assertLintErrorAndOutput(getJSObjectBody(expression8), false, "hi");

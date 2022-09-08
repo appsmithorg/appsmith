@@ -3,8 +3,15 @@ import { useParams } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import { DebouncedFunc } from "lodash";
-import { Menu, SearchVariant } from "components/ads";
-import { Button, IconSize, MenuItem, MenuItemProps, Icon } from "design-system";
+import {
+  Button,
+  IconSize,
+  MenuItem,
+  MenuItemProps,
+  Icon,
+  Menu,
+  SearchVariant,
+} from "design-system";
 import {
   HeaderWrapper,
   SettingsHeader,

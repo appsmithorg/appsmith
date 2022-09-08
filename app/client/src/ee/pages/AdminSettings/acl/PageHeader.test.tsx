@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { PageHeader } from "./PageHeader";
 import userEvent from "@testing-library/user-event";
-import UserListing from "./UserListing";
+import { UserListing } from "./UserListing";
 import * as reactRedux from "react-redux";
 import { allUsers } from "./mocks/UserListingMock";
 import configureStore from "redux-mock-store";

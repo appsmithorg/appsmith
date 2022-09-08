@@ -3,7 +3,7 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import GroupListing from "../acl/GroupsListing";
+import { GroupListing } from "../acl/GroupsListing";
 
 export const config: AdminConfigType = {
   type: SettingCategories.GROUPS_LISTING,

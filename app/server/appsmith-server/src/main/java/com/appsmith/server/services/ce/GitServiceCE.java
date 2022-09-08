@@ -74,4 +74,7 @@ public interface GitServiceCE {
 
     Mono<List<GitDocsDTO>> getGitDocUrls();
 
+    Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId);
+
+    Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
 }

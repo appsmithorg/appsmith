@@ -6,7 +6,10 @@ import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import _ from "lodash";
 import { AppState } from "@appsmith/reducers";
 import { BASE_URL } from "constants/routes";
-import { REDIRECT_URL_FORM, ENTITYID_URL_FORM } from "constants/forms";
+import {
+  REDIRECT_URL_FORM,
+  ENTITYID_URL_FORM,
+} from "@appsmith/constants/forms";
 import { getSettingsSavingState } from "selectors/settingsSelectors";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
