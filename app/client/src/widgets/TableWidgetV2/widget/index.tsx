@@ -52,7 +52,6 @@ import {
   CompactModeTypes,
   SortOrderTypes,
 } from "../component/Constants";
-import tablePropertyPaneConfig from "./propertyConfig";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -84,10 +83,6 @@ const defaultFilter = [
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   editTimer: number | null = null;
-
-  static getPropertyPaneConfig() {
-    return tablePropertyPaneConfig;
-  }
 
   static getPropertyPaneContentConfig() {
     return contentConfig;

@@ -65,6 +65,14 @@ abstract class BaseWidget<
     return [];
   }
 
+  static getPropertyPaneContentConfig(): PropertyPaneConfig[] {
+    return [];
+  }
+
+  static getPropertyPaneStyleConfig(): PropertyPaneConfig[] {
+    return [];
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }

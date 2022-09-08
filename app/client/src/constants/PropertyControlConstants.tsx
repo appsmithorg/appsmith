@@ -33,7 +33,7 @@ export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
   panelIdPropertyName: string;
-  children: PropertyPaneConfig[];
+  children?: PropertyPaneConfig[];
   contentChildren?: PropertyPaneConfig[];
   styleChildren?: PropertyPaneConfig[];
   updateHook: (

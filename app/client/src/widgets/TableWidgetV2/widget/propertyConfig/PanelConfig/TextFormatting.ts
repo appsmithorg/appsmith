@@ -3,59 +3,8 @@ import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { hideByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: "Styles",
-  hidden: (props: TableWidgetProps, propertyPath: string) => {
-    return hideByColumnType(
-      props,
-      propertyPath,
-      [ColumnTypes.TEXT, ColumnTypes.DATE, ColumnTypes.NUMBER, ColumnTypes.URL],
-      true,
-    );
-  },
-  dependencies: ["primaryColumns", "columnOrder"],
+  sectionName: "Text Formatting",
   children: [
-    {
-      propertyName: "horizontalAlignment",
-      label: "Text Align",
-      controlType: "ICON_TABS",
-      options: [
-        {
-          icon: "LEFT_ALIGN",
-          value: "LEFT",
-        },
-        {
-          icon: "CENTER_ALIGN",
-          value: "CENTER",
-        },
-        {
-          icon: "RIGHT_ALIGN",
-          value: "RIGHT",
-        },
-      ],
-      defaultValue: "LEFT",
-      isJSConvertible: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ["LEFT", "CENTER", "RIGHT"],
-          },
-        },
-      },
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.DATE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.URL,
-        ]);
-      },
-    },
     {
       propertyName: "textSize",
       label: "Text Size",
@@ -104,7 +53,7 @@ export default {
     },
     {
       propertyName: "fontStyle",
-      label: "Font Style",
+      label: "Emphasis",
       controlType: "BUTTON_TABS",
       options: [
         {
@@ -131,6 +80,48 @@ export default {
           type: ValidationTypes.TEXT,
         },
       },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.DATE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+        ]);
+      },
+    },
+    {
+      propertyName: "horizontalAlignment",
+      label: "Text Align",
+      controlType: "ICON_TABS",
+      options: [
+        {
+          icon: "LEFT_ALIGN",
+          value: "LEFT",
+        },
+        {
+          icon: "CENTER_ALIGN",
+          value: "CENTER",
+        },
+        {
+          icon: "RIGHT_ALIGN",
+          value: "RIGHT",
+        },
+      ],
+      defaultValue: "LEFT",
+      isJSConvertible: true,
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["LEFT", "CENTER", "RIGHT"],
+          },
+        },
+      },
+      isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.TEXT,
@@ -179,62 +170,6 @@ export default {
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
-      },
-    },
-    {
-      propertyName: "textColor",
-      label: "Text Color",
-      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-      isJSConvertible: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-      },
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.DATE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.URL,
-        ]);
-      },
-    },
-    {
-      propertyName: "cellBackground",
-      label: "Cell Background",
-      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-      isJSConvertible: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-      },
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.DATE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.URL,
-          ColumnTypes.EDIT_ACTIONS,
         ]);
       },
     },
