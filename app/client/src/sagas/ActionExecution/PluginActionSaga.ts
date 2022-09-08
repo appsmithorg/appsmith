@@ -48,6 +48,7 @@ import {
 import { Variant } from "components/ads/common";
 import {
   EventType,
+  LayoutOnLoadActionErrors,
   PageAction,
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
@@ -55,6 +56,7 @@ import {
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
+  getLayoutOnLoadIssues,
 } from "selectors/editorSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -108,6 +110,10 @@ import { isTrueObject, findDatatype } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
+import {
+  checkIfNoCyclicDependencyErrors,
+  logCyclicDependecyErrors,
+} from "sagas/helper";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -814,25 +820,31 @@ function* executePageLoadAction(pageAction: PageAction) {
 function* executePageLoadActionsSaga() {
   try {
     const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
+    const layoutOnLoadActionErrors: LayoutOnLoadActionErrors[] = yield select(
+      getLayoutOnLoadIssues,
+    );
     const actionCount = _.flatten(pageActions).length;
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-      { numActions: actionCount },
-    );
-    for (const actionSet of pageActions) {
-      // Load all sets in parallel
-      // @ts-expect-error: no idea how to type this
-      yield* yield all(
-        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
+    if (checkIfNoCyclicDependencyErrors(layoutOnLoadActionErrors)) {
+      PerformanceTracker.startAsyncTracking(
+        PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+        { numActions: actionCount },
       );
+      for (const actionSet of pageActions) {
+        // Load all sets in parallel
+        // @ts-expect-error: no idea how to type this
+        yield* yield all(
+          actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
+        );
+      }
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+      );
+      // We show errors in the debugger once onPageLoad actions
+      // are executed
+      yield put(hideDebuggerErrors(false));
+    } else {
+      logCyclicDependecyErrors(layoutOnLoadActionErrors);
     }
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-    );
-
-    // We show errors in the debugger once onPageLoad actions
-    // are executed
-    yield put(hideDebuggerErrors(false));
   } catch (e) {
     log.error(e);
 

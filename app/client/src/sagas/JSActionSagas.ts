@@ -45,7 +45,7 @@ import {
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import PageApi, { FetchPageResponse } from "api/PageApi";
+import PageApi, { FetchPageResponse, PageLayout } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { ApiResponse } from "api/ApiResponses";
@@ -55,6 +55,10 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
+import {
+  checkIfNoCyclicDependencyErrors,
+  logCyclicDependecyErrors,
+} from "./helper";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -365,6 +369,15 @@ export function* refactorJSObjectName(
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
       } else {
         yield put(fetchJSCollectionsForPage(pageId));
+      }
+      if (
+        !checkIfNoCyclicDependencyErrors(
+          (refactorResponse.data as PageLayout).layoutOnLoadActionErrors,
+        )
+      ) {
+        logCyclicDependecyErrors(
+          (refactorResponse.data as PageLayout).layoutOnLoadActionErrors,
+        );
       }
     }
   }

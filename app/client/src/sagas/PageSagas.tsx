@@ -37,6 +37,7 @@ import PageApi, {
   FetchPublishedPageRequest,
   PageLayout,
   SavePageResponse,
+  SavePageResponseData,
   SetPageOrderRequest,
   UpdatePageRequest,
   UpdateWidgetNameRequest,
@@ -119,6 +120,10 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
+import {
+  checkIfNoCyclicDependencyErrors,
+  logCyclicDependecyErrors,
+} from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -203,6 +208,8 @@ export const getCanvasWidgetsPayload = (
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
     pageActions: pageResponse.data.layouts[0].layoutOnLoadActions || [],
+    layoutOnLoadActionErrors:
+      pageResponse.data.layouts[0].layoutOnLoadActionErrors || [],
   };
 };
 
@@ -450,6 +457,17 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
       );
+      if (
+        !checkIfNoCyclicDependencyErrors(
+          (savePageResponse.data as SavePageResponseData)
+            .layoutOnLoadActionErrors,
+        )
+      ) {
+        logCyclicDependecyErrors(
+          (savePageResponse.data as SavePageResponseData)
+            .layoutOnLoadActionErrors,
+        );
+      }
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -850,6 +868,15 @@ export function* updateWidgetNameSaga(
               dsl: response.data.dsl,
             },
           });
+          if (
+            !checkIfNoCyclicDependencyErrors(
+              (response.data as PageLayout).layoutOnLoadActionErrors,
+            )
+          ) {
+            logCyclicDependecyErrors(
+              (response.data as PageLayout).layoutOnLoadActionErrors,
+            );
+          }
         }
       } else {
         yield put({

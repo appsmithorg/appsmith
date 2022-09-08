@@ -82,6 +82,10 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import {
+  checkIfNoCyclicDependencyErrors,
+  logCyclicDependecyErrors,
+} from "./helper";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -463,6 +467,15 @@ function* handleUpdateJSCollectionBody(
       if (isValidResponse) {
         // @ts-expect-error: response is of type unknown
         yield put(updateJSCollectionBodySuccess({ data: response?.data }));
+        if (
+          !checkIfNoCyclicDependencyErrors(
+            (response.data as JSCollection).errorReports,
+          )
+        ) {
+          logCyclicDependecyErrors(
+            (response.data as JSCollection).errorReports,
+          );
+        }
       }
     }
   } catch (error) {
