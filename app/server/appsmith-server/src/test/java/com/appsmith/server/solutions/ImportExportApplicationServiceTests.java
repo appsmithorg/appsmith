@@ -51,6 +51,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -161,6 +162,9 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -1509,7 +1513,7 @@ public class ImportExportApplicationServiceTests {
         applicationAccessDTO.setPublicAccess(true);
         Application newApplication = applicationService.changeViewAccess(application.getId(), "master", applicationAccessDTO).block();
 
-        PermissionGroup anonymousPermissionGroup = permissionGroupRepository.findById(newApplication.getDefaultPermissionGroup()).block();
+        PermissionGroup anonymousPermissionGroup = permissionGroupService.getPublicPermissionGroup().block();
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
