@@ -371,11 +371,13 @@ const TextInputWrapper = styled.div<{
   &:focus-within {
     outline: 0;
     border-color: ${({ accentColor, hasError }) =>
-      hasError ? Colors.DANGER_SOLID : accentColor};
+      hasError ? "var(--wds-color-border-danger-focus)" : accentColor};
     box-shadow: ${({ accentColor, hasError }) =>
-      `0px 0px 0px 2px ${lightenColor(
-        hasError ? Colors.DANGER_SOLID : accentColor,
-      )} !important;`};
+      `0px 0px 0px 2px ${
+        hasError
+          ? "var(--wds-color-border-danger-focus-light)"
+          : lightenColor(accentColor)
+      } !important;`};
   }
 
   ${({ inputHtmlType }) =>

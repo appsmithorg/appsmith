@@ -15,7 +15,7 @@ export const CONFIG = {
     maxCount: 5,
     defaultRate: 3,
     activeColor: Colors.RATE_ACTIVE,
-    inactiveColor: Colors.ALTO_3,
+    inactiveColor: Colors.ALTO2,
     size: "LARGE",
     isRequired: false,
     isAllowHalf: false,
