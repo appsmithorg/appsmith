@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 export default [
   {
@@ -77,4 +78,4 @@ export default [
       },
     ],
   },
-];
+] as PropertyPaneConfig[];
