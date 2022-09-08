@@ -23,7 +23,7 @@ export function* executePostMessage(
     if (isEmpty(targetOrigin)) {
       throw new TriggerFailureError("Please enter a target origin URL.");
     } else {
-      if (source) {
+      if (source !== "window") {
         const src = document.getElementById(
           `iframe-${source}`,
         ) as HTMLIFrameElement;

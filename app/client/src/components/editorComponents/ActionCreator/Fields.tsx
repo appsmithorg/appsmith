@@ -118,7 +118,7 @@ const fieldConfigs: FieldConfigs = {
           defaultParams = `"",true`;
           break;
         case ActionType.postMessage:
-          defaultParams = `"", '*', ""`;
+          defaultParams = `'', 'window', '*'`;
           break;
         default:
           break;
@@ -346,7 +346,7 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.TARGET_ORIGIN_FIELD]: {
+  [FieldType.SOURCE_FIELD]: {
     getter: (value: string) => {
       return textGetter(value, 1);
     },
@@ -355,7 +355,7 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.SOURCE_FIELD]: {
+  [FieldType.TARGET_ORIGIN_FIELD]: {
     getter: (value: string) => {
       return textGetter(value, 2);
     },
@@ -562,6 +562,7 @@ function renderField(props: {
     case FieldType.TARGET_ORIGIN_FIELD:
     case FieldType.SOURCE_FIELD:
       let fieldLabel = "";
+      let toolTip = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.URL_FIELD) {
@@ -588,13 +589,17 @@ function renderField(props: {
         fieldLabel = "Id";
       } else if (fieldType === FieldType.MESSAGE_FIELD) {
         fieldLabel = "Message";
+        toolTip = "Data to be sent to the target iframe";
       } else if (fieldType === FieldType.TARGET_ORIGIN_FIELD) {
-        fieldLabel = "Target origin";
+        fieldLabel = "Allowed Origins";
+        toolTip = "Restricts domains to which the message can be sent";
       } else if (fieldType === FieldType.SOURCE_FIELD) {
-        fieldLabel = "Iframe widget";
+        fieldLabel = "Target iframe";
+        toolTip = "Specifies the target iframe widget name or parent window";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
+        toolTip: toolTip,
         get: fieldConfig.getter,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);

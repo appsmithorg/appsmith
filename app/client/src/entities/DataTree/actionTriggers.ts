@@ -172,8 +172,8 @@ export type PostMessageDescription = {
   type: ActionTriggerType.POST_MESSAGE;
   payload: {
     message: unknown;
-    targetOrigin: string;
     source: string;
+    targetOrigin: string;
   };
 };
 

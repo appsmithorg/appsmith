@@ -752,7 +752,7 @@ export const GLOBAL_FUNCTIONS = {
   postWindowMessage: {
     "!doc":
       "Establish cross-origin communication between Window objects/page and iframes",
-    "!type": "fn(message: unknown, targetOrigin: string, source: string)",
+    "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
 };
 

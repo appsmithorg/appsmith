@@ -400,10 +400,10 @@ function getFieldFromValue(
         field: FieldType.MESSAGE_FIELD,
       },
       {
-        field: FieldType.TARGET_ORIGIN_FIELD,
+        field: FieldType.SOURCE_FIELD,
       },
       {
-        field: FieldType.SOURCE_FIELD,
+        field: FieldType.TARGET_ORIGIN_FIELD,
       },
     );
   }
