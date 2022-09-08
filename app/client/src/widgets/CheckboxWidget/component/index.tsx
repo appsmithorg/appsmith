@@ -116,7 +116,6 @@ export interface CheckboxComponentProps extends ComponentProps {
   isValid?: boolean;
   label: string;
   onCheckChange: (isChecked: boolean) => void;
-  rowSpace: number;
   inputRef?: (el: HTMLInputElement | null) => any;
   accentColor: string;
   borderRadius: string;
