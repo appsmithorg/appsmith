@@ -163,13 +163,6 @@ export function PositionedContainer(props: PositionedContainerProps) {
     reflowedPosition,
   ]);
 
-  const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e);
-    },
-    [props.widgetId, clickToSelectWidget],
-  );
-
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
@@ -181,9 +174,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
       data-testid="test-widget"
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
-      // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
+      // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
       onClick={stopEventPropagation}
-      onClickCapture={onClickFn}
+      onClickCapture={clickToSelectWidget}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
       zIndexOnHover={onHoverZIndex}

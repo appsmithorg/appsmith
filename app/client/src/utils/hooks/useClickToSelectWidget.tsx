@@ -5,7 +5,7 @@ import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import { useWidgetSelection } from "./useWidgetSelection";
-import React, { ReactNode, useCallback } from "react";
+import React, { ReactNode, useCallback, useMemo } from "react";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getFocusedParentToOpen,
@@ -24,12 +24,7 @@ export function ClickContentToOpenPropPane({
   const { focusWidget } = useWidgetSelection();
 
   const clickToSelectWidget = useClickToSelectWidget(widgetId);
-  const clickToSelectFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e);
-    },
-    [clickToSelectWidget],
-  );
+
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
@@ -52,7 +47,7 @@ export function ClickContentToOpenPropPane({
   return (
     <div
       onClick={stopEventPropagation}
-      onClickCapture={clickToSelectFn}
+      onClickCapture={clickToSelectWidget}
       onMouseOver={handleMouseOver}
       style={{
         width: "100%",
@@ -86,32 +81,35 @@ export const useClickToSelectWidget = (widgetId: string) => {
 
   const parentWidgetToOpen = useSelector(getFocusedParentToOpen, equal);
 
-  const clickToSelectWidget = (e: any) => {
-    // ignore click captures
-    // 1. if the component was resizing or dragging coz it is handled internally in draggable component
-    // 2. table filter property pane is open
-    if (
-      isResizing ||
-      isDragging ||
-      appMode !== APP_MODE.EDIT ||
-      !isFocused ||
-      isTableFilterPaneVisible
-    )
-      return;
-    if ((!isPropPaneVisible && isSelected) || !isSelected) {
-      const isMultiSelect = e.metaKey || e.ctrlKey || e.shiftKey;
+  const shouldIgnoreClicks =
+    isResizing ||
+    isDragging ||
+    appMode !== APP_MODE.EDIT ||
+    !isFocused ||
+    isTableFilterPaneVisible;
 
-      if (parentWidgetToOpen) {
-        selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
-      } else {
-        selectWidget(widgetId, isMultiSelect);
-        focusWidget(widgetId);
-      }
+  const clickToSelectWidget = useCallback(
+    (e: any) => {
+      // Ignore click captures
+      // 1. If the component is resizing or dragging because it is handled internally in draggable component.
+      // 2. If table filter property pane is open.
+      if (shouldIgnoreClicks) return;
+      if ((!isPropPaneVisible && isSelected) || !isSelected) {
+        const isMultiSelect = e.metaKey || e.ctrlKey || e.shiftKey;
 
-      if (isMultiSelect) {
-        e.stopPropagation();
+        if (parentWidgetToOpen) {
+          selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
+        } else {
+          selectWidget(widgetId, isMultiSelect);
+          focusWidget(widgetId);
+        }
+
+        if (isMultiSelect) {
+          e.stopPropagation();
+        }
       }
-    }
-  };
+    },
+    [shouldIgnoreClicks, isPropPaneVisible, isSelected, parentWidgetToOpen],
+  );
   return clickToSelectWidget;
 };
