@@ -216,7 +216,7 @@ type Props = ReduxStateProps &
 export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
   duration: "",
-  body: {},
+  body: "",
   headers: {},
   request: {
     headers: {},

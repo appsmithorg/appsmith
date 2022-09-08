@@ -43,6 +43,8 @@ function Section(props: SectionProps) {
     if (sectionRef.current?.childElementCount === 0) {
       // Fix issue where the section is not hidden when it has no children
       setHidden(true);
+    } else {
+      setHidden(false);
     }
   }, [generatorProps.searchQuery]);
 

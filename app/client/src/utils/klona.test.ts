@@ -1,4 +1,4 @@
-import isEqual from "lodash/isEqual";
+import equal from "fast-deep-equal/es6";
 import { klona } from "klona/full";
 import moment from "moment";
 
@@ -46,7 +46,7 @@ describe("Klona clone test", () => {
     input.meta.null = "efewf";
     input.meta.undefined = NaN;
 
-    expect(isEqual(expected, result)).toEqual(true);
+    expect(equal(expected, result)).toEqual(true);
   });
 
   it("Dates and regex values", () => {
@@ -77,7 +77,7 @@ describe("Klona clone test", () => {
     input.meta.regex = /^def$/g;
     input.meta.regexExp = new RegExp(/^def$/);
 
-    expect(isEqual(expected, result)).toEqual(true);
+    expect(equal(expected, result)).toEqual(true);
   });
 
   it("Objects and Arrays values", () => {
@@ -121,22 +121,22 @@ describe("Klona clone test", () => {
     input.meta.nestedObject.Input.text = "hello";
 
     expect(
-      isEqual(expected.meta.nestedArray[0], result.meta.nestedArray[0]),
+      equal(expected.meta.nestedArray[0], result.meta.nestedArray[0]),
     ).toEqual(true);
 
     expect(
-      isEqual(expected.meta.nestedArray[1], result.meta.nestedArray[1]),
+      equal(expected.meta.nestedArray[1], result.meta.nestedArray[1]),
     ).toEqual(true);
 
     expect(
-      isEqual(
+      equal(
         expected.meta.objectWithMethod.method(),
         result.meta.objectWithMethod.method(),
       ),
     ).toEqual(true);
 
     expect(
-      isEqual(
+      equal(
         expected.meta.nestedObject.Input.text,
         result.meta.nestedObject.Input.text,
       ),

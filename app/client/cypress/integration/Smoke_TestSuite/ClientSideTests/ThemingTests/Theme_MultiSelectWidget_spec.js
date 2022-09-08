@@ -99,11 +99,11 @@ describe("Theme validation usecase for multi-select widget", function() {
 
     //Color
     cy.wait(1000);
-    propPane.ChangeColor("purple", "Primary");
+    propPane.ChangeThemeColor("purple", "Primary");
     cy.get(themelocator.inputColor).should("have.value", "purple");
     cy.wait(1000);
 
-    propPane.ChangeColor("brown", "Background");
+    propPane.ChangeThemeColor("brown", "Background");
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(1000);
     cy.contains("Color").click({ force: true });
@@ -131,7 +131,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.goToEditFromPublish();
   });
 
-  it("Validate Default Theme change across application", function() {
+  it("Validate current theme feature", function() {
     cy.get("#canvas-selection-0").click({ force: true });
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
@@ -151,7 +151,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       });
   });
 
-  it("Publish the App and validate Default Theme across the app", function() {
+  it("Publish the App and validate change of Theme across the app in publish mode", function() {
     cy.PublishtheApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .first()
@@ -164,5 +164,16 @@ describe("Theme validation usecase for multi-select widget", function() {
             expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
           });
       });
+    cy.get(".bp3-button:contains('Edit App')")
+      .last()
+      .invoke("css", "background-color")
+      .then((CurrentBackgroudColor) => {
+        expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
+      });
+    cy.xpath("//div[@id='root']//section/parent::div").should(
+      "have.css",
+      "background-color",
+      "rgb(165, 42, 42)",
+    );
   });
 });

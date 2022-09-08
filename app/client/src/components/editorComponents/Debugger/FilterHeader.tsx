@@ -15,46 +15,42 @@ import { clearLogs } from "actions/debuggerActions";
 import { Classes } from "components/ads/common";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   flex-direction: row;
   display: flex;
   justify-content: flex-start;
-  margin-left: 30px;
-  padding: 5px 0;
-  & > div {
-    width: 160px;
-    margin: 0 16px;
+  padding: 8px 0;
+  margin-left: 16px;
+  margin-right: 16px;
+
+  .debugger-clear-logs {
+    display: flex;
+    align-items: center;
   }
 
   .debugger-search {
-    height: 28px;
-    width: 160px;
-    padding-right: 25px;
+    height: 32px;
   }
 
   .debugger-filter {
-    border: none;
-    box-shadow: none;
-    width: 110px;
-    height: 28px;
-    margin-top: ${(props) => props.theme.spaces[1]}px;
+    width: 220px;
+    height: 32px;
+    min-height: 32px;
   }
 
   .input-container {
-    position: relative;
     display: flex;
+    max-width: 560px;
+    min-width: 220px;
+    flex-grow: 1;
+    height: 32px;
     align-items: center;
+    margin: 0px 24px;
     .${Classes.ICON} {
-      position: absolute;
-      right: 9px;
+      margin-left: -32px;
+      z-index: 2;
     }
-  }
-
-  .${BlueprintClasses.POPOVER_WRAPPER} {
-    display: flex;
-    align-items: center;
   }
 `;
 
@@ -64,6 +60,7 @@ type FilterHeaderProps = {
   onChange: (value: string) => void;
   onSelect: (value?: string) => void;
   defaultValue: string;
+  value: string;
   searchQuery: string;
 };
 
@@ -74,11 +71,13 @@ function FilterHeader(props: FilterHeaderProps) {
   return (
     <Wrapper>
       <TooltipComponent
+        className="debugger-clear-logs"
         content={createMessage(CLEAR_LOG_TOOLTIP)}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position="bottom"
       >
         <Icon
+          className="t--debugger-clear-logs"
           name="cancel"
           onClick={() => dispatch(clearLogs())}
           size={IconSize.XL}
@@ -89,35 +88,37 @@ function FilterHeader(props: FilterHeaderProps) {
           className="debugger-search"
           cypressSelector="t--debugger-search"
           defaultValue={props.defaultValue}
-          height="28px"
+          height="32px"
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
-          width="160px"
+          value={props.value}
+          width="100%"
         />
         {props.searchQuery && (
           <Icon
             fillColor={get(theme, "colors.debugger.jsonIcon")}
             hoverFillColor={get(theme, "colors.debugger.message")}
-            name="close-circle"
+            name="cross"
             onClick={() => {
               if (searchRef.current) {
                 props.onChange("");
                 searchRef.current.value = "";
               }
             }}
-            size={IconSize.XXL}
+            size={IconSize.LARGE}
           />
         )}
       </div>
       <Dropdown
         className="debugger-filter"
+        height="32px"
         onSelect={props.onSelect}
-        optionWidth="115px"
+        optionWidth="220px"
         options={props.options}
         selected={props.selected}
         showLabelOnly
-        width="115px"
+        width="220px"
       />
     </Wrapper>
   );
