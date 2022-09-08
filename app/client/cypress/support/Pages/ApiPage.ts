@@ -40,6 +40,7 @@ export class ApiPage {
   private _confirmBeforeRunningAPI =
     "input[name='confirmBeforeExecute'][type='checkbox']";
   _saveAsDS = ".t--store-as-datasource";
+  _responseStatus = "//div[@id='root']";
 
   CreateApi(
     apiName = "",
@@ -253,5 +254,10 @@ export class ApiPage {
     cy.xpath(this._verbToSelect(verb))
       .should("be.visible")
       .click();
+  }
+
+  ResponseStatusCheck(statusCode: string) {
+    cy.xpath(this._responseStatus).should("be.visible");
+    cy.xpath(this._responseStatus).contains(statusCode);
   }
 }
