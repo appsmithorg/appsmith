@@ -45,6 +45,14 @@ import { theme } from "constants/DefaultTheme";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
+import {
+  getJSPaneResponsePaneHeight,
+  getJSPaneResponseSelectedTabIndex,
+} from "selectors/jsPaneSelectors";
+import {
+  setJsPaneResponsePaneHeight,
+  setJsPaneResponseSelectedTabIndex,
+} from "actions/jsPaneActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -312,14 +320,29 @@ function JSResponseView(props: Props) {
     },
   ];
 
+  const selectedResponseTab = useSelector(getJSPaneResponseSelectedTabIndex);
+  const responseTabHeight = useSelector(getJSPaneResponsePaneHeight);
+  const setSelectedResponseTab = useCallback((selectedIndex: number) => {
+    dispatch(setJsPaneResponseSelectedTabIndex(selectedIndex));
+  }, []);
+
+  const setResponseHeight = useCallback((height: number) => {
+    dispatch(setJsPaneResponsePaneHeight(height));
+  }, []);
+
   return (
-    <ResponseContainer ref={panelRef}>
-      <Resizer panelRef={panelRef} />
+    <ResponseContainer
+      ref={panelRef}
+      style={{ height: `${responseTabHeight}px` }}
+    >
+      <Resizer onResizeComplete={setResponseHeight} panelRef={panelRef} />
       <TabbedViewWrapper>
         <EntityBottomTabs
           containerRef={panelRef}
-          defaultIndex={0}
+          defaultIndex={selectedResponseTab}
           expandedHeight={theme.actionsBottomTabInitialHeight}
+          onSelectIndex={setSelectedResponseTab}
+          selectedTabIndex={selectedResponseTab}
           tabs={tabs}
         />
       </TabbedViewWrapper>

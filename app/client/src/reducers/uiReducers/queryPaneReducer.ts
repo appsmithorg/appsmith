@@ -8,7 +8,6 @@ import { omit } from "lodash";
 import { Action } from "entities/Action";
 import { ActionResponse } from "api/ActionAPI";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 
 const initialState: QueryPaneReduxState = {
   isFetching: false,
@@ -201,7 +200,7 @@ const queryPaneReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: ApiPaneReduxState,
+    state: QueryPaneReduxState,
     action: ReduxAction<{ height: number }>,
   ) => {
     const { height } = action.payload;
