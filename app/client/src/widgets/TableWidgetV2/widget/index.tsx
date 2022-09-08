@@ -1582,6 +1582,18 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const isCellEditMode =
           props.cell.column.alias === this.props.editableCell.column &&
           rowIndex === this.props.editableCell.index;
+
+        let validationErrorMessage;
+
+        if (isCellEditMode) {
+          validationErrorMessage =
+            column.validation.isColumnEditableCellRequired &&
+            (isNil(this.props.editableCell.inputValue) ||
+              this.props.editableCell.inputValue === "")
+              ? "This field is required"
+              : column.validation?.errorMessage;
+        }
+
         return (
           <DefaultCell
             accentColor={this.props.accentColor}
@@ -1610,9 +1622,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             toggleCellEditMode={this.toggleCellEditMode}
-            validationErrorMessage={
-              props.column.columnProperties.validation?.errorMessage
-            }
+            validationErrorMessage={validationErrorMessage}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
