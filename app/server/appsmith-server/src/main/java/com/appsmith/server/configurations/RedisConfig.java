@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -94,7 +95,7 @@ public class RedisConfig {
             } else if ((t instanceof Map)) {
                 final Map<?, ?> data = (Map<?, ?>) t;
                 if (data.size() == 1
-                        && (data.get("google") instanceof OAuth2AuthorizedClient || data.get("github") instanceof OAuth2AuthorizedClient)) {
+                        && (data.get(LoginSource.GOOGLE.name().toLowerCase()) instanceof OAuth2AuthorizedClient || data.get(LoginSource.GITHUB.name().toLowerCase()) instanceof OAuth2AuthorizedClient)) {
                     final String firstAndOnlyKey = (String) data.keySet().iterator().next();
                     final OAuth2AuthorizedClient client = (OAuth2AuthorizedClient) ((Map<?, ?>) t).get(firstAndOnlyKey);
                     final OAuth2AuthorizedClientDTO dto;
