@@ -178,7 +178,7 @@ describe("Input Widget Functionality", function() {
   it("Input icon shows on icon select", () => {
     cy.selectDropdownValue(commonlocators.dataType, "Text");
     cy.wait(1000);
-    cy.moveToStyleTab()
+    cy.moveToStyleTab();
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
     });
