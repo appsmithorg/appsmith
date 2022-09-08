@@ -1,8 +1,14 @@
 import React from "react";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import { Text, Case, FontWeight, TextType } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Icon,
+  IconSize,
+  Text,
+  Case,
+  FontWeight,
+  TextType,
+} from "design-system";
 import { Classes } from "components/ads/common";
 
 const LinkText = styled.div<{ color?: string }>`

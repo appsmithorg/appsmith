@@ -95,6 +95,7 @@ Cypress.Commands.add("onlyQueryRun", () => {
     .last()
     .click({ force: true })
     .wait(1000);
+  cy.get(".cs-spinner").should("not.exist");
 });
 
 Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
@@ -212,6 +213,7 @@ Cypress.Commands.add(
       .contains(option)
       .first()
       .click();
+    cy.wait(2000);
   },
 );
 
@@ -279,6 +281,7 @@ Cypress.Commands.add(
         newOption,
         isDynamic,
       );
+      cy.wait(2000);
     }
   },
 );

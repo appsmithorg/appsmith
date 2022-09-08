@@ -2,7 +2,7 @@ import { PositionedContainerProps } from "components/designSystems/appsmith/Posi
 import { Layers } from "constants/Layers";
 
 import { useMemo } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 import { getSelectedWidgets } from "selectors/ui";
 import { useSelector } from "store";

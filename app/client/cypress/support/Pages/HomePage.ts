@@ -24,12 +24,16 @@ export class HomePage {
     ".t--workspace-section:contains(" +
     workspaceName +
     ") button:contains('Share')";
-  private _email = "//input[@type='email']";
+  private _email =
+    "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
-  private _userRole = (role: string) =>
+  private _userRole = (role: string, workspaceName: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
+    " - " +
+    workspaceName +
     "']";
+
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
@@ -50,12 +54,8 @@ export class HomePage {
     "//td[text()='" +
     email +
     "']/following-sibling::td//span[contains(@class, 't--deleteUser')]";
-  private _userRoleDropDown = (email: string, role: string) =>
-    "//td[text()='" +
-    email +
-    "']/following-sibling::td//span[text()='" +
-    role +
-    "']";
+  private _userRoleDropDown = (role: string, WorkspaceName: string) =>
+    "//span[text()='" + role + " - " + WorkspaceName + "']";
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
@@ -64,7 +64,7 @@ export class HomePage {
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
-  _usersEmailList = "[data-colindex='1']";
+  _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
@@ -145,7 +145,7 @@ export class HomePage {
       .first()
       .click({ force: true });
     this.agHelper.Sleep(500);
-    cy.xpath(this._userRole(role)).click({ force: true });
+    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
     this.agHelper.ClickButton("Invite");
     cy.wait("@mockPostInvite")
       .its("request.headers")
@@ -162,11 +162,11 @@ export class HomePage {
 
   public NavigateToHome() {
     cy.get(this._homeIcon).click({ force: true });
-    this.agHelper.Sleep(3000);
+    this.agHelper.Sleep(2000);
     //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
-    cy.get(this._homePageAppCreateBtn)
-      .should("be.visible")
-      .should("be.enabled");
+    this.agHelper
+      .AssertElementVisible(this._homePageAppCreateBtn)
+      .then(($ele) => expect($ele).be.enabled);
   }
 
   public CreateNewApplication() {
@@ -186,7 +186,7 @@ export class HomePage {
     this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
     this.agHelper.Sleep(2000);
-    if(appname) this.RenameApplication(appname);
+    if (appname) this.RenameApplication(appname);
     cy.get(this._buildFromScratchActionCard).click();
     //this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
   }
@@ -292,6 +292,7 @@ export class HomePage {
       .find(this._workspaceName)
       .find(this._optionsIcon)
       .click({ force: true });
+
     cy.xpath(this._visibleTextSpan("Members"))
       .last()
       .click({ force: true });
@@ -300,7 +301,8 @@ export class HomePage {
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.Sleep(2500); //wait for members page to load!
+    this.agHelper.Sleep(2500);
+    //wait for members page to load!
   }
 
   public UpdateUserRoleInWorkspace(
@@ -310,11 +312,13 @@ export class HomePage {
     newRole: string,
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
-    cy.xpath(this._userRoleDropDown(email, currentRole))
+    cy.log(workspaceName, email, currentRole);
+    cy.xpath(this._userRoleDropDown(currentRole, workspaceName))
       .first()
-      .trigger("click");
+      .click({ force: true });
+
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-    cy.xpath(this._visibleTextSpan(newRole))
+    cy.xpath(this._visibleTextSpan(`${newRole} - ${workspaceName}`))
       .last()
       .click({ force: true });
     this.agHelper.Sleep();
@@ -331,6 +335,28 @@ export class HomePage {
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
     this.agHelper.Sleep(3500);
   }
+  public InviteUserToWorkspaceFromApp(
+    workspaceName: string,
+    email: string,
+    role: string,
+  ) {
+    const successMessage = "The user has been invited successfully";
+    this.StubPostHeaderReq();
+    cy.xpath(this._email)
+      .click({ force: true })
+      .type(email);
+    cy.xpath(this._selectRole)
+      .first()
+      .click({ force: true });
+    this.agHelper.Sleep(500);
+    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
+    this.agHelper.ClickButton("Invite");
+    cy.wait("@mockPostInvite")
+      .its("request.headers")
+      .should("have.property", "origin", "Cypress");
+    cy.contains(email, { matchCase: false });
+    cy.contains(successMessage);
+  }
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
     cy.get(this._homeIcon).click();
@@ -339,7 +365,7 @@ export class HomePage {
     );
     this.agHelper.GetNClick(this._wsAction("Delete Workspace")); //Are you sure?
     this.agHelper.GetNClick(this._wsAction("Are you sure?")); //
-    this.agHelper.ValidateToastMessage("Workspace deleted successfully");
+    this.agHelper.AssertContains("Workspace deleted successfully");
   }
 
   public AssertNCloseImport() {
@@ -348,7 +374,7 @@ export class HomePage {
   }
 
   public AssertImportToast() {
-    this.agHelper.WaitUntilToastDisappear("Application imported successfully");
+    this.agHelper.AssertContains("Application imported successfully");
     this.agHelper.Sleep(5000); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }
@@ -363,7 +389,7 @@ export class HomePage {
   public DuplicateApplication(appliName: string) {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._duplicateApp);
-    this.agHelper.WaitUntilToastDisappear("Duplicating application...");
+    this.agHelper.AssertContains("Duplicating application...");
   }
 
   public DeleteApplication(appliName: string) {

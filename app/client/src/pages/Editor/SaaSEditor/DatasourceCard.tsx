@@ -11,7 +11,7 @@ import {
   getPluginImages,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";

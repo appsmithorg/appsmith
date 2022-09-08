@@ -7,13 +7,16 @@ import styled, { Skin } from "constants/DefaultTheme";
 import { AnyStyledComponent, css } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import Button from "components/ads/Button";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
-import Dropdown from "components/ads/Dropdown";
+import {
+  Button,
+  Dropdown,
+  InputWrapper,
+  TextInput,
+  TextInputProps,
+} from "design-system";
 import { IconWrapper } from "constants/IconConstants";
-import { InputWrapper } from "components/ads/TextInput";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox } from "design-system";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -27,7 +30,10 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   align-items: center;
   flex-direction: ${(props) =>
     props.orientation === "VERTICAL" ? "column" : "row"};
-  padding: ${(props) => (props.isAction ? "0" : "4px 0 ")};
+  padding-top: 4px;
+  &:not(:last-of-type) {
+    padding-bottom: 4px;
+  }
   & > label {
     color: ${(props) => props.theme.colors.propertyPane.label};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
@@ -48,7 +54,7 @@ export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    color: ${Colors.GRAY_700};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }

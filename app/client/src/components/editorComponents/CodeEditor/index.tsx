@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import CodeMirror, {
   Annotation,
   EditorConfiguration,
@@ -55,7 +55,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/markHelper
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -76,7 +76,7 @@ import {
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import Button from "components/ads/Button";
+import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
@@ -100,6 +100,7 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -329,7 +330,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
-          this.props.additionalDynamicData,
         );
 
         this.lintCode(editor);
@@ -468,10 +468,9 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    additionalDynamicData?: AdditionalDynamicDataTree,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData, additionalDynamicData);
+      return helper(editor, dynamicData);
     });
   }
 
@@ -517,6 +516,8 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: true });
 
     if (!cm.state.completionActive) {
+      updateCustomDef(this.props.additionalDynamicData);
+
       const entityInformation = this.getEntityInformation();
       const { blockCompletions } = this.props;
       this.hinters

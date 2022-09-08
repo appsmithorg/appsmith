@@ -1,9 +1,8 @@
 import React, { ReactNode } from "react";
 import { CommonComponentProps, Classes, Variant } from "./common";
 import styled from "styled-components";
-import Icon, { IconSize } from "./Icon";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system";
 
 export type CalloutProps = CommonComponentProps & {
   variant?: Variant;

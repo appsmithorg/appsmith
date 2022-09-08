@@ -1,13 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Form, reduxForm, InjectedFormProps, Field } from "redux-form";
-import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
+import { CREATE_APPLICATION_FORM_NAME } from "@appsmith/constants/forms";
 import {
   createMessage,
   ERROR_MESSAGE_NAME_EMPTY,
   NAME_SPACE_ERROR,
 } from "@appsmith/constants/messages";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   CreateApplicationFormValues,
   createApplicationFormSubmitHandler,

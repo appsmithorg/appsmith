@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
 import { useDispatch } from "react-redux";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Colors } from "constants/Colors";
 
 export type CalloutType = "Warning" | "Info" | "Notify";
@@ -34,7 +34,6 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
     margin-right: 16px;
     border-radius: 50%;
     border: 2px solid var(--appsmith-color-black-800);
-    align-self: baseline;
   }
   .cross-icon {
     align-self: baseline;

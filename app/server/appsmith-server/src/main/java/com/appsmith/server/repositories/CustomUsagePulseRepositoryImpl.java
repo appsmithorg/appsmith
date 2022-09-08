@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomUsagePulseRepositoryImpl extends CustomUsagePulseRepositoryCEImpl implements CustomUsagePulseRepository {
 
-    public CustomUsagePulseRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomUsagePulseRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

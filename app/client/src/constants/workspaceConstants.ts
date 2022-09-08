@@ -18,9 +18,11 @@ export type Workspace = {
 };
 
 export type WorkspaceUser = {
-  username: string;
   name: string;
-  roleName: string;
+  username: string;
+  userId: string;
+  permissionGroupId: string;
+  permissionGroupName: string;
   isDeleting: boolean;
   isChangingRole: boolean;
 };
@@ -28,5 +30,5 @@ export type WorkspaceUser = {
 export type Workspaces = {
   applications: ApplicationPayload[];
   workspace: Workspace;
-  userRoles: WorkspaceUser[];
+  users: WorkspaceUser[];
 };

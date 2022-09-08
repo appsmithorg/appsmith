@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 export const getActiveTourIndex = (state: AppState) =>
   state.ui.tour?.activeTourIndex;

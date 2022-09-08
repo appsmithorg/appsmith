@@ -7,7 +7,7 @@ import { klona } from "klona";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import propertyConfig, { contentConfig, styleConfig } from "./propertyConfig";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   EventType,

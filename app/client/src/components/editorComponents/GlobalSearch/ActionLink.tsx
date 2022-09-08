@@ -1,5 +1,5 @@
 import React from "react";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { useContext } from "react";
 import styled, { withTheme } from "styled-components";
@@ -34,7 +34,7 @@ export const ActionLink = withTheme(
         <Icon
           fillColor={theme.colors.globalSearch.searchItemText}
           name="link"
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent) => {
             e.stopPropagation(); // to prevent toggleModal getting called twice
             searchContext?.handleItemLinkClick(
               null,

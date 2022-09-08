@@ -2,7 +2,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsWorkspaces } from "./applicationSelectors";
 import { getWidgets } from "sagas/selectors";
@@ -13,7 +13,6 @@ import {
 } from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
-import { previewModeSelector } from "./editorSelectors";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -46,6 +45,10 @@ export const getInOnboardingWidgetSelection = (state: AppState) =>
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 
+const previewModeSelector = (state: AppState) => {
+  return state.ui.editor.isPreviewMode;
+};
+
 export const getIsOnboardingTasksView = createSelector(
   getCanvasWidgets,
   getIsFirstTimeUserOnboardingEnabled,
@@ -68,20 +71,20 @@ export const getIsOnboardingTasksView = createSelector(
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>
-  state.ui.onBoarding.exploring;
-export const inGuidedTour = (state: AppState) => state.ui.onBoarding.guidedTour;
+  state.ui.guidedTour.exploring;
+export const inGuidedTour = (state: AppState) => state.ui.guidedTour.guidedTour;
 export const getCurrentStep = (state: AppState) =>
-  state.ui.onBoarding.currentStep;
+  state.ui.guidedTour.currentStep;
 export const wasTableWidgetSelected = (state: AppState) =>
-  state.ui.onBoarding.tableWidgetWasSelected;
+  state.ui.guidedTour.tableWidgetWasSelected;
 export const showEndTourDialogSelector = (state: AppState) =>
-  state.ui.onBoarding.showEndTourDialog;
+  state.ui.guidedTour.showEndTourDialog;
 export const showDeviatingDialogSelector = (state: AppState) =>
-  state.ui.onBoarding.showDeviatingDialog;
+  state.ui.guidedTour.showDeviatingDialog;
 export const showPostCompletionMessage = (state: AppState) =>
-  state.ui.onBoarding.showPostCompletionMessage;
+  state.ui.guidedTour.showPostCompletionMessage;
 export const forceShowContentSelector = (state: AppState) =>
-  state.ui.onBoarding.forceShowContent;
+  state.ui.guidedTour.forceShowContent;
 
 export const getTableWidget = createSelector(getWidgets, (widgets) => {
   return Object.values(widgets).find(
@@ -154,7 +157,7 @@ export const containerWidgetAdded = createSelector(getWidgets, (widgets) => {
 });
 
 export const getHadReachedStep = (state: AppState) =>
-  state.ui.onBoarding.hadReachedStep;
+  state.ui.guidedTour.hadReachedStep;
 
 export const isNameInputBoundSelector = createSelector(
   getTableWidget,
@@ -297,11 +300,11 @@ export const buttonWidgetHasOnSuccessBinding = createSelector(
 );
 
 export const showSuccessMessage = (state: AppState) =>
-  state.ui.onBoarding.showSuccessMessage;
+  state.ui.guidedTour.showSuccessMessage;
 export const showInfoMessageSelector = (state: AppState) =>
-  state.ui.onBoarding.showInfoMessage;
+  state.ui.guidedTour.showInfoMessage;
 
-export const loading = (state: AppState) => state.ui.onBoarding.loading;
+export const loading = (state: AppState) => state.ui.guidedTour.loading;
 
 // To find an workspace where the user has permission to create an
 // application

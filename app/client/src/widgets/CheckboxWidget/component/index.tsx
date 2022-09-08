@@ -38,7 +38,9 @@ export const CheckboxLabel = styled.div<{
   vertical-align: top;
   text-align: ${({ labelPosition }) => labelPosition.toLowerCase()};
   ${({ disabled, labelStyle, labelTextColor, labelTextSize }) => `
-  color: ${disabled ? Colors.GREY_8 : labelTextColor || "inherit"};
+  color: ${
+    disabled ? "var(--wds-color-text-disabled)" : labelTextColor || "inherit"
+  };
   font-size: ${labelTextSize ?? "inherit"};
   font-weight: ${labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${

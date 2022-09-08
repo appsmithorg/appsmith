@@ -1,12 +1,16 @@
-import Button from "components/ads/Button";
 import styled from "constants/DefaultTheme";
 import { createMessage, SNIPPET_TOOLTIP } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Category, Size } from "./Button";
-import { TooltipComponent } from "design-system";
-import AdsIcon, { IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Icon as AdsIcon,
+  IconSize,
+  Size,
+  TooltipComponent,
+} from "design-system";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 

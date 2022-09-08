@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getMainCanvas } from "./WidgetUtils";
 import styled from "styled-components";
-import Select from "rc-select";
-import { LabelValueType } from "rc-select/lib/interface/generator";
+import { BaseSelectRef } from "rc-select";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 
 const BackDropContainer = styled.div`
@@ -25,7 +24,7 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
   // This is to make the dropdown controlled
   const [isOpen, setIsOpen] = useState(false);
   const popupContainer = useRef<HTMLElement>(getMainCanvas());
-  const selectRef = useRef<Select<LabelValueType[]> | null>(null);
+  const selectRef = useRef<BaseSelectRef | null>(null);
 
   useEffect(() => {
     if (!popupContainer.current) {

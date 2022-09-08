@@ -80,10 +80,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 )
                 .flatMap(application -> {
                     String themeId = application.getEditModeThemeId();
-                    if(applicationMode == ApplicationMode.PUBLISHED) {
+                    if (applicationMode == ApplicationMode.PUBLISHED) {
                         themeId = application.getPublishedModeThemeId();
                     }
-                    if(StringUtils.hasLength(themeId)) {
+                    if (StringUtils.hasLength(themeId)) {
                         return repository.findById(themeId, READ_THEMES);
                     } else { // theme id is not present, return default theme
                         return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
@@ -125,7 +125,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                             Theme currentTheme = themeTuple2.getT1();
                             Theme newTheme = themeTuple2.getT2();
                             Mono<Theme> saveThemeMono;
-                            if(!newTheme.isSystemTheme()) {
+                            if (!newTheme.isSystemTheme()) {
                                 // we'll create a copy of newTheme
                                 newTheme.setId(null);
                                 newTheme.setApplicationId(null);
@@ -142,13 +142,16 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                 if (StringUtils.hasLength(currentTheme.getId()) && !currentTheme.isSystemTheme()
                                         && !StringUtils.hasLength(currentTheme.getApplicationId())) {
                                     // current theme is neither a system theme nor app theme, delete the user customizations
-                                    return repository.delete(currentTheme).then(applicationRepository.setAppTheme(
-                                            application.getId(), savedTheme.getId(),null, MANAGE_APPLICATIONS
-                                    )).thenReturn(savedTheme);
+                                    return repository.delete(currentTheme)
+                                            .then(applicationRepository.setAppTheme(
+                                                    application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
+                                            ))
+                                            .thenReturn(savedTheme);
                                 } else {
                                     return applicationRepository.setAppTheme(
-                                            application.getId(), savedTheme.getId(),null, MANAGE_APPLICATIONS
-                                    ).thenReturn(savedTheme);
+                                                    application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
+                                            )
+                                            .thenReturn(savedTheme);
                                 }
                             }).flatMap(savedTheme ->
                                     analyticsService.sendObjectEvent(AnalyticsEvents.APPLY, savedTheme)
@@ -159,7 +162,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<String> getDefaultThemeId() {
-        if(StringUtils.isEmpty(defaultThemeId)) {
+        if (StringUtils.isEmpty(defaultThemeId)) {
             return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
                 defaultThemeId = theme.getId();
                 return theme.getId();
@@ -170,23 +173,25 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication) {
-        return repository.findById(srcThemeId, READ_THEMES).flatMap(theme -> {
-            if (theme.isSystemTheme()) { // it's a system theme, no need to copy
-                return Mono.just(theme);
-            } else { // it's a customized theme, create a copy and return the copy
-                theme.setId(null); // setting id to null so that save method will create a new instance
-                theme.setApplicationId(null);
-                theme.setWorkspaceId(null);
-                theme.setPolicies(policyGenerator.getAllChildPolicies(
-                        destApplication.getPolicies(), Application.class, Theme.class
-                ));
-                return repository.save(theme);
-            }
-        });
+        return repository.findById(srcThemeId, READ_THEMES)
+                .flatMap(theme -> {
+                    if (theme.isSystemTheme()) { // it's a system theme, no need to copy
+                        return Mono.just(theme);
+                    } else { // it's a customized theme, create a copy and return the copy
+                        theme.setId(null); // setting id to null so that save method will create a new instance
+                        theme.setApplicationId(null);
+                        theme.setWorkspaceId(null);
+                        theme.setPolicies(policyGenerator.getAllChildPolicies(
+                                destApplication.getPolicies(), Application.class, Theme.class
+                        ));
+                        return repository.save(theme);
+                    }
+                });
     }
 
     /**
      * Publishes a theme from edit mode to published mode
+     *
      * @param applicationId application id
      * @return Mono of theme object that was set in published mode
      */
@@ -195,7 +200,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         // fetch application to make sure user has permission to manage this application
         return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS).flatMap(application -> {
             Mono<Theme> editModeThemeMono;
-            if(!StringUtils.hasLength(application.getEditModeThemeId())) { // theme id is empty, use the default theme
+            if (!StringUtils.hasLength(application.getEditModeThemeId())) { // theme id is empty, use the default theme
                 editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
             } else { // theme id is not empty, fetch it by id
                 editModeThemeMono = repository.findById(application.getEditModeThemeId(), READ_THEMES);
@@ -223,10 +228,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      * Creates a new theme if Theme with provided themeId is a system theme.
      * It sets the properties from the provided theme resource to the existing or newly created theme.
      * It'll also update the application if a new theme was created.
-     * @param currentThemeId ID of the existing theme that might be updated
+     *
+     * @param currentThemeId      ID of the existing theme that might be updated
      * @param targetThemeResource new theme DTO that'll be stored as a new theme or override the existing theme
-     * @param application Application that contains the theme
-     * @param applicationMode In which mode this theme will be set
+     * @param application         Application that contains the theme
+     * @param applicationMode     In which mode this theme will be set
      * @return Updated or newly created theme Publisher
      */
     private Mono<Theme> saveThemeForApplication(String currentThemeId, Theme targetThemeResource, Application application, ApplicationMode applicationMode) {
@@ -236,11 +242,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     currentTheme.setConfig(targetThemeResource.getConfig());
                     currentTheme.setStylesheet(targetThemeResource.getStylesheet());
                     currentTheme.setProperties(targetThemeResource.getProperties());
-                    if(StringUtils.hasLength(targetThemeResource.getName())) {
+                    if (StringUtils.hasLength(targetThemeResource.getName())) {
                         currentTheme.setName(targetThemeResource.getName());
                     }
 
-                    if(StringUtils.hasLength(targetThemeResource.getDisplayName())) {
+                    if (StringUtils.hasLength(targetThemeResource.getDisplayName())) {
                         currentTheme.setDisplayName(targetThemeResource.getDisplayName());
                     } else {
                         currentTheme.setDisplayName(currentTheme.getName());
@@ -253,13 +259,14 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         currentTheme.setPolicies(policyGenerator.getAllChildPolicies(
                                 application.getPolicies(), Application.class, Theme.class
                         ));
+                        // Not setting the application id in the theme because only the named themes have an application id
                         newThemeCreated = true;
                     }
                     return repository.save(currentTheme).zipWith(Mono.just(newThemeCreated));
                 }).flatMap(savedThemeTuple -> {
                     Theme theme = savedThemeTuple.getT1();
                     if (savedThemeTuple.getT2()) { // new theme created, update the application
-                        if(applicationMode == ApplicationMode.EDIT) {
+                        if (applicationMode == ApplicationMode.EDIT) {
                             return applicationRepository.setAppTheme(
                                     application.getId(), theme.getId(), null, MANAGE_APPLICATIONS
                             ).then(analyticsService.sendUpdateEvent(theme)).thenReturn(theme);
@@ -276,13 +283,14 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
+
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
                 .flatMap(application -> {
                     String themeId = application.getEditModeThemeId();
-                    if(!StringUtils.hasLength(themeId)) { // theme id is not present, raise error
+                    if (!StringUtils.hasLength(themeId)) { // theme id is not present, raise error
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     } else {
                         return repository.findById(themeId, READ_THEMES)
@@ -294,6 +302,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     Application application = themeAndApplicationTuple.getT2();
                     theme.setId(null); // we'll create a copy so setting id to null
                     theme.setSystemTheme(false);
+                    // A named theme differs from a non-named one by having an application id
                     theme.setApplicationId(application.getId());
                     theme.setWorkspaceId(application.getWorkspaceId());
                     theme.setPolicies(policyGenerator.getAllChildPolicies(
@@ -301,13 +310,13 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     ));
 
                     // need to remove it when FE adapts displayName everywhere
-                    if(StringUtils.hasLength(resource.getName())) {
+                    if (StringUtils.hasLength(resource.getName())) {
                         theme.setName(resource.getName());
                     } else {
                         theme.setName(theme.getName() + " copy");
                     }
 
-                    if(StringUtils.hasLength(resource.getDisplayName())) {
+                    if (StringUtils.hasLength(resource.getDisplayName())) {
                         theme.setDisplayName(resource.getDisplayName());
                     } else {
                         theme.setDisplayName(theme.getName());
@@ -322,15 +331,16 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      * in published mode even user has changed the theme in edit mode. When user switches back to another theme and
      * publish the application where that app was previously published with a custom theme, we should delete that copy.
      * Otherwise there'll be a lot of orphan theme copies that were set a published mode once but are used no more.
+     *
      * @param themeId id of the theme that'll be deleted
      * @return deleted theme mono
      */
     private Mono<Theme> deletePublishedCustomizedThemeCopy(String themeId) {
-        if(!StringUtils.hasLength(themeId)) {
+        if (!StringUtils.hasLength(themeId)) {
             return Mono.empty();
         }
         return repository.findById(themeId).flatMap(theme -> {
-            if(!theme.isSystemTheme()) {
+            if (!theme.isSystemTheme()) {
                 return repository.deleteById(themeId).thenReturn(theme);
             }
             return Mono.just(theme);
@@ -343,7 +353,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.THEME))
                 ).flatMap(theme -> {
-                    if (StringUtils.hasLength(theme.getApplicationId())) { // only persisted themes are allowed to delete
+                    if (StringUtils.hasLength(theme.getApplicationId())) { // only persisted themes are allowed to be deleted
                         return repository.archive(theme);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -373,11 +383,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, id))
                 ).flatMap(theme -> {
-                    if(StringUtils.hasLength(themeDto.getName())) {
+                    if (StringUtils.hasLength(themeDto.getName())) {
                         theme.setName(themeDto.getName());
                     }
 
-                    if(StringUtils.hasLength(themeDto.getDisplayName())) {
+                    if (StringUtils.hasLength(themeDto.getDisplayName())) {
                         theme.setDisplayName(themeDto.getDisplayName());
                     }
                     return repository.save(theme);
@@ -386,7 +396,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication) {
-        if(theme == null) { // this application was exported without theme, assign the legacy theme to it
+        if (theme == null) { // this application was exported without theme, assign the legacy theme to it
             return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
         } else if (theme.isSystemTheme()) {
             return repository.getSystemThemeByName(theme.getName())
@@ -410,6 +420,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     /**
      * This will archive themes related to the provided Application.
      * It'll delete any theme that was saved for this application. It'll also delete the draft themes for this Application.
+     *
      * @param application Application object
      * @return Provided Application publisher
      */
@@ -429,8 +440,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      * - If current theme is a customized one and source theme is also customized, replace the current theme properties with source theme properties
      * - If current theme is a customized one and source theme is system theme, set the current theme to system and delete the old one
      * - If current theme is system theme, update the current theme as per source theme
+     *
      * @param destinationApp Application object
-     * @param sourceJson ApplicationJSON from file or Git
+     * @param sourceJson     ApplicationJSON from file or Git
      * @return Updated application that has editModeThemeId and publishedModeThemeId set
      */
 
@@ -459,14 +471,14 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     private Mono<Theme> updateExistingAppThemeFromJSON(Application destinationApp, String existingThemeId, Theme themeFromJson) {
-        if(!StringUtils.hasLength(existingThemeId)) {
+        if (!StringUtils.hasLength(existingThemeId)) {
             return getOrSaveTheme(themeFromJson, destinationApp);
         }
         return repository.findById(existingThemeId, READ_THEMES).flatMap(existingTheme -> {
-            if(existingTheme.isSystemTheme()) {
+            if (existingTheme.isSystemTheme()) {
                 return getOrSaveTheme(themeFromJson, destinationApp);
             } else {
-                if(themeFromJson.isSystemTheme()) {
+                if (themeFromJson.isSystemTheme()) {
                     return getOrSaveTheme(themeFromJson, destinationApp).flatMap(importedTheme -> {
                         // need to delete the old existingTheme
                         return repository.archiveById(existingThemeId).thenReturn(importedTheme);

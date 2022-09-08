@@ -51,12 +51,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -136,17 +134,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> orgMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_APPLICATIONS)
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_DATASOURCES)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
-                    return orgMono.map(org -> {
-                        Set<Policy> policySet = org.getPolicies().stream()
-                                .filter(policy ->
-                                        policy.getPermission().equals(WORKSPACE_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(WORKSPACE_READ_APPLICATIONS.getValue())
-                                ).collect(Collectors.toSet());
-
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Workspace.class, Datasource.class);
+                    return workspaceMono.map(workspace -> {
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Datasource.class);
                         datasource.setPolicies(documentPolicies);
                         return datasource;
                     });
@@ -292,17 +284,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
-                .zipWith(currentUserMono)
-                .flatMap(tuple -> {
-                    Datasource unsavedDatasource = tuple.getT1();
-                    User user = tuple.getT2();
-                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(unsavedDatasource, user);
-                    return repository.save(userPermissionsInDatasource).map(savedDatasource -> {
+                .flatMap(unsavedDatasource -> {
+
+                    return repository.save(unsavedDatasource).map(savedDatasource -> {
                         // datasource.pluginName is a transient field. It was set by validateDatasource method
                         // object from db will have pluginName=null so set it manually from the unsaved datasource obj
                         savedDatasource.setPluginName(unsavedDatasource.getPluginName());

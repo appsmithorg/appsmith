@@ -1,9 +1,4 @@
-import {
-  WidgetBuilder,
-  WidgetDataProps,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
 import React from "react";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
@@ -16,6 +11,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -25,7 +21,7 @@ class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
-    WidgetBuilder<WidgetProps, WidgetState>
+    WidgetBuilder<CanvasWidgetStructure, WidgetState>
   > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
@@ -146,10 +142,10 @@ class WidgetFactory {
   }
 
   static createWidget(
-    widgetData: WidgetDataProps,
+    widgetData: CanvasWidgetStructure,
     renderMode: RenderMode,
   ): React.ReactNode {
-    const widgetProps: WidgetProps = {
+    const widgetProps = {
       key: widgetData.widgetId,
       isVisible: true,
       ...widgetData,
@@ -157,7 +153,6 @@ class WidgetFactory {
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
-      // TODO validate props here
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {

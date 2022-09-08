@@ -69,11 +69,18 @@ const workspaceReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.CHANGE_WORKSPACE_USER_ROLE_SUCCESS]: (
     draftState: WorkspaceReduxState,
-    action: ReduxAction<{ username: string; roleName: string }>,
+    action: ReduxAction<{
+      userId: string;
+      username: string;
+      name: string;
+      permissionGroupId: string;
+      permissionGroupName: string;
+    }>,
   ) => {
     draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
       if (user.username === action.payload.username) {
-        user.roleName = action.payload.roleName;
+        user.permissionGroupId = action.payload.permissionGroupId;
+        user.permissionGroupName = action.payload.permissionGroupName;
         user.isChangingRole = false;
       }
     });

@@ -2,7 +2,7 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconName } from "design-system";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { APP_MODE } from "entities/App";
 import { ApplicationVersion } from "actions/applicationActions";
@@ -127,10 +127,15 @@ export interface ApplicationObject {
   userPermissions: string[];
 }
 
-export interface UserRoles {
+export interface PermissionGroup {
+  permissionGroupId: string;
+  permissionGroupName: string;
+}
+
+export interface UserRoles extends PermissionGroup {
   name: string;
-  roleName: string;
   username: string;
+  userId: string;
 }
 
 export interface WorkspaceApplicationObject {
@@ -139,7 +144,7 @@ export interface WorkspaceApplicationObject {
     id: string;
     name: string;
   };
-  userRoles: Array<UserRoles>;
+  users: Array<UserRoles>;
 }
 export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
   data: {
