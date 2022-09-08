@@ -6153,10 +6153,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.18":
-  version "1.0.18"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.18.tgz#0f75d0bceb7bb0e4f2b561bae78a1fdb91cf7933"
-  integrity sha512-Zj8WNcKoYFFoY9jntr3Hmi82T++zCK3M7+jf0bdNJN0jiUu8GHOUz1jvAegPwmj4OUjp19RcrQXoNHQEtZRcXQ==
+"design-system@npm:@appsmithorg/design-system@1.0.20":
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.20.tgz#40e2e8a713561da75cd89d547f6e65090582e389"
+  integrity sha512-IgaVqbH03x2KpIjvCx4rL9JQky9DLynZ+raNoywnpb6sBr+7el30r+QX2aKMfkXh/H4ntHhWAjkGwHqEdRK4uQ==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
@@ -10581,16 +10581,10 @@ mochawesome@^7.1.2:
     strip-ansi "^6.0.1"
     uuid "^8.3.2"
 
-moment-timezone@*:
-  version "0.5.31"
-  resolved "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.31.tgz"
-  dependencies:
-    moment ">= 2.9.0"
-
-moment-timezone@^0.5.34:
-  version "0.5.34"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.34.tgz#a75938f7476b88f155d3504a9343f7519d9a405c"
-  integrity sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==
+moment-timezone@*, moment-timezone@^0.5.35:
+  version "0.5.35"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.35.tgz#6fa2631bdbe8ff04f6b8753f7199516be6dc9839"
+  integrity sha512-cY/pBOEXepQvlgli06ttCTKcIf8cD1nmNwOKQQAdHBqYApQSpAqotBMX0RJZNgMp6i0PlZuf1mFtnlyEkwyvFw==
   dependencies:
     moment ">= 2.9.0"
 

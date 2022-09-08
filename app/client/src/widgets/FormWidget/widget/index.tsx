@@ -1,5 +1,6 @@
 import React from "react";
-import _, { get, some, isEqual } from "lodash";
+import _, { get, some } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { WidgetProps } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget, {
@@ -73,7 +74,7 @@ class FormWidget extends ContainerWidget {
     const firstChild = this.getChildContainer();
     if (firstChild) {
       const formData = this.getFormData(firstChild);
-      if (!isEqual(formData, this.props.data)) {
+      if (!equal(formData, this.props.data)) {
         this.props.updateWidgetMetaProperty("data", formData);
       }
     }

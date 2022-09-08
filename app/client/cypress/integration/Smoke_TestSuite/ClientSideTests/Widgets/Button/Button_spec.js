@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-const iconAlignmentProperty = ".t--property-control-iconalignment";
+const iconAlignmentProperty = ".t--property-control-position";
 
 describe("Button Widget Functionality", function() {
   before(() => {
@@ -15,8 +15,10 @@ describe("Button Widget Functionality", function() {
   });
 
   it("Icon alignment should not change when changing the icon", () => {
+    cy.moveToStyleTab();
+    cy.wait(500);
     // Add an icon
-    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+    cy.get(".t--property-control-selecticon .bp3-icon-caret-down").click({
       force: true,
     });
 
@@ -44,7 +46,7 @@ describe("Button Widget Functionality", function() {
       .next()
       .should("have.class", "bp3-icon-add");
     // Change the existing icon
-    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+    cy.get(".t--property-control-selecticon .bp3-icon-caret-down").click({
       force: true,
     });
     cy.get(".bp3-icon-airplane")

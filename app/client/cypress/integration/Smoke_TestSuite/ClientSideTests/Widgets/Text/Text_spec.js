@@ -19,10 +19,9 @@ describe("Text Widget Functionality", function() {
       widgetsPage.textWidget,
       widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
     );
-
     //Changing the text label
     cy.testCodeMirror(this.data.TextLabelValue);
-
+    cy.moveToStyleTab();
     cy.ChangeTextStyle(
       this.data.TextHeading,
       commonlocators.headingTextStyle,
@@ -48,6 +47,7 @@ describe("Text Widget Functionality", function() {
 
   it("Text-TextStyle Label Validation", function() {
     cy.testCodeMirror(this.data.TextLabelValue);
+    cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.ChangeTextStyle(
       this.data.TextLabel,
@@ -61,6 +61,7 @@ describe("Text Widget Functionality", function() {
   });
 
   it("Text-TextStyle Body Validation", function() {
+    cy.moveToStyleTab();
     cy.ChangeTextStyle(
       this.data.TextBody,
       commonlocators.bodyTextStyle,
@@ -77,7 +78,6 @@ describe("Text Widget Functionality", function() {
     cy.get(commonlocators.toastBody)
       .first()
       .contains("Cyclic");
-
     cy.PublishtheApp();
     cy.get(commonlocators.bodyTextStyle).should(
       "have.text",

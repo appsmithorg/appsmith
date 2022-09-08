@@ -1,4 +1,4 @@
-import { Severity, ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
@@ -33,6 +33,7 @@ describe("getFilteredErrors", () => {
           },
           severity: Severity.ERROR,
           timestamp: "02:40:10",
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
         },
       },
       canvasWidgets: {
@@ -90,6 +91,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -174,6 +176,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -282,6 +285,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -390,6 +394,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -524,6 +529,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -608,6 +614,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -632,6 +639,7 @@ describe("getFilteredErrors", () => {
         "main_input_id-isVisible": {
           id: "main_input_id-isVisible",
           logType: 5,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           text: "The value at isVisible is invalid",
           messages: [
             {
@@ -693,6 +701,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -764,6 +773,8 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
@@ -804,6 +815,7 @@ describe("getFilteredErrors", () => {
             widgetType: "INPUT_WIDGET_V2",
           },
           severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
         },
       },
