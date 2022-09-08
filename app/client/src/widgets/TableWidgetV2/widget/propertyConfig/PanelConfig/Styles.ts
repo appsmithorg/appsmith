@@ -1,6 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType } from "../../propertyUtils";
+import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
 
 export default {
   sectionName: "Styles",
@@ -8,7 +9,13 @@ export default {
     return hideByColumnType(
       props,
       propertyPath,
-      [ColumnTypes.TEXT, ColumnTypes.DATE, ColumnTypes.NUMBER, ColumnTypes.URL],
+      [
+        ColumnTypes.TEXT,
+        ColumnTypes.DATE,
+        ColumnTypes.NUMBER,
+        ColumnTypes.URL,
+        ColumnTypes.CHECKBOX,
+      ],
       true,
     );
   },
@@ -16,7 +23,13 @@ export default {
   children: [
     {
       propertyName: "horizontalAlignment",
-      label: "Text Align",
+      label: (props: TableWidgetProps, propertyPath: string) => {
+        const basePropertyPath = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${basePropertyPath}.columnType`);
+        return columnType === "checkbox"
+          ? "Horizontal Alignment"
+          : "Text Align";
+      },
       controlType: "ICON_TABS",
       options: [
         {
@@ -53,6 +66,7 @@ export default {
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },
@@ -180,6 +194,7 @@ export default {
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
           ColumnTypes.EDIT_ACTIONS,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },
@@ -235,6 +250,7 @@ export default {
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
           ColumnTypes.EDIT_ACTIONS,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },

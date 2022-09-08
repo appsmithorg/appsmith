@@ -5,6 +5,8 @@ export class CommonLocators {
     _queryNameTxt = ".t--action-name-edit-field input"
     _dsName = ".t--edit-datasource-name span"
     _dsNameTxt = ".t--edit-datasource-name input"
+    _widgetName = (widgetName: string) => ".editable-text-container:contains('"+widgetName+"') span.bp3-editable-text-content"
+    _widgetNameTxt = ".editable-text-container input.bp3-editable-text-input"
     _saveStatusSuccess = ".t--save-status-success"
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"

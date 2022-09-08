@@ -421,6 +421,12 @@ export default {
       isBefore: (a, b) => {
         return moment(a).isBefore(moment(b), "minute");
       },
+      isChecked: (a) => {
+        return a === true;
+      },
+      isUnChecked: (a) => {
+        return a === false;
+      },
     };
     let searchKey;
 

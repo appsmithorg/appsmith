@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef } from "react";
-import _, { get } from "lodash";
+import _, { get, isFunction } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
@@ -441,7 +441,8 @@ const PropertyControl = memo((props: Props) => {
     [props.panelConfig, onPropertyChange, props.propertyName],
   );
 
-  const { label, propertyName } = props;
+  const { propertyName } = props;
+
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
     if (
@@ -450,6 +451,10 @@ const PropertyControl = memo((props: Props) => {
     ) {
       return null;
     }
+
+    const label = isFunction(props.label)
+      ? props.label(widgetProperties, propertyName)
+      : props.label;
 
     dataTreePath =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
@@ -478,6 +483,7 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
+      label,
     };
     config.expected = getExpectedValue(props.validation);
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
@@ -495,7 +501,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName,
     );
     const isConvertible = !!props.isJSConvertible;
-    const className = props.label
+    const className = label
       .split(" ")
       .join("")
       .toLowerCase();

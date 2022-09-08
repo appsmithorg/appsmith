@@ -81,13 +81,13 @@ type PropertySectionProps = {
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
-  return prev.id === next.id;
+  return prev.id === next.id && prev.hidden === next.hidden;
 };
 
 //Context is being provided to re-render anything that subscribes to this context on open and close
@@ -119,9 +119,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   if (!widgetProps) return null;
 
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "")) {
-      return null;
-    }
+    return null;
   }
 
   const className = props.name
