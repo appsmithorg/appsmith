@@ -295,10 +295,10 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     applicationId = response.body.data.id;
     localStorage.setItem("applicationId", applicationId);
   });
-  cy.get("#loading").should("not.exist");
+  //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
   //cy.reload();
+  cy.get(generatePage.buildFromScratchActionCard).should("be.visible");
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
