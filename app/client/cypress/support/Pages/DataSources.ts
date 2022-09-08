@@ -181,7 +181,7 @@ export class DataSources {
       .parent("div")
       .trigger("click", { force: true });
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Duplicate key error"),
+      this.locator._specificToast("Duplicate key error"), 2000
     );
     if (waitForToastDisappear)
       this.agHelper.WaitUntilToastDisappear("datasource created");
