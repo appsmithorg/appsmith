@@ -2580,4 +2580,23 @@ public class DatabaseChangelog2 {
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
+
+    @ChangeSet(order = "015", id = "add-oracle-plugin", author = "")
+    public void addOraclePlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Oracle Plugin");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("oracle-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://assets.appsmith.com/oracle-db-icon.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle-plugin");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
 }

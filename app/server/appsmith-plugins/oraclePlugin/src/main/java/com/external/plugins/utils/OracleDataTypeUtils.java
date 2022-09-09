@@ -1,13 +1,29 @@
 package com.external.plugins.utils;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Map;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.external.constants.DataType.*;
+import static com.appsmith.external.constants.DataType.STRING;
+import static com.appsmith.external.constants.DataType.LONG;
+import static com.appsmith.external.constants.DataType.BINARY;
+import static com.appsmith.external.constants.DataType.BOOLEAN;
 import static com.external.plugins.utils.OracleDataTypeUtils.DataType.DATE;
-import static com.external.plugins.utils.OracleDataTypeUtils.DataType.*;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.CHAR;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.NCHAR;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.VARCHAR;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.VARCHAR2;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.NVARCHAR2;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.NUMBER;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.BIN_DOUBLE;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.BIN_FLOAT;
+import static com.external.plugins.utils.OracleDataTypeUtils.DataType.BOOL;
 
 public class OracleDataTypeUtils {
 

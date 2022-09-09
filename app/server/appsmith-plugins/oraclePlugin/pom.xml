@@ -44,26 +44,7 @@
             <version>1.18.8</version>
             <scope>provided</scope>
         </dependency>
-        <!--<dependency>
-		  <groupId>com.oracle.database.r2dbc</groupId>
-		  <artifactId>oracle-r2dbc</artifactId>
-		  <version>0.1.0</version>
-		  <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.projectreactor</groupId>
-                    <artifactId>reactor-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.reactivestreams</groupId>
-                    <artifactId>reactive-streams</artifactId>
-                </exclusion>
-            </exclusions>
-		</dependency>-->
-        <!-- Test Dependencies -->
+       <!-- Test Dependencies -->
         <dependency>
             <groupId>com.oracle.ojdbc</groupId>
             <artifactId>ojdbc8</artifactId>

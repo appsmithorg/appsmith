@@ -2,30 +2,54 @@ package com.external.plugins;
 
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.ActionExecutionRequest;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.services.SharedConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.DriverManager;
 import java.sql.Connection;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Properties;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertArrayEquals;
 
-public class OraclePluginTest extends AbstractContainerDatabaseTest {
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+
+public class OraclePluginTest {
 
     public class MockSharedConfig implements SharedConfig {
 
@@ -82,14 +106,6 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
                 properties
         )) {
 
-            /*try (Statement statement = connection.createStatement()) {
-                statement.execute("SET TIME ZONE 'UTC'");
-            }*/
-
-            /*try (Statement statement = connection.createStatement()) {
-                statement.execute("DROP TABLE IF EXISTS users");
-            }*/
-
             try (Statement statement = connection.createStatement()) {
                 statement.execute("CREATE TABLE users (\n" +
                         "    id NUMBER,\n" +
@@ -120,7 +136,7 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
                         "INSERT INTO users VALUES (" +
-                                "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, TO_DATE('2018-12-31', 'yyyy/mm/dd')"+
+                                "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, TO_DATE('2018-12-31', 'yyyy/mm/dd')" +
                                 ", '10char', NULL, 9.99, 100, 99.99, 99.99, 99.99, 99.99, to_timestamp ( '2022-06-07 09:00:00.123 AM', 'YYYY-MM-DD HH:MI:SS.FF AM' )" +
                                 ", to_timestamp ( '2022-06-07 09:00:00.123 AM', 'YYYY-MM-DD HH:MI:SS.FF AM' ), to_timestamp ( '2022-06-07 09:00:00.123 AM', 'YYYY-MM-DD HH:MI:SS.FF AM' )" +
                                 ", NULL, NULL, NULL, NULL)");
@@ -129,6 +145,7 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
             throwable.printStackTrace();
         }
     }
+
     private void runTest(OracleContainer container, String databaseName, String username, String password)
             throws SQLException {
         //Test config was honored
@@ -143,28 +160,20 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
         assertEquals("A basic SELECT query succeeds", 1, resultSetInt);
     }
 
-    //@Test
     public void testDefaultSettings() throws SQLException {
         try (OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME);) {
             runTest(oracle, "xepdb1", "test", "test");
-
-            // Match against the last '/'
             String urlSuffix = oracle.getJdbcUrl().split("(\\/)(?!.*\\/)", 2)[1];
             assertEquals("xepdb1", urlSuffix);
         }
     }
 
-    //@Test
     public void testPluggableDatabase() throws SQLException {
         try (OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME).withDatabaseName("testDB")) {
             runTest(oracle, "testDB", "test", "test");
         }
     }
 
-    //@Test
-    public void testPluggableDatabaseAndCustomUser() throws SQLException {
-
-    }
     @Test
     public void testConnectOracleContainer() {
 
@@ -176,6 +185,7 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
                 .assertNext(Assert::assertNotNull)
                 .verifyComplete();
     }
+
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -275,6 +285,7 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
                 })
                 .verifyComplete();
     }
+
     @Test
     public void testPreparedStatementWithoutQuotes() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -352,85 +363,82 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
                 .verifyComplete();
     }
 
-        //@Test
-        public void testCustomUser() throws SQLException {
-            try (
-                    OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME)
-                            .withUsername("testUser")
-                            .withPassword("testPassword")
-            ) {
-                runTest(oracle, "xepdb1", "testUser", "testPassword");
+    public void testCustomUser() throws SQLException {
+        try (
+                OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME)
+                        .withUsername("testUser")
+                        .withPassword("testPassword")
+        ) {
+            runTest(oracle, "xepdb1", "testUser", "testPassword");
+        }
+    }
+
+    public void testSID() throws SQLException {
+        try (OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME).usingSid();) {
+            runTest(oracle, "xepdb1", "system", "test");
+
+            // Match against the last ':'
+            String urlSuffix = oracle.getJdbcUrl().split("(\\:)(?!.*\\:)", 2)[1];
+            assertEquals("xe", urlSuffix);
+        }
+    }
+
+    public void testSIDAndCustomPassword() throws SQLException {
+        try (
+                OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME)
+                        .usingSid()
+                        .withPassword("testPassword");
+        ) {
+            runTest(oracle, "xepdb1", "system", "testPassword");
+        }
+    }
+
+    public void testErrorPaths() throws SQLException {
+        try (OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME)) {
+            try {
+                oracle.withDatabaseName("XEPDB1");
+                fail("Should not have been able to set database name to xepdb1.");
+            } catch (IllegalArgumentException e) {
+                //expected
+            }
+
+            try {
+                oracle.withDatabaseName("");
+                fail("Should not have been able to set database name to nothing.");
+            } catch (IllegalArgumentException e) {
+                //expected
+            }
+
+            try {
+                oracle.withUsername("SYSTEM");
+                fail("Should not have been able to set username to system.");
+            } catch (IllegalArgumentException e) {
+                //expected
+            }
+
+            try {
+                oracle.withUsername("SYS");
+                fail("Should not have been able to set username to sys.");
+            } catch (IllegalArgumentException e) {
+                //expected
+            }
+
+            try {
+                oracle.withUsername("");
+                fail("Should not have been able to set username to nothing.");
+            } catch (IllegalArgumentException e) {
+                //expected
+            }
+
+            try {
+                oracle.withPassword("");
+                fail("Should not have been able to set password to nothing.");
+            } catch (IllegalArgumentException e) {
+                //expected
             }
         }
+    }
 
-        //@Test
-        public void testSID() throws SQLException {
-            try (OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME).usingSid();) {
-                runTest(oracle, "xepdb1", "system", "test");
-
-                // Match against the last ':'
-                String urlSuffix = oracle.getJdbcUrl().split("(\\:)(?!.*\\:)", 2)[1];
-                assertEquals("xe", urlSuffix);
-            }
-        }
-
-        //@Test
-        public void testSIDAndCustomPassword() throws SQLException {
-            try (
-                    OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME)
-                            .usingSid()
-                            .withPassword("testPassword");
-            ) {
-                runTest(oracle, "xepdb1", "system", "testPassword");
-            }
-        }
-
-        //@Test
-        public void testErrorPaths() throws SQLException {
-            try (OracleContainer oracle = new OracleContainer(ORACLE_DOCKER_IMAGE_NAME)) {
-                try {
-                    oracle.withDatabaseName("XEPDB1");
-                    fail("Should not have been able to set database name to xepdb1.");
-                } catch (IllegalArgumentException e) {
-                    //expected
-                }
-
-                try {
-                    oracle.withDatabaseName("");
-                    fail("Should not have been able to set database name to nothing.");
-                } catch (IllegalArgumentException e) {
-                    //expected
-                }
-
-                try {
-                    oracle.withUsername("SYSTEM");
-                    fail("Should not have been able to set username to system.");
-                } catch (IllegalArgumentException e) {
-                    //expected
-                }
-
-                try {
-                    oracle.withUsername("SYS");
-                    fail("Should not have been able to set username to sys.");
-                } catch (IllegalArgumentException e) {
-                    //expected
-                }
-
-                try {
-                    oracle.withUsername("");
-                    fail("Should not have been able to set username to nothing.");
-                } catch (IllegalArgumentException e) {
-                    //expected
-                }
-
-                try {
-                    oracle.withPassword("");
-                    fail("Should not have been able to set password to nothing.");
-                } catch (IllegalArgumentException e) {
-                    //expected
-                }
-            }
-        }
     private DatasourceConfiguration createDatasourceConfiguration() {
         DBAuth authDTO = new DBAuth();
         authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
@@ -454,4 +462,22 @@ public class OraclePluginTest extends AbstractContainerDatabaseTest {
 
         return dsConfig;
     }
+
+    protected ResultSet performQuery(JdbcDatabaseContainer<?> container, String sql) throws SQLException {
+        DataSource ds = getDataSource(container);
+        Statement statement = ds.getConnection().createStatement();
+        statement.execute(sql);
+        ResultSet resultSet = statement.getResultSet();
+        resultSet.next();
+        return resultSet;
     }
+
+    protected DataSource getDataSource(JdbcDatabaseContainer<?> container) {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(container.getJdbcUrl());
+        hikariConfig.setUsername(container.getUsername());
+        hikariConfig.setPassword(container.getPassword());
+        hikariConfig.setDriverClassName(container.getDriverClassName());
+        return new HikariDataSource(hikariConfig);
+    }
+}

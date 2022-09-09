@@ -5088,26 +5088,6 @@ public class DatabaseChangelog {
         /* set key formData.smartSubstitution */
         setSmartSubstitutionFieldForEachAction(firestoreActions, mongockTemplate);
     }
-
-    @ChangeSet(order = "119", id = "add-oracle-plugin", author = "")
-    public void addOraclePlugin(MongockTemplate mongoTemplate) {
-        Plugin plugin = new Plugin();
-        plugin.setName("Oracle Plugin");
-        plugin.setType(PluginType.DB);
-        plugin.setPackageName("oracle-plugin");
-        plugin.setUiComponent("DbEditorForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://your-plugin-icon-location.png");
-        plugin.setDocumentationLink("https://link-to-plugin-documentation.html");
-        plugin.setDefaultInstall(true);
-        try {
-            mongoTemplate.insert(plugin);
-        } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
-        }
-
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
-    }
     
     private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
                                                         MongockTemplate mongockTemplate) {
