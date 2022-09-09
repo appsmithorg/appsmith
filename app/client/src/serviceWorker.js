@@ -67,3 +67,13 @@ registerRoute(
 registerRoute(({ url }) => {
   return url.pathname.includes("index.html");
 }, new NetworkOnly());
+
+self.addEventListener("updatefound", (event) => {
+  console.log("updateFound");
+  console.log("caches", caches.keys());
+});
+
+self.addEventListener("activate", (event) => {
+  console.log("activate");
+  console.log("caches", caches.keys());
+});
