@@ -478,10 +478,10 @@ export class AggregateHelper {
       : cy.get(selector);
     return locator
       .eq(index)
-      .focus()
+      .click()
       .type(value, {
         parseSpecialCharSequences: false,
-        delay: 3,
+        //delay: 3,
         force: true,
       });
   }
