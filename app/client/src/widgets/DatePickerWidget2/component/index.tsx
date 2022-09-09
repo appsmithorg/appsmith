@@ -34,37 +34,60 @@ const StyledControlGroup = styled(ControlGroup)<{
 
   &&& {
     .${Classes.INPUT} {
-      color: ${Colors.GREY_10};
-      background: ${Colors.WHITE};
+      color: var(--wds-color-text);
+      background: var(--wds-color-bg);
       border-radius: ${({ borderRadius }) => borderRadius} !important;
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
       border-color: ${({ isValid }) =>
-        !isValid ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
+        !isValid
+          ? `var(--wds-color-border-danger);`
+          : `var(--wds-color-border);`}
       width: 100%;
       height: 100%;
       min-height: 32px;
       align-items: center;
       transition: none;
 
-      &:active {
+      &:active:not(:disabled) {
         border-color: ${({ accentColor, isValid }) =>
-          !isValid ? Colors.DANGER_SOLID : accentColor};
+          !isValid ? `var(--wds-color-border-danger)` : accentColor};
       }
 
-      &:focus {
+      &:hover:not(:disabled) {
+        border-color: ${({ isValid }) =>
+          !isValid
+            ? `var(--wds-color-border-danger-hover)`
+            : `var(--wds-color-border-hover)`};
+      }
+
+      &:focus:not(:disabled) {
         outline: 0;
         border: 1px solid;
         border-color: ${({ accentColor, isValid }) =>
-          !isValid ? Colors.DANGER_SOLID : accentColor};
-        box-shadow: ${({ accentColor }) =>
-          `0px 0px 0px 3px ${lightenColor(accentColor)} !important;`}
+          !isValid
+            ? `var(--wds-color-border-danger-focus) !important`
+            : accentColor};
+        box-shadow: ${({ accentColor, isValid }) =>
+          `0px 0px 0px 2px ${
+            isValid
+              ? lightenColor(accentColor)
+              : "var(--wds-color-border-danger-focus-light)"
+          } !important;`}
       }
     }
 
     .${Classes.INPUT}:disabled {
-      background: ${Colors.GREY_1};
-      color: ${Colors.GREY_7};
+      background: var(--wds-color-bg-disabled);
+      color: var(--wds-color-text-disabled)
+    }
+
+    .${Classes.INPUT}:not(:disabled)::placeholder {
+      color:var(--wds-color-text-light);
+    }
+
+    .${Classes.INPUT}::placeholder {
+      color: var(--wds-color-text-disabled-light);
     }
 
     .${Classes.INPUT_GROUP} {
@@ -307,6 +330,8 @@ class DatePickerComponent extends React.Component<
               parseDate={this.parseDate}
               placeholder={"Select Date"}
               popoverProps={{
+                portalContainer:
+                  document.getElementById("art-board") || undefined,
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
