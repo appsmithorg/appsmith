@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   overflow: auto;
 
   .modal-header {
-    padding-bottom: ${(props) => props.theme.spaces[5]}px;
+    padding-bottom: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
