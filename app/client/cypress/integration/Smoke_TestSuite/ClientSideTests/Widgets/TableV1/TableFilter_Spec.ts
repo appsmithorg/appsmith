@@ -25,7 +25,7 @@ describe("Verify various Table_Filter combinations", function() {
       JSON.stringify(dataSet.TableInput),
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    agHelper.Escape();
+    agHelper.PressEscape();
     deployMode.DeployApp();
   });
 
@@ -707,6 +707,7 @@ describe("Verify various Table_Filter combinations", function() {
     });
 
     table.OpenNFilterTable("FirstName", "starts with", "wa", "OR", 1);
+    agHelper.Sleep();
     agHelper
       .GetText(table._showPageItemsCount)
       .then(($count) => expect($count).contain("3"));

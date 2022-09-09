@@ -22,7 +22,7 @@ import {
 import { Layers } from "constants/Layers";
 import Resizable from "resizable/resize";
 import { getCanvasClassName } from "utils/generators";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";

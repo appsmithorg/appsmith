@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { SIGNUP_FORM_NAME } from "constants/forms";
+import { SIGNUP_FORM_NAME } from "@appsmith/constants/forms";
 import {
   RouteComponentProps,
   useHistory,
@@ -43,12 +43,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
+import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "@appsmith/constants/forms";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 

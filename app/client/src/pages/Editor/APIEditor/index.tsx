@@ -5,7 +5,7 @@ import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import { PaginationField } from "api/ActionAPI";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { RouteComponentProps } from "react-router";
 import {
   ActionData,

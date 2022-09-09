@@ -6,7 +6,7 @@ import {
   useCallback,
 } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";

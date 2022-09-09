@@ -35,7 +35,6 @@ const Wrapper = styled.div`
   padding: 9px 0;
   line-height: 13px;
   position: relative;
-  font-weight: 500;
   font-size: 14px;
   & span.token {
     color: ${Colors.OCEAN_GREEN};

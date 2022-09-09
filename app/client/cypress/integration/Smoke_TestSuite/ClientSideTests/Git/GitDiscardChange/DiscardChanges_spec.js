@@ -9,7 +9,6 @@ describe("Git discard changes:", function() {
   const query1 = "get_users";
   const query2 = "get_allusers";
   const jsObject = "JSObject1";
-  const jsObject2 = "JSObject2";
   const page2 = "Page_2";
   const page3 = "Page_3";
 
@@ -17,9 +16,6 @@ describe("Git discard changes:", function() {
     // Create new postgres datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
 
     cy.testSaveDatasource();
@@ -53,7 +49,7 @@ describe("Git discard changes:", function() {
     cy.WaitAutoSave();
     cy.runQuery();
 
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.wait(1000);
     cy.get(".t--entity-item:contains(Page1)")
       .first()
@@ -64,14 +60,14 @@ describe("Git discard changes:", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type(`{{${query1}.data[0].name}}`, {
         parseSpecialCharSequences: false,
       });
     cy.wait(2000);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage(page2);
     cy.wait(1000);
     cy.get(`.t--entity-item:contains(${page2})`)
@@ -84,8 +80,8 @@ describe("Git discard changes:", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
     cy.get("#switcher--explorer").click({ force: true });
@@ -137,19 +133,19 @@ describe("Git discard changes:", function() {
     // discard changes
     cy.gitDiscardChanges();
     cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify query2 is not present
     cy.get(`.t--entity-name:contains(${query2})`).should("not.exist");
   });
 
   it("3. Add new JSObject , discard changes verify JSObject is deleted", () => {
     cy.createJSObject('return "Success";');
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.gitDiscardChanges();
     cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject2 is deleted after discarding changes
     cy.get(`.t--entity-name:contains(${jsObject})`).should("not.exist");
   });
@@ -157,7 +153,7 @@ describe("Git discard changes:", function() {
   it("4. Delete page2 and trigger discard flow, page2 should be available again", () => {
     cy.Deletepage(page2);
     // verify page is deleted
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
     cy.wait(2000);
     cy.gitDiscardChanges();
@@ -174,7 +170,7 @@ describe("Git discard changes:", function() {
 
   it("5. Delete Query1 and trigger discard flow, Query1 will be recovered", () => {
     // navigate to Page1
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-item:contains("Page1")`)
       .first()
       .click();
@@ -194,7 +190,7 @@ describe("Git discard changes:", function() {
 
   it("6. Delete JSObject1 and trigger discard flow, JSObject1 should be active again", () => {
     // navigate to page2
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-item:contains(${page2})`)
       .first()
       .click();
@@ -203,7 +199,7 @@ describe("Git discard changes:", function() {
     /* create and save jsObject */
     // cy.createJSObject('return "Success";');
     // delete jsObject1
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(`.t--entity-item:contains(${jsObject})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
@@ -213,7 +209,7 @@ describe("Git discard changes:", function() {
     // discard changes
     cy.gitDiscardChanges();
     cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-item:contains(${page2})`)
       .first()
       .click();
@@ -234,7 +230,7 @@ describe("Git discard changes:", function() {
     cy.gitDiscardChanges();
     cy.wait(5000);
     // verify page3 is removed
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
   });
 

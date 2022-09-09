@@ -14,7 +14,7 @@ describe("Execute Action Functionality", function() {
     agHelper.AssertElementVisible(locator._widgetInCanvas("textwidget"));
     deployMode.DeployApp();
 
-    agHelper.AssertElementContains(
+    agHelper.GetNAssertContains(
       locator._widgetInDeployed("textwidget"),
       "User count :5",
     );
@@ -34,7 +34,7 @@ describe("Execute Action Functionality", function() {
 
     agHelper.GetNClickByContains(locator._deployedPage, "Page2");
 
-    agHelper.AssertElementContains(
+    agHelper.GetNAssertContains(
       locator._widgetInDeployed("textwidget"),
       "User count :10",
     );
@@ -50,7 +50,7 @@ describe("Execute Action Functionality", function() {
 
     agHelper.GetNClickByContains(locator._deployedPage, "Page1");
 
-    agHelper.AssertElementContains(
+    agHelper.GetNAssertContains(
       locator._widgetInDeployed("textwidget"),
       "User count :5",
     );

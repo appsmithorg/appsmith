@@ -58,7 +58,7 @@ export interface ControlProps extends ControlData, ControlFunctions {
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }
 export interface ControlData
-  extends Omit<PropertyPaneControlConfig, "additionalAutoComplete"> {
+  extends Omit<PropertyPaneControlConfig, "additionalAutoComplete" | "label"> {
   propertyValue?: any;
   defaultValue?: any;
   errorMessage?: string;
@@ -69,6 +69,7 @@ export interface ControlData
   parentPropertyName: string;
   parentPropertyValue: unknown;
   additionalDynamicData: Record<string, Record<string, unknown>>;
+  label: string;
 }
 export interface ControlFunctions {
   onPropertyChange?: (

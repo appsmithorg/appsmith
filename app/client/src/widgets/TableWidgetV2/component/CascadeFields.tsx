@@ -155,6 +155,10 @@ const typeOperatorsMap: Record<ReadOnlyColumnTypes, DropdownOption[]> = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
+  [ColumnTypes.CHECKBOX]: [
+    { label: "is checked", value: "isChecked", type: "" },
+    { label: "is unchecked", value: "isUnChecked", type: "" },
+  ],
 };
 
 const operatorOptions: DropdownOption[] = [
@@ -169,6 +173,7 @@ const columnTypeNameMap: Record<ReadOnlyColumnTypes, string> = {
   [ReadOnlyColumnTypes.NUMBER]: "Num",
   [ReadOnlyColumnTypes.DATE]: "Date",
   [ReadOnlyColumnTypes.URL]: "Url",
+  [ReadOnlyColumnTypes.CHECKBOX]: "Check",
 };
 
 function RenderOption(props: { type: string; title: string; active: boolean }) {

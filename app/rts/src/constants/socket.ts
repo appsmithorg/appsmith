@@ -8,3 +8,4 @@ export const START_EDIT_EVENT_NAME = "collab:start_edit";
 export const LEAVE_EDIT_EVENT_NAME = "collab:leave_edit";
 export const MOUSE_POINTER_EVENT_NAME = "collab:mouse_pointer";
 export const RELEASE_VERSION_EVENT_NAME = "info:release_version";
+export const PAGE_VISIBILITY_EVENT_NAME = "info:page_visibility";

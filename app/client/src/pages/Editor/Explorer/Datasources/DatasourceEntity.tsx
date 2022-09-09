@@ -13,7 +13,7 @@ import {
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
@@ -91,7 +91,7 @@ const ExplorerDatasourceEntity = React.memo(
     });
 
     const getDatasourceStructure = useCallback(
-      (isOpen) => {
+      (isOpen: boolean) => {
         if (!datasourceStructure && isOpen) {
           dispatch(fetchDatasourceStructure(props.datasource.id));
         }

@@ -9,8 +9,14 @@ import {
 } from "./constants";
 import { DropdownOption } from "design-system";
 import { find, memoize } from "lodash";
-import { ECMA_VERSION, NodeTypes, SourceType } from "constants/ast";
-import { isLiteralNode, isPropertyNode, PropertyNode } from "workers/ast";
+import {
+  isLiteralNode,
+  isPropertyNode,
+  PropertyNode,
+  ECMA_VERSION,
+  NodeTypes,
+  SourceType,
+} from "@shared/ast";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;

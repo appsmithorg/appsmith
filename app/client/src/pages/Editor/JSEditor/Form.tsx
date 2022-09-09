@@ -26,11 +26,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
-import { isEmpty, isEqual } from "lodash";
+import { isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
@@ -76,11 +77,11 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const parseErrors = useSelector(
     (state: AppState) =>
       getJSCollectionParseErrors(state, currentJSCollection.name),
-    isEqual,
+    equal,
   );
   const jsActions = useSelector(
     (state: AppState) => getJSActions(state, currentJSCollection.id),
-    isEqual,
+    equal,
   );
   const activeJSActionId = useSelector((state: AppState) =>
     getActiveJSActionId(state, currentJSCollection.id),

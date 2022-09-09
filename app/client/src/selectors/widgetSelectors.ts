@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";

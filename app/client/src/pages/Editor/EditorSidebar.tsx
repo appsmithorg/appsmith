@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { APIEditorRouteParams } from "constants/routes";
 import { Spinner, IIconProps } from "@blueprintjs/core";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";

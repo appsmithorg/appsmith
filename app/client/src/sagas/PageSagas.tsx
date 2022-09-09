@@ -1,5 +1,5 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   Page,
   ReduxAction,

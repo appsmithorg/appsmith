@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";

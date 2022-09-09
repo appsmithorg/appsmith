@@ -25,7 +25,7 @@ import {
   getLintErrorMessage,
   getLintSeverity,
 } from "components/editorComponents/CodeEditor/lintHelpers";
-import { ECMA_VERSION } from "constants/ast";
+import { ECMA_VERSION } from "@shared/ast";
 import {
   IGNORED_LINT_ERRORS,
   SUPPORTED_WEB_APIS,

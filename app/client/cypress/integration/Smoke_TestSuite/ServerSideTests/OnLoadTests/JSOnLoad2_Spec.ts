@@ -71,7 +71,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     homePage.DeleteApplication("JSOnLoadFailureTest");
     homePage.DeleteApplication("JSOnLoadFailureTest (1)");
     homePage.DeleteApplication("JSOnLoadFailureTest Copy");
-    agHelper.WaitUntilToastDisappear("Deleting application...");
+    agHelper.AssertContains("Deleting application...");
     //homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
@@ -175,7 +175,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("7. Tc #1909 - Verify the sequence of of JS object on page load", () => {
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1");
     jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
     jsEditor.EnableDisableAsyncFuncSettings("city", true, false);

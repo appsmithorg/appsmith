@@ -13,9 +13,9 @@ describe("Table Widget V2 property pane feature validation", function() {
   it("1. Test to validate text color and text background", function() {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
+    cy.moveToStyleTab();
     // Click on text color input field
     cy.selectColor("textcolor");
-
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
@@ -49,13 +49,13 @@ describe("Table Widget V2 property pane feature validation", function() {
     );
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidgetv2");
-
+    cy.moveToStyleTab();
     // Change the cell background color and enter purple in input field
-    cy.get(`${widgetsPage.cellBackground} input`)
+    cy.get(`.t--property-control-cellbackgroundcolor input`)
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
-    cy.assertPageSave();
+    //cy.assertPageSave();
     cy.PublishtheApp();
     cy.wait(4000);
 
@@ -73,6 +73,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("id");
     cy.readTableV2dataValidateCSS(0, 5, "background-color", "rgba(0, 0, 0, 0)");
+    cy.moveToStyleTab();
     cy.get(".t--property-control-cellbackgroundcolor")
       .find(".t--js-toggle")
       .click();

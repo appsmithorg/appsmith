@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
 import { Button, Category, Size, Text, TextType } from "design-system";

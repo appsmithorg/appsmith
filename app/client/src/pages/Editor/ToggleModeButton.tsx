@@ -6,7 +6,7 @@ import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
 import { Indices } from "constants/Layers";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";

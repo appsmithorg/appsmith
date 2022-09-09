@@ -52,6 +52,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.WorkspaceService;
@@ -90,6 +91,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,15 +102,21 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
+import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
+import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -1819,14 +1827,14 @@ public class DatabaseChangelog2 {
                             ActionCollection.class);
 
                     // Update Themes
-                        // First update all the named themes with the new policies
+                    // First update all the named themes with the new policies
                     Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
                     mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).in(applicationIds)),
                             new Update().set("policies", themePolicies),
                             Theme.class);
 
-                        // Also update the non-named themes.
-                        // Get the theme ids to update
+                    // Also update the non-named themes.
+                    // Get the theme ids to update
                     Set<String> themeIdSet = mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())), Application.class)
                             .stream()
                             .flatMap(application -> {
@@ -2063,7 +2071,7 @@ public class DatabaseChangelog2 {
 
         // Create instance management permission group
         PermissionGroup instanceManagerPermissionGroup = new PermissionGroup();
-        instanceManagerPermissionGroup.setName(FieldName.INSTACE_ADMIN_ROLE);
+        instanceManagerPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
         instanceManagerPermissionGroup.setPermissions(
                 Set.of(
                         new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)
@@ -2095,12 +2103,16 @@ public class DatabaseChangelog2 {
 
         mongockTemplate.save(savedInstanceConfig);
 
-        // Also give the permission group permission to update & assign to itself
+        // Also give the permission group permission to unassign & assign & read to itself
         Policy updatePermissionGroupPolicy = Policy.builder().permission(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
         Policy assignPermissionGroupPolicy = Policy.builder().permission(ASSIGN_PERMISSION_GROUPS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        Policy readPermissionGroupPolicy = Policy.builder().permission(READ_PERMISSION_GROUPS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
@@ -2110,7 +2122,8 @@ public class DatabaseChangelog2 {
         permissions.addAll(
                 Set.of(
                         new Permission(savedPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS),
-                        new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS)
+                        new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
+                        new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUPS)
                 )
         );
         savedPermissionGroup.setPermissions(permissions);
@@ -2277,4 +2290,271 @@ public class DatabaseChangelog2 {
                 assignedToUserIds_deleted_compound_index
         );
     }
+
+    @ChangeSet(order = "033", id = "update-super-users", author = "", runAlways = true)
+    public void updateSuperUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        // Read the admin emails from the environment and update the super users accordingly
+        String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
+
+        Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
+
+        Query instanceConfigurationQuery = new Query();
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+
+        String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
+
+        Query permissionGroupQuery = new Query();
+        permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+        PermissionGroup instanceAdminPG = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Set<String> userIds = adminEmails.stream()
+                .map(email -> email.trim())
+                .map(String::toLowerCase)
+                .map(email -> {
+                    Query userQuery = new Query();
+                    userQuery.addCriteria(where(fieldName(QUser.user.email)).is(email));
+                    User user = mongockTemplate.findOne(userQuery, User.class);
+
+                    if (user == null) {
+                        log.info("Creating super user with username {}", email);
+                        user = createNewUser(email, tenant.getId(), mongockTemplate);
+                    }
+
+                    return user.getId();
+                })
+                .collect(Collectors.toSet());
+
+        Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
+        Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
+        evictPermissionCacheForUsers(updatedUserIds, mongockTemplate, cacheableRepositoryHelper);
+        instanceAdminPG.setAssignedToUserIds(userIds);
+        mongockTemplate.save(instanceAdminPG);
+    }
+
+    private User createNewUser(String email, String tenantId, MongockTemplate mongockTemplate) {
+        User user = new User();
+        user.setEmail(email);
+        user.setIsEnabled(false);
+        user.setTenantId(tenantId);
+        user.setCreatedAt(Instant.now());
+        user = mongockTemplate.save(user);
+
+        // Assign the user to the default permissions
+        PermissionGroup userManagementPermissionGroup = new PermissionGroup();
+        userManagementPermissionGroup.setName(user.getUsername() + " User Management");
+        // Add CRUD permissions for user to the group
+        userManagementPermissionGroup.setPermissions(
+                Set.of(
+                        new Permission(user.getId(), MANAGE_USERS)
+                )
+        );
+
+        // Assign the permission group to the user
+        userManagementPermissionGroup.setAssignedToUserIds(Set.of(user.getId()));
+
+        PermissionGroup savedPermissionGroup = mongockTemplate.save(userManagementPermissionGroup);
+
+        Policy readUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+        Policy manageUserPolicy = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+        Policy resetPwdPolicy = Policy.builder()
+                .permission(RESET_PASSWORD_USERS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        user.setPolicies(Set.of(readUserPolicy, manageUserPolicy, resetPwdPolicy));
+
+        return mongockTemplate.save(user);
+    }
+
+    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
+    public void updateBadThemeState(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator,
+                                    CacheableRepositoryHelper cacheableRepositoryHelper) {
+        Query query = new Query();
+        query.addCriteria(
+                new Criteria().andOperator(
+                        new Criteria(fieldName(QTheme.theme.isSystemTheme)).is(false),
+                        new Criteria(fieldName(QTheme.theme.deleted)).is(false)
+                )
+        );
+
+        mongockTemplate.stream(query, Theme.class)
+                .stream()
+                .forEach(theme -> {
+                    Query applicationQuery = new Query();
+                    Criteria themeCriteria = new Criteria(fieldName(QApplication.application.editModeThemeId)).is(theme.getId())
+                            .orOperator(new Criteria(fieldName(QApplication.application.publishedModeThemeId)).is(theme.getId()));
+
+                    List<Application> applications = mongockTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
+                    // This is an erroneous state where the theme is being used by multiple applications
+                    if (applications != null && applications.size() > 1) {
+                        // Create new themes for the rest of the applications which are copies of the original theme
+                        for (int i = 0; i < applications.size(); i++) {
+                            Application application = applications.get(i);
+                            Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+
+                            if (i == 0) {
+                                // Don't create a new theme for the first application
+                                // Just update the policies
+                                theme.setPolicies(themePolicies);
+                                mongockTemplate.save(theme);
+                            } else {
+
+                                Theme newTheme = new Theme();
+                                newTheme.setSystemTheme(false);
+                                newTheme.setName(theme.getName());
+                                newTheme.setDisplayName(theme.getDisplayName());
+                                newTheme.setConfig(theme.getConfig());
+                                newTheme.setStylesheet(theme.getStylesheet());
+                                newTheme.setProperties(theme.getProperties());
+                                newTheme.setCreatedAt(Instant.now());
+                                newTheme.setUpdatedAt(Instant.now());
+                                newTheme.setPolicies(themePolicies);
+
+                                newTheme = mongockTemplate.save(newTheme);
+
+                                if (application.getEditModeThemeId().equals(theme.getId())) {
+                                    application.setEditModeThemeId(newTheme.getId());
+                                }
+                                if (application.getPublishedModeThemeId().equals(theme.getId())) {
+                                    application.setPublishedModeThemeId(newTheme.getId());
+                                }
+                                mongockTemplate.save(application);
+                            }
+                        }
+                    }
+                });
+    }
+
+    @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
+    public void migratePublicAppsSinglePg(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
+
+        Query anonymousUserPermissionConfig = new Query();
+        anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        Config publicPermissionGroupConfig = mongockTemplate.findOne(anonymousUserPermissionConfig, Config.class);
+
+        String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
+
+        ConcurrentHashMap<String, Boolean> oldPermissionGroupMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap.KeySetView<Object, Boolean> oldPgIds = oldPermissionGroupMap.newKeySet();
+        // Find all public apps
+        Query publicAppQuery = new Query();
+        publicAppQuery.addCriteria(where(fieldName(QApplication.application.defaultPermissionGroup)).exists(true));
+
+        org.springframework.data.util.StreamUtils.createStreamFromIterator(mongockTemplate.stream(publicAppQuery, Application.class))
+                .parallel()
+                .forEach(application -> {
+                    String oldPermissionGroupId = application.getDefaultPermissionGroup();
+                    // Store the existing permission group providing view access to the app for cleanup
+                    oldPgIds.add(oldPermissionGroupId);
+                    application.setDefaultPermissionGroup(null);
+
+                    // Update the application policies to use the public permission group
+                    application.getPolicies()
+                            .stream()
+                            .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
+                            .forEach(policy -> {
+                                policy.getPermissionGroups().remove(oldPermissionGroupId);
+                                policy.getPermissionGroups().add(permissionGroupId);
+                            });
+                    mongockTemplate.save(application);
+
+                    Set<String> datasourceIds = new HashSet<>();
+                    Query applicationActionsQuery = new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId()));
+                    // Only fetch the datasources that are used in the action
+                    applicationActionsQuery.fields()
+                            .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource))
+                            .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.datasource));
+
+                    mongockTemplate.stream(applicationActionsQuery, NewAction.class)
+                            .stream()
+                            .forEach(newAction -> {
+                                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                                ActionDTO publishedAction = newAction.getPublishedAction();
+
+                                if (unpublishedAction.getDatasource() != null &&
+                                        unpublishedAction.getDatasource().getId() != null) {
+                                    datasourceIds.add(unpublishedAction.getDatasource().getId());
+                                }
+
+                                if (publishedAction != null &&
+                                        publishedAction.getDatasource() != null &&
+                                        publishedAction.getDatasource().getId() != null) {
+                                    datasourceIds.add(publishedAction.getDatasource().getId());
+                                }
+                            });
+
+                    // Update datasources
+                    Query datasourceQuery = new Query().addCriteria(where(fieldName(QDatasource.datasource.id)).in(datasourceIds));
+                    mongockTemplate.stream(datasourceQuery, Datasource.class)
+                            .stream()
+                            .parallel()
+                            .forEach(datasource -> {
+                                // Update the datasource policies.
+                                datasource.getPolicies()
+                                        .stream()
+                                        .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
+                                        .forEach(policy -> {
+                                            policy.getPermissionGroups().remove(oldPermissionGroupId);
+                                            policy.getPermissionGroups().add(permissionGroupId);
+                                        });
+                                mongockTemplate.save(datasource);
+                            });
+
+                    // Update pages
+                    Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).is(application.getId())),
+                            new Update().set(fieldName(QNewPage.newPage.policies), pagePolicies),
+                            NewPage.class);
+
+                    // Update actions
+                    Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
+                            new Update().set(fieldName(QNewAction.newAction.policies), actionPolicies),
+                            NewAction.class);
+
+                    // Update js objects
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).is(application.getId())),
+                            new Update().set(fieldName(QActionCollection.actionCollection.policies), actionPolicies),
+                            ActionCollection.class);
+
+                    // Update application themes
+                    Criteria nonSystemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(false);
+                    Criteria idCriteria = Criteria.where(fieldName(QTheme.theme.id)).in(
+                            application.getEditModeThemeId(),
+                            application.getPublishedModeThemeId()
+                    );
+                    Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
+                    Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(queryCriteria),
+                            new Update().set(fieldName(QTheme.theme.policies), themePolicies),
+                            Theme.class);
+                });
+        // All the applications have been migrated.
+
+        // Clean up all the permission groups which were created to provide views to public apps
+        mongockTemplate.findAllAndRemove(new Query().addCriteria(Criteria.where(fieldName(QPermissionGroup.permissionGroup.id)).in(oldPgIds)), PermissionGroup.class);
+
+        // Finally evict the anonymous user cache entry so that it gets recomputed on next use.
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query userQuery = new Query();
+        userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+        User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
+        evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongockTemplate, cacheableRepositoryHelper);
+    }
+
 }

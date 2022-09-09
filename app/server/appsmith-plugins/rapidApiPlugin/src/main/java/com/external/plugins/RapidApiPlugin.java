@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
@@ -76,7 +77,7 @@ public class RapidApiPlugin extends BasePlugin {
                         "set."));
             }
 
-            WebClient.Builder webClientBuilder = WebClient.builder();
+            WebClient.Builder webClientBuilder = WebClientUtils.builder();
 
             if (datasourceConfiguration.getHeaders() != null) {
                 addHeadersToRequest(webClientBuilder, datasourceConfiguration.getHeaders());

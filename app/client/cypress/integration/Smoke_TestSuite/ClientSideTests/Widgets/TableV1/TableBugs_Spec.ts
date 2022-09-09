@@ -18,17 +18,17 @@ describe("Verify various Table property bugs", function() {
   });
 
   it("1. Adding Data to Table Widget", function() {
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "Table Data",
       JSON.stringify(dataSet.TableURLColumnType),
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    agHelper.Escape();
+    agHelper.PressEscape();
   });
 
   it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty", function() {
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     table.ChangeColumnType("image", "URL");
     propPane.UpdatePropertyFieldValue(
       "Display Text",
@@ -70,7 +70,7 @@ describe("Verify various Table property bugs", function() {
   });
 
   it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function() {
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     agHelper.GetNClick(table._columnSettings("image"));
 
     propPane.UpdatePropertyFieldValue(
@@ -111,7 +111,7 @@ describe("Verify various Table property bugs", function() {
   });
 
   it("4. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function() {
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     agHelper.GetNClick(table._columnSettings("image"));
 
     propPane.UpdatePropertyFieldValue(

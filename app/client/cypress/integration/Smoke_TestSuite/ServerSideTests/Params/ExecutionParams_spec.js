@@ -14,7 +14,6 @@ describe("API Panel Test Functionality", function() {
   it("1. Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
@@ -42,7 +41,7 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("3. Will pass execution params", function() {
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     // Bind the table
     cy.get(".t--entity-collapse-toggle")
       .eq(2)
