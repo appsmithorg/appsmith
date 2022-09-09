@@ -29,20 +29,16 @@ export default {
     const rows = props.filteredTableData || props.processedTableData || [];
 
     const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
     const nonDataColumnAliases = primaryColumns
-      ? Object.keys(primaryColumns)
-          .map((key) => {
-            if (
-              (primaryColumns?.[key]?.columnType
-                ?.toLowerCase()
-                ?.includes("button") ||
-                primaryColumns?.[key]?.columnType === "editActions") &&
-              primaryColumns[key]?.alias
-            ) {
-              return primaryColumns[key].alias;
-            }
-          })
-          .filter((alias) => alias)
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
       : [];
 
     let selectedRow;
@@ -82,20 +78,16 @@ export default {
 
     const rows = props.filteredTableData || props.processedTableData || [];
     const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
     const nonDataColumnAliases = primaryColumns
-      ? Object.keys(primaryColumns)
-          .map((key) => {
-            if (
-              (primaryColumns?.[key]?.columnType
-                ?.toLowerCase()
-                ?.includes("button") ||
-                primaryColumns?.[key]?.columnType === "editActions") &&
-              primaryColumns[key]?.alias
-            ) {
-              return primaryColumns[key].alias;
-            }
-          })
-          .filter((alias) => alias)
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
       : [];
     let triggeredRow;
 
@@ -141,20 +133,16 @@ export default {
 
     const rows = props.filteredTableData || props.processedTableData || [];
     const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
     const nonDataColumnAliases = primaryColumns
-      ? Object.keys(primaryColumns)
-          .map((key) => {
-            if (
-              (primaryColumns?.[key]?.columnType
-                ?.toLowerCase()
-                ?.includes("button") ||
-                primaryColumns?.[key]?.columnType === "editActions") &&
-              primaryColumns[key]?.alias
-            ) {
-              return primaryColumns[key].alias;
-            }
-          })
-          .filter((alias) => alias)
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
       : [];
     const keysToBeOmitted = [
       "__originalIndex__",
@@ -568,21 +556,16 @@ export default {
   //
   getUpdatedRows: (props, moment, _) => {
     const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
     const nonDataColumnAliases = primaryColumns
-      ? Object.keys(primaryColumns)
-          .map((key) => {
-            if (
-              (primaryColumns?.[key]?.columnType
-                ?.toLowerCase()
-                ?.includes("button") ||
-                primaryColumns?.[key]?.columnType === "editActions") &&
-              primaryColumns[key]?.alias
-            ) {
-              console.log("578 key=>", key);
-              return primaryColumns[key].alias;
-            }
-          })
-          .filter((alias) => alias)
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
       : [];
     const keysToBeOmitted = [
       "__originalIndex__",
