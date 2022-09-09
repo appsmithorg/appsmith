@@ -1522,6 +1522,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return actionMono;
     }
 
+    @Override
+    public Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO) {
+        Mono<Plugin> pluginMono = pluginService.getById(actionDTO.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
+        return pluginExecutorMono
+                .map(pluginExecutor -> {
+                    actionDTO.getActionConfiguration().setSelfReferencingDataPaths(pluginExecutor.getSelfReferencingDataPaths());
+                    return actionDTO;
+                });
+    }
+
     private boolean isPluginTypeOrPluginIdMissing(NewAction action) {
         return action.getPluginId() == null || action.getPluginType() == null;
     }
