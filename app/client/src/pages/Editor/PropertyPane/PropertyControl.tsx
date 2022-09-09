@@ -88,8 +88,18 @@ const PropertyControl = memo((props: Props) => {
       ? `${widgetProperties.widgetName}.${props.propertyName}`
       : undefined;
 
-  const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
-    getshouldFocusPropertyPath(state, dataTreePath),
+  let hasDispatchedPropertyFocus = false;
+
+  const shouldFocusPropertyPath: boolean = useSelector(
+    (state: AppState) =>
+      getshouldFocusPropertyPath(
+        state,
+        dataTreePath,
+        hasDispatchedPropertyFocus,
+      ),
+    (before: boolean, after: boolean) => {
+      return hasDispatchedPropertyFocus || before === after;
+    },
   );
 
   const enhancementSelector = getWidgetEnhancementSelector(
@@ -106,7 +116,10 @@ const PropertyControl = memo((props: Props) => {
   useEffect(() => {
     if (
       shouldFocusPropertyPath &&
-      !controlRef.current?.contains(document.activeElement)
+      !controlRef.current?.contains(document.activeElement) &&
+      ["input", "textarea"].indexOf(
+        document.activeElement?.tagName?.toLowerCase() || "",
+      ) === -1
     ) {
       setTimeout(() => {
         const focusableElement = getFocusableDOMElement(controlRef.current);
@@ -541,8 +554,12 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const handleOnFocus = () => {
-      if (!shouldFocusPropertyPath)
-        dispatch(generateKeyAndSetFocusableField(dataTreePath));
+      if (!shouldFocusPropertyPath) {
+        hasDispatchedPropertyFocus = true;
+        setTimeout(() => {
+          dispatch(generateKeyAndSetFocusableField(dataTreePath));
+        }, 0);
+      }
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);

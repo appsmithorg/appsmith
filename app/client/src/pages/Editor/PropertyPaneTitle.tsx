@@ -132,7 +132,10 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         () => {
           if (
             document.activeElement &&
-            !document.activeElement?.closest(".t--property-control-wrapper")
+            !document.activeElement?.closest(".t--property-control-wrapper") &&
+            ["input", "textarea"].indexOf(
+              document.activeElement?.tagName?.toLowerCase(),
+            ) === -1
           )
             if (false) {
               // TODO(aswathkk): Fix #15970 and focus on search bar

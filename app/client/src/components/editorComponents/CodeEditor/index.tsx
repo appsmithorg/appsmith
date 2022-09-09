@@ -337,7 +337,12 @@ class CodeEditor extends Component<Props, State> {
 
         this.lintCode(editor);
 
-        if (this.props.cursorPosition) {
+        if (
+          this.props.cursorPosition &&
+          ["input", "textarea"].indexOf(
+            document.activeElement?.tagName?.toLowerCase() || "",
+          ) === -1
+        ) {
           editor.focus();
           editor.setCursor(this.props.cursorPosition);
         }
