@@ -1,6 +1,10 @@
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
-import { getBasePropertyPath, showByColumnType } from "../../propertyUtils";
+import {
+  getBasePropertyPath,
+  showByColumnType,
+  hideByColumnType,
+} from "../../propertyUtils";
 
 export default {
   sectionName: "Events",
@@ -12,7 +16,9 @@ export default {
       const isEditable = get(props, `${propertyPath}.isEditable`, "");
       return (
         !(
-          columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
+          columnType === ColumnTypes.TEXT ||
+          columnType === ColumnTypes.NUMBER ||
+          columnType === ColumnTypes.CHECKBOX
         ) || !isEditable
       );
     }
@@ -61,6 +67,18 @@ export default {
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return columnType !== ColumnTypes.SELECT || !isEditable;
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onCheckChange",
+      label: "onCheckChange",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,

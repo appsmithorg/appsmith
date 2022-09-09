@@ -1,9 +1,15 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType } from "../../propertyUtils";
+import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: "Text Formatting",
+  sectionName: (props: TableWidgetProps, propertyPath: string) => {
+    const columnType = get(props, `${propertyPath}.columnType`);
+    return columnType === ColumnTypes.CHECKBOX
+      ? "Alignment"
+      : "Text Formatting";
+  },
   children: [
     {
       propertyName: "textSize",
@@ -91,7 +97,13 @@ export default {
     },
     {
       propertyName: "horizontalAlignment",
-      label: "Text Align",
+      label: (props: TableWidgetProps, propertyPath: string) => {
+        const basePropertyPath = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${basePropertyPath}.columnType`);
+        return columnType === ColumnTypes.CHECKBOX
+          ? "Horizontal Alignment"
+          : "Text Align";
+      },
       controlType: "ICON_TABS",
       options: [
         {
@@ -128,6 +140,7 @@ export default {
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },
@@ -170,6 +183,7 @@ export default {
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },
