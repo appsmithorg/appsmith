@@ -31,6 +31,8 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -46,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -88,10 +91,10 @@ public class GraphQLPluginTest {
 
     @SuppressWarnings("rawtypes")
     @ClassRule
-    public static GenericContainer graphqlContainer = new GenericContainer(DockerImageName.parse("appsmith/test-event" +
+    public static GenericContainer graphqlContainer = new GenericContainer(CompletableFuture.completedFuture("appsmith/test-event" +
             "-driver"))
             .withExposedPorts(5000)
-            .withStartupTimeout(Duration.ofSeconds(120));
+            .waitingFor(Wait.forHttp("/").forStatusCode(404));
 
     @Before
     public void setUp() {
