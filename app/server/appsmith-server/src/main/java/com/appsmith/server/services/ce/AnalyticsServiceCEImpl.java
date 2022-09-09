@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -220,7 +221,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
      */
     private <T extends BaseDomain> String getEventTag(AnalyticsEvents event, T object) {
         // In case of action execution or instance setting update, event.getEventName() only is used to support backward compatibility of event name
-        boolean isNonResourceEvent = AnalyticsEvents.EXECUTE_ACTION.equals(event) || AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event);
+        List<AnalyticsEvents> nonResourceEvents = List.of(
+                AnalyticsEvents.EXECUTE_ACTION,
+                AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
+                AnalyticsEvents.EXECUTE_INVITE_USERS
+        );
+        boolean isNonResourceEvent = nonResourceEvents.contains(event);
         final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
 
         return eventTag;
