@@ -538,8 +538,7 @@ describe("Table widget inline editing functionality", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
-
+    agHelper.EnterActionValue("Message", "Submitted!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.saveTableCellValue(0, 0);
@@ -562,11 +561,7 @@ describe("Table widget inline editing functionality", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage(
-      "{{Table1.triggeredRow.step}}",
-      ".t--property-control-onsubmit",
-    );
-
+    agHelper.EnterActionValue("Message", "{{Table1.triggeredRow.step}}");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, value);
     cy.saveTableCellValue(0, 0);
