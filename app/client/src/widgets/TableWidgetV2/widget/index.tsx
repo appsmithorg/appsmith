@@ -1579,10 +1579,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             this.props.updatedRowIndices.indexOf(originalIndex) === -1) ||
           !this.props.isEditableCellValid;
 
-        const isCellEditMode =
-          props.cell.column.alias === this.props.editableCell.column &&
-          rowIndex === this.props.editableCell.index;
-
         let validationErrorMessage;
 
         if (isCellEditMode) {
