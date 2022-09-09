@@ -80,13 +80,17 @@ describe("Button Group Widget Functionality", function() {
       "Between",
     );
     // 1st btn
-    cy.get(firstButton).last().should("have.css", "justify-content", "space-between");
+    cy.get(firstButton)
+      .last()
+      .should("have.css", "justify-content", "space-between");
     // update dropdown value
     cy.selectDropdownValue(
       ".t--property-control-placement .bp3-popover-target",
       "Start",
     );
-    cy.get(firstButton).last().should("have.css", "justify-content", "start");
+    cy.get(firstButton)
+      .last()
+      .should("have.css", "justify-content", "start");
     // other button style stay same
     cy.get(menuButton).should("have.css", "justify-content", "center");
   });
