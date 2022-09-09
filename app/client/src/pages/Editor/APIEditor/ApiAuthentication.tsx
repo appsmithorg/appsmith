@@ -2,19 +2,17 @@ import React from "react";
 import { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
-import { connect, useDispatch } from "react-redux";
-import Button, { Category, Size } from "components/ads/Button";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { Button, Category, Size, Text, TextType } from "design-system";
 import {
   setDatsourceEditorMode,
   storeAsDatasource,
 } from "actions/datasourceActions";
 import history from "utils/history";
-import { getQueryParams } from "utils/AppsmithUtils";
-import Text, { TextType } from "components/ads/Text";
+import { getQueryParams } from "utils/URLUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { formValueSelector } from "redux-form";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
 import { ReactComponent as SheildError } from "assets/icons/ads/shield-error.svg";
 import {
@@ -27,6 +25,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { datasourcesEditorIdURL } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -64,8 +63,6 @@ const DescriptionText = styled(Text)`
   margin: 12px auto;
 `;
 
-const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
-
 function OAuthLabel(props: ErrorProps) {
   return (
     <OAuthContainer>
@@ -87,6 +84,7 @@ function ApiAuthentication(props: Props): JSX.Element {
     "datasourceConfiguration.authentication.authenticationType",
     "",
   );
+  const pageId = useSelector(getCurrentPageId);
 
   const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
 
@@ -102,6 +100,7 @@ function ApiAuthentication(props: Props): JSX.Element {
       props.setDatasourceEditorMode(id, false);
       history.push(
         datasourcesEditorIdURL({
+          pageId,
           datasourceId: id,
           params: getQueryParams(),
         }),
@@ -133,7 +132,8 @@ function ApiAuthentication(props: Props): JSX.Element {
   );
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
+  const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {

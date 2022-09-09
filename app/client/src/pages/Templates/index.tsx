@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
 import { debounce, noop } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import SearchInput, { SearchVariant } from "components/ads/SearchInput";
+import { SearchInput, SearchVariant } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -21,16 +21,17 @@ import {
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
-import { editorInitializer } from "utils/EditorUtils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import {
   getIsFetchingApplications,
-  getUserApplicationsOrgsList,
+  getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
 import { getAllApplications } from "actions/applicationActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -79,8 +80,8 @@ const SearchWrapper = styled.div`
 function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
-  const organizationListLength = useSelector(
-    (state: AppState) => getUserApplicationsOrgsList(state).length,
+  const workspaceListLength = useSelector(
+    (state: AppState) => getUserApplicationsWorkspacesList(state).length,
   );
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
@@ -102,10 +103,10 @@ function TemplateRoutes() {
   }, [templatesCount]);
 
   useEffect(() => {
-    if (!organizationListLength) {
+    if (!workspaceListLength) {
       dispatch(getAllApplications());
     }
-  }, [organizationListLength]);
+  }, [workspaceListLength]);
 
   useEffect(() => {
     if (!pluginListLength) {
@@ -162,6 +163,7 @@ function Templates() {
 
   return (
     <PageWrapper>
+      <ReconnectDatasourceModal />
       <Filters />
       <TemplateListWrapper>
         {isLoading ? (

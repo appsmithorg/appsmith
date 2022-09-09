@@ -1,4 +1,7 @@
+import { IconNames } from "@blueprintjs/icons";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import { omit } from "lodash";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
@@ -11,11 +14,15 @@ export interface WidgetConfiguration {
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
   isDeprecated?: boolean;
+  replacement?: string;
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
+  searchTags?: string[];
   properties: {
     config: PropertyPaneConfig[];
+    contentConfig?: PropertyPaneConfig[];
+    styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
@@ -37,6 +44,14 @@ export type FlattenedWidgetProps = WidgetProps & {
 export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
+
+const staticProps = omit(WIDGET_STATIC_PROPS, "children");
+export type CanvasWidgetStructure = Pick<
+  WidgetProps,
+  keyof typeof staticProps
+> & {
+  children?: CanvasWidgetStructure[];
+};
 
 export enum FileDataTypes {
   Base64 = "Base64",
@@ -157,3 +172,9 @@ export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
     boxShadow: "none",
   },
 };
+
+export const YOUTUBE_URL_REGEX = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+
+export const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);

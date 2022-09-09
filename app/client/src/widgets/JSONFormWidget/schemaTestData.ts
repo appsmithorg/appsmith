@@ -56,8 +56,10 @@ const initialDataset = {
           identifier: "name",
           originalIdentifier: "name",
           position: 0,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         age: {
@@ -79,8 +81,10 @@ const initialDataset = {
           identifier: "age",
           originalIdentifier: "age",
           position: 1,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         dob: {
@@ -107,8 +111,10 @@ const initialDataset = {
           identifier: "dob",
           originalIdentifier: "dob",
           position: 2,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         boolean: {
@@ -129,7 +135,8 @@ const initialDataset = {
           identifier: "boolean",
           originalIdentifier: "boolean",
           position: 3,
-          backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+          backgroundColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         hobbies: {
@@ -155,8 +162,10 @@ const initialDataset = {
           identifier: "hobbies",
           originalIdentifier: "hobbies",
           position: 4,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         __: {
@@ -178,8 +187,10 @@ const initialDataset = {
           identifier: "__",
           originalIdentifier: "%%",
           position: 5,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         xn__j2bd4cyac6f: {
@@ -201,8 +212,10 @@ const initialDataset = {
           identifier: "xn__j2bd4cyac6f",
           originalIdentifier: "हिन्दि",
           position: 6,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         education: {
@@ -239,9 +252,10 @@ const initialDataset = {
                   identifier: "college",
                   originalIdentifier: "college",
                   position: 0,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 number: {
@@ -262,9 +276,10 @@ const initialDataset = {
                   identifier: "number",
                   originalIdentifier: "number",
                   position: 1,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 graduationDate: {
@@ -290,9 +305,10 @@ const initialDataset = {
                   identifier: "graduationDate",
                   originalIdentifier: "graduationDate",
                   position: 2,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 boolean: {
@@ -312,7 +328,8 @@ const initialDataset = {
                   identifier: "boolean",
                   originalIdentifier: "boolean",
                   position: 3,
-                  backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+                  backgroundColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
               },
@@ -376,8 +393,10 @@ const initialDataset = {
               identifier: "Line1",
               originalIdentifier: "Line1",
               position: 0,
-              accentColor: "{{appsmith.theme.colors.primaryColor}}",
-              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              accentColor:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              borderRadius:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               boxShadow: "none",
             },
             city: {
@@ -399,8 +418,10 @@ const initialDataset = {
               identifier: "city",
               originalIdentifier: "city",
               position: 1,
-              accentColor: "{{appsmith.theme.colors.primaryColor}}",
-              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              accentColor:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              borderRadius:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               boxShadow: "none",
             },
           },
@@ -498,8 +519,10 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "name",
           originalIdentifier: "name",
           position: 0,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         age: {
@@ -521,8 +544,10 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "age",
           originalIdentifier: "age",
           position: 1,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         dob: {
@@ -549,8 +574,10 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "dob",
           originalIdentifier: "dob",
           position: 2,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         hobbies: {
@@ -577,8 +604,10 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "hobbies",
           originalIdentifier: "hobbies",
           position: 4,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         xn__j2bd4cyac6f: {
@@ -600,8 +629,10 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "xn__j2bd4cyac6f",
           originalIdentifier: "हिन्दि",
           position: 6,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         education: {
@@ -638,9 +669,10 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "college",
                   originalIdentifier: "college",
                   position: 0,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 number: {
@@ -661,9 +693,10 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "number",
                   originalIdentifier: "number",
                   position: 1,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 graduationDate: {
@@ -689,9 +722,10 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "graduationDate",
                   originalIdentifier: "graduationDate",
                   position: 2,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 boolean: {
@@ -711,7 +745,8 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "boolean",
                   originalIdentifier: "boolean",
                   position: 3,
-                  backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+                  backgroundColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
               },
@@ -775,8 +810,10 @@ const withRemovedKeyFromInitialDataset = {
               identifier: "Line1",
               originalIdentifier: "Line1",
               position: 0,
-              accentColor: "{{appsmith.theme.colors.primaryColor}}",
-              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              accentColor:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              borderRadius:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               boxShadow: "none",
             },
             city: {
@@ -798,8 +835,10 @@ const withRemovedKeyFromInitialDataset = {
               identifier: "city",
               originalIdentifier: "city",
               position: 1,
-              accentColor: "{{appsmith.theme.colors.primaryColor}}",
-              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              accentColor:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              borderRadius:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               boxShadow: "none",
             },
           },
@@ -896,8 +935,10 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "name",
           originalIdentifier: "name",
           position: 0,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         age: {
@@ -919,8 +960,10 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "age",
           originalIdentifier: "age",
           position: 1,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         dob: {
@@ -947,8 +990,10 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "dob",
           originalIdentifier: "dob",
           position: 2,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         hobbies: {
@@ -975,8 +1020,10 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "hobbies",
           originalIdentifier: "hobbies",
           position: 3,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         xn__j2bd4cyac6f: {
@@ -998,8 +1045,10 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "xn__j2bd4cyac6f",
           originalIdentifier: "हिन्दि",
           position: 4,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
         education: {
@@ -1036,9 +1085,10 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "college",
                   originalIdentifier: "college",
                   position: 0,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 number: {
@@ -1059,9 +1109,10 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "number",
                   originalIdentifier: "number",
                   position: 1,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 graduationDate: {
@@ -1087,9 +1138,10 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "graduationDate",
                   originalIdentifier: "graduationDate",
                   position: 2,
-                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  accentColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   borderRadius:
-                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
                 boolean: {
@@ -1109,7 +1161,8 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "boolean",
                   originalIdentifier: "boolean",
                   position: 3,
-                  backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+                  backgroundColor:
+                    "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                   boxShadow: "none",
                 },
               },
@@ -1173,8 +1226,10 @@ const withRemovedAddedKeyToInitialDataset = {
               identifier: "Line1",
               originalIdentifier: "Line1",
               position: 0,
-              accentColor: "{{appsmith.theme.colors.primaryColor}}",
-              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              accentColor:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              borderRadius:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               boxShadow: "none",
             },
             city: {
@@ -1196,8 +1251,10 @@ const withRemovedAddedKeyToInitialDataset = {
               identifier: "city",
               originalIdentifier: "city",
               position: 1,
-              accentColor: "{{appsmith.theme.colors.primaryColor}}",
-              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              accentColor:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+              borderRadius:
+                "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
               boxShadow: "none",
             },
           },
@@ -1231,8 +1288,10 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "gender",
           originalIdentifier: "gender",
           position: 7,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
         },
       },

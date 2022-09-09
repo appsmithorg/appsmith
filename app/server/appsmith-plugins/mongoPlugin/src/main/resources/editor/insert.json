@@ -25,7 +25,7 @@
         {
           "label": "Documents",
           "configProperty": "actionConfiguration.formData.insert.documents.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"

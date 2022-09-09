@@ -4,7 +4,7 @@ import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
   // POST_BODY_FORMAT_OPTIONS_ENUM,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 
 // jest.mock("POST_");
 
@@ -14,7 +14,7 @@ const BASE_ACTION: ApiAction = {
   executeOnLoad: false,
   invalids: [],
   isValid: false,
-  organizationId: "",
+  workspaceId: "",
   pageId: "",
   pluginId: "",
   id: "testId",
@@ -34,6 +34,7 @@ const BASE_ACTION: ApiAction = {
     timeoutInMillisecond: 5000,
   },
   jsonPathKeys: [],
+  messages: [],
 };
 
 describe("Api action transformer", () => {

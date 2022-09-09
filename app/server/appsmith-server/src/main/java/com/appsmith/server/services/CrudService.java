@@ -1,12 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Policy;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
+import java.util.Map;
 
 public interface CrudService<T extends BaseDomain, ID> {
 
@@ -28,7 +27,6 @@ public interface CrudService<T extends BaseDomain, ID> {
         return this.archiveById(id);
     }
 
-    Mono<T> addPolicies(ID id, Set<Policy> policies);
+    Map<String, Object> getAnalyticsProperties(T savedResource);
 
-    Mono<T> removePolicies(ID id, Set<Policy> policies);
 }

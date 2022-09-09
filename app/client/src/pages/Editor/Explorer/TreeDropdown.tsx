@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
 import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
-import { StyledMenu } from "components/ads/TreeDropdown";
+import { StyledMenu } from "design-system";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
@@ -17,6 +17,8 @@ import { IconNames } from "@blueprintjs/icons";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { entityTooltipCSS } from "./Entity";
+import { useCloseMenuOnScroll } from "./hooks";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -47,6 +49,7 @@ type TreeDropdownProps = {
   position?: Position;
   icon?: React.ReactNode;
   editorPage?: boolean;
+  menuWidth?: number;
 };
 
 export const StyledPopover = styled(Popover)`
@@ -113,6 +116,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     defaultText,
     displayValue,
     getDefaults,
+    menuWidth,
     onSelect,
     optionTree,
     selectedLabelModifier,
@@ -127,6 +131,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  useCloseMenuOnScroll(SIDEBAR_ID, isOpen, () => setIsOpen(false));
 
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
@@ -153,6 +158,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         icon={option.icon}
         intent={option.intent}
         key={option.value}
+        label={option.subText}
         onClick={
           option.children
             ? noop
@@ -176,7 +182,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
 
   const list = optionTree.map(renderTreeOption);
   const menuItems = (
-    <StyledMenu className="t--entity-context-menu">{list}</StyledMenu>
+    <StyledMenu className="t--entity-context-menu" width={menuWidth}>
+      {list}
+    </StyledMenu>
   );
   const defaultToggle = (
     <StyledDropDownContainer>

@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface ApiImporterCE {
 
-    Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName);
+    Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName);
 
 }

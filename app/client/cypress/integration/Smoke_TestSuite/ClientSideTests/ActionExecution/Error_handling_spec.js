@@ -3,7 +3,7 @@ const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 
-describe("Test Create Api and Bind to Table widget", function() {
+describe("Test Create Api and Bind to Button widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });

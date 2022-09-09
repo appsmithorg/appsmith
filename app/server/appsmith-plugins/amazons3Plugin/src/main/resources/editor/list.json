@@ -31,7 +31,7 @@
           "initialValue": ""
         },
         {
-          "label": "Where Condition",
+          "label": "Where",
           "configProperty": "actionConfiguration.formData.list.where.data",
           "nestedLevels": 3,
           "controlType": "WHERE_CLAUSE",
@@ -90,7 +90,8 @@
               "label": "No",
               "value": "NO"
             }
-          ]
+          ],
+          "staticDependencyPathList": ["actionConfiguration.formData.list.expiry.data"]
         },
         {
           "label": "Expiry Duration of Signed URL (Minutes)",

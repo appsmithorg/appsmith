@@ -1,6 +1,7 @@
 import { EmbeddedRestDatasource } from "entities/Datasource";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import _ from "lodash";
+import { Plugin } from "api/PluginApi";
 
 export enum PluginType {
   API = "API",
@@ -10,15 +11,33 @@ export enum PluginType {
   REMOTE = "REMOTE",
 }
 
+// more can be added subsequently.
+export enum PluginName {
+  MONGO = "MongoDB",
+}
+
 export enum PaginationType {
   NONE = "NONE",
   PAGE_NO = "PAGE_NO",
   URL = "URL",
+  CURSOR = "CURSOR",
 }
 
 export interface KeyValuePair {
   key?: string;
   value?: unknown;
+}
+
+export type LimitOffset = {
+  limit: Record<string, unknown>;
+  offset: Record<string, unknown>;
+};
+export interface SelfReferencingData {
+  limitBased?: LimitOffset;
+  curserBased?: {
+    previous?: LimitOffset;
+    next?: LimitOffset;
+  };
 }
 
 export interface ActionConfig {
@@ -28,6 +47,7 @@ export interface ActionConfig {
   pluginSpecifiedTemplates?: KeyValuePair[];
   path?: string;
   queryParameters?: KeyValuePair[];
+  selfReferencingData?: SelfReferencingData;
 }
 
 export interface ActionProvider {
@@ -61,6 +81,8 @@ export interface ApiActionConfig extends Omit<ActionConfig, "formData"> {
   queryParameters?: Property[];
   bodyFormData?: BodyFormData[];
   formData: Record<string, unknown>;
+  query?: string | null;
+  variable?: string | null;
 }
 
 export interface QueryActionConfig extends ActionConfig {
@@ -79,7 +101,7 @@ export interface StoredDatasource {
 export interface BaseAction {
   id: string;
   name: string;
-  organizationId: string;
+  workspaceId: string;
   pageId: string;
   collectionId?: string;
   pluginId: string;
@@ -129,6 +151,7 @@ export type RapidApiAction = ApiAction & {
 
 export interface QueryAction extends BaseAction {
   pluginType: PluginType.DB;
+  pluginName?: PluginName;
   actionConfiguration: QueryActionConfig;
   datasource: StoredDatasource;
 }
@@ -167,4 +190,12 @@ export function isQueryAction(action: Action): action is QueryAction {
 
 export function isSaaSAction(action: Action): action is SaaSAction {
   return action.pluginType === PluginType.SAAS;
+}
+
+export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
+  return plugins.find((p) => p.packageName === "graphql-plugin");
+}
+
+export function isGraphqlPlugin(plugin: Plugin | undefined) {
+  return plugin?.packageName === "graphql-plugin";
 }

@@ -42,6 +42,7 @@ describe("AppThemingSaga test", () => {
       },
     ];
 
+    //@ts-expect-error: type mismatch
     const result = getPropertiesToUpdateForReset(...input);
 
     expect(result).toEqual(output);
@@ -104,6 +105,7 @@ describe("AppThemingSaga test", () => {
       },
     ];
 
+    //@ts-expect-error: type mismatch
     const result = getPropertiesToUpdateForReset(...input);
 
     expect(result).toEqual(output);
@@ -198,6 +200,7 @@ describe("AppThemingSaga test", () => {
       },
     ];
 
+    //@ts-expect-error: type mismatch
     const result = getPropertiesToUpdateForReset(...input);
 
     expect(result).toEqual(output);

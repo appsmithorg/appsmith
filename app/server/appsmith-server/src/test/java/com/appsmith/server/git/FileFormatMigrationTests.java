@@ -72,7 +72,7 @@ public class FileFormatMigrationTests {
                     assertThat(actions.size()).isEqualTo(1);
                     assertThat(actions.get("Query1_Page1.json").getAsJsonObject().get("queryKey").getAsString()).isEqualTo("queryValue");
 
-                    JsonObject actionCollections = gson.fromJson(gson.toJson(applicationGitReference.getActionsCollections()), JsonObject.class);
+                    JsonObject actionCollections = gson.fromJson(gson.toJson(applicationGitReference.getActionCollections()), JsonObject.class);
                     assertThat(actionCollections.size()).isEqualTo(1);
                     assertThat(actionCollections.get("JSObject1_Page1.json").getAsJsonObject().get("jsobjectKey").getAsString()).isEqualTo("jsobjectValue");
 
@@ -108,7 +108,7 @@ public class FileFormatMigrationTests {
                     assertThat(actions.size()).isEqualTo(1);
                     assertThat(actions.get("Query1.jsonPage1").getAsJsonObject().get("queryKey").getAsString()).isEqualTo("queryValue");
 
-                    JsonObject actionCollections = gson.fromJson(gson.toJson(applicationGitReference.getActionsCollections()), JsonObject.class);
+                    JsonObject actionCollections = gson.fromJson(gson.toJson(applicationGitReference.getActionCollections()), JsonObject.class);
                     assertThat(actionCollections.size()).isEqualTo(1);
                     assertThat(actionCollections.get("JSObject1.jsonPage1").getAsJsonObject().get("jsobjectKey").getAsString()).isEqualTo("jsobjectValue");
 

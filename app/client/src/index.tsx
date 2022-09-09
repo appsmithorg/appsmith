@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
 import { ThemeProvider } from "constants/DefaultTheme";
-import { appInitializer } from "utils/AppsmithUtils";
+import { appInitializer } from "utils/AppUtils";
 import { Slide } from "react-toastify";
 import store from "./store";
 import { LayersContext, Layers } from "constants/Layers";
@@ -12,7 +12,7 @@ import AppRouter from "./AppRouter";
 import * as Sentry from "@sentry/react";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "components/ads/Toast";
 import localStorage from "utils/localStorage";
@@ -26,6 +26,12 @@ setAutoFreeze(shouldAutoFreeze);
 import AppErrorBoundary from "./AppErrorBoundry";
 import GlobalStyles from "globalStyles";
 appInitializer();
+
+if (process.env.NODE_ENV === "development") {
+  import("./mocks/browser").then(({ worker }) => {
+    worker.start();
+  });
+}
 
 function App() {
   return (

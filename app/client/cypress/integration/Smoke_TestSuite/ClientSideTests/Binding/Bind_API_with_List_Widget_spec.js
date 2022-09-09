@@ -4,7 +4,7 @@ const dsl = require("../../../../fixtures/listwidgetdsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiPage from "../../../../locators/ApiEditor";
 
-describe("Test Create Api and Bind to Table widget", function() {
+describe("Test Create Api and Bind to List widget", function() {
   let apiData;
   let valueToTest;
   before(() => {
@@ -24,7 +24,6 @@ describe("Test Create Api and Bind to Table widget", function() {
           .split('"')
           .join("")}`;
         cy.log(valueToTest);
-        apiData = valueToTest;
         cy.log("val1:" + valueToTest);
       });
   });
@@ -62,6 +61,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Test_Validate the list widget ", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.SearchEntityandOpen("List1");
+    cy.moveToStyleTab();
     cy.testJsontext("itemspacing\\(px\\)", "50");
     cy.get(".t--draggable-textwidget span").should("have.length", 6);
     cy.get(".t--draggable-textwidget span")

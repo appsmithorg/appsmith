@@ -1,4 +1,3 @@
-import { get, compact } from "lodash";
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
@@ -13,13 +12,13 @@ import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
-import { getWidgets } from "sagas/selectors";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { getAppThemingStack } from "selectors/appThemingSelectors";
+import equal from "fast-deep-equal";
+import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 
 type Props = {
   width: number;
@@ -42,9 +41,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     props.onDragEnd,
     true,
   );
-  const canvasWidgets = useSelector(getWidgets);
+
   const isPreviewMode = useSelector(previewModeSelector);
-  const isCommentMode = useSelector(commentModeSelector);
   const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
@@ -61,13 +59,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const keepThemeWhileDragging =
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
-  const selectedWidgets = useMemo(
-    () =>
-      compact(
-        selectedWidgetIds.map((widgetId) => get(canvasWidgets, widgetId)),
-      ),
-    [canvasWidgets, selectedWidgetIds],
-  );
+  const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
   prevSelectedWidgetId.current =
@@ -112,29 +105,29 @@ export const PropertyPaneSidebar = memo((props: Props) => {
 
   return (
     <div className="relative">
-      {/* RESIZOR */}
-      <div
-        className={`absolute top-0 left-0 w-2 h-full -ml-2 group  cursor-ew-resize ${tailwindLayers.resizer}`}
-        onMouseDown={onMouseDown}
-        onTouchEnd={onMouseUp}
-        onTouchStart={onTouchStart}
-      >
-        <div
-          className={classNames({
-            "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
-            "bg-gray-300": resizing,
-          })}
-        />
-      </div>
       {/* PROPERTY PANE */}
       <div
         className={classNames({
           [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${tailwindLayers.propertyPane}`]: true,
           "relative ": !isPreviewMode,
-          "fixed translate-x-full right-0": isPreviewMode || isCommentMode,
+          "fixed translate-x-full right-0": isPreviewMode,
         })}
         ref={sidebarRef}
       >
+        {/* RESIZOR */}
+        <div
+          className={`absolute top-0 left-0 w-2 h-full -ml-1 group  cursor-ew-resize ${tailwindLayers.resizer}`}
+          onMouseDown={onMouseDown}
+          onTouchEnd={onMouseUp}
+          onTouchStart={onTouchStart}
+        >
+          <div
+            className={classNames({
+              "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
+              "bg-gray-300": resizing,
+            })}
+          />
+        </div>
         <div
           className="h-full p-0 overflow-y-auto min-w-72 max-w-104"
           style={{ width: props.width }}

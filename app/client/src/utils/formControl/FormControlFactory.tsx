@@ -4,6 +4,8 @@ import {
   ControlProps,
   ControlData,
 } from "components/formControls/BaseControl";
+import React from "react";
+import log from "loglevel";
 
 // Static class to generate form controls based on the control type passed from JSON
 class FormControlFactory {
@@ -35,12 +37,8 @@ class FormControlFactory {
       const control = controlBuilder.buildPropertyControl(controlProps);
       return control;
     } else {
-      const ex: ControlCreationException = {
-        message:
-          "Control Builder not registered for control type " +
-          controlData.controlType,
-      };
-      throw ex;
+      log.error(`Control type ${controlData.controlType} not found`);
+      return <p>{`Control type ${controlData.controlType} not found`}</p>;
     }
   }
 

@@ -9,13 +9,14 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import { User } from "constants/userConstants";
-import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
+import { call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 import { ApiResponse } from "api/ApiResponses";
 import {
+  APPSMITH_DISPLAY_VERSION,
   createMessage,
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
@@ -25,15 +26,20 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 export function* FetchAdminSettingsSaga() {
-  const response = yield call(UserApi.fetchAdminSettings);
-  const isValidResponse = yield validateResponse(response);
+  const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
+  const isValidResponse: boolean = yield validateResponse(response);
 
   if (isValidResponse) {
-    const { appVersion } = getAppsmithConfigs();
-
+    const { appVersion, cloudHosting } = getAppsmithConfigs();
     const settings = {
+      //@ts-expect-error: response is of type unknown
       ...response.data,
-      APPSMITH_CURRENT_VERSION: appVersion.id,
+      APPSMITH_CURRENT_VERSION: createMessage(
+        APPSMITH_DISPLAY_VERSION,
+        appVersion.edition,
+        appVersion.id,
+        cloudHosting,
+      ),
     };
     yield put({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
@@ -56,8 +62,11 @@ export function* SaveAdminSettingsSaga(
 ) {
   const settings = action.payload;
   try {
-    const response = yield call(UserApi.saveAdminSettings, settings);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      UserApi.saveAdminSettings,
+      settings,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       Toaster.show({
@@ -94,7 +103,7 @@ export function* RestartServerPoll() {
   yield call(RestryRestartServerPoll);
 }
 
-function* RestryRestartServerPoll() {
+export function* RestryRestartServerPoll() {
   let pollCount = 0;
   const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
   while (pollCount < maxPollCount) {
@@ -114,9 +123,12 @@ function* RestryRestartServerPoll() {
 
 export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
-    const response = yield call(UserApi.sendTestEmail, action.payload);
-    const currentUser = yield select(getCurrentUser);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      UserApi.sendTestEmail,
+      action.payload,
+    );
+    const currentUser: User | undefined = yield select(getCurrentUser);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       let actionElement;
@@ -134,7 +146,8 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
         actionElement,
         text: createMessage(
           response.data
-            ? TEST_EMAIL_SUCCESS(currentUser?.email)
+            ? // @ts-expect-error: currentUser can be undefined
+              TEST_EMAIL_SUCCESS(currentUser?.email)
             : TEST_EMAIL_FAILURE,
         ),
         hideProgressBar: true,
@@ -142,31 +155,4 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
       });
     }
   } catch (e) {}
-}
-
-export function* InitSuperUserSaga(action: ReduxAction<User>) {
-  const user = action.payload;
-  if (user.isSuperUser) {
-    yield all([
-      takeLatest(ReduxActionTypes.FETCH_ADMIN_SETTINGS, FetchAdminSettingsSaga),
-      takeLatest(
-        ReduxActionTypes.FETCH_ADMIN_SETTINGS_ERROR,
-        FetchAdminSettingsErrorSaga,
-      ),
-      takeLatest(ReduxActionTypes.SAVE_ADMIN_SETTINGS, SaveAdminSettingsSaga),
-      takeLatest(ReduxActionTypes.RESTART_SERVER_POLL, RestartServerPoll),
-      takeLatest(
-        ReduxActionTypes.RETRY_RESTART_SERVER_POLL,
-        RestryRestartServerPoll,
-      ),
-      takeLatest(ReduxActionTypes.SEND_TEST_EMAIL, SendTestEmail),
-    ]);
-  }
-}
-
-export default function* SuperUserSagas() {
-  yield takeLatest(
-    ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-    InitSuperUserSaga,
-  );
 }

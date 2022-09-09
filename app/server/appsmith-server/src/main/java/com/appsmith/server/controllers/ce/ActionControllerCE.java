@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +38,12 @@ import java.util.List;
 @RequestMapping(Url.ACTION_URL)
 public class ActionControllerCE {
 
-    private final ActionCollectionService actionCollectionService;
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
 
     @Autowired
-    public ActionControllerCE(ActionCollectionService actionCollectionService,
-                              LayoutActionService layoutActionService,
+    public ActionControllerCE(LayoutActionService layoutActionService,
                               NewActionService newActionService) {
-        this.actionCollectionService = actionCollectionService;
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
     }

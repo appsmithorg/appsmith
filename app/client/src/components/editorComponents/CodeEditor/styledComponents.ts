@@ -64,7 +64,7 @@ export const EditorWrapper = styled.div<{
   top: 0;
   `
       : `position: relative;`}
-  min-height: 38px;
+  min-height: 36px;
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) => editorBackground(props.editorTheme)};
   background-color: ${(props) => props.disabled && "#eef2f5"};
@@ -271,7 +271,7 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "38px";
+        height = props.height || "36px";
       }
       return `height: ${height}`;
     }}
@@ -367,8 +367,8 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     z-index: 2;
     width: 20px;
     position: absolute;
-    right: 5px;
-    top: 7px;
+    right: 0;
+    transform: translate(-50%, 50%);
     height: 20px;
     background: transparent;
     display: none;

@@ -7,6 +7,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Text",
   iconSVG: IconSVG,
+  searchTags: ["typography", "paragraph", "label"],
   defaults: {
     text: "Label",
     fontSize: DEFAULT_FONT_SIZE,
@@ -27,6 +28,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

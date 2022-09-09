@@ -10,7 +10,7 @@ import java.nio.file.Path;
 public interface FileInterface {
     /**
      * This method is use to store the serialised application to git repo, directory path structure we are going to follow :
-     * ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
+     * ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a repo path
      * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @return Path to where the application is stored

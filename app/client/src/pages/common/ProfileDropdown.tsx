@@ -1,11 +1,15 @@
 import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
-import Menu from "components/ads/Menu";
-import MenuDivider from "components/ads/MenuDivider";
-import MenuItem from "components/ads/MenuItem";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -18,7 +22,6 @@ import {
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
 } from "constants/routes";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
 import {
   ACCOUNT_TOOLTIP,
   createMessage,
@@ -98,7 +101,7 @@ export default function ProfileDropdown(props: TagProps) {
     <TooltipComponent
       content={createMessage(ACCOUNT_TOOLTIP)}
       hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      position={Position.BOTTOM_RIGHT}
+      position="bottom-right"
     >
       <ProfileImage
         className="t--profile-menu-icon"
@@ -113,7 +116,7 @@ export default function ProfileDropdown(props: TagProps) {
     <Menu
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
       target={Profile}
     >
       <UserInformation>

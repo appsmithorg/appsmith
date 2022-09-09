@@ -8,8 +8,8 @@ import { PluginFormPayload } from "api/PluginApi";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export const fetchPlugins = (payload?: {
-  orgId?: string;
-}): ReduxAction<{ orgId?: string } | undefined> => ({
+  workspaceId?: string;
+}): ReduxAction<{ workspaceId?: string } | undefined> => ({
   type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
   payload,
 });

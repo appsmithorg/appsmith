@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "Audio Recorder",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["sound recorder", "voice recorder"],
   defaults: {
     iconColor: "white",
     isDisabled: false,
@@ -21,6 +22,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

@@ -1,11 +1,11 @@
 import React, { ReactNode, useMemo } from "react";
 import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
-import { PluginType } from "entities/Action";
+import { isGraphqlPlugin, PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
 import { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { groupBy } from "lodash";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -23,8 +23,6 @@ export type ActionGroupConfig = {
   icon: JSX.Element;
   key: string;
   getURL: (
-    applicationSlug: string,
-    pageSlug: string,
     pageId: string,
     id: string,
     pluginType: PluginType,
@@ -43,8 +41,6 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      applicationSlug: string,
-      pageSlug: string,
       pageId: string,
       id: string,
       pluginType: PluginType,
@@ -52,8 +48,6 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
         return saasEditorApiIdURL({
-          applicationSlug,
-          pageSlug,
           pageId,
           pluginPackageName: plugin.packageName,
           apiId: id,
@@ -63,16 +57,21 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         pluginType === PluginType.REMOTE
       ) {
         return queryEditorIdURL({
-          pageSlug,
           pageId,
           queryId: id,
         });
       } else {
-        return apiEditorIdURL({ pageSlug, pageId, apiId: id });
+        return apiEditorIdURL({ pageId, apiId: id });
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
-      if (plugin && plugin.type === PluginType.API && !remoteIcon) {
+      const isGraphql = isGraphqlPlugin(plugin);
+      if (
+        plugin &&
+        plugin.type === PluginType.API &&
+        !remoteIcon &&
+        !isGraphql
+      ) {
         const method = action?.actionConfiguration?.httpMethod;
         if (method) return <ApiMethodIcon type={method} />;
       }

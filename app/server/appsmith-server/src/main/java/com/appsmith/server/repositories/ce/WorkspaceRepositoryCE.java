@@ -9,7 +9,7 @@ public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>
 
     Mono<Workspace> findBySlug(String slug);
 
-    Mono<Workspace> findByIdAndPluginsPluginId(String organizationId, String pluginId);
+    Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
 
     Mono<Workspace> findByName(String name);
 

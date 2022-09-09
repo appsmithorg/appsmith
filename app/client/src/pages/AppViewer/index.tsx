@@ -2,13 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   AppViewerRouteParams,
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
 } from "constants/routes";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getIsInitialized,
   getAppViewHeaderHeight,
@@ -22,16 +21,12 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
-import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
-import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import GlobalHotKeys from "./GlobalHotKeys";
 import webfontloader from "webfontloader";
 import { getSearchQuery } from "utils/helpers";
-import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
@@ -41,7 +36,14 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
-import { getShowBrandingBadge } from "@appsmith/selectors/organizationSelectors";
+import { CANVAS_SELECTOR } from "constants/WidgetConstants";
+import { fetchPublishedPage } from "actions/pageActions";
+import usePrevious from "utils/hooks/usePrevious";
+import { getIsBranchUpdated } from "../utils";
+import { APP_MODE } from "entities/App";
+import { initAppViewer } from "actions/initActions";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -53,13 +55,7 @@ const AppViewerBody = styled.section<{
   align-items: stretch;
   justify-content: flex-start;
   height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
-`;
-
-const ContainerWithComments = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  background: ${(props) => props.theme.colors.artboard};
+  --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
 `;
 
 const AppViewerBodyContainer = styled.div<{
@@ -80,7 +76,7 @@ const DEFAULT_FONT_NAME = "System Default";
 
 function AppViewer(props: Props) {
   const dispatch = useDispatch();
-  const { search } = props.location;
+  const { pathname, search } = props.location;
   const { applicationId, pageId } = props.match.params;
   const [registered, setRegistered] = useState(false);
   const isInitialized = useSelector(getIsInitialized);
@@ -92,23 +88,64 @@ function AppViewer(props: Props) {
   const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-  const showBrandingBadge = useSelector(getShowBrandingBadge);
+  const prevValues = usePrevious({ branch, location: props.location, pageId });
+  const { hideWatermark } = getAppsmithConfigs();
 
   /**
    * initializes the widgets factory and registers all widgets
    */
   useEffect(() => {
-    editorInitializer().then(() => setRegistered(true));
+    editorInitializer().then(() => {
+      setRegistered(true);
+    });
+
+    // onMount initPage
+    if (applicationId || pageId) {
+      dispatch(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
+    }
   }, []);
 
   /**
    * initialize the app if branch, pageId or application is changed
    */
   useEffect(() => {
-    if (applicationId || pageId) {
-      initializeAppViewerCallback(branch, applicationId, pageId);
+    const prevBranch = prevValues?.branch;
+    const prevLocation = prevValues?.location;
+    const prevPageId = prevValues?.pageId;
+    let isBranchUpdated = false;
+    if (prevBranch && prevLocation) {
+      isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
-  }, [branch, pageId, applicationId]);
+
+    const isPageIdUpdated = pageId !== prevPageId;
+
+    if (prevBranch && isBranchUpdated && (applicationId || pageId)) {
+      dispatch(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
+    } else {
+      /**
+       * First time load is handled by init sagas
+       * If we don't check for `prevPageId`: fetch page is retriggered
+       * when redirected to the default page
+       */
+      if (prevPageId && pageId && isPageIdUpdated) {
+        dispatch(fetchPublishedPage(pageId, true));
+      }
+    }
+  }, [branch, pageId, applicationId, pathname]);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");
@@ -139,25 +176,11 @@ function AppViewer(props: Props) {
     }
 
     document.body.style.fontFamily = appFontFamily;
-  }, [selectedTheme.properties.fontFamily.appFont]);
 
-  /**
-   * callback for initialize app
-   */
-  const initializeAppViewerCallback = (
-    branch: string,
-    applicationId: string,
-    pageId: string,
-  ) => {
-    dispatch({
-      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: {
-        branch: branch,
-        applicationId,
-        pageId,
-      },
-    });
-  };
+    return function reset() {
+      document.body.style.fontFamily = "inherit";
+    };
+  }, [selectedTheme.properties.fontFamily.appFont]);
 
   /**
    * callback for executing an action
@@ -206,35 +229,42 @@ function AppViewer(props: Props) {
 
   return (
     <ThemeProvider theme={lightTheme}>
-      <GlobalHotKeys>
-        <EditorContext.Provider
-          value={{
-            executeAction: executeActionCallback,
-            resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
-            batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
-            syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
-            triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
-          }}
+      <EditorContext.Provider
+        value={{
+          executeAction: executeActionCallback,
+          resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
+          batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
+          syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
+          triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
+        }}
+      >
+        <WidgetGlobaStyles
+          fontFamily={selectedTheme.properties.fontFamily.appFont}
+          primaryColor={selectedTheme.properties.colors.primaryColor}
+        />
+        <AppViewerBodyContainer
+          backgroundColor={selectedTheme.properties.colors.backgroundColor}
         >
-          <ContainerWithComments>
-            <AppViewerCommentsSidebar />
-            <AppViewerBodyContainer
-              backgroundColor={selectedTheme.properties.colors.backgroundColor}
+          <AppViewerBody
+            className={CANVAS_SELECTOR}
+            hasPages={pages.length > 1}
+            headerHeight={headerHeight}
+            showGuidedTourMessage={showGuidedTourMessage}
+          >
+            {isInitialized && registered && <AppViewerPageContainer />}
+          </AppViewerBody>
+          {!hideWatermark && (
+            <a
+              className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
+              href="https://appsmith.com"
+              rel="noreferrer"
+              target="_blank"
             >
-              <AppViewerBody
-                hasPages={pages.length > 1}
-                headerHeight={headerHeight}
-                showGuidedTourMessage={showGuidedTourMessage}
-              >
-                {isInitialized && registered && <AppViewerPageContainer />}
-              </AppViewerBody>
-              {showBrandingBadge && <BrandingBadge />}
-            </AppViewerBodyContainer>
-          </ContainerWithComments>
-          <AddCommentTourComponent />
-          <CommentShowCaseCarousel />
-        </EditorContext.Provider>
-      </GlobalHotKeys>
+              <BrandingBadge />
+            </a>
+          )}
+        </AppViewerBodyContainer>
+      </EditorContext.Provider>
     </ThemeProvider>
   );
 }

@@ -7,17 +7,15 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -53,7 +51,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit tests for the PostgresPlugin
  */
-@Slf4j
 public class MssqlPluginTest {
 
     MssqlPlugin.MssqlPluginExecutor pluginExecutor = new MssqlPlugin.MssqlPluginExecutor();
@@ -533,7 +530,6 @@ public class MssqlPluginTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    System.out.printf("result : " + result);
                     assertTrue(result.getIsExecutionSuccess());
                 })
                 .verifyComplete();

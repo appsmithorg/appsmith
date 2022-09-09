@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect } from "react";
 import EntityProperty from "./EntityProperty";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { WidgetType } from "constants/WidgetConstants";
+import {
+  entityDefinitions,
+  EntityDefinitionsOptions,
+} from "utils/autocomplete/EntityDefinitions";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
 import { isEmpty } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -170,7 +172,7 @@ export function EntityProperties() {
       break;
     case ENTITY_TYPE.WIDGET:
       const type: Exclude<
-        Partial<WidgetType>,
+        EntityDefinitionsOptions,
         | "CANVAS_WIDGET"
         | "ICON_WIDGET"
         | "SKELETON_WIDGET"

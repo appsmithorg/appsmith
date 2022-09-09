@@ -1,6 +1,6 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import Button from "components/ads/Button";
+import { Button } from "design-system";
 import {
   ONBOARDING_TASK_DATASOURCE_BODY,
   ONBOARDING_TASK_DATASOURCE_HEADER,
@@ -132,6 +132,7 @@ export default function OnboardingTasks() {
               });
               history.push(
                 integrationEditorURL({
+                  pageId,
                   selectedTab: INTEGRATION_TABS.NEW,
                 }),
               );
@@ -183,6 +184,7 @@ export default function OnboardingTasks() {
               });
               history.push(
                 integrationEditorURL({
+                  pageId,
                   selectedTab: INTEGRATION_TABS.ACTIVE,
                 }),
               );

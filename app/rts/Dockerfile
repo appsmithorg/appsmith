@@ -4,9 +4,9 @@ LABEL maintainer="tech@appsmith.com"
 
 WORKDIR /app
 
-COPY package.json yarn.lock dist/* ./
+COPY package.json dist ./
 
-RUN yarn install --frozen-lockfile
+COPY node_modules ./node_modules
 
 EXPOSE 8091
 

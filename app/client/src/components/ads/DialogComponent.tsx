@@ -2,7 +2,7 @@ import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import Icon, { IconName, IconSize } from "./Icon";
+import { Icon, IconName, IconSize } from "design-system";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
@@ -189,7 +189,9 @@ export function DialogComponent(props: DialogComponentProps) {
         width={props.width}
       >
         {getHeader && getHeader()}
-        <div className={Classes.DIALOG_BODY}>{props.children}</div>
+        <div className={Classes.DIALOG_BODY} data-testid="t--dialog-component">
+          {props.children}
+        </div>
       </StyledDialog>
     </>
   );

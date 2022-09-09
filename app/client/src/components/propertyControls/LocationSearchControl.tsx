@@ -30,7 +30,7 @@ class LocationSearchControl extends BaseControl<ControlProps> {
       const lat = location.lat();
       const long = location.lng();
       const value = { lat, long, title };
-      this.updateProperty(this.props.propertyName, value);
+      this.updateProperty(this.props.propertyName, value, true);
     } catch (e) {
       if (this.searchBox && this.searchBox.getPlaces)
         log.debug("Error selecting location:", this.searchBox.getPlaces());

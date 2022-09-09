@@ -14,7 +14,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
@@ -29,6 +29,7 @@ import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { SEARCH_ENTITY } from "constants/Explorer";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -86,13 +87,14 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const noResults = false;
+  const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
-    history.push(builderURL());
+    history.push(builderURL({ pageId }));
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [isFirstTimeUserOnboardingEnabled]);
+  }, [isFirstTimeUserOnboardingEnabled, pageId]);
 
   /**
    * filter entitites
@@ -111,7 +113,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
 
   return (
     <Wrapper
-      className={`relative overflow-y-auto ${isActive ? "" : "hidden"}`}
+      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
+        isActive ? "" : "hidden"
+      }`}
       ref={explorerRef}
     >
       {/* SEARCH */}

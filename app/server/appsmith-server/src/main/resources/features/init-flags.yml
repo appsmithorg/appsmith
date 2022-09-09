@@ -70,12 +70,3 @@ ff4j:
         param:
           - name: emails
             value: aswath+test_grouping@appsmith.com
-
-    - uid: RBAC
-      enable: true
-      description: Enable access control settings
-      flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
-        param:
-          - name: emailDomains
-            value: appsmith.com

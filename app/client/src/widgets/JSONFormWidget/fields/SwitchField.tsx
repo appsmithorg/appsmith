@@ -7,6 +7,7 @@ import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { AlignWidget, AlignWidgetTypes } from "widgets/constants";
 import {
+  ActionUpdateDependency,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
@@ -83,6 +84,7 @@ function SwitchField({
           event: {
             type: EventType.ON_SWITCH_CHANGE,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },

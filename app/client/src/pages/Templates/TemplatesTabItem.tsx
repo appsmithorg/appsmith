@@ -1,8 +1,8 @@
 import { Popover2, Classes as Popover2Classes } from "@blueprintjs/popover2";
 import { useLocation } from "react-router";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
-import { TextType, Text, Classes } from "components/ads";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "components/ads";
+import { Icon, IconSize, TextType, Text } from "design-system";
 import { Colors } from "constants/Colors";
 import { matchTemplatesPath } from "constants/routes";
 import { isNull } from "lodash";
@@ -15,11 +15,11 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getIsFetchingApplications,
-  getUserApplicationsOrgsList,
+  getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
 import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 const NotificationWrapper = styled.div`
   background-color: ${Colors.SEA_SHELL};
@@ -79,8 +79,8 @@ interface TemplatesTabItemProps {
 export function TemplatesTabItem(props: TemplatesTabItemProps) {
   const hasSeenNotification = useSelector(showTemplateNotificationSelector);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const organizationListLength = useSelector(
-    (state: AppState) => getUserApplicationsOrgsList(state).length,
+  const workspaceListLength = useSelector(
+    (state: AppState) => getUserApplicationsWorkspacesList(state).length,
   );
   const location = useLocation();
   const dispatch = useDispatch();
@@ -89,7 +89,7 @@ export function TemplatesTabItem(props: TemplatesTabItemProps) {
     !hasSeenNotification &&
     !isFetchingApplications &&
     !isNull(hasSeenNotification) &&
-    organizationListLength;
+    workspaceListLength;
 
   const setNotificationSeenFlag = () => {
     dispatch(setTemplateNotificationSeenAction(true));

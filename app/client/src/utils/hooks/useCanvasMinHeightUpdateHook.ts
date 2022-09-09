@@ -1,7 +1,7 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";

@@ -4,20 +4,20 @@ let dsl: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   apiPage = ObjectsRegistry.ApiPage,
-  jsEditor = ObjectsRegistry.JSEditor,
+  propPane = ObjectsRegistry.PropertyPane,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Layout OnLoad Actions tests", function() {
   before(() => {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
+      agHelper.AddDsl(val);
       dsl = val;
     });
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
-    agHelper.AddDsl(dsl);
-    ee.SelectEntityByName("WIDGETS");
+    ee.SelectEntityByName("Widgets");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
       const pageid = url
@@ -39,51 +39,54 @@ describe("Layout OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",
+      30000,
     );
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
+    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
+    apiPage.CreateAndFillApi(
+      "https://favqs.com/api/qotd",
+      "InspiringQuotes",
+      30000,
+    );
     apiPage.EnterHeader("dependency", "{{RandomUser.data}}"); //via Params tab
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi(
       "https://www.boredapi.com/api/activity",
       "Suggestions",
+      30000,
     );
     apiPage.EnterHeader("dependency", "{{InspiringQuotes.data}}");
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize");
+    apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize", 30000);
     apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}"); //via Params tab
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.expandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Widgets");
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
+    propPane.UpdatePropertyFieldValue("Image", `{{RandomFlora.data}}`);
 
     ee.SelectEntityByName("Image2");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Image",
       `{{RandomUser.data.results[0].picture.large}}`,
-      true,
     );
 
     ee.SelectEntityByName("Text1");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`,
-      true,
     );
 
     ee.SelectEntityByName("Text2");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`,
-      true,
     );
 
     // cy.url().then((url) => {
@@ -125,9 +128,7 @@ describe("Layout OnLoad Actions tests", function() {
     //   });
     // });
 
-    deployMode.DeployApp();
-    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
@@ -164,25 +165,23 @@ describe("Layout OnLoad Actions tests", function() {
       );
     });
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {
-    ee.SelectEntityByName("Genderize", "QUERIES/JS");
+    ee.SelectEntityByName("Genderize", "Queries/JS");
     ee.ActionContextMenuByEntityName("Genderize", "Delete", "Are you sure?");
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
-      "Genderize",
+      "Genderize", 30000
     );
     apiPage.ValidateQueryParams({
       key: "name",
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
 
-    deployMode.DeployApp();
-    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);

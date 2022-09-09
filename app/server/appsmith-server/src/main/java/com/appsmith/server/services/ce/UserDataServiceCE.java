@@ -41,7 +41,7 @@ public interface UserDataServiceCE {
 
     Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange);
 
-    Mono<UserData> updateLastUsedAppAndOrgList(Application application);
+    Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application);
 
     Mono<UserData> addTemplateIdToLastUsedList(String templateId);
 
@@ -49,6 +49,6 @@ public interface UserDataServiceCE {
 
     Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState);
 
-    Mono<UpdateResult> removeRecentOrgAndApps(String userId, String organizationId);
+    Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
 
 }

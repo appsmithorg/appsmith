@@ -11,12 +11,15 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+  INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
+  INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+  INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, merge, toString } from "lodash";
+import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
@@ -299,9 +302,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Icon",
               helpText: "Sets the icon to be used in input field",
               controlType: "ICON_SELECT",
-              isBindProperty: false,
+              isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              isJSConvertible: true,
+              validation: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  allowedValues: ICON_NAMES,
+                },
+              },
             },
             {
               propertyName: "iconAlign",
@@ -328,6 +337,200 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         },
       ],
       super.getPropertyPaneConfig(),
+    );
+  }
+
+  static getPropertyPaneContentConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "Data",
+          children: [
+            {
+              helpText: "Changes the type of data captured in the input",
+              propertyName: "inputType",
+              label: "Data Type",
+              controlType: "DROP_DOWN",
+              options: [
+                {
+                  label: "Text",
+                  value: "TEXT",
+                },
+                {
+                  label: "Number",
+                  value: "NUMBER",
+                },
+                {
+                  label: "Password",
+                  value: "PASSWORD",
+                },
+                {
+                  label: "Email",
+                  value: "EMAIL",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+            },
+            {
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "John Doe",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "string or number",
+                    example: `John | 123`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
+              dependencies: ["inputType"],
+            },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+            {
+              helpText: "Sets maximum allowed text length",
+              propertyName: "maxChars",
+              label: "Max Characters",
+              controlType: "INPUT_TEXT",
+              placeholderText: "255",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.NUMBER,
+                params: { min: 1, natural: true },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.TEXT;
+              },
+              dependencies: ["inputType"],
+            },
+            {
+              helpText: "Sets the minimum allowed value",
+              propertyName: "minNum",
+              label: "Min",
+              controlType: "INPUT_TEXT",
+              placeholderText: "1",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: minValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `1`,
+                    autocompleteDataType: AutocompleteDataType.NUMBER,
+                  },
+                },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.NUMBER;
+              },
+              dependencies: ["inputType"],
+            },
+            {
+              helpText: "Sets the maximum allowed value",
+              propertyName: "maxNum",
+              label: "Max",
+              controlType: "INPUT_TEXT",
+              placeholderText: "100",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: maxValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `100`,
+                    autocompleteDataType: AutocompleteDataType.NUMBER,
+                  },
+                },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.NUMBER;
+              },
+              dependencies: ["inputType"],
+            },
+          ],
+        },
+      ],
+      super.getPropertyPaneContentConfig(),
+    );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "Icon",
+          children: [
+            {
+              propertyName: "iconName",
+              label: "Icon",
+              helpText: "Sets the icon to be used in input field",
+              controlType: "ICON_SELECT",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  allowedValues: ICON_NAMES,
+                },
+              },
+            },
+            {
+              propertyName: "iconAlign",
+              label: "Position",
+              helpText: "Sets the icon alignment of input field",
+              controlType: "ICON_TABS",
+              options: [
+                {
+                  icon: "VERTICAL_LEFT",
+                  value: "left",
+                },
+                {
+                  icon: "VERTICAL_RIGHT",
+                  value: "right",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: InputWidgetProps) => !props.iconName,
+              dependencies: ["iconName"],
+            },
+          ],
+        },
+      ],
+      super.getPropertyPaneStyleConfig(),
     );
   }
 
@@ -443,7 +646,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       conditionalProps.minNum = this.props.minNum;
     }
 
-    if (this.props.inputType === "TEXT" && this.props.maxChars) {
+    if (this.props.inputType === InputTypes.TEXT && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
@@ -453,6 +656,37 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
           INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+          this.props.maxChars,
+        );
+      } else if (value && value.length > this.props.maxChars) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_TEXT_MAX_CHAR_ERROR,
+          this.props.maxChars,
+        );
+      }
+    }
+
+    if (
+      this.props.inputType === InputTypes.NUMBER &&
+      isNumber(this.props.defaultText)
+    ) {
+      // check the default text is neither greater than max nor less than min value.
+      if (
+        !isNil(this.props.minNum) &&
+        this.props.minNum > Number(this.props.defaultText)
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+        );
+      } else if (
+        !isNil(this.props.maxNum) &&
+        this.props.maxNum < Number(this.props.defaultText)
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
         );
       }
     }
@@ -495,7 +729,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
-            1 && this.props.inputType === "TEXT"
+            1 && this.props.inputType === InputTypes.TEXT
         }
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}

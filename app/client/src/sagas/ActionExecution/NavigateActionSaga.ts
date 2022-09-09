@@ -5,7 +5,7 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { convertToQueryParams } from "RouteBuilder";
+import { getQueryStringfromObject } from "RouteBuilder";
 import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -79,7 +79,7 @@ export default function* navigateActionSaga(
     AnalyticsUtil.logEvent("NAVIGATE", {
       navUrl: pageNameOrUrl,
     });
-    let url = pageNameOrUrl + convertToQueryParams(params);
+    let url = pageNameOrUrl + getQueryStringfromObject(params);
     // Add a default protocol if it doesn't exist.
     if (!isValidUrlScheme(url)) {
       url = "https://" + url;

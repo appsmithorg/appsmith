@@ -60,7 +60,7 @@ public class ExampleApplicationsAreMarked {
     @WithUserDetails(value = "api_user")
     public void exampleApplicationsAreMarked() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 3");
+        newWorkspace.setName("Template Workspace 3");
         final Mono<List<Application>> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
@@ -77,22 +77,22 @@ public class ExampleApplicationsAreMarked {
                     // Create 4 applications inside the example workspace but only mark three applications as example
                     final Application app1 = new Application();
                     app1.setName("first application");
-                    app1.setOrganizationId(workspace.getId());
+                    app1.setWorkspaceId(workspace.getId());
                     app1.setIsPublic(true);
 
                     final Application app2 = new Application();
                     app2.setName("second application");
-                    app2.setOrganizationId(workspace.getId());
+                    app2.setWorkspaceId(workspace.getId());
                     app2.setIsPublic(true);
 
                     final Application app3 = new Application();
                     app3.setName("third application");
-                    app3.setOrganizationId(workspace.getId());
+                    app3.setWorkspaceId(workspace.getId());
                     app3.setIsPublic(false);
 
                     final Application app4 = new Application();
                     app4.setName("fourth application");
-                    app4.setOrganizationId(workspace.getId());
+                    app4.setWorkspaceId(workspace.getId());
                     app4.setIsPublic(false);
 
                     Mockito.when(configService.getTemplateApplications()).thenReturn(Flux.fromIterable(List.of(app1, app2, app3)));
@@ -106,7 +106,7 @@ public class ExampleApplicationsAreMarked {
                             )
                             .thenReturn(workspace.getId());
                 })
-                .flatMapMany(workspaceId -> applicationService.findByOrganizationId(workspaceId, READ_APPLICATIONS))
+                .flatMapMany(workspaceId -> applicationService.findByWorkspaceId(workspaceId, READ_APPLICATIONS))
                 .collectList();
 
         StepVerifier.create(resultMono)

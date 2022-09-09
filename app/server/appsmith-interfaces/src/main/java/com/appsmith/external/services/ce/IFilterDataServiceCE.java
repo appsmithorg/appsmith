@@ -13,14 +13,9 @@ import java.util.Map;
 
 public interface IFilterDataServiceCE {
 
-    ArrayNode filterData(ArrayNode items, List<Condition> conditionList);
-
     ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams);
 
-    List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String,
-            DataType> schema, Map<DataType, DataType> dataTypeConversionMaps);
-
-    void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema);
+    ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams, Map<DataType, DataType> dataTypeConversionMap);
 
     void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap);
 
@@ -28,7 +23,7 @@ public interface IFilterDataServiceCE {
 
     void dropTable(String tableName);
 
-    Map<String, DataType> generateSchema(ArrayNode items);
+    Map<String, DataType> generateSchema(ArrayNode items, Map<DataType, DataType> dataTypeConversionMap);
 
     boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema);
 

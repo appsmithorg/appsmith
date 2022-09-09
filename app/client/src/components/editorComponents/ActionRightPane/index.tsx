@@ -1,9 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import { useState } from "react";
 import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -11,13 +18,12 @@ import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
 import { useEffect } from "react";
-import Button, { Category, Size } from "components/ads/Button";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
   BACK_TO_CANVAS,
@@ -29,7 +35,10 @@ import {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 
 const SideBar = styled.div`
@@ -215,6 +224,7 @@ function ActionSidebar({
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -234,6 +244,9 @@ function ActionSidebar({
       }),
     );
   };
+  const navigateToCanvas = useCallback(() => {
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
   const hasWidgets = Object.keys(widgets).length > 1;
 
   const showSuggestedWidgets =
@@ -244,13 +257,9 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
-  const navigeteToCanvas = () => {
-    history.push(builderURL());
-  };
-
   return (
     <SideBar>
-      <BackButton onClick={navigeteToCanvas}>
+      <BackButton onClick={navigateToCanvas}>
         <Icon
           fillColor={Colors.DOVE_GRAY}
           keepColors

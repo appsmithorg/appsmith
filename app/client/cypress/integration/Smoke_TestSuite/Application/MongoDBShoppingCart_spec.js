@@ -2,6 +2,7 @@ const dsl = require("../../../fixtures/mongoAppdsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
+const formControls = require("../../../locators/FormControl.json");
 
 let repoName;
 describe("Shopping cart App", function() {
@@ -39,10 +40,13 @@ describe("Shopping cart App", function() {
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("EditProducts");
-    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
-    cy.get(".t--dropdown-option")
-      .eq(2)
-      .click();
+
+    // Clicking outside to trigger the save
+    cy.get("body").click(0, 0);
+    cy.TargetDropdownAndSelectOption(
+      formControls.commandDropdown,
+      "Update Document(s)",
+    );
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
@@ -68,34 +72,50 @@ describe("Shopping cart App", function() {
     cy.get(queryLocators.createQuery)
       .last()
       .click();
+    cy.wait(5000);
     cy.get(queryLocators.queryNameField).type("AddProduct");
-    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
-    cy.get(".t--dropdown-option")
-      .eq(1)
-      .click();
+    // Clicking outside to trigger the save
+    cy.get("body").click(0, 0);
+    cy.TargetDropdownAndSelectOption(
+      formControls.commandDropdown,
+      "Insert Document(s)",
+    );
+    // cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
+    // cy.get(".t--dropdown-option")
+    //   .eq(1)
+    //   .click();
+    const documentText = [
+      {
+        title: "{{Title.text}}",
+        description: "{{Description.text}}",
+        price: "{{Price.text}}",
+        quantity: "{{Quantity.text}}",
+      },
+    ];
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames", { parseSpecialCharSequences: false });
     cy.get(".CodeEditorTarget")
       .eq(1)
-      .type(
-        `[{"title" : "{{Title.text}}",
-        "description": "{{Description.text}}",
-        "price" : {{Price.text}},
-        "quantity" : {{Quantity.text}}`,
-        { parseSpecialCharSequences: false },
-      );
+      .type(JSON.stringify(documentText), { parseSpecialCharSequences: false });
     cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // delete product
     cy.get(queryLocators.createQuery)
       .last()
       .click();
+    cy.wait(5000);
     cy.get(queryLocators.queryNameField).type("DeleteProduct");
-    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
-    cy.get(".t--dropdown-option")
-      .eq(3)
-      .click();
+    // Clicking outside to trigger the save
+    cy.get("body").click(0, 0);
+    cy.TargetDropdownAndSelectOption(
+      formControls.commandDropdown,
+      "Delete Document(s)",
+    );
+    // cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
+    // cy.get(".t--dropdown-option")
+    //   .eq(3)
+    //   .click();
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames", { parseSpecialCharSequences: false });

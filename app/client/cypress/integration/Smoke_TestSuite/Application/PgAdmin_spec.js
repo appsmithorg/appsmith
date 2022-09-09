@@ -6,8 +6,8 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
 describe("PgAdmin Clone App", function() {
-  let orgid;
-  let newOrganizationName;
+  let workspaceId;
+  let newWorkspaceName;
   let appname;
   let datasourceName;
 
@@ -22,9 +22,6 @@ describe("PgAdmin Clone App", function() {
     // authenticating datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
 
     cy.testSaveDatasource();

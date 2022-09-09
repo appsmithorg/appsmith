@@ -6,7 +6,8 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
-import org.junit.jupiter.api.Test;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class NewPageServiceTest {
+public class NewPageServiceTest {
 
     @Autowired
     NewPageService newPageService;
@@ -34,7 +35,7 @@ class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    void findApplicationPages_WhenApplicationIdAndPageIdNotPresent_ThrowsException() {
+    public void findApplicationPages_WhenApplicationIdAndPageIdNotPresent_ThrowsException() {
         StepVerifier.create(
                         newPageService.findApplicationPages(null, null, "master", ApplicationMode.EDIT)
                 )
@@ -44,7 +45,7 @@ class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    void findApplicationPages_WhenApplicationIdPresent_ReturnsPages() {
+    public void findApplicationPages_WhenApplicationIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + randomId);
@@ -70,7 +71,7 @@ class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    void findApplicationPages_WhenPageIdPresent_ReturnsPages() {
+    public void findApplicationPages_WhenPageIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + randomId);

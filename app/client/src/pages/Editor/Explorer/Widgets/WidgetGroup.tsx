@@ -16,7 +16,7 @@ import {
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
 
@@ -61,7 +61,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       isDefaultExpanded={isWidgetsOpen}
       isSticky
       key={pageId + "_widgets"}
-      name="WIDGETS"
+      name="Widgets"
       onCreate={props.addWidgetsFn}
       onToggle={onWidgetToggle}
       searchKeyword={props.searchKeyword}

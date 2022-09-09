@@ -11,6 +11,8 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -20,6 +22,8 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -66,6 +70,9 @@ public class AuthenticationServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
+    @Autowired
+    WorkspaceService workspaceService;
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
@@ -85,14 +92,16 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_invalidDatasourceWithNullAuthentication() {
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Another Test Workspace");
+        testWorkspace = workspaceService.create(testWorkspace).block();
         String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("Missing OAuth2 datasource");
-        datasource.setOrganizationId(workspaceId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -122,14 +131,14 @@ public class AuthenticationServiceTest {
 
         MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").headers(mockHeaders).build();
 
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Another Test Workspace");
+        testWorkspace = workspaceService.create(testWorkspace).block();
         String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
-        User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getOrganizationIds().iterator().next();
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
@@ -140,9 +149,13 @@ public class AuthenticationServiceTest {
         PageDTO pageDto = applicationPageService.createPage(testPage).block();
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        // install plugin
+        pluginMono.flatMap(plugin -> {
+            return pluginService.installPlugin(PluginWorkspaceDTO.builder().pluginId(plugin.getId()).workspaceId(workspaceId).status(WorkspacePluginStatus.FREE).build());
+        }).block();
         Datasource datasource = new Datasource();
         datasource.setName("Valid datasource for OAuth2");
-        datasource.setOrganizationId(workspaceId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         OAuth2 authenticationDTO = new OAuth2();

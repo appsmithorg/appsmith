@@ -6,11 +6,9 @@ import {
   LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
-import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
@@ -60,6 +58,7 @@ import {
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
+import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -210,11 +209,9 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
         canExtend: false,
         isVisible: true,
       };
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicBindings;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicProperties;
       if (canvas.children && canvas.children.length > 0)
         canvas.children = canvas.children.map(updateContainers);
@@ -670,34 +667,20 @@ const pixelToNumber = (pixel: string) => {
   return 0;
 };
 
-export const calculateDynamicHeight = (
-  canvasWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = {},
-  presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
-) => {
-  let minimumHeight = presentMinimumHeight;
-  const nextAvailableRow = nextAvailableRowInContainer(
-    MAIN_CONTAINER_WIDGET_ID,
-    canvasWidgets,
-  );
+export const calculateDynamicHeight = () => {
   const screenHeight = window.innerHeight;
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
   // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
   // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
   // buffer: ~8 grid row height
-  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
+  const buffer =
+    gridRowHeight +
+    2 * pixelToNumber(theme.smallHeaderHeight) +
+    pixelToNumber(theme.bottomBarHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
-  if (
-    calculatedCanvasHeight < screenHeight &&
-    calculatedMinHeight !== presentMinimumHeight
-  ) {
-    minimumHeight = calculatedMinHeight;
-  }
-  return minimumHeight;
+  return calculatedMinHeight;
 };
 
 export const migrateInitialValues = (
@@ -1098,6 +1081,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 58) {
     currentDSL = migrateCheckboxSwitchProperty(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 59) {
+    currentDSL = migrateChartWidgetReskinningData(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

@@ -2,11 +2,11 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -52,6 +52,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     ThemeService themeService;
+
+    @MockBean
+    UserDataService userDataService;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

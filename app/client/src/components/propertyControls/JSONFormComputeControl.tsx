@@ -3,9 +3,7 @@ import { isString } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -24,6 +22,7 @@ import {
   Schema,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
+import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -178,8 +177,12 @@ export const JSToString = (js: string): string => {
 };
 
 class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
-  getInputComputedValue = (propertyValue: string) => {
-    const { widgetName } = this.props.widgetProperties;
+  static getInputComputedValue = (
+    propertyValue: string,
+    widgetName: string,
+  ) => {
+    if (!isDynamicValue(propertyValue)) return propertyValue;
+
     const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
     const value = propertyValue.substring(
@@ -192,6 +195,22 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
 
   getComputedValue = (value: string) => {
     const { widgetName } = this.props.widgetProperties;
+
+    /**
+     * If the input value is not a binding then there is no need of adding binding template
+     * to the value as it would be of no use.
+     *
+     * Original motivation of doing this to allow REGEX to work. If the value is REGEX, eg - ^\d+$ and the
+     * binding template is added, the REGEX is processed by evaluation and the "\" is considered as a escape and
+     * is removed from the final value and the regex become ^d+$. In order to make it work inside a binding the "\"
+     * has to be escaped by doing ^\\d+$.
+     * As the user is unaware of this binding template being added under the hood, it is not obvious for the user
+     * to escape the "\".
+     * Thus now we only add the binding template around a value only if the original value has a binding as that could
+     * be an indication of the usage of formData/sourceData/fieldState in the value.
+     */
+    if (!isDynamicValue(value)) return value;
+
     const stringToEvaluate = stringToJS(value);
     const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
@@ -236,7 +255,11 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
 
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
-        return this.getInputComputedValue(propertyValue);
+        const { widgetName } = this.props.widgetProperties;
+        return JSONFormComputeControl.getInputComputedValue(
+          propertyValue,
+          widgetName,
+        );
       }
 
       return propertyValue || defaultValue;

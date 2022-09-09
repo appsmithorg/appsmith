@@ -5,10 +5,7 @@ import {
   isDynamicValue,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
-import {
-  getBindingTemplate,
-  ROOT_SCHEMA_KEY,
-} from "widgets/JSONFormWidget/constants";
+import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -107,28 +104,21 @@ export const getPropertiesToUpdateForReset = (
             `schema.${ROOT_SCHEMA_KEY}`,
             (schemaItem, propertyPath) => {
               const fieldStylesheet = getFieldStylesheet(
+                widget.widgetName,
                 schemaItem.fieldType,
                 themeStylesheet[widget.type].childStylesheet as any,
               );
 
               Object.keys(fieldStylesheet).map((fieldPropertyKey) => {
                 const fieldStylesheetValue = fieldStylesheet[fieldPropertyKey];
-                const { jsSnippets, stringSegments } = getDynamicBindings(
-                  fieldStylesheet[fieldPropertyKey],
-                );
-                const js = combineDynamicBindings(jsSnippets, stringSegments);
-                const { prefixTemplate, suffixTemplate } = getBindingTemplate(
-                  widget.widgetName,
-                );
-                const computedValue = `${prefixTemplate}${js}${suffixTemplate}`;
 
                 if (
                   isDynamicValue(fieldStylesheetValue) &&
-                  computedValue !== get(schemaItem, fieldPropertyKey)
+                  fieldStylesheetValue !== get(schemaItem, fieldPropertyKey)
                 ) {
                   modifications[
                     `${[propertyPath]}.${fieldPropertyKey}`
-                  ] = computedValue;
+                  ] = fieldStylesheetValue;
                 }
               });
             },

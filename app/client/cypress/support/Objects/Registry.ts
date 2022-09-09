@@ -6,8 +6,12 @@ import { ApiPage } from "../Pages/ApiPage";
 import { HomePage } from "../Pages/HomePage";
 import { DataSources } from "../Pages/DataSources";
 import { Table } from "../Pages/Table";
+import { TableV2 } from "../Pages/TableV2";
 import { PropertyPane } from "../Pages/PropertyPane";
 import { DeployMode } from "../Pages/DeployModeHelper";
+import { GitSync } from "../Pages/GitSync";
+import { FakerHelper } from "../Pages/FakerHelper";
+
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -74,6 +78,14 @@ export class ObjectsRegistry {
     return ObjectsRegistry.table__;
   }
 
+  private static tableV2__: TableV2;
+  static get TableV2(): TableV2 {
+    if (ObjectsRegistry.tableV2__ === undefined) {
+      ObjectsRegistry.tableV2__ = new TableV2();
+    }
+    return ObjectsRegistry.tableV2__;
+  }
+
   private static propertyPane__: PropertyPane;
   static get PropertyPane(): PropertyPane {
     if (ObjectsRegistry.propertyPane__ === undefined) {
@@ -89,6 +101,22 @@ export class ObjectsRegistry {
     }
     return ObjectsRegistry.deployMode__;
   }
+
+  private static gitSync__: GitSync;
+  static get GitSync(): GitSync {
+    if (ObjectsRegistry.gitSync__ === undefined) {
+      ObjectsRegistry.gitSync__ = new GitSync();
+    }
+    return ObjectsRegistry.gitSync__;
+  }
+  
+  private static fakerHelper__: FakerHelper;
+  static get FakerHelper(): FakerHelper {
+    if (ObjectsRegistry.fakerHelper__ === undefined) {
+      ObjectsRegistry.fakerHelper__ = new FakerHelper();
+    }
+    return ObjectsRegistry.fakerHelper__;
+  }
 }
 
 export const initLocalstorageRegistry = () => {
@@ -99,10 +127,10 @@ export const initLocalstorageRegistry = () => {
   localStorage.setItem("inDeployedMode", "false");
 };
 
-declare global {
+declare namespace Cypress {
   namespace Cypress {
     interface Chainable {
-      typeTab: (shiftKey: Boolean, ctrlKey: boolean) => void;
+      TypeTab: (shiftKey: Boolean, ctrlKey: boolean) => void;
     }
   }
 }

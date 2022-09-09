@@ -108,6 +108,7 @@ export const getStylesheetValue = (
   return getSchemaItem(props, propertyPath).compute(
     (schemaItem, propertyName) => {
       const fieldStylesheet = getFieldStylesheet(
+        props.widgetName,
         schemaItem.fieldType,
         widgetStylesheet?.childStylesheet as FieldThemeStylesheet,
       );
@@ -192,4 +193,15 @@ export const updateChildrenDisabledStateHook = (
       },
     ];
   }
+};
+
+export const isFieldTypeArrayOrObject = (
+  props: JSONFormWidgetProps,
+  propertyPath: string,
+) => {
+  const schemaItem: SchemaItem = get(props, propertyPath, {});
+  return (
+    schemaItem.fieldType === FieldType.ARRAY ||
+    schemaItem.fieldType === FieldType.OBJECT
+  );
 };

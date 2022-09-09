@@ -1,6 +1,10 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
+import reactor.netty.tcp.DefaultSslContextSpec;
+import reactor.netty.tcp.SslProvider;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -14,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.function.Consumer;
 
 public class SSLHelper {
 
@@ -49,5 +54,27 @@ public class SSLHelper {
         trustManagerFactory.init(keyStore);
 
         return trustManagerFactory;
+    }
+
+    public static Consumer<? super SslProvider.SslContextSpec> sslCheckForHttpClient(DatasourceConfiguration datasourceConfiguration) {
+
+        return (sslContextSpec) -> {
+            final DefaultSslContextSpec sslContextSpec1 = DefaultSslContextSpec.forClient();
+
+            if (datasourceConfiguration.getConnection() != null &&
+                    datasourceConfiguration.getConnection().getSsl() != null &&
+                    datasourceConfiguration.getConnection().getSsl().getAuthType() == SSLDetails.AuthType.SELF_SIGNED_CERTIFICATE) {
+
+                sslContextSpec1.configure(sslContextBuilder -> {
+                    try {
+                        final UploadedFile certificateFile = datasourceConfiguration.getConnection().getSsl().getCertificateFile();
+                        sslContextBuilder.trustManager(SSLHelper.getSslTrustManagerFactory(certificateFile));
+                    } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            sslContextSpec.sslContext(sslContextSpec1);
+        };
     }
 }

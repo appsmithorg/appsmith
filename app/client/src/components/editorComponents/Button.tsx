@@ -77,7 +77,7 @@ export type ButtonProps = {
   filled?: boolean;
   intent?: Intent;
   text?: string;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent<HTMLElement>) => void;
   href?: string;
   icon?: string | MaybeElement;
   iconAlignment?: Direction;

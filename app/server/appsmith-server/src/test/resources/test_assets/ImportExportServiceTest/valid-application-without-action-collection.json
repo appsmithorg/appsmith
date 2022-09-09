@@ -90,7 +90,7 @@
         "name": "Page1",
         "layouts": [
           {
-            "id": "60aca056136c4b7178f67906",
+            "id": "Page1",
             "userPermissions": [],
             "dsl": {
               "widgetName": "MainContainer",
@@ -345,7 +345,7 @@
         "name": "Page1",
         "layouts": [
           {
-            "id": "60aca056136c4b7178f67906",
+            "id": "Page1",
             "userPermissions": [],
             "dsl": {
               "widgetName": "MainContainer",
@@ -546,12 +546,12 @@
   "publishedDefaultPageName": "Page1",
   "unpublishedDefaultPageName": "Page1",
   "publishedLayoutmongoEscapedWidgets": {
-    "60aca056136c4b7178f67906": [
+    "Page1": [
       "Table1"
     ]
   },
   "unpublishedLayoutmongoEscapedWidgets": {
-    "60aca056136c4b7178f67906": [
+    "Page1": [
       "Table1"
     ]
   }

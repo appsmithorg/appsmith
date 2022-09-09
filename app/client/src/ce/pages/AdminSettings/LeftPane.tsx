@@ -19,7 +19,6 @@ export const StyledHeader = styled.div`
   height: 20px;
   line-height: 1.5;
   letter-spacing: -0.24px;
-  text-transform: uppercase;
   margin: 40px 16px 8px;
   color: var(--appsmith-color-black-900);
   font-weight: 500;

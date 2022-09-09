@@ -18,6 +18,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
+import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -35,6 +36,12 @@ export interface CreatePageActionPayload {
   layouts: Partial<PageLayout>[];
   blockNavigation?: boolean;
 }
+
+export type updateLayoutOptions = {
+  isRetry?: boolean;
+  shouldReplay?: boolean;
+  updatedWidgetIds?: string[];
+};
 
 export const fetchPage = (
   pageId: string,
@@ -129,12 +136,12 @@ export const deletePageSuccess = () => {
 
 export const updateAndSaveLayout = (
   widgets: CanvasWidgetsReduxState,
-  isRetry?: boolean,
-  shouldReplay?: boolean,
+  options: updateLayoutOptions = {},
 ) => {
+  const { isRetry, shouldReplay, updatedWidgetIds } = options;
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
-    payload: { widgets, isRetry, shouldReplay },
+    payload: { widgets, isRetry, shouldReplay, updatedWidgetIds },
   };
 };
 
@@ -186,6 +193,7 @@ export const clonePageSuccess = (
   pageId: string,
   pageName: string,
   layoutId: string,
+  pageSlug: string,
 ) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
@@ -193,6 +201,7 @@ export const clonePageSuccess = (
       pageId,
       pageName,
       layoutId,
+      pageSlug,
     },
   };
 };
@@ -314,29 +323,30 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
+export const updateAppStoreEvaluated = (
+  storeValueAction?: StoreValueActionDescription["payload"],
+) => ({
+  type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
+  payload: storeValueAction,
+});
+
 export const updateAppTransientStore = (
   payload: Record<string, unknown>,
+  storeValueAction?: StoreValueActionDescription["payload"],
 ): EvaluationReduxAction<Record<string, unknown>> => ({
   type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   payload,
-  postEvalActions: [
-    {
-      type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
-    },
-  ],
+  postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
 });
 
 export const updateAppPersistentStore = (
   payload: Record<string, unknown>,
+  storeValueAction?: StoreValueActionDescription["payload"],
 ): EvaluationReduxAction<Record<string, unknown>> => {
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
-    postEvalActions: [
-      {
-        type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
-      },
-    ],
+    postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
   };
 };
 
@@ -350,6 +360,7 @@ export type GenerateCRUDSuccess = {
     id: string;
     name: string;
     isDefault?: boolean;
+    slug: string;
   };
   isNewPage: boolean;
 };
@@ -483,4 +494,16 @@ export const resetPageList = () => ({
 
 export const resetApplicationWidgets = () => ({
   type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+});
+
+export const fetchPageDSLs = () => ({
+  type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+});
+
+export const setPageSlug = (payload: {
+  customSlug: string;
+  pageId: string;
+}) => ({
+  type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT,
+  payload,
 });

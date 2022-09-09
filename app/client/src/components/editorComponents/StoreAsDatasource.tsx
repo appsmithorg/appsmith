@@ -2,8 +2,8 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { storeAsDatasource } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Text, TextType } from "design-system";
+import { Icon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 
 export const DatasourceIcon = styled.div<{ enable?: boolean }>`

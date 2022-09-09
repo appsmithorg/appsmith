@@ -25,7 +25,7 @@ import Landing from "./Welcome";
 import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { Center } from "pages/setup/common";
-import { IconSize, Spinner } from "components/ads";
+import { IconSize, Spinner } from "design-system";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -99,7 +99,7 @@ export function SignupSuccess() {
    *    For all local deployments
    *    For a super user, since we already collected role and useCase during signup
    *    For a normal user, who has filled in their role and useCase and try to visit signup-success url by entering manually.
-   *    For an invited user, we don't want to collect the data. we just want to redirect to the org they have been invited to.
+   *    For an invited user, we don't want to collect the data. we just want to redirect to the workspace they have been invited to.
    *      We identify an invited user based on `enableFirstTimeUserExperience` flag in url.
    */
   //TODO(Balaji): Factor in case, where user had closed the tab, while filling the form.And logs back in again.

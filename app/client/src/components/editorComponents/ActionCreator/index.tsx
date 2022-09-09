@@ -1,5 +1,5 @@
 import { createModalAction } from "actions/widgetActions";
-import { TreeDropdownOption } from "components/ads/TreeDropdown";
+import { TreeDropdownOption } from "design-system";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
 import { isString, keyBy } from "lodash";
@@ -10,7 +10,7 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getWidgetOptionsTree } from "sagas/selectors";
 import {
   getCurrentApplicationId,
@@ -477,14 +477,14 @@ function getIntegrationOptionsWithChildren(
     jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
-        const jsObject = {
+        const jsObject = ({
           label: jsAction.config.name,
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
           icon: JsFileIconV2,
-        } as TreeDropdownOption;
-        (jsOption.children as TreeDropdownOption[]).push(jsObject);
+        } as unknown) as TreeDropdownOption;
+        ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
           //don't remove this will be used soon
           // const createJSFunction: TreeDropdownOption = {
@@ -517,7 +517,7 @@ function getIntegrationOptionsWithChildren(
               args: argValue,
             };
             (jsObject.children as TreeDropdownOption[]).push(
-              jsFunction as TreeDropdownOption,
+              (jsFunction as unknown) as TreeDropdownOption,
             );
           });
         }
@@ -567,31 +567,33 @@ function useIntegrationsOptionTree() {
 
 type ActionCreatorProps = {
   value: string;
-  onValueChange: (newValue: string) => void;
+  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
-export function ActionCreator(props: ActionCreatorProps) {
-  const dataTree = useSelector(getDataTree);
-  const integrationOptionTree = useIntegrationsOptionTree();
-  const widgetOptionTree = useSelector(getWidgetOptionsTree);
-  const modalDropdownList = useModalDropdownList();
-  const pageDropdownOptions = useSelector(getPageListAsOptions);
-  const fields = getFieldFromValue(props.value, undefined, dataTree);
-  return (
-    <TreeStructure>
-      <Fields
-        additionalAutoComplete={props.additionalAutoComplete}
-        depth={1}
-        fields={fields}
-        integrationOptionTree={integrationOptionTree}
-        maxDepth={1}
-        modalDropdownList={modalDropdownList}
-        onValueChange={props.onValueChange}
-        pageDropdownOptions={pageDropdownOptions}
-        value={props.value}
-        widgetOptionTree={widgetOptionTree}
-      />
-    </TreeStructure>
-  );
-}
+export const ActionCreator = React.forwardRef(
+  (props: ActionCreatorProps, ref: any) => {
+    const dataTree = useSelector(getDataTree);
+    const integrationOptionTree = useIntegrationsOptionTree();
+    const widgetOptionTree = useSelector(getWidgetOptionsTree);
+    const modalDropdownList = useModalDropdownList();
+    const pageDropdownOptions = useSelector(getPageListAsOptions);
+    const fields = getFieldFromValue(props.value, undefined, dataTree);
+    return (
+      <TreeStructure ref={ref}>
+        <Fields
+          additionalAutoComplete={props.additionalAutoComplete}
+          depth={1}
+          fields={fields}
+          integrationOptionTree={integrationOptionTree}
+          maxDepth={1}
+          modalDropdownList={modalDropdownList}
+          onValueChange={props.onValueChange}
+          pageDropdownOptions={pageDropdownOptions}
+          value={props.value}
+          widgetOptionTree={widgetOptionTree}
+        />
+      </TreeStructure>
+    );
+  },
+);

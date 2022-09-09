@@ -1,12 +1,11 @@
 import React, { createContext, useMemo } from "react";
 
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
-import { JSONFormWidgetState } from "./widget";
+import { Action, JSONFormWidgetState } from "./widget";
 import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
-  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
+  executeAction: (action: Action) => void;
   renderMode: RenderMode;
   setMetaInternalFieldState: (
     updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,

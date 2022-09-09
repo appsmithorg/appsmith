@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
@@ -36,7 +37,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Plugin;
@@ -53,19 +53,19 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
-import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,15 +128,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
@@ -235,21 +234,21 @@ public class DatabaseChangelog {
         return actionDTO;
     }
 
-    private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
-        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new HashSet<>());
+    public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
+        for (Workspace workspace : mongockTemplate.findAll(Workspace.class)) {
+            if (CollectionUtils.isEmpty(workspace.getPlugins())) {
+                workspace.setPlugins(new HashSet<>());
             }
 
-            final Set<String> installedPlugins = organization.getPlugins()
+            final Set<String> installedPlugins = workspace.getPlugins()
                     .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             if (!installedPlugins.contains(pluginId)) {
-                organization.getPlugins()
+                workspace.getPlugins()
                         .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
             }
 
-            mongockTemplate.save(organization);
+            mongockTemplate.save(workspace);
         }
     }
 
@@ -646,7 +645,7 @@ public class DatabaseChangelog {
             log.warn("mysql-plugin already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
@@ -729,13 +728,13 @@ public class DatabaseChangelog {
                 policies = new HashSet<>();
             }
 
-            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(ORGANIZATION_INVITE_USERS.getValue())).findFirst();
+            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(WORKSPACE_INVITE_USERS.getValue())).findFirst();
             if (inviteUsersOptional.isPresent()) {
                 Policy inviteUserPolicy = inviteUsersOptional.get();
                 inviteUserPolicy.getUsers().addAll(invitePermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
                         .users(invitePermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
@@ -1055,7 +1054,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "")
@@ -1075,7 +1074,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "029", id = "use-png-logos", author = "")
@@ -1105,7 +1104,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "031", id = "add-msSql-plugin", author = "")
@@ -1125,7 +1124,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
@@ -1333,7 +1332,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "044", id = "ensure-app-icons-and-colors", author = "")
@@ -1620,7 +1619,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
@@ -1684,7 +1683,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
@@ -1704,7 +1703,7 @@ public class DatabaseChangelog {
             mongoTemplate.updateFirst(
                     query(new Criteria().andOperator(
                             where(fieldName(QOrganization.organization.id)).is(org.getId()),
-                            where(fieldName(QOrganization.organization.policies) + ".permission").is(ORGANIZATION_INVITE_USERS.getValue())
+                            where(fieldName(QOrganization.organization.policies) + ".permission").is(WORKSPACE_INVITE_USERS.getValue())
                     )),
                     new Update().addToSet("policies.$.users").each(viewers.toArray()),
                     Organization.class
@@ -1851,7 +1850,7 @@ public class DatabaseChangelog {
         }
     }
 
-    private Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+    private static Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
         Set<String> pathsToRemove = new HashSet<>();
         for (String path : dynamicBindingPathNames) {
 
@@ -2159,7 +2158,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "063", id = "mark-instance-unregistered", author = "")
@@ -2468,14 +2467,14 @@ public class DatabaseChangelog {
             }
 
             Optional<Policy> exportAppOrgLevelOptional = policies.stream()
-                    .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
+                    .filter(policy -> policy.getPermission().equals(WORKSPACE_EXPORT_APPLICATIONS.getValue())).findFirst();
 
             if (exportAppOrgLevelOptional.isPresent()) {
                 Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
                 exportApplicationPolicy.getUsers().addAll(exportApplicationPermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
                         .users(exportApplicationPermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
@@ -2543,7 +2542,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
@@ -2814,7 +2813,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "078", id = "set-svg-logo-to-plugins", author = "")
@@ -2901,7 +2900,7 @@ public class DatabaseChangelog {
                 try {
                     documentPtr = documentPtr.get(pathKeys[i], Document.class);
                 } catch (ClassCastException e) {
-                    System.out.println("Failed to cast document for path: " + path);
+                    log.debug("Failed to cast document for path: " + path);
                     e.printStackTrace();
                     return null;
                 }
@@ -3037,7 +3036,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "085", id = "update-google-sheet-plugin-smartSubstitution-config", author = "")
@@ -3519,7 +3518,7 @@ public class DatabaseChangelog {
                         try {
                             oldListOfConditions = (List<Map<String, Object>>) value;
                         } catch (ClassCastException e) {
-                            System.out.println("value: " + value);
+                            log.debug("value: " + value);
                             oldListOfConditions = new ArrayList<>();
                         }
 
@@ -3678,7 +3677,7 @@ public class DatabaseChangelog {
      *                     reference, please check out the `s3MigrationMap` defined above.
      * @return : updated dynamicBindingPathList - ported to UQI model.
      */
-    private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
+    static List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
                                                             ObjectMapper objectMapper, NewAction action,
                                                             Map<Integer, List<String>> migrationMap) {
         // Return if empty.
@@ -4075,7 +4074,7 @@ public class DatabaseChangelog {
         } catch (DuplicateKeyException e) {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "100", id = "update-mockdb-endpoint", author = "")
@@ -4458,13 +4457,17 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "102", id = "flush-spring-redis-keys", author = "")
     public void clearRedisCache(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        doClearRedisKeys(reactiveRedisOperations);
+    }
+
+    protected static void doClearRedisKeys(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         final String script =
                 "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
                         " do redis.call('del',k) " +
                         "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
-        flushdb.subscribe();
+        flushdb.blockLast();
     }
 
     /* Map values from pluginSpecifiedTemplates to formData (UQI) */
@@ -4659,25 +4662,31 @@ public class DatabaseChangelog {
 
             // Migrate unpublished action config data
             if (unpublishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = unpublishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = unpublishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setNext(startAfter);
+                Object startAfter = PluginUtils.getValueSafelyFromFormData(formData, START_AFTER);
+                if (startAfter == null) {
+                    startAfter = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setNext((String) startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setPrev(endBefore);
+                Object endBefore = PluginUtils.getValueSafelyFromFormData(formData, END_BEFORE);
+                if (endBefore == null) {
+                    endBefore = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setPrev((String) endBefore);
             }
 
             // Migrate published action config data.
             ActionDTO publishedAction = firestoreAction.getPublishedAction();
             if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
                     publishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = publishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = publishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setNext(startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setPrev(endBefore);
             }
 
@@ -4991,71 +5000,75 @@ public class DatabaseChangelog {
      * @param mongockTemplate
      * @throws IOException
      */
-    @ChangeSet(order = "117", id = "create-system-themes-v2", author = "", runAlways = true)
+    @ChangeSet(order = "117", id = "create-system-themes-v2", author = "", runAlways = false)
     public void createSystemThemes2(MongockTemplate mongockTemplate) throws IOException {
-        Index systemThemeIndex = new Index()
-                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
-                .named("system_theme_index")
-                .background();
 
-        Index applicationIdIndex = new Index()
-                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
-                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
-                .named("application_id_index")
-                .background();
+//       Commenting this out to ensure that system themes get added only once the baseline object creations are complete
+//       This runs as part of `createSystemThemes3`
 
-        dropIndexIfExists(mongockTemplate, Theme.class, "system_theme_index");
-        dropIndexIfExists(mongockTemplate, Theme.class, "application_id_index");
-        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
-
-        final String themesJson = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
-                Charset.defaultCharset()
-        );
-        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
-
-        Theme legacyTheme = null;
-        boolean themeExists = false;
-
-        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEMES.getValue())
-                .users(Set.of(FieldName.ANONYMOUS_USER)).build();
-
-        for (Theme theme : themes) {
-            theme.setSystemTheme(true);
-            theme.setCreatedAt(Instant.now());
-            theme.setPolicies(Set.of(policyWithCurrentPermission));
-            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
-                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
-
-            Theme savedTheme = mongockTemplate.findOne(query, Theme.class);
-            if(savedTheme == null) {  // this theme does not exist, create it
-                savedTheme = mongockTemplate.save(theme);
-            } else { // theme already found, update
-                themeExists = true;
-                savedTheme.setDisplayName(theme.getDisplayName());
-                savedTheme.setPolicies(theme.getPolicies());
-                savedTheme.setConfig(theme.getConfig());
-                savedTheme.setProperties(theme.getProperties());
-                savedTheme.setStylesheet(theme.getStylesheet());
-                if(savedTheme.getCreatedAt() == null) {
-                    savedTheme.setCreatedAt(Instant.now());
-                }
-                mongockTemplate.save(savedTheme);
-            }
-
-            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
-                legacyTheme = savedTheme;
-            }
-        }
-
-        if(!themeExists) { // this is the first time we're running the migration
-            // migrate all applications and set legacy theme to them in both mode
-            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
-                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
-            mongockTemplate.updateMulti(
-                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
-            );
-        }
+//        Index systemThemeIndex = new Index()
+//                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+//                .named("system_theme_index")
+//                .background();
+//
+//        Index applicationIdIndex = new Index()
+//                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+//                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
+//                .named("application_id_index")
+//                .background();
+//
+//        dropIndexIfExists(mongockTemplate, Theme.class, "system_theme_index");
+//        dropIndexIfExists(mongockTemplate, Theme.class, "application_id_index");
+//        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
+//
+//        final String themesJson = StreamUtils.copyToString(
+//                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+//                Charset.defaultCharset()
+//        );
+//        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+//
+//        Theme legacyTheme = null;
+//        boolean themeExists = false;
+//
+//        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEMES.getValue())
+//                .users(Set.of(FieldName.ANONYMOUS_USER)).build();
+//
+//        for (Theme theme : themes) {
+//            theme.setSystemTheme(true);
+//            theme.setCreatedAt(Instant.now());
+//            theme.setPolicies(Set.of(policyWithCurrentPermission));
+//            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
+//                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
+//
+//            Theme savedTheme = mongockTemplate.findOne(query, Theme.class);
+//            if(savedTheme == null) {  // this theme does not exist, create it
+//                savedTheme = mongockTemplate.save(theme);
+//            } else { // theme already found, update
+//                themeExists = true;
+//                savedTheme.setDisplayName(theme.getDisplayName());
+//                savedTheme.setPolicies(theme.getPolicies());
+//                savedTheme.setConfig(theme.getConfig());
+//                savedTheme.setProperties(theme.getProperties());
+//                savedTheme.setStylesheet(theme.getStylesheet());
+//                if(savedTheme.getCreatedAt() == null) {
+//                    savedTheme.setCreatedAt(Instant.now());
+//                }
+//                mongockTemplate.save(savedTheme);
+//            }
+//
+//            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+//                legacyTheme = savedTheme;
+//            }
+//        }
+//
+//        if(!themeExists) { // this is the first time we're running the migration
+//            // migrate all applications and set legacy theme to them in both mode
+//            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+//                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+//            mongockTemplate.updateMulti(
+//                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+//            );
+//        }
     }
 
     @ChangeSet(order = "118", id = "set-firestore-smart-substitution-to-false-for-old-cmds", author = "")

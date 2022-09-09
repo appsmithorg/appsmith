@@ -83,14 +83,14 @@ public class SegmentConfig {
         public void print(Level level, Throwable error, String format, Object... args) {
             final String message = "SEGMENT: " + format;
             if (level == Level.VERBOSE) {
-                log.trace(message, error, args);
+                log.trace(String.format(message, args), error);
             } else if (level == Level.DEBUG) {
-                log.debug(message, error, args);
+                log.debug(String.format(message, args), error);
             } else if (level == Level.ERROR) {
                 if (errorHandler != null) {
                     errorHandler.accept(new LogData(error, format, args));
                 }
-                log.error(message, error, args);
+                log.error(String.format(message, args), error);
             }
         }
 

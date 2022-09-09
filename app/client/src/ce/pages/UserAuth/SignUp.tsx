@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { SIGNUP_FORM_NAME } from "constants/forms";
+import { SIGNUP_FORM_NAME } from "@appsmith/constants/forms";
 import {
   RouteComponentProps,
   useHistory,
@@ -34,7 +34,7 @@ import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
@@ -43,12 +43,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
+import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "@appsmith/constants/forms";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
@@ -114,13 +114,17 @@ export function SignUp(props: SignUpFormProps) {
     showError = true;
   }
 
-  let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
-  if (queryParams.has("appId")) {
-    signupURL += `?appId=${queryParams.get("appId")}`;
+  const signupURL = new URL(
+    `/api/v1/` + SIGNUP_SUBMIT_PATH,
+    window.location.origin,
+  );
+  const appId = queryParams.get("appId");
+  if (appId) {
+    signupURL.searchParams.append("appId", appId);
   } else {
     const redirectUrl = queryParams.get("redirectUrl");
     if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
-      signupURL += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+      signupURL.searchParams.append("redirectUrl", redirectUrl);
     }
   }
 
@@ -138,12 +142,11 @@ export function SignUp(props: SignUpFormProps) {
           action: "submit",
         })
         .then(function(token: any) {
-          formElement &&
-            formElement.setAttribute(
-              "action",
-              `${signupURL}?recaptchaToken=${token}`,
-            );
-          formElement && formElement.submit();
+          if (formElement) {
+            signupURL.searchParams.append("recaptchaToken", token);
+            formElement.setAttribute("action", signupURL.toString());
+            formElement.submit();
+          }
         });
     } else {
       formElement && formElement.submit();
@@ -170,7 +173,7 @@ export function SignUp(props: SignUpFormProps) {
       )}
       {!disableLoginForm && (
         <SpacedSubmitForm
-          action={signupURL}
+          action={signupURL.toString()}
           id="signup-form"
           method="POST"
           onSubmit={(e) => handleSubmit(e)}

@@ -21,6 +21,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { builderURL } from "RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -31,18 +32,16 @@ export function* bindDataToWidgetSaga(
   }>,
 ) {
   const pageId: string = yield select(getCurrentPageId);
-  // console.log("Binding Data in Saga");
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
   const queryId = searchParams.get("bindTo");
-  const currentAction = yield select((state) =>
+  const currentAction: ActionData | undefined = yield select((state) =>
     state.entities.actions.find(
       (action: ActionData) => action.config.id === queryId,
     ),
   );
-  const selectedWidget = (yield select(getCanvasWidgets))[
-    action.payload.widgetId
-  ];
+  const widgetState: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
+  const selectedWidget = widgetState[action.payload.widgetId];
 
   if (!selectedWidget || !selectedWidget.type) {
     Toaster.show({
@@ -55,6 +54,9 @@ export function* bindDataToWidgetSaga(
   let propertyPath = "";
   let propertyValue: any = "";
   let isValidProperty = true;
+
+  // Pranav has an Open PR for this file so just returning for now
+  if (!currentAction) return;
 
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:
@@ -119,6 +121,10 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.TABLE_WIDGET:
+      propertyPath = "tableData";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
+    case WidgetTypes.TABLE_WIDGET_V2:
       propertyPath = "tableData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;

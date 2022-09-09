@@ -114,14 +114,14 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     color: black;
     &.custom {
       height: unset;
-      background: #ebebeb;
+      background-color: var(--appsmith-color-black-0);
       width: 600px;
       &:hover{
-        background: #ffffff;
+        background-color: var(--appsmith-color-black-200);
         color: black;
       }
       &.CodeMirror-hint-active {
-        background: #ffffff;
+        background-color: var(--appsmith-color-black-200);
       }
     }
 

@@ -1,0 +1,165 @@
+{
+
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 966,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 730,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 44,
+    "minHeight": 710,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [{
+      "widgetName": "Button1",
+      "onClick": "{{storeValue('data',[\n{\n \"data\": 1,\n},\n{\n\t\"data\": 2,\n},\n{\n\t\"data\": 3,\n}\n])}}",
+      "buttonColor": "#03B365",
+      "dynamicPropertyPathList": [{
+        "key": "onClick"
+      }],
+      "displayName": "Button",
+      "iconSVG": "/static/media/icon.f8a91627.svg",
+      "topRow": 6,
+      "bottomRow": 10,
+      "parentRowSpace": 10,
+      "type": "BUTTON_WIDGET",
+      "hideCard": false,
+      "parentColumnSpace": 14.90625,
+      "dynamicTriggerPathList": [{
+        "key": "onClick"
+      }],
+      "leftColumn": 42,
+      "dynamicBindingPathList": [],
+      "text": "Initial Data Set",
+      "isDisabled": false,
+      "key": "7939wnll69",
+      "rightColumn": 58,
+      "isDefaultClickDisabled": true,
+      "widgetId": "20w01zcnlb",
+      "recaptchaV2": false,
+      "isVisible": true,
+      "version": 1,
+      "parentId": "0",
+      "renderMode": "CANVAS",
+      "isLoading": false,
+      "buttonVariant": "PRIMARY"
+    }, {
+      "widgetName": "Button2",
+      "onClick": "{{storeValue('data',[\n{\n \"data\": 1,\n},\n{\n\t\"data\": 4,\n},\n{\n\t\"data\": 3,\n}\n])}}",
+      "buttonColor": "#03B365",
+      "dynamicPropertyPathList": [{
+        "key": "onClick"
+      }],
+      "displayName": "Button",
+      "iconSVG": "/static/media/icon.f8a91627.svg",
+      "topRow": 16,
+      "bottomRow": 20,
+      "parentRowSpace": 10,
+      "type": "BUTTON_WIDGET",
+      "hideCard": false,
+      "parentColumnSpace": 14.90625,
+      "dynamicTriggerPathList": [{
+        "key": "onClick"
+      }],
+      "leftColumn": 43,
+      "dynamicBindingPathList": [],
+      "text": "Submit",
+      "isDisabled": false,
+      "key": "7939wnll69",
+      "rightColumn": 59,
+      "isDefaultClickDisabled": true,
+      "widgetId": "71erdenmmv",
+      "recaptchaV2": false,
+      "isVisible": true,
+      "version": 1,
+      "parentId": "0",
+      "renderMode": "CANVAS",
+      "isLoading": false,
+      "buttonVariant": "PRIMARY"
+    }, {
+      "multiRowSelection": true,
+      "widgetName": "Table1",
+      "defaultPageSize": 0,
+      "columnOrder": [
+        "data"
+      ],
+      "aliasMap": {
+        "data": "data"
+      },
+      "isVisibleDownload": true,
+      "dynamicPropertyPathList": [],
+      "displayName": "Table",
+      "iconSVG": "/static/media/icon.75823c5c.svg",
+      "topRow": 19,
+      "bottomRow": 47,
+      "parentRowSpace": 10,
+      "type": "TABLE_WIDGET_V2",
+      "defaultSelectedRow": "",
+      "hideCard": false,
+      "parentColumnSpace": 14.90625,
+      "dynamicTriggerPathList": [],
+      "dynamicBindingPathList": [{
+        "key": "tableData"
+      }, {
+        "key": "primaryColumns.data.computedValue"
+      }],
+      "leftColumn": 2,
+      "primaryColumns": {
+        "data": {
+          "index": 0,
+          "width": 150,
+          "id": "data",
+          "alias": "data",
+          "originalId": "data",
+          "horizontalAlignment": "LEFT",
+          "verticalAlignment": "CENTER",
+          "columnType": "text",
+          "textSize": "PARAGRAPH",
+          "enableFilter": true,
+          "enableSort": true,
+          "isVisible": true,
+          "isDisabled": false,
+          "isCellVisible": true,
+          "isDerived": false,
+          "label": "data",
+          "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.data))}}"
+        }
+      },
+      "delimiter": ",",
+      "key": "toz7v2e4xk",
+      "derivedColumns": {},
+      "rightColumn": 32,
+      "textSize": "PARAGRAPH",
+      "widgetId": "qs7595pbv3",
+      "isVisibleFilters": true,
+      "tableData": "{{appsmith.store.data}}",
+      "isVisible": true,
+      "label": "Data",
+      "searchKey": "",
+      "version": 3,
+      "totalRecordsCount": 0,
+      "parentId": "0",
+      "renderMode": "CANVAS",
+      "isLoading": false,
+      "horizontalAlignment": "LEFT",
+      "isVisibleSearch": true,
+      "isVisiblePagination": true,
+      "primaryColumnId": "data",
+      "verticalAlignment": "CENTER",
+      "columnSizeMap": {
+        "task": 245,
+        "step": 62,
+        "status": 75
+      }
+    }]
+  }
+}

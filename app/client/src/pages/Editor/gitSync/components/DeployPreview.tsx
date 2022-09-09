@@ -6,7 +6,6 @@ import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.
 import { useSelector } from "store";
 import {
   getCurrentPageId,
-  selectURLSlugs,
   getApplicationLastDeployedAt,
 } from "selectors/editorSelectors";
 import {
@@ -14,7 +13,7 @@ import {
   LATEST_DP_SUBTITLE,
   LATEST_DP_TITLE,
 } from "@appsmith/constants/messages";
-import Text, { Case, TextType } from "components/ads/Text";
+import { Text, Case, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
@@ -25,7 +24,7 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
-  width: calc(100% - 30px);
+  gap: ${(props) => props.theme.spaces[6]}px;
 `;
 
 const ButtonWrapper = styled.div`
@@ -52,28 +51,15 @@ const IconWrapper = styled.div`
   }
 `;
 
-const ContentWrapper = styled.div`
-  margin-left: ${(props) => props.theme.spaces[6]}px;
-`;
-
-const CloudIconWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 export default function DeployPreview(props: { showSuccess: boolean }) {
   const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const showDeployPreview = () => {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
     const path = viewerURL({
-      applicationSlug,
-      pageSlug,
       pageId,
     });
     window.open(path, "_blank");
@@ -89,14 +75,14 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
     : "";
   return lastDeployedAt ? (
     <Container className="t--git-deploy-preview">
-      <CloudIconWrapper>
+      <div>
         {props.showSuccess ? (
           <SuccessTick height="30px" width="30px" />
         ) : (
           <CloudyIcon />
         )}
-      </CloudIconWrapper>
-      <ContentWrapper>
+      </div>
+      <div>
         <ButtonWrapper onClick={showDeployPreview}>
           <Text
             case={Case.UPPERCASE}
@@ -113,7 +99,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         <Text color={Colors.GREY_6} type={TextType.P3}>
           {lastDeployedAtMsg}
         </Text>
-      </ContentWrapper>
+      </div>
     </Container>
   ) : null;
 }

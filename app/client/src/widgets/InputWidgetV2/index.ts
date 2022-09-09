@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
     inputType: "TEXT",
@@ -18,6 +19,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

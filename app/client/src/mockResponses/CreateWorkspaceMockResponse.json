@@ -1,0 +1,115 @@
+{
+  "responseMeta":{
+    "status":201,
+    "success":true
+  },
+  "data":{
+    "id":"6065e4b7034ece74b1481819",
+    "userPermissions":[
+      
+    ],
+    "name":"new workspace",
+    "email":"b1@appsmith.com",
+    "plugins":[
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5ca385dc81b37f0004b4db85",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5e8dad9bf062d5125ddfd836",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5ec3bccdd4b5eaa50ba6f583",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5ec3bcf1d4b5eaa50ba6f593",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5f192a44a2d05225d010db9d",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5f92f9e9107018510ae540be",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5f92f9ec107018510ae540c0",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5f92f9ef107018510ae540c3",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5f92f9f1107018510ae540c5",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"5fbcc1c758377818ddaec444",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"60081f50ffab735a9dae84e7",
+        "status":"FREE",
+        "new":true
+      },
+      {
+        "userPermissions":[
+          
+        ],
+        "pluginId":"60374b7d074f9b49cd68a036",
+        "status":"FREE",
+        "new":true
+      }
+    ],
+    "slug":"new-workspace5",
+    "logoUrl":"/api/v1/assets/null",
+    "new":false
+  }
+}

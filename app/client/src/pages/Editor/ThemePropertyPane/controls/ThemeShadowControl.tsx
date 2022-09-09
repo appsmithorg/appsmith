@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React, { useCallback } from "react";
 
 import { AppTheme } from "entities/AppTheming";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 
 interface ThemeBoxShadowControlProps {

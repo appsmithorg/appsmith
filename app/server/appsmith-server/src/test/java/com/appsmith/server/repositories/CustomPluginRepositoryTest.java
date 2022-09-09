@@ -1,7 +1,8 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.Plugin;
-import org.junit.jupiter.api.Test;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,13 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class CustomPluginRepositoryTest {
+public class CustomPluginRepositoryTest {
 
     @Autowired
     PluginRepository pluginRepository;
 
     @Test
-    void findDefaultPluginIcons_WhenResultFound_OnlyDefaultInstallPluginsReturned() {
+    public void findDefaultPluginIcons_WhenResultFound_OnlyDefaultInstallPluginsReturned() {
         String randomPackageId = "plugin-" + UUID.randomUUID().toString();
         Plugin plugin = new Plugin();
         plugin.setPackageName(randomPackageId);

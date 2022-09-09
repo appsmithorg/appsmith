@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -25,9 +26,10 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                                          PluginService pluginService,
                                          AnalyticsService analyticsService,
                                          SessionUserService sessionUserService,
-                                         ResponseUtils responseUtils) {
-        
+                                         ResponseUtils responseUtils,
+                                         PluginExecutorHelper pluginExecutorHelper) {
+
         super(datasourceService, newPageService, layoutActionService, applicationPageService, applicationService,
-                pluginService, analyticsService, sessionUserService, responseUtils);
+                pluginService, analyticsService, sessionUserService, responseUtils, pluginExecutorHelper);
     }
 }

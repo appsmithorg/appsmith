@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -11,6 +12,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -42,8 +44,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-
+@Slf4j
 public class SmtpPlugin extends BasePlugin {
     private static final String BASE64_DELIMITER = ";base64,";
 
@@ -61,14 +62,14 @@ public class SmtpPlugin extends BasePlugin {
             Message message = new MimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
-                String fromAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
-                String toAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.to");
-                String ccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
-                String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
-                String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
-                Boolean isReplyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
+                String fromAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
+                String toAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.to");
+                String ccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
+                String bccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
+                String subject = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
+                Boolean isReplyTo = (Boolean) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
                 String replyTo = Boolean.TRUE.equals(isReplyTo) ?
-                        (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
+                        (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
 
                 if (!StringUtils.hasText(toAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -106,7 +107,7 @@ public class SmtpPlugin extends BasePlugin {
                 message.setContent(multipart);
 
                 // Look for any attachments that need to be sent along with this email
-                String attachmentsStr = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
+                String attachmentsStr = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
 
                 if (StringUtils.hasText(attachmentsStr)) {
                     MultipartFormDataDTO[] attachmentData = objectMapper.readValue(
@@ -138,7 +139,7 @@ public class SmtpPlugin extends BasePlugin {
                 }
 
                 // Send the email now
-                System.out.println("Going to send the email");
+                log.debug("Going to send the email");
                 Transport.send(message);
 
                 result.setIsExecutionSuccess(true);
@@ -146,7 +147,7 @@ public class SmtpPlugin extends BasePlugin {
                 responseBody.put("message", "Sent the email successfully");
                 result.setBody(objectMapper.valueToTree(responseBody));
 
-                System.out.println("Sent the email successfully");
+                log.debug("Sent the email successfully");
             } catch (MessagingException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to send email because of error: " + e.getMessage()));
@@ -186,7 +187,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session session) {
-            System.out.println("Going to destroy email datasource");
+            log.debug("Going to destroy email datasource");
             try {
                 if (session != null && session.getTransport() != null) {
                     session.getTransport().close();
@@ -198,7 +199,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("Going to validate email datasource");
+            log.debug("Going to validate email datasource");
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -223,7 +224,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("Going to test email datasource");
+            log.debug("Going to test email datasource");
             Mono<Session> sessionMono = datasourceCreate(datasourceConfiguration);
             return sessionMono.map(session -> {
                 Set<String> invalids = new HashSet<>();

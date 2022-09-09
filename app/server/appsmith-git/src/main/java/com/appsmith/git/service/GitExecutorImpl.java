@@ -34,6 +34,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -70,7 +71,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
-    private static final String SUCCESS_MERGE_STATUS = "This branch has no conflict with the base branch.";
+    private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -560,18 +561,28 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath) {
+    public Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String branchName, boolean isFetchAll) {
         Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
         Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
             try (Git git = Git.open(repoPath.toFile())) {
-                log.debug(Thread.currentThread().getName() + ": fetch remote repo " + git.getRepository());
-                String fetchMessages = git.fetch()
-                        .setRemoveDeletedRefs(true)
-                        .setTransportConfigCallback(config)
-                        .call()
-                        .getMessages();
+                String fetchMessages;
+                if(Boolean.TRUE.equals(isFetchAll)) {
+                    fetchMessages = git.fetch()
+                            .setRemoveDeletedRefs(true)
+                            .setTransportConfigCallback(config)
+                            .call()
+                            .getMessages();
+                } else {
+                    RefSpec ref = new RefSpec("refs/heads/" + branchName +":refs/remotes/origin/" + branchName);
+                    fetchMessages = git.fetch()
+                            .setRefSpecs(ref)
+                            .setRemoveDeletedRefs(true)
+                            .setTransportConfigCallback(config)
+                            .call()
+                            .getMessages();
+                }
                 processStopwatch.stopAndLogTimeInMillis();
                 return fetchMessages;
             }
@@ -629,7 +640,7 @@ public class GitExecutorImpl implements GitExecutor {
                     }
                     errorMessage.append(" while merging branch: ").append(destinationBranch).append(" <= ").append(sourceBranch);
                     mergeStatus.setMessage(errorMessage.toString());
-                    mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
+                    mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                 }
                 mergeStatus.setStatus(mergeResult.getMergeStatus().name());
                 return mergeStatus;

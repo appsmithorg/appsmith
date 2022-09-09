@@ -3,13 +3,16 @@ import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { builderURL } from "RouteBuilder";
+import { useLocation } from "react-router";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -81,6 +84,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
   const icon = <WidgetIcon type={props.widgetType} />;
+  const location = useLocation();
 
   const shouldExpand = widgetsToExpand.includes(props.widgetId);
 
@@ -107,6 +111,22 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     return widgetType === "MODAL_WIDGET" ? widgetId : parentModalId;
   }, [widgetType, widgetId, parentModalId]);
 
+  const switchWidget = useCallback(
+    (e) => {
+      AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
+        type: "WIDGETS",
+        fromUrl: location.pathname,
+        toUrl: `${builderURL({
+          pageId: props.pageId,
+          hash: widgetId,
+        })}`,
+        name: props.widgetName,
+      });
+      navigateToWidget(e);
+    },
+    [location.pathname, props.pageId, widgetId, props.widgetName],
+  );
+
   if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1) return null;
 
   const contextMenu = (
@@ -124,7 +144,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   return (
     <Entity
-      action={navigateToWidget}
+      action={switchWidget}
       active={isWidgetSelected}
       className="widget"
       contextMenu={showContextMenu && contextMenu}

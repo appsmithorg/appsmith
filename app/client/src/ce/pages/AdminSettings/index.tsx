@@ -8,21 +8,19 @@ import styled from "styled-components";
 import LeftPane from "@appsmith/pages/AdminSettings/LeftPane";
 import Main from "@appsmith/pages/AdminSettings/Main";
 import WithSuperUserHOC from "pages/Settings/WithSuperUserHoc";
+import { getCurrentUser } from "selectors/usersSelectors";
+import bootIntercom from "utils/bootIntercom";
+import { LoaderContainer } from "pages/Settings/components";
 
 const FlexContainer = styled.div`
   display: flex;
 `;
 
-const LoaderContainer = styled.div`
-  height: ${(props) => `calc(100vh - ${props.theme.smallHeaderHeight})`};
-  display: flex;
-  justify-content: center;
-  width: 100%;
-`;
-
 function Settings() {
   const dispatch = useDispatch();
+  const user = useSelector(getCurrentUser);
   const isLoading = useSelector(getSettingsLoadingState);
+
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
@@ -32,8 +30,12 @@ function Settings() {
     });
   }, []);
 
+  useEffect(() => {
+    bootIntercom(user);
+  }, [user?.email]);
+
   return (
-    <PageWrapper>
+    <PageWrapper isFixed>
       <FlexContainer>
         {isLoading ? (
           <LoaderContainer>

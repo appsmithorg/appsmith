@@ -5,8 +5,10 @@ import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.filters.MDCFilter;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
+import io.sentry.protocol.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBufferLimitException;
 import org.springframework.http.HttpStatus;
@@ -55,7 +57,14 @@ public class GlobalExceptionHandler {
         );
 
         if (error instanceof BaseException) {
-            if (((BaseException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+            BaseException baseError = (BaseException) error;
+            if (baseError.getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+                Sentry.configureScope(scope -> {
+                    baseError.getContextMap().forEach(scope::setTag);
+                });
+                final User user = new User();
+                user.setEmail(baseError.getContextMap().getOrDefault(MDCFilter.USER_EMAIL, "unknownUser"));
+                Sentry.setUser(user);
                 Sentry.captureException(error);
             }
         } else {

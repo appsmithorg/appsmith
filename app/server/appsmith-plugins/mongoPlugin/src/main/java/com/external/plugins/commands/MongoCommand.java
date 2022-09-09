@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 
@@ -39,7 +40,7 @@ public abstract class MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, COLLECTION)) {
-            this.collection = (String) PluginUtils.getValueSafelyFromFormData(formData, COLLECTION);
+            this.collection = PluginUtils.getDataValueSafelyFromFormData(formData, COLLECTION, STRING_TYPE);
         }
     }
 

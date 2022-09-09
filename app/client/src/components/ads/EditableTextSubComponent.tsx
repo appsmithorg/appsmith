@@ -13,10 +13,10 @@ import {
 import styled, { ThemeContext } from "styled-components";
 import { noop } from "lodash";
 
-import Text, { TextType } from "./Text";
-import Spinner from "./Spinner";
+import { Text, TextType } from "design-system";
+import { Spinner } from "design-system";
 import { CommonComponentProps } from "./common";
-import Icon, { IconSize } from "./Icon";
+import { Icon, IconSize } from "design-system";
 import { UNFILLED_WIDTH } from "./EditableText";
 
 export enum EditInteractionKind {

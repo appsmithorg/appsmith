@@ -7,6 +7,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Icon Button",
   iconSVG: IconSVG,
+  searchTags: ["click", "submit"],
   defaults: {
     iconName: IconNames.PLUS,
     buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -23,6 +24,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 
