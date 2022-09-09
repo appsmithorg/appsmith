@@ -619,8 +619,7 @@ describe("Table widget inline editing functionality", () => {
       .last()
       .click({ force: true });
     cy.selectShowMsg();
-    cy.toggleJsAndUpdateWithIndex("onsave", "{{Table1.triggeredRow.step}}", 1);
-
+    agHelper.EnterActionValue("Message", "{{Table1.triggeredRow.step}}");
     /*
     cy.addSuccessMessage(
       "{{Table1.triggeredRow.step}}",
