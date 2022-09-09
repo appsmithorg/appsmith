@@ -718,7 +718,7 @@ export class AggregateHelper {
       //   ins.clear();
       //   this.Sleep(200);
       //   //ins.setValue(value);
-      //   ins.val(value).click();
+      //   ins.val(value).trigger('change');
       //   this.Sleep(200);
       // });
   }
