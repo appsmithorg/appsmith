@@ -30,23 +30,24 @@ import {
   AppIconName,
   Button,
   Category,
+  ColorSelector,
   IconPositions,
   Icon,
   IconSelector,
   IconSize,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  MenuItemProps,
   Size,
   Text,
   TextType,
   TooltipComponent,
 } from "design-system";
-import Menu from "components/ads/Menu";
-import { MenuItem, MenuItemProps } from "design-system";
 import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
-import ColorSelector from "components/ads/ColorSelector";
-import MenuDivider from "components/ads/MenuDivider";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,
@@ -331,6 +332,8 @@ const CircleAppIcon = styled(AppIcon)`
   border-radius: 50%;
 
   svg {
+    width: 100%;
+    height: 100%;
     path {
       fill: #000 !important;
     }

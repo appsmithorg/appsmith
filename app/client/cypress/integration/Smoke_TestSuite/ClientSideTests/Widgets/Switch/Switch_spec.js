@@ -112,7 +112,8 @@ describe("Switch Widget Functionality", function() {
 
   it("Switch Functionality To change label color of switch", function() {
     cy.openPropertyPane("switchwidget");
-    cy.get(".t--property-control-textcolor .bp3-input").type("red");
+    cy.moveToStyleTab();
+    cy.get(".t--property-control-fontcolor .bp3-input").type("red");
     cy.wait(200);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
@@ -125,7 +126,8 @@ describe("Switch Widget Functionality", function() {
 
   it("Switch Functionality To change label size of switch", function() {
     cy.openPropertyPane("switchwidget");
-    cy.get(widgetsPage.textSize)
+    cy.moveToStyleTab();
+    cy.get(widgetsPage.textSizeNew)
       .last()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -142,7 +144,8 @@ describe("Switch Widget Functionality", function() {
 
   it("Switch Functionality To change label style of switch", function() {
     cy.openPropertyPane("switchwidget");
-    cy.get(".t--property-control-labelfontstyle .t--button-tab-BOLD").click({
+    cy.moveToStyleTab();
+    cy.get(".t--property-control-emphasis .t--button-tab-BOLD").click({
       force: true,
     });
     cy.PublishtheApp();
@@ -159,7 +162,7 @@ describe("Switch Widget Functionality", function() {
     cy.updateCodeInput(".t--property-control-text", `{{Toggler.isDirty}}`);
     // Change defaultSwitchState property
     cy.openPropertyPane("switchwidget");
-    cy.get(".t--property-control-defaultselected label")
+    cy.get(".t--property-control-defaultstate label")
       .last()
       .click();
     // Check if isDirty is reset to false
@@ -172,7 +175,7 @@ describe("Switch Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultSwitchState property
     cy.openPropertyPane("switchwidget");
-    cy.get(".t--property-control-defaultselected label")
+    cy.get(".t--property-control-defaultstate label")
       .last()
       .click();
     // Check if isDirty is reset to false

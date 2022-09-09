@@ -26,6 +26,7 @@ import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { EvalTreePayload } from "../sagas/EvaluationsSaga";
+import { UserLogObject } from "./UserLog";
 
 const CANVAS = "canvas";
 
@@ -104,6 +105,7 @@ ctx.addEventListener(
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
+        let userLogs: UserLogObject[] = [];
         let dependencies: DependencyMap = {};
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] | null = null;
@@ -181,6 +183,7 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
+          userLogs = dataTreeEvaluator.userLogs;
           if (replayMap[CANVAS]?.logs)
             logs = logs.concat(replayMap[CANVAS]?.logs);
           replayMap[CANVAS]?.clearLogs();
@@ -189,6 +192,7 @@ ctx.addEventListener(
           if (dataTreeEvaluator !== undefined) {
             errors = dataTreeEvaluator.errors;
             logs = dataTreeEvaluator.logs;
+            userLogs = dataTreeEvaluator.userLogs;
           }
           if (!(error instanceof CrashingError)) {
             errors.push({
@@ -207,6 +211,7 @@ ctx.addEventListener(
           evaluationOrder,
           logs,
           unEvalUpdates,
+          userLogs,
           jsUpdates,
           evalMetaUpdates,
           isCreateFirstTree,
@@ -294,14 +299,14 @@ ctx.addEventListener(
         }
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-        const { errors, result } = evaluate(
+        const { errors, logs, result } = evaluate(
           functionCall,
           evalTree,
           resolvedFunctions,
           false,
           undefined,
         );
-        return { errors, result };
+        return { errors, logs, result };
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
         const { expression, isTrigger } = requestData;

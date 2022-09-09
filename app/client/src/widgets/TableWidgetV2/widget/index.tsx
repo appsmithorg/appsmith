@@ -5,7 +5,6 @@ import _, {
   isNumber,
   isString,
   isNil,
-  isEqual,
   xor,
   without,
   isBoolean,
@@ -70,6 +69,7 @@ import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
 import { klona as clone } from "klona";
+import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -292,7 +292,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               default:
                 let data;
 
-                if (_.isString(value) || _.isNumber(value)) {
+                if (
+                  _.isString(value) ||
+                  _.isNumber(value) ||
+                  _.isBoolean(value)
+                ) {
                   data = value;
                 } else if (isNil(value)) {
                   data = "";
@@ -449,7 +453,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         if (
           !!newColumnIds.length &&
           !!_.xor(newColumnIds, columnOrder).length &&
-          !_.isEqual(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
+          !equal(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
         ) {
           // Maintain original columnOrder and keep new columns at the end
           let newColumnOrder = _.intersection(columnOrder, newColumnIds);
@@ -570,8 +574,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      * is changed from property pane
      */
     if (
-      !isEqual(defaultSelectedRowIndex, prevProps.defaultSelectedRowIndex) ||
-      !isEqual(defaultSelectedRowIndices, prevProps.defaultSelectedRowIndices)
+      !equal(defaultSelectedRowIndex, prevProps.defaultSelectedRowIndex) ||
+      !equal(defaultSelectedRowIndices, prevProps.defaultSelectedRowIndices)
     ) {
       this.updateSelectedRowIndex();
     }
@@ -740,7 +744,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("filters", filters);
 
     // Reset Page only when a filter is added
-    if (!isEmpty(xorWith(filters, defaultFilter, isEqual))) {
+    if (!isEmpty(xorWith(filters, defaultFilter, equal))) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
   };
@@ -1219,6 +1223,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isColumnEditable =
       column.isEditable && isColumnTypeEditable(column.columnType);
+    const isCellEditMode =
+      props.cell.column.alias === this.props.editableCell.column &&
+      rowIndex === this.props.editableCell.index;
 
     switch (column.columnType) {
       case ColumnTypes.BUTTON:
@@ -1507,10 +1514,55 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
 
+      case ColumnTypes.CHECKBOX:
+        const alias = props.cell.column.columnProperties.alias;
+        return (
+          <CheckboxCell
+            accentColor={this.props.accentColor}
+            borderRadius={
+              cellProperties.borderRadius || this.props.borderRadius
+            }
+            cellBackground={cellProperties.cellBackground}
+            compactMode={compactMode}
+            disabledCheckbox={
+              this.props.inlineEditingSaveOption ===
+                InlineEditingSaveOptions.ROW_LEVEL &&
+              this.props.updatedRowIndices.length &&
+              this.props.updatedRowIndices.indexOf(originalIndex) === -1
+            }
+            hasUnSavedChanges={cellProperties.hasUnsavedChanged}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellEditable={
+              (isColumnEditable && cellProperties.isCellEditable) ?? false
+            }
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            onChange={() => {
+              const row = filteredTableData[rowIndex];
+              const cellValue = !props.cell.value;
+
+              this.updateTransientTableData({
+                __original_index__: originalIndex,
+                [alias]: cellValue,
+              });
+
+              this.onColumnEvent({
+                rowIndex,
+                action: column.onCheckChange,
+                triggerPropertyName: "onCheckChange",
+                eventType: EventType.ON_CHECK_CHANGE,
+                row: {
+                  ...row,
+                  [alias]: cellValue,
+                },
+              });
+            }}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
       default:
-        const isCellEditMode =
-          props.cell.column.alias === this.props.editableCell.column &&
-          rowIndex === this.props.editableCell.index;
         return (
           <DefaultCell
             accentColor={this.props.accentColor}

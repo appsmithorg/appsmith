@@ -3,18 +3,10 @@ import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
-export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
-  if (customDataTree) {
-    const customTreeDef = customTreeTypeDefCreator(customDataTree);
-    TernServer.updateDef("customDataTree", customTreeDef);
-  } else {
-    TernServer.updateDef("customDataTree", {});
-  }
-
+export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
     // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,

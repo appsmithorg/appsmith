@@ -2,7 +2,7 @@ import {
   NotificationBanner,
   NotificationBannerProps,
   NotificationVariant,
-} from "components/ads/NotificationBanner";
+} from "design-system";
 import React from "react";
 import {
   createMessage,

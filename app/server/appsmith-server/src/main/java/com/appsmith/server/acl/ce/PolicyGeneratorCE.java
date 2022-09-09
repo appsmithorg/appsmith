@@ -20,8 +20,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.COMMENT_ON_THREADS;
+import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
+import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -34,6 +40,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -46,21 +53,14 @@ import static com.appsmith.server.acl.AclPermission.READ_THREADS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
-import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
-import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 
 
@@ -72,13 +72,13 @@ public class PolicyGeneratorCE {
     /**
      * This graph defines the hierarchy of permissions from parent objects
      */
-    Graph<AclPermission, DefaultEdge> hierarchyGraph = new DirectedMultigraph<>(DefaultEdge.class);
+    protected Graph<AclPermission, DefaultEdge> hierarchyGraph = new DirectedMultigraph<>(DefaultEdge.class);
 
     /**
      * This graph defines the permissions that must be given to a user given that they have another permission
      * Eg: If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION permission
      */
-    Graph<AclPermission, DefaultEdge> lateralGraph = new DirectedMultigraph<>(DefaultEdge.class);
+    protected Graph<AclPermission, DefaultEdge> lateralGraph = new DirectedMultigraph<>(DefaultEdge.class);
 
     @PostConstruct
     public void createPolicyGraph() {
@@ -102,19 +102,19 @@ public class PolicyGeneratorCE {
         createPermissionGroupPolicyGraph();
     }
 
-    private void createInstancePolicyGraph() {
+    protected void createInstancePolicyGraph() {
         lateralGraph.addEdge(MANAGE_INSTANCE_CONFIGURATION, READ_INSTANCE_CONFIGURATION);
     }
 
     /**
      * In this, we add permissions for a user to interact with workspaces and other users inside the said workspaces
      */
-    private void createUserPolicyGraph() {
+    protected void createUserPolicyGraph() {
         lateralGraph.addEdge(MANAGE_USERS, READ_USERS);
         lateralGraph.addEdge(MANAGE_USERS, RESET_PASSWORD_USERS);
     }
 
-    private void createWorkspacePolicyGraph() {
+    protected void createWorkspacePolicyGraph() {
         lateralGraph.addEdge(MANAGE_WORKSPACES, READ_WORKSPACES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_DATASOURCES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_DATASOURCES);
@@ -125,7 +125,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_DATASOURCES);
     }
 
-    private void createDatasourcePolicyGraph() {
+    protected void createDatasourcePolicyGraph() {
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
 
         // If a viewer of all apps in the workspace, give execute permission on all the datasources
@@ -137,7 +137,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(READ_DATASOURCES, EXECUTE_DATASOURCES);
     }
 
-    private void createApplicationPolicyGraph() {
+    protected void createApplicationPolicyGraph() {
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, READ_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_PUBLISH_APPLICATIONS, PUBLISH_APPLICATIONS);
@@ -153,7 +153,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(READ_APPLICATIONS, COMMENT_ON_APPLICATIONS);
     }
 
-    private void createActionPolicyGraph() {
+    protected void createActionPolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_PAGES, MANAGE_ACTIONS);
         hierarchyGraph.addEdge(READ_PAGES, EXECUTE_ACTIONS);
         hierarchyGraph.addEdge(DELETE_PAGES, DELETE_ACTIONS);
@@ -163,7 +163,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(READ_ACTIONS, EXECUTE_ACTIONS);
     }
 
-    private void createPagePolicyGraph() {
+    protected void createPagePolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_PAGES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_PAGES);
         hierarchyGraph.addEdge(DELETE_APPLICATIONS, DELETE_PAGES);
@@ -172,7 +172,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }
 
-    private void createCommentPolicyGraph() {
+    protected void createCommentPolicyGraph() {
         hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREADS);
 
         lateralGraph.addEdge(COMMENT_ON_THREADS, READ_THREADS);
@@ -180,13 +180,13 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(COMMENT_ON_THREADS, READ_COMMENTS);
     }
 
-    private void createThemePolicyGraph() {
+    protected void createThemePolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEMES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEMES);
         lateralGraph.addEdge(MANAGE_THEMES, READ_THEMES);
     }
 
-    private void createPermissionGroupPolicyGraph() {
+    protected void createPermissionGroupPolicyGraph() {
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.ASSIGN_PERMISSION_GROUPS);
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.UNASSIGN_PERMISSION_GROUPS);
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);

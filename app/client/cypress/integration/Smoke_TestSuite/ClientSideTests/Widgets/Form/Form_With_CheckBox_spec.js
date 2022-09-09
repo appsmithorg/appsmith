@@ -69,7 +69,8 @@ describe("Checkbox Widget Functionality", function() {
 
   it("Checkbox Functionality To change label color of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
-    cy.get(".t--property-control-textcolor .bp3-input").type("red");
+    cy.moveToStyleTab();
+    cy.get(".t--property-control-fontcolor .bp3-input").type("red");
     cy.wait(200);
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
@@ -82,7 +83,8 @@ describe("Checkbox Widget Functionality", function() {
 
   it("Checkbox Functionality To change label size of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
-    cy.get(widgetsPage.textSize)
+    cy.moveToStyleTab();
+    cy.get(widgetsPage.textSizeNew)
       .last()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -99,7 +101,8 @@ describe("Checkbox Widget Functionality", function() {
 
   it("Checkbox Functionality To change label style of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
-    cy.get(".t--property-control-labelfontstyle .t--button-tab-BOLD").click({
+    cy.moveToStyleTab();
+    cy.get(".t--property-control-emphasis .t--button-tab-BOLD").click({
       force: true,
     });
     cy.PublishtheApp();
