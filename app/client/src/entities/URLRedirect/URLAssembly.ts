@@ -159,6 +159,13 @@ export class URLBuilder {
     return basePath;
   }
 
+  // Used to show URL preview in settings pane
+  getCustomSlugPathPreview(pageId: string, customSlug: string) {
+    const urlPattern =
+      baseURLRegistry[URL_TYPE.CUSTOM_SLUG][APP_MODE.PUBLISHED];
+    return generatePath(urlPattern, { pageId, customSlug: `${customSlug}-` });
+  }
+
   /**
    * @throws {URIError}
    * @param builderParams
