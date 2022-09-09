@@ -47,16 +47,17 @@ describe("Code Scanner widget", () => {
     cy.get(publish.backToEditor).click();
   });
 
-  // TODO: Check if we are able to fake webcam video, otherwise disable this test for now
-  it("6. Open the Code Scanner modal and Scan a QR using fake webcam video.", function() {
-    // Open
-    cy.get(widgetsPage.codescannerwidget).click();
-    //eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    // Check if the QR code was read
-    cy.get(".t--widget-textwidget").should(
-      "contain",
-      "Hello Cypress, this is from Appsmith!",
-    );
-  });
+  // Disabling this test for now.
+  // Check out - https://github.com/appsmithorg/appsmith/pull/15990#issuecomment-1241598309
+  // it("6. Open the Code Scanner modal and Scan a QR using fake webcam video.", function() {
+  //   // Open
+  //   cy.get(widgetsPage.codescannerwidget).click();
+  //   //eslint-disable-next-line cypress/no-unnecessary-waiting
+  //   cy.wait(2000);
+  //   // Check if the QR code was read
+  //   cy.get(".t--widget-textwidget").should(
+  //     "contain",
+  //     "Hello Cypress, this is from Appsmith!",
+  //   );
+  // });
 });
