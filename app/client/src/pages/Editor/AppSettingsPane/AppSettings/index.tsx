@@ -7,6 +7,7 @@ import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
 import SectionHeader, { SectionHeaderProps } from "./SectionHeader";
 import DraggablePageList from "./DraggablePageList";
+import PageSettings from "./PageSettings";
 
 enum Tabs {
   General,
@@ -16,7 +17,7 @@ enum Tabs {
 
 interface SelectedTab {
   type: Tabs;
-  pageId?: string;
+  page?: Page;
 }
 
 const Wrapper = styled.div`
@@ -73,10 +74,13 @@ function AppSettings() {
         </TabHeaderText>
         <DraggablePageList
           onPageSelect={(pageId: string) =>
-            setSelectedTab({ type: Tabs.Page, pageId })
+            setSelectedTab({
+              type: Tabs.Page,
+              page: pages.find((page) => page.pageId === pageId),
+            })
           }
           pages={pages}
-          selectedPage={selectedTab?.pageId}
+          selectedPage={selectedTab?.page?.pageId}
         />
       </div>
       <SectionContent className="w-1/2">
@@ -108,7 +112,16 @@ function AppSettings() {
                 </>
               );
             case Tabs.Page:
-              return <div>{selectedTab.pageId}</div>;
+              return selectedTab.page ? (
+                <div className="px-4">
+                  <TabHeaderText className="leading-[3rem] font-medium">
+                    Page settings
+                  </TabHeaderText>
+                  <PageSettings page={selectedTab.page} />
+                </div>
+              ) : (
+                <div>Page not found</div>
+              );
           }
         })()}
       </SectionContent>
