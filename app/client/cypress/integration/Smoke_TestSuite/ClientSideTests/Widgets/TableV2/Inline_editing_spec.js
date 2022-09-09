@@ -649,8 +649,7 @@ describe("Table widget inline editing functionality", () => {
       .last()
       .click({ force: true });
     cy.selectShowMsg();
-    cy.toggleJsAndUpdateWithIndex("ondiscard", "discarded!!", 3);
-    //cy.addSuccessMessage("discarded!!", ".t--property-control-ondiscard");
+    agHelper.EnterActionValue("Message", "discarded!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");
