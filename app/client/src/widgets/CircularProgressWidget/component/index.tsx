@@ -17,6 +17,7 @@ export interface CircularProgressComponentProps {
   fillColor: string;
   progress: number;
   showResult: boolean;
+  borderRadius?: string;
 }
 
 const SvgContainer = styled.svg`
@@ -37,7 +38,6 @@ export const Path = styled.path<
   Pick<CircularProgressComponentProps, "fillColor">
 >`
   stroke: ${(props) => props.fillColor};
-  stroke-linecap: butt;
   transition: stroke-dashoffset 0.5s ease 0s;
 `;
 

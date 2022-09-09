@@ -20,6 +20,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Table Page No", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.EnableAllCodeEditors();
     /**Bind Api1 with Table widget */
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
@@ -64,7 +65,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(30000);
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.get(".t--entity-name")
       .contains("Table1")
       .click({ force: true });
@@ -73,6 +74,11 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.wait(500);
     cy.wait("@postExecute");
     cy.wait(500);
+    cy.get(".show-page-items").should("contain", "20 Records");
+    cy.get(".page-item")
+      .next()
+      .should("contain", "of 2");
+
     cy.get(".t--table-widget-next-page").should("not.have.attr", "disabled");
     cy.ValidateTableData("1");
 
@@ -96,7 +102,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       parseSpecialCharSequences: false,
     });
     cy.WaitAutoSave();
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     //cy.get(".t--entity-name:contains(Text1)").click({ force: true });
     //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/

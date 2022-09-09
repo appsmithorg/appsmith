@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -30,7 +31,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.ConnectionString;
-import com.mongodb.DBObjectCodecProvider;
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCommandException;
@@ -48,6 +48,8 @@ import org.bson.codecs.BsonTypeClassMap;
 import org.bson.codecs.BsonValueCodecProvider;
 import org.bson.codecs.DocumentCodec;
 import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.IterableCodecProvider;
+import org.bson.codecs.MapCodecProvider;
 import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -70,6 +72,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,7 +88,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -103,6 +109,9 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.SUCCESS;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.utils.DatasourceUtils.KEY_PASSWORD;
+import static com.external.plugins.utils.DatasourceUtils.KEY_URI_DEFAULT_DBNAME;
+import static com.external.plugins.utils.DatasourceUtils.KEY_USERNAME;
 import static com.external.plugins.utils.DatasourceUtils.buildClientURI;
 import static com.external.plugins.utils.DatasourceUtils.buildURIFromExtractedInfo;
 import static com.external.plugins.utils.DatasourceUtils.extractInfoFromConnectionStringURI;
@@ -151,23 +160,17 @@ public class MongoPlugin extends BasePlugin {
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
      * e.g. "ObjectId(...)". Case for single quotes e.g. 'ObjectId(...)' is not added because the way client sends
      * back the data to the API server it would be extremely uncommon to encounter this case.
-     *
+     * <p>
      * In the given regex E is replaced by the name of special data types before doing the match / find operation.
      * e.g. E will be replaced with ObjectId to find the occurrence of "ObjectId(...)" pattern.
-     *
+     * <p>
      * Example: for "[\"ObjectId('xyz')\"]":
-     *   o group 1 will match "ObjectId(...)"
-     *   o group 2 will match ObjectId(...)
-     *   o group 3 will match 'xyz'
-     *   o group 4 will match xyz
+     * o group 1 will match "ObjectId(...)"
+     * o group 2 will match ObjectId(...)
+     * o group 3 will match 'xyz'
+     * o group 4 will match xyz
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
-
-    private static final String KEY_USERNAME = "username";
-
-    private static final String KEY_PASSWORD = "password";
-
-    private static final String KEY_URI_DBNAME = "dbName";
 
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
@@ -188,15 +191,16 @@ public class MongoPlugin extends BasePlugin {
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
-    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(
-            asList(new ValueCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new DocumentCodecProvider(),
-                    new DBRefCodecProvider(),
-                    new DBObjectCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new GeoJsonCodecProvider(),
-                    new GridFSFileCodecProvider()));
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(Arrays.asList(
+            new ValueCodecProvider(),
+            new IterableCodecProvider(),
+            new BsonValueCodecProvider(),
+            new DocumentCodecProvider(),
+            new MapCodecProvider(),
+            new DBRefCodecProvider(),
+            new GeoJsonCodecProvider(),
+            new GridFSFileCodecProvider()
+    ));
 
     private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 
@@ -233,8 +237,7 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
-                    TRUE);
+            Object smartSubstitutionObject = PluginUtils.getDataValueSafelyFromFormData(formData, SMART_SUBSTITUTION, OBJECT_TYPE, TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
@@ -252,12 +255,12 @@ public class MongoPlugin extends BasePlugin {
                             executeActionDTO.getParams(), parameters);
                 } else {
                     // For raw queries do smart replacements in BSON body
-                    final Object body = getValueSafelyFromFormData(formData, BODY);
+                    final Object body = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, OBJECT_TYPE);
                     if (body != null) {
                         try {
                             String updatedRawQuery = smartSubstituteBSON((String) body,
                                     executeActionDTO.getParams(), parameters);
-                            setValueSafelyInFormData(formData, BODY, updatedRawQuery);
+                            setDataValueSafelyInFormData(formData, BODY, updatedRawQuery);
                         } catch (AppsmithPluginException e) {
                             ActionExecutionResult errorResult = new ActionExecutionResult();
                             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
@@ -274,7 +277,7 @@ public class MongoPlugin extends BasePlugin {
             // In case the input type is form instead of raw, parse the same into BSON command
             String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
             if (parsedRawCommand != null) {
-                setValueSafelyInFormData(formData, BODY, parsedRawCommand);
+                setDataValueSafelyInFormData(formData, BODY, parsedRawCommand);
             }
 
             actionConfiguration.setFormData(formData);
@@ -306,7 +309,7 @@ public class MongoPlugin extends BasePlugin {
 
             final Map<String, Object> formData = actionConfiguration.getFormData();
 
-            String query = (String) getValueSafelyFromFormData(formData, BODY);
+            String query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
             Bson command = Document.parse(query);
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
@@ -329,6 +332,15 @@ public class MongoPlugin extends BasePlugin {
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
+                    )
+                    /**
+                     * This is to catch the cases when Mongo connection pool closes for some reason and hence throws
+                     * IllegalStateException when query is run.
+                     * Ref: https://github.com/appsmithorg/appsmith/issues/15548
+                     */
+                    .onErrorMap(
+                            IllegalStateException.class,
+                            error -> new StaleConnectionException()
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
@@ -576,9 +588,9 @@ public class MongoPlugin extends BasePlugin {
 
             for (String bsonField : bsonFields) {
                 if (validConfigurationPresentInFormData(formData, bsonField)) {
-                    String preSmartSubValue = (String) getValueSafelyFromFormData(formData, bsonField);
+                    String preSmartSubValue = PluginUtils.getDataValueSafelyFromFormData(formData, bsonField, STRING_TYPE);
                     String postSmartSubValue = smartSubstituteBSON(preSmartSubValue, params, parameters);
-                    setValueSafelyInFormData(formData, bsonField, postSmartSubValue);
+                    setDataValueSafelyInFormData(formData, bsonField, postSmartSubValue);
                 }
             }
         }
@@ -625,7 +637,6 @@ public class MongoPlugin extends BasePlugin {
         }
 
 
-
         @Override
         public void datasourceDestroy(MongoClient mongoClient) {
             if (mongoClient != null) {
@@ -653,18 +664,23 @@ public class MongoPlugin extends BasePlugin {
                         if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
-                        } else if (!isAuthenticated(authentication, mongoUri)) {
-                            String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
-                            properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
-                            authentication = (authentication == null) ? new DBAuth() : authentication;
-                            authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
-                            authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
-                            authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
-                            datasourceConfiguration.setAuthentication(authentication);
+                        } else {
+                            if (extractedInfo.get(KEY_URI_DEFAULT_DBNAME) == null) {
+                                invalids.add("Missing default database name.");
+                            }
+                            if (!isAuthenticated(authentication, mongoUri)) {
+                                String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
+                                properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
+                                authentication = (authentication == null) ? new DBAuth() : authentication;
+                                authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
+                                authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
+                                authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
+                                datasourceConfiguration.setAuthentication(authentication);
 
-                            // remove any default db set via form auto-fill via browser
-                            if (datasourceConfiguration.getConnection() != null) {
-                                datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                                // remove any default db set via form auto-fill via browser
+                                if (datasourceConfiguration.getConnection() != null) {
+                                    datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                                }
                             }
                         }
                     }
@@ -705,7 +721,7 @@ public class MongoPlugin extends BasePlugin {
                     }
 
                     if (!StringUtils.hasLength(authentication.getDatabaseName())) {
-                        invalids.add("Missing database name.");
+                        invalids.add("Missing default database name.");
                     }
 
                 }
@@ -804,6 +820,21 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
+                    /**
+                     * This is to catch the cases when Mongo connection pool closes for some reason and hence throws
+                     * IllegalStateException when query is run.
+                     * Ref: https://github.com/appsmithorg/appsmith/issues/15548
+                     */
+                    .onErrorMap(
+                            IllegalStateException.class,
+                            error -> new StaleConnectionException()
+                    )
+                    // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
+                    // database drops the connection which makes the client throw the following exception.
+                    .onErrorMap(
+                            MongoSocketWriteException.class,
+                            error -> new StaleConnectionException()
+                    )
                     .onErrorMap(
                             MongoCommandException.class,
                             error -> {
@@ -830,7 +861,7 @@ public class MongoPlugin extends BasePlugin {
                                              Object... args) {
             String jsonBody = (String) input;
             DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this);
         }
 
         /**
@@ -874,10 +905,11 @@ public class MongoPlugin extends BasePlugin {
          * This method coverts Mongo plugin's form data to Mongo's native query. Currently, it is meant to help users
          * switch easily from form based input to raw input mode by providing a readily available translation of the
          * form data to raw query.
+         *
          * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
          */
         @Override
-        public ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+        public void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
             Map<String, Object> formData = actionConfiguration.getFormData();
             if (formData != null && !formData.isEmpty()) {
                 /* If it is not raw command, then it must be one of the mongo form commands */
@@ -887,7 +919,7 @@ public class MongoPlugin extends BasePlugin {
                       This translation must happen only if the user has not edited the raw mode. Hence, check that
                       user has not provided any raw query.
                      */
-                    if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
+                    if (isBlank(getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE))) {
                         try {
                             String rawQuery = getRawQuery(actionConfiguration);
                             if (rawQuery != null) {
@@ -903,8 +935,6 @@ public class MongoPlugin extends BasePlugin {
                     }
                 }
             }
-
-            return actionConfiguration;
         }
     }
 
@@ -920,6 +950,20 @@ public class MongoPlugin extends BasePlugin {
                 return jsonObject.getString("$oid");
 
             } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
+                JSONObject dateJSON = jsonObject.optJSONObject("$date");
+                /*
+                    For dates before Jan 1, 1970 then the output json from MongoDB driver looks like
+                    "$date": {
+                        "$numberLong": "-493033770000"
+                    }
+                    And for dates on or after Jan 1, 1970 the output json from MongoDB driver is readily available and looks like
+                    "$date": "2022-07-01T10:32:37.318Z"
+                */
+                if (dateJSON != null && dateJSON.keySet().size() == 1 &&
+                        "$numberLong".equals(dateJSON.keys().next())) {
+                    return DateTimeFormatter.ISO_INSTANT.format(
+                            Instant.ofEpochMilli(dateJSON.getLong("$numberLong")));
+                }
                 return DateTimeFormatter.ISO_INSTANT.format(
                         Instant.parse(jsonObject.getString("$date"))
                 );

@@ -7,8 +7,7 @@ import copy from "copy-to-clipboard";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import TooltipComponent from "../Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;
@@ -82,7 +81,7 @@ function CopyUrlForm(
             hoverOpenDelay={0}
             minWidth={"180px"}
             openOnTargetFocus={false}
-            position={Position.RIGHT}
+            position="right"
           >
             <HelpIcon
               className={"help-icon"}

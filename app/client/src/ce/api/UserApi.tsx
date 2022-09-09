@@ -1,7 +1,6 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "api/ApiResponses";
-import { CommentsOnboardingState } from "constants/userConstants";
 
 export interface LoginUserRequest {
   email: string;
@@ -13,10 +12,10 @@ export interface CreateUserRequest {
   password: string;
 }
 
-export interface CreateUserResponse extends ApiResponse {
+export type CreateUserResponse = ApiResponse & {
   email: string;
   id: string;
-}
+};
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -33,16 +32,16 @@ export interface VerifyTokenRequest {
   token: string;
 }
 
-export interface FetchUserResponse extends ApiResponse {
+export type FetchUserResponse = ApiResponse & {
   id: string;
-}
+};
 
 export interface FetchUserRequest {
   id: string;
 }
 
-export interface LeaveOrgRequest {
-  orgId: string;
+export interface LeaveWorkspaceRequest {
+  workspaceId: string;
 }
 
 export interface InviteUserRequest {
@@ -56,10 +55,6 @@ export interface UpdateUserRequest {
   email?: string;
   role?: string;
   useCase?: string;
-}
-
-export interface CommentsOnboardingStateRequest {
-  commentOnboardingState: CommentsOnboardingState;
 }
 
 export interface SendTestEmailPayload {
@@ -91,14 +86,13 @@ export class UserApi extends Api {
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
-  static addOrgURL = `${UserApi.usersURL}/addOrganization`;
-  static leaveOrgURL = `${UserApi.usersURL}/leaveOrganization`;
+  static addWorkspaceURL = `${UserApi.usersURL}/addWorkspace`;
+  static leaveWorkspaceURL = `${UserApi.usersURL}/leaveWorkspace`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
   static superUserURL = "v1/users/super";
-  static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
   static adminSettingsURL = "v1/admin/env";
   static restartServerURL = "v1/admin/restart";
   static downloadConfigURL = "v1/admin/env/download";
@@ -166,7 +160,7 @@ export class UserApi extends Api {
     id: string;
     new: boolean;
     profilePhotoAssetId: string;
-    recentlyUsedOrgIds: string[];
+    recentlyUsedWorkspaceIds: string[];
   }> {
     const formData = new FormData();
     if (request.file) {
@@ -184,8 +178,10 @@ export class UserApi extends Api {
     return Api.delete(UserApi.photoURL);
   }
 
-  static leaveOrg(request: LeaveOrgRequest): AxiosPromise<LeaveOrgRequest> {
-    return Api.put(UserApi.leaveOrgURL + "/" + request.orgId);
+  static leaveWorkspace(
+    request: LeaveWorkspaceRequest,
+  ): AxiosPromise<LeaveWorkspaceRequest> {
+    return Api.put(UserApi.leaveWorkspaceURL + "/" + request.workspaceId);
   }
 
   static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
@@ -196,12 +192,6 @@ export class UserApi extends Api {
     request: CreateSuperUserRequest,
   ): AxiosPromise<CreateUserResponse> {
     return Api.post(UserApi.superUserURL, request);
-  }
-
-  static updateUsersCommentOnboardingState(
-    request: CommentsOnboardingStateRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.patch(UserApi.commentsOnboardingStateURL, request);
   }
 
   /*

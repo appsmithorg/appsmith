@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
@@ -40,6 +41,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class RapidApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
 
@@ -49,7 +51,6 @@ public class RapidApiPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class RapidApiPluginExecutor implements PluginExecutor<Void> {
 
@@ -76,7 +77,7 @@ public class RapidApiPlugin extends BasePlugin {
                         "set."));
             }
 
-            WebClient.Builder webClientBuilder = WebClient.builder();
+            WebClient.Builder webClientBuilder = WebClientUtils.builder();
 
             if (datasourceConfiguration.getHeaders() != null) {
                 addHeadersToRequest(webClientBuilder, datasourceConfiguration.getHeaders());
@@ -225,7 +226,7 @@ public class RapidApiPlugin extends BasePlugin {
 
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {
             if (iteration == MAX_REDIRECTS) {
-                System.out.println("Exceeded the http redirect limits. Returning error");
+                log.debug("Exceeded the http redirect limits. Returning error");
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Exceeded the HTTO redirect limits of " + MAX_REDIRECTS));
             }
             return webClient

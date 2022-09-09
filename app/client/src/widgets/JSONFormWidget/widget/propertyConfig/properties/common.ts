@@ -16,11 +16,46 @@ import { JSONFormWidgetProps } from "../..";
 import { getParentPropertyPath } from "../../helper";
 import {
   fieldTypeUpdateHook,
+  getAutocompleteProperties,
   getSchemaItem,
+  getStylesheetValue,
   HiddenFnParams,
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "../helper";
+
+// ARRAY and OBJECT have border radius but in their own property configs as they have a variation
+const FIELDS_WITHOUT_BORDER_RADIUS = [
+  FieldType.ARRAY,
+  FieldType.OBJECT,
+  FieldType.RADIO_GROUP,
+  FieldType.SWITCH,
+];
+
+const FIELDS_WITHOUT_BOX_SHADOW = [
+  FieldType.ARRAY,
+  FieldType.OBJECT,
+  FieldType.CHECKBOX,
+  FieldType.RADIO_GROUP,
+  FieldType.SWITCH,
+];
+
+const FIELDS_WITH_ACCENT_COLOR = [
+  FieldType.CHECKBOX,
+  FieldType.CURRENCY_INPUT,
+  FieldType.DATEPICKER,
+  FieldType.EMAIL_INPUT,
+  FieldType.MULTILINE_TEXT_INPUT,
+  FieldType.MULTISELECT,
+  FieldType.NUMBER_INPUT,
+  FieldType.PASSWORD_INPUT,
+  FieldType.PHONE_NUMBER_INPUT,
+  FieldType.PHONE_NUMBER_INPUT,
+  FieldType.RADIO_GROUP,
+  FieldType.SELECT,
+  FieldType.SWITCH,
+  FieldType.TEXT_INPUT,
+];
 
 function accessorValidation(
   value: any,
@@ -53,8 +88,7 @@ function accessorValidation(
   }
 
   const existingKeys = (Object.values(schema) || []).map(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     (schemaItem) => schemaItem.name,
   );
 
@@ -93,7 +127,7 @@ const COMMON_PROPERTIES = {
         label: option,
         value: option,
       })),
-      dependencies: ["schema"],
+      dependencies: ["schema", "childStylesheet", "dynamicBindingPathList"],
       updateHook: fieldTypeUpdateHook,
     },
   ],
@@ -198,9 +232,6 @@ const COMMON_PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) => {
-        const isHidden = hiddenIfArrayItemIsObject(...args);
-        if (isHidden) return true;
-
         return getSchemaItem(...args).compute(
           (schemaItem) =>
             schemaItem.fieldType === FieldType.OBJECT ||
@@ -220,7 +251,11 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: false,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
-      hidden: hiddenIfArrayItemIsObject,
+      hidden: (...args: HiddenFnParams) => {
+        return getSchemaItem(...args).compute(
+          (schemaItem) => schemaItem.identifier === ARRAY_ITEM_KEY,
+        );
+      },
       dependencies: ["schema", "sourceData"],
     },
     {
@@ -233,7 +268,6 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: false,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
-      hidden: hiddenIfArrayItemIsObject,
       dependencies: ["schema", "sourceData"],
       updateHook: updateChildrenDisabledStateHook,
     },
@@ -270,41 +304,44 @@ const COMMON_PROPERTIES = {
     {
       propertyName: "labelTextSize",
       label: "Text Size",
+      defaultValue: "0.875rem",
       controlType: "DROP_DOWN",
       options: [
         {
-          label: "Heading 1",
-          value: "HEADING1",
-          subText: "24px",
-          icon: "HEADING_ONE",
+          label: "S",
+          value: "0.875rem",
+          subText: "0.875rem",
         },
         {
-          label: "Heading 2",
-          value: "HEADING2",
-          subText: "18px",
-          icon: "HEADING_TWO",
+          label: "M",
+          value: "1rem",
+          subText: "1rem",
         },
         {
-          label: "Heading 3",
-          value: "HEADING3",
-          subText: "16px",
-          icon: "HEADING_THREE",
+          label: "L",
+          value: "1.25rem",
+          subText: "1.25rem",
         },
         {
-          label: "Paragraph",
-          value: "PARAGRAPH",
-          subText: "14px",
-          icon: "PARAGRAPH",
+          label: "XL",
+          value: "1.875rem",
+          subText: "1.875rem",
         },
         {
-          label: "Paragraph 2",
-          value: "PARAGRAPH2",
-          subText: "12px",
-          icon: "PARAGRAPH_TWO",
+          label: "XXL",
+          value: "3rem",
+          subText: "3rem",
+        },
+        {
+          label: "3XL",
+          value: "3.75rem",
+          subText: "3.75rem",
         },
       ],
-      isBindProperty: false,
+      isJSConvertible: true,
+      isBindProperty: true,
       isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
     },
     {
       propertyName: "labelStyle",
@@ -337,7 +374,7 @@ const COMMON_PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(
@@ -352,7 +389,7 @@ const COMMON_PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(
@@ -362,57 +399,371 @@ const COMMON_PROPERTIES = {
   ],
   styles: [
     {
-      propertyName: "backgroundColor",
-      label: "Background Color",
+      propertyName: "accentColor",
+      helpText: "Sets the accent color",
+      label: "Accent Color",
       controlType: "COLOR_PICKER",
-      helpText: "Changes the background color",
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      validation: {
-        type: ValidationTypes.TEXT,
-        params: {
-          regex: /^(?![<|{{]).+/,
-        },
-      },
+      validation: { type: ValidationTypes.TEXT },
+      getStylesheetValue,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotIncludes(FIELDS_WITH_ACCENT_COLOR),
       dependencies: ["schema"],
     },
     {
-      propertyName: "cellBackgroundColor",
-      label: "Cell Background Color",
-      controlType: "COLOR_PICKER",
-      helpText: "Changes the background color of the cell",
+      propertyName: "borderRadius",
+      label: "Border Radius",
+      helpText: "Rounds the corners of the icon button's outer border edge",
+      controlType: "BORDER_RADIUS_OPTIONS",
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      validation: {
-        type: ValidationTypes.TEXT,
-        params: {
-          regex: /^(?![<|{{]).+/,
-        },
-      },
+      validation: { type: ValidationTypes.TEXT },
+      getStylesheetValue,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeIncludes(FIELDS_WITHOUT_BORDER_RADIUS),
       dependencies: ["schema"],
     },
     {
-      propertyName: "cellBorderColor",
-      label: "Cell Border Color",
-      helpText: "Changes the border color of the cell",
-      controlType: "COLOR_PICKER",
+      propertyName: "boxShadow",
+      label: "Box Shadow",
+      helpText:
+        "Enables you to cast a drop shadow from the frame of the widget",
+      controlType: "BOX_SHADOW_OPTIONS",
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      validation: {
-        type: ValidationTypes.TEXT,
-        params: {
-          regex: /^(?![<|{{]).+/,
-        },
-      },
+      getStylesheetValue,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeIncludes(FIELDS_WITHOUT_BOX_SHADOW),
+      validation: { type: ValidationTypes.TEXT },
       dependencies: ["schema"],
     },
   ],
+
+  content: {
+    data: [
+      {
+        propertyName: "fieldType",
+        label: "Field Type",
+        controlType: "DROP_DOWN",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        options: Object.values(FieldType).map((option) => ({
+          label: option,
+          value: option,
+        })),
+        dependencies: ["schema", "childStylesheet", "dynamicBindingPathList"],
+        updateHook: fieldTypeUpdateHook,
+      },
+      {
+        propertyName: "accessor",
+        helpText:
+          "Sets the property name of the field which can be used to access the value in formData and fieldState.",
+        label: "Property Name",
+        controlType: "INPUT_TEXT",
+        placeholderText: "name",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: accessorValidation,
+            expected: {
+              type: "unique string",
+              example: `firstName | last_name | age14`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const parentPath = getParentPropertyPath(propertyPath);
+          const schemaItem: SchemaItem = get(props, parentPath, {});
+          const isArrayItem = schemaItem.identifier === ARRAY_ITEM_KEY;
+
+          if (isArrayItem) return true;
+        },
+        dependencies: ["schema"],
+      },
+      {
+        propertyName: "options",
+        helpText:
+          "Allows users to select from the given option(s). Values must be unique",
+        label: "Options",
+        controlType: "INPUT_TEXT",
+        placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.ARRAY,
+          params: {
+            unique: ["value"],
+            children: {
+              type: ValidationTypes.OBJECT,
+              params: {
+                required: true,
+                allowedKeys: [
+                  {
+                    name: "label",
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "",
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "value",
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "",
+                      required: true,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotIncludes(FIELD_EXPECTING_OPTIONS),
+        dependencies: ["schema", "sourceData"],
+      },
+    ],
+    general: [
+      {
+        propertyName: "tooltip",
+        helpText: "Show help text or details about current field",
+        label: "Tooltip",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        placeholderText: "Passwords must be at-least 6 chars",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: hiddenIfArrayItemIsObject,
+        dependencies: ["schema", "sourceData"],
+      },
+    ],
+    label: [
+      {
+        propertyName: "label",
+        helpText: "Sets the label text of the field",
+        label: "Text",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Name:",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: hiddenIfArrayItemIsObject,
+        dependencies: ["schema", "sourceData"],
+      },
+    ],
+    generalSwitch: [
+      {
+        propertyName: "isVisible",
+        helpText: "Controls the visibility of the field",
+        label: "Visible",
+        controlType: "SWITCH",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (...args: HiddenFnParams) => {
+          return getSchemaItem(...args).compute(
+            (schemaItem) => schemaItem.identifier === ARRAY_ITEM_KEY,
+          );
+        },
+        dependencies: ["schema", "sourceData"],
+      },
+      {
+        propertyName: "isDisabled",
+        helpText: "Disables the field",
+        label: "Disabled",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: { type: ValidationTypes.BOOLEAN },
+        dependencies: ["schema", "sourceData"],
+        updateHook: updateChildrenDisabledStateHook,
+      },
+    ],
+    events: [
+      {
+        propertyName: "onFocus",
+        helpText: "Triggers an action when focused.",
+        label: "onFocus",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        dependencies: ["schema", "sourceData"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotIncludes(
+            FIELD_SUPPORTING_FOCUS_EVENTS,
+          ),
+      },
+      {
+        propertyName: "onBlur",
+        helpText: "Triggers an action when the field loses focus.",
+        label: "onBlur",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        dependencies: ["schema", "sourceData"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotIncludes(
+            FIELD_SUPPORTING_FOCUS_EVENTS,
+          ),
+      },
+    ],
+  },
+  style: {
+    label: [
+      {
+        propertyName: "labelTextColor",
+        label: "Font Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+        },
+        dependencies: ["schema", "sourceData"],
+      },
+      {
+        propertyName: "labelTextSize",
+        label: "Font Size",
+        defaultValue: "0.875rem",
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "S",
+            value: "0.875rem",
+            subText: "0.875rem",
+          },
+          {
+            label: "M",
+            value: "1rem",
+            subText: "1rem",
+          },
+          {
+            label: "L",
+            value: "1.25rem",
+            subText: "1.25rem",
+          },
+          {
+            label: "XL",
+            value: "1.875rem",
+            subText: "1.875rem",
+          },
+          {
+            label: "XXL",
+            value: "3rem",
+            subText: "3rem",
+          },
+          {
+            label: "3XL",
+            value: "3.75rem",
+            subText: "3.75rem",
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "labelStyle",
+        label: "Emphasis",
+        controlType: "BUTTON_TABS",
+        options: [
+          {
+            icon: "BOLD_FONT",
+            value: "BOLD",
+          },
+          {
+            icon: "ITALICS_FONT",
+            value: "ITALIC",
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: { type: ValidationTypes.TEXT },
+        dependencies: ["schema", "sourceData"],
+      },
+    ],
+    borderShadow: [
+      {
+        propertyName: "borderRadius",
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        getStylesheetValue,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeIncludes(
+            FIELDS_WITHOUT_BORDER_RADIUS,
+          ),
+        dependencies: ["schema"],
+      },
+      {
+        propertyName: "boxShadow",
+        label: "Box Shadow",
+        helpText:
+          "Enables you to cast a drop shadow from the frame of the widget",
+        controlType: "BOX_SHADOW_OPTIONS",
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        getStylesheetValue,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeIncludes(FIELDS_WITHOUT_BOX_SHADOW),
+        validation: { type: ValidationTypes.TEXT },
+        dependencies: ["schema"],
+      },
+    ],
+    color: [
+      {
+        propertyName: "accentColor",
+        helpText: "Sets the accent color",
+        label: "Accent Color",
+        controlType: "COLOR_PICKER",
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        getStylesheetValue,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotIncludes(FIELDS_WITH_ACCENT_COLOR),
+        dependencies: ["schema"],
+      },
+    ],
+  },
 };
 
 export default COMMON_PROPERTIES;

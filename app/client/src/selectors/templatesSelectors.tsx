@@ -1,8 +1,8 @@
 import { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getOrganizationCreateApplication } from "./applicationSelectors";
+import { getWorkspaceCreateApplication } from "./applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
 import { Filter } from "pages/Templates/Filters";
@@ -22,11 +22,11 @@ export const isImportingTemplateSelector = (state: AppState) =>
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 
-export const getOrganizationForTemplates = createSelector(
-  getOrganizationCreateApplication,
-  (organizationList) => {
-    if (organizationList.length) {
-      return organizationList[0];
+export const getWorkspaceForTemplates = createSelector(
+  getWorkspaceCreateApplication,
+  (workspaceList) => {
+    if (workspaceList.length) {
+      return workspaceList[0];
     }
 
     return null;
@@ -104,15 +104,34 @@ export const getSearchedTemplateList = createSelector(
   },
 );
 
+// Get the list of datasources which are used by templates
 export const templatesDatasourceFiltersSelector = createSelector(
+  getTemplatesSelector,
   getDefaultPlugins,
-  (plugins) => {
-    return plugins.map((plugin) => {
-      return {
-        label: plugin.name,
-        value: plugin.packageName,
-      };
+  (templates, plugins) => {
+    const datasourceFilters: Filter[] = [];
+    templates.map((template) => {
+      template.datasources.map((pluginIdentifier) => {
+        if (
+          !datasourceFilters.find((filter) => filter.value === pluginIdentifier)
+        ) {
+          const matchedPlugin = plugins.find(
+            (plugin) =>
+              plugin.id === pluginIdentifier ||
+              plugin.packageName === pluginIdentifier,
+          );
+
+          if (matchedPlugin) {
+            datasourceFilters.push({
+              label: matchedPlugin.name,
+              value: pluginIdentifier,
+            });
+          }
+        }
+      });
     });
+
+    return datasourceFilters;
   },
 );
 
@@ -169,13 +188,13 @@ export const getFilterListSelector = createSelector(
   },
 );
 
-export const getForkableOrganizations = createSelector(
-  getOrganizationCreateApplication,
-  (organisations) => {
-    return organisations.map((organization) => {
+export const getForkableWorkspaces = createSelector(
+  getWorkspaceCreateApplication,
+  (workspaces) => {
+    return workspaces.map((workspace) => {
       return {
-        label: organization.organization.name,
-        value: organization.organization.id,
+        label: workspace.workspace.name,
+        value: workspace.workspace.id,
       };
     });
   },

@@ -1,4 +1,5 @@
 import React from "react";
+import { find } from "lodash";
 import TabsComponent from "../component";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
@@ -6,10 +7,8 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
-
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -182,6 +181,224 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "Data",
+        children: [
+          {
+            propertyName: "tabsObj",
+            isJSConvertible: false,
+            label: "Tabs",
+            controlType: "TABS_INPUT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            updateRelatedWidgetProperties: (
+              propertyPath: string,
+              propertyValue: string,
+              props: WidgetProperties,
+            ) => {
+              const propertyPathSplit = propertyPath.split(".");
+              const property = propertyPathSplit.pop();
+              if (property === "label") {
+                const itemId = propertyPathSplit.pop() || "";
+                const item = props.tabsObj[itemId];
+                if (item) {
+                  return [
+                    {
+                      widgetId: item.widgetId,
+                      updates: {
+                        modify: {
+                          tabName: propertyValue,
+                        },
+                      },
+                    },
+                  ];
+                }
+              }
+              return [];
+            },
+            panelConfig: {
+              editableTitle: true,
+              titlePropertyName: "label",
+              panelIdPropertyName: "id",
+              updateHook: (
+                props: any,
+                propertyPath: string,
+                propertyValue: string,
+              ) => {
+                return [
+                  {
+                    propertyPath,
+                    propertyValue,
+                  },
+                ];
+              },
+              children: [
+                {
+                  sectionName: "General",
+                  children: [
+                    {
+                      propertyName: "isVisible",
+                      label: "Visible",
+                      helpText: "Controls the visibility of the tab",
+                      controlType: "SWITCH",
+                      useValidationMessage: true,
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.BOOLEAN },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            propertyName: "defaultTab",
+            helpText: "Selects a tab name specified by default",
+            placeholderText: "Tab 1",
+            label: "Default Tab",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: selectedTabValidation,
+                expected: {
+                  type: "Tab Name (string)",
+                  example: "Tab 1",
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+            dependencies: ["tabsObj", "tabs"],
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Enables scrolling for content inside the widget",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "shouldShowTabs",
+            helpText:
+              "Hides the tabs so that different widgets can be displayed based on the default tab",
+            label: "Show Tabs",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onTabSelected",
+            label: "onTabSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Border and Shadow",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
 
@@ -221,7 +438,13 @@ class TabsWidget extends BaseWidget<
         (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
     return (
-      <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>
+      <TabsComponent
+        {...tabsComponentProps}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        onTabChange={this.onTabChange}
+        primaryColor={this.props.primaryColor}
+      >
         {this.renderComponent()}
       </TabsComponent>
     );
@@ -229,11 +452,11 @@ class TabsWidget extends BaseWidget<
 
   renderComponent = () => {
     const selectedTabWidgetId = this.props.selectedTabWidgetId;
-    const childWidgetData: TabContainerWidgetProps = this.props.children
-      ?.filter(Boolean)
-      .filter((item) => {
+    const childWidgetData = {
+      ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
-      })[0];
+      })[0],
+    };
     if (!childWidgetData) {
       return null;
     }
@@ -258,46 +481,12 @@ class TabsWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
     const visibleTabs = this.getVisibleTabs();
-    if (this.props.defaultTab) {
-      if (this.props.defaultTab !== prevProps.defaultTab) {
-        const selectedTab = _.find(visibleTabs, {
-          label: this.props.defaultTab,
-        });
-        const selectedTabWidgetId = selectedTab
-          ? selectedTab.widgetId
-          : undefined;
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          selectedTabWidgetId,
-        );
-      }
-    }
-    // if selected tab is deleted
-    if (this.props.selectedTabWidgetId) {
-      if (visibleTabs.length > 0) {
-        const selectedTabWithinTabs = _.find(visibleTabs, {
-          widgetId: this.props.selectedTabWidgetId,
-        });
-        if (!selectedTabWithinTabs) {
-          // try to select default else select first
-          const defaultTab = _.find(visibleTabs, {
-            label: this.props.defaultTab,
-          });
-          this.props.updateWidgetMetaProperty(
-            "selectedTabWidgetId",
-            (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
-          );
-        }
-      } else {
-        this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
-      }
-    } else if (!this.props.selectedTabWidgetId) {
-      if (visibleTabs.length > 0) {
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          visibleTabs[0].widgetId,
-        );
-      }
+    const selectedTab = find(visibleTabs, {
+      widgetId: this.props.selectedTabWidgetId,
+    });
+
+    if (this.props.defaultTab !== prevProps.defaultTab || !selectedTab) {
+      this.setDefaultSelectedTabWidgetId();
     }
   }
 
@@ -313,42 +502,32 @@ class TabsWidget extends BaseWidget<
     return [];
   };
 
-  componentDidMount() {
+  setDefaultSelectedTabWidgetId = () => {
     const visibleTabs = this.getVisibleTabs();
-    // If we have a defaultTab
-    if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {
-      // Find the default Tab object
-      const selectedTab = _.find(visibleTabs, {
-        label: this.props.defaultTab,
-      });
-      // Find the default Tab id
-      const selectedTabWidgetId = selectedTab
-        ? selectedTab.widgetId
-        : visibleTabs.length
-        ? visibleTabs[0].widgetId
-        : undefined; // in case the default tab is deleted
-      // If we have a legitimate default tab Id and it is not already the selected Tab
-      if (
-        selectedTabWidgetId &&
-        selectedTabWidgetId !== this.props.selectedTabWidgetId
-      ) {
-        // Select the default tab
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          selectedTabWidgetId,
-        );
-      }
-    } else if (
-      !this.props.selectedTabWidgetId &&
-      Object.keys(this.props.tabsObj || {}).length
+    // Find the default Tab object
+    const defaultTab = find(visibleTabs, {
+      label: this.props.defaultTab,
+    });
+    // Find the default Tab id
+    const defaultTabWidgetId =
+      defaultTab?.widgetId ?? visibleTabs?.[0]?.widgetId; // in case the default tab is deleted
+
+    // If we have a legitimate default tab Id and it is not already the selected Tab
+    if (
+      defaultTabWidgetId &&
+      defaultTabWidgetId !== this.props.selectedTabWidgetId
     ) {
-      // If no tab is selected
-      // Select the first tab in the tabs list.
+      // Select the default tab
       this.props.updateWidgetMetaProperty(
         "selectedTabWidgetId",
-        visibleTabs.length ? visibleTabs[0].widgetId : undefined,
+        defaultTabWidgetId,
       );
     }
+  };
+
+  componentDidMount() {
+    Object.keys(this.props.tabsObj || {}).length &&
+      this.setDefaultSelectedTabWidgetId();
   }
 }
 

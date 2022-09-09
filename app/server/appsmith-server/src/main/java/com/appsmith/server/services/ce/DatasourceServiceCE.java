@@ -14,7 +14,7 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
-    Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission);
+    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
@@ -26,7 +26,7 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Mono<Datasource> save(Datasource datasource);
 
-    Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission readDatasources);
+    Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission readDatasources);
 
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 

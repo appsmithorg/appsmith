@@ -8,6 +8,7 @@ import FusionCharts, { ChartObject } from "fusioncharts";
 // Import FusionMaps
 import FusionMaps from "fusioncharts/fusioncharts.maps";
 import World from "fusioncharts/maps/fusioncharts.world";
+import USA from "fusioncharts/maps/fusioncharts.usa";
 
 // Include the theme as fusion
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
@@ -17,13 +18,19 @@ import { dataSetForWorld, MapTypes, MapColorObject } from "../constants";
 import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
 
 // Adding the chart and theme as dependency to the core fusioncharts
-ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
+ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme, USA);
 
-const MapChartContainer = styled.div`
+const MapChartContainer = styled.div<{
+  borderRadius?: string;
+  boxShadow?: string;
+}>`
   display: flex;
   height: 100%;
   width: 100%;
   background: white;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`};
+  overflow: hidden;
 
   & > div {
     width: 100%;
@@ -168,6 +175,9 @@ function MapChartComponent(props: MapChartComponentProps) {
       case MapTypes.AFRICA:
         newChartConfigs.type = "maps/africa";
         break;
+      case MapTypes.USA:
+        newChartConfigs.type = "maps/usa";
+        break;
 
       default:
         newChartConfigs.type = "maps/world";
@@ -198,7 +208,10 @@ function MapChartComponent(props: MapChartComponentProps) {
   };
 
   return (
-    <MapChartContainer>
+    <MapChartContainer
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+    >
       <ReactFC {...chartConfigs} onRender={renderComplete} />
     </MapChartContainer>
   );
@@ -212,6 +225,8 @@ export interface MapChartComponentProps {
   onDataPointClick: (evt: any) => void;
   showLabels: boolean;
   type: MapType;
+  borderRadius?: string;
+  boxShadow?: string;
 }
 
 export default MapChartComponent;

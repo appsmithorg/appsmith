@@ -15,7 +15,6 @@ import {
 import _, { isNil } from "lodash";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { TextSize, TEXT_SIZES } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
@@ -25,13 +24,16 @@ import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import Icon from "components/ads/Icon";
-import { InputType } from "widgets/InputWidget/constants";
-import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
+import {
+  Icon,
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
+import { InputType } from "widgets/InputWidget/constants";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
+import { LabelPosition } from "components/constants";
+import { lightenColor } from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -54,6 +56,9 @@ const InputComponentWrapper = styled((props) => (
       "multiline",
       "numeric",
       "inputType",
+      "borderRadius",
+      "boxShadow",
+      "accentColor",
     ])}
   />
 ))<{
@@ -65,8 +70,36 @@ const InputComponentWrapper = styled((props) => (
   inputType: InputType;
   compactMode: boolean;
   labelPosition: LabelPosition;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
 }>`
   ${labelLayoutStyles}
+
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
+  .${Classes.INPUT_GROUP} {
+    display: flex;
+    pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
+    background: ${(props) =>
+      props.disabled ? "var(--wds-color-bg-disabled)" : "white"};
+
+    span, input, textarea {
+      background: ${(props) =>
+        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        color: ${(props) =>
+          props.disabled
+            ? "var(--wds-color-text-disabled)"
+            : "var(--wds-color-text)"};
+    }
+
+    > {
+      input:not(:first-child) {
+        padding-left: 0rem;
+        z-index: 16;
+        line-height: 16px;
+      }
+    }
+  }
 
   &&&& {
     ${({ inputType, labelPosition }) => {
@@ -81,7 +114,7 @@ const InputComponentWrapper = styled((props) => (
           return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
         }
       }}
-      align-items: flex-start;
+      align-items: centert;
       ${({ compactMode, labelPosition }) => {
         if (!labelPosition && !compactMode) {
           return "max-height: 20px; .bp3-popover-wrapper {max-height: 20px}";
@@ -91,110 +124,153 @@ const InputComponentWrapper = styled((props) => (
     .currency-type-filter,
     .country-type-filter {
       width: fit-content;
-      height: 36px;
+      height: 100%;
+      position: static;
       display: inline-block;
       left: 0;
       z-index: 16;
-      &:hover {
-        border: 1px solid ${Colors.GREY_5} !important;
+      svg {
+        path {
+          fill: ${(props) => props.theme.colors.icon?.hover};
+        }
+      }
+      .${Classes.INPUT} {
+        padding-left: 0.5rem;
+        min-height: 36px;
+        box-shadow: none;
+        border: 1px solid;
+        border-radius: 0;
+        height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
+        width: 100%;
+        border-color: ${({ hasError }) => {
+          return hasError
+            ? `${Colors.DANGER_SOLID} !important;`
+            : `${Colors.GREY_3};`;
+        }}
+
+        ${(props) =>
+          props.numeric &&
+          `
+          border-top-right-radius: 0px;
+          border-bottom-right-radius: 0px;
+          ${props.hasError ? "" : "border-right-width: 0px;"}
+        `}
+        &:active {
+          border-color: ${({ hasError }) =>
+            hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
+        }
       }
     }
+
+    .currency-type-filter .bp3-popover-open > div,
+    .country-type-filter .bp3-popover-open > div {
+      border: 0px solid !important;
+      box-shadow: none !important;
+    }
+
+    .currency-type-filter .bp3-popover-open button
+    .country-type-filter .bp3-popover-open button {
+      border: 0px solid !important;
+      box-shadow: none !important;
+      background: ${Colors.GREY_3};
+    }
+
+    textarea {
+      background: ${(props) =>
+        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        color: ${(props) =>
+          props.disabled
+            ? "var(--wds-color-text-disabled)"
+            : "var(--wds-color-text)"};
+    }
+
     .${Classes.INPUT} {
-      min-height: 36px;
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        props.allowCurrencyChange &&
-        `
-      padding-left: 45px;`};
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        !props.allowCurrencyChange &&
-        `
-      padding-left: 35px;`};
-      ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        `padding-left: 85px;
-        `};
       box-shadow: none;
-      border: 1px solid;
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
-      border-color: ${({ hasError }) => {
-        return hasError
-          ? `${Colors.DANGER_SOLID} !important;`
-          : `${Colors.GREY_3};`;
-      }} 
-      ${(props) =>
-        props.numeric &&
-        `
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-        ${props.hasError ? "" : "border-right-width: 0px;"}
-      `}
+
+      ::placeholder {
+        color: ${({ disabled }) => {
+          if (disabled) {
+            return "var(--wds-color-text-disabled-light) !important";
+          }
+
+          return "var(--wds-color-text-light)";
+        }};
+      }
+
       ${(props) =>
         props.inputType === "PASSWORD" &&
         `
-        & + .bp3-input-action {
-          height: 36px;
-          width: 36px;
-          cursor: pointer;
-          padding: 1px;
-          .password-input {
-            color: ${Colors.GREY_6};
-            justify-content: center;
-            height: 100%;
-            svg {
-              width: 20px;
-              height: 20px;
-            }
-            &:hover {
-              background-color: ${Colors.GREY_2};
-              color: ${Colors.GREY_10};
-            }
+      & + .bp3-input-action {
+        height: 100%;
+        width: 36px;
+        cursor: pointer;
+
+        .password-input {
+          color:
+            ${
+              props.disabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"
+            };
+          justify-content: center;
+          height: 100%;
+          svg {
+            width: 20px;
+            height: 20px;
+          }
+          &:hover {
+            background-color: var(--wds-color-bg-hover);
           }
         }
-      `}
-      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-      &:active {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
       }
-      &:hover {
-        border-left: 1px solid ${Colors.GREY_5};
-        border-right: 1px solid ${Colors.GREY_5};
-        border-color: ${Colors.GREY_5};
-      }
-      &:focus {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.MYSTIC};
-
-        &:focus {
-          outline: 0;
-          border: 1px solid ${Colors.GREEN_1};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2} !important;
-        }
-      }
-      &:disabled {
-        background-color: ${Colors.GREY_1};
-        border: 1.2px solid ${Colors.GREY_3};
-        & + .bp3-input-action {
-          pointer-events: none;
-        }
-      }
+    `}
     }
-    .${Classes.INPUT_GROUP} {
-      display: block;
+
+    & .${Classes.INPUT_GROUP} {
+      display: flex;
       margin: 0;
       .bp3-tag {
         background-color: transparent;
-        color: #5c7080;
-        margin-top: 8px;
+        color: var(--wds-color-text-danger);
       }
+
+      .${Classes.INPUT_ACTION} {
+        height: 100%;
+
+        .${Classes.TAG} {
+          height: 100%;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          align-items: center;
+        }
+      }
+
+      .${Classes.ICON} {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        position: relative;
+        color: ${({ disabled }) =>
+          disabled
+            ? "var(--wds-color-icon-disabled)"
+            : "var(--wds-color-icon)"};
+
+        svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
-        pointer-events: none;
         button {
-          background: ${Colors.GREY_1};
+          background: var(--wds-color-bg-disabled);
+          color: var(--wds-color-icon-disabled) !important;
         }
       }
     }
@@ -220,60 +296,11 @@ const InputComponentWrapper = styled((props) => (
       }
       return "flex-start";
     }};
-
-
-  }
-  &&&& .bp3-input-group {
-    display: flex;
-    > {
-      &.bp3-icon:first-child {
-        top: 3px;
-      }
-      input:not(:first-child) {
-        line-height: 16px;
-
-        &:hover:not(:focus) {
-          border-left: 1px solid ${Colors.GREY_5};
-        }
-      }
-    }
-
-    ${(props) => {
-      if (props.inputType === InputTypes.PHONE_NUMBER) {
-        return `
-          > {
-            input:not(:first-child) {
-              padding-left: 10px;
-            }
-            .currency-type-filter,
-            .currency-type-trigger,
-            .country-type-filter,
-            .country-type-trigger {
-              position: static;
-              background: rgb(255, 255, 255);
-              border-width: 1.2px 0px 1.2px 1.2px;
-              border-top-style: solid;
-              border-bottom-style: solid;
-              border-left-style: solid;
-              border-top-color: rgb(235, 235, 235);
-              border-bottom-color: rgb(235, 235, 235);
-              border-left-color: rgb(235, 235, 235);
-              border-image: initial;
-              color: rgb(9, 7, 7);
-              border-right-style: initial;
-              border-right-color: initial;
-            }
-          }
-        `;
-      }
-    }}
   }
 `;
 
 const StyledNumericInput = styled(NumericInput)`
   &&&& .bp3-button-group.bp3-vertical {
-    border: 1.2px solid ${Colors.GREY_3};
-    border-left: none;
     button {
       background: ${Colors.WHITE};
       box-shadow: none;
@@ -286,14 +313,10 @@ const StyledNumericInput = styled(NumericInput)`
           color: ${Colors.GREY_10};
         }
       }
-      &:focus {
-        border: 1px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
-      }
       span {
-        color: ${Colors.GREY_6};
+        color: var(--wds-color-icon);
         svg {
-          width: 14px;
+          width: 12px;
         }
       }
     }
@@ -304,14 +327,61 @@ const TextInputWrapper = styled.div<{
   inputHtmlType?: InputHTMLType;
   compact: boolean;
   labelPosition?: LabelPosition;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
+  hasError?: boolean;
+  disabled?: boolean;
 }>`
   width: 100%;
   display: flex;
   flex: 1;
-  overflow-x: hidden;
+  height: 100%;
+  border: 1px solid;
+  overflow: hidden;
+  border-color: ${({ disabled, hasError }) => {
+    if (disabled) {
+      return "var(--wds-color-border-disabled)";
+    }
+
+    if (hasError) {
+      return "var(--wds-color-border-danger)";
+    }
+
+    return "var(--wds-color-border)";
+  }};
+  border-radius: ${({ borderRadius }) => borderRadius} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  min-height: 32px;
+
+  &:hover {
+    border-color: ${({ disabled, hasError }) => {
+      if (disabled) {
+        return "var(--wds-color-border-disabled)";
+      }
+
+      if (hasError) {
+        return "var(--wds-color-border-danger-hover)";
+      }
+
+      return "var(--wds-color-border-hover)";
+    }};
+  }
+
+  &:focus-within {
+    outline: 0;
+    border-color: ${({ accentColor, hasError }) =>
+      hasError ? "var(--wds-color-border-danger-focus)" : accentColor};
+    box-shadow: ${({ accentColor, hasError }) =>
+      `0px 0px 0px 2px ${
+        hasError
+          ? "var(--wds-color-border-danger-focus-light)"
+          : lightenColor(accentColor)
+      } !important;`};
+  }
+
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
-  min-height: 36px;
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -332,7 +402,7 @@ class BaseInputComponent extends React.Component<
   componentDidMount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {
@@ -351,7 +421,7 @@ class BaseInputComponent extends React.Component<
   componentWillUnmount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {
@@ -420,6 +490,14 @@ class BaseInputComponent extends React.Component<
     }
   };
 
+  onKeyUp = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    this.props.onKeyUp?.(e);
+  };
+
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
@@ -450,6 +528,7 @@ class BaseInputComponent extends React.Component<
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
         stepSize={this.props.stepSize}
@@ -472,6 +551,7 @@ class BaseInputComponent extends React.Component<
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
+      onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
       style={{ resize: "none" }}
       value={this.props.value}
@@ -498,6 +578,7 @@ class BaseInputComponent extends React.Component<
         onChange={this.onTextChange}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
@@ -572,7 +653,7 @@ class BaseInputComponent extends React.Component<
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
-        labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
+        labelTextSize={labelTextSize ?? "inherit"}
         multiline={(!!multiline).toString()}
         numeric={isNumberInputType(inputHTMLType)}
       >
@@ -594,7 +675,13 @@ class BaseInputComponent extends React.Component<
           />
         )}
         <TextInputWrapper
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          className="text-input-wrapper"
           compact={compactMode}
+          disabled={this.props.disabled}
+          hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
           labelPosition={labelPosition}
         >
@@ -629,7 +716,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   labelPosition?: LabelPosition;
   labelWidth?: number;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
   labelStyle?: string;
   tooltip?: string;
   leftIcon?: IconName | JSX.Element;
@@ -654,6 +741,11 @@ export interface BaseInputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
+  onKeyUp?: (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => void;
   maxChars?: number;
   widgetId: string;
   onStep?: (direction: number) => void;
@@ -663,6 +755,9 @@ export interface BaseInputComponentProps extends ComponentProps {
   inputRef?: MutableRefObject<
     HTMLTextAreaElement | HTMLInputElement | undefined | null
   >;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
 }
 
 export default BaseInputComponent;

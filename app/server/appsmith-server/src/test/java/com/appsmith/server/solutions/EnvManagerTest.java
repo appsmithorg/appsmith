@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
@@ -9,8 +8,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +46,8 @@ public class EnvManagerTest {
     @MockBean
     private UserService userService;
     @MockBean
+    private AnalyticsService analyticsService;
+    @MockBean
     private UserRepository userRepository;
     @MockBean
     private PolicyUtils policyUtils;
@@ -58,6 +63,13 @@ public class EnvManagerTest {
     private GoogleRecaptchaConfig googleRecaptchaConfig;
     @MockBean
     private FileUtils fileUtils;
+    @MockBean
+    private ConfigService configService;
+    @MockBean
+    private PermissionGroupService permissionGroupService;
+
+    @MockBean
+    private UserUtils userUtils;
 
     EnvManager envManager;
 
@@ -65,6 +77,7 @@ public class EnvManagerTest {
     public void setup() {
         envManager = new EnvManagerImpl(sessionUserService,
                 userService,
+                analyticsService,
                 userRepository,
                 policyUtils,
                 emailSender,
@@ -72,41 +85,44 @@ public class EnvManagerTest {
                 emailConfig,
                 javaMailSender,
                 googleRecaptchaConfig,
-                fileUtils);
+                fileUtils,
+                permissionGroupService,
+                configService,
+                userUtils);
     }
 
     @Test
     public void simpleSample() {
-        final String content = "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=second value\n\nAPPSMITH_INSTANCE_NAME=third value";
+        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
         assertThat(envManager.transformEnvContent(
                 content,
                 Map.of("APPSMITH_MONGODB_URI", "new first value")
         )).containsExactly(
-                "APPSMITH_MONGODB_URI=new first value",
-                "APPSMITH_REDIS_URL=second value",
+                "APPSMITH_MONGODB_URI='new first value'",
+                "APPSMITH_REDIS_URL='second value'",
                 "",
-                "APPSMITH_INSTANCE_NAME=third value"
+                "APPSMITH_INSTANCE_NAME='third value'"
         );
 
         assertThat(envManager.transformEnvContent(
                 content,
                 Map.of("APPSMITH_REDIS_URL", "new second value")
         )).containsExactly(
-                "APPSMITH_MONGODB_URI=first value",
-                "APPSMITH_REDIS_URL=new second value",
+                "APPSMITH_MONGODB_URI='first value'",
+                "APPSMITH_REDIS_URL='new second value'",
                 "",
-                "APPSMITH_INSTANCE_NAME=third value"
+                "APPSMITH_INSTANCE_NAME='third value'"
         );
 
         assertThat(envManager.transformEnvContent(
                 content,
                 Map.of("APPSMITH_INSTANCE_NAME", "new third value")
         )).containsExactly(
-                "APPSMITH_MONGODB_URI=first value",
-                "APPSMITH_REDIS_URL=second value",
+                "APPSMITH_MONGODB_URI='first value'",
+                "APPSMITH_REDIS_URL='second value'",
                 "",
-                "APPSMITH_INSTANCE_NAME=new third value"
+                "APPSMITH_INSTANCE_NAME='new third value'"
         );
 
         assertThat(envManager.transformEnvContent(
@@ -116,10 +132,10 @@ public class EnvManagerTest {
                         "APPSMITH_INSTANCE_NAME", "new third value"
                 )
         )).containsExactly(
-                "APPSMITH_MONGODB_URI=new first value",
-                "APPSMITH_REDIS_URL=second value",
+                "APPSMITH_MONGODB_URI='new first value'",
+                "APPSMITH_REDIS_URL='second value'",
                 "",
-                "APPSMITH_INSTANCE_NAME=new third value"
+                "APPSMITH_INSTANCE_NAME='new third value'"
         );
 
     }
@@ -133,7 +149,7 @@ public class EnvManagerTest {
                 Map.of("APPSMITH_REDIS_URL", "new second value")
         )).containsExactly(
                 "APPSMITH_MONGODB_URI=first value",
-                "APPSMITH_REDIS_URL=new second value",
+                "APPSMITH_REDIS_URL='new second value'",
                 "",
                 "APPSMITH_INSTANCE_NAME=third value"
         );
@@ -152,7 +168,7 @@ public class EnvManagerTest {
 
     @Test
     public void quotedValues() {
-        final String content = "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
+        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
         assertThat(envManager.transformEnvContent(
                 content,
@@ -161,20 +177,33 @@ public class EnvManagerTest {
                         "APPSMITH_REDIS_URL", "new second value"
                 )
         )).containsExactly(
-                "APPSMITH_MONGODB_URI=new first value",
-                "APPSMITH_REDIS_URL=\"new second value\"",
+                "APPSMITH_MONGODB_URI='new first value'",
+                "APPSMITH_REDIS_URL='new second value'",
                 "",
-                "APPSMITH_INSTANCE_NAME=third value"
+                "APPSMITH_INSTANCE_NAME='third value'"
         );
 
         assertThat(envManager.transformEnvContent(
                 content,
                 Map.of("APPSMITH_REDIS_URL", "")
         )).containsExactly(
-                "APPSMITH_MONGODB_URI=first value",
-                "APPSMITH_REDIS_URL=\"\"",
+                "APPSMITH_MONGODB_URI='first value'",
+                "APPSMITH_REDIS_URL=",
                 "",
-                "APPSMITH_INSTANCE_NAME=third value"
+                "APPSMITH_INSTANCE_NAME='third value'"
+        );
+
+        assertThat(envManager.transformEnvContent(
+                content,
+                Map.of(
+                        "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance",
+                        "APPSMITH_REDIS_URL", "value with \" char in it"
+                )
+        )).containsExactly(
+                "APPSMITH_MONGODB_URI='first value'",
+                "APPSMITH_REDIS_URL='value with \" char in it'",
+                "",
+                "APPSMITH_INSTANCE_NAME='Sponge-bob'\"'\"'s Instance'"
         );
 
     }
@@ -182,11 +211,11 @@ public class EnvManagerTest {
     public void parseTest() {
 
         assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=second value\n\nAPPSMITH_INSTANCE_NAME=third value"
+                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'"
         )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_MONGODB_URI", "first value",
-                "APPSMITH_REDIS_URL", "second value",
-                "APPSMITH_INSTANCE_NAME", "third value"
+                "APPSMITH_MONGODB_URI", "'first value'",
+                "APPSMITH_REDIS_URL", "'second value'",
+                "APPSMITH_INSTANCE_NAME", "'third value'"
         ));
 
     }
@@ -195,7 +224,7 @@ public class EnvManagerTest {
     public void parseEmptyValues() {
 
         assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME=third value"
+                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME='third value'"
         )).containsExactlyInAnyOrderEntriesOf(Map.of(
                 "APPSMITH_MONGODB_URI", "first value",
                 "APPSMITH_REDIS_URL", "",
@@ -208,11 +237,17 @@ public class EnvManagerTest {
     public void parseQuotedValues() {
 
         assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value"
+                "APPSMITH_MONGODB_URI=first\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'"
         )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_MONGODB_URI", "first value",
+                "APPSMITH_MONGODB_URI", "first",
                 "APPSMITH_REDIS_URL", "quoted value",
                 "APPSMITH_INSTANCE_NAME", "third value"
+        ));
+
+        assertThat(envManager.parseToMap(
+                "APPSMITH_INSTANCE_NAME=\"Sponge-bob's Instance\""
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance"
         ));
 
     }
@@ -234,7 +269,7 @@ public class EnvManagerTest {
 
     @Test
     public void addNewVariable() {
-        final String content = "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
+        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
         assertThat(envManager.transformEnvContent(
                 content,
@@ -243,10 +278,10 @@ public class EnvManagerTest {
                         "APPSMITH_DISABLE_TELEMETRY", "false"
                 )
         )).containsExactly(
-                "APPSMITH_MONGODB_URI=new first value",
-                "APPSMITH_REDIS_URL=\"quoted value\"",
+                "APPSMITH_MONGODB_URI='new first value'",
+                "APPSMITH_REDIS_URL='quoted value'",
                 "",
-                "APPSMITH_INSTANCE_NAME=third value",
+                "APPSMITH_INSTANCE_NAME='third value'",
                 "APPSMITH_DISABLE_TELEMETRY=false"
         );
     }
@@ -257,9 +292,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(false);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
 
         ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
@@ -276,9 +309,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(true);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
 
         // create a temp file for docker env
         File file = File.createTempFile( "envmanager-test-docker-file", "env");
@@ -307,9 +338,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(false);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
 
         StepVerifier.create(envManager.sendTestEmail(null))
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())

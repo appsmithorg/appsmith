@@ -1,8 +1,13 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -17,12 +22,14 @@ import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
@@ -55,6 +62,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 
 
 @RunWith(SpringRunner.class)
@@ -101,6 +111,9 @@ public class NewActionServiceCEImplTest {
     ResponseUtils responseUtils;
 
     @MockBean
+    PermissionGroupService permissionGroupService;
+
+    @MockBean
     NewActionRepository newActionRepository;
 
     private BodyExtractor.Context context;
@@ -127,8 +140,8 @@ public class NewActionServiceCEImplTest {
                 policyUtils,
                 authenticationValidator,
                 configService,
-                responseUtils
-        );
+                responseUtils,
+                permissionGroupService);
     }
 
     @Before
@@ -215,4 +228,81 @@ public class NewActionServiceCEImplTest {
                 .verify();
     }
 
+    @Test
+    public void testMissingPluginIdAndTypeFixForNonJSPluginType() {
+        /* Mock `findById` method of pluginService to return `testPlugin` */
+        Plugin testPlugin = new Plugin();
+        testPlugin.setId("testId");
+        testPlugin.setType(PluginType.DB);
+        Mockito.when(pluginService.findById(anyString()))
+                .thenReturn(Mono.just(testPlugin));
+
+        NewAction action = new NewAction();
+        action.setPluginId(null);
+        action.setPluginType(null);
+        ActionDTO actionDTO = new ActionDTO();
+        Datasource datasource = new Datasource();
+        /* Datasource has correct plugin id */
+        datasource.setPluginId(testPlugin.getId());
+        actionDTO.setDatasource(datasource);
+        action.setUnpublishedAction(actionDTO);
+
+        Mono<NewAction> updatedActionFlux = newActionService.sanitizeAction(action);
+        StepVerifier.create(updatedActionFlux)
+                .assertNext(updatedAction -> {
+                    assertEquals("testId", updatedAction.getPluginId());
+                    assertEquals(PluginType.DB, updatedAction.getPluginType());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testMissingPluginIdAndTypeFixForJSPluginType() {
+        /* Mock `findByPackageName` method of pluginService to return `testPlugin` */
+        Plugin testPlugin = new Plugin();
+        testPlugin.setId("testId");
+        testPlugin.setType(PluginType.JS);
+        Mockito.when(pluginService.findByPackageName(anyString()))
+                .thenReturn(Mono.just(testPlugin));
+
+        NewAction action = new NewAction();
+        action.setPluginId(null);
+        action.setPluginType(null);
+        ActionDTO actionDTO = new ActionDTO();
+        /* Non-null collection id to indicate a JS action */
+        actionDTO.setCollectionId("testId");
+        action.setUnpublishedAction(actionDTO);
+
+        Mono<NewAction> updatedActionFlux = newActionService.sanitizeAction(action);
+        StepVerifier.create(updatedActionFlux)
+                .assertNext(updatedAction -> {
+                    assertEquals("testId", updatedAction.getPluginId());
+                    assertEquals(PluginType.JS, updatedAction.getPluginType());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteAction_withParameterMapAndParamProperties_failsValidation() {
+        MockServerHttpRequest mock = MockServerHttpRequest
+                .method(HttpMethod.POST, URI.create("https://example.com"))
+                .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
+                .body("--boundary\r\n" +
+                        "Content-Disposition: form-data; name=\"executeActionDTO\"\r\n" + "\r\n" + "{\"viewMode\":false,\"paramProperties\":{\"k1\":\"String\",\"k2\":\"String\",\"k3\":\"Number\",\"k4\":\"Array\",\"k5\":\"File\"}}\r\n" +
+                        "--boundary\r\n"+
+                        "--boundary\r\n" +
+                        "Content-Disposition: form-data; name=\"parameterMap\"\r\n" + "\r\n" + "{\"k1\":\"DatePicker1.formattedDate\", \"k4\": \"%5BStringInput.text%2C%20NumberInput.text%2C%20DatePicker1.formattedDate%2C%20true%5D\", \"k2\":\"StringInput.text\", \"k5\":\"FilePicker1.files%5B1%5D\", \"k3\":\"NumberInput.text\"}\r\n" +
+                        "--boundary--\r\n");
+
+        final Flux<Part> partsFlux = BodyExtractors.toParts()
+                .extract(mock, this.context);
+
+        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null);
+
+        StepVerifier
+                .create(actionExecutionResultMono)
+                .expectErrorMatches(e-> e instanceof AppsmithException &&
+                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ACTION_ID)))
+                .verify();
+    }
 }

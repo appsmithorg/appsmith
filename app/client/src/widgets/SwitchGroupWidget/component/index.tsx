@@ -1,15 +1,17 @@
 import React from "react";
 import styled from "styled-components";
-import { Alignment, Switch } from "@blueprintjs/core";
+import { Alignment } from "@blueprintjs/core";
 
 import { ThemeProp } from "components/ads/common";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
-import LabelWithTooltip, {
+import {
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
+import { StyledSwitch } from "widgets/SwitchWidget/component";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
@@ -52,6 +54,7 @@ export interface OptionProps {
 
 function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   const {
+    accentColor,
     alignment,
     compactMode,
     disabled,
@@ -106,7 +109,8 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
         {Array.isArray(options) &&
           options.length > 0 &&
           options.map((option: OptionProps) => (
-            <Switch
+            <StyledSwitch
+              accentColor={accentColor}
               alignIndicator={alignment}
               checked={(selected || []).includes(option.value)}
               disabled={disabled}
@@ -140,6 +144,7 @@ export interface SwitchGroupComponentProps {
   labelWidth?: number;
   widgetId: string;
   height: number;
+  accentColor: string;
 }
 
 export default SwitchGroupComponent;

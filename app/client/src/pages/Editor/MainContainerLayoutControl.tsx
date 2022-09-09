@@ -12,8 +12,7 @@ import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import TooltipComponent from "components/ads/Tooltip";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { TooltipComponent, Icon, IconName, IconSize } from "design-system";
 import { updateApplicationLayout } from "actions/applicationActions";
 
 interface AppsmithLayoutConfigOption {
@@ -38,12 +37,12 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "desktop",
   },
   {
-    name: "Tablet(Large)",
+    name: "Tablet (Landscape)",
     type: "TABLET_LARGE",
-    icon: "tablet",
+    icon: "tabletLandscape",
   },
   {
-    name: "Tablet",
+    name: "Tablet (Portrait)",
     type: "TABLET",
     icon: "tablet",
   },
@@ -113,8 +112,7 @@ export function MainContainerLayoutControl() {
   };
 
   return (
-    <div className="px-3 space-y-2 t--layout-control-wrapper">
-      <p className="text-sm text-gray-700">Canvas Size</p>
+    <div className="space-y-2 t--layout-control-wrapper">
       <div
         className="flex justify-around"
         onBlur={() => setFocusedIndex(selectedIndex)}

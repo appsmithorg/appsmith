@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "Iframe",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["embed"],
   defaults: {
     source: "https://www.example.com",
     borderOpacity: 100,
@@ -21,6 +22,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

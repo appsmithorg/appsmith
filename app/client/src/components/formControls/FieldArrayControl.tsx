@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
@@ -74,6 +73,10 @@ function NestedComponents(props: any) {
                 sch = {
                   ...sch,
                   configProperty: `${field}.${sch.key}`,
+                  customStyles: {
+                    width: "20vw",
+                    ...props.customStyles,
+                  },
                 };
                 return (
                   <FormControl
@@ -85,7 +88,7 @@ function NestedComponents(props: any) {
               })}
               <CenteredIcon
                 name="delete"
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   props.fields.remove(index);
                 }}

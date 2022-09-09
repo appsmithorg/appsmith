@@ -1,6 +1,7 @@
 import {
   ARRAY_ITEM_KEY,
   DataType,
+  FieldThemeStylesheet,
   FieldType,
   ROOT_SCHEMA_KEY,
   Schema,
@@ -540,6 +541,7 @@ describe(".computeSchema", () => {
     const response = computeSchema({
       currSourceData: sourceData,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
@@ -554,6 +556,7 @@ describe(".computeSchema", () => {
       const response = computeSchema({
         currSourceData: sourceData,
         widgetName: "JSONForm1",
+        fieldThemeStylesheets: {} as FieldThemeStylesheet,
       });
 
       expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
@@ -583,6 +586,7 @@ describe(".computeSchema", () => {
       currSourceData,
       prevSourceData,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
@@ -594,6 +598,7 @@ describe(".computeSchema", () => {
     const response = computeSchema({
       currSourceData: schemaTestData.initialDataset.dataSource,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
     });
 
     const expectedDynamicPropertyPathList = [
@@ -624,6 +629,7 @@ describe(".computeSchema", () => {
       currSourceData: schemaTestData.initialDataset.dataSource,
       currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
@@ -650,6 +656,7 @@ describe(".computeSchema", () => {
       prevSchema: schemaTestData.initialDataset.schemaOutput,
       currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);

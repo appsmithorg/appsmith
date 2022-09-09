@@ -4,7 +4,7 @@ import PageContent from "./components/PageContent";
 import { getTypographyByKey } from "../../../constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { Icon } from "@blueprintjs/core";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 
 const Container = styled.div`
   display: flex;

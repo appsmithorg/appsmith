@@ -15,6 +15,7 @@ export const ExplorerSearch = forwardRef(
       autoFocus?: boolean;
       isHidden?: boolean;
       onChange?: (e: any) => void;
+      id?: string;
     },
     ref: Ref<HTMLInputElement>,
   ) => {
@@ -54,15 +55,15 @@ export const ExplorerSearch = forwardRef(
       >
         <div
           className={classNames({
-            "flex px-3 items-center space-x-2": true,
+            "flex px-3 items-center": true,
           })}
         >
-          <SearchIcon className="box-content w-3 h-3 p-1" />
+          <SearchIcon className="box-content w-3 h-3 mr-3" />
           <input
             autoComplete="off"
             autoFocus
             className="flex-grow py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
-            id={ENTITY_EXPLORER_SEARCH_ID}
+            id={props.id || ENTITY_EXPLORER_SEARCH_ID}
             onBlur={() => setFocussed(false)}
             onChange={onChange}
             onFocus={() => setFocussed(true)}
@@ -71,15 +72,14 @@ export const ExplorerSearch = forwardRef(
             type="text"
           />
           {value && (
-            <button className="p-1 hover:bg-trueGray-200" onClick={onClear}>
+            <button className="mr-1  hover:bg-trueGray-200" onClick={onClear}>
               <CrossIcon className="w-3 h-3 text-trueGray-100" />
             </button>
           )}
         </div>
         <div
           className={classNames({
-            "border-b border-primary-500 transition-all duration-400 absolute bottom-0": true,
-            "w-0": !focussed,
+            "border-b border-primary-500 absolute bottom-0": true,
             "w-full": focussed,
           })}
         />

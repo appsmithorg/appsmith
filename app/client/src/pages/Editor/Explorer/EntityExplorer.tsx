@@ -8,15 +8,13 @@ import React, {
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
-import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
-import WidgetSidebar from "../WidgetSidebar";
-import history from "utils/history";
+import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
@@ -29,6 +27,9 @@ import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
+import history from "utils/history";
+import { SEARCH_ENTITY } from "constants/Explorer";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -71,7 +72,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: #f0f0f0;
 `;
 
-function EntityExplorer(props: IPanelProps) {
+function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
@@ -86,15 +87,14 @@ function EntityExplorer(props: IPanelProps) {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const noResults = false;
-  const { openPanel } = props;
+  const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
-    history.push(builderURL());
-    openPanel({ component: WidgetSidebar });
+    history.push(builderURL({ pageId }));
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [openPanel, isFirstTimeUserOnboardingEnabled]);
+  }, [isFirstTimeUserOnboardingEnabled, pageId]);
 
   /**
    * filter entitites
@@ -112,10 +112,16 @@ function EntityExplorer(props: IPanelProps) {
   };
 
   return (
-    <Wrapper className={"relative"} ref={explorerRef}>
+    <Wrapper
+      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
+        isActive ? "" : "hidden"
+      }`}
+      ref={explorerRef}
+    >
       {/* SEARCH */}
       <Search
         clear={clearSearchInput}
+        id={SEARCH_ENTITY}
         isHidden
         onChange={search}
         ref={searchInputRef}

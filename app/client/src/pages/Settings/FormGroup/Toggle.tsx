@@ -7,7 +7,7 @@ import {
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";
-import Toggle from "components/ads/Toggle";
+import { Toggle } from "design-system";
 import { createMessage } from "@appsmith/constants/messages";
 
 const ToggleWrapper = styled.div`
@@ -19,27 +19,39 @@ const ToggleStatus = styled.span`
   margin-left: 64px;
 `;
 
-function FieldToggleWithToggleText(toggleText?: (value: boolean) => string) {
+function FieldToggleWithToggleText(
+  toggleText?: (value: boolean) => string,
+  id?: string,
+  isPropertyDisabled?: boolean,
+) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
       meta: Partial<WrappedFieldMetaProps>;
       input: Partial<WrappedFieldInputProps>;
     },
   ) {
+    const val = componentProps.input.value;
+
     function onToggle(value?: boolean) {
-      componentProps.input.onChange && componentProps.input.onChange(!value);
-      componentProps.input.onBlur && componentProps.input.onBlur(!value);
+      const toggleValue = isPropertyDisabled ? !value : value;
+      componentProps.input.onChange &&
+        componentProps.input.onChange(toggleValue);
+      componentProps.input.onBlur && componentProps.input.onBlur(toggleValue);
     }
     /* Value = !ENV_VARIABLE
     This has been done intentionally as naming convention used contains the word disabled but the UI should show the button enabled by default.
     */
     return (
       <ToggleWrapper>
-        <Toggle onToggle={onToggle} value={!componentProps.input.value} />
+        <Toggle
+          cypressSelector={id}
+          onToggle={onToggle}
+          value={isPropertyDisabled ? !val : val}
+        />
         <ToggleStatus>
           {typeof toggleText == "function"
-            ? createMessage(() => toggleText(!componentProps.input.value))
-            : !componentProps.input.value
+            ? createMessage(() => toggleText(val))
+            : val
             ? createMessage(() => "Enabled")
             : createMessage(() => "Disabled")}
         </ToggleStatus>
@@ -57,7 +69,11 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
     <StyledFieldToggleGroup>
       <FormGroup setting={setting}>
         <Field
-          component={FieldToggleWithToggleText(setting.toggleText)}
+          component={FieldToggleWithToggleText(
+            setting.toggleText,
+            setting.id,
+            !setting.name?.toLowerCase().includes("enable"),
+          )}
           name={setting.name}
         />
       </FormGroup>

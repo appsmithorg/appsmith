@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Keys } from "@blueprintjs/core";
 import {
   showActionConfirmationModal,
@@ -9,7 +9,7 @@ import {
 } from "actions/pluginActionActions";
 import DialogComponent from "components/ads/DialogComponent";
 import styled from "styled-components";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
@@ -86,6 +86,7 @@ class RequestConfirmationModal extends React.Component<Props> {
         {modalsToBeOpened.map((modalInfo: ModalInfo, index: number) => (
           <DialogComponent
             canEscapeKeyClose
+            canOutsideClickClose
             isOpen={modalInfo?.modalOpen}
             key={index}
             maxHeight={"80vh"}

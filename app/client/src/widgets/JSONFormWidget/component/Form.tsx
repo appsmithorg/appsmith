@@ -24,6 +24,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   getFormData: () => TValues;
   hideFooter: boolean;
   isSubmitting: boolean;
+  isWidgetMounting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
@@ -41,6 +42,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
 }>;
 
 type StyledFormProps = {
+  fixedFooter: boolean;
   scrollContents: boolean;
 };
 
@@ -95,6 +97,7 @@ const StyledForm = styled.form<StyledFormProps>`
   display: flex;
   flex-direction: column;
   height: 100%;
+  justify-content: ${({ fixedFooter }) => fixedFooter && "space-between"};
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
 `;
 
@@ -111,11 +114,13 @@ const StyledFormBody = styled.div<StyledFormBodyProps>`
   padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
 `;
 
-const StyledResetButtonWrapper = styled.div`
-  background: #fff;
-`;
+const StyledResetButtonWrapper = styled.div``;
 
 const DEBOUNCE_TIMEOUT = 200;
+
+const RESET_OPTIONS = {
+  keepErrors: true,
+};
 
 function Form<TValues = any>({
   backgroundColor,
@@ -125,6 +130,7 @@ function Form<TValues = any>({
   getFormData,
   hideFooter,
   isSubmitting,
+  isWidgetMounting,
   onFormValidityUpdate,
   onSubmit,
   registerResetObserver,
@@ -166,7 +172,7 @@ function Form<TValues = any>({
         : {};
 
     if (typeof defaultValues === "object") {
-      reset(defaultValues);
+      reset(defaultValues, RESET_OPTIONS);
     }
   };
 
@@ -184,7 +190,24 @@ function Form<TValues = any>({
      * In this case the formData (meta) is used to hydrate the form.
      */
     if (schema && schema[ROOT_SCHEMA_KEY]) {
-      if (isEmpty(formData)) {
+      /**
+       * There are 3 ways this effect can get called
+       * 1. New widget drop / first page load
+       * 2. Widget drag
+       * 3. Widget in modal
+       *
+       * For case 1 the formData is always empty
+       * For case 2 the formData can have some data and hence would be used to
+       *  hydrated in the else condition (this component would mount but the widget won't so
+       *  isWidgetMounting would be false)
+       * For case 3 the formData would be always be present even if the modal is open or
+       *  closed. When the modal opens the widget would be mounted and we need to know if
+       *  we need to use the formData or the defaultData to hydrate the form fields as during a
+       *  drag operation this Form component also remounts but the widget doesn't. So the isWidgetMounting
+       *  flag is used to check if the widget is mounting or not (modal) thus indicating if this needs
+       *  to be hydrated with the default value rather than the formData.
+       */
+      if (isEmpty(formData) || isWidgetMounting) {
         const defaultValues = schemaItemDefaultValue(
           schema[ROOT_SCHEMA_KEY],
           "accessor",
@@ -206,7 +229,7 @@ function Form<TValues = any>({
          * race condition in ReactHookForm.
          */
         setTimeout(() => {
-          reset(convertedFormData);
+          reset(convertedFormData, RESET_OPTIONS);
         }, 0);
       }
     }
@@ -239,14 +262,22 @@ function Form<TValues = any>({
 
   return (
     <FormProvider {...methods}>
-      <StyledForm ref={bodyRef} scrollContents={scrollContents}>
-        <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
+      <StyledForm
+        fixedFooter={fixedFooter}
+        ref={bodyRef}
+        scrollContents={scrollContents}
+      >
+        <StyledFormBody
+          className="t--jsonform-body"
+          stretchBodyVertically={stretchBodyVertically}
+        >
           <StyledTitle>{title}</StyledTitle>
           {children}
         </StyledFormBody>
         {!hideFooter && (
           <StyledFormFooter
             backgroundColor={backgroundColor}
+            className="t--jsonform-footer"
             fixedFooter={fixedFooter}
             ref={footerRef}
           >

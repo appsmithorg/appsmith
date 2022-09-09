@@ -1,7 +1,6 @@
 import React from "react";
 import { ReactNode } from "react";
 import { Dispatch } from "redux";
-import styled from "styled-components";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
 import {
@@ -10,7 +9,7 @@ import {
   forceShowContent,
   focusWidget,
 } from "actions/onboardingActions";
-import { IconName } from "components/ads/Icon";
+import { IconName } from "design-system";
 import { highlightSection, showIndicator } from "./utils";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -39,7 +38,6 @@ import {
   STEP_THREE_TITLE,
   STEP_TWO_TITLE,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const Classes = {
   GUIDED_TOUR_BORDER: "guided-tour-border",
@@ -49,6 +47,10 @@ export const Classes = {
 
 export const GuidedTourEntityNames = {
   BUTTON_WIDGET: "UpdateButton",
+  NAME_INPUT: "NameInput",
+  EMAIL_INPUT: "EmailInput",
+  COUNTRY_INPUT: "CountryInput",
+  DISPLAY_IMAGE: "DisplayImage",
 };
 
 export enum GUIDED_TOUR_STEPS {
@@ -111,6 +113,8 @@ export const onboardingContainerBlueprint = {
                 imageShape: "RECTANGLE",
                 defaultImage: "https://assets.appsmith.com/widgets/default.png",
                 objectFit: "contain",
+                image: "{{CustomersTable.selectedRow.image}}",
+                dynamicBindingPathList: [{ key: "image" }],
               },
             },
             {
@@ -144,6 +148,7 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 inputType: "TEXT",
+                label: "",
               },
             },
             {
@@ -177,6 +182,7 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 inputType: "TEXT",
+                label: "",
               },
             },
             {
@@ -210,6 +216,7 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 inputType: "TEXT",
+                label: "",
               },
             },
           ],
@@ -247,15 +254,6 @@ type Step = {
 };
 type StepsType = Record<number, Step>;
 
-const RunButton = styled.div`
-  background-color: ${(props) => props.theme.colors.guidedTour.runButton};
-  padding: ${(props) => props.theme.spaces[1] + 1}px
-    ${(props) => props.theme.spaces[6] + 1}px;
-  color: white;
-  ${(props) => getTypographyByKey(props, "btnMedium")}
-  display: inline-block;
-`;
-
 export const Steps: StepsType = {
   [GUIDED_TOUR_STEPS.RUN_QUERY]: {
     title: createMessage(STEP_ONE_TITLE),
@@ -264,8 +262,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            This command will fetch the first 10 items in the user_data
-            database. Hit <RunButton>RUN</RunButton> to see the response.
+            This command will fetch the first 20 items in the user_data
+            database. Hit <b>RUN</b> to see the response.
           </>
         ),
       },
@@ -388,7 +386,7 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            In the property pane of Name input, add the{" "}
+            In the property pane of {GuidedTourEntityNames.NAME_INPUT}, add the{" "}
             <b>
               <code>
                 &#123;&#123;CustomersTable.selectedRow.name&#125;&#125;
@@ -424,24 +422,17 @@ export const Steps: StepsType = {
         text: <>{createMessage(STEP_FIVE_HINT_TEXT)}</>,
         steps: [
           <>
-            Connect <b>{`"Email Input"`}</b>
+            Connect <b>{GuidedTourEntityNames.EMAIL_INPUT}</b>
             {"'"}s Default Text Property to{" "}
             <code>
               &#123;&#123;CustomersTable.selectedRow.email&#125;&#125;
             </code>
           </>,
           <>
-            Connect <b>{`"Country Input"`}</b>
+            Connect <b>{GuidedTourEntityNames.COUNTRY_INPUT}</b>
             {"'"}s Default Text Property to{" "}
             <code>
               &#123;&#123;CustomersTable.selectedRow.country&#125;&#125;
-            </code>
-          </>,
-          <>
-            Connect <b>{`"Display Image"`}</b>
-            {"'"}s Image Property to{" "}
-            <code>
-              &#123;&#123;CustomersTable.selectedRow.image&#125;&#125;
             </code>
           </>,
         ],
@@ -511,7 +502,7 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            Select the button widget to see the properties in the propety pane.
+            Select the button widget to see the properties in the property pane.
             From the onClick dropdown, select <b>Execute a query</b> {"&"} then
             select <b>updateCustomerInfo</b> query
           </>

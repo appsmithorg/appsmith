@@ -9,6 +9,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   hideCard: true,
+  isDeprecated: true,
+  replacement: "INPUT_WIDGET_V2",
   defaults: {
     inputType: "TEXT",
     rows: 4,

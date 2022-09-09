@@ -25,6 +25,9 @@ import io.jsonwebtoken.security.SignatureException;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +37,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -641,7 +645,7 @@ public class RestApiPluginTest {
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersWithDsConfigOnly = getAllDuplicateHeaders(null, dsConfig);
 
         // Header duplicates
-        Set <String> expectedDuplicateHeaders = new HashSet<>();
+        Set<String> expectedDuplicateHeaders = new HashSet<>();
         expectedDuplicateHeaders.add("myHeader1");
         expectedDuplicateHeaders.add("myHeader2");
         assertTrue(expectedDuplicateHeaders.equals(duplicateHeadersWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
@@ -651,7 +655,7 @@ public class RestApiPluginTest {
                 dsConfig);
 
         // Query param duplicates
-        Set <String> expectedDuplicateParams = new HashSet<>();
+        Set<String> expectedDuplicateParams = new HashSet<>();
         expectedDuplicateParams.add("myParam1");
         expectedDuplicateParams.add("myParam2");
         assertTrue(expectedDuplicateParams.equals(duplicateParamsWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
@@ -1005,6 +1009,32 @@ public class RestApiPluginTest {
     }
 
     @Test
+    public void testDenyInstanceMetadataAwsWithRedirect() throws IOException {
+        // Generate a mock response which redirects to the invalid host
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(301)
+                .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock/redirect");
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals("Host not allowed.", result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testGetApiWithBody() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/get");
@@ -1027,7 +1057,32 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getRequest().getBody());
-                    System.out.println(result.getRequest().getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testAPIResponseEncodedInGzipFormat() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://postman-echo.com/gzip");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(
+                new Property("content-type", "application/json")
+        ));
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getRequest().getBody());
+                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    fields.forEachRemaining(field -> {
+                        if ("gzipped".equalsIgnoreCase(field.getKey())) {
+                            assertEquals("true", field.getValue().get(0).asText());
+                        }
+                    });
                 })
                 .verifyComplete();
     }

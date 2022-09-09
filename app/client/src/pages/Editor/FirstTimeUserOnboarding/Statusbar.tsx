@@ -33,7 +33,6 @@ import {
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-
 import { Colors } from "constants/Colors";
 import { onboardingCheckListUrl } from "RouteBuilder";
 
@@ -192,6 +191,7 @@ const useStatus = (): { percentage: number; content: string } => {
 
 export function OnboardingStatusbar(props: RouteComponentProps) {
   const dispatch = useDispatch();
+  const pageId = useSelector(getCurrentPageId);
   const { content, percentage } = useStatus();
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
   const isGenerateAppPage =
@@ -229,7 +229,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       className="sticky top-0 t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
-        history.push(onboardingCheckListUrl());
+        history.push(onboardingCheckListUrl({ pageId }));
       }}
     >
       {!isFirstTimeUserOnboardingComplete && (

@@ -1,0 +1,245 @@
+{
+  "!name": "browser",
+  "console": {
+      "assert": {
+          "!type": "fn(assertion: bool, text: string)",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.assert",
+          "!doc": "Writes an error message to the console if the assertion is false."
+      },
+      "clear": {
+          "!type": "fn()",
+          "!url": "https://developer.mozilla.org/en-US/docs/Web/API/Console/clear",
+          "!doc": "    Clear the console."
+      },
+      "count": {
+          "!type": "fn(label?: string)",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.count",
+          "!doc": "Logs the number of times that this particular call to count() has been called."
+      },
+      "debug": "console.log",
+      "dir": {
+          "!type": "fn(object: ?)",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.dir",
+          "!doc": "Displays an interactive list of the properties of the specified JavaScript object."
+      },
+      "error": {
+          "!type": "fn(...msg: ?)",
+          "!url": "https://developer.mozilla.org/en/docs/DOM/console.error",
+          "!doc": "Outputs an error message to the Web Console."
+      },
+      "group": {
+          "!type": "fn(label?: string)",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.group",
+          "!doc": "Creates a new inline group in the Web Console log."
+      },
+      "groupCollapsed": {
+          "!type": "fn(label?: string)",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.groupCollapsed",
+          "!doc": "Creates a new inline group in the Web Console log."
+      },
+      "groupEnd": {
+          "!type": "fn()",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.groupEnd",
+          "!doc": "Exits the current inline group in the Web Console."
+      },
+      "info": {
+          "!type": "fn(...msg: ?)",
+          "!url": "https://developer.mozilla.org/en/docs/DOM/console.info",
+          "!doc": "Outputs an informational message to the Web Console."
+      },
+      "log": {
+          "!type": "fn(...msg: ?)",
+          "!url": "https://developer.mozilla.org/en/docs/DOM/console.log",
+          "!doc": "Outputs a message to the Web Console."
+      },
+      "table": {
+          "!type": "fn(data: []|?, columns?: [])",
+          "!url": "https://developer.mozilla.org/en-US/docs/Web/API/Console/table",
+          "!doc": "    Displays tabular data as a table."
+      },
+      "time": {
+          "!type": "fn(label: string)",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.time",
+          "!doc": "Starts a timer you can use to track how long an operation takes."
+      },
+      "timeEnd": {
+          "!type": "fn(label: string)",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.timeEnd",
+          "!doc": "Stops a timer that was previously started by calling console.time()."
+      },
+      "trace": {
+          "!type": "fn()",
+          "!url": "https://developer.mozilla.org/en/docs/Web/API/Console.trace",
+          "!doc": "Outputs a stack trace to the Web Console."
+      },
+      "warn": {
+          "!type": "fn(...msg: ?)",
+          "!url": "https://developer.mozilla.org/en/docs/DOM/console.warn",
+          "!doc": "Outputs a warning message to the Web Console."
+      },
+      "!url": "https://developer.mozilla.org/en/docs/Web/API/Console",
+      "!doc": "The console object provides access to the browser's debugging console. The specifics of how it works vary from browser to browser, but there is a de facto set of features that are typically provided."
+  },
+  "crypto": {
+      "getRandomValues": {
+          "!type": "fn([number])",
+          "!url": "https://developer.mozilla.org/en/docs/DOM/window.crypto.getRandomValues",
+          "!doc": "This methods lets you get cryptographically random values."
+      },
+      "!url": "https://developer.mozilla.org/en/docs/DOM/window.crypto.getRandomValues",
+      "!doc": "This methods lets you get cryptographically random values."
+  },
+  "Blob": {
+      "!type": "fn(parts: [?], options?: ?)",
+      "prototype": {
+          "size": {
+              "!type": "number",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/Blob/size",
+              "!doc": "The size, in bytes, of the data contained in the Blob object. Read only."
+          },
+          "type": {
+              "!type": "string",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/Blob/type",
+              "!doc": "An ASCII-encoded string, in all lower case, indicating the MIME type of the data contained in the Blob. If the type is unknown, this string is empty. Read only."
+          },
+          "slice": {
+              "!type": "fn(start: number, end?: number, type?: string) -> +Blob",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/Blob",
+              "!doc": "Returns a new Blob object containing the data in the specified range of bytes of the source Blob."
+          }
+      },
+      "!url": "https://developer.mozilla.org/en/docs/DOM/Blob",
+      "!doc": "A Blob object represents a file-like object of immutable, raw data. Blobs represent data that isn't necessarily in a JavaScript-native format. The File interface is based on Blob, inheriting blob functionality and expanding it to support files on the user's system."
+  },
+  "FileReader": {
+      "!type": "fn()",
+      "prototype": {
+          "abort": {
+              "!type": "fn()",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Aborts the read operation. Upon return, the readyState will be DONE."
+          },
+          "readAsArrayBuffer": {
+              "!type": "fn(blob: +Blob)",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Starts reading the contents of the specified Blob, producing an ArrayBuffer."
+          },
+          "readAsBinaryString": {
+              "!type": "fn(blob: +Blob)",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Starts reading the contents of the specified Blob, producing raw binary data."
+          },
+          "readAsDataURL": {
+              "!type": "fn(blob: +Blob)",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Starts reading the contents of the specified Blob, producing a data: url."
+          },
+          "readAsText": {
+              "!type": "fn(blob: +Blob, encoding?: string)",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Starts reading the contents of the specified Blob, producing a string."
+          },
+          "EMPTY": "number",
+          "LOADING": "number",
+          "DONE": "number",
+          "error": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "The error that occurred while reading the file. Read only."
+          },
+          "readyState": {
+              "!type": "number",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Indicates the state of the FileReader. This will be one of the State constants. Read only."
+          },
+          "result": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "The file's contents. This property is only valid after the read operation is complete, and the format of the data depends on which of the methods was used to initiate the read operation. Read only."
+          },
+          "onabort": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Called when the read operation is aborted."
+          },
+          "onerror": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Called when an error occurs."
+          },
+          "onload": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Called when the read operation is successfully completed."
+          },
+          "onloadend": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Called when the read is completed, whether successful or not. This is called after either onload or onerror."
+          },
+          "onloadstart": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Called when reading the data is about to begin."
+          },
+          "onprogress": {
+              "!type": "?",
+              "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+              "!doc": "Called periodically while the data is being read."
+          }
+      },
+      "!url": "https://developer.mozilla.org/en/docs/DOM/FileReader",
+      "!doc": "The FileReader object lets web applications asynchronously read the contents of files (or raw data buffers) stored on the user's computer, using File or Blob objects to specify the file or data to read. File objects may be obtained from a FileList object returned as a result of a user selecting files using the <input> element, from a drag and drop operation's DataTransfer object, or from the mozGetAsFile() API on an HTMLCanvasElement."
+  },
+  "FormData": {
+      "!type": "fn()",
+      "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData",
+      "prototype": {
+          "append": {
+              "!type": "fn(name: string, value: string|+Blob, filename?: string)",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/append",
+              "!doc": "Appends a new value onto an existing key inside a FormData object, or adds the key if it does not already exist."
+          },
+          "delete": {
+              "!type": "fn(name: string)",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/delete",
+              "!doc": "Deletes a key/value pair from a FormData object."
+          },
+          "entries": {
+              "!type": "fn() -> +iter[:t=[number, string|+Blob]]",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/entries",
+              "!doc": "Returns an iterator allowing to go through all key/value pairs contained in this object."
+          },
+          "get": {
+              "!type": "fn(name: string) -> string|+Blob",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/get",
+              "!doc": "Returns the first value associated with a given key from within a FormData object."
+          },
+          "getAll": {
+              "!type": "fn(name: string) -> [string|+Blob]",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/getAll",
+              "!doc": "Returns an array of all the values associated with a given key from within a FormData."
+          },
+          "has": {
+              "!type": "fn(name: string) -> bool",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/has",
+              "!doc": "Returns a boolean stating whether a FormData object contains a certain key/value pair."
+          },
+          "set": {
+              "!type": "fn(name: string, value: string|+Blob, filename?: string)",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/set",
+              "!doc": "Sets a new value for an existing key inside a FormData object, or adds the key/value if it does not already exist."
+          },
+          "keys": {
+              "!type": "fn() -> +iter[:t=number]",
+              "!doc": "Returns an iterator allowing to go through all keys of the key/value pairs contained in this object.",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/keys"
+          },
+          "values": {
+              "!type": "fn() -> +iter[:t=string|blob]",
+              "!doc": "Returns an iterator allowing to go through all values of the key/value pairs contained in this object.",
+              "!url": "https://developer.mozilla.org/en-US/docs/Web/API/FormData/values"
+          }
+      }
+  }
+}

@@ -154,6 +154,23 @@ const tableWProps = {
     step: 62,
     status: 75,
   },
+  childStylesheet: {
+    button: {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    },
+    menuButton: {
+      menuColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    },
+    iconButton: {
+      menuColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    },
+  },
 };
 
 describe("unit test case for property utils", () => {
@@ -170,6 +187,36 @@ describe("unit test case for property utils", () => {
       "menuButton",
     );
     const output = [
+      {
+        propertyPath: "derivedColumns.action.menuColor",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+      },
+      {
+        propertyPath: "primaryColumns.action.menuColor",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+      },
+      {
+        propertyPath: "derivedColumns.action.borderRadius",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+      },
+      {
+        propertyPath: "primaryColumns.action.borderRadius",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+      },
+      {
+        propertyPath: "derivedColumns.action.boxShadow",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+      },
+      {
+        propertyPath: "primaryColumns.action.boxShadow",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+      },
       {
         propertyPath: "primaryColumns.action.columnType",
         propertyValue: "menuButton",
@@ -188,6 +235,36 @@ describe("unit test case for property utils", () => {
       "iconButton",
     );
     const output = [
+      {
+        propertyPath: "derivedColumns.action.menuColor",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+      },
+      {
+        propertyPath: "primaryColumns.action.menuColor",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+      },
+      {
+        propertyPath: "derivedColumns.action.borderRadius",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+      },
+      {
+        propertyPath: "primaryColumns.action.borderRadius",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+      },
+      {
+        propertyPath: "derivedColumns.action.boxShadow",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+      },
+      {
+        propertyPath: "primaryColumns.action.boxShadow",
+        propertyValue:
+          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+      },
       {
         propertyPath: "primaryColumns.action.columnType",
         propertyValue: "iconButton",

@@ -4,17 +4,16 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -29,8 +28,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -89,10 +88,10 @@ public class LayoutActionServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -131,7 +130,7 @@ public class LayoutActionServiceTest {
 
     Datasource datasource;
 
-    String orgId;
+    String workspaceId;
 
     String branchName;
 
@@ -144,14 +143,17 @@ public class LayoutActionServiceTest {
     public void setup() {
         newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
-        Organization organization = organizationService.getById(orgId).block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("LayoutActionServiceTest");
+
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        workspaceId = workspace.getId();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
 
             final String pageId = testApp.getPages().get(0).getId();
 
@@ -195,14 +197,14 @@ public class LayoutActionServiceTest {
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("actionServiceTest");
             newApp.setGitApplicationMetadata(gitData);
-            gitConnectedApp = applicationPageService.createApplication(newApp, orgId)
+            gitConnectedApp = applicationPageService.createApplication(newApp, workspaceId)
                     .flatMap(application -> {
                         application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                         return applicationService.save(application)
                                 .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
             gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
@@ -210,17 +212,16 @@ public class LayoutActionServiceTest {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        workspaceId = workspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
 
         jsDatasource = new Datasource();
         jsDatasource.setName("Default JS Database");
-        jsDatasource.setOrganizationId(orgId);
+        jsDatasource.setWorkspaceId(workspaceId);
         Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         jsDatasource.setPluginId(installedJsPlugin.getId());
@@ -309,7 +310,7 @@ public class LayoutActionServiceTest {
         actionConfiguration3.setIsValid(false);
         action3.setActionConfiguration(actionConfiguration3);
         Datasource d2 = new Datasource();
-        d2.setOrganizationId(datasource.getOrganizationId());
+        d2.setWorkspaceId(datasource.getWorkspaceId());
         d2.setPluginId(datasource.getPluginId());
         d2.setIsAutoGenerated(true);
         d2.setName("UNUSED_DATASOURCE");
@@ -703,7 +704,7 @@ public class LayoutActionServiceTest {
                     updates.setUserPermissions(null);
                     Datasource ds = new Datasource();
                     ds.setName("testName");
-                    ds.setOrganizationId(datasource.getOrganizationId());
+                    ds.setWorkspaceId(datasource.getWorkspaceId());
                     ds.setDatasourceConfiguration(new DatasourceConfiguration());
                     ds.getDatasourceConfiguration().setUrl("http://localhost");
                     ds.setPluginId(datasource.getPluginId());
@@ -800,7 +801,7 @@ public class LayoutActionServiceTest {
         duplicateNameCompleteAction.setUnpublishedAction(duplicateName);
         duplicateNameCompleteAction.setPublishedAction(new ActionDTO());
         duplicateNameCompleteAction.getPublishedAction().setDatasource(new Datasource());
-        duplicateNameCompleteAction.setOrganizationId(duplicateName.getOrganizationId());
+        duplicateNameCompleteAction.setWorkspaceId(duplicateName.getWorkspaceId());
         duplicateNameCompleteAction.setPluginType(duplicateName.getPluginType());
         duplicateNameCompleteAction.setPluginId(duplicateName.getPluginId());
         duplicateNameCompleteAction.setTemplateId(duplicateName.getTemplateId());
@@ -1011,7 +1012,7 @@ public class LayoutActionServiceTest {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(testPage.getId());
         actionCollectionDTO1.setApplicationId(testApp.getId());
-        actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
         actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
@@ -1253,7 +1254,7 @@ public class LayoutActionServiceTest {
         ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
         originalActionCollectionDTO.setName("originalName");
         originalActionCollectionDTO.setApplicationId(testApp.getId());
-        originalActionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        originalActionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
         originalActionCollectionDTO.setPageId(testPage.getId());
         originalActionCollectionDTO.setPluginId(jsDatasource.getPluginId());
         originalActionCollectionDTO.setPluginType(PluginType.JS);

@@ -30,7 +30,7 @@ import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "./helpers";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
 
@@ -108,7 +108,7 @@ const Datasources = React.memo(() => {
       icon={null}
       isDefaultExpanded={isDatasourcesOpen === null ? true : isDatasourcesOpen}
       isSticky
-      name="DATASOURCES"
+      name="Datasources"
       onCreate={addDatasource}
       onToggle={onDatasourcesToggle}
       searchKeyword={""}

@@ -52,6 +52,9 @@ import { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+import { LogObject, createLogTitleString } from "workers/UserLog";
+import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -109,7 +112,7 @@ function* onEntityDeleteSaga(payload: Log) {
   const source = payload.source;
 
   if (!source) {
-    yield put(debuggerLog(payload));
+    yield put(debuggerLog([payload]));
     return;
   }
 
@@ -124,7 +127,7 @@ function* onEntityDeleteSaga(payload: Log) {
     }
   });
 
-  yield put(debuggerLog(payload));
+  yield put(debuggerLog([payload]));
 }
 
 function* logDependentEntityProperties(payload: Log) {
@@ -135,44 +138,48 @@ function* logDependentEntityProperties(payload: Log) {
   const dataTree: DataTree = yield select(getDataTree);
 
   const propertyPath = `${source.name}.` + payload.source?.propertyPath;
-  const inverseDependencyMap = yield select(getEvaluationInverseDependencyMap);
+  const inverseDependencyMap: DependencyMap = yield select(
+    getEvaluationInverseDependencyMap,
+  );
   const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
-
-  yield all(
-    finalValue.map((path) => {
-      const entityInfo = getEntityNameAndPropertyPath(path);
-      const entity = dataTree[entityInfo.entityName];
-      let log = {
-        ...payload,
-        state: {
-          [entityInfo.propertyPath]: get(dataTree, path),
-        },
-      };
-
-      if (isAction(entity)) {
-        log = {
-          ...log,
-          text: createMessage(ACTION_CONFIGURATION_UPDATED),
-          source: {
-            type: ENTITY_TYPE.ACTION,
-            name: entityInfo.entityName,
-            id: entity.actionId,
+  //logging them all at once rather than updating them individually
+  yield put(
+    debuggerLog(
+      finalValue.map((path) => {
+        const entityInfo = getEntityNameAndPropertyPath(path);
+        const entity = dataTree[entityInfo.entityName];
+        let log = {
+          ...payload,
+          state: {
+            [entityInfo.propertyPath]: get(dataTree, path),
           },
         };
-      } else if (isWidget(entity)) {
-        log = {
-          ...log,
-          text: createMessage(WIDGET_PROPERTIES_UPDATED),
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            name: entityInfo.entityName,
-            id: entity.widgetId,
-          },
-        };
-      }
 
-      return put(debuggerLog(log));
-    }),
+        if (isAction(entity)) {
+          log = {
+            ...log,
+            text: createMessage(ACTION_CONFIGURATION_UPDATED),
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: entityInfo.entityName,
+              id: entity.actionId,
+            },
+          };
+        } else if (isWidget(entity)) {
+          log = {
+            ...log,
+            text: createMessage(WIDGET_PROPERTIES_UPDATED),
+            source: {
+              type: ENTITY_TYPE.WIDGET,
+              name: entityInfo.entityName,
+              id: entity.widgetId,
+            },
+          };
+        }
+
+        return log;
+      }),
+    ),
   );
 }
 
@@ -196,16 +203,16 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
       yield call(logDependentEntityProperties, payload);
       yield call(onTriggerPropertyUpdates, payload);
       return;
     case LOG_TYPE.ACTION_UPDATE:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
       yield call(logDependentEntityProperties, payload);
       return;
     case LOG_TYPE.JS_ACTION_UPDATE:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
       return;
     case LOG_TYPE.JS_PARSE_ERROR:
       yield put(addErrorLog(payload));
@@ -213,11 +220,9 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     case LOG_TYPE.JS_PARSE_SUCCESS:
       AppsmithConsole.deleteError(payload.source?.id ?? "");
       break;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // Fall through intentional here
+    // @ts-expect-error: Types are not available
     case LOG_TYPE.TRIGGER_EVAL_ERROR:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
     case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
@@ -229,18 +234,18 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       {
-        const formattedLog = yield call(
+        const formattedLog: Log = yield call(
           formatActionRequestSaga,
           payload,
           "state",
         );
         yield put(addErrorLog(formattedLog));
-        yield put(debuggerLog(formattedLog));
+        yield put(debuggerLog([formattedLog]));
       }
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
       {
-        const formattedLog = yield call(
+        const formattedLog: Log = yield call(
           formatActionRequestSaga,
           payload,
           "state.request",
@@ -248,14 +253,14 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
 
         AppsmithConsole.deleteError(payload.source?.id ?? "");
 
-        yield put(debuggerLog(formattedLog));
+        yield put(debuggerLog([formattedLog]));
       }
       break;
     case LOG_TYPE.ENTITY_DELETED:
       yield fork(onEntityDeleteSaga, payload);
       break;
     default:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
   }
 }
 
@@ -265,7 +270,7 @@ function* logDebuggerErrorAnalyticsSaga(
 ) {
   try {
     const { payload } = action;
-    const currentPageId = yield select(getCurrentPageId);
+    const currentPageId: string | undefined = yield select(getCurrentPageId);
 
     if (payload.entityType === ENTITY_TYPE.WIDGET) {
       const widget: WidgetProps | undefined = yield select(
@@ -313,8 +318,9 @@ function* logDebuggerErrorAnalyticsSaga(
         getJSCollection,
         payload.entityId,
       );
+      if (!action) return;
       const plugin: Plugin = yield select(getPlugin, action.pluginId);
-      const pluginName = plugin.name.replace(/ /g, "");
+      const pluginName = plugin?.name?.replace(/ /g, "");
 
       // Sending plugin name for actions
       AnalyticsUtil.logEvent(payload.eventName, {
@@ -475,6 +481,53 @@ function* deleteDebuggerErrorLogSaga(
   }
 
   yield put(deleteErrorLog(action.payload.id));
+}
+
+// takes a log object array and stores it in the redux store
+export function* storeLogs(
+  logs: LogObject[],
+  entityName: string,
+  entityType: ENTITY_TYPE,
+  entityId: string,
+) {
+  logs.forEach((log: LogObject) => {
+    AppsmithConsole.addLog(
+      {
+        text: createLogTitleString(log.data),
+        logData: log.data,
+        source: {
+          type: entityType,
+          name: entityName,
+          id: entityId,
+        },
+      },
+      log.severity,
+      log.timestamp,
+    );
+  });
+}
+
+export function* updateTriggerMeta(
+  triggerMeta: TriggerMeta,
+  dynamicTrigger: string,
+) {
+  let name = "";
+
+  if (!!triggerMeta.source && triggerMeta.source.hasOwnProperty("name")) {
+    name = triggerMeta.source.name;
+  } else if (!!triggerMeta.triggerPropertyName) {
+    name = triggerMeta.triggerPropertyName;
+  }
+
+  if (
+    name.length === 0 &&
+    !!dynamicTrigger &&
+    !(dynamicTrigger.includes("{") || dynamicTrigger.includes("}"))
+  ) {
+    // We use the dynamic trigger as the name if it is not a binding
+    name = dynamicTrigger.replace("()", "");
+    triggerMeta["triggerPropertyName"] = name;
+  }
 }
 
 export default function* debuggerSagasListeners() {

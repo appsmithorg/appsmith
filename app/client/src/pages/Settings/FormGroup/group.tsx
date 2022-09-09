@@ -10,7 +10,7 @@ import Toggle from "./Toggle";
 import Text from "./Text";
 import Button from "./Button";
 import { getFormValues } from "redux-form";
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { useSelector } from "store";
 import {
   createMessage,
@@ -20,8 +20,10 @@ import { Callout } from "components/ads/CalloutV2";
 import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
+import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import Checkbox from "./Checkbox";
 
 type GroupProps = {
   name?: string;
@@ -125,6 +127,17 @@ export default function Group({
                     <Toggle setting={setting} />
                   </div>
                 );
+              case SettingTypes.CHECKBOX:
+                return (
+                  <div
+                    className={`admin-settings-group-${setting.name ||
+                      setting.id} ${setting.isHidden ? "hide" : ""}`}
+                    data-testid="admin-settings-group-checkbox"
+                    key={setting.name || setting.id}
+                  >
+                    <Checkbox setting={setting} />
+                  </div>
+                );
               case SettingTypes.LINK:
                 return (
                   <div
@@ -137,8 +150,8 @@ export default function Group({
                     <Callout
                       action={setting.action}
                       actionLabel="READ MORE"
-                      title={createMessage(() => setting.label || "")}
-                      type={setting.calloutType || "Info"}
+                      desc={createMessage(() => setting.label || "")}
+                      type={setting.calloutType || "Notify"}
                       url={setting.url}
                     />
                   </div>
@@ -226,6 +239,21 @@ export default function Group({
                       settings={setting.advanced}
                       subCategory={subCategory}
                     />
+                  </div>
+                );
+              case SettingTypes.DROPDOWN:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-dropdown"
+                    key={setting.name || setting.id}
+                  >
+                    {setting.dropdownOptions && (
+                      <Dropdown
+                        dropdownOptions={setting.dropdownOptions}
+                        setting={setting}
+                      />
+                    )}
                   </div>
                 );
             }

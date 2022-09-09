@@ -6,17 +6,27 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { AppTheme } from "entities/AppTheming";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
-  sectionName: string;
+  sectionName: string | ((props: WidgetProps, propertyPath: string) => string);
   id?: string;
   children: PropertyPaneConfig[];
+  collapsible?: boolean;
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
+};
+
+export type PropertyHookUpdates = {
+  propertyPath: string;
+  propertyValue?: unknown;
+  isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
+  shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
 };
 
 export type PanelConfig = {
@@ -24,16 +34,18 @@ export type PanelConfig = {
   titlePropertyName: string;
   panelIdPropertyName: string;
   children: PropertyPaneConfig[];
+  contentChildren?: PropertyPaneConfig[];
+  styleChildren?: PropertyPaneConfig[];
   updateHook: (
     props: any,
     propertyPath: string,
     propertyValue: any,
-  ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
+  ) => Array<PropertyHookUpdates> | undefined;
 };
 
 export type PropertyPaneControlConfig = {
   id?: string;
-  label: string;
+  label: string | ((props: WidgetProps, propertyPath: string) => string);
   propertyName: string;
   helpText?: string;
   isJSConvertible?: boolean;
@@ -52,8 +64,9 @@ export type PropertyPaneControlConfig = {
     props: any,
     propertyName: string,
     propertyValue: any,
-  ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
+  ) => Array<PropertyHookUpdates> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
+  invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
   validation?: ValidationConfig;
@@ -65,6 +78,11 @@ export type PropertyPaneControlConfig = {
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
+  getStylesheetValue?: (
+    props: any,
+    propertyPath: string,
+    stylesheet?: AppTheme["stylesheet"][string],
+  ) => AppTheme["stylesheet"][string][string];
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;

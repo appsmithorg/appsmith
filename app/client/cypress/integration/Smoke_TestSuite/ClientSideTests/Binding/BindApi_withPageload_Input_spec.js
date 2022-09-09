@@ -21,7 +21,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
   });
 
   it("2. Input widget updated with deafult data", function() {
-    cy.selectEntityByName("WIDGETS");
+    cy.selectEntityByName("Widgets");
     cy.selectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type("3");
 
@@ -56,8 +56,6 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
       .last()
       .invoke("attr", "value")
       .should("contain", "23");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
   });
 });

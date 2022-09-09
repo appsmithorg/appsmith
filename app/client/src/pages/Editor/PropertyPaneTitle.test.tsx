@@ -13,12 +13,7 @@ describe("<PropertyPaneTitle />", () => {
     const getTestComponent = () => (
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <PropertyPaneTitle
-            actions={[]}
-            isPanelTitle
-            // title="test"
-            widgetId="1"
-          />
+          <PropertyPaneTitle actions={[]} isPanelTitle title="" widgetId="1" />
         </ThemeProvider>
       </Provider>
     );

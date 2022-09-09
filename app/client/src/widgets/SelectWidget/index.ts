@@ -8,6 +8,7 @@ export const CONFIG = {
   name: "Select",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["dropdown"],
   defaults: {
     rows: 4,
     columns: 20,
@@ -29,12 +30,15 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     animateLoading: true,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

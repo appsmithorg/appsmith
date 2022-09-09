@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Icon, Position } from "@blueprintjs/core";
+import React from "react";
+import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "styled-components";
 import Rating from "react-rating";
 import _ from "lodash";
 
 import { RateSize, RATE_SIZES } from "../constants";
-import TooltipComponent from "components/ads/Tooltip";
-import { disable } from "constants/DefaultTheme";
+import { TooltipComponent } from "design-system";
 import { ComponentProps } from "widgets/BaseComponent";
-import { Colors } from "constants/Colors";
 
 /*
   Note:
@@ -21,7 +19,6 @@ import { Colors } from "constants/Colors";
 
 interface RateContainerProps {
   isDisabled: boolean;
-  scrollable: boolean;
 }
 
 export const RateContainer = styled.div<RateContainerProps>`
@@ -33,15 +30,37 @@ export const RateContainer = styled.div<RateContainerProps>`
   overflow: auto;
 
   > span {
-    align-self: ${(props) => (props.scrollable ? "flex-start" : "center")};
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    height: auto;
+
+    & > span {
+      height: 100%;
+
+      & > span {
+        height: 100%;
+        padding: 0;
+        display: flex !important;
+        align-items: center;
+      }
+    }
   }
 
-  ${({ isDisabled }) => isDisabled && disable}
+  ${({ isDisabled }) =>
+    isDisabled &&
+    `cursor: not-allowed;
+    & > * {
+      pointer-events: none;
+    }
+  `}
 `;
 
-export const Star = styled(Icon)`
-  padding: ${(props) =>
-    props.iconSize === 12 ? 2.92 : props.iconSize === 16 ? 4.37 : 4.93}px;
+export const Star = styled(Icon)<{ isActive?: boolean; isDisabled?: boolean }>`
+  path {
+    stroke-width: ${(props) => (props.isActive ? "0" : "1px")};
+  }
 `;
 
 export interface RateComponentProps extends ComponentProps {
@@ -68,26 +87,44 @@ function renderStarsWithTooltip(props: RateComponentProps) {
   if (rateTooltipsCount === 0) {
     return (
       <Star
-        color={props.activeColor}
+        color={
+          props.isDisabled
+            ? "var(--wds-color-bg-disabled-strong)"
+            : props.activeColor
+        }
         icon={IconNames.STAR}
         iconSize={RATE_SIZES[props.size]}
+        isActive
+        isDisabled={props.isDisabled}
       />
     );
   }
   const starWithTooltip = rateTooltips.map((tooltip) => (
-    <TooltipComponent content={tooltip} key={tooltip} position={Position.TOP}>
+    <TooltipComponent content={tooltip} key={tooltip} position="top">
       <Star
-        color={props.activeColor}
+        color={
+          props.isDisabled
+            ? "var(--wds-color-bg-disabled-strong)"
+            : props.activeColor
+        }
         icon={IconNames.STAR}
         iconSize={RATE_SIZES[props.size]}
+        isActive
+        isDisabled={props.isDisabled}
       />
     </TooltipComponent>
   ));
   const starWithoutTooltip = _.times(deltaCount, (num: number) => (
     <Star
-      color={props.activeColor}
+      color={
+        props.isDisabled
+          ? "var(--wds-color-bg-disabled-strong)"
+          : props.activeColor
+      }
       icon={IconNames.STAR}
       iconSize={RATE_SIZES[props.size]}
+      isActive
+      isDisabled={props.isDisabled}
       key={num}
     />
   ));
@@ -99,46 +136,29 @@ function RateComponent(props: RateComponentProps) {
   const rateContainerRef = React.createRef<HTMLDivElement>();
 
   const {
-    bottomRow,
     inactiveColor,
     isAllowHalf,
     isDisabled,
-    leftColumn,
     maxCount,
     onValueChanged,
     readonly,
-    rightColumn,
     size,
-    topRow,
     value,
   } = props;
 
-  const [scrollable, setScrollable] = useState(false);
-
-  useEffect(() => {
-    const rateContainerElement = rateContainerRef.current;
-    if (
-      rateContainerElement &&
-      rateContainerElement.scrollHeight > rateContainerElement.clientHeight
-    ) {
-      setScrollable(true);
-    } else {
-      setScrollable(false);
-    }
-  }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
-
   return (
-    <RateContainer
-      isDisabled={Boolean(isDisabled)}
-      ref={rateContainerRef}
-      scrollable={scrollable}
-    >
+    <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
       <Rating
         emptySymbol={
           <Star
-            color={inactiveColor || Colors.ALTO_3}
+            color={
+              isDisabled
+                ? "var(--wds-color-bg-strong)"
+                : inactiveColor ?? "var(--wds-color-bg)"
+            }
             icon={IconNames.STAR}
             iconSize={RATE_SIZES[size]}
+            isDisabled={isDisabled}
           />
         }
         fractions={isAllowHalf ? 2 : 1}

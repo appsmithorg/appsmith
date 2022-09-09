@@ -10,7 +10,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import ButtonWidget from "widgets/ButtonWidget";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonVariant,
   RecaptchaType,
   RecaptchaTypes,
@@ -47,28 +46,6 @@ class FormButtonWidget extends ButtonWidget {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },
-        },
-        {
-          helpText:
-            "Disables the button when the parent form has a required widget that is not filled",
-          propertyName: "disabledWhenInvalid",
-          label: "Disabled Invalid Forms",
-          controlType: "SWITCH",
-          isJSConvertible: true,
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: { type: ValidationTypes.BOOLEAN },
-        },
-        {
-          helpText:
-            "Resets the fields within the parent form when the click action succeeds",
-          propertyName: "resetFormOnClick",
-          label: "Reset Form on Success",
-          controlType: "SWITCH",
-          isJSConvertible: true,
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: { type: ValidationTypes.BOOLEAN },
         },
         {
           propertyName: "isVisible",
@@ -209,8 +186,7 @@ export interface FormButtonWidgetProps extends WidgetProps {
   buttonVariant?: ButtonVariant;
   buttonColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
 }

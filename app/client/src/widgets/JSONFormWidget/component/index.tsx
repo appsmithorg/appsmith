@@ -7,7 +7,6 @@ import WidgetStyleContainer, {
   BoxShadow,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { Color } from "constants/Colors";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   FIELD_MAP,
   MAX_ALLOWED_FIELDS,
@@ -17,7 +16,7 @@ import {
 import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
 import { RenderMode, RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
-import { JSONFormWidgetState } from "../widget";
+import { Action, JSONFormWidgetState } from "../widget";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
 type StyledContainerProps = {
@@ -32,10 +31,11 @@ export type JSONFormComponentProps<TValues = any> = {
   boxShadow?: BoxShadow;
   boxShadowColor?: string;
   disabledWhenInvalid?: boolean;
-  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
+  executeAction: (action: Action) => void;
   fieldLimitExceeded: boolean;
   fixedFooter: boolean;
   getFormData: () => TValues;
+  isWidgetMounting: boolean;
   isSubmitting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
@@ -95,6 +95,7 @@ function JSONFormComponent<TValues>({
   fieldLimitExceeded,
   getFormData,
   isSubmitting,
+  isWidgetMounting,
   onFormValidityUpdate,
   registerResetObserver,
   renderMode,
@@ -175,6 +176,7 @@ function JSONFormComponent<TValues>({
           getFormData={getFormData}
           hideFooter={hideFooter}
           isSubmitting={isSubmitting}
+          isWidgetMounting={isWidgetMounting}
           onFormValidityUpdate={onFormValidityUpdate}
           onSubmit={rest.onSubmit}
           registerResetObserver={registerResetObserver}

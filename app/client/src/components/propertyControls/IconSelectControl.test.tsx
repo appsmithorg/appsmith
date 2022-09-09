@@ -11,32 +11,38 @@ import userEvent from "@testing-library/user-event";
 import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
+const requiredParams = {
+  evaluatedValue: undefined,
+  deleteProperties: noop,
+  widgetProperties: undefined,
+  parentPropertyName: "",
+  parentPropertyValue: undefined,
+  additionalDynamicData: {},
+  label: "",
+  openNextPanel: noop,
+  onPropertyChange: noop,
+  theme: EditorTheme.LIGHT,
+  propertyName: "iconName",
+  controlType: "",
+  isBindProperty: false,
+  isTriggerProperty: false,
+};
+
+const waitForParamsForSearchFocus = {
+  timeout: 3000,
+};
+
 describe("<IconSelectControl /> - Keyboard navigation", () => {
   const getTestComponent = (
     onPropertyChange: (
       propertyName: string,
       propertyValue: string,
+      isUpdatedViaKeyboard?: boolean,
     ) => void = noop,
   ) => (
     <IconSelectControl
-      additionalDynamicData={{
-        dummy: {
-          dummy: 1,
-        },
-      }}
-      controlType="add"
-      deleteProperties={noop}
-      evaluatedValue={undefined}
-      isBindProperty={false}
-      isTriggerProperty={false}
-      label="Icon"
+      {...requiredParams}
       onPropertyChange={onPropertyChange}
-      openNextPanel={noop}
-      parentPropertyName="iconName"
-      parentPropertyValue="add"
-      propertyName="iconName"
-      theme={EditorTheme.LIGHT}
-      widgetProperties={undefined}
     />
   );
 
@@ -58,7 +64,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       // Makes sure search bar is having focus
       await waitFor(() => {
         expect(screen.queryByRole("textbox")).toHaveFocus();
-      });
+      }, waitForParamsForSearchFocus);
     },
   );
 
@@ -79,7 +85,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
   });
@@ -91,13 +97,13 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
     userEvent.keyboard("{Shift}{ArrowUp}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
   });
 
   /*
@@ -113,7 +119,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -132,7 +138,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -158,7 +164,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -177,7 +183,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -207,7 +213,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -221,14 +227,18 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     );
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(1);
-    expect(handleOnSelect).toHaveBeenLastCalledWith("iconName", "add-row-top");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      "iconName",
+      "add-row-top",
+      true,
+    );
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
     userEvent.keyboard("{Enter}");
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-row-top",
     );
@@ -239,6 +249,23 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       "iconName",
       "add-to-artifact",
+      true,
+    );
+  });
+});
+
+const config = { ...requiredParams };
+describe("IconSelectControl.canDisplayValue", () => {
+  it("Should return true when a proper icon name is passed", () => {
+    expect(IconSelectControl.canDisplayValueInUI(config, "add")).toEqual(true);
+    expect(IconSelectControl.canDisplayValueInUI(config, "airplane")).toEqual(
+      true,
+    );
+  });
+
+  it("Should return false when a non-alowed icon value is passed", () => {
+    expect(IconSelectControl.canDisplayValueInUI(config, "macbook")).toEqual(
+      false,
     );
   });
 });

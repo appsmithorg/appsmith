@@ -116,6 +116,63 @@ class DocumentViewerWidget extends BaseWidget<
     ];
   }
 
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "Data",
+        children: [
+          {
+            helpText:
+              "Document url for preview. for URL, supported extensions are txt, pdf, docx, ppt, pptx, xlsx. ppt is currently not supported by base64.",
+            propertyName: "docUrl",
+            label: "Document Link",
+            controlType: "INPUT_TEXT",
+            placeholderText: "URL / Base64",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: documentUrlValidation,
+                expected: {
+                  type: "URL / Base64",
+                  example: "https://www.example.com",
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Controls visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
+  }
+
   getPageView() {
     return <DocumentViewerComponent docUrl={this.props.docUrl} />;
   }

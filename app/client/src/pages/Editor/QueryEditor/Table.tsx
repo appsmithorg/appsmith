@@ -13,7 +13,7 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { Theme } from "constants/DefaultTheme";
-import { uniqueId } from "lodash";
+import { isArray, uniqueId } from "lodash";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -28,6 +28,10 @@ const TABLE_SIZES = {
   ROW_FONT_SIZE: 14,
   SCROLL_SIZE: 20,
 };
+
+const NoDataMessage = styled.span`
+  margin-left: 24px;
+`;
 
 export const TableWrapper = styled.div`
   width: 100%;
@@ -194,11 +198,21 @@ const renderCell = (props: any) => {
   );
 };
 
+// The function will return the scrollbar width that needs to be added
+// in the table body width, when scrollbar is shown the width should be > 0,
+// when scrollbar is not shown, width should be 0
+export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
+  return !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
+    ? scrollBarW
+    : 0;
+};
+
 function Table(props: TableProps) {
+  const tableBodyRef = React.useRef<HTMLElement>();
   const data = React.useMemo(() => {
     const emptyString = "";
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
-    if (props.data?.length > 0) {
+    if (!!props.data && isArray(props.data) && props.data.length > 0) {
       const keys = Object.keys(props.data[0]);
       keys.forEach((key) => {
         if (key === emptyString) {
@@ -258,7 +272,9 @@ function Table(props: TableProps) {
     useBlockLayout,
   );
 
-  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+  const tableBodyEle = tableBodyRef?.current;
+  const scrollBarW = React.useMemo(() => scrollbarWidth(), []);
+  const scrollBarSize = getScrollBarWidth(tableBodyEle, scrollBarW);
 
   const RenderRow = React.useCallback(
     ({ index, style }) => {
@@ -286,7 +302,11 @@ function Table(props: TableProps) {
   );
 
   if (rows.length === 0 || headerGroups.length === 0)
-    return <span>No data records to show</span>;
+    return (
+      <NoDataMessage data-testid="no-data-table-message">
+        No data records to show
+      </NoDataMessage>
+    );
 
   return (
     <ErrorBoundary>
@@ -330,6 +350,7 @@ function Table(props: TableProps) {
                 height={tableBodyHeightComputed || window.innerHeight}
                 itemCount={rows.length}
                 itemSize={35}
+                outerRef={tableBodyRef}
                 width={totalColumnsWidth + scrollBarSize}
               >
                 {RenderRow}

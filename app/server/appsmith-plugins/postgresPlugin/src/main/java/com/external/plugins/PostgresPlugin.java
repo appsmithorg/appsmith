@@ -28,6 +28,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -87,6 +88,7 @@ import static com.external.plugins.utils.PostgresDataTypeUtils.extractExplicitCa
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class PostgresPlugin extends BasePlugin {
 
     static final String JDBC_DRIVER = "org.postgresql.Driver";
@@ -210,9 +212,9 @@ public class PostgresPlugin extends BasePlugin {
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
                 //In case the prepared statement configuration is missing, default to true.
                 isPreparedStatement = true;
-            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null) {
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
-                if (psValue instanceof  Boolean) {
+                if (psValue instanceof Boolean) {
                     isPreparedStatement = (Boolean) psValue;
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
@@ -260,220 +262,209 @@ public class PostgresPlugin extends BasePlugin {
 
             return Mono.fromCallable(() -> {
 
-                Connection connectionFromPool;
+                        Connection connectionFromPool;
 
-                try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
-                } catch (SQLException | StaleConnectionException e) {
-                    // The function can throw either StaleConnectionException or SQLException. The underlying hikari
-                    // library throws SQLException in case the pool is closed or there is an issue initializing
-                    // the connection pool which can also be translated in our world to StaleConnectionException
-                    // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
-                }
+                        try {
+                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                        } catch (SQLException | StaleConnectionException e) {
+                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                            // library throws SQLException in case the pool is closed or there is an issue initializing
+                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // and should then trigger the destruction and recreation of the pool.
+                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        }
 
-                List<Map<String, Object>> rowsList = new ArrayList<>(50);
-                final List<String> columnsList = new ArrayList<>();
+                        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                        final List<String> columnsList = new ArrayList<>();
 
-                Statement statement = null;
-                ResultSet resultSet = null;
-                PreparedStatement preparedQuery = null;
-                boolean isResultSet;
+                        Statement statement = null;
+                        ResultSet resultSet = null;
+                        PreparedStatement preparedQuery = null;
+                        boolean isResultSet;
 
-                HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+                        HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
 
-                int idleConnections = poolProxy.getIdleConnections();
-                int activeConnections = poolProxy.getActiveConnections();
-                int totalConnections = poolProxy.getTotalConnections();
-                int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                System.out.println(Thread.currentThread().getName() + ": Before executing postgres query [" +
-                        query +
-                        "] Hikari Pool stats : active - " + activeConnections +
-                        ", idle - " + idleConnections +
-                        ", awaiting - " + threadsAwaitingConnection +
-                        ", total - " + totalConnections);
-                try {
-                    if (FALSE.equals(preparedStatement)) {
-                        statement = connectionFromPool.createStatement();
-                        isResultSet = statement.execute(query);
-                        resultSet = statement.getResultSet();
-                    } else {
-                        preparedQuery = connectionFromPool.prepareStatement(query);
+                        int idleConnections = poolProxy.getIdleConnections();
+                        int activeConnections = poolProxy.getActiveConnections();
+                        int totalConnections = poolProxy.getTotalConnections();
+                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                        log.debug("Before executing postgres query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
+                                query, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+                        try {
+                            if (FALSE.equals(preparedStatement)) {
+                                statement = connectionFromPool.createStatement();
+                                isResultSet = statement.execute(query);
+                                resultSet = statement.getResultSet();
+                            } else {
+                                preparedQuery = connectionFromPool.prepareStatement(query);
 
-                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
-                        preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
-                                mustacheValuesInOrder,
-                                executeActionDTO.getParams(),
-                                parameters,
-                                connectionFromPool,
-                                explicitCastDataTypes);
+                                List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                                preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
+                                        mustacheValuesInOrder,
+                                        executeActionDTO.getParams(),
+                                        parameters,
+                                        connectionFromPool,
+                                        explicitCastDataTypes);
 
-                        IntStream.range(0, parameters.size())
-                                .forEachOrdered(i ->
-                                        psParams.put(
-                                                getPSParamLabel(i+1),
-                                                new PsParameterDTO(parameters.get(i).getKey(),parameters.get(i).getValue())));
+                                IntStream.range(0, parameters.size())
+                                        .forEachOrdered(i ->
+                                                psParams.put(
+                                                        getPSParamLabel(i + 1),
+                                                        new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
 
-                        requestData.put("ps-parameters", parameters);
-                        isResultSet = preparedQuery.execute();
-                        resultSet = preparedQuery.getResultSet();
-                    }
-
-                    if (!isResultSet) {
-
-                        Object updateCount = FALSE.equals(preparedStatement) ?
-                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
-                                ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
-
-                        rowsList.add(Map.of("affectedRows", updateCount));
-
-                    } else {
-
-                        ResultSetMetaData metaData = resultSet.getMetaData();
-                        int colCount = metaData.getColumnCount();
-                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
-
-                        int iterator = 0;
-                        while (resultSet.next()) {
-
-                            // Only check the data size at low frequency to ensure the performance is not impacted heavily
-                            if (iterator% HEAVY_OP_FREQUENCY == 0) {
-                                int objectSize = sizeof(rowsList);
-
-                                if (objectSize > MAX_SIZE_SUPPORTED) {
-                                    System.out.println(Thread.currentThread().getName() +
-                                            "[PostgresPlugin] Result size greater than maximum supported size of "
-                                            + MAX_SIZE_SUPPORTED + "bytes. Current size : " + objectSize);
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
-                                }
+                                requestData.put("ps-parameters", parameters);
+                                isResultSet = preparedQuery.execute();
+                                resultSet = preparedQuery.getResultSet();
                             }
 
-                            // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                            Map<String, Object> row = new LinkedHashMap<>(colCount);
+                            if (!isResultSet) {
 
-                            for (int i = 1; i <= colCount; i++) {
-                                Object value;
-                                final String typeName = metaData.getColumnTypeName(i);
+                                Object updateCount = FALSE.equals(preparedStatement) ?
+                                        ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
+                                        ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
 
-                                if (resultSet.getObject(i) == null) {
-                                    value = null;
+                                rowsList.add(Map.of("affectedRows", updateCount));
 
-                                } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+                            } else {
 
-                                } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            LocalDateTime.of(
-                                                    resultSet.getDate(i).toLocalDate(),
-                                                    resultSet.getTime(i).toLocalTime()
-                                            )
-                                    ) + "Z";
+                                ResultSetMetaData metaData = resultSet.getMetaData();
+                                int colCount = metaData.getColumnCount();
+                                columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
-                                } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            resultSet.getObject(i, OffsetDateTime.class)
-                                    );
+                                int iterator = 0;
+                                while (resultSet.next()) {
 
-                                } else if (TIME_TYPE_NAME.equalsIgnoreCase(typeName) || TIMETZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getString(i);
+                                    // Only check the data size at low frequency to ensure the performance is not impacted heavily
+                                    if (iterator % HEAVY_OP_FREQUENCY == 0) {
+                                        int objectSize = sizeof(rowsList);
 
-                                } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getObject(i).toString();
-
-                                } else if (typeName.startsWith("_")) {
-                                    value = resultSet.getArray(i).getArray();
-
-                                } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
-                                        || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = objectMapper.readTree(resultSet.getString(i));
-                                } else {
-                                    value = resultSet.getObject(i);
-
-                                    /**
-                                     * Any type that JDBC does not understand gets mapped to PGobject. PGobject has
-                                     * two attributes: type and value. Hence, when PGobject gets serialized, it gets
-                                     * converted into a JSON like {"type":"citext", "value":"someText"}. Since we are
-                                     * only interested in the value and not the type, it makes sense to extract out
-                                     * the value as a string.
-                                     * Reference: https://jdbc.postgresql.org/documentation/publicapi/org/postgresql/util/PGobject.html
-                                     */
-                                    if (value instanceof PGobject) {
-                                        value = ((PGobject) value).getValue();
+                                        if (objectSize > MAX_SIZE_SUPPORTED) {
+                                            log.debug("[PostgresPlugin] Result size greater than maximum supported size of {} bytes. Current size : {}",
+                                                    MAX_SIZE_SUPPORTED, objectSize);
+                                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
+                                        }
                                     }
-                                }
 
-                                row.put(metaData.getColumnName(i), value);
+                                    // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
+                                    Map<String, Object> row = new LinkedHashMap<>(colCount);
+
+                                    for (int i = 1; i <= colCount; i++) {
+                                        Object value;
+                                        final String typeName = metaData.getColumnTypeName(i);
+
+                                        if (resultSet.getObject(i) == null) {
+                                            value = null;
+
+                                        } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+
+                                        } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            value = DateTimeFormatter.ISO_DATE_TIME.format(
+                                                    LocalDateTime.of(
+                                                            resultSet.getDate(i).toLocalDate(),
+                                                            resultSet.getTime(i).toLocalTime()
+                                                    )
+                                            ) + "Z";
+
+                                        } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            value = DateTimeFormatter.ISO_DATE_TIME.format(
+                                                    resultSet.getObject(i, OffsetDateTime.class)
+                                            );
+
+                                        } else if (TIME_TYPE_NAME.equalsIgnoreCase(typeName) || TIMETZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            value = resultSet.getString(i);
+
+                                        } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            value = resultSet.getObject(i).toString();
+
+                                        } else if (typeName.startsWith("_")) {
+                                            value = resultSet.getArray(i).getArray();
+
+                                        } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
+                                                || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            value = objectMapper.readTree(resultSet.getString(i));
+                                        } else {
+                                            value = resultSet.getObject(i);
+
+                                            /**
+                                             * Any type that JDBC does not understand gets mapped to PGobject. PGobject has
+                                             * two attributes: type and value. Hence, when PGobject gets serialized, it gets
+                                             * converted into a JSON like {"type":"citext", "value":"someText"}. Since we are
+                                             * only interested in the value and not the type, it makes sense to extract out
+                                             * the value as a string.
+                                             * Reference: https://jdbc.postgresql.org/documentation/publicapi/org/postgresql/util/PGobject.html
+                                             */
+                                            if (value instanceof PGobject) {
+                                                value = ((PGobject) value).getValue();
+                                            }
+                                        }
+
+                                        row.put(metaData.getColumnName(i), value);
+                                    }
+
+                                    rowsList.add(row);
+
+                                    iterator++;
+                                }
                             }
 
-                            rowsList.add(row);
-
-                            iterator++;
-                        }
-                    }
-
-                } catch (SQLException e) {
-                    System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
-                } catch (IOException e) {
-                    // Since postgres json type field can only hold valid json data, this exception is not expected
-                    // to occur.
-                    System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-                } finally {
-                    idleConnections = poolProxy.getIdleConnections();
-                    activeConnections = poolProxy.getActiveConnections();
-                    totalConnections = poolProxy.getTotalConnections();
-                    threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                    System.out.println(Thread.currentThread().getName() + ": After executing postgres query, Hikari Pool stats active - " + activeConnections +
-                            ", idle - " + idleConnections +
-                            ", awaiting - " + threadsAwaitingConnection +
-                            ", total - " + totalConnections);
-                    if (resultSet != null) {
-                        try {
-                            resultSet.close();
                         } catch (SQLException e) {
-                            System.out.println(Thread.currentThread().getName() +
-                                    ": Execute Error closing Postgres ResultSet" + e.getMessage());
+                            log.debug("In the PostgresPlugin, got action execution error");
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                        } catch (IOException e) {
+                            // Since postgres json type field can only hold valid json data, this exception is not expected
+                            // to occur.
+                            log.debug("In the PostgresPlugin, got action execution error");
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                        } finally {
+                            idleConnections = poolProxy.getIdleConnections();
+                            activeConnections = poolProxy.getActiveConnections();
+                            totalConnections = poolProxy.getTotalConnections();
+                            threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                            log.debug("After executing postgres query, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+                            if (resultSet != null) {
+                                try {
+                                    resultSet.close();
+                                } catch (SQLException e) {
+                                    log.debug("Execute Error closing Postgres ResultSet", e);
+                                }
+                            }
+
+                            if (statement != null) {
+                                try {
+                                    statement.close();
+                                } catch (SQLException e) {
+                                    log.debug("Execute Error closing Postgres Statement", e);
+                                }
+                            }
+
+                            if (preparedQuery != null) {
+                                try {
+                                    preparedQuery.close();
+                                } catch (SQLException e) {
+                                    log.debug("Execute Error closing Postgres Statement", e);
+                                }
+                            }
+
+                            if (connectionFromPool != null) {
+                                try {
+                                    // Return the connection back to the pool
+                                    connectionFromPool.close();
+                                } catch (SQLException e) {
+                                    log.debug("Execute Error returning Postgres connection to pool", e);
+                                }
+                            }
+
                         }
-                    }
 
-                    if (statement != null) {
-                        try {
-                            statement.close();
-                        } catch (SQLException e) {
-                            System.out.println(Thread.currentThread().getName() +
-                                    ": Execute Error closing Postgres Statement" + e.getMessage());
-                        }
-                    }
-
-                    if (preparedQuery != null) {
-                        try {
-                            preparedQuery.close();
-                        } catch (SQLException e) {
-                            System.out.println(Thread.currentThread().getName() +
-                                    ": Execute Error closing Postgres Statement" + e.getMessage());
-                        }
-                    }
-
-                    if (connectionFromPool != null) {
-                        try {
-                            // Return the connetion back to the pool
-                            connectionFromPool.close();
-                        } catch (SQLException e) {
-                            System.out.println(Thread.currentThread().getName() +
-                                    ": Execute Error returning Postgres connection to pool" + e.getMessage());
-                        }
-                    }
-
-                }
-
-                ActionExecutionResult result = new ActionExecutionResult();
-                result.setBody(objectMapper.valueToTree(rowsList));
-                result.setMessages(populateHintMessages(columnsList));
-                result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result");
-                return Mono.just(result);
-            })
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setMessages(populateHintMessages(columnsList));
+                        result.setIsExecutionSuccess(true);
+                        log.debug("In the PostgresPlugin, got action execution result");
+                        return Mono.just(result);
+                    })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
                     .onErrorResume(error -> {
@@ -530,7 +521,7 @@ public class PostgresPlugin extends BasePlugin {
 
             return Mono
                     .fromCallable(() -> {
-                        System.out.println(Thread.currentThread().getName() + ": Connecting to Postgres db");
+                        log.debug("Connecting to Postgres db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -617,203 +608,197 @@ public class PostgresPlugin extends BasePlugin {
 
             return Mono.fromSupplier(() -> {
 
-                Connection connectionFromPool;
-                try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
-                } catch (SQLException | StaleConnectionException e) {
-                    // The function can throw either StaleConnectionException or SQLException. The underlying hikari
-                    // library throws SQLException in case the pool is closed or there is an issue initializing
-                    // the connection pool which can also be translated in our world to StaleConnectionException
-                    // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
-                }
+                        Connection connectionFromPool;
+                        try {
+                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                        } catch (SQLException | StaleConnectionException e) {
+                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                            // library throws SQLException in case the pool is closed or there is an issue initializing
+                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // and should then trigger the destruction and recreation of the pool.
+                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        }
 
-                HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+                        HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
 
-                int idleConnections = poolProxy.getIdleConnections();
-                int activeConnections = poolProxy.getActiveConnections();
-                int totalConnections = poolProxy.getTotalConnections();
-                int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                System.out.println(Thread.currentThread().getName() + ": Before getting postgres db structure" +
-                        " Hikari Pool stats : active - " + activeConnections +
-                        ", idle - " + idleConnections +
-                        ", awaiting - " + threadsAwaitingConnection +
-                        ", total - " + totalConnections);
+                        int idleConnections = poolProxy.getIdleConnections();
+                        int activeConnections = poolProxy.getActiveConnections();
+                        int totalConnections = poolProxy.getTotalConnections();
+                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                        log.debug("Before getting postgres db structure Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
+                                activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
 
-                // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-                try (Statement statement = connectionFromPool.createStatement()) {
+                        // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
+                        try (Statement statement = connectionFromPool.createStatement()) {
 
-                    // Get tables and fill up their columns.
-                    try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
-                        while (columnsResultSet.next()) {
-                            final char kind = columnsResultSet.getString("kind").charAt(0);
-                            final String schemaName = columnsResultSet.getString("schema_name");
-                            final String tableName = columnsResultSet.getString("table_name");
-                            final String fullTableName = schemaName + "." + tableName;
-                            if (!tablesByName.containsKey(fullTableName)) {
-                                tablesByName.put(fullTableName, new DatasourceStructure.Table(
-                                        kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
-                                        schemaName,
-                                        fullTableName,
-                                        new ArrayList<>(),
-                                        new ArrayList<>(),
-                                        new ArrayList<>()
+                            // Get tables and fill up their columns.
+                            try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
+                                while (columnsResultSet.next()) {
+                                    final char kind = columnsResultSet.getString("kind").charAt(0);
+                                    final String schemaName = columnsResultSet.getString("schema_name");
+                                    final String tableName = columnsResultSet.getString("table_name");
+                                    final String fullTableName = schemaName + "." + tableName;
+                                    if (!tablesByName.containsKey(fullTableName)) {
+                                        tablesByName.put(fullTableName, new DatasourceStructure.Table(
+                                                kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                                                schemaName,
+                                                fullTableName,
+                                                new ArrayList<>(),
+                                                new ArrayList<>(),
+                                                new ArrayList<>()
+                                        ));
+                                    }
+                                    final DatasourceStructure.Table table = tablesByName.get(fullTableName);
+                                    final String defaultExpr = columnsResultSet.getString("default_expr");
+                                    boolean isAutogenerated = !StringUtils.isEmpty(defaultExpr) && defaultExpr.toLowerCase().contains("nextval");
+
+                                    table.getColumns().add(new DatasourceStructure.Column(
+                                                    columnsResultSet.getString("name"),
+                                                    columnsResultSet.getString("column_type"),
+                                                    defaultExpr,
+                                                    isAutogenerated
+                                            )
+                                    );
+                                }
+                            }
+
+                            // Get tables' constraints and fill those up.
+                            try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY)) {
+                                while (constraintsResultSet.next()) {
+                                    final String constraintName = constraintsResultSet.getString("constraint_name");
+                                    final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
+                                    final String selfSchema = constraintsResultSet.getString("self_schema");
+                                    final String tableName = constraintsResultSet.getString("self_table");
+                                    final String fullTableName = selfSchema + "." + tableName;
+                                    if (!tablesByName.containsKey(fullTableName)) {
+                                        continue;
+                                    }
+
+                                    final DatasourceStructure.Table table = tablesByName.get(fullTableName);
+
+                                    if (constraintType == 'p') {
+                                        final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
+                                                constraintName,
+                                                List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
+                                        );
+                                        table.getKeys().add(key);
+
+                                    } else if (constraintType == 'f') {
+                                        final String foreignSchema = constraintsResultSet.getString("foreign_schema");
+                                        final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
+                                                + constraintsResultSet.getString("foreign_table")
+                                                + ".";
+
+                                        final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
+                                                constraintName,
+                                                List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
+                                                Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
+                                                        .map(name -> prefix + name)
+                                                        .collect(Collectors.toList())
+                                        );
+
+                                        table.getKeys().add(key);
+
+                                    }
+                                }
+                            }
+
+                            // Get/compute templates for each table and put those in.
+                            for (DatasourceStructure.Table table : tablesByName.values()) {
+                                final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
+                                        .stream()
+                                        .filter(column -> column.getDefaultValue() == null)
+                                        .collect(Collectors.toList());
+
+                                final List<String> columnNames = new ArrayList<>();
+                                final List<String> columnValues = new ArrayList<>();
+                                final StringBuilder setFragments = new StringBuilder();
+
+                                for (DatasourceStructure.Column column : columnsWithoutDefault) {
+                                    final String name = column.getName();
+                                    final String type = column.getType();
+                                    String value;
+
+                                    if (type == null) {
+                                        value = "null";
+                                    } else if ("text".equals(type) || "varchar".equals(type)) {
+                                        value = "''";
+                                    } else if (type.startsWith("int")) {
+                                        value = "1";
+                                    } else if (type.startsWith("float") || type.startsWith("double")) {
+                                        value = "1.0";
+                                    } else if ("date".equals(type)) {
+                                        value = "'2019-07-01'";
+                                    } else if ("time".equals(type)) {
+                                        value = "'18:32:45'";
+                                    } else if ("timetz".equals(type)) {
+                                        value = "'04:05:06 PST'";
+                                    } else if ("timestamp".equals(type)) {
+                                        value = "TIMESTAMP '2019-07-01 10:00:00'";
+                                    } else if ("timestamptz".equals(type)) {
+                                        value = "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
+                                    } else if (type.startsWith("_int")) {
+                                        value = "'{1, 2, 3}'";
+                                    } else if ("_varchar".equals(type)) {
+                                        value = "'{\"first\", \"second\"}'";
+                                    } else {
+                                        value = "''";
+                                    }
+
+                                    columnNames.add("\"" + name + "\"");
+                                    columnValues.add(value);
+                                    setFragments.append("\n    \"").append(name).append("\" = ").append(value).append(",");
+                                }
+
+                                // Delete the last comma
+                                if (setFragments.length() > 0) {
+                                    setFragments.deleteCharAt(setFragments.length() - 1);
+                                }
+
+                                final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
+                                table.getTemplates().addAll(List.of(
+                                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                                        new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
+                                                + " (" + String.join(", ", columnNames) + ")\n"
+                                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                        new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
+                                                + setFragments.toString() + "\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                        new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
+                                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                                 ));
                             }
-                            final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-                            final String defaultExpr = columnsResultSet.getString("default_expr");
-                            boolean isAutogenerated = !StringUtils.isEmpty(defaultExpr) && defaultExpr.toLowerCase().contains("nextval");
 
-                            table.getColumns().add(new DatasourceStructure.Column(
-                                    columnsResultSet.getString("name"),
-                                    columnsResultSet.getString("column_type"),
-                                    defaultExpr,
-                                    isAutogenerated
-                                )
-                            );
-                        }
-                    }
+                        } catch (SQLException throwable) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    throwable.getMessage()
+                            ));
+                        } finally {
+                            idleConnections = poolProxy.getIdleConnections();
+                            activeConnections = poolProxy.getActiveConnections();
+                            totalConnections = poolProxy.getTotalConnections();
+                            threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                            log.debug("After postgres db structure, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
 
-                    // Get tables' constraints and fill those up.
-                    try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY)) {
-                        while (constraintsResultSet.next()) {
-                            final String constraintName = constraintsResultSet.getString("constraint_name");
-                            final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
-                            final String selfSchema = constraintsResultSet.getString("self_schema");
-                            final String tableName = constraintsResultSet.getString("self_table");
-                            final String fullTableName = selfSchema + "." + tableName;
-                            if (!tablesByName.containsKey(fullTableName)) {
-                                continue;
-                            }
-
-                            final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-
-                            if (constraintType == 'p') {
-                                final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
-                                        constraintName,
-                                        List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
-                                );
-                                table.getKeys().add(key);
-
-                            } else if (constraintType == 'f') {
-                                final String foreignSchema = constraintsResultSet.getString("foreign_schema");
-                                final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
-                                        + constraintsResultSet.getString("foreign_table")
-                                        + ".";
-
-                                final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
-                                        constraintName,
-                                        List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
-                                        Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
-                                                .map(name -> prefix + name)
-                                                .collect(Collectors.toList())
-                                );
-
-                                table.getKeys().add(key);
-
+                            if (connectionFromPool != null) {
+                                try {
+                                    // Return the connection back to the pool
+                                    connectionFromPool.close();
+                                } catch (SQLException e) {
+                                    log.debug("Error returning Postgres connection to pool during get structure", e);
+                                }
                             }
                         }
-                    }
 
-                    // Get/compute templates for each table and put those in.
-                    for (DatasourceStructure.Table table : tablesByName.values()) {
-                        final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
-                                .stream()
-                                .filter(column -> column.getDefaultValue() == null)
-                                .collect(Collectors.toList());
-
-                        final List<String> columnNames = new ArrayList<>();
-                        final List<String> columnValues = new ArrayList<>();
-                        final StringBuilder setFragments = new StringBuilder();
-
-                        for (DatasourceStructure.Column column : columnsWithoutDefault) {
-                            final String name = column.getName();
-                            final String type = column.getType();
-                            String value;
-
-                            if (type == null) {
-                                value = "null";
-                            } else if ("text".equals(type) || "varchar".equals(type)) {
-                                value = "''";
-                            } else if (type.startsWith("int")) {
-                                value = "1";
-                            } else if (type.startsWith("float") || type.startsWith("double")) {
-                                value = "1.0";
-                            } else if ("date".equals(type)) {
-                                value = "'2019-07-01'";
-                            } else if ("time".equals(type)) {
-                                value = "'18:32:45'";
-                            } else if ("timetz".equals(type)) {
-                                value = "'04:05:06 PST'";
-                            } else if ("timestamp".equals(type)) {
-                                value = "TIMESTAMP '2019-07-01 10:00:00'";
-                            } else if ("timestamptz".equals(type)) {
-                                value = "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
-                            } else if (type.startsWith("_int")) {
-                                value = "'{1, 2, 3}'";
-                            } else if ("_varchar".equals(type)) {
-                                value = "'{\"first\", \"second\"}'";
-                            } else {
-                                value = "''";
-                            }
-
-                            columnNames.add("\"" + name + "\"");
-                            columnValues.add(value);
-                            setFragments.append("\n    \"").append(name).append("\" = ").append(value).append(",");
+                        structure.setTables(new ArrayList<>(tablesByName.values()));
+                        for (DatasourceStructure.Table table : structure.getTables()) {
+                            table.getKeys().sort(Comparator.naturalOrder());
                         }
-
-                        // Delete the last comma
-                        if (setFragments.length() > 0) {
-                            setFragments.deleteCharAt(setFragments.length() - 1);
-                        }
-
-                        final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
-                        table.getTemplates().addAll(List.of(
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
-                                new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
-                                        + " (" + String.join(", ", columnNames) + ")\n"
-                                        + "  VALUES (" + String.join(", ", columnValues) + ");"),
-                                new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
-                                        + setFragments.toString() + "\n"
-                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
-                        ));
-                    }
-
-                } catch (SQLException throwable) {
-                    return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            throwable.getMessage()
-                    ));
-                } finally {
-                    idleConnections = poolProxy.getIdleConnections();
-                    activeConnections = poolProxy.getActiveConnections();
-                    totalConnections = poolProxy.getTotalConnections();
-                    threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                    System.out.println(Thread.currentThread().getName() + ": After postgres db structure, Hikari Pool stats active - " + activeConnections +
-                            ", idle - " + idleConnections +
-                            ", awaiting - " + threadsAwaitingConnection +
-                            ", total - " + totalConnections);
-
-                    if (connectionFromPool != null) {
-                        try {
-                            // Return the connection back to the pool
-                            connectionFromPool.close();
-                        } catch (SQLException e) {
-                            System.out.println(Thread.currentThread().getName() +
-                                    ": Error returning Postgres connection to pool during get structure" + e.getMessage());
-                        }
-                    }
-                }
-
-                structure.setTables(new ArrayList<>(tablesByName.values()));
-                for (DatasourceStructure.Table table : structure.getTables()) {
-                    table.getKeys().sort(Comparator.naturalOrder());
-                }
-                System.out.println(Thread.currentThread().getName() + ": Got the structure of postgres db");
-                return structure;
-            })
+                        log.debug("Got the structure of postgres db");
+                        return structure;
+                    })
                     .map(resultStructure -> (DatasourceStructure) resultStructure)
                     .subscribeOn(scheduler);
         }
@@ -989,7 +974,7 @@ public class PostgresPlugin extends BasePlugin {
             urlBuilder.append(authentication.getDatabaseName());
         }
 
-        /** 
+        /**
          * JDBC connection parameter to auto resolve argument type when using prepared statements. Please note that this auto deduction of type happens only when 
          * the argument is bound using `setString()` method. In our case, it means that we have identified the argument data type as String.
          * Quoting from doc: 
@@ -1082,11 +1067,10 @@ public class PostgresPlugin extends BasePlugin {
      * @return SQL Connection
      */
     private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
-                                                         DatasourceConfiguration datasourceConfiguration) throws SQLException {
+                                                              DatasourceConfiguration datasourceConfiguration) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            System.out.println(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in Postgres plugin. Reporting back.");
+            log.debug("Encountered stale connection pool in Postgres plugin. Reporting back.");
             throw new StaleConnectionException();
         }
 

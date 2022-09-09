@@ -4,7 +4,7 @@ import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
-import isEqual from "fast-deep-equal";
+import equal from "fast-deep-equal/es6";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -16,6 +16,12 @@ export const OpenNewTabIconWrapper = styled.div`
   height: 28px;
   align-items: center;
   position: relative;
+`;
+
+export const Content = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 4px;
 `;
 
 interface Props {
@@ -39,7 +45,7 @@ function LinkWrapper(props: Props) {
     } else {
       updateToolTip(false);
     }
-  }, [ref]);
+  }, [props.children, ref.current]);
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
@@ -53,7 +59,7 @@ function LinkWrapper(props: Props) {
       }}
       useLinkToolTip={useToolTip}
     >
-      <div className="link-text" ref={ref}>
+      <div className="link-text">
         {useToolTip && props.children ? (
           <Tooltip
             autoFocus={false}
@@ -65,10 +71,10 @@ function LinkWrapper(props: Props) {
             hoverOpenDelay={1000}
             position="top"
           >
-            {props.children}
+            {<Content ref={ref}>{props.children}</Content>}
           </Tooltip>
         ) : (
-          props.children
+          <Content ref={ref}>{props.children}</Content>
         )}
       </div>
       <OpenNewTabIconWrapper className="hidden-icon">
@@ -88,7 +94,7 @@ function AutoToolTipComponent(props: Props) {
     } else {
       updateToolTip(false);
     }
-  }, []);
+  }, [props.children, ref.current]);
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
@@ -100,7 +106,6 @@ function AutoToolTipComponent(props: Props) {
         isHidden={props.isHidden}
         isPadding={!props.noPadding}
         isTextType
-        ref={ref}
       >
         {useToolTip && props.children ? (
           <Tooltip
@@ -113,10 +118,10 @@ function AutoToolTipComponent(props: Props) {
             hoverOpenDelay={1000}
             position="top"
           >
-            {props.children}
+            <Content ref={ref}>{props.children}</Content>
           </Tooltip>
         ) : (
-          props.children
+          <Content ref={ref}>{props.children}</Content>
         )}
       </CellWrapper>
     </ColumnWrapper>
@@ -125,7 +130,7 @@ function AutoToolTipComponent(props: Props) {
 export default memo(
   AutoToolTipComponent,
   (prev, next) =>
-    isEqual(prev.cellProperties, next.cellProperties) &&
+    equal(prev.cellProperties, next.cellProperties) &&
     prev.isHidden === next.isHidden &&
     prev.isCellVisible === next.isCellVisible &&
     prev.noPadding === next.noPadding &&

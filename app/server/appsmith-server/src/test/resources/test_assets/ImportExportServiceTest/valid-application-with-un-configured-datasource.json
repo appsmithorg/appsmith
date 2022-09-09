@@ -280,6 +280,9 @@
       "new": true
     }
   ],
+  "pageOrder": [
+    "Page1"
+  ],
   "publishedDefaultPageName": "Page1",
   "unpublishedDefaultPageName": "Page1",
   "actionList": [

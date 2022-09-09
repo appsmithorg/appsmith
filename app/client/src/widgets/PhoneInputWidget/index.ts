@@ -8,6 +8,7 @@ export const CONFIG = {
   name: "Phone Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["call"],
   defaults: {
     ...BaseConfig.defaults,
     widgetName: "PhoneInput",
@@ -21,6 +22,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

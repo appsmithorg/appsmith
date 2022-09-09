@@ -23,4 +23,6 @@ export default {
   loginWithGoogle: "[data-testid='login-with-Google']",
   loginWithGithub: "[data-testid='login-with-Github']",
   disconnectBtn: "[data-testid='disconnect-service-button']",
+  formSignupDisabled: "[data-cy='APPSMITH_SIGNUP_DISABLED']",
+  formLoginDisabled: "[data-cy='APPSMITH_FORM_LOGIN_DISABLED']",
 };

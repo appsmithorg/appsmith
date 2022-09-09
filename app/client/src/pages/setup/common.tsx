@@ -1,5 +1,5 @@
 import React from "react";
-import Dropdown from "components/ads/Dropdown";
+import { Dropdown } from "design-system";
 import StyledFormGroup from "components/ads/formFields/FormGroup";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
@@ -80,6 +80,15 @@ export const DropdownWrapper = styled(StyledFormGroup)`
   .ads-dropdown-errorMsg {
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
+`;
+
+export const Center = styled.div`
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
 `;
 
 export function withDropdown(options: OptionType[], width: string) {

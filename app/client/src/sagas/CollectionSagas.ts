@@ -12,7 +12,7 @@ export function* fetchImportedCollectionsSaga() {
     const response: ImportedCollections = yield call(
       ImportedCollectionsApi.fetchImportedCollections,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_IMPORTED_COLLECTIONS_SUCCESS,

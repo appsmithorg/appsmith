@@ -25,9 +25,10 @@ import { initLocalstorage } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
-import "./OrgCommands";
+import "./WorkspaceCommands";
 import "./queryCommands";
 import "./widgetCommands";
+import "./themeCommands";
 import "./AdminSettingsCommands";
 /// <reference types="cypress-xpath" />
 
@@ -44,7 +45,7 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
-  //console.warn = () => {};
+  //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
   cy.startServerAndRoutes();
@@ -82,10 +83,11 @@ before(function() {
   cy.visit("/applications");
   cy.wait("@getMe");
   cy.wait(3000);
-  cy.get(".t--applications-container .createnew").should("be.visible");
-  cy.get(".t--applications-container .createnew").should("be.enabled");
+  cy.get(".t--applications-container .createnew")
+    .should("be.visible")
+    .should("be.enabled");
   cy.generateUUID().then((id) => {
-    cy.CreateAppInFirstListedOrg(id);
+    cy.CreateAppInFirstListedWorkspace(id);
     localStorage.setItem("AppName", id);
   });
 
@@ -95,6 +97,10 @@ before(function() {
 });
 
 beforeEach(function() {
+  //cy.window().then((win) => (win.onbeforeunload = undefined));
+  if (!navigator.userAgent.includes("Cypress")) {
+    window.addEventListener("beforeunload", this.beforeunloadFunction);
+  }
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
@@ -107,4 +113,8 @@ after(function() {
   cy.DeleteAppByApi();
   //-- LogOut Application---//
   cy.LogOut();
+
+  const testUrl = "http://localhost:5001/v1/parent/cmd";
+  cy.log("Start the appsmith container");
+  cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
 });

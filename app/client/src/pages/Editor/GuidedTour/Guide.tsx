@@ -3,8 +3,7 @@ import {
   showInfoMessage,
   toggleLoader,
 } from "actions/onboardingActions";
-import Button from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Button, Icon, IconSize } from "design-system";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -12,6 +11,7 @@ import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
   getCurrentStep,
+  getQueryAction,
   isExploringSelector,
   loading,
   showInfoMessageSelector,
@@ -241,6 +241,7 @@ const SuccessMessageWrapper = styled.div`
 function InitialContent() {
   const dispatch = useDispatch();
   const isLoading = useSelector(loading);
+  const queryAction = useSelector(getQueryAction);
 
   const setupFirstStep = () => {
     dispatch(toggleLoader(true));
@@ -257,6 +258,7 @@ function InitialContent() {
         <GuideButton
           className="t--start-building"
           isLoading={isLoading}
+          isVisible={!queryAction?.isLoading && !!queryAction?.data}
           onClick={setupFirstStep}
           tag="button"
           text={createMessage(BUTTON_TEXT)}
@@ -302,7 +304,7 @@ function GuideStepsContent(props: {
   };
 
   return (
-    <div>
+    <div data-cy={"guided-tour-banner"}>
       <ContentWrapper>
         <SubContentWrapper>
           <div className="header">

@@ -12,9 +12,6 @@ import BaseControl, {
   ControlProps,
 } from "components/propertyControls/BaseControl";
 import CodeEditorControl from "components/propertyControls/CodeEditorControl";
-import MultiSelectControl, {
-  MultiSelectControlProps,
-} from "components/propertyControls/MultiSelectControl";
 import DatePickerControl, {
   DatePickerControlProps,
 } from "components/propertyControls/DatePickerControl";
@@ -33,6 +30,9 @@ import PrimaryColumnDropdownControl, {
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
+import PrimaryColumnColorPickerControl, {
+  PrimaryColumnColorPickerControlProps,
+} from "components/propertyControls/PrimaryColumnColorPickerControl";
 import ComputeTablePropertyControl, {
   ComputeTablePropertyControlProps,
 } from "components/propertyControls/ComputeTablePropertyControl";
@@ -58,6 +58,16 @@ import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
 import NumericInputControl, {
   NumericInputControlProps,
 } from "./NumericInputControl";
+import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
+import SelectDefaultValueControl, {
+  SelectDefaultValueControlProps,
+} from "./SelectDefaultValueControl";
+import ComputeTablePropertyControlV2, {
+  ComputeTablePropertyControlPropsV2,
+} from "components/propertyControls/TableComputeValue";
+import PrimaryColumnColorPickerControlV2, {
+  PrimaryColumnColorPickerControlPropsV2,
+} from "components/propertyControls/PrimaryColumnColorPickerControlV2";
 
 export const PropertyControls = {
   InputTextControl,
@@ -65,7 +75,6 @@ export const PropertyControls = {
   SwitchControl,
   OptionControl,
   CodeEditorControl,
-  MultiSelectControl,
   DatePickerControl,
   ActionSelectorControl,
   ColumnActionSelectorControl,
@@ -76,10 +85,12 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
+  PrimaryColumnsControlV2,
   PrimaryColumnDropdownControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
+  ComputeTablePropertyControlV2,
   MenuItemsControl,
   ButtonListControl,
   IconSelectControl,
@@ -91,6 +102,9 @@ export const PropertyControls = {
   ButtonControl,
   LabelAlignmentOptionsControl,
   NumericInputControl,
+  PrimaryColumnColorPickerControl,
+  PrimaryColumnColorPickerControlV2,
+  SelectDefaultValueControl,
 };
 
 export type PropertyControlPropsType =
@@ -98,7 +112,6 @@ export type PropertyControlPropsType =
   | InputControlProps
   | DropDownControlProps
   | SwitchControlProps
-  | MultiSelectControlProps
   | DatePickerControlProps
   | MultiSwitchControlProps
   | IconTabControlProps
@@ -107,7 +120,12 @@ export type PropertyControlPropsType =
   | ColorPickerControlProps
   | ComputeTablePropertyControlProps
   | PrimaryColumnDropdownControlProps
-  | NumericInputControlProps;
+  | NumericInputControlProps
+  | PrimaryColumnColorPickerControlProps
+  | ComputeTablePropertyControlPropsV2
+  | PrimaryColumnDropdownControlProps
+  | PrimaryColumnColorPickerControlPropsV2
+  | SelectDefaultValueControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

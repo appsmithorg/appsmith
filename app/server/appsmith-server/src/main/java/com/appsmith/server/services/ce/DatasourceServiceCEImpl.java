@@ -7,13 +7,14 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -21,11 +22,12 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -37,26 +39,28 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
 
-    private final OrganizationService organizationService;
+    private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -71,7 +75,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    DatasourceRepository repository,
-                                   OrganizationService organizationService,
+                                   WorkspaceService workspaceService,
                                    AnalyticsService analyticsService,
                                    SessionUserService sessionUserService,
                                    PluginService pluginService,
@@ -81,7 +85,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    NewActionRepository newActionRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.organizationService = organizationService;
+        this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
@@ -92,21 +96,21 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
-        String orgId = datasource.getOrganizationId();
-        if (orgId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        String workspaceId = datasource.getWorkspaceId();
+        if (workspaceId == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         if (!StringUtils.hasLength(datasource.getGitSyncId())) {
-            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
+            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
-                    .getNextAsSuffix(Datasource.class, " for organization with _id : " + orgId)
+                    .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
                     .zipWith(datasourceMono, (sequenceNumber, datasource1) -> {
                         datasource1.setName(Datasource.DEFAULT_NAME_PREFIX + sequenceNumber);
                         return datasource1;
@@ -130,17 +134,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource.getOrganizationId())));
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_DATASOURCES)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
-                    return orgMono.map(org -> {
-                        Set<Policy> policySet = org.getPolicies().stream()
-                                .filter(policy ->
-                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                ).collect(Collectors.toSet());
-
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
+                    return workspaceMono.map(workspace -> {
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Datasource.class);
                         datasource.setPolicies(documentPolicies);
                         return datasource;
                     });
@@ -226,16 +224,16 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             return Mono.just(datasource);
         }
 
-        if (datasource.getOrganizationId() == null) {
-            invalids.add(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage());
+        if (datasource.getWorkspaceId() == null) {
+            invalids.add(AppsmithError.WORKSPACE_ID_NOT_GIVEN.getMessage());
             return Mono.just(datasource);
         }
 
-        Mono<Organization> checkPluginInstallationAndThenReturnOrganizationMono = organizationService
-                .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
+        Mono<Workspace> checkPluginInstallationAndThenReturnWorkspaceMono = workspaceService
+                .findByIdAndPluginsPluginId(datasource.getWorkspaceId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
-                    return Mono.just(new Organization());
+                    return Mono.just(new Workspace());
                 }));
 
         if (datasource.getDatasourceConfiguration() == null) {
@@ -246,7 +244,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
-        return checkPluginInstallationAndThenReturnOrganizationMono
+        return checkPluginInstallationAndThenReturnWorkspaceMono
                 .then(pluginExecutorMono)
                 .flatMap(pluginExecutor -> {
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
@@ -266,7 +264,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> save(Datasource datasource) {
         if (datasource.getGitSyncId() == null) {
-            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
+            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString());
         }
         return repository.save(datasource);
     }
@@ -286,17 +284,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
-                .zipWith(currentUserMono)
-                .flatMap(tuple -> {
-                    Datasource unsavedDatasource = tuple.getT1();
-                    User user = tuple.getT2();
-                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(unsavedDatasource, user);
-                    return repository.save(userPermissionsInDatasource).map(savedDatasource -> {
+                .flatMap(unsavedDatasource -> {
+
+                    return repository.save(unsavedDatasource).map(savedDatasource -> {
                         // datasource.pluginName is a transient field. It was set by validateDatasource method
                         // object from db will have pluginName=null so set it manually from the unsaved datasource obj
                         savedDatasource.setPluginName(unsavedDatasource.getPluginName());
@@ -353,8 +346,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission) {
-        return repository.findByNameAndOrganizationId(name, organizationId, permission);
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
 
     @Override
@@ -379,20 +372,26 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Flux<Datasource> get(MultiValueMap<String, String> params) {
         /**
-         * Note : Currently this API is ONLY used to fetch datasources for an organization.
+         * Note : Currently this API is ONLY used to fetch datasources for a workspace.
          */
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
+        if (params.getFirst(fieldName(QDatasource.datasource.workspaceId)) != null) {
+            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), AclPermission.READ_DATASOURCES)
+                    .collectList()
+                    .map(datasourceList -> {
+                        markRecentlyUsed(datasourceList, 3);
+                        return datasourceList;
+                    })
+                    .flatMapMany(Flux::fromIterable);
         }
 
-        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
     }
 
     @Override
-    public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
-        return repository.findAllByOrganizationId(organizationId, permission)
+    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
+        return repository.findAllByWorkspaceId(workspaceId, permission)
                 .flatMap(this::populateHintMessages);
     }
 
@@ -401,7 +400,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         datasourceList
                 .stream()
                 .filter(datasource -> datasource.getGitSyncId() == null)
-                .forEach(datasource -> datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString()));
+                .forEach(datasource -> datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString()));
         return repository.saveAll(datasourceList);
     }
 
@@ -428,11 +427,50 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return this.archiveById(id);
     }
 
-    private Map<String, Object> getAnalyticsProperties(Datasource datasource) {
+    @Override
+    public Map<String, Object> getAnalyticsProperties(Datasource datasource) {
         Map<String, Object> analyticsProperties = new HashMap<>();
-        analyticsProperties.put("orgId", datasource.getOrganizationId());
+        analyticsProperties.put("orgId", datasource.getWorkspaceId());
         analyticsProperties.put("pluginName", datasource.getPluginName());
         analyticsProperties.put("dsName", datasource.getName());
+        analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""));
+        analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
         return analyticsProperties;
+    }
+
+    /**
+     * Sets isRecentlyCreated flag to the datasources that were created recently.
+     * It finds the most recent `recentlyUsedCount` numbers of datasources based on the `createdAt` field and set
+     * the flag on for them.
+     * @param datasourceList List datasources
+     * @param recentlyUsedCount How many should be marked as recently created
+     */
+    private void markRecentlyUsed(List<Datasource> datasourceList, int recentlyUsedCount) {
+        if(CollectionUtils.isEmpty(datasourceList)) { // list is null or empty, nothing to do
+            return;
+        }
+
+        // Here are the steps that we're following here:
+        // 1. Put the index of each datasource and the createdDate into a list of Tuple2<Integer, Instant>
+        // 2. Sort that list based on createdDate in descending order
+        // 3. Take first `recentlyUsedCount` numbers of Tuple2 from the list
+        // 4. Fetch corresponding datasource using the index of Tuple2 and set the recentlyUsed=true
+
+        List<Tuple2<Integer, Instant>> indexAndCreatedDates = new ArrayList<>(datasourceList.size());
+
+        for(int i = 0; i < datasourceList.size(); i++) {
+            Datasource datasource = datasourceList.get(i);
+            indexAndCreatedDates.add(Tuples.of(i, datasource.getCreatedAt()));
+        }
+
+        // provide a comparator to sort Tuple2<Integer, Instant> in reversed order of Instant
+        indexAndCreatedDates.sort(Comparator.comparing(Tuple2::getT2, Comparator.reverseOrder()));
+
+        // set the flag based on indexes from indexAndCreatedDates
+        for(int i = 0; i < recentlyUsedCount && i < indexAndCreatedDates.size(); i++) {
+            Tuple2<Integer, Instant> objects = indexAndCreatedDates.get(i);
+            Datasource datasource = datasourceList.get(objects.getT1());
+            datasource.setIsRecentlyCreated(true);
+        }
     }
 }

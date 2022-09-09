@@ -1,0 +1,131 @@
+{
+  "clientSchemaVersion": 1.0,
+  "serverSchemaVersion": 5.0,
+  "exportedApplication": {
+    "name": "Currency Input Issue",
+    "isPublic": false,
+    "pages": [{ "id": "Page1", "isDefault": true }],
+    "publishedPages": [{ "id": "Page1", "isDefault": true }],
+    "viewMode": false,
+    "appIsExample": false,
+    "unreadCommentThreads": 0.0,
+    "clonedFromApplicationId": "62b9902720ae3225cef293f1",
+    "color": "#C7F3E3",
+    "icon": "medical",
+    "slug": "currency-input-issue",
+    "applicationVersion": 2.0,
+    "isManualUpdate": false,
+    "deleted": false
+  },
+  "datasourceList": [],
+  "pageList": [
+    {
+      "unpublishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "viewMode": false,
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224.0,
+              "snapColumns": 64.0,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0.0,
+              "bottomRow": 640.0,
+              "containerStyle": "none",
+              "snapRows": 64.0,
+              "parentRowSpace": 1.0,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 59.0,
+              "minHeight": 650.0,
+              "parentColumnSpace": 1.0,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0.0,
+              "children": [
+                {
+                  "boxShadow": "none",
+                  "widgetName": "CurrencyInput1",
+                  "displayName": "Currency Input",
+                  "iconSVG": "/static/media/icon.f312efcb48ce4dafb08c20291635b30b.svg",
+                  "searchTags": ["amount", "total"],
+                  "topRow": 4.0,
+                  "bottomRow": 8.0,
+                  "defaultCurrencyCode": "USD",
+                  "parentRowSpace": 10.0,
+                  "labelWidth": 5.0,
+                  "autoFocus": false,
+                  "type": "CURRENCY_INPUT_WIDGET",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 18.0625,
+                  "dynamicTriggerPathList": [],
+                  "resetOnSubmit": true,
+                  "leftColumn": 2.0,
+                  "dynamicBindingPathList": [
+                    { "key": "accentColor" },
+                    { "key": "borderRadius" }
+                  ],
+                  "labelPosition": "Left",
+                  "labelStyle": "",
+                  "isDisabled": false,
+                  "key": "rhpg46n9mr",
+                  "labelTextSize": "0.875rem",
+                  "isRequired": true,
+                  "isDeprecated": false,
+                  "rightColumn": 22.0,
+                  "widgetId": "bk4hqop0jo",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "isVisible": true,
+                  "label": "Label",
+                  "allowCurrencyChange": false,
+                  "version": 1.0,
+                  "parentId": "0",
+                  "labelAlignment": "left",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "decimals": 0.0,
+                  "iconAlign": "left",
+                  "defaultText": ""
+                }
+              ]
+            },
+            "layoutOnLoadActions": [],
+            "validOnPageLoadActions": true,
+            "id": "Page1",
+            "deleted": false,
+            "policies": [],
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [],
+        "policies": []
+      },
+      "deleted": false,
+      "gitSyncId": "62b996e68a38bf3f8d030646_62bac6018a38bf3f8d030683"
+    }
+  ],
+  "actionList": [],
+  "actionCollectionList": [],
+  "updatedResources": {
+    "actionList": [],
+    "pageList": ["Page1"],
+    "actionCollectionList": []
+  },
+  "editModeTheme": {
+    "name": "Default",
+    "displayName": "Modern",
+    "isSystemTheme": true,
+    "deleted": false
+  },
+  "publishedTheme": {
+    "name": "Default",
+    "displayName": "Modern",
+    "isSystemTheme": true,
+    "deleted": false
+  }
+}

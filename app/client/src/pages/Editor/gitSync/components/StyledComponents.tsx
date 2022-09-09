@@ -6,11 +6,13 @@ export const Title = styled.p`
   ${(props) => getTypographyByKey(props, "h1")};
   margin: ${(props) =>
     `${props.theme.spaces[7]}px 0px ${props.theme.spaces[3]}px 0px`};
+  color: ${Colors.GREY_900};
 `;
 
-export const Subtitle = styled.span`
+export const Subtitle = styled.div`
+  margin-top: 8px;
   ${(props) => getTypographyByKey(props, "p1")};
-  color: ${Colors.BLACK};
+  color: ${Colors.GREY_900};
 `;
 
 export const Caption = styled.span`

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
+import { IntentColors } from "constants/DefaultTheme";
 import { ControlGroup, Classes, IRef, Alignment } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
@@ -17,51 +17,84 @@ import {
 } from "@appsmith/constants/messages";
 import { LabelPosition } from "components/constants";
 import { parseDate } from "./utils";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-} from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip, labelLayoutStyles } from "design-system";
+import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
+
+const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   compactMode: boolean;
   labelPosition?: LabelPosition;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }>`
   ${labelLayoutStyles}
 
   &&& {
     .${Classes.INPUT} {
-      color: ${Colors.GREY_10};
-      box-shadow: none;
+      color: var(--wds-color-text);
+      background: var(--wds-color-bg);
+      border-radius: ${({ borderRadius }) => borderRadius} !important;
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
-      border-color: ${(props) =>
-        !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
+      border-color: ${({ isValid }) =>
+        !isValid
+          ? `var(--wds-color-border-danger);`
+          : `var(--wds-color-border);`}
       width: 100%;
-      height: inherit;
+      height: 100%;
+      min-height: 32px;
       align-items: center;
-      &:active {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      }
-      &:focus {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.MYSTIC};
+      transition: none;
 
-        &:focus {
-          border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-          border-color: #80bdff;
-          outline: 0;
-          box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
-        }
+      &:active:not(:disabled) {
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid ? `var(--wds-color-border-danger)` : accentColor};
+      }
+
+      &:hover:not(:disabled) {
+        border-color: ${({ isValid }) =>
+          !isValid
+            ? `var(--wds-color-border-danger-hover)`
+            : `var(--wds-color-border-hover)`};
+      }
+
+      &:focus:not(:disabled) {
+        outline: 0;
+        border: 1px solid;
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid
+            ? `var(--wds-color-border-danger-focus) !important`
+            : accentColor};
+        box-shadow: ${({ accentColor, isValid }) =>
+          `0px 0px 0px 2px ${
+            isValid
+              ? lightenColor(accentColor)
+              : "var(--wds-color-border-danger-focus-light)"
+          } !important;`}
       }
     }
+
     .${Classes.INPUT}:disabled {
-      background: ${Colors.GREY_1};
-      color: ${Colors.GREY_7};
+      background: var(--wds-color-bg-disabled);
+      color: var(--wds-color-text-disabled)
     }
+
+    .${Classes.INPUT}:not(:disabled)::placeholder {
+      color:var(--wds-color-text-light);
+    }
+
+    .${Classes.INPUT}::placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
     }
+
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
@@ -86,8 +119,6 @@ export const DateInputWrapper = styled.div<{
     flex-grow: 0;
   }
   width: 100%;
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
 `;
 
 class DatePickerComponent extends React.Component<
@@ -154,8 +185,101 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
+
+    const getInitialMonth = () => {
+      // None
+      if (
+        !this.props.minDate &&
+        !this.props.maxDate &&
+        !this.state.selectedDate
+      ) {
+        return new Date();
+      }
+      // Min-Max-Selcted
+      else if (
+        this.props.minDate &&
+        this.props.maxDate &&
+        this.state.selectedDate
+      ) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date(this.state.selectedDate):
+            return new Date(this.props.minDate);
+          case new Date(this.props.minDate) < new Date(this.state.selectedDate):
+            return isValid
+              ? new Date(this.state.selectedDate)
+              : new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Min-Max-!Selcted
+      else if (
+        this.props.minDate &&
+        this.props.maxDate &&
+        !this.state.selectedDate
+      ) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date():
+          case new Date(this.props.maxDate) < new Date():
+            return new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Min-Selcted
+      else if (this.props.minDate && this.state.selectedDate) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date(this.state.selectedDate):
+            return new Date(this.props.minDate);
+          case new Date(this.props.minDate) < new Date(this.state.selectedDate):
+            return new Date(this.state.selectedDate);
+          default:
+            return new Date();
+        }
+      }
+      // Max-Selcted
+      else if (this.props.maxDate && this.state.selectedDate) {
+        switch (true) {
+          case new Date(this.props.maxDate) > new Date(this.state.selectedDate):
+            return new Date(this.state.selectedDate);
+          case new Date(this.props.maxDate) < new Date(this.state.selectedDate):
+            return new Date(this.props.maxDate);
+          default:
+            return new Date();
+        }
+      }
+      // Selected
+      else if (this.state.selectedDate) {
+        return new Date(this.state.selectedDate);
+      }
+      // Min
+      else if (this.props.minDate) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date():
+            return new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Max
+      else if (this.props.maxDate) {
+        switch (true) {
+          case new Date(this.props.maxDate) < new Date():
+            return new Date(this.props.maxDate);
+          default:
+            return new Date();
+        }
+      } else {
+        return new Date();
+      }
+    };
+    const initialMonth = getInitialMonth();
+
     return (
       <StyledControlGroup
+        accentColor={this.props.accentColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
         data-testid="datepicker-container"
         fill
@@ -196,6 +320,7 @@ class DatePickerComponent extends React.Component<
               }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              initialMonth={initialMonth}
               inputProps={{
                 inputRef: this.props.inputRef,
               }}
@@ -205,8 +330,11 @@ class DatePickerComponent extends React.Component<
               parseDate={this.parseDate}
               placeholder={"Select Date"}
               popoverProps={{
+                portalContainer:
+                  document.getElementById("art-board") || undefined,
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
+                portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -219,6 +347,11 @@ class DatePickerComponent extends React.Component<
             />
           </ErrorTooltip>
         </DateInputWrapper>
+        <PopoverStyles
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
+        />
       </StyledControlGroup>
     );
   }
@@ -312,6 +445,9 @@ interface DatePickerComponentProps extends ComponentProps {
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
   inputRef?: IRef<HTMLInputElement>;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 interface DatePickerComponentState {

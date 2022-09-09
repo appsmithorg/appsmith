@@ -2,14 +2,15 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 
-const STORAGE_KEYS: { [id: string]: string } = {
+export const STORAGE_KEYS: {
+  [id: string]: string;
+} = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
-  COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
   ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
@@ -18,6 +19,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
+  APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
 };
 
 const store = localforage.createInstance({
@@ -52,6 +54,36 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
     log.error("An error occurred when storing copied widget: ", error);
     return false;
   }
+};
+
+const getStoredUsersBetaFlags = (email: any) => {
+  return store.getItem(email);
+};
+
+const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
+  return store.setItem(email, userBetaFlagsObj);
+};
+
+export const setBetaFlag = async (email: any, key: string, value: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  const updatedObj = {
+    ...userBetaFlagsObj,
+    [key]: value,
+  };
+  setStoredUsersBetaFlags(email, updatedObj);
+};
+
+export const getBetaFlag = async (email: any, key: string) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+
+  return userBetaFlagsObj && userBetaFlagsObj[key];
+};
+
+export const getReflowOnBoardingFlag = async (email: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  return (
+    userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]
+  );
 };
 
 export const getCopiedWidgets = async () => {
@@ -170,7 +202,7 @@ export const setEnableFirstTimeUserOnboarding = async (flag: boolean) => {
 
 export const getEnableFirstTimeUserOnboarding = async () => {
   try {
-    const enableFirstTimeUserOnboarding: any = await store.getItem(
+    const enableFirstTimeUserOnboarding: string | null = await store.getItem(
       STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
     );
     return enableFirstTimeUserOnboarding;
@@ -230,7 +262,7 @@ export const setFirstTimeUserOnboardingIntroModalVisibility = async (
 
 export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
   try {
-    const flag = await store.getItem(
+    const flag: string | null = await store.getItem(
       STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
     );
     return flag;

@@ -1,3 +1,4 @@
+import { SubTextPosition } from "components/constants";
 import moment from "moment";
 
 export const DateFormatOptions = [
@@ -81,4 +82,7 @@ export const DateFormatOptions = [
     subText: "MM/DD/YY",
     value: "MM/DD/YY",
   },
-];
+].map((x) => ({
+  ...x,
+  subTextPosition: SubTextPosition.BOTTOM,
+}));

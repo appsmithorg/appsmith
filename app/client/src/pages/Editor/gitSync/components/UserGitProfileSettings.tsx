@@ -10,8 +10,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import TextInput, { emailValidator } from "components/ads/TextInput";
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox, emailValidator, TextInput } from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -189,7 +188,9 @@ function UserGitProfileSettings({
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
-            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
+            onChange={(value: string) =>
+              changeHandler(AUTHOR_INFO_LABEL.NAME, value)
+            }
             onFocus={() => setNameInputFocused(true)}
             trimValue={false}
             value={authorInfo.authorName}
@@ -209,7 +210,9 @@ function UserGitProfileSettings({
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}
-            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)}
+            onChange={(value: string) =>
+              changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)
+            }
             onFocus={() => setEmailInputFocused(true)}
             value={authorInfo.authorEmail}
           />

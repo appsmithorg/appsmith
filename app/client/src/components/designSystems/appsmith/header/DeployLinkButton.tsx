@@ -130,6 +130,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
       modifiers={{ offset: { enabled: true, offset: "0, -3" } }}
       onClose={onClose}
       position={PopoverPosition.BOTTOM_RIGHT}
+      transitionDuration={0}
     >
       <div
         className="t--deploy-popup-option-trigger"

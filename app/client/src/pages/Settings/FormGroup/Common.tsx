@@ -1,8 +1,8 @@
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { Colors } from "constants/Colors";
@@ -20,21 +20,19 @@ const StyledIcon = styled(Icon)`
 export const StyledFormGroup = styled.div`
   width: 40rem;
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
-  & span.bp3-popover-target {
-    display: inline-block;
-    background: ${(props) => props.theme.colors.menuItem.normalIcon};
-    border-radius: ${(props) => props.theme.radii[2]}px;
-    width: 14px;
-    padding: 3px 3px;
-    position: relative;
-    top: -2px;
-    left: 6px;
-    cursor: default;
+  &.t--admin-settings-dropdown {
+    div {
+      width: 100%;
+      &:hover {
+        &:hover {
+          background-color: ${(props) => props.theme.colors.textInput.hover.bg};
+        }
+      }
+    }
   }
   & svg:hover {
     cursor: default;
     path {
-      fill: #fff;
     }
   }
 `;

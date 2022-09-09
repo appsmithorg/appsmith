@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 @Slf4j
 public class EncryptionHandler {
@@ -120,29 +121,29 @@ public class EncryptionHandler {
                             assert AppsmithDomain.class.isAssignableFrom(subFieldType);
                             final List<CandidateField> existingSubTypeCandidates = this.encryptedFieldsMap.get(subFieldType);
                             if (!existingSubTypeCandidates.isEmpty()) {
-                                finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_KNOWN));
+                                finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_COLLECTION_KNOWN));
                             }
                         } else if (AppsmithDomain.class.isAssignableFrom(subFieldType)) {
                             // If the type is not known, then this is either not parsed yet, or has polymorphic implementations
 
                             field.setAccessible(true);
                             Object fieldValue = ReflectionUtils.getField(field, source);
-                            Collection<?> list = (Collection<?>) fieldValue;
+                            Collection<?> collection = (Collection<?>) fieldValue;
 
-                            if (list == null || list.isEmpty()) {
-                                finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_UNKNOWN));
+                            if (collection == null || collection.isEmpty()) {
+                                finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_COLLECTION_UNKNOWN));
                             } else {
-                                for (final Object o : list) {
+                                for (final Object o : collection) {
                                     if (o == null) {
                                         continue;
                                     }
                                     if (o.getClass().getCanonicalName().equals(subFieldType.getTypeName())) {
                                         final List<CandidateField> candidateFieldsForListMember = findCandidateFieldsForType(o);
                                         if (candidateFieldsForListMember != null && !candidateFieldsForListMember.isEmpty()) {
-                                            finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_KNOWN));
+                                            finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_COLLECTION_KNOWN));
                                         }
                                     } else {
-                                        finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_POLYMORPHIC));
+                                        finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_COLLECTION_POLYMORPHIC));
                                     }
                                     break;
                                 }
@@ -207,7 +208,7 @@ public class EncryptionHandler {
         
     }
 
-    synchronized boolean convertEncryption(Object source, Function<String, String> transformer) {
+    synchronized boolean convertEncryption(Object source, UnaryOperator<String> transformer) {
         if (source == null) {
             return false;
         }
@@ -216,10 +217,6 @@ public class EncryptionHandler {
 
         // find the candidate fields for this object
         List<CandidateField> candidateFields = this.findCandidateFieldsForType(source);
-
-        if (!candidateFields.isEmpty()) {
-            hasEncryptedFields = true;
-        }
 
         // if it is a known type, go to sub type and convert
         // if it is a polymorphic type, go to specific subtype for convert
@@ -260,22 +257,24 @@ public class EncryptionHandler {
                 } else {
                     final Type[] typeNames = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
                     if (Set.of(
-                            CandidateField.Type.APPSMITH_LIST_KNOWN,
-                            CandidateField.Type.APPSMITH_LIST_UNKNOWN,
-                            CandidateField.Type.APPSMITH_LIST_POLYMORPHIC)
+                            CandidateField.Type.APPSMITH_COLLECTION_KNOWN,
+                            CandidateField.Type.APPSMITH_COLLECTION_UNKNOWN,
+                            CandidateField.Type.APPSMITH_COLLECTION_POLYMORPHIC)
                             .contains(candidateField.getType())) {
-                        // This is a list which will necessarily have elements of AppsmithDomain type
+                        // This is a collection which will necessarily have elements of AppsmithDomain type
                         boolean subTypeHasEncrypted = false;
-                        for (Object o : (List<?>) fieldValue) {
+                        Object element = null;
+                        for (Object o : (Collection<?>) fieldValue) {
                             subTypeHasEncrypted |= convertEncryption(o, transformer);
+                            element = o;
                         }
                         // The following condition will be true for unknown types when:
                         // none of the elements ended up being encrypted, and
-                        // the list itself was not empty (if it was empty then we never really scanned anything), and
-                        // the declared type of the list was the same as the first element (not polymorphic)
+                        // the collection itself was not empty (if it was empty then we never really scanned anything), and
+                        // the declared type of the collection was the same as the first element (not polymorphic)
                         if (!subTypeHasEncrypted &&
-                                !((List<?>) fieldValue).isEmpty() &&
-                                typeNames[0].getTypeName().equals(((List<?>) fieldValue).get(0).getClass().getCanonicalName())) {
+                                element != null &&
+                                typeNames[0].getTypeName().equals(element.getClass().getCanonicalName())) {
                             candidateFieldIterator.remove();
                         }
                     } else if (Set.of(
@@ -306,6 +305,10 @@ public class EncryptionHandler {
             }
 
             field.setAccessible(false);
+        }
+
+        if (!candidateFields.isEmpty()) {
+            hasEncryptedFields = true;
         }
 
         return hasEncryptedFields;

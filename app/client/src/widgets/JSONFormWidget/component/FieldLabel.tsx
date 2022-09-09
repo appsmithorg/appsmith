@@ -1,16 +1,12 @@
 import React, { PropsWithChildren, useMemo } from "react";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
 
 import Tooltip from "components/editorComponents/Tooltip";
 import { Colors } from "constants/Colors";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { IconWrapper } from "constants/IconConstants";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import { AlignWidget } from "widgets/constants";
 
 type AlignField = AlignWidget;
@@ -27,7 +23,7 @@ type StyledLabelTextProps = {
 export type LabelStyles = {
   labelStyle?: string;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
 };
 
 export type FieldLabelProps = PropsWithChildren<
@@ -107,6 +103,8 @@ const StyledTooltip = styled(Tooltip)`
   margin-right: ${DEFAULT_GAP}px;
 `;
 
+export const BASE_LABEL_TEXT_SIZE = THEMEING_TEXT_SIZES.sm;
+
 function FieldLabel({
   alignField = "RIGHT",
   children,
@@ -115,7 +113,7 @@ function FieldLabel({
   label,
   labelStyle,
   labelTextColor = "",
-  labelTextSize = "PARAGRAPH",
+  labelTextSize,
   tooltip,
 }: FieldLabelProps) {
   const labelStyleProps = useMemo(() => {
@@ -123,7 +121,7 @@ function FieldLabel({
     const styles = labelStyle?.split(",");
     return {
       color: labelTextColor,
-      fontSize: TEXT_SIZES[labelTextSize],
+      fontSize: labelTextSize || BASE_LABEL_TEXT_SIZE,
       fontWeight: styles?.includes(FontStyleTypes.BOLD) ? "bold" : "normal",
       fontStyle: styles?.includes(FontStyleTypes.ITALIC) ? "italic" : "",
       textDecoration: styles?.includes(FontStyleTypes.UNDERLINE)
@@ -151,7 +149,7 @@ function FieldLabel({
             className={TOOLTIP_CLASSNAME}
             content={tooltip}
             hoverOpenDelay={200}
-            position={Position.TOP}
+            position="top"
           >
             <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
               <HelpIcon className="t--input-widget-tooltip" />

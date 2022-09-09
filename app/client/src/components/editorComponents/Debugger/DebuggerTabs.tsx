@@ -1,6 +1,6 @@
 import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";

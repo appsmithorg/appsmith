@@ -4,8 +4,8 @@ import styled from "styled-components";
 import { connectSearchBox } from "react-instantsearch-dom";
 import { SearchBoxProvided } from "react-instantsearch-core";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Icon from "components/ads/Icon";
-import { AppState } from "reducers";
+import { Icon } from "design-system";
+import { AppState } from "@appsmith/reducers";
 import {
   createMessage,
   CREATE_NEW_OMNIBAR_PLACEHOLDER,
@@ -133,7 +133,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
       <InputContainer>
         {isMenu(category) && <SearchIcon style={{ marginRight: "10px" }} />}
         {category.title && (
-          <CategoryDisplay>
+          <CategoryDisplay className="t--global-search-category">
             {category.id}
             <CloseIcon
               onClick={() => setCategory({ id: SEARCH_CATEGORY_ID.INIT })}

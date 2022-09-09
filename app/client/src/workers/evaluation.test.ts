@@ -7,7 +7,7 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
-import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
@@ -87,6 +87,21 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     metaProperties: {},
   },
   TABLE_WIDGET: {
+    defaultProperties: {
+      searchText: "defaultSearchText",
+      selectedRowIndex: "defaultSelectedRow",
+      selectedRowIndices: "defaultSelectedRow",
+    },
+    derivedProperties: {
+      selectedRow: `{{ _.get(this.filteredTableData, this.selectedRowIndex, _.mapValues(this.filteredTableData[0], () => undefined)) }}`,
+      selectedRows: `{{ this.filteredTableData.filter((item, i) => selectedRowIndices.includes(i) }); }}`,
+    },
+    metaProperties: {
+      pageNo: 1,
+      selectedRows: [],
+    },
+  },
+  TABLE_WIDGET_V2: {
     defaultProperties: {
       searchText: "defaultSearchText",
       selectedRowIndex: "defaultSelectedRow",
@@ -202,6 +217,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   },
 };
 
+// @ts-expect-error: meta is required
 const BASE_WIDGET: DataTreeWidget = {
   logBlackList: {},
   widgetId: "randomID",
@@ -231,6 +247,7 @@ const BASE_ACTION: DataTreeAction = {
   clear: {},
   logBlackList: {},
   actionId: "randomId",
+  pluginId: "",
   name: "randomActionName",
   datasourceUrl: "",
   config: {
@@ -635,8 +652,7 @@ describe("DataTreeEvaluator", () => {
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     expect(dataTree.Api2.config.body).toBe("{ 'name': Test }");
     const updatedTree3 = {
       ...updatedTree2,
@@ -662,8 +678,7 @@ describe("DataTreeEvaluator", () => {
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
   });
 });

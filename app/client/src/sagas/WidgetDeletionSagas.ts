@@ -11,7 +11,10 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
@@ -28,6 +31,7 @@ import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
   updateListWidgetPropertiesOnChildDelete,
+  WidgetsInTree,
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
@@ -36,6 +40,9 @@ import {
   isExploringSelector,
 } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { getMainCanvasProps } from "selectors/editorSelectors";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -95,10 +102,12 @@ function* deleteTabChildSaga(
 
 function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
-  const selectedWidget = yield select(getSelectedWidget);
+  const selectedWidget: FlattenedWidgetProps | undefined = yield select(
+    getSelectedWidget,
+  );
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const guidedTourEnabled = yield select(inGuidedTour);
-  const isExploring = yield select(isExploringSelector);
+  const guidedTourEnabled: boolean = yield select(inGuidedTour);
+  const isExploring: boolean = yield select(isExploringSelector);
 
   if (guidedTourEnabled && !isExploring) {
     yield put(toggleShowDeviationDialog(true));
@@ -168,8 +177,17 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       otherWidgetsToDelete.map((widgets) => widgets.widgetId),
     );
 
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    let mainCanvasMinHeight;
+    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+      const mainCanvasProps: MainCanvasReduxState = yield select(
+        getMainCanvasProps,
+      );
+      mainCanvasMinHeight = mainCanvasProps?.height;
+    }
+
     // Note: mutates finalWidgets
-    resizeCanvasToLowestWidget(finalWidgets, parentId);
+    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
     return {
       finalWidgets,
       otherWidgetsToDelete,
@@ -239,16 +257,16 @@ function* deleteAllSelectedWidgetsSaga(
 ) {
   try {
     const { disallowUndo = false } = deleteAction.payload;
-    const stateWidgets = yield select(getWidgets);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
     if (!(selectedWidgets && selectedWidgets.length !== 1)) return;
-    const widgetsToBeDeleted = yield all(
+    const widgetsToBeDeleted: WidgetsInTree = yield all(
       selectedWidgets.map((eachId) => {
         return call(getAllWidgetsInTree, eachId, widgets);
       }),
     );
-    const flattenedWidgets: any = flattenDeep(widgetsToBeDeleted);
+    const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
     const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;
@@ -271,7 +289,17 @@ function* deleteAllSelectedWidgetsSaga(
     );
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
-    resizeCanvasToLowestWidget(finalWidgets, parentId);
+
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    let mainCanvasMinHeight;
+    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+      const mainCanvasProps: MainCanvasReduxState = yield select(
+        getMainCanvasProps,
+      );
+      mainCanvasMinHeight = mainCanvasProps?.height;
+    }
+
+    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
 
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(selectWidgetInitAction(""));
@@ -343,8 +371,11 @@ function* postDelete(
  */
 function resizeCanvasToLowestWidget(
   finalWidgets: CanvasWidgetsReduxState,
-  parentId: string,
+  parentId: string | undefined,
+  mainCanvasMinHeight: number | undefined,
 ) {
+  if (!parentId) return;
+
   if (
     !finalWidgets[parentId] ||
     finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
@@ -353,8 +384,9 @@ function resizeCanvasToLowestWidget(
   }
 
   let lowestBottomRow = Math.ceil(
-    (finalWidgets[parentId].minHeight || 0) /
-      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    (mainCanvasMinHeight ||
+      finalWidgets[parentId].minHeight ||
+      CANVAS_DEFAULT_MIN_HEIGHT_PX) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
   const childIds = finalWidgets[parentId].children || [];
 

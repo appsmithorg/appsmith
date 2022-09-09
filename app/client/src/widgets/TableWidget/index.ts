@@ -1,5 +1,9 @@
 import { Colors } from "constants/Colors";
 import { cloneDeep, set } from "lodash";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -10,6 +14,8 @@ export const CONFIG = {
   name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["datagrid"],
+  hideCard: true,
   defaults: {
     rows: 28,
     columns: 34,
@@ -18,7 +24,7 @@ export const CONFIG = {
     label: "Data",
     widgetName: "Table",
     searchKey: "",
-    textSize: "PARAGRAPH",
+    textSize: "0.875rem",
     horizontalAlignment: "LEFT",
     verticalAlignment: "CENTER",
     totalRecordsCount: 0,
@@ -36,6 +42,15 @@ export const CONFIG = {
       {
         key: "primaryColumns.action.computedValue",
       },
+      {
+        key: "primaryColumns.action.buttonColor",
+      },
+      {
+        key: "primaryColumns.action.borderRadius",
+      },
+      {
+        key: "primaryColumns.action.boxShadow",
+      },
     ],
     primaryColumns: {
       step: {
@@ -45,7 +60,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -62,7 +77,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -79,7 +94,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -96,7 +111,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "button",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -150,10 +165,28 @@ export const CONFIG = {
                 `${columnId}.computedValue`,
                 `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
               );
-              set(primaryColumns, `${columnId}.buttonColor`, Colors.GREEN);
-              set(primaryColumns, `${columnId}.menuColor`, Colors.GREEN);
               set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
+
+              Object.keys(
+                widget.childStylesheet[primaryColumns[columnId].columnType] ||
+                  [],
+              ).map((propertyKey) => {
+                const { jsSnippets, stringSegments } = getDynamicBindings(
+                  widget.childStylesheet[primaryColumns[columnId].columnType][
+                    propertyKey
+                  ],
+                );
+
+                const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+                set(
+                  primaryColumns,
+                  `${columnId}.${propertyKey}`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+                );
+              });
             });
+
             const updatePropertyMap = [
               {
                 widgetId: widget.widgetId,

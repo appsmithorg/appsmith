@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ActionData,
   ActionDataState,
@@ -12,18 +12,23 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find, sortBy } from "lodash";
+import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { JSCollection } from "entities/JSCollection";
 import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
+import {
+  EvaluationError,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -53,13 +58,16 @@ export const getIsDeletingDatasource = (state: AppState): boolean => {
 export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
   state.entities.plugins.defaultPluginList;
 
-export const getDefaultPluginByPackageName = (
+// Get plugin by id or package name
+export const getDefaultPlugin = (
   state: AppState,
-  packageName: string,
-): DefaultPlugin | undefined =>
-  state.entities.plugins.defaultPluginList.find(
-    (plugin) => plugin.packageName === packageName,
+  pluginIdentifier: string,
+): DefaultPlugin | undefined => {
+  return state.entities.plugins.defaultPluginList.find(
+    (plugin) =>
+      plugin.packageName === pluginIdentifier || plugin.id === pluginIdentifier,
   );
+};
 
 export const getPluginIdsOfNames = (
   state: AppState,
@@ -461,6 +469,9 @@ export const getAppStoreData = (state: AppState): AppStoreState =>
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
+export const getCanvasWidgetsStructure = (state: AppState) =>
+  state.entities.canvasWidgetsStructure;
+
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
@@ -531,10 +542,10 @@ export const getAllWidgetsMap = createSelector(
 export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
-    return Object.entries(widgetsMap).reduce(
-      (res: any[], [, widget]: any) => [...res, widget],
-      [],
-    );
+    return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
+      res.push(widget);
+      return res;
+    }, []);
   },
 );
 
@@ -622,18 +633,8 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
     : getCanvasWidgetsWithParentId(state);
 };
 
-export const getIsOnboardingTasksView = createSelector(
-  getCanvasWidgets,
-  (widgets) => {
-    return Object.keys(widgets).length == 1;
-  },
-);
-
 export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
   state.entities.datasources.isReconnectingModalOpen;
-
-export const getIsOnboardingWidgetSelection = (state: AppState) =>
-  state.ui.onBoarding.inOnboardingWidgetSelection;
 
 export const getPageActions = (pageId = "") => {
   return (state: AppState) => {
@@ -782,3 +783,54 @@ function getActionValidationConfigFromPlugin(
   }
   return newValidationConfig;
 }
+export const getJSActions = (
+  state: AppState,
+  JSCollectionId: string,
+): JSAction[] => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === JSCollectionId,
+  );
+
+  return jsCollection?.config.actions
+    ? sortBy(jsCollection?.config.actions, ["name"])
+    : [];
+};
+
+export const getActiveJSActionId = (
+  state: AppState,
+  jsCollectionId: string,
+): string | null => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
+  );
+  return jsCollection?.activeJSActionId ?? null;
+};
+
+export const getIsExecutingJSAction = (
+  state: AppState,
+  jsCollectionId: string,
+  actionId: string,
+): boolean => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
+  );
+  if (jsCollection?.isExecuting && jsCollection.isExecuting[actionId]) {
+    return jsCollection.isExecuting[actionId];
+  }
+  return false;
+};
+
+export const getJSCollectionParseErrors = (
+  state: AppState,
+  jsCollectionName: string,
+) => {
+  const dataTree = state.evaluations.tree;
+  const allErrors = get(
+    dataTree,
+    `${jsCollectionName}.${EVAL_ERROR_PATH}.body`,
+    [],
+  ) as EvaluationError[];
+  return allErrors.filter((error) => {
+    return error.errorType === PropertyEvaluationErrorType.PARSE;
+  });
+};

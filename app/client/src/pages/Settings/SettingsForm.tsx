@@ -1,69 +1,50 @@
 import React, { useCallback, useEffect } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
 import { RouteComponentProps, useParams, withRouter } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   getSettings,
   getSettingsSavingState,
   getShowReleaseNotes,
 } from "selectors/settingsSelectors";
-import styled from "styled-components";
 import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
-import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
+import { DisconnectService } from "./DisconnectService";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import {
   SettingTypes,
   Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { DisconnectService } from "./DisconnectService";
 import {
   createMessage,
+  DISCONNECT_AUTH_ERROR,
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
+  MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
 import {
   connectedMethods,
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
-
-const Wrapper = styled.div`
-  flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin-left: ${(props) => props.theme.homePage.main.marginLeft}px;
-  padding-top: 40px;
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
-  overflow: auto;
-`;
-
-const SettingsFormWrapper = styled.div`
-  max-width: 40rem;
-`;
-
-export const BottomSpace = styled.div`
-  height: ${(props) => props.theme.settings.footerHeight + 20}px;
-`;
-
-export const HeaderWrapper = styled.div`
-  margin-bottom: 16px;
-`;
-
-export const SettingsHeader = styled.h2`
-  font-size: 24px;
-  font-weight: 500;
-  text-transform: capitalize;
-  margin-bottom: 0px;
-`;
-
-export const SettingsSubHeader = styled.div`
-  font-size: 12px;
-`;
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  Wrapper,
+  BottomSpace,
+  HeaderWrapper,
+  SettingsHeader,
+  SettingsSubHeader,
+  SettingsFormWrapper,
+  MaxWidthWrapper,
+} from "./components";
+import { BackButton } from "components/utils/helperComponents";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -80,7 +61,7 @@ function getSettingDetail(category: string, subCategory: string) {
   return AdminConfig.getCategoryDetails(category, subCategory);
 }
 
-function useSettings(category: string, subCategory?: string) {
+function getSettingsConfig(category: string, subCategory?: string) {
   return AdminConfig.get(subCategory ?? category);
 }
 
@@ -88,8 +69,8 @@ export function SettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
 ) {
   const params = useParams() as any;
-  const { category, subCategory } = params;
-  const settingsDetails = useSettings(category, subCategory);
+  const { category, selected: subCategory } = params;
+  const settingsDetails = getSettingsConfig(category, subCategory);
   const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
@@ -103,13 +84,19 @@ export function SettingsForm(
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings)) {
+        AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
+          method: pageTitle,
+        });
         dispatch(saveSettings(props.settings));
       } else {
         saveBlocked();
       }
     } else {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+        error: createMessage(MANDATORY_FIELDS_ERROR),
+      });
       Toaster.show({
-        text: "Mandatory fields cannot be empty",
+        text: createMessage(MANDATORY_FIELDS_ERROR),
         variant: Variant.danger,
       });
     }
@@ -138,18 +125,28 @@ export function SettingsForm(
     return !(requiredFields.length > 0);
   };
 
-  const onClear = () => {
+  const onClear = (event?: React.FocusEvent<any, any>) => {
+    if (event?.type === "click") {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
+        method: pageTitle,
+      });
+    }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
-        props.settingsConfig[settingName] =
-          props.settingsConfig[settingName].toString() == "true";
+        const settingsStr = props.settingsConfig[settingName].toString();
+        if (settingName.toLowerCase().includes("enable")) {
+          props.settingsConfig[settingName] =
+            settingsStr === "" || settingsStr === "true";
+        } else {
+          props.settingsConfig[settingName] = settingsStr === "true";
+        }
       }
     });
     props.initialize(props.settingsConfig);
   };
 
-  useEffect(onClear, []);
+  useEffect(onClear, [subCategory]);
 
   const onReleaseNotesClose = useCallback(() => {
     dispatch({
@@ -159,8 +156,11 @@ export function SettingsForm(
   }, []);
 
   const saveBlocked = () => {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+      error: createMessage(DISCONNECT_AUTH_ERROR),
+    });
     Toaster.show({
-      text: "Cannot disconnect the only connected authentication method.",
+      text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,
     });
   };
@@ -174,6 +174,9 @@ export function SettingsForm(
         }
       });
       dispatch(saveSettings(updatedSettings));
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {
+        method: pageTitle,
+      });
     } else {
       saveBlocked();
     }
@@ -181,37 +184,40 @@ export function SettingsForm(
 
   return (
     <Wrapper>
+      {subCategory && <BackButton />}
       <SettingsFormWrapper>
-        <HeaderWrapper>
-          <SettingsHeader>{pageTitle}</SettingsHeader>
-          {details?.subText && (
-            <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+        <MaxWidthWrapper>
+          <HeaderWrapper>
+            <SettingsHeader>{pageTitle}</SettingsHeader>
+            {details?.subText && (
+              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+            )}
+          </HeaderWrapper>
+          <Group
+            category={category}
+            settings={settingsDetails}
+            subCategory={subCategory}
+          />
+          {isSavable && (
+            <SaveAdminSettings
+              isSaving={props.isSaving}
+              onClear={onClear}
+              onSave={onSave}
+              settings={props.settings}
+              valid={props.valid}
+            />
           )}
-        </HeaderWrapper>
-        <Group
-          category={category}
-          settings={settingsDetails}
-          subCategory={subCategory}
-        />
-        {isSavable && (
-          <SaveAdminSettings
-            isSaving={props.isSaving}
-            onClear={onClear}
-            onSave={onSave}
-            settings={props.settings}
-            valid={props.valid}
-          />
-        )}
-        {details?.isConnected && (
-          <DisconnectService
-            disconnect={() => disconnect(settingsDetails)}
-            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-            warning={`${pageTitle} ${createMessage(
-              DISCONNECT_SERVICE_WARNING,
-            )}`}
-          />
-        )}
-        <BottomSpace />
+          {details?.isConnected && (
+            <DisconnectService
+              disconnect={() => disconnect(settingsDetails)}
+              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+              warning={`${pageTitle} ${createMessage(
+                DISCONNECT_SERVICE_WARNING,
+              )}`}
+            />
+          )}
+          <BottomSpace />
+        </MaxWidthWrapper>
       </SettingsFormWrapper>
       {props.showReleaseNotes && (
         <ProductUpdatesModal hideTrigger isOpen onClose={onReleaseNotesClose} />

@@ -8,32 +8,26 @@ import React, {
   useMemo,
 } from "react";
 import Select, { SelectProps } from "rc-select";
-import {
-  DefaultValueType,
-  LabelValueType,
-} from "rc-select/lib/interface/generator";
+import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import MenuItemCheckBox, {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
   InputContainer,
 } from "./index.styled";
-import {
-  CANVAS_CLASSNAME,
-  MODAL_PORTAL_CLASSNAME,
-  TextSize,
-} from "constants/WidgetConstants";
-import Icon from "components/ads/Icon";
+import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { Icon, LabelWithTooltip } from "design-system";
+import useDropdown from "widgets/useDropdown";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
+
 export interface MultiSelectProps
   extends Required<
     Pick<
@@ -42,8 +36,8 @@ export interface MultiSelectProps
     >
   > {
   mode?: "multiple" | "tags";
-  value: LabelValueType[];
-  onChange: (value: DefaultValueType) => void;
+  value: LabelInValueType[];
+  onChange: (value: DraftValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
@@ -61,15 +55,21 @@ export interface MultiSelectProps
   filterText?: string;
   widgetId: string;
   isFilterable: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor?: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  renderMode?: RenderMode;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
-const FOCUS_TIMEOUT = 500;
 
 function MultiSelectComponent({
+  accentColor,
   allowSelectAll,
+  borderRadius,
+  boxShadow,
   compactMode,
   disabled,
   dropdownStyle,
@@ -91,6 +91,7 @@ function MultiSelectComponent({
   onFocus,
   options,
   placeholder,
+  renderMode,
   serverSideFiltering,
   value,
   widgetId,
@@ -104,6 +105,18 @@ function MultiSelectComponent({
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    BackDrop,
+    getPopupContainer,
+    isOpen,
+    onKeyDown,
+    onOpen,
+    selectRef,
+  } = useDropdown({
+    inputRef,
+    renderMode,
+  });
 
   // SelectAll if all options are in Value
   useEffect(() => {
@@ -157,22 +170,13 @@ function MultiSelectComponent({
       ) : null,
     [filter],
   );
-  const getDropdownPosition = useCallback(() => {
-    const node = _menu.current;
-    if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
-      return document.querySelector(
-        `.${MODAL_PORTAL_CLASSNAME}`,
-      ) as HTMLElement;
-    }
-    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
-  }, []);
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
       // Get all options
-      const allOption: LabelValueType[] = filteredOptions.map(
+      const allOption: LabelInValueType[] = filteredOptions.map(
         ({ label, value }) => ({
-          value,
+          value: value || "",
           label,
         }),
       );
@@ -189,12 +193,6 @@ function MultiSelectComponent({
     return onChange([]);
   };
 
-  const onOpen = useCallback((open: boolean) => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-    }
-  }, []);
-
   const checkOptionsAndValue = () => {
     const emptyFalseArr = [false];
     if (value.length === 0 || filteredOptions.length === 0)
@@ -202,50 +200,6 @@ function MultiSelectComponent({
     return filteredOptions.map((x) => value.some((y) => y.value === x.value));
   };
 
-  // SelectAll if all options are in Value
-  useEffect(() => {
-    if (
-      !isSelectAll &&
-      filteredOptions.length &&
-      value.length &&
-      !checkOptionsAndValue().includes(false)
-    ) {
-      setIsSelectAll(true);
-    }
-    if (isSelectAll && filteredOptions.length !== value.length) {
-      setIsSelectAll(false);
-    }
-  }, [filteredOptions, value]);
-
-  // Trigger onFilterChange once filter is Updated
-  useEffect(() => {
-    const timeOutId = setTimeout(
-      () => onFilterChange(filter),
-      DEBOUNCE_TIMEOUT,
-    );
-    return () => clearTimeout(timeOutId);
-  }, [filter]);
-
-  // Filter options based on serverSideFiltering
-  useEffect(
-    () => {
-      if (serverSideFiltering) {
-        return setFilteredOptions(options);
-      }
-      const filtered = options.filter((option) => {
-        return (
-          String(option.label)
-            .toLowerCase()
-            .indexOf(filter.toLowerCase()) >= 0 ||
-          String(option.value)
-            .toLowerCase()
-            .indexOf(filter.toLowerCase()) >= 0
-        );
-      });
-      setFilteredOptions(filtered);
-    },
-    serverSideFiltering ? [options] : [filter, options],
-  );
   useEffect(() => {
     const parentWidth = width - WidgetContainerDiff;
     if (compactMode && labelRef.current) {
@@ -266,17 +220,30 @@ function MultiSelectComponent({
     setFilter(event.target.value);
   }, []);
 
+  const onDropdownVisibleChange = (open: boolean) => {
+    onOpen(open);
+
+    /**
+     * Clear the search input on closing the widget
+     * and serverSideFiltering is off
+     */
+    if (!serverSideFiltering) {
+      setFilter("");
+    }
+  };
+
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
+        <BackDrop />
         {isFilterable ? (
           <InputGroup
             inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={onKeyDown}
             placeholder="Filter..."
             // ref={inputRef}
             rightElement={clearButton as JSX.Element}
@@ -288,6 +255,7 @@ function MultiSelectComponent({
         <div className={`${loading ? Classes.SKELETON : ""}`}>
           {filteredOptions.length && allowSelectAll ? (
             <StyledCheckbox
+              accentColor={accentColor}
               alignIndicator="left"
               checked={isSelectAll}
               className={`all-options ${isSelectAll ? "selected" : ""}`}
@@ -312,13 +280,21 @@ function MultiSelectComponent({
 
   return (
     <MultiSelectContainer
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       compactMode={compactMode}
       data-testid="multiselect-container"
       isValid={isValid}
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
+      <DropdownStyles
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        dropDownWidth={memoDropDownWidth}
+        id={widgetId}
+      />
       {labelText && (
         <LabelWithTooltip
           alignment={labelAlignment}
@@ -339,15 +315,15 @@ function MultiSelectComponent({
         <Select
           animation="slide-up"
           choiceTransitionName="rc-select-selection__choice-zoom"
+          className="rc-select"
           // TODO: Make Autofocus a variable in the property pane
           // autoFocus
-          className="rc-select"
           defaultActiveFirstOption={false}
           disabled={disabled}
           dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
           dropdownRender={dropdownRender}
           dropdownStyle={dropdownStyle}
-          getPopupContainer={getDropdownPosition}
+          getPopupContainer={getPopupContainer}
           inputIcon={
             <Icon
               className="dropdown-icon"
@@ -365,10 +341,12 @@ function MultiSelectComponent({
           notFoundContent="No Results Found"
           onBlur={onBlur}
           onChange={onChange}
-          onDropdownVisibleChange={onOpen}
+          onDropdownVisibleChange={onDropdownVisibleChange}
           onFocus={onFocus}
+          open={isOpen}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}
+          ref={selectRef}
           removeIcon={
             <Icon
               className="remove-icon"

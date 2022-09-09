@@ -1,17 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import {
-  DropdownOption,
-  RenderDropdownOptionType,
-} from "components/ads/Dropdown";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import {
+  DropdownOption,
+  RenderDropdownOptionType,
+  Text,
+  TextType,
+} from "design-system";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 
 // ---------- Helpers and constants ----------
 
@@ -124,6 +125,9 @@ function DataSourceOption({
       disabled={
         isSupportedForTemplate || isSelectedNode || isConnectNewDataSourceBtn
       }
+      styles={{
+        width: "100%",
+      }}
     >
       <OptionWrapper
         className="t--dropdown-option"

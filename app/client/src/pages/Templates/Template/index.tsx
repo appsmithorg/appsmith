@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
-import Button, { Size } from "components/ads/Button";
-import Tooltip from "components/ads/Tooltip";
+import { Button, Size, TooltipComponent as Tooltip } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
@@ -96,6 +95,7 @@ const StyledButton = styled(Button)`
 export interface TemplateProps {
   template: TemplateInterface;
   size?: string;
+  onClick?: () => void;
 }
 
 const Template = (props: TemplateProps) => {
@@ -109,6 +109,7 @@ const Template = (props: TemplateProps) => {
 export interface TemplateLayoutProps {
   template: TemplateInterface;
   className?: string;
+  onClick?: () => void;
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
@@ -123,6 +124,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
     history.push(templateIdUrl({ id }));
+    props.onClick && props.onClick();
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
@@ -136,7 +138,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper className={props.className} onClick={onClick}>
+    <TemplateWrapper
+      className={props.className}
+      data-cy="template-card"
+      onClick={onClick}
+    >
       <ImageWrapper className="image-wrapper">
         <StyledImage src={screenshotUrls[0]} />
       </ImageWrapper>

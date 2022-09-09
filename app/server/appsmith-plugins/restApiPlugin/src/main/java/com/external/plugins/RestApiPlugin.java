@@ -16,12 +16,11 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
+import com.appsmith.util.WebClientUtils;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
 import com.external.constants.ResponseDataType;
@@ -45,7 +44,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -56,7 +54,6 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
-import reactor.netty.tcp.DefaultSslContextSpec;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
@@ -68,9 +65,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -85,6 +79,7 @@ import static com.external.helpers.HintMessageUtils.getActionHintMessages;
 import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class RestApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
 
@@ -94,7 +89,6 @@ public class RestApiPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class RestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
 
@@ -302,27 +296,10 @@ public class RestApiPlugin extends BasePlugin {
                     .build();
 
             HttpClient httpClient = HttpClient.create(provider)
-                    .secure(sslContextSpec -> {
+                    .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
+                    .compress(true);
 
-                        final DefaultSslContextSpec sslContextSpec1 = DefaultSslContextSpec.forClient();
-
-                        if (datasourceConfiguration.getConnection() != null &&
-                                datasourceConfiguration.getConnection().getSsl() != null &&
-                                datasourceConfiguration.getConnection().getSsl().getAuthType() == SSLDetails.AuthType.SELF_SIGNED_CERTIFICATE) {
-
-                            sslContextSpec1.configure(sslContextBuilder -> {
-                                try {
-                                    final UploadedFile certificateFile = datasourceConfiguration.getConnection().getSsl().getCertificateFile();
-                                    sslContextBuilder.trustManager(SSLHelper.getSslTrustManagerFactory(certificateFile));
-                                } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                        }
-                        sslContextSpec.sslContext(sslContextSpec1);
-                    });
-
-            WebClient.Builder webClientBuilder = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
+            WebClient.Builder webClientBuilder = WebClientUtils.builder(httpClient);
 
             // Adding headers from datasource
             if (datasourceConfiguration.getHeaders() != null) {
@@ -413,8 +390,16 @@ public class RestApiPlugin extends BasePlugin {
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
-                        // Find the media type of the response to parse the body as required.
+                        /*
+                            Find the media type of the response to parse the body as required. In case the content-type
+                            header is not present in the response then set it to our default i.e. "text/plain" although
+                            the RFC 7231 standard suggests assuming "application/octet-stream" content-type in case
+                            it's not present in response header.
+                         */
                         MediaType contentType = headers.getContentType();
+                        if (contentType == null) {
+                            contentType = MediaType.TEXT_PLAIN;
+                        }
                         byte[] body = stringResponseEntity.getBody();
                         HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
@@ -455,14 +440,13 @@ public class RestApiPlugin extends BasePlugin {
                              * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
                              * are kept as is and returned as a string.
                              */
-                            if (MediaType.APPLICATION_JSON.equals(contentType) ||
-                                    MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
+                            if (contentType.includes(MediaType.APPLICATION_JSON)) {
                                 try {
                                     String jsonBody = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                     responseDataType = ResponseDataType.JSON;
                                 } catch (IOException e) {
-                                    System.out.println("Unable to parse response JSON. Setting response body as string.");
+                                    log.debug("Unable to parse response JSON. Setting response body as string.");
                                     String bodyString = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(bodyString.trim());
 
@@ -596,7 +580,11 @@ public class RestApiPlugin extends BasePlugin {
                             URI redirectUri = null;
                             try {
                                 redirectUri = new URI(redirectUrl);
-                            } catch (URISyntaxException e) {
+                                if (DISALLOWED_HOSTS.contains(redirectUri.getHost())
+                                        || DISALLOWED_HOSTS.contains(InetAddress.getByName(redirectUri.getHost()).getHostAddress())) {
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Host not allowed."));
+                                }
+                            } catch (URISyntaxException | UnknownHostException e) {
                                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
                             return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
@@ -608,7 +596,7 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
+            return APIConnectionFactory.createConnection(datasourceConfiguration);
         }
 
         @Override

@@ -1,11 +1,11 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { ORG_INVITE_USERS_PAGE_URL } from "constants/routes";
+import { WORKSPACE_INVITE_USERS_PAGE_URL } from "constants/routes";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import Button from "components/editorComponents/Button";
 import PageWrapper from "pages/common/PageWrapper";
 
-export function OrgMembers() {
+export function WorkspaceMembers() {
   const history = useHistory();
 
   return (
@@ -17,7 +17,7 @@ export function OrgMembers() {
           icon="plus"
           iconAlignment="left"
           intent="primary"
-          onClick={() => history.push(ORG_INVITE_USERS_PAGE_URL)}
+          onClick={() => history.push(WORKSPACE_INVITE_USERS_PAGE_URL)}
           text="Invite Users"
         />
       </PageSectionHeader>
@@ -25,4 +25,4 @@ export function OrgMembers() {
   );
 }
 
-export default OrgMembers;
+export default WorkspaceMembers;

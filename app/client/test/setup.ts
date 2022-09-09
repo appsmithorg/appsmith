@@ -14,6 +14,7 @@ const mockObserveFn = () => {
 };
 
 window.IntersectionObserver = jest.fn().mockImplementation(mockObserveFn);
+window.ResizeObserver = jest.fn().mockImplementation(mockObserveFn);
 
 // establish API mocking before all tests
 beforeAll(() => server.listen());

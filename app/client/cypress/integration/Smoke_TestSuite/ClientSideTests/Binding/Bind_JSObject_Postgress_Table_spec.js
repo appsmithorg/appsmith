@@ -33,13 +33,13 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.onlyQueryRun();
       cy.get(queryEditor.suggestedTableWidget).click();
       cy.createJSObject("return Query1.data;");
-      cy.CheckAndUnfoldEntityItem("WIDGETS");
+      cy.CheckAndUnfoldEntityItem("Widgets");
       cy.get(".t--entity-name")
         .contains("Table1")
         .click({ force: true });
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
-      cy.readTabledataPublish("1", "0").then((tabData) => {
+      cy.readTableV2dataPublish("1", "0").then((tabData) => {
         let tabValue = tabData;
         cy.log("the value is" + tabValue);
         expect(tabValue).to.be.equal("5");
@@ -52,7 +52,9 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.url().then((url) => {
         currentUrl = url;
         cy.log("Published url is: " + currentUrl);
-        cy.get(publish.backToEditor).click();
+        cy.get(publish.backToEditor)
+          .first()
+          .click();
         cy.wait(2000);
         cy.visit(currentUrl);
         cy.wait("@getPagesForViewApp").should(
@@ -84,7 +86,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
         ).then(() => cy.wait(500));
 
         cy.isSelectRow(1);
-        cy.readTabledataPublish("1", "0").then((tabData) => {
+        cy.readTableV2dataPublish("1", "0").then((tabData) => {
           let tabValue = tabData;
           cy.log("Value in public viewing: " + tabValue);
           expect(tabValue).to.be.equal("5");

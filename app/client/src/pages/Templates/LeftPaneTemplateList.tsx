@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import history from "utils/history";
 import { Classes } from "components/ads/common";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";

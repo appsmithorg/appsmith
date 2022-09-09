@@ -1,8 +1,8 @@
-import React, { useRef, RefObject, useCallback } from "react";
+import React, { useRef, RefObject, useCallback, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
@@ -19,10 +19,9 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
+  ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
-import Text, { TextType } from "components/ads/Text";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
@@ -32,7 +31,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import Button, { Size } from "components/ads/Button";
+import { Button, Category, Icon, Size, Text, TextType } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
@@ -43,6 +42,7 @@ import {
   UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
+import ActionAPI from "api/ActionAPI";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -60,6 +60,10 @@ const ResponseContainer = styled.div`
 
   .react-tabs__tab-panel {
     overflow: hidden;
+  }
+
+  .react-tabs__tab-panel > * {
+    padding-bottom: 10px;
   }
 `;
 const ResponseMetaInfo = styled.div`
@@ -101,7 +105,7 @@ const TabbedViewWrapper = styled.div`
   }
 `;
 
-const SectionDivider = styled.div`
+export const SectionDivider = styled.div`
   height: 1px;
   width: 100%;
   background: ${(props) => props.theme.colors.apiPane.dividerBg};
@@ -153,9 +157,9 @@ const StyledCallout = styled(Callout)`
   }
 `;
 
-const InlineButton = styled(Button)`
+export const InlineButton = styled(Button)`
   display: inline-flex;
-  margin: 0 4px;
+  margin: 0 8px;
 `;
 
 const HelpSection = styled.div`
@@ -164,7 +168,27 @@ const HelpSection = styled.div`
 `;
 
 const ResponseBodyContainer = styled.div`
-  padding-bottom: 5px;
+  padding-top: 10px;
+  overflow-y: auto;
+  height: 100%;
+  display: grid;
+`;
+
+export const CancelRequestButton = styled(Button)`
+  margin-top: 10px;
+`;
+
+export const LoadingOverlayContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  height: 100%;
+  margin-top: 5px;
 `;
 
 interface ReduxStateProps {
@@ -192,7 +216,7 @@ type Props = ReduxStateProps &
 export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
   duration: "",
-  body: {},
+  body: "",
   headers: {},
   request: {
     headers: {},
@@ -229,6 +253,10 @@ const ResponseDataContainer = styled.div`
   }
 `;
 
+export const TableCellHeight = 39;
+// When action execution is triggered, open response container to height specified by this variable.
+export const ActionExecutionResizerHeight = 307;
+
 export const responseTabComponent = (
   responseType: string,
   output: any,
@@ -260,6 +288,10 @@ export const responseTabComponent = (
       />
     ),
   }[responseType];
+};
+
+export const handleCancelActionExecution = () => {
+  ActionAPI.abortActionExecutionTokenSource.cancel();
 };
 
 function ApiResponseView(props: Props) {
@@ -297,6 +329,10 @@ function ApiResponseView(props: Props) {
     });
   };
 
+  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
+    window.innerHeight,
+  );
+
   const messages = response?.messages;
   let responseHeaders = {};
 
@@ -325,7 +361,11 @@ function ApiResponseView(props: Props) {
         index: index,
         key: dataType.key,
         title: dataType.title,
-        panelComponent: responseTabComponent(dataType.key, response.body),
+        panelComponent: responseTabComponent(
+          dataType.key,
+          response?.body,
+          tableBodyHeight,
+        ),
       };
     });
 
@@ -390,12 +430,12 @@ function ApiResponseView(props: Props) {
               </NoResponseContainer>
             ) : (
               <ResponseBodyContainer>
-                {isString(response.body) && isHtml(response.body) ? (
+                {isString(response?.body) && isHtml(response?.body) ? (
                   <ReadOnlyEditor
                     folding
                     height={"100%"}
                     input={{
-                      value: response.body,
+                      value: response?.body,
                     }}
                     isReadOnly
                   />
@@ -458,7 +498,7 @@ function ApiResponseView(props: Props) {
                 folding
                 height={"100%"}
                 input={{
-                  value: response.body
+                  value: response?.body
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
@@ -488,12 +528,38 @@ function ApiResponseView(props: Props) {
 
   return (
     <ResponseContainer ref={panelRef}>
-      <Resizer panelRef={panelRef} />
+      <Resizer
+        openResizer={isRunning}
+        panelRef={panelRef}
+        setContainerDimensions={(height: number) =>
+          // TableCellHeight in this case is the height of one table cell in pixels.
+          setTableBodyHeightHeight(height - TableCellHeight)
+        }
+        snapToHeight={ActionExecutionResizerHeight}
+      />
       <SectionDivider />
       {isRunning && (
-        <LoadingOverlayScreen theme={props.theme}>
-          Sending Request
-        </LoadingOverlayScreen>
+        <>
+          <LoadingOverlayScreen theme={props.theme} />
+          <LoadingOverlayContainer>
+            <div>
+              <Text textAlign={"center"} type={TextType.P1}>
+                {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
+              </Text>
+              <CancelRequestButton
+                category={Category.tertiary}
+                className={`t--cancel-action-button`}
+                onClick={() => {
+                  handleCancelActionExecution();
+                }}
+                size={Size.medium}
+                tag="button"
+                text="Cancel Request"
+                type="button"
+              />
+            </div>
+          </LoadingOverlayContainer>
+        </>
       )}
       <TabbedViewWrapper>
         {response.statusCode && (
@@ -524,12 +590,12 @@ function ApiResponseView(props: Props) {
                   </Text>
                 </Flex>
               )}
-              {!isEmpty(response.body) && Array.isArray(response.body) && (
+              {!isEmpty(response?.body) && Array.isArray(response?.body) && (
                 <Flex>
                   <Text type={TextType.P3}>Result: </Text>
                   <Text type={TextType.H5}>
-                    {`${response.body.length} Record${
-                      response.body.length > 1 ? "s" : ""
+                    {`${response?.body.length} Record${
+                      response?.body.length > 1 ? "s" : ""
                     }`}
                   </Text>
                 </Flex>

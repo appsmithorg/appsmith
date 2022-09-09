@@ -89,9 +89,9 @@ class PhoneInputWidget extends BaseInputWidget<
               propertyName: "defaultDialCode",
               label: "Default Country Code",
               enableSearch: true,
-              dropdownHeight: "195px",
+              dropdownHeight: "156px",
               controlType: "DROP_DOWN",
-              placeholderText: "Search by code or country name",
+              searchPlaceholderText: "Search by code or country name",
               options: ISDCodeDropdownOptions,
               isJSConvertible: true,
               isBindProperty: true,
@@ -106,7 +106,7 @@ class PhoneInputWidget extends BaseInputWidget<
               propertyName: "defaultText",
               label: "Default Text",
               controlType: "INPUT_TEXT",
-              placeholderText: "John Doe",
+              placeholderText: "(000) 000-0000",
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
@@ -115,7 +115,7 @@ class PhoneInputWidget extends BaseInputWidget<
                   fn: defaultValueValidation,
                   expected: {
                     type: "string",
-                    example: `000 0000`,
+                    example: `(000) 000-0000`,
                     autocompleteDataType: AutocompleteDataType.STRING,
                   },
                 },
@@ -136,6 +136,104 @@ class PhoneInputWidget extends BaseInputWidget<
       ],
       super.getPropertyPaneConfig(),
     );
+  }
+
+  static getPropertyPaneContentConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "Data",
+          children: [
+            {
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "(000) 000-0000",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "string",
+                    example: `(000) 000-0000`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
+            },
+            {
+              helpText: "Changes the country code",
+              propertyName: "defaultDialCode",
+              label: "Default Country Code",
+              enableSearch: true,
+              dropdownHeight: "156px",
+              controlType: "DROP_DOWN",
+              searchPlaceholderText: "Search by code or country name",
+              options: ISDCodeDropdownOptions,
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.TEXT,
+              },
+            },
+            {
+              propertyName: "allowDialCodeChange",
+              label: "Allow Country Code Change",
+              helpText: "Search by country",
+              controlType: "SWITCH",
+              isJSConvertible: false,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+          ],
+        },
+        // {
+        //   sectionName: "General",
+        //   children: [
+        //     {
+        //       propertyName: "allowFormatting",
+        //       label: "Enable Formatting",
+        //       helpText: "Formats the phone number as per the country selected",
+        //       controlType: "SWITCH",
+        //       isJSConvertible: true,
+        //       isBindProperty: true,
+        //       isTriggerProperty: false,
+        //       validation: { type: ValidationTypes.BOOLEAN },
+        //     },
+        //   ],
+        // },
+      ],
+      super.getPropertyPaneContentConfig(),
+    );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return super.getPropertyPaneStyleConfig();
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -289,8 +387,11 @@ class PhoneInputWidget extends BaseInputWidget<
 
     return (
       <PhoneInputComponent
+        accentColor={this.props.accentColor}
         allowDialCodeChange={this.props.allowDialCodeChange}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /

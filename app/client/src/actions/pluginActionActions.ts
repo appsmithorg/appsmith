@@ -54,23 +54,25 @@ export const fetchActionsForView = ({
 
 export const fetchActionsForPage = (
   pageId: string,
-  postEvalActions: Array<AnyReduxAction> = [],
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
     payload: { pageId },
-    postEvalActions,
   };
 };
 
 export const fetchActionsForPageSuccess = (
   actions: Action[],
-  postEvalActions?: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
-    postEvalActions,
+  };
+};
+
+export const fetchActionsForPageError = () => {
+  return {
+    type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
   };
 };
 
@@ -249,9 +251,13 @@ export type SetActionPropertyPayload = {
   skipSave?: boolean;
 };
 
-export const setActionProperty = (payload: SetActionPropertyPayload) => ({
+export const setActionProperty = (
+  payload: SetActionPropertyPayload,
+  postEvalActions?: Array<AnyReduxAction>,
+) => ({
   type: ReduxActionTypes.SET_ACTION_PROPERTY,
   payload,
+  postEvalActions,
 });
 
 export type UpdateActionPropertyActionPayload = {
@@ -262,10 +268,12 @@ export type UpdateActionPropertyActionPayload = {
 
 export const updateActionProperty = (
   payload: UpdateActionPropertyActionPayload,
+  postEvalActions?: Array<AnyReduxAction>,
 ) => {
   return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
     payload,
+    postEvalActions,
   });
 };
 

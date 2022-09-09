@@ -22,12 +22,16 @@ const regexMap = {
     /(tiny.cloud|googleapis|gstatic|cloudfront).*.(js|css|woff2)/,
   ),
   shims: new RegExp(/shims\/.*.js/),
-  profile: new RegExp(/v1\/(users\/profile|organizations)/),
+  profile: new RegExp(/v1\/(users\/profile|workspaces)/),
   providers: new RegExp(/v1\/marketplace\/(providers|templates)/),
 };
 
 /* eslint-disable no-restricted-globals */
-precacheAndRoute(self.__WB_MANIFEST || []);
+const toPrecache = self.__WB_MANIFEST.filter(
+  (file) => !file.url.includes("index.html"),
+);
+precacheAndRoute(toPrecache);
+
 self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
@@ -59,3 +63,7 @@ registerRoute(
     ],
   }),
 );
+
+registerRoute(({ url }) => {
+  return url.pathname.includes("index.html");
+}, new NetworkOnly());

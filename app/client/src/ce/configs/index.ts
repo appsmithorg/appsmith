@@ -40,12 +40,14 @@ export interface INJECTED_CONFIGS {
   appVersion: {
     id: string;
     releaseDate: string;
+    edition: string;
   };
   intercomAppID: string;
   mailEnabled: boolean;
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
+  hideWatermark: boolean;
 }
 
 const capitalizeText = (text: string) => {
@@ -115,6 +117,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     appVersion: {
       id: process.env.REACT_APP_VERSION_ID || "",
       releaseDate: process.env.REACT_APP_VERSION_RELEASE_DATE || "",
+      edition: process.env.REACT_APP_VERSION_EDITION || "",
     },
     intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
@@ -124,6 +127,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
+    hideWatermark: process.env.APPSMITH_HIDE_WATERMARK
+      ? process.env.APPSMITH_HIDE_WATERMARK.length > 0
+      : false,
   };
 };
 
@@ -265,10 +271,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
-    commentsTestModeEnabled: false,
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
+    hideWatermark:
+      ENV_CONFIG.hideWatermark || APPSMITH_FEATURE_CONFIGS.hideWatermark,
   };
 };

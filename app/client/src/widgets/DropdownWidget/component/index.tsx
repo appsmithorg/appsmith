@@ -19,11 +19,8 @@ import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import Icon from "components/ads/Icon";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-} from "components/ads/LabelWithTooltip";
+import { Icon, LabelWithTooltip, labelLayoutStyles } from "design-system";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -115,8 +112,6 @@ const StyledControlGroup = styled(ControlGroup)<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
 }>`
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
   &&& > {
     span {
       height: 100%;
@@ -452,6 +447,9 @@ export interface DropDownComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 export default DropDownComponent;

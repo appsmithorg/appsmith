@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "Container",
   iconSVG: IconSVG,
   isCanvas: true,
+  searchTags: ["div", "parent", "group"],
   defaults: {
     backgroundColor: "#FFFFFF",
     rows: 40,
@@ -15,7 +16,6 @@ export const CONFIG = {
     containerStyle: "card",
     borderColor: "transparent",
     borderWidth: "0",
-    borderRadius: "0",
     boxShadow: ButtonBoxShadowTypes.NONE,
     animateLoading: true,
     children: [],
@@ -40,6 +40,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

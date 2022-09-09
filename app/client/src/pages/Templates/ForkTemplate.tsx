@@ -1,21 +1,20 @@
 import React, { ReactNode, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
-import Dropdown from "components/ads/Dropdown";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Dropdown, Size } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
-  getForkableOrganizations,
+  getForkableWorkspaces,
   isImportingTemplateSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { importTemplateToOrganisation } from "actions/templateActions";
+import { importTemplateToWorkspace } from "actions/templateActions";
 import {
   CANCEL,
   CHOOSE_WHERE_TO_FORK,
   createMessage,
   FORK_TEMPLATE,
-  SELECT_ORGANISATION,
+  SELECT_WORKSPACE,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
@@ -51,16 +50,12 @@ function ForkTemplate({
   showForkModal,
   templateId,
 }: ForkTemplateProps) {
-  const organizationList = useSelector(getForkableOrganizations);
-  const [selectedOrganization, setSelectedOrganization] = useState(
-    organizationList[0],
-  );
+  const workspaceList = useSelector(getForkableWorkspaces);
+  const [selectedWorkspace, setSelectedWorkspace] = useState(workspaceList[0]);
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const dispatch = useDispatch();
   const onFork = () => {
-    dispatch(
-      importTemplateToOrganisation(templateId, selectedOrganization.value),
-    );
+    dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
   };
 
   return (
@@ -76,12 +71,12 @@ function ForkTemplate({
         boundary="viewport"
         dropdownMaxHeight={"200px"}
         fillOptions
-        onSelect={(_value, dropdownOption) =>
-          setSelectedOrganization(dropdownOption)
+        onSelect={(_value: string, dropdownOption: any) =>
+          setSelectedWorkspace(dropdownOption)
         }
-        options={organizationList}
-        placeholder={createMessage(SELECT_ORGANISATION)}
-        selected={selectedOrganization}
+        options={workspaceList}
+        placeholder={createMessage(SELECT_WORKSPACE)}
+        selected={selectedWorkspace}
         showLabelOnly
         width={"100%"}
       />

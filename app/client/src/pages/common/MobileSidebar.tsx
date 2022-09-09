@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import ProfileImage from "pages/common/ProfileImage";
-import MenuItem from "components/ads/MenuItem";
+import { MenuItem } from "design-system";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
   getOnSelectAction,
@@ -15,6 +15,7 @@ import {
   createMessage,
   ADMIN_SETTINGS,
   DOCUMENTATION,
+  APPSMITH_DISPLAY_VERSION,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
@@ -96,7 +97,7 @@ const LeftPaneVersionData = styled.div`
 
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
-  const { appVersion } = getAppsmithConfigs();
+  const { appVersion, cloudHosting } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
 
   return (
@@ -104,7 +105,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
       <ProfileSection>
         <ProfileImage
           className="t--profile-menu-icon"
-          side={52}
+          size={52}
           source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
           userName={props.name || props.userName}
         />
@@ -155,7 +156,14 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         />
       </Section>
       <LeftPaneVersionData>
-        <span>Appsmith {appVersion.id}</span>
+        <span>
+          {createMessage(
+            APPSMITH_DISPLAY_VERSION,
+            appVersion.edition,
+            appVersion.id,
+            cloudHosting,
+          )}
+        </span>
         {howMuchTimeBefore !== "" && (
           <span>Released {howMuchTimeBefore} ago</span>
         )}

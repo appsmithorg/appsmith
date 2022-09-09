@@ -13,7 +13,7 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -23,7 +23,7 @@ import {
   unsetEvaluatedArgument,
 } from "actions/globalSearchActions";
 import { useSelector } from "store";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
 import { useEffect } from "react";

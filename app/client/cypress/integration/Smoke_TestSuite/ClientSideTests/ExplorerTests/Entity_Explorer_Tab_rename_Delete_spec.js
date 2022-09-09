@@ -67,7 +67,7 @@ describe("Tab widget test", function() {
     });
 
     it("Tab Widget Functionality To Unchecked Visible Widget", function() {
-      cy.get(publish.backToEditor).click();
+      cy.get(publish.backToEditor).first().click();
       cy.openPropertyPane("tabswidget");
       cy.closePropertyPane();
       cy.get(Layoutpage.tabWidget)

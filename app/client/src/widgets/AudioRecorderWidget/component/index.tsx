@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import styled, { css, keyframes } from "styled-components";
+import styled from "styled-components";
 import { Button, Icon } from "@blueprintjs/core";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { useStopwatch } from "react-timer-hook";
@@ -10,7 +10,7 @@ import { ReactComponent as RecorderPauseIcon } from "assets/icons/widget/recorde
 import { ReactComponent as RecorderCompleteIcon } from "assets/icons/widget/recorder/recorder_complete.svg";
 import { ReactComponent as RecorderNoPermissionIcon } from "assets/icons/widget/recorder/recorder_no_permission.svg";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { hexToRgb, ThemeProp } from "components/ads/common";
+import { ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
@@ -41,7 +41,6 @@ const RecorderContainer = styled.div`
   justify-content: space-evenly;
   width: 100%;
   height: 100%;
-  overflow: auto;
 `;
 
 const RightContainer = styled.div`
@@ -67,7 +66,9 @@ const TimerContainer = styled.div<ThemeProp>`
 `;
 
 interface RecorderLeftButtonStyleProps {
-  backgroundColor: string;
+  accentColor: string;
+  boxShadow?: string;
+  borderRadius: string;
   dimension: number;
   disabled: boolean;
   iconColor: string;
@@ -75,44 +76,15 @@ interface RecorderLeftButtonStyleProps {
   status: RecorderStatus;
 }
 
-const getRgbaColor = (color: string, alpha: number) => {
-  const rgb = hexToRgb(color);
-
-  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
-};
-
-const pulse = (boxShadowColor: string, dimension: number) => {
-  return keyframes`
-  0% {
-    box-shadow: 0 0 0 0px ${getRgbaColor(boxShadowColor, 0.4)};
-  }
-  100% {
-    box-shadow: 0 0 0 ${dimension * 0.1}px rgba(0, 0, 0, 0);
-  }
-`;
-};
-
-const animation = (props: RecorderLeftButtonStyleProps) => css`
-  ${pulse(props.backgroundColor, props.dimension)} 2s infinite
-`;
-
 const StyledRecorderLeftButton = styled(Button)<
   ThemeProp & RecorderLeftButtonStyleProps
 >`
   background-image: none !important;
-  border-radius: 50%;
+  border-radius: ${({ borderRadius }) => borderRadius};
   height: ${({ dimension }) => dimension * 0.8}px;
   width: ${({ dimension }) => dimension * 0.8}px;
-
-  box-shadow: ${({ backgroundColor, status }) =>
-    status === RecorderStatusTypes.RECORDING
-      ? `
-      0 0 0 1px 1px ${getRgbaColor(backgroundColor, 0.4)}
-    `
-      : "none"} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   margin-left: ${({ dimension }) => dimension * 0.1}px;
-
-  animation: ${animation};
 
   & > svg {
     flex: 1;
@@ -137,13 +109,13 @@ const StyledRecorderLeftButton = styled(Button)<
     }
   }
 
-  ${({ backgroundColor, permissionDenied, theme }) => `
+  ${({ accentColor, permissionDenied, theme }) => `
     &:enabled {
       background: ${
-        backgroundColor
+        accentColor
           ? permissionDenied
             ? theme.colors.button.disabled.bgColor
-            : backgroundColor
+            : accentColor
           : "none"
       } !important;
     }
@@ -151,7 +123,7 @@ const StyledRecorderLeftButton = styled(Button)<
       background: ${darkenHover(
         permissionDenied
           ? theme.colors.button.disabled.bgColor
-          : backgroundColor || "#f6f6f6",
+          : accentColor || "#f6f6f6",
       )} !important;
       animation: none;
     }
@@ -162,7 +134,7 @@ const StyledRecorderLeftButton = styled(Button)<
         path, circle {
           fill: ${theme.colors.button.disabled.textColor};
         }
-      } 
+      }
     }
   `}
 `;
@@ -191,7 +163,9 @@ const renderRecorderIcon = (
 };
 
 interface RecorderLeftProps {
-  backgroundColor: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   dimension: number;
   disabled: boolean;
   iconColor: string;
@@ -202,7 +176,9 @@ interface RecorderLeftProps {
 
 function RecorderLeft(props: RecorderLeftProps) {
   const {
-    backgroundColor,
+    accentColor,
+    borderRadius,
+    boxShadow,
     denied,
     dimension,
     disabled,
@@ -217,7 +193,9 @@ function RecorderLeft(props: RecorderLeftProps) {
 
   return (
     <StyledRecorderLeftButton
-      backgroundColor={backgroundColor}
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       dimension={dimension}
       disabled={disabled || denied}
       icon={renderRecorderIcon(denied, status)}
@@ -538,7 +516,9 @@ function RecorderRight(props: RecorderRightProps) {
 }
 
 export interface RecorderComponentProps {
-  backgroundColor: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   height: number;
   iconColor: string;
   isDisabled: boolean;
@@ -550,8 +530,10 @@ export interface RecorderComponentProps {
 
 function AudioRecorderComponent(props: RecorderComponentProps) {
   const {
-    backgroundColor,
+    accentColor,
     blobUrl,
+    borderRadius,
+    boxShadow,
     height,
     iconColor,
     isDisabled,
@@ -727,7 +709,9 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
   return (
     <RecorderContainer ref={recorderContainerRef}>
       <RecorderLeft
-        backgroundColor={backgroundColor}
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
         denied={isPermissionDenied}
         dimension={dimension}
         disabled={isDisabled}

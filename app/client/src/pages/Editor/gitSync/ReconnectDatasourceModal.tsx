@@ -4,15 +4,23 @@ import Dialog from "components/ads/DialogComponent";
 import {
   getImportedApplication,
   getIsDatasourceConfigForImportFetched,
-  getOrganizationIdForImport,
-  getUserApplicationsOrgsList,
+  getWorkspaceIdForImport,
+  getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
 import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
-import Icon, { IconSize } from "components/ads/Icon";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
@@ -30,7 +38,6 @@ import {
   SKIP_TO_APPLICATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceLoading,
   getIsDatasourceTesting,
@@ -41,14 +48,12 @@ import {
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
-  ApplicationVersion,
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
-  setOrgIdForImport,
+  setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
-import TooltipComponent from "components/ads/Tooltip";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
@@ -58,7 +63,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
-import { PLACEHOLDER_APP_SLUG } from "constants/routes";
+import localStorage from "utils/localStorage";
 
 const Container = styled.div`
   height: 765px;
@@ -268,7 +273,7 @@ function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
-  const organizationId = useSelector(getOrganizationIdForImport);
+  const workspaceId = useSelector(getWorkspaceIdForImport);
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
@@ -276,13 +281,22 @@ function ReconnectDatasourceModal() {
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
 
+  // checking refresh modal
+  const pendingApp = JSON.parse(
+    localStorage.getItem("importedAppPendingInfo") || "null",
+  );
   // getting query from redirection url
-  const userOrgs = useSelector(getUserApplicationsOrgsList);
+  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
   const queryParams = useQuery();
-  const queryAppId = queryParams.get("appId");
-  const queryPageId = queryParams.get("pageId");
-  const queryDatasourceId = queryParams.get("datasourceId");
-  const queryIsImport = JSON.parse(queryParams.get("importForGit") ?? "false");
+  const queryAppId =
+    queryParams.get("appId") || (pendingApp ? pendingApp.appId : null);
+  const queryPageId =
+    queryParams.get("pageId") || (pendingApp ? pendingApp.pageId : null);
+  const queryDatasourceId =
+    queryParams.get("datasourceId") ||
+    (pendingApp ? pendingApp.datasourceId : null);
+  const queryIsImport =
+    queryParams.get("importForGit") === "true" || !!pendingApp;
 
   const [selectedDatasourceId, setSelectedDatasourceId] = useState<
     string | null
@@ -319,15 +333,15 @@ function ReconnectDatasourceModal() {
 
   // should open reconnect datasource modal
   useEffect(() => {
-    if (userOrgs && queryIsImport && queryDatasourceId) {
+    if (userWorkspaces && queryIsImport && queryDatasourceId) {
       if (queryAppId) {
-        for (const org of userOrgs) {
-          const { applications, organization } = org;
+        for (const ws of userWorkspaces) {
+          const { applications, workspace } = ws;
           const application = applications.find(
             (app: any) => app.id === queryAppId,
           );
           if (application) {
-            dispatch(setOrgIdForImport(organization.id));
+            dispatch(setWorkspaceIdForImport(workspace.id));
             dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
             const defaultPageId = getDefaultPageId(application.pages);
             if (defaultPageId) {
@@ -338,7 +352,7 @@ function ReconnectDatasourceModal() {
                 type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
                 payload: {
                   applicationId: appId,
-                  orgId: organization.id,
+                  workspaceId: workspace.id,
                 },
               });
             }
@@ -347,18 +361,18 @@ function ReconnectDatasourceModal() {
         }
       }
     }
-  }, [userOrgs, queryIsImport]);
+  }, [userWorkspaces, queryIsImport]);
 
   const isConfigFetched = useSelector(getIsDatasourceConfigForImportFetched);
 
   // todo uncomment this to fetch datasource config
   useEffect(() => {
-    if (isModalOpen && organizationId) {
+    if (isModalOpen && workspaceId) {
       dispatch(
-        initDatasourceConnectionDuringImportRequest(organizationId as string),
+        initDatasourceConnectionDuringImportRequest(workspaceId as string),
       );
     }
-  }, [organizationId, isModalOpen]);
+  }, [workspaceId, isModalOpen]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -374,8 +388,9 @@ function ReconnectDatasourceModal() {
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
   const handleClose = useCallback(() => {
+    localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-    dispatch(setOrgIdForImport(""));
+    dispatch(setWorkspaceIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
@@ -414,11 +429,13 @@ function ReconnectDatasourceModal() {
   const importedApplication = useSelector(getImportedApplication);
   useEffect(() => {
     if (!queryIsImport) {
+      // @ts-expect-error: importedApplication is of type unknown
       const defaultPage = importedApplication?.pages?.find(
         (page: any) => page.isDefault,
       );
       if (defaultPage) {
         setPageId(defaultPage.id);
+        // @ts-expect-error: importedApplication is of type unknown
         setAppId(importedApplication?.id);
       }
     }
@@ -426,13 +443,9 @@ function ReconnectDatasourceModal() {
 
   useEffect(() => {
     if (pageId && appId && datasources.length) {
+      // TODO: Update route params here
       setAppURL(
         builderURL({
-          applicationVersion:
-            importedApplication?.applicationVersion ||
-            ApplicationVersion.SLUG_URL,
-          applicationSlug: importedApplication?.slug || PLACEHOLDER_APP_SLUG,
-          applicationId: appId,
           pageId: pageId,
         }),
       );
@@ -443,7 +456,7 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (isModalOpen && !isTesting) {
       // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
-      if (!queryIsImport && datasources.length) {
+      if (queryParams.get("importForGit") !== "true" && datasources.length) {
         const selectedDS = datasources.find(
           (ds: Datasource) => ds.id === selectedDatasourceId,
         );
@@ -471,7 +484,17 @@ function ReconnectDatasourceModal() {
         next = next || pending[0];
         setSelectedDatasourceId(next.id);
         setDatasource(next);
+        // when refresh, it should be opened.
+        const appInfo = {
+          appId: appId,
+          pageId: pageId,
+          datasourceId: next.id,
+        };
+        localStorage.setItem("importedAppPendingInfo", JSON.stringify(appInfo));
       } else if (appURL) {
+        // open application import successfule
+        localStorage.setItem("importApplicationSuccess", "true");
+        localStorage.setItem("importedAppPendingInfo", "null");
         window.open(appURL, "_self");
       }
     }
@@ -557,6 +580,7 @@ function ReconnectDatasourceModal() {
                   AnalyticsUtil.logEvent(
                     "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                   );
+                  localStorage.setItem("importedAppPendingInfo", "null");
                 }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}

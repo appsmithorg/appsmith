@@ -37,3 +37,5 @@ export function isURL(str: string) {
   ); // fragment locator
   return !!pattern.test(str);
 }
+
+export type TruthyPrimitiveTypes = number | string | boolean | bigint | symbol;

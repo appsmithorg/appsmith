@@ -3,6 +3,10 @@ import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { IconNames } from "@blueprintjs/icons";
 
 export enum ColumnTypes {
@@ -279,67 +283,116 @@ export function updateIconAlignmentHook(
 // For example, when we add a new column or update a derived column's name
 // The propertyPath will be of the type `primaryColumns.columnId`
 // Handling BindingProperty of derived columns
+const addColumnRegex = /^primaryColumns\.\w+$/; // primaryColumns.customColumn1
+const updateColumnRegex = /^primaryColumns\.(\w+)\.(.*)$/; // primaryColumns.customColumn1.computedValue
+
 export const updateDerivedColumnsHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  let propertiesToUpdate: Array<{
-    propertyPath: string;
-    propertyValue: any;
-  }> = [];
-  if (props && propertyValue) {
-    // If we're adding a column, we need to add it to the `derivedColumns` property as well
-    if (/^primaryColumns\.\w+$/.test(propertyPath)) {
-      const newId = propertyValue.id;
-      if (newId) {
-        // sets default value for some properties
-        propertyValue.buttonColor = Colors.GREEN;
-        propertyValue.menuColor = Colors.GREEN;
-        propertyValue.labelColor = Colors.WHITE;
-
-        propertiesToUpdate = [
-          {
-            propertyPath: `derivedColumns.${newId}`,
-            propertyValue,
-          },
-        ];
-      }
-
+  if (propertyValue && addColumnRegex.test(propertyPath)) {
+    if (propertyValue.id) {
+      const propertiesToUpdate = [];
+      // sets default value for some properties
+      propertyValue.labelColor = Colors.WHITE;
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${propertyValue.id}`,
+        propertyValue,
+      });
       const oldColumnOrder = props.columnOrder || [];
       const newColumnOrder = [...oldColumnOrder, propertyValue.id];
       propertiesToUpdate.push({
         propertyPath: "columnOrder",
         propertyValue: newColumnOrder,
       });
+      return propertiesToUpdate;
     }
-    // If we're updating a columns' name, we need to update the `derivedColumns` property as well.
-    const regex = /^primaryColumns\.(\w+)\.(.*)$/;
-    if (regex.test(propertyPath)) {
-      const matches = propertyPath.match(regex);
-      if (matches && matches.length === 3) {
-        // updated to use column keys
-        const columnId = matches[1];
-        const columnProperty = matches[2];
-        const primaryColumn = props.primaryColumns[columnId];
-        const isDerived = primaryColumn ? primaryColumn.isDerived : false;
-
-        const { derivedColumns = {} } = props;
-
-        if (isDerived && derivedColumns && derivedColumns[columnId]) {
-          propertiesToUpdate = [
-            {
-              propertyPath: `derivedColumns.${columnId}.${columnProperty}`,
-              propertyValue: propertyValue,
-            },
-          ];
-        }
-      }
-    }
-    if (propertiesToUpdate.length > 0) return propertiesToUpdate;
   }
-  return;
+
+  const matches = propertyPath.match(updateColumnRegex);
+  if (matches && matches.length === 3) {
+    const propertiesToUpdate = [];
+    const columnId = matches[1];
+    const columnProperty = matches[2];
+    const { derivedColumns = {} } = props;
+    // only change derived properties of custom columns
+    if (derivedColumns[columnId]) {
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${columnId}.${columnProperty}`,
+        propertyValue: propertyValue,
+      });
+    }
+
+    updateThemeStylesheetsInColumns(
+      props,
+      propertyValue,
+      columnId,
+      columnProperty,
+      propertiesToUpdate,
+    );
+
+    return propertiesToUpdate.length > 0 ? propertiesToUpdate : undefined;
+  }
 };
+
+/**
+ * updates theme stylesheets
+ *
+ * @param props
+ * @param propertyPath
+ * @param propertyValue
+ */
+function updateThemeStylesheetsInColumns(
+  props: TableWidgetProps,
+  propertyValue: any,
+  columnId: string,
+  columnProperty: string,
+  propertiesToUpdate: Array<{ propertyPath: string; propertyValue: any }>,
+) {
+  if (columnProperty === "columnType") {
+    const oldColumnType = props.columnType;
+    const newColumnType = propertyValue;
+
+    const propertiesToRemove = Object.keys(
+      props.childStylesheet[oldColumnType] || {},
+    );
+
+    const propertiesToAdd = Object.keys(
+      props.childStylesheet[newColumnType] || {},
+    );
+
+    propertiesToRemove.forEach((propertyKey) => {
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
+        propertyValue: undefined,
+      });
+
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
+        propertyValue: undefined,
+      });
+    });
+
+    propertiesToAdd.forEach((propertyKey) => {
+      const { jsSnippets, stringSegments } = getDynamicBindings(
+        props.childStylesheet[newColumnType][propertyKey],
+      );
+
+      const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
+        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+      });
+
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
+        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+      });
+    });
+  }
+}
 // Gets the base property path excluding the current property.
 // For example, for  `primaryColumns[5].computedValue` it will return
 // `primaryColumns[5]`
@@ -370,4 +423,46 @@ export const hideByColumnType = (
     : getBasePropertyPath(propertyPath);
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
+};
+
+/**
+ * A function for updateHook to remove the boxShadowColor property post migration.
+ * @param props
+ * @param propertyPath
+ * @param propertyValue
+ */
+export const removeBoxShadowColorProp = (
+  props: TableWidgetProps,
+  propertyPath: string,
+) => {
+  const boxShadowColorPath = replacePropertyName(
+    propertyPath,
+    "boxShadowColor",
+  );
+  return [
+    {
+      propertyPath: boxShadowColorPath,
+      propertyValue: undefined,
+    },
+  ];
+};
+
+/**
+ * This function will replace the property present at the end of the propertyPath with the targetPropertyName.
+ * e.g.
+ * propertyPath = primaryColumns.action.boxShadow
+ * Running this function will give the new propertyPath like below:
+ * propertyPath = primaryColumns.action.boxShadowColor
+ *
+ * @param propertyPath The property path inside a widget
+ * @param targetPropertyName Target property name
+ * @returns New property path with target property name at the end.
+ */
+export const replacePropertyName = (
+  propertyPath: string,
+  targetPropertyName: string,
+) => {
+  const path = propertyPath.split(".");
+  path.pop();
+  return `${path.join(".")}.${targetPropertyName}`;
 };

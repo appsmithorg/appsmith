@@ -1,9 +1,9 @@
 /* eslint-disable prefer-const */
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 import InspectElement from "assets/images/InspectElement.svg";
 import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
@@ -19,8 +19,8 @@ import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey, thinScrollbar } from "constants/DefaultTheme";
-import Tooltip from "components/ads/Tooltip";
-import Text, { TextType } from "components/ads/Text";
+import { TooltipComponent as Tooltip } from "design-system";
+import { Text, TextType } from "design-system";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 

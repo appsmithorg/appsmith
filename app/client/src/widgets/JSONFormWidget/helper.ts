@@ -1,7 +1,20 @@
 import { isNil, isPlainObject, merge } from "lodash";
-import { LabelValueType } from "rc-select/lib/interface/generator";
+import { LabelInValueType } from "rc-select/lib/Select";
 
-import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
+import {
+  isDynamicValue,
+  getDynamicBindings,
+  combineDynamicBindings,
+} from "utils/DynamicBindingUtils";
+import {
+  ARRAY_ITEM_KEY,
+  FieldThemeStylesheet,
+  FieldType,
+  inverseFieldType,
+  Schema,
+  SchemaItem,
+  getBindingTemplate,
+} from "./constants";
 
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
@@ -34,6 +47,40 @@ const valueLookup = (
   return;
 };
 
+export const getFieldStylesheet = (
+  widgetName: string,
+  fieldType: FieldType,
+  fieldThemeStylesheets?: FieldThemeStylesheet,
+) => {
+  const computedFieldStylesheet: { [key: string]: string } = {};
+  const fieldTypeKey = inverseFieldType[fieldType];
+
+  if (fieldThemeStylesheets && fieldTypeKey in fieldThemeStylesheets) {
+    const fieldStylesheet = fieldThemeStylesheets[fieldTypeKey];
+
+    Object.keys(fieldStylesheet).map((fieldPropertyKey) => {
+      const fieldStylesheetValue = fieldStylesheet[fieldPropertyKey];
+
+      if (isDynamicValue(fieldStylesheetValue)) {
+        const { jsSnippets, stringSegments } = getDynamicBindings(
+          fieldStylesheet[fieldPropertyKey],
+        );
+        const js = combineDynamicBindings(jsSnippets, stringSegments);
+        const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+          widgetName,
+        );
+        const computedValue = `${prefixTemplate}${js}${suffixTemplate}`;
+
+        computedFieldStylesheet[fieldPropertyKey] = computedValue;
+      } else {
+        computedFieldStylesheet[fieldPropertyKey] = fieldStylesheetValue;
+      }
+    });
+  }
+
+  return computedFieldStylesheet;
+};
+
 const convertObjectTypeToFormData = (
   schema: Schema,
   formValue: unknown,
@@ -43,13 +90,19 @@ const convertObjectTypeToFormData = (
     const formData: Record<string, unknown> = {};
 
     Object.values(schema).forEach((schemaItem) => {
-      const value = valueLookup(
-        formValue as Record<string, unknown>,
-        schemaItem,
-        options.fromId,
-      );
-      const toKey = schemaItem[options.toId];
-      formData[toKey] = convertSchemaItemToFormData(schemaItem, value, options);
+      if (schemaItem.isVisible) {
+        const value = valueLookup(
+          formValue as Record<string, unknown>,
+          schemaItem,
+          options.fromId,
+        );
+        const toKey = schemaItem[options.toId];
+        formData[toKey] = convertSchemaItemToFormData(
+          schemaItem,
+          value,
+          options,
+        );
+      }
     });
 
     return formData;
@@ -234,7 +287,7 @@ export function isPrimitive(val: unknown): val is number | string | boolean {
 
 export const validateOptions = (
   values: unknown,
-): values is LabelValueType["value"][] | LabelValueType[] => {
+): values is LabelInValueType["value"][] | LabelInValueType[] => {
   if (!Array.isArray(values)) return false;
 
   let hasPrimitive = false;

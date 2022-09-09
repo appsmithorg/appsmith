@@ -34,13 +34,15 @@ import ISDCodeDropdown, {
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import Icon from "components/ads/Icon";
 import { limitDecimalValue, getSeparators } from "./utilities";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
+import {
+  Icon,
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 
 /**
  * All design system component specific logic goes here.
@@ -298,7 +300,7 @@ class InputComponent extends React.Component<
   componentDidMount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
       if (element !== null) {
         element[0].addEventListener("click", this.onIncrementButtonClick);
@@ -313,7 +315,7 @@ class InputComponent extends React.Component<
       this.props.inputType !== prevProps.inputType
     ) {
       const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
       if (element !== null) {
         element[0].addEventListener("click", this.onIncrementButtonClick);
@@ -325,7 +327,7 @@ class InputComponent extends React.Component<
   componentWillUnmount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
       if (element !== null) {
         element[0].removeEventListener("click", this.onIncrementButtonClick);
@@ -406,10 +408,13 @@ class InputComponent extends React.Component<
       );
       return (
         <ISDCodeDropdown
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
           disabled={disabled}
           onISDCodeChange={this.props.onISDCodeChange}
           options={ISDCodeDropdownOptions}
           selected={selectedISDCode}
+          widgetId={this.props.widgetId}
         />
       );
     } else if (inputType === InputTypes.CURRENCY) {
@@ -418,10 +423,13 @@ class InputComponent extends React.Component<
       );
       return (
         <CurrencyTypeDropdown
+          accentColor={this.props.accentColor}
           allowCurrencyChange={this.props.allowCurrencyChange && !disabled}
+          borderRadius={this.props.borderRadius}
           onCurrencyTypeChange={this.props.onCurrencyTypeChange}
           options={CurrencyDropdownOptions}
           selected={selectedCurrencyCountryCode}
+          widgetId={this.props.widgetId}
         />
       );
     } else if (this.props.iconName && this.props.iconAlign === "left") {
@@ -705,6 +713,9 @@ export interface InputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 export default InputComponent;

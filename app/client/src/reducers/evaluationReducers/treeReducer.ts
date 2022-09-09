@@ -4,7 +4,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { applyChange, Diff } from "deep-diff";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
 
 export type EvaluatedTreeState = DataTree;
@@ -20,9 +20,9 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
       removedPaths: [string];
     }>,
   ) => {
-    const { dataTree, updates } = action.payload;
+    const { updates } = action.payload;
     if (updates.length === 0) {
-      return dataTree;
+      return state;
     }
     for (const update of updates) {
       // Null check for typescript

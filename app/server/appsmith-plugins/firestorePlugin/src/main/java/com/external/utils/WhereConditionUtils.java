@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class WhereConditionUtils {
@@ -49,6 +50,8 @@ public class WhereConditionUtils {
         switch (dataType) {
             case INTEGER:
             case LONG:
+                value = Long.parseLong(strValue);
+                break;
             case FLOAT:
             case DOUBLE:
                 value = Double.parseDouble(strValue);

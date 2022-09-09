@@ -1,5 +1,5 @@
 {
-    "runButton": ".run-button",
+    "runButton": ".run-js-action",
     "editNameField": ".bp3-editable-text-input",
     "outputConsole": ".CodeEditorTarget",
     "jsObjectName": ".t--action-name-edit-field",
