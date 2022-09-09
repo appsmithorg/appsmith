@@ -31,14 +31,13 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.containers.wait.strategy.Wait;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +45,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -59,7 +59,6 @@ import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPagin
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class GraphQLPluginTest {
@@ -88,10 +87,10 @@ public class GraphQLPluginTest {
 
     @SuppressWarnings("rawtypes")
     @ClassRule
-    public static GenericContainer graphqlContainer = new GenericContainer(DockerImageName.parse("appsmith/test-event" +
+    public static GenericContainer graphqlContainer = new GenericContainer(CompletableFuture.completedFuture("appsmith/test-event" +
             "-driver"))
             .withExposedPorts(5000)
-            .withStartupTimeout(Duration.ofSeconds(120));
+            .waitingFor(Wait.forHttp("/").forStatusCode(404));
 
     @Before
     public void setUp() {
