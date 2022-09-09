@@ -123,15 +123,13 @@ public class MockDataServiceTest {
         StepVerifier
                 .create(mockDataService.getMockDataSet())
                 .assertNext( mockDataSets -> {
-                    assertThat(mockDataSets.getMockdbs().size()).isEqualTo(2);
-                    assertThat(mockDataSets.getMockdbs().stream().anyMatch(data -> {
-                        return data.getName().equals("movies") &&
-                                data.getPackageName().equals("mongo-plugin");
-                    }));
-                    assertThat(mockDataSets.getMockdbs().stream().anyMatch(data -> {
-                        return data.getName().equals("users") &&
-                                data.getPackageName().equals("postgres-plugin");
-                    }));
+                    assertThat(mockDataSets.getMockdbs()).hasSize(2);
+                    assertThat(mockDataSets.getMockdbs()).anyMatch(
+                            data -> data.getName().equals("movies") && data.getPackageName().equals("mongo-plugin")
+                    );
+                    assertThat(mockDataSets.getMockdbs()).anyMatch(
+                            data -> data.getName().equals("users") && data.getPackageName().equals("postgres-plugin")
+                    );
                 })
                 .verifyComplete();
     }

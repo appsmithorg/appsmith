@@ -1102,10 +1102,11 @@ public class ActionServiceCE_Test {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
-                    assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
-                    assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidgets.size());
-                    assertThat(result.getSuggestedWidgets().containsAll(expectedWidgets));
-                    assertThat(expectedWidgets.containsAll(result.getSuggestedWidgets()));
+                    assertThat(result.getDataTypes()).hasToString(expectedReturnDataTypes.toString());
+                    assertThat(result.getSuggestedWidgets()).hasSameSizeAs(expectedWidgets);
+                    assertThat(result.getSuggestedWidgets())
+                            .usingRecursiveFieldByFieldElementComparator()
+                            .containsExactlyInAnyOrderElementsOf(expectedWidgets);  // This line is causing >15 test failures.
                     assertThat(result.getRequest().getActionId()).isEqualTo(executeActionDTO.getActionId());
                     assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
                 })
@@ -2715,7 +2716,7 @@ public class ActionServiceCE_Test {
                 .create(actionMono)
                 .assertNext(updatedAction -> {
                     Datasource datasource1 = updatedAction.getDatasource();
-                    assertThat(datasource1.getWorkspaceId() != null);
+                    assertThat(datasource1.getWorkspaceId()).isNull();
                     assertThat(datasource1.getInvalids()).isEmpty();
                 })
                 .verifyComplete();

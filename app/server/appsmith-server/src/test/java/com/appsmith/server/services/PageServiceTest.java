@@ -311,7 +311,7 @@ public class PageServiceTest {
                     PageDTO page = tuple.getT1();
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("PageServiceTest TestApp".equals(page.getName()));
+                    assertThat("PageServiceTest TestApp").isEqualTo(page.getName());
 
                     assertThat(page.getPolicies()).isNotEmpty();
 
@@ -668,18 +668,18 @@ public class PageServiceTest {
                     assertThat(actionWithoutCollection.getUnpublishedAction().getName()).isEqualTo("PageAction");
 
                     // Confirm that executeOnLoad is cloned as well.
-                    assertThat(Boolean.TRUE.equals(actionWithoutCollection.getUnpublishedAction().getExecuteOnLoad()));
+                    assertThat(actionWithoutCollection.getUnpublishedAction().getExecuteOnLoad()).isTrue();
 
                     // Check if collections got copied too
                     List<ActionCollection> collections = tuple.getT3();
-                    assertThat(collections.size()).isEqualTo(1);
+                    assertThat(collections).hasSize(1);
                     assertThat(collections.get(0).getPublishedCollection()).isNull();
                     assertThat(collections.get(0).getUnpublishedCollection()).isNotNull();
                     assertThat(collections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(clonedPage.getId());
 
                     // Check if the parent page collections are not altered
                     List<ActionCollection> parentPageCollections = tuple.getT4();
-                    assertThat(parentPageCollections.size()).isEqualTo(1);
+                    assertThat(parentPageCollections).hasSize(1);
                     assertThat(parentPageCollections.get(0).getPublishedCollection()).isNotNull();
                     assertThat(parentPageCollections.get(0).getUnpublishedCollection()).isNotNull();
                     assertThat(parentPageCollections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
@@ -863,11 +863,11 @@ public class PageServiceTest {
                     assertThat(actionWithoutCollection.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
 
                     // Confirm that executeOnLoad is cloned as well.
-                    assertThat(Boolean.TRUE.equals(actions.get(0).getUnpublishedAction().getExecuteOnLoad()));
+                    assertThat(actions.get(0).getUnpublishedAction().getExecuteOnLoad()).isTrue();
 
                     // Check if collections got copied too
                     List<ActionCollection> collections = tuple.getT3();
-                    assertThat(collections.size()).isEqualTo(1);
+                    assertThat(collections).hasSize(1);
                     ActionCollection collection = collections.get(0);
                     assertThat(collection.getPublishedCollection()).isNull();
                     assertThat(collection.getUnpublishedCollection()).isNotNull();
@@ -880,7 +880,7 @@ public class PageServiceTest {
 
                     // Check if the parent page collections are not altered
                     List<ActionCollection> parentPageCollections = tuple.getT4();
-                    assertThat(parentPageCollections.size()).isEqualTo(1);
+                    assertThat(parentPageCollections).hasSize(1);
                     assertThat(parentPageCollections.get(0).getUnpublishedCollection()).isNotNull();
                     assertThat(parentPageCollections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
 
@@ -925,7 +925,7 @@ public class PageServiceTest {
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("reuseDeletedPageName".equals(page.getName()));
+                    assertThat("reuseDeletedPageName").isEqualTo(page.getName());
 
                 })
                 .verifyComplete();

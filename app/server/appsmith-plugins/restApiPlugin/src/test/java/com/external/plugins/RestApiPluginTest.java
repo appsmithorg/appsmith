@@ -55,6 +55,7 @@ import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION
 import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -338,7 +339,7 @@ public class RestApiPluginTest {
 
         StepVerifier
                 .create(invalidsMono)
-                .assertNext(invalids -> invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL")));
+                .assertNext(invalids -> assertThat(invalids).containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL")));
     }
 
     @Test

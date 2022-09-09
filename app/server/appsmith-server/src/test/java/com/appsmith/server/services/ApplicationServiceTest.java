@@ -192,7 +192,7 @@ public class ApplicationServiceTest {
 
     @Autowired
     UserRepository userRepository;
-    
+
     @Autowired
     SessionUserService sessionUserService;
 
@@ -382,7 +382,7 @@ public class ApplicationServiceTest {
                     assertThat(page.getName()).isEqualTo(FieldName.DEFAULT_PAGE_NAME);
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getPolicies()).isNotEmpty();
-                    assertThat(page.getPolicies().containsAll(Set.of(managePagePolicy, readPagePolicy)));
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                 })
                 .verifyComplete();
     }
@@ -533,7 +533,7 @@ public class ApplicationServiceTest {
                 .collectList()
                 .block();
 
-        assertThat(applicationList.size() > 0);
+        assertThat(applicationList).isNotEmpty();
         applicationList
                 .stream()
                 .filter(t -> t.getName().equals("validGetApplications-Test"))
@@ -676,7 +676,7 @@ public class ApplicationServiceTest {
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
-                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName().startsWith(FieldName.ADMINISTRATOR));
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName()).startsWith(FieldName.ADMINISTRATOR);
                         }
                     }
 
@@ -762,7 +762,7 @@ public class ApplicationServiceTest {
 
                     // There should be atleast one workspace present in the output.
                     WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
-                    assertThat(orgAppDto.getWorkspace().getUserPermissions().contains("read:workspaces"));
+                    assertThat(orgAppDto.getWorkspace().getUserPermissions()).contains("read:workspaces");
                 })
                 .verifyComplete();
 
@@ -1335,9 +1335,9 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication).isNotNull();
                     assertThat(clonedApplication.isAppIsExample()).isFalse();
                     assertThat(clonedApplication.getId()).isNotNull();
-                    assertThat(clonedApplication.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(clonedApplication.getName()).isEqualTo("gitConnectedApp Copy");
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getWorkspaceId().equals(workspaceId));
+                    assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
@@ -1349,7 +1349,7 @@ public class ApplicationServiceTest {
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
-                    assertThat(clonedPageIdsFromApplication.containsAll(clonedPageIdsFromDb));
+                    assertThat(clonedPageIdsFromApplication).containsAll(clonedPageIdsFromDb);
 
                     Set<String> srcPageIdsFromDb = srcPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> defaultSrcPageIdsFromDb = srcPageList.stream().map(page -> page.getDefaultResources().getPageId()).collect(Collectors.toSet());
@@ -1505,7 +1505,7 @@ public class ApplicationServiceTest {
                             .build();
 
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getWorkspaceId().equals(workspaceId));
+                    assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
 
@@ -1707,16 +1707,16 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest Clone Source TestApp Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getWorkspaceId().equals(workspaceId));
+                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
-                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
+                    assertThat(pageIdsFromApplication).containsAll(pageIdsFromDb);
 
                     assertThat(pageList).isNotEmpty();
                     for (NewPage page : pageList) {
@@ -2043,16 +2043,16 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest-clone-application-deleted-action-within-collection Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getWorkspaceId().equals(workspaceId));
+                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
-                    Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
-                    Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> pageIdsFromApplication = pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
+                    Set<String> pageIdsFromDb = pageList.stream().map(BaseDomain::getId).collect(Collectors.toSet());
 
-                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
+                    assertThat(pageIdsFromApplication).containsAll(pageIdsFromDb);
 
                     assertThat(pageList).isNotEmpty();
                     for (NewPage page : pageList) {
@@ -2204,11 +2204,11 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals(appName));
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getName()).isEqualTo(appName);
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPublishedPages()).hasSize(1);
 
-                    assertThat(pages.size()).isEqualTo(1);
+                    assertThat(pages).hasSize(1);
                     NewPage newPage = pages.get(0);
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getId()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getId());
