@@ -7,8 +7,8 @@ if [[ -n ${TRACE-} ]]; then
     set -o xtrace
 fi
 
-if [[ ${1-} == -h ]]; then
-    echo $'Run `'"$0"' [option...]`
+if [[ ${1-} =~ ^-*h(elp)?$ ]]; then
+    echo 'Run '"$0"' [option...]
 
    --with-docker: Start NGINX with Docker. Fail if Docker is not available.
 --without-docker: Start NGINX directly. Fail if NGINX is not installed.
@@ -20,9 +20,9 @@ if [[ ${1-} == -h ]]; then
 
         If neither of the above ar set, then we check if mkcert is available, and use https if yes, or http otherwise.
 
---env-file: Specify an alternate env file. Defaults to `.env` at the root of the project.
+--env-file: Specify an alternate env file. Defaults to '.env' at the root of the project.
 
-A single positionl argument can be given to set the backent server proxy address. Example:
+A single positional argument can be given to set the backend server proxy address. Example:
 
 '"$0"' https://localhost:8080
 '"$0"' https://host.docker.internal:8080
@@ -71,13 +71,13 @@ if [[ -z ${run_as-} ]]; then
     elif type docker; then
         run_as=docker
     else
-        echo 'Could not find nginx or docker. Do a `brew install nginx` and try again.'
+        echo 'Could not find nginx or docker. Do a "brew install nginx" and try again.'
         exit
     fi
 fi
 
 if [[ $run_as == docker ]]; then
-    echo 'Running with Docker. You may `brew install nginx` to run this without Docker.'
+    echo 'Running with Docker. You may "brew install nginx" to run this without Docker.'
 fi
 
 working_dir="$PWD/nginx"
@@ -92,8 +92,8 @@ if [[ -z ${use_https-} ]]; then
     if type mkcert; then
         use_https=1
     else
-        echo 'SSL cert isn'\''t there, and `mkcert` is not installed either. Starting with http.' >&2
-        echo 'Please `brew install mkcert` and ru-run this script to start with https.' >&2
+        echo 'SSL cert isn'\''t there, and "mkcert" is not installed either. Starting with http.' >&2
+        echo 'Please "brew install mkcert" and re-run this script to start with https.' >&2
         use_https=0
     fi
 fi
@@ -106,7 +106,7 @@ if [[ $use_https == 1 ]]; then
             mkcert "$domain"
             popd
         else
-            echo 'I got `--use-https`, but `mkcert` is not available. Please `brew install mkcert` and try again.' >&2
+            echo 'I got "--use-https", but "mkcert" is not available. Please "brew install mkcert" and try again.' >&2
             exit 1
         fi
     fi
@@ -133,10 +133,10 @@ rts="http://$rts_host:$rts_port"
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
     echo "I got --env-file as '$env_file', but I cannot access it." >&2
     exit 1
-elif [[ -n ${env_file-} ]]; then
-    export $(grep -v '^[[:space:]]*#' $env_file | xargs)
-elif [[ -f ../../.env ]]; then
-    export $(grep -v '^[[:space:]]*#' ../../.env | xargs)
+elif [[ -n ${env_file-} || -f ../../.env ]]; then
+    set -o allexport
+    source "${env_file-../../.env}"
+    set +o allexport
 else
     echo "
         Please populate the .env at the root of the project and run again
@@ -277,17 +277,17 @@ $(if [[ $use_https == 1 ]]; then echo "
 " > "$nginx_dev_conf"
 
 if type docker &>/dev/null; then
-    docker rm --force wildcard-nginx 2>&1 >/dev/null || true
+    docker rm --force wildcard-nginx >/dev/null 2>&1 || true
 fi
 
 if [[ -f $nginx_pid ]]; then
     nginx -g "pid $nginx_pid;" -s quit
-    rm $nginx_pid
+    rm "$nginx_pid"
 fi
 
 if [[ $run_as == nginx ]]; then
     nginx -c "$nginx_dev_conf"
-    stop_cmd='nginx -g "pid $nginx_pid;" -s quit'
+    stop_cmd="nginx -g 'pid $nginx_pid;' -s quit"
 
 elif [[ $run_as == docker ]]; then
     docker run \
