@@ -2,27 +2,46 @@ import { uniqueId } from "lodash";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
+import ArrowIcon from "../ArrowIcon";
 
 export interface AccordionContainerProps {
   hello?: boolean;
 }
 
-const AccordionContainer = styled.div<AccordionContainerProps>``;
+const AccordionContainer = styled.div<AccordionContainerProps>`
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: #000000d9;
+  font-size: 14px;
+  font-variant: tabular-nums;
+  line-height: 1.5715;
+  list-style: none;
+  font-feature-settings: "tnum";
+  background-color: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-bottom: 0;
+  border-radius: 2px;
+`;
 
 const StyledAccordionItem = styled.div`
-  background-color: white;
+  border-bottom: 1px solid #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 interface AccordionItemProps {
-  handleItemClick: (item: PrivateAccordionItem) => void;
-  item: PrivateAccordionItem;
+  handleItemClick: (item: AccordionItem) => void;
+  item: AccordionItem;
 }
 
 function AccordionItem({ handleItemClick, item }: AccordionItemProps) {
   return (
     <StyledAccordionItem>
       <AccordionTitle onClick={() => handleItemClick(item)}>
-        {item.title}
+        <ArrowIcon />
+        <span>{item.title}</span>
       </AccordionTitle>
       {item.isExpanded ? (
         <AccordionContent>{item.content}</AccordionContent>
@@ -50,53 +69,27 @@ const AccordionContent = styled.div`
 `;
 
 export interface AccordionItem {
-  title: string;
   content: string;
-}
-
-interface PrivateAccordionItem extends AccordionItem {
   id: string;
   isExpanded: boolean;
+  title: string;
 }
 
 export interface AccordionComponentProps extends ComponentProps {
   items: AccordionItem[];
+  onChange: (item: AccordionItem) => void;
 }
 
 function AccordionComponent(props: AccordionComponentProps) {
-  const { items } = props;
-  const [accordionItems, updateAccordionItems] = useState<
-    PrivateAccordionItem[]
-  >([]);
+  const { items, onChange } = props;
 
-  useEffect(() => {
-    updateAccordionItems(
-      items.map((item) => ({
-        ...item,
-        id: uniqueId(),
-        isExpanded: false,
-      })),
-    );
-  }, [items]);
-
-  function handleItemClick(item: PrivateAccordionItem) {
-    updateAccordionItems(
-      accordionItems.map((accordionItem) => {
-        if (accordionItem.id === item.id) {
-          return {
-            ...accordionItem,
-            isExpanded: !accordionItem.isExpanded,
-          };
-        }
-
-        return accordionItem;
-      }),
-    );
+  function handleItemClick(item: AccordionItem) {
+    onChange(item);
   }
 
   return (
     <AccordionContainer>
-      {accordionItems.map((item, index) => (
+      {items.map((item, index) => (
         <AccordionItem
           handleItemClick={handleItemClick}
           item={item}

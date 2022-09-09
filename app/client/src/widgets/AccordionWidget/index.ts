@@ -22,12 +22,12 @@ export const CONFIG = {
       {
         label: "This is accordion header 2",
         value:
-          "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world.",
+          "A dogg is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world.",
       },
       {
         label: "This is accordion header 3",
         value:
-          "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world.",
+          "A doggg is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world.",
       },
     ],
     defaultSelectedValues: "BLUE",
@@ -48,7 +48,6 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
-    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 
