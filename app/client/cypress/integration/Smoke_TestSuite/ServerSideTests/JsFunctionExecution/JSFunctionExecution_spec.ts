@@ -513,7 +513,7 @@ return "yes";`;
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
     jsEditor.RunJSObj();
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
-    agHelper.AssertElementAbsence(locator._runBtnSpinner, 5000);
+    agHelper.AssertElementAbsence(locator._runBtnSpinner, 10000);
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(

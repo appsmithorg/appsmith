@@ -20,10 +20,13 @@ export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
   private isMac = Cypress.platform === "darwin";
-  private selectLine = `${
+  private selectLineNRemove = `${
     this.isMac
       ? "{cmd}{shift}{leftArrow}{backspace}"
       : "{shift}{home}{backspace}"
+  }`;
+  private selectAll = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
 
   private selectChars = (noOfChars: number) =>
@@ -456,7 +459,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectLine);
+    return locator.type(this.selectLineNRemove);
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -478,11 +481,11 @@ export class AggregateHelper {
       : cy.get(selector);
     return locator
       .eq(index)
-      .click()
+      .focus()
       .type(value, {
         parseSpecialCharSequences: false,
         //delay: 3,
-        force: true,
+        //force: true,
       });
   }
 
@@ -707,13 +710,17 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
-      .then((ins: any) => {
-        //const input = ins[0].input;
-        ins.focus();
-        this.Sleep(200);
-        ins.val(value);
-        this.Sleep(200);
-      });
+      .type(this.selectAll)
+      .type(value, {delay: 1})
+      // .type(selectAllJSObjectContentShortcut)
+      // .then((ins: any) => {
+      //   //const input = ins[0].input;
+      //   ins.clear();
+      //   this.Sleep(200);
+      //   //ins.setValue(value);
+      //   ins.val(value).click();
+      //   this.Sleep(200);
+      // });
   }
 
   public BlurCodeInput(selector: string) {
