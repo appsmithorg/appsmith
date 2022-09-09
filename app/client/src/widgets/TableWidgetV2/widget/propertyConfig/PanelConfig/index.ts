@@ -461,7 +461,8 @@ export default {
     {
       sectionName: (props: TableWidgetProps, propertyPath: string) => {
         const columnType = get(props, `${propertyPath}.columnType`);
-        return columnType === "checkbox" || columnType === "switch"
+        return columnType === ColumnTypes.CHECKBOX ||
+          columnType === ColumnTypes.SWITCH
           ? "Alignment"
           : "Text Formatting";
       },
@@ -555,7 +556,8 @@ export default {
           label: (props: TableWidgetProps, propertyPath: string) => {
             const basePropertyPath = getBasePropertyPath(propertyPath);
             const columnType = get(props, `${basePropertyPath}.columnType`);
-            return columnType === "checkbox" || columnType === "switch"
+            return columnType === ColumnTypes.CHECKBOX ||
+              columnType === ColumnTypes.SWITCH
               ? "Horizontal Alignment"
               : "Text Align";
           },

@@ -112,7 +112,7 @@ export default {
       label: (props: TableWidgetProps, propertyPath: string) => {
         const basePropertyPath = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${basePropertyPath}.columnType`);
-        return columnType === "switch" ? "onChange" : "onCheckChange";
+        return columnType === ColumnTypes.SWITCH ? "onChange" : "onCheckChange";
       },
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {

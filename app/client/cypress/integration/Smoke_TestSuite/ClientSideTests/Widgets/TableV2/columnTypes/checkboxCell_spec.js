@@ -99,6 +99,9 @@ describe("Checkbox column type funtionality test", () => {
   });
 
   it("4. Verify disabled(editable off), enabled states and interactions on checkbox", () => {
+    cy.get(".t--propertypane")
+      .contains("CONTENT")
+      .click({ force: true });
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + checkboxSelector;
 
