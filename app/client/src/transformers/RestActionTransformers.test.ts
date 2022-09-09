@@ -359,5 +359,11 @@ describe("Api action transformer", () => {
 
     const result4 = extractApiUrlPath(path4);
     expect(result4).toEqual(output4);
+
+    const path5 = "/{{Text1.text ?? 'user1'}}";
+    const output5 = "/{{Text1.text ?? 'user1'}}";
+
+    const result5 = extractApiUrlPath(path5);
+    expect(result5).toEqual(output5);
   });
 });

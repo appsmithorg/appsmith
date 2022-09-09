@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import {
   ACTION_EXECUTION_CANCELLED,
   createMessage,
-} from "../../../../support/CommonErrorMessages";
+} from "../../../../support/Objects/CommonErrorMessages";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,

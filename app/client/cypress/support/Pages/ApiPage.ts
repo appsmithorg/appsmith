@@ -40,7 +40,7 @@ export class ApiPage {
   private _confirmBeforeRunningAPI =
     "input[name='confirmBeforeExecute'][type='checkbox']";
   _saveAsDS = ".t--store-as-datasource";
-  _responseStatus = "//div[@id='root']";
+  _responseStatus = ".t--response-status-code";
 
   CreateApi(
     apiName = "",
@@ -234,7 +234,7 @@ export class ApiPage {
   }
 
   ReadApiResponsebyKey(key: string) {
-    let apiResp: string = "";
+    let apiResp = "";
     cy.get(this._responseBody)
       .contains(key)
       .siblings("span")
@@ -257,7 +257,7 @@ export class ApiPage {
   }
 
   ResponseStatusCheck(statusCode: string) {
-    cy.xpath(this._responseStatus).should("be.visible");
-    cy.xpath(this._responseStatus).contains(statusCode);
+    this.agHelper.AssertElementVisible(this._responseStatus);
+    cy.get(this._responseStatus).contains(statusCode);
   }
 }
