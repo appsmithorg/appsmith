@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -64,6 +65,9 @@ public class CurlImporterServiceTest {
     @Autowired
     UserService userService;
 
+    @Autowired
+    WorkspaceService workspaceService;
+
     String workspaceId;
 
     @Before
@@ -73,7 +77,14 @@ public class CurlImporterServiceTest {
                 .thenReturn(List.of(this.pluginExecutor));
 
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+
+        Workspace toCreate = new Workspace();
+        toCreate.setName("CurlImporterServiceTest");
+
+        if (workspaceId == null) {
+            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            workspaceId = workspace.getId();
+        }
     }
 
     @Test

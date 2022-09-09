@@ -3,7 +3,7 @@ import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
+import { getContainerWidgetSpacesSelectorWhileMoving } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import {
   CollidingSpace,
@@ -23,7 +23,7 @@ import {
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 
 type WidgetCollidingSpace = CollidingSpace & {
@@ -70,7 +70,9 @@ export const useReflow = (
 
   const isReflowing = useRef<boolean>(false);
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
+  const reflowSpacesSelector = getContainerWidgetSpacesSelectorWhileMoving(
+    parentId,
+  );
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
   const prevPositions = useRef<OccupiedSpace[] | undefined>(OGPositions);

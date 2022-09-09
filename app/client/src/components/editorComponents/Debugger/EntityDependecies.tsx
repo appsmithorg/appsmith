@@ -1,9 +1,9 @@
 /* eslint-disable prefer-const */
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 import InspectElement from "assets/images/InspectElement.svg";
 import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";

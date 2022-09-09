@@ -20,12 +20,10 @@ import {
   PULL_CHANGES,
 } from "@appsmith/constants/messages";
 
-import { TooltipComponent as Tooltip } from "design-system";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
-import Button, { Category, Size } from "components/ads/Button";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
@@ -42,7 +40,15 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Icon,
+  IconName,
+  IconSize,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 

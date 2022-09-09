@@ -1,14 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import _, { merge } from "lodash";
-import { DATASOURCE_SAAS_FORM } from "constants/forms";
+import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
-import AdsButton, { Category } from "components/ads/Button";
+import { Button as AdsButton, Category } from "design-system";
 import { Datasource } from "entities/Datasource";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getDatasource,
   getPluginImages,

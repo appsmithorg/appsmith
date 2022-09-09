@@ -1,6 +1,5 @@
 import { Classes } from "components/ads";
-import { TextType, Text } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, TextType, Text } from "design-system";
 import { Colors } from "constants/Colors";
 import React, { ReactNode, Suspense } from "react";
 import {

@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import SearchInput, { SearchVariant } from "components/ads/SearchInput";
+import { SearchInput, SearchVariant } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -23,7 +23,7 @@ import {
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getIsFetchingApplications,
   getUserApplicationsWorkspacesList,
@@ -77,8 +77,15 @@ export const ResultsCount = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
-const SearchWrapper = styled.div`
+const SearchWrapper = styled.div<{ sticky?: boolean }>`
   margin-left: ${(props) => props.theme.spaces[11]}px;
+  ${(props) =>
+    props.sticky &&
+    `position: sticky;
+  top: 0;
+  position: -webkit-sticky;
+  z-index: 1;
+  background-color: white;`}
 `;
 
 function TemplateRoutes() {
@@ -138,6 +145,7 @@ function TemplateRoutes() {
 type TemplatesContentProps = {
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: Template) => void;
+  stickySearchBar?: boolean;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {
@@ -175,7 +183,7 @@ export function TemplatesContent(props: TemplatesContentProps) {
 
   return (
     <>
-      <SearchWrapper>
+      <SearchWrapper sticky={props.stickySearchBar}>
         <ControlGroup>
           <SearchInput
             cypressSelector={"t--application-search-input"}

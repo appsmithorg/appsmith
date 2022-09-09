@@ -35,5 +35,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["cypress", "node", "cypress-real-events"]
   },
-  "include": ["/**/*.ts"]
+  "include": ["/**/*.ts", "../../rts/src/version.js"]
 }

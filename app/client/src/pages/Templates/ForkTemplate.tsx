@@ -1,7 +1,6 @@
 import React, { ReactNode, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
-import Dropdown from "components/ads/Dropdown";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Dropdown, Size } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
@@ -73,9 +72,13 @@ function ForkTemplate({
           boundary="viewport"
           dropdownMaxHeight={"200px"}
           fillOptions
-          onSelect={(_value, dropdownOption) =>
-            setSelectedWorkspace(dropdownOption)
-          }
+          onSelect={(
+            _value: any,
+            dropdownOption: React.SetStateAction<{
+              label: string;
+              value: string;
+            }>,
+          ) => setSelectedWorkspace(dropdownOption)}
           options={workspaceList}
           placeholder={createMessage(SELECT_WORKSPACE)}
           selected={selectedWorkspace}

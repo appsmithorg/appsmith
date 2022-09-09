@@ -11,7 +11,6 @@ import {
 import { Text, TextType } from "design-system";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
 import {
   getActiveTemplateSelector,
   isFetchingTemplateSelector,
@@ -28,6 +27,7 @@ import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
 import TemplateModalHeader from "./Header";
 import TemplateDescription from "../Template/TemplateDescription";
 import SimilarTemplates from "../Template/SimilarTemplates";
+import { AppState } from "@appsmith/reducers";
 
 const breakpointColumns = {
   default: 4,
@@ -43,14 +43,24 @@ const Wrapper = styled.div`
 `;
 
 const Body = styled.div`
-  margin-top: ${(props) => props.theme.spaces[15]}px;
   padding: 0 ${(props) => props.theme.spaces[11]}px;
+  padding-top: ${(props) => props.theme.spaces[7]}px;
   height: 80vh;
   overflow: auto;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.colors.modal.scrollbar};
+  }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 `;
 
 const StyledSimilarTemplatesWrapper = styled(SimilarTemplates)`
   padding: 0px;
+`;
+
+const TemplateDescriptionWrapper = styled.div`
+  padding-bottom: 52px;
 `;
 
 type TemplateDetailedViewProps = {
@@ -139,7 +149,9 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
             </IframeTopBar>
             <iframe src={`${previewUrl}?embed=true`} />
           </IframeWrapper>
-          <TemplateDescription hideForkButton template={currentTemplate} />
+          <TemplateDescriptionWrapper>
+            <TemplateDescription hideForkButton template={currentTemplate} />
+          </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
             breakpointCols={breakpointColumns}
             onBackPress={props.onBackPress}

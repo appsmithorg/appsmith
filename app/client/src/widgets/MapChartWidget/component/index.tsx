@@ -8,6 +8,7 @@ import FusionCharts, { ChartObject } from "fusioncharts";
 // Import FusionMaps
 import FusionMaps from "fusioncharts/fusioncharts.maps";
 import World from "fusioncharts/maps/fusioncharts.world";
+import USA from "fusioncharts/maps/fusioncharts.usa";
 
 // Include the theme as fusion
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
@@ -17,7 +18,7 @@ import { dataSetForWorld, MapTypes, MapColorObject } from "../constants";
 import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
 
 // Adding the chart and theme as dependency to the core fusioncharts
-ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
+ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme, USA);
 
 const MapChartContainer = styled.div<{
   borderRadius?: string;
@@ -173,6 +174,9 @@ function MapChartComponent(props: MapChartComponentProps) {
         break;
       case MapTypes.AFRICA:
         newChartConfigs.type = "maps/africa";
+        break;
+      case MapTypes.USA:
+        newChartConfigs.type = "maps/usa";
         break;
 
       default:

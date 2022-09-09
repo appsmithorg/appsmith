@@ -1,6 +1,5 @@
 import { createMessage, TEMPLATES_BACK_BUTTON } from "ce/constants/messages";
-import { Icon, IconSize } from "components/ads";
-import { Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
@@ -20,15 +19,22 @@ const CloseIcon = styled(Icon)`
   }
 `;
 
+const HeaderWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: ${(props) => props.theme.spaces[9]}px;
+`;
+
 type TemplateModalHeaderProps = {
   onBackPress?: () => void;
   onClose: () => void;
   hideBackButton?: boolean;
+  className?: string;
 };
 
 function TemplateModalHeader(props: TemplateModalHeaderProps) {
   return (
-    <div className="flex justify-between">
+    <HeaderWrapper className={props.className}>
       <BackButtonWrapper
         hidden={props.hideBackButton}
         onClick={props.onBackPress}
@@ -37,7 +43,7 @@ function TemplateModalHeader(props: TemplateModalHeaderProps) {
         <Text type={TextType.P4}>{createMessage(TEMPLATES_BACK_BUTTON)}</Text>
       </BackButtonWrapper>
       <CloseIcon name="close-x" onClick={props.onClose} />
-    </div>
+    </HeaderWrapper>
   );
 }
 

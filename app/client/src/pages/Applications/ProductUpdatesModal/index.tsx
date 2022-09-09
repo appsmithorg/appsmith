@@ -4,15 +4,13 @@ import styled from "styled-components";
 import "@github/g-emoji-element";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import ReleaseComponent, { Release } from "./ReleaseComponent";
-import ScrollIndicator from "components/ads/ScrollIndicator";
-import Button, { Category, Size } from "components/ads/Button";
 import { Colors } from "constants/Colors";
-import { Icon } from "components/ads";
+import { Button, Category, ScrollIndicator, Size, Icon } from "design-system";
 
 const StyledDialog = styled(Dialog)`
   .bp3-dialog-body {

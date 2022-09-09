@@ -5,6 +5,16 @@ export function createMessage(
   return format(...args);
 }
 
+/*
+  For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
+  For cloud hosting, it displays "Appsmith v1.10.0". 
+  This is because Appsmith Cloud doesn't support business features yet.
+ */
+export const APPSMITH_DISPLAY_VERSION = (
+  edition: string,
+  version: string,
+  cloudHosting: boolean,
+) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
@@ -29,7 +39,8 @@ export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
 export const NAME_SPACE_ERROR = () => `Name must not have spaces`;
-export const SPECIAL_CHARACTER_ERROR = () => `Name must be alphanumeric`;
+export const APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR = () =>
+  `Name must only contain alphanumeric characters, hyphen, slash, and space`;
 
 export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
@@ -128,6 +139,8 @@ export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select role`;
 export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
+export const INVITE_USERS_MESSAGE = () => `Invite users`;
+export const INVITE_USERS_PLACEHOLDER = () => `Enter email address`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;
@@ -211,6 +224,8 @@ export const ERROR_DATEPICKER_MAX_DATE = () =>
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
 export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute`;
+export const ACTION_EXECUTION_CANCELLED = (actionName: string) =>
+  `${actionName} was cancelled`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
@@ -254,6 +269,16 @@ export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "ENABLE";
 export const UPGRADE = () => "UPGRADE";
 export const EDIT = () => "EDIT";
+export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
+export const EXPECTED_ERROR = () => "An error occurred";
+export const NO_DATASOURCE_FOR_QUERY = () =>
+  `Seems like you don’t have any Datasources to create a query`;
+export const ACTION_EDITOR_REFRESH = () => "Refresh";
+export const INVALID_FORM_CONFIGURATION = () => "Invalid form configuration";
+export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
+export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
+  "after adding your query";
+export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -328,6 +353,10 @@ export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to show/hide the debugger";
 export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
   " to see more info in the debugger";
+export const LOGS_FILTER_OPTION_ALL = () => "Show All Logs";
+export const LOGS_FILTER_OPTION_ERROR = () => "Error Logs";
+export const LOGS_FILTER_OPTION_CONSOLE = () => "Console Logs";
+export const LOGS_FILTER_OPTION_SYSTEM = () => "System Logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -349,8 +378,6 @@ export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
   `Error occurred while evaluating trigger ${propertyName}`;
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
-export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
-export const DEBUGGER_COPY_MESSAGE = () => "Copy";
 export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open documentation";
 export const DEBUGGER_SEARCH_SNIPPET = () => "Browse code snippets";
 export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
@@ -492,7 +519,7 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page from data table";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -910,6 +937,8 @@ export const API_EDITOR_TAB_TITLES = {
   AUTHENTICATION: () => "Authentication",
   SETTINGS: () => "Settings",
 };
+export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
+  `Sending the ${actionType} request`;
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
 export const WELCOME_FORM_FULL_NAME = () => "Full Name";
@@ -1144,7 +1173,7 @@ export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
 export const SELECT_WORKSPACE = () => "Select Workspace";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
-export const FORK_THIS_TEMPLATE = () => "Fork this template";
+export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
@@ -1157,7 +1186,7 @@ export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Industry";
+export const INDUSTRY = () => "Use Case";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
@@ -1203,8 +1232,10 @@ export const CLEAN_URL_UPDATE = {
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
 
-export const CREATE_PAGE = () => "Create a blank page";
+export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+
+export const CREATE_PAGE = () => "New Blank Page";
 export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
-export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";

@@ -22,23 +22,30 @@ describe("Statbox Widget Functionality", function() {
     cy.openPropertyPane("statboxwidget");
     // changing the background color of statbox and verying it
     cy.get(".t--property-pane-section-general").then(() => {
-      cy.get(".bp3-input-group")
+      cy.moveToStyleTab();
+      cy.get(`${widgetsPage.cellBackground} input`)
         .first()
         .clear()
         .wait(400)
         .type("#FFC13D");
-      cy.get(".bp3-input").should("have.value", "#FFC13D");
+      cy.get(`${widgetsPage.cellBackground} input`).should(
+        "have.value",
+        "#FFC13D",
+      );
     });
   });
 
   it("3. Verify Statbox icon button's onClick action and change the icon", () => {
     cy.openPropertyPane("iconbuttonwidget");
     cy.get(".t--property-pane-section-general").then(() => {
+      //cy.moveToStyleTab();
       // changing the icon to arrow-up
       cy.get(".bp3-button-text")
         .first()
         .click();
-      cy.get(".bp3-icon-arrow-up").click();
+      cy.get(".bp3-icon-arrow-up")
+        .click()
+        .wait(500);
       // opening modal from onClick action of icon button
       cy.createModal("Modal", "Modal1");
     });

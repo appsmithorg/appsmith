@@ -242,7 +242,7 @@ function Pages() {
         entityId="Pages"
         icon={""}
         isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
-        name="PAGES"
+        name="Pages"
         onClickPreRightIcon={onPin}
         onClickRightIcon={onClickRightIcon}
         onToggle={onPageToggle}

@@ -1,6 +1,6 @@
 import { Template } from "api/TemplatesApi";
-import React, { useState } from "react";
-import { useParams } from "react-router";
+import React from "react";
+import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import DatasourceChip from "../DatasourceChip";
@@ -26,6 +26,8 @@ import {
 } from "@appsmith/constants/messages";
 import WidgetInfo from "../WidgetInfo";
 import ForkTemplate from "../ForkTemplate";
+import { templateIdUrl } from "RouteBuilder";
+import { useQuery } from "pages/Editor/utils";
 
 export const DescriptionWrapper = styled.div`
   display: flex;
@@ -83,19 +85,25 @@ type TemplateDescriptionProps = {
   hideForkButton?: boolean;
 };
 
+const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
+
 function TemplateDescription(props: TemplateDescriptionProps) {
-  const [showForkModal, setShowForkModal] = useState(false);
-  const params = useParams<{ templateId: string }>();
+  const { template } = props;
+  const params = useParams<{
+    templateId: string;
+  }>();
+  const history = useHistory();
+  const query = useQuery();
 
   const onForkButtonTrigger = () => {
-    setShowForkModal(true);
+    history.replace(
+      `${templateIdUrl({ id: template.id })}?${SHOW_FORK_MODAL_PARAM}=true`,
+    );
   };
 
   const onForkModalClose = () => {
-    setShowForkModal(false);
+    history.replace(`${templateIdUrl({ id: template.id })}`);
   };
-
-  const { template } = props;
   return (
     <DescriptionWrapper>
       <DescriptionColumn>
@@ -109,7 +117,7 @@ function TemplateDescription(props: TemplateDescriptionProps) {
           {!props.hideForkButton && (
             <ForkTemplate
               onClose={onForkModalClose}
-              showForkModal={showForkModal}
+              showForkModal={!!query.get(SHOW_FORK_MODAL_PARAM)}
               templateId={params.templateId}
             >
               <Button

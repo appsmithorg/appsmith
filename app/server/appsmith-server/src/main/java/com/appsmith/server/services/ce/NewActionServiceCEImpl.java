@@ -52,6 +52,7 @@ import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -79,7 +80,6 @@ import reactor.util.function.Tuple2;
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -139,6 +139,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ConfigService configService;
     private final ResponseUtils responseUtils;
 
+    private final PermissionGroupService permissionGroupService;
+
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
                                   MongoConverter mongoConverter,
@@ -157,7 +159,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   PolicyUtils policyUtils,
                                   AuthenticationValidator authenticationValidator,
                                   ConfigService configService,
-                                  ResponseUtils responseUtils) {
+                                  ResponseUtils responseUtils,
+                                  PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -172,6 +175,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
+        this.permissionGroupService = permissionGroupService;
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
         this.configService = configService;
@@ -358,7 +362,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             return datasource;
                         })
                         // If the action is publicly executable, update the datasource policy
-                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction.getPolicies(), datasource));
+                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction, datasource));
             }
         }
 
@@ -859,14 +863,32 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     try {
                                         return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
                                     } catch (IOException e) {
+                                        log.error("Error in deserializing ExecuteActionDTO", e);
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "executeActionDTO"));
                                     }
                                 })
                                 .flatMap(executeActionDTO -> {
                                     dto.setActionId(executeActionDTO.getActionId());
-                                    dto.setPaginationField(executeActionDTO.getPaginationField());
                                     dto.setViewMode(executeActionDTO.getViewMode());
-
+                                    dto.setParamProperties(executeActionDTO.getParamProperties());
+                                    dto.setPaginationField(executeActionDTO.getPaginationField());
+                                    return Mono.empty();
+                                });
+                    } else if ("parameterMap".equals(key)) {
+                        return DataBufferUtils
+                                .join(part.content())
+                                .flatMap(executeActionDTOBuffer -> {
+                                    byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
+                                    executeActionDTOBuffer.read(byteData);
+                                    DataBufferUtils.release(executeActionDTOBuffer);
+                                    try {
+                                        return Mono.just(objectMapper.readValue(byteData, HashMap.class));
+                                    } catch (IOException e) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "parameterMap"));
+                                    }
+                                })
+                                .flatMap(paramMap -> {
+                                    dto.setParameterMap(paramMap);
                                     return Mono.empty();
                                 });
                     }
@@ -874,7 +896,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(part -> {
                     final Param param = new Param();
-                    param.setKey(URLDecoder.decode(part.name(), StandardCharsets.UTF_8));
+                    String pseudoBindingName = part.name();
+                    param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
@@ -1062,7 +1085,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
                         pluginService.getById(action.getPluginId())
                 ))
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
@@ -1136,8 +1159,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.PLUGIN, plugin
                     );
                     data.put(FieldName.EVENT_DATA, eventData);
-                    analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data);
-                    return request;
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data)
+                            .thenReturn(request);
                 })
                 .onErrorResume(error -> {
                     log.warn("Error sending action execution data point", error);
@@ -1809,35 +1833,52 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return updatedActionConfiguration.getBody();
     }
 
-    private Mono<Datasource> updateDatasourcePolicyForPublicAction(Set<Policy> actionPolicies, Datasource datasource) {
+    private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
         }
 
-        // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
-        if (policyUtils.isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)) {
-            // Check if datasource has execute permission
-            if (policyUtils.isPermissionPresentForUser(datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER)) {
-                // Datasource has correct permission. Return as is
-                return Mono.just(datasource);
-            }
-            // Add the permission to datasource
-            AclPermission datasourcePermission = EXECUTE_DATASOURCES;
+        String applicationId = action.getApplicationId();
 
-            User user = new User();
-            user.setName(FieldName.ANONYMOUS_USER);
-            user.setEmail(FieldName.ANONYMOUS_USER);
-            user.setIsAnonymous(true);
+        return permissionGroupService.getPublicPermissionGroup()
+                .flatMap(publicPermissionGroup -> {
+                    String publicPermissionGroupId = publicPermissionGroup.getId();
+                    // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
+                    boolean isPublicAction = permissionGroupService.isEntityAccessible(action, EXECUTE_ACTIONS.getValue(), publicPermissionGroupId);
 
-            Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
+                    if (!isPublicAction) {
+                        return Mono.just(datasource);
+                    }
+                    // Check if datasource has execute permission
+                    boolean isPublicDatasource = permissionGroupService.isEntityAccessible(datasource, EXECUTE_DATASOURCES.getValue(), publicPermissionGroupId);
+                    if (isPublicDatasource) {
+                        // Datasource has correct permission. Return as is
+                        return Mono.just(datasource);
+                    }
 
-            Datasource updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    // Add the permission to datasource
+                    return applicationService.findById(applicationId)
+                            .flatMap(application -> {
+                                if (!application.getIsPublic()) {
+                                    return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
+                                }
 
-            return datasourceService.save(updatedDatasource);
-        }
+                                Policy executePolicy = Policy.builder()
+                                        .permission(EXECUTE_DATASOURCES.getValue())
+                                        .permissionGroups(Set.of(publicPermissionGroupId))
+                                        .build();
+                                Map<String, Policy> datasourcePolicyMap = Map.of(
+                                        EXECUTE_DATASOURCES.getValue(), executePolicy
+                                );
 
-        return Mono.just(datasource);
+                                Datasource updatedDatasource =
+                                        policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+
+
+                                return datasourceService.save(updatedDatasource);
+                            });
+                });
     }
 
     public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {

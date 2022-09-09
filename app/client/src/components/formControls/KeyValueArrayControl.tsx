@@ -13,7 +13,7 @@ import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { TextInput, TextInputProps } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;

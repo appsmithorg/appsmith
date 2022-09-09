@@ -6,7 +6,8 @@ import {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
-import { debounce, findIndex, isEmpty, isEqual, isNil, isNumber } from "lodash";
+import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
+import equal from "fast-deep-equal/es6";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
 import { TextSize } from "constants/WidgetConstants";
@@ -20,7 +21,7 @@ import {
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip } from "design-system";
 import { labelMargin } from "../../WidgetUtils";
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -108,7 +109,7 @@ class SelectComponent extends React.Component<
     return optionIndex === this.props.selectedIndex;
   };
   onQueryChange = debounce((filterValue: string) => {
-    if (isEqual(filterValue, this.props.filterText)) return;
+    if (equal(filterValue, this.props.filterText)) return;
     this.props.onFilterChange(filterValue);
     this.listRef?.current?.scrollTo(0);
   }, DEBOUNCE_TIMEOUT);
@@ -318,6 +319,7 @@ class SelectComponent extends React.Component<
         <StyledControlGroup
           compactMode={compactMode}
           fill
+          isDisabled={disabled}
           labelPosition={labelPosition}
         >
           <StyledSingleDropDown

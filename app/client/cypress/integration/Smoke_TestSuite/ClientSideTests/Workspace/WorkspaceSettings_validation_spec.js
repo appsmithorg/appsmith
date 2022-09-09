@@ -22,12 +22,11 @@ describe("Workspace Settings validation spec", function() {
         cy.renameWorkspace(newWorkspaceName, workspaceId);
         cy.navigateToWorkspaceSettings(workspaceId);
         // checking parent's(<a></a>) since the child(<span>) inherits css from it
-        cy.get(homePage.workspaceHeaderName)
-          .parent()
-          .then((elem) => {
-            assert.isBelow(elem[0].offsetWidth, elem[0].scrollWidth);
-          })
-          .should("have.css", "text-overflow", "ellipsis");
+        cy.get(homePage.workspaceHeaderName).should(
+          "have.css",
+          "text-overflow",
+          "ellipsis",
+        );
       });
     });
     cy.LogOut();

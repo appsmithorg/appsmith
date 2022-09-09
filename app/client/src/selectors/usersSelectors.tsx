@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { User } from "constants/userConstants";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 

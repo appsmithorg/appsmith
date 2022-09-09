@@ -13,6 +13,10 @@ const Wrapper = styled.div`
   display: flex;
   height: 85vh;
   overflow: auto;
+
+  .modal-header {
+    padding-bottom: ${(props) => props.theme.spaces[5]}px;
+  }
 `;
 
 const FilterWrapper = styled.div`
@@ -22,8 +26,14 @@ const FilterWrapper = styled.div`
 `;
 
 const ListWrapper = styled.div`
-  height: 80vh;
+  height: 79vh;
   overflow: auto;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.colors.modal.scrollbar};
+  }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 `;
 
 type TemplateListProps = {
@@ -44,7 +54,11 @@ function TemplateList(props: TemplateListProps) {
 
   return (
     <Wrapper className="flex flex-col">
-      <TemplateModalHeader hideBackButton onClose={props.onClose} />
+      <TemplateModalHeader
+        className="modal-header"
+        hideBackButton
+        onClose={props.onClose}
+      />
       <div className="flex">
         <FilterWrapper>
           <Filters />
@@ -53,6 +67,7 @@ function TemplateList(props: TemplateListProps) {
           <TemplatesContent
             onForkTemplateClick={onForkTemplateClick}
             onTemplateClick={props.onTemplateClick}
+            stickySearchBar
           />
         </ListWrapper>
       </div>

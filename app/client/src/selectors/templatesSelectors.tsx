@@ -1,6 +1,6 @@
 import { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getWorkspaceCreateApplication } from "./applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
@@ -112,15 +112,34 @@ export const getSearchedTemplateList = createSelector(
   },
 );
 
+// Get the list of datasources which are used by templates
 export const templatesDatasourceFiltersSelector = createSelector(
+  getTemplatesSelector,
   getDefaultPlugins,
-  (plugins) => {
-    return plugins.map((plugin) => {
-      return {
-        label: plugin.name,
-        value: plugin.packageName,
-      };
+  (templates, plugins) => {
+    const datasourceFilters: Filter[] = [];
+    templates.map((template) => {
+      template.datasources.map((pluginIdentifier) => {
+        if (
+          !datasourceFilters.find((filter) => filter.value === pluginIdentifier)
+        ) {
+          const matchedPlugin = plugins.find(
+            (plugin) =>
+              plugin.id === pluginIdentifier ||
+              plugin.packageName === pluginIdentifier,
+          );
+
+          if (matchedPlugin) {
+            datasourceFilters.push({
+              label: matchedPlugin.name,
+              value: pluginIdentifier,
+            });
+          }
+        }
+      });
     });
+
+    return datasourceFilters;
   },
 );
 
@@ -137,16 +156,9 @@ export const getFilterListSelector = createSelector(
   (widgetConfigs, allDatasources, templates, allTemplateFilters) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
-      widgets: [],
       functions: [],
     };
 
-    const allWidgets = widgetConfigs.map((widget) => {
-      return {
-        label: widget.displayName,
-        value: widget.type,
-      };
-    });
     const allFunctions = allTemplateFilters.functions.map((item) => {
       return {
         label: item,
@@ -181,7 +193,6 @@ export const getFilterListSelector = createSelector(
 
     templates.map((template) => {
       filterFilters("datasources", allDatasources, template);
-      filterFilters("widgets", allWidgets, template);
       filterFilters("functions", allFunctions, template);
     });
 

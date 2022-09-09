@@ -48,7 +48,7 @@ import {
   getStickyCanvasName,
   POSITIONED_WIDGET,
 } from "constants/componentClassNameConstants";
-import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
+import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -1197,7 +1197,7 @@ export const groupWidgetsIntoContainer = function*(
 
   // if there are no collision already then reflow the below widgets by 2 rows.
   if (!isThereACollision) {
-    const widgetSpacesSelector = getWidgetSpacesSelectorForContainer(
+    const widgetSpacesSelector = getContainerWidgetSpacesSelector(
       pastingIntoWidgetId,
     );
     const widgetSpaces: WidgetSpace[] = yield select(widgetSpacesSelector) ||

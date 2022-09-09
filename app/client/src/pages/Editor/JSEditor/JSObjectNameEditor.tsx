@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";

@@ -5,7 +5,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";

@@ -33,6 +33,14 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
      */
     Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication);
     Mono<Theme> publishTheme(String applicationId);
+
+    /**
+     * This function creates a custom theme for an application.
+     * @param applicationId
+     * @param branchName
+     * @param theme
+     * @return
+     */
     Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme theme);
     Mono<Theme> getThemeById(String themeId, AclPermission permission);
     Mono<Theme> save(Theme theme);

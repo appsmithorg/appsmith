@@ -21,7 +21,7 @@ import {
 import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
 import { Text, TextType } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";

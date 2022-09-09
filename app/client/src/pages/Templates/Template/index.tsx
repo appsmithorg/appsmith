@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import Button, { Size } from "components/ads/Button";
-import { TooltipComponent as Tooltip } from "design-system";
+import { Button, Size, TooltipComponent as Tooltip } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
@@ -14,6 +13,7 @@ import {
   FORK_THIS_TEMPLATE,
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
+import { Position } from "@blueprintjs/core";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -149,7 +149,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper className={props.className} onClick={onClick}>
+    <TemplateWrapper
+      className={props.className}
+      data-cy="template-card"
+      onClick={onClick}
+    >
       <ImageWrapper className="image-wrapper">
         <StyledImage src={screenshotUrls[0]} />
       </ImageWrapper>
@@ -174,7 +178,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               showForkModal={showForkModal}
               templateId={id}
             >
-              <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
+              <Tooltip
+                content={createMessage(FORK_THIS_TEMPLATE)}
+                minimal
+                position={Position.BOTTOM}
+              >
                 <StyledButton
                   className="t--fork-template fork-button"
                   icon="plus"

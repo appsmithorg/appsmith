@@ -28,24 +28,28 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import { IconSize, SearchInput, SearchVariant } from "components/ads";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import {
+  IconSize,
+  InputWrapper,
+  SearchInput,
+  SearchVariant,
+} from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
-import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 
-export const StyledSearchInput = styled(SearchInput)`
+export const StyledSearchInput = React.memo(styled(SearchInput)`
   position: sticky;
-  top: 52px;
+  top: 46px;
   z-index: 3;
 
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
     padding: 0 8px;
+    height: 32px;
   }
-`;
+`);
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -76,7 +80,6 @@ function PropertyPaneView(
     equal,
   );
   const doActionsExist = useSelector(actionsExist);
-  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
@@ -173,6 +176,10 @@ function PropertyPaneView(
     ];
   }, [onCopy, onDelete, handleTabKeyDownForButton]);
 
+  useEffect(() => {
+    setSearchText("");
+  }, [widgetProperties.widgetId]);
+
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
@@ -197,7 +204,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="w-full overflow-y-scroll"
+      className="w-full overflow-y-auto"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >
@@ -238,16 +245,18 @@ function PropertyPaneView(
         className="t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
-        {featureFlags.PROPERTY_PANE_GROUPING &&
-        (isContentConfigAvailable || isStyleConfigAvailable) ? (
+        {isContentConfigAvailable || isStyleConfigAvailable ? (
           <>
-            <StyledSearchInput
-              className="propertyPaneSearch"
-              fill
-              onChange={setSearchText}
-              placeholder="Search for controls, labels etc"
-              variant={SearchVariant.BACKGROUND}
-            />
+            {// TODO(aswathkk): Fix #15970 and show search bar
+            false && (
+              <StyledSearchInput
+                className="propertyPaneSearch"
+                fill
+                onChange={setSearchText}
+                placeholder="Search for controls, labels etc"
+                variant={SearchVariant.BACKGROUND}
+              />
+            )}
             <PropertyPaneTab
               contentComponent={
                 isContentConfigAvailable ? (

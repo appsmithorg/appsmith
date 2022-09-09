@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Rating from "react-rating";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
+import { Button, Icon, IconSize, Size } from "design-system";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,

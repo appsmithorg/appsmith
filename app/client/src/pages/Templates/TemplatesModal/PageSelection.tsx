@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
-import { CheckboxType, Checkmark } from "components/ads/Checkbox";
-import { Classes, Size } from "components/ads";
-import Icon from "components/ads/Icon";
-import { Colors } from "constants/Colors";
-import { Button } from "components/ads";
+import PagesLineIcon from "remixicon-react/PagesLineIcon";
+import { CheckboxType, Text, TextType, IconWrapper } from "design-system";
+import { Checkmark, Size, Button } from "design-system";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import { Template } from "api/TemplatesApi";
@@ -17,6 +14,8 @@ import {
   PAGE,
   PAGES,
 } from "ce/constants/messages";
+import { Colors } from "constants/Colors";
+import { Classes } from "components/ads";
 
 const Wrapper = styled.div`
   width: max(300px, 25%);
@@ -45,13 +44,14 @@ const CardHeader = styled.div`
   align-items: center;
 
   .checkbox {
-    margin-left: ${(props) => props.theme.spaces[9]}px;
+    margin-left: ${(props) => props.theme.spaces[3]}px;
   }
 `;
 
 const StyledCheckMark = styled(Checkmark)`
   width: 16px;
   height: 16px;
+  ${(props) => !props.isChecked && `border: 1.8px solid ${Colors.GRAY_400};`}
 
   &::after {
     width: 5px;
@@ -203,7 +203,9 @@ function PageSelection(props: PageSelectionProps) {
                 className="flex items-center"
                 onClick={() => props.onPageSelection(page.id)}
               >
-                <Icon name="pages-line" />
+                <IconWrapper className={Classes.ICON}>
+                  <PagesLineIcon />
+                </IconWrapper>
                 <Text type={TextType.P4}>{page.name.toUpperCase()}</Text>
               </PageName>
               <CustomCheckbox

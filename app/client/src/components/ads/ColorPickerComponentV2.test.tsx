@@ -60,7 +60,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     expect(screen.getByRole("textbox")).toHaveFocus();
   });
 
-  it("Pressing {Enter} should open the colorpicker", async () => {
+  it("Pressing {Enter} should open the colorpicker", () => {
     render(getTestComponent());
     userEvent.tab();
     expect(screen.queryByTestId("color-picker")).toBeNull();
@@ -78,7 +78,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
   });
 
-  it("Pressing {Tab} should shift sections in the colorpicker", async () => {
+  it("Pressing {Tab} should shift sections in the colorpicker", () => {
     render(getTestComponent());
     userEvent.tab();
     userEvent.keyboard("{Enter}");
