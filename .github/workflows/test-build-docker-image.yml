@@ -656,7 +656,6 @@ jobs:
           - 27017:27017
 
     steps:
-
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -748,13 +747,13 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
-      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally. 
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
       # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build  docker image
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
-          run: |
-            docker build -t fatcontainer .
+        run: |
+          docker build -t fatcontainer .
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
