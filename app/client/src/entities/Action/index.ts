@@ -97,6 +97,7 @@ export interface BaseAction {
   confirmBeforeExecute?: boolean;
   eventData?: any;
   messages: string[];
+  userPermissions?: string[];
 }
 
 interface BaseApiAction extends BaseAction {

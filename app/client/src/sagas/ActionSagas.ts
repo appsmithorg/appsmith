@@ -315,6 +315,14 @@ export function* updateActionSaga(
     if (!action) action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
+    if (action?.userPermissions?.includes("manage:actions")) {
+      yield validateResponse({
+        status: 403,
+        resourceType: action?.pluginType,
+        resourceId: actionPayload.payload.id,
+      });
+    }
+
     if (isAPIAction(action)) {
       action = transformRestAction(action);
     }
