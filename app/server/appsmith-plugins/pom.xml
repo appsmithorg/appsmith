@@ -74,6 +74,7 @@
         <module>redshiftPlugin</module>
         <module>amazons3Plugin</module>
         <module>googleSheetsPlugin</module>
+        <module>graphqlPlugin</module>
         <module>snowflakePlugin</module>
         <module>arangoDBPlugin</module>
         <module>jsPlugin</module>

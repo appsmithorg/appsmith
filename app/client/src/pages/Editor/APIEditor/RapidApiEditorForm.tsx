@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
@@ -16,7 +16,7 @@ import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import { NameWrapper } from "./Form";
+import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { getActionData } from "../../../selectors/entitiesSelector";
 import { AppState } from "@appsmith/reducers";

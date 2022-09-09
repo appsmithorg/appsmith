@@ -330,6 +330,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 })
                 .flatMapMany(possibleEntityNamesInDsl -> newActionService.findUnpublishedActionsInPageByNames(possibleEntityNamesInDsl, pageId))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .flatMap(newActionService::fillSelfReferencingDataPaths)
                 // Add dependencies of the actions found in the DSL in the graph.
                 .map(action -> {
                     // This action is directly referenced in the DSL. This action is an ideal candidate for on page load
@@ -588,6 +589,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
         Mono<List<ActionDTO>> findAndAddActionsInBindingsMono = newActionService.findUnpublishedActionsInPageByNames(possibleActionNames, pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .flatMap(newActionService::fillSelfReferencingDataPaths)
                 .map(action -> {
 
                     extractAndSetActionBindingsInGraphEdges(edges, action, newBindings, actionsFoundDuringWalk);
@@ -631,6 +633,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .flatMap(newActionService::fillSelfReferencingDataPaths)
                 // Add the vertices and edges to the graph for these actions
                 .map(actionDTO -> {
                     extractAndSetActionBindingsInGraphEdges(edges, actionDTO, bindingsFromActions, actionsFoundDuringWalk);
@@ -783,14 +786,19 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         Map<String, Set<String>> completePathToDynamicBindingMap = new HashMap<>();
 
         Map<String, Object> configurationObj = objectMapper.convertValue(action.getActionConfiguration(), Map.class);
-
+        Set<String> selfReferencingDataPaths = action.getActionConfiguration().getSelfReferencingDataPaths();
         if (dynamicBindingPathList != null) {
             // Each of these might have nested structures, so we iterate through them to find the leaf node for each
             for (Property x : dynamicBindingPathList) {
                 final String fieldPath = String.valueOf(x.getKey());
 
-                // Ignore pagination configuration since pagination technically does not belong to dynamic binding list.
-                if (fieldPath.equals("prev") || fieldPath.equals("next")) {
+                /**
+                 * selfReferencingDataPaths is a set of paths that are expected to contain bindings that refer to the
+                 * same action object i.e. a cyclic reference. e.g. A GraphQL API response can contain pagination
+                 * cursors that are required to be configured in the pagination tab of the same API. We don't want to
+                 * treat these cyclic references as cyclic dependency errors.
+                 */
+                if (selfReferencingDataPaths.contains(fieldPath)) {
                     continue;
                 }
 
