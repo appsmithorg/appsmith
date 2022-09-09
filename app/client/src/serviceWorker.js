@@ -70,7 +70,14 @@ registerRoute(({ url }) => {
 
 self.addEventListener("updatefound", (event) => {
   console.log("updateFound");
-  console.log("caches", caches.keys());
+  caches.keys().then(function(cacheNames) {
+    return Promise.all(
+      cacheNames.map(function(cacheName) {
+        console.log("caches", { cacheName });
+        // return caches.delete(cacheName);
+      }),
+    );
+  });
 });
 
 self.addEventListener("activate", (event) => {
