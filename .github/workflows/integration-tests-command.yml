@@ -575,7 +575,7 @@ jobs:
       - name: Exit if Server hasnt started
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+          if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
              echo "Server Not Started";
              exit 1;
            else
