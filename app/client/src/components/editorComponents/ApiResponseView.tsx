@@ -51,10 +51,7 @@ import {
   setApiPaneResponsePaneHeight,
   setApiPaneResponseSelectedTabIndex,
 } from "actions/apiPaneActions";
-import {
-  ActionExecutionResizerHeight,
-  TableCellHeight,
-} from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -335,10 +332,6 @@ function ApiResponseView(props: Props) {
     });
   };
 
-  // const [tableBodyHeight, setTableBodyHeightHeight] = useState(
-  //   window.innerHeight,
-  // );
-
   const messages = response?.messages;
   let responseHeaders = {};
 
@@ -545,15 +538,12 @@ function ApiResponseView(props: Props) {
   ];
 
   return (
-    <ResponseContainer
-      ref={panelRef}
-      style={{ height: `${responsePaneHeight}px` }}
-    >
+    <ResponseContainer ref={panelRef}>
       <Resizer
-        onResizeComplete={(height: number) =>
-          // TableCellHeight in this case is the height of one table cell in pixels.
-          updateResponsePaneHeight(height - TableCellHeight)
-        }
+        initialHeight={responsePaneHeight}
+        onResizeComplete={(height: number) => {
+          updateResponsePaneHeight(height);
+        }}
         openResizer={isRunning}
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}

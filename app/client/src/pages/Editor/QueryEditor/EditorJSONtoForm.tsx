@@ -75,8 +75,7 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
-import { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "../../../api/PluginApi";
+import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Button, Category, Size, TooltipComponent } from "design-system";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -114,10 +113,7 @@ import {
   setQueryPaneResponsePaneHeight,
   setQueryPaneResponseSelectedTabIndex,
 } from "actions/queryPaneActions";
-import {
-  ActionExecutionResizerHeight,
-  TableCellHeight,
-} from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -494,9 +490,6 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  // const [tableBodyHeight, setTableBodyHeightHeight] = useState(
-  //   window.innerHeight,
-  // );
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -1048,17 +1041,14 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <TabbedViewContainer
-              ref={panelRef}
-              style={{ height: `${responsePaneHeight}px` }}
-            >
+            <TabbedViewContainer ref={panelRef}>
               <Resizable
+                initialHeight={responsePaneHeight}
+                onResizeComplete={(height: number) =>
+                  setResponsePaneHeight(height)
+                }
                 openResizer={isRunning}
                 panelRef={panelRef}
-                setContainerDimensions={(height: number) =>
-                  // TableCellHeight in this case is the height of one table cell in pixels.
-                  setResponsePaneHeight(height - TableCellHeight)
-                }
                 snapToHeight={ActionExecutionResizerHeight}
               />
               <SectionDivider />
