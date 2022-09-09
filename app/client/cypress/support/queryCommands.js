@@ -95,6 +95,7 @@ Cypress.Commands.add("onlyQueryRun", () => {
     .last()
     .click({ force: true })
     .wait(1000);
+  cy.get(".cs-spinner").should("not.exist");
 });
 
 Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
