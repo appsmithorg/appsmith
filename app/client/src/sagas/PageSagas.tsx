@@ -56,7 +56,11 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
+import {
+  captureInvalidDynamicBindingPath,
+  isNameValid,
+  quickScrollToWidget,
+} from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
@@ -1125,12 +1129,7 @@ function* restoreSelectedWidgetContext() {
     yield put(showModal(allWidgets[selectedWidgets[0]]?.parentModalId, false));
   }
 
-  setTimeout(() => {
-    const el = document.getElementById(selectedWidgets[0]);
-    if (el) {
-      el.scrollIntoView({ block: "center" });
-    }
-  }, 0);
+  quickScrollToWidget(selectedWidgets[0]);
 }
 
 export default function* pageSagas() {

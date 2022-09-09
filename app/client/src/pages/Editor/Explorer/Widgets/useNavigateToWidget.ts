@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { flashElementsById } from "utils/helpers";
+import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { showModal, closeAllModals } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -42,7 +42,8 @@ export const useNavigateToWidget = () => {
     if (parentModalId) dispatch(showModal(parentModalId));
     else dispatch(closeAllModals());
     selectWidget(widgetId, false);
-    navigateToCanvas(pageId);
+    navigateToCanvas(pageId, widgetId);
+    quickScrollToWidget(widgetId);
 
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
