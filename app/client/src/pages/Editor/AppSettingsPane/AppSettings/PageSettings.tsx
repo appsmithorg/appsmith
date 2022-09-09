@@ -1,10 +1,14 @@
+import { setPageSlug, updatePage } from "actions/pageActions";
+import { UpdatePageRequest } from "api/PageApi";
 import { Page } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Button, Size, TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
 function PageSettings(props: { page: Page }) {
+  const dispatch = useDispatch();
   const page = props.page;
   const [pageName, setPageName] = useState(page.pageName);
   const [customSlug, setCustomSlug] = useState(page.customSlug);
@@ -21,6 +25,20 @@ function PageSettings(props: { page: Page }) {
     isPageUrlUpdated ||
     isHiddenUpdated ||
     isDefaultUpdated;
+
+  const saveChanges = () => {
+    if (isPageUrlUpdated) {
+      const payload: UpdatePageRequest = {
+        id: page.pageId,
+        customSlug: customSlug || "",
+      };
+      if (isPageNameUpdated) payload.name = pageName;
+      if (isHiddenUpdated) payload.isHidden = !!isHidden;
+      dispatch(setPageSlug(payload));
+    } else {
+      dispatch(updatePage(page.pageId, pageName, !!isHidden));
+    }
+  };
 
   return (
     <>
@@ -48,12 +66,6 @@ function PageSettings(props: { page: Page }) {
           onChange={setCustomSlug}
           placeholder="Page URL"
           type="input"
-          validator={(value: string) => {
-            return {
-              isValid: value.length > 0,
-              message: value.length > 0 ? "" : "Cannot be empty",
-            };
-          }}
           value={customSlug}
         />
       </div>
@@ -85,7 +97,7 @@ function PageSettings(props: { page: Page }) {
         })}
         disabled={!isEdited}
         fill
-        onClick={() => console.log("update")}
+        onClick={saveChanges}
         size={Size.medium}
         text="Save"
       />

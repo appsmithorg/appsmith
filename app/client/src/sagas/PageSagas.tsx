@@ -990,14 +990,9 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
   }
 }
 
-function* setCustomSlugSaga(
-  action: ReduxAction<{ pageId: string; customSlug: string }>,
-) {
-  const { customSlug, pageId } = action.payload;
-  const response: ApiResponse<Page> = yield call(PageApi.updatePage, {
-    id: pageId,
-    customSlug,
-  });
+function* setCustomSlugSaga(action: ReduxAction<UpdatePageRequest>) {
+  const request = action.payload;
+  const response: ApiResponse<Page> = yield call(PageApi.updatePage, request);
   try {
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) return;
@@ -1008,14 +1003,14 @@ function* setCustomSlugSaga(
     yield put({
       type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS,
       payload: {
-        pageId,
+        pageId: request.id,
       },
     });
   } catch (e) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR,
       payload: {
-        pageId,
+        pageId: request.id,
       },
     });
   }

@@ -1,6 +1,6 @@
 import { Page } from "ce/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAllPages } from "selectors/entitiesSelector";
 import styled from "styled-components";
@@ -40,6 +40,15 @@ const ThemeTabContentWrapper = styled.div`
 function AppSettings() {
   const [selectedTab, setSelectedTab] = useState<SelectedTab>();
   const pages: Page[] = useSelector(selectAllPages);
+
+  useEffect(() => {
+    if (selectedTab?.page?.pageId) {
+      setSelectedTab({
+        ...selectedTab,
+        page: pages.find((page) => page.pageId === selectedTab.page?.pageId),
+      });
+    }
+  }, pages);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {

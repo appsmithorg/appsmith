@@ -227,7 +227,7 @@ function PageListItem(props: PageListItemProps) {
               </TooltipComponent>
             </Actions>
           </div>
-          {/* <CustomURLSlug page={item} /> */}
+          <CustomURLSlug page={item} />
         </div>
         {/* Disabling drag on action items as attempting to drag also invokes the click event.
          Clicks events in child elements could be disabled once we upgrade react-use-gesture to
@@ -270,11 +270,11 @@ export function CustomURLSlug(props: CustomURLSlugProp) {
   );
 
   const saveSlug = useCallback(() => {
-    dispatch(setPageSlug({ customSlug, pageId: page.pageId }));
+    dispatch(setPageSlug({ customSlug, id: page.pageId }));
   }, [page.pageId, customSlug]);
 
   const resetCustomSlug = useCallback(() => {
-    dispatch(setPageSlug({ customSlug: "", pageId: page.pageId }));
+    dispatch(setPageSlug({ customSlug: "", id: page.pageId }));
   }, [page.pageId]);
 
   const onChange = useCallback(

@@ -11,7 +11,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
-import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
+import {
+  FetchPageRequest,
+  PageLayout,
+  SavePageResponse,
+  UpdatePageRequest,
+} from "api/PageApi";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -500,10 +505,7 @@ export const fetchPageDSLs = () => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
 });
 
-export const setPageSlug = (payload: {
-  customSlug: string;
-  pageId: string;
-}) => ({
+export const setPageSlug = (payload: UpdatePageRequest) => ({
   type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT,
   payload,
 });
