@@ -331,11 +331,12 @@ function JSResponseView(props: Props) {
   }, []);
 
   return (
-    <ResponseContainer
-      ref={panelRef}
-      style={{ height: `${responseTabHeight}px` }}
-    >
-      <Resizer onResizeComplete={setResponseHeight} panelRef={panelRef} />
+    <ResponseContainer ref={panelRef}>
+      <Resizer
+        initialHeight={responseTabHeight}
+        onResizeComplete={setResponseHeight}
+        panelRef={panelRef}
+      />
       <TabbedViewWrapper>
         <EntityBottomTabs
           containerRef={panelRef}

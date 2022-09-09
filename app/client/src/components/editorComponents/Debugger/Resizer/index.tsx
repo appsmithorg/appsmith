@@ -24,6 +24,7 @@ type ResizerProps = {
   onResizeComplete?: (height: number) => void;
   snapToHeight?: number;
   openResizer?: boolean;
+  initialHeight?: number;
 };
 
 function Resizer(props: ResizerProps) {
@@ -31,6 +32,14 @@ function Resizer(props: ResizerProps) {
   const [height, setHeight] = useState(
     props.panelRef.current?.getBoundingClientRect().height || 0,
   );
+
+  useEffect(() => {
+    if (!props.initialHeight) return;
+    const panel = props.panelRef.current;
+    if (!panel) return;
+    panel.style.height = `${props.initialHeight}px`;
+    setHeight(props.initialHeight);
+  }, [props.initialHeight]);
 
   const handleResize = (movementY: number) => {
     const panel = props.panelRef.current;
@@ -87,11 +96,12 @@ function Resizer(props: ResizerProps) {
 
     if (mouseDown) {
       window.addEventListener("mousemove", handleMouseMove);
+    } else {
+      handleResizeComplete();
     }
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      handleResizeComplete();
     };
   }, [mouseDown]);
 
