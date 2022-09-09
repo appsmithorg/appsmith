@@ -164,6 +164,7 @@ describe("Rest Bugs tests", function() {
     ee.SelectEntityByName("Table1", "Widgets");
     ee.SelectEntityByName("Currencies", "Queries/JS");
     apiPage.EnterURL("https://api.coinbase.com/v2/");
+    agHelper.Sleep();
     // cy.get(".t--dataSourceField").then(($el) => {
     //   cy.updateCodeInput($el, "https://api.coinbase.com/v2/");
     // });
