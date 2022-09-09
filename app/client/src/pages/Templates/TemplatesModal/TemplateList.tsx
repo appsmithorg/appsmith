@@ -8,6 +8,7 @@ import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
 import { Template } from "api/TemplatesApi";
 import TemplateModalHeader from "./Header";
+import { createMessage, FETCHING_TEMPLATE_LIST } from "ce/constants/messages";
 
 const Wrapper = styled.div`
   display: flex;
@@ -49,7 +50,7 @@ function TemplateList(props: TemplateListProps) {
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
 
   if (isFetchingTemplates) {
-    return <LoadingScreen text="Loading templates list" />;
+    return <LoadingScreen text={createMessage(FETCHING_TEMPLATE_LIST)} />;
   }
 
   return (

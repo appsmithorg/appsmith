@@ -35,7 +35,7 @@ const Card = styled.div`
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[9]}px`};
   border: solid 1px ${Colors.GREY_4};
-  background-color: #fff;
+  background-color: ${Colors.WHITE};
   flex: 1;
   display: flex;
   flex-direction: row;

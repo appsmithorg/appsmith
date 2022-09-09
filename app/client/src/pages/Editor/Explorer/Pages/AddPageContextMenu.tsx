@@ -25,6 +25,7 @@ import { Colors } from "constants/Colors";
 import {
   ADD_PAGE_FROM_TEMPLATE,
   ADD_PAGE_TOOLTIP,
+  CANVAS_NEW_PAGE_CARD,
   createMessage,
   CREATE_PAGE,
   GENERATE_PAGE_ACTION_TITLE,
@@ -137,7 +138,7 @@ function AddPageContextMenu({
         >
           <Wrapper ref={menuRef} tabIndex={0}>
             <Text autofocus className="title" type={TextType.H5}>
-              Create New Page
+              {createMessage(CANVAS_NEW_PAGE_CARD)}
             </Text>
             {ContextMenuItems.map((item, idx) => {
               const MenuIcon = item.icon;

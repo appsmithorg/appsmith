@@ -1201,6 +1201,8 @@ export const FILTER_SELECTALL = () => "Select all";
 export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";
+export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
+
 export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
@@ -1235,6 +1237,7 @@ export const CLEAN_URL_UPDATE = {
 export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
 
 export const CREATE_PAGE = () => "New Blank Page";
+export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
 export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
