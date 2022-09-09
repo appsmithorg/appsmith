@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown, {
   TreeDropdownOption,
 } from "pages/Editor/Explorer/TreeDropdown";
@@ -24,6 +24,12 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { AppState } from "ce/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -93,7 +99,21 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
-  const optionTree: TreeDropdownOption[] = [
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canManagePages = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_PAGE,
+  );
+
+  const canDeletePages = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.DELETE_PAGE,
+  );
+
+  const managePageOptions: TreeDropdownOption[] = [
     {
       value: "rename",
       onSelect: editPageName,
@@ -116,35 +136,38 @@ export function PageContextMenu(props: {
       ) as ReactNode) as string,
     },
   ];
+
+  const deletePageOption: TreeDropdownOption = {
+    className: "t--apiFormDeleteBtn single-select",
+    confirmDelete: confirmDelete,
+    value: "delete",
+    onSelect: () => {
+      confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+    },
+    label: confirmDelete
+      ? createMessage(CONFIRM_CONTEXT_DELETE)
+      : createMessage(CONTEXT_DELETE),
+    intent: "danger",
+  };
+
   if (!props.isDefaultPage) {
-    optionTree.push({
+    managePageOptions.push({
       value: "setdefault",
       onSelect: setPageAsDefaultCallback,
       label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
     });
   }
 
-  if (!props.isDefaultPage) {
-    optionTree.push({
-      className: "t--apiFormDeleteBtn single-select",
-      confirmDelete: confirmDelete,
-      value: "delete",
-      onSelect: () => {
-        confirmDelete ? deletePageCallback() : setConfirmDelete(true);
-      },
-      label: confirmDelete
-        ? createMessage(CONFIRM_CONTEXT_DELETE)
-        : createMessage(CONTEXT_DELETE),
-      intent: "danger",
-    });
-  }
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={optionTree}
+      optionTree={[
+        ...(canManagePages ? managePageOptions : []),
+        ...(canDeletePages ? [deletePageOption] : []),
+      ]}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}

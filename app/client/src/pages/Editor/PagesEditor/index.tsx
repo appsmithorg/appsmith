@@ -20,6 +20,12 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { builderURL } from "RouteBuilder";
+import { AppState } from "ce/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -73,6 +79,15 @@ function PagesEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const pageId = useSelector(getCurrentPageId);
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreatePages = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_PAGE,
+  );
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -148,6 +163,7 @@ function PagesEditor() {
           <h1>Page Properties</h1>
         </div>
         <NewPageButton
+          disabled={!canCreatePages}
           icon="plus"
           onClick={createPageCallback}
           size={Size.medium}

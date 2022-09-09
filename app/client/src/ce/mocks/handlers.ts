@@ -31,6 +31,8 @@ export const handlers = [
             "manage:datasources",
             "delete:datasources",
             "create:datasourceActions",
+            "manage:actions",
+            "delete:actions",
           ],
           name: "Sangeeth's Apps",
           email: "sangeeth@appsmith.com",
