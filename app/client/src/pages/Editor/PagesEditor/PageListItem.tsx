@@ -238,7 +238,7 @@ function PageListItem(props: PageListItemProps) {
                         ? get(theme, "colors.propertyPane.deleteIconColor")
                         : Colors.GREY_9
                     }
-                    disabled={item.isDefault && !canDeletePages}
+                    disabled={item.isDefault || !canDeletePages}
                     height={16}
                     onClick={deletePageCallback}
                     width={16}
