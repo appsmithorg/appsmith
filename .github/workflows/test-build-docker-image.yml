@@ -656,8 +656,6 @@ jobs:
           - 27017:27017
 
     steps:
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
 
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
@@ -750,15 +748,13 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally. 
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build  docker image
         if: steps.run_result.outputs.run_result != 'success'
-        uses: depot/build-push-action@v1
-        with:
-          context: .
-          push: false
-          load: true
-          tags: |
-            fatcontainer
+        working-directory: "."
+          run: |
+            docker build -t fatcontainer .
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -1559,6 +1555,9 @@ jobs:
       - name: Get the version to tag the Docker image
         id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
