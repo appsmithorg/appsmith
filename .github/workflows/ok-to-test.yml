@@ -30,4 +30,4 @@ jobs:
           commands: |
             ok-to-test
             perf-test
-          permission: write
+          permission: none
