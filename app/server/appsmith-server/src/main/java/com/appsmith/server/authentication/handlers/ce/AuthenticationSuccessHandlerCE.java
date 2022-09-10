@@ -203,11 +203,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 });
 
                     });
-    }
+        }
 
         return applicationMono
                 .flatMap(application1 ->applicationPageService.createApplication(application1));
-}
+    }
 
     /**
      * This function redirects the back to the client's page after a successful sign in/sign up attempt by the user

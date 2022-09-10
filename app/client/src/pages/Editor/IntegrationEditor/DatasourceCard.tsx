@@ -310,7 +310,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               <NewActionButton
                 datasource={datasource}
                 eventFrom="active-datasources"
-                pluginType={plugin?.type}
+                plugin={plugin}
               />
               <MenuWrapper
                 className="t--datasource-menu-option"
