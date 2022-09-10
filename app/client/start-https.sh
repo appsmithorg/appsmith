@@ -308,5 +308,5 @@ else
 fi
 
 echo '✅ Started NGINX'
-echo "ℹ️  Stop with '$stop_cmd'"
+echo "ℹ️  Stop with: $stop_cmd"
 echo "🎉 $(if [[ $use_https == 1 ]]; then echo "https://$domain"; else echo "http://localhost"; fi)"
