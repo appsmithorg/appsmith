@@ -1780,8 +1780,8 @@ export function* wrapChildren(
     const wrapperPayload = getLayoutWrapperPayload(
       widgets,
       {
-        rows: child.rows,
-        columns: child.columns,
+        rows: child.rows || child.rightColumn - child.leftColumn,
+        columns: child.columns || child.bottomRow - child.topRow,
         topRow: child.topRow,
         leftColumn: child.leftColumn,
         parentColumnSpace: parent.parentColumnSpace,

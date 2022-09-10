@@ -24,6 +24,7 @@ import {
   Spacing,
 } from "components/constants";
 import {
+  generatePositioningConfig,
   generateResponsiveBehaviorConfig,
   getLayoutConfig,
 } from "utils/layoutPropertiesUtils";
@@ -99,8 +100,8 @@ export class ContainerWidget extends BaseWidget<
             isTriggerProperty: true,
             validation: { type: ValidationTypes.TEXT },
           },
-          ...getLayoutConfig(Alignment.Left, Spacing.None),
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          // ...getLayoutConfig(Alignment.Left, Spacing.None),
+          // { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
@@ -198,6 +199,8 @@ export class ContainerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          generatePositioningConfig(),
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
     ];

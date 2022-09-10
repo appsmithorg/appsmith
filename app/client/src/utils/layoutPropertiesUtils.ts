@@ -103,14 +103,16 @@ export const generateResponsiveBehaviorConfig = (
   };
 };
 
-export const generateAlignmentConfig = (value: Alignment): any => {
+export const generateAlignmentConfig = (
+  value: Alignment = Alignment.Left,
+): any => {
   return {
     helpText:
       "Alignment of children with respect to this parent (applies to Stack positioning)",
     propertyName: "alignment",
     label: "Alignment",
     controlType: "DROP_DOWN",
-    defaultValue: value || Alignment.Left,
+    defaultValue: value,
     options: [
       { label: "Top", value: Alignment.Top },
       { label: "Bottom", value: Alignment.Bottom },
@@ -125,13 +127,13 @@ export const generateAlignmentConfig = (value: Alignment): any => {
   };
 };
 
-export const generateSpacingConfig = (value: Spacing): any => {
+export const generateSpacingConfig = (value: Spacing = Spacing.None): any => {
   return {
     helpText: "Spacing between the children (applies to Stack positioning)",
     propertyName: "spacing",
     label: "Spacing",
     controlType: "DROP_DOWN",
-    defaultValue: value || Spacing.None,
+    defaultValue: value,
     options: [
       { label: "None", value: Spacing.None },
       { label: "Equal", value: Spacing.Equal },
@@ -142,6 +144,27 @@ export const generateSpacingConfig = (value: Spacing): any => {
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
     hidden: (props: any) => props?.positioning === Positioning.Fixed,
+  };
+};
+
+export const generatePositioningConfig = (
+  value: Positioning = Positioning.Fixed,
+): any => {
+  return {
+    helpText: "Position styles to be applied to the children",
+    propertyName: "positioning",
+    label: "Positioning",
+    controlType: "DROP_DOWN",
+    defaultValue: value,
+    options: [
+      { label: "Fixed", value: Positioning.Fixed },
+      { label: "Horizontal stack", value: Positioning.Horizontal },
+      { label: "Vertical stack", value: Positioning.Vertical },
+    ],
+    isJSConvertible: false,
+    isBindProperty: true,
+    isTriggerProperty: true,
+    validation: { type: ValidationTypes.TEXT },
   };
 };
 
