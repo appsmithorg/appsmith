@@ -19,12 +19,18 @@ public class DataTypeServiceCEImpl implements DataTypeServiceCE {
         defaultAppsmithTypes.put(ClientDataType.NUMBER, List.of(
            new IntegerType(),
            new LongType(),
-           new FloatType(),
            new DoubleType(),
            new BigDecimalType()
         ));
 
-        defaultAppsmithTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType()));
+        /*
+            JsonObjectType is the preferred server-side data type when the client-side data type is of type OBJECT.
+            Fallback server-side data type for client-side OBJECT type is String.
+         */
+        defaultAppsmithTypes.put(ClientDataType.OBJECT, List.of(
+                new JsonObjectType(),
+                new StringType()
+        ));
 
         defaultAppsmithTypes.put(ClientDataType.STRING, List.of(
                 new TimeType(),

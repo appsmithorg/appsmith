@@ -17,28 +17,32 @@ import static org.junit.Assert.assertTrue;
 
 public class MySQLPluginDataTypeTest {
     private static DataTypeService dataTypeService;
-    private static Map<ClientDataType, List<AppsmithType>> defaultAppsmithTypes;
+    private static Map<ClientDataType, List<AppsmithType>> pluginSpecificTypes;
 
     static {
         dataTypeService = DataTypeServiceImpl.getInstance();
-        defaultAppsmithTypes = new HashMap<>();
-        defaultAppsmithTypes.put(ClientDataType.NULL, List.of(new NullType()));
+        pluginSpecificTypes = new HashMap<>();
+        pluginSpecificTypes.put(ClientDataType.NULL, List.of(new NullType()));
 
-        defaultAppsmithTypes.put(ClientDataType.BOOLEAN, List.of(new MySQLBooleanType()));
+        pluginSpecificTypes.put(ClientDataType.BOOLEAN, List.of(new MySQLBooleanType()));
 
-        defaultAppsmithTypes.put(ClientDataType.NUMBER, List.of(
+        pluginSpecificTypes.put(ClientDataType.NUMBER, List.of(
                 new IntegerType(),
                 new LongType(),
                 new DoubleType(),
                 new BigDecimalType()
         ));
 
-        defaultAppsmithTypes.put(ClientDataType.OBJECT, List.of(
+        /*
+            JsonObjectType is the preferred server-side data type when the client-side data type is of type OBJECT.
+            Fallback server-side data type for client-side OBJECT type is String.
+         */
+        pluginSpecificTypes.put(ClientDataType.OBJECT, List.of(
                 new JsonObjectType(),
                 new StringType()
         ));
 
-        defaultAppsmithTypes.put(ClientDataType.STRING, List.of(
+        pluginSpecificTypes.put(ClientDataType.STRING, List.of(
                 new TimeType(),
                 new MySQLDateType(),
                 new MySQLDateTimeType(),
@@ -49,7 +53,7 @@ public class MySQLPluginDataTypeTest {
     public void shouldBeNullType() {
         String value = "null";
 
-        AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NULL, value, defaultAppsmithTypes);
+        AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NULL, value, pluginSpecificTypes);
         assertTrue(appsmithType instanceof NullType);
         assertEquals(appsmithType.performSmartSubstitution(value), null);
     }
@@ -66,7 +70,7 @@ public class MySQLPluginDataTypeTest {
         );
 
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.BOOLEAN, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.BOOLEAN, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof MySQLBooleanType);
             assertEquals(appsmithType.performSmartSubstitution(value), booleanValueMap.get(value));
         }
@@ -82,7 +86,7 @@ public class MySQLPluginDataTypeTest {
         };
 
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NUMBER, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NUMBER, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof IntegerType);
             assertEquals(appsmithType.performSmartSubstitution(value), value);
         }
@@ -96,7 +100,7 @@ public class MySQLPluginDataTypeTest {
         };
 
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NUMBER, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NUMBER, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof LongType);
             assertEquals(appsmithType.performSmartSubstitution(value), value);
         }
@@ -113,7 +117,7 @@ public class MySQLPluginDataTypeTest {
         };
 
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NUMBER, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.NUMBER, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof DoubleType);
             assertEquals(appsmithType.performSmartSubstitution(value), value);
         }
@@ -126,7 +130,7 @@ public class MySQLPluginDataTypeTest {
                 "{\"a\":97,\"A\":65"
         };
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.OBJECT, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.OBJECT, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof JsonObjectType || appsmithType instanceof StringType);
         }
 
@@ -139,7 +143,7 @@ public class MySQLPluginDataTypeTest {
                 "10:15"
         };
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof TimeType);
         }
     }
@@ -153,7 +157,7 @@ public class MySQLPluginDataTypeTest {
                 "220924"
         };
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof MySQLDateType);
         }
     }
@@ -168,7 +172,7 @@ public class MySQLPluginDataTypeTest {
                 "220905234556"
         };
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof MySQLDateTimeType);
         }
     }
@@ -185,7 +189,7 @@ public class MySQLPluginDataTypeTest {
                 "2021-03-24 14:05:343"
         };
         for (String value : values) {
-            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, defaultAppsmithTypes);
+            AppsmithType appsmithType = dataTypeService.getAppsmithType(ClientDataType.STRING, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof StringType);
         }
     }

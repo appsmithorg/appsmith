@@ -64,6 +64,15 @@ public class DataTypeStringUtils {
 
     private static final DataTypeService dataTypeService = DataTypeServiceImpl.getInstance();
 
+    /**
+     *
+     * @param clientDataType the client-side identified data type e.g. NULL, ARRAY, BOOLEAN, OBJECT
+     * @param value the evaluated value of the binding parameter
+     * @param args varargs will be used for passing optional plugin-specific types. In case args is not sent then the DataTypeService will
+     *             consider the default server-side data types for the identification of data type from the given client-side data type and
+     *             the evaulated value
+     * @return
+     */
     public static AppsmithType stringToKnownAppsmithTypeConverter(ClientDataType clientDataType, String value, Object... args) {
         if (args == null) {
             return dataTypeService.getAppsmithType(clientDataType, value);
