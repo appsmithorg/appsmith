@@ -224,10 +224,6 @@ public class OraclePlugin extends BasePlugin {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing password for authentication.");
-                }
-
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }
@@ -989,16 +985,19 @@ public class OraclePlugin extends BasePlugin {
              */
             SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
             switch (sslAuthType) {
-                case ALLOW:
-                case PREFER:
-                case REQUIRE:
+                case BASIC:
                     config.addDataSourceProperty("ssl", "true");
                     config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
 
                     break;
+                case PEER_AUTHENTICATION:
+                    config.addDataSourceProperty("ssl", "true");
+                    config.addDataSourceProperty("sslmode", "peerAuthentication");
+
+                    break;
                 case DISABLE:
                     config.addDataSourceProperty("ssl", "false");
-                    config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+                    config.addDataSourceProperty("sslmode", "off");
 
                     break;
                 case DEFAULT:
