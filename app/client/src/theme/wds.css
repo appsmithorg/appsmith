@@ -5,15 +5,18 @@
   --wds-color-border-disabled: #E0DEDE;
   --wds-color-border-danger: #D91921;
   --wds-color-border-danger-hover: #B90707;
-  --wds-color-border-danger-focus-light: #EDDDDD;
+  --wds-color-border-danger-focus: #B90707;
+  --wds-color-border-danger-focus-light: #fedddd;
 
   --wds-color-bg: #FFFFFF;
   --wds-color-bg-hover: #EBEBEB;
+  --wds-color-bg-selected: #EBEBEB;
   --wds-color-bg-focus: #e3e3e3;
   --wds-color-bg-light: #EBEBEB;
   --wds-color-bg-strong: #E0DEDE;
   --wds-color-bg-strong-hover: #B3B3B3;
   --wds-color-bg-disabled: #F3F3F3;
+  --wds-color-bg-disabled-light: #E0DEDE;
   --wds-color-bg-disabled-strong: #A9A7A7;
   --wds-color-bg-danger: #D91921;
   --wds-color-bg-danger-hover: #B90707;
