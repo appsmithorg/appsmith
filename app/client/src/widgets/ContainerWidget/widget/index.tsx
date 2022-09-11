@@ -391,7 +391,6 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    console.log(this.state);
     // console.log(`${props.widgetName} : ${props.widgetId} =======`);
     // console.log(props);
     return (

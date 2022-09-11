@@ -57,6 +57,7 @@ import {
   Alignment,
   ButtonBoxShadowTypes,
   LayoutDirection,
+  LayoutWrapperType,
   Spacing,
 } from "components/constants";
 import {
@@ -1807,7 +1808,11 @@ export function* wrapChildren(
       children: [...(parent.children || []), wrapper.widgetId],
     };
     widgets[wrapper.widgetId] = wrapper;
-    widgets[each] = { ...widgets[each], parentId: wrapper.widgetId };
+    widgets[each] = {
+      ...widgets[each],
+      parentId: wrapper.widgetId,
+      wrapperType: LayoutWrapperType.Start,
+    };
   }
 
   // Update parent

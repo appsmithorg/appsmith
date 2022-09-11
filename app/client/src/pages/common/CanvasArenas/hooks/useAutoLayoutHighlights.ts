@@ -334,11 +334,11 @@ export const useAutoLayoutHighlights = ({
           center: string[] = [],
           end: string[] = [];
         offsetChildren.forEach((each) => {
-          if (allWidgets[each]?.wrapperType === LayoutWrapperType.Start)
-            start.push(each);
-          else if (allWidgets[each]?.wrapperType === LayoutWrapperType.Center)
+          if (allWidgets[each]?.wrapperType === LayoutWrapperType.Center)
             center.push(each);
-          else end.push(each);
+          else if (allWidgets[each]?.wrapperType === LayoutWrapperType.End)
+            end.push(each);
+          else start.push(each);
         });
         const arr1: Highlight[] = evaluateOffsets(
           start,
@@ -370,8 +370,8 @@ export const useAutoLayoutHighlights = ({
 
       if (!offsets || !offsets.length)
         offsets = [getInitialOffset(isCanvasWrapper)];
-      // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
-      // console.log(`#### END calculate highlight offsets`);
+      console.log(`#### offsets: ${JSON.stringify(offsets)}`);
+      console.log(`#### END calculate highlight offsets`);
     }
     return offsets;
   };
