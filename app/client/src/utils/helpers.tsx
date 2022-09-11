@@ -378,7 +378,7 @@ export const isNameValid = (
     has(JAVASCRIPT_KEYWORDS, name) ||
     has(DATA_TREE_KEYWORDS, name) ||
     has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
-    extraLibrariesNames.includes(name) ||
+    has(extraLibrariesNames, name) ||
     has(invalidNames, name)
   );
 };

@@ -9,7 +9,7 @@ import {
 import { Position } from "codemirror";
 import {
   EvaluationError,
-  extraLibrariesNames,
+  extraLibraries,
   isDynamicValue,
   isPathADynamicBinding,
   PropertyEvaluationErrorType,
@@ -37,6 +37,7 @@ import {
   ECMA_VERSION,
   MemberExpressionData,
 } from "@shared/ast";
+import { CURRENT_EVALUATION_VERSION } from "workers/DependencyMap/constants";
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
@@ -114,7 +115,7 @@ export const getLintingErrors = (
     globalData[dataKey] = true;
   }
   // Jshint shouldn't throw errors for additional libraries
-  extraLibrariesNames.forEach((name) => (globalData[name] = true));
+  extraLibraries.forEach((lib) => (globalData[lib.accessor] = true));
   // JSHint shouldn't throw errors for supported web apis
   Object.keys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),
@@ -230,7 +231,7 @@ const getInvalidPropertyErrorsFromScript = (
     invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
       script,
       data,
-      2,
+      CURRENT_EVALUATION_VERSION,
     );
   } catch (e) {}
 

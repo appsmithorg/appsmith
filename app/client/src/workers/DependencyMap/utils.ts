@@ -8,7 +8,10 @@ import {
 } from "utils/DynamicBindingUtils";
 import { extractInfoFromCode } from "@shared/ast";
 import { convertPathToString, isWidget } from "../evaluationUtils";
-import { CURRENT_EVALUATION_VERSION } from "./constants";
+import {
+  CURRENT_EVALUATION_VERSION,
+  invalidEntityIdentifiers,
+} from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
@@ -29,12 +32,13 @@ export const extractInfoFromBinding = (
   const { references } = extractInfoFromCode(
     script,
     CURRENT_EVALUATION_VERSION,
+    invalidEntityIdentifiers,
   );
   return extractInfoFromReferences(references, allPaths);
 };
 
 /** This function extracts validReferences and invalidReferences from an Array of Identifiers
- * @param identifiers
+ * @param references
  * @param allPaths
  * @returns validReferences - Valid references from bindings
  * invalidReferences- References which are currently invalid

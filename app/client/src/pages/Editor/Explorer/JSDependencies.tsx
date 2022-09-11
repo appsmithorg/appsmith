@@ -6,7 +6,6 @@ import { BindingText } from "pages/Editor/APIEditor/CommonEditorForm";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import CollapseToggle from "./Entity/CollapseToggle";
 import Collapse from "./Entity/Collapse";
-import { extraLibraries } from "utils/DynamicBindingUtils";
 
 const Wrapper = styled.div`
   font-size: 14px;
