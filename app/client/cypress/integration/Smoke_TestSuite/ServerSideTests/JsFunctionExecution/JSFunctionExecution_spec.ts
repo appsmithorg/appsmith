@@ -470,7 +470,7 @@ return "yes";`;
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it.skip("10. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
+  it("10. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
     const JS_OBJECT_WITH_PARSE_ERROR = `export default {
       myVar1: [],
       myVar2: {},
@@ -513,6 +513,7 @@ return "yes";`;
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
     agHelper.WaitUntilAllToastsDisappear();//for 'Resource not found'
+    agHelper.RefreshPage();
     jsEditor.RunJSObj();
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
     agHelper.AssertElementAbsence(locator._runBtnSpinner, 10000);
