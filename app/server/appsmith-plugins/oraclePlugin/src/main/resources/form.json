@@ -88,55 +88,80 @@
               "value": "DEFAULT"
             },
             {
-              "label": "Preferred",
-              "value": "PREFERRED"
+              "label": "Basic",
+              "value": "BASIC"
             },
             {
-              "label": "Required",
-              "value": "REQUIRED"
-            },
-            {
-              "label": "Disabled",
-              "value": "DISABLED"
+              "label": "Peer Authentication",
+              "value": "PEER_AUTHENTICATION"
             }
           ]
         },
         {
-          "sectionName": null,
-          "hidden": true,
+          "sectionName": "Trust Store",
           "children": [
             {
-              "label": "Key File",
-              "configProperty": "datasourceConfiguration.connection.ssl.keyFile",
+              "label": "Trust Store File",
+              "configProperty": "datasourceConfiguration.connection.ssl.trustStore.file",
               "controlType": "FILE_PICKER"
             },
             {
-              "label": "Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.certificateFile",
-              "controlType": "FILE_PICKER"
-            }
-          ]
-        },
-        {
-          "sectionName": null,
-          "hidden": true,
-          "children": [
-            {
-              "label": "CA Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile",
-              "controlType": "FILE_PICKER"
+              "label": "Trust Store File Type",
+              "configProperty": "datasourceConfiguration.connection.ssl.trustStore.fileType",
+              "controlType": "DROP_DOWN",
+              "isRequired": false,
+              "initialValue": "PKCS12",
+              "options": [
+                {
+                  "label": "PKCS12",
+                  "value": "PKCS12"
+                },
+                {
+                  "label": "JKS",
+                  "value": "JKS"
+                }
+              ]
             },
             {
-              "label": "PEM Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.file",
-              "controlType": "FILE_PICKER"
-            },
-            {
-              "label": "PEM Passphrase",
-              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.password",
+              "label": "Trust Store File Password",
+              "configProperty": "datasourceConfiguration.connection.ssl.trustStore.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "PEM Passphrase"
+              "placeholderText": "Trust Store File Password"
+            }
+          ]
+        },
+        {
+          "sectionName": "Key Store",
+          "children": [
+            {
+              "label": "Key Store File",
+              "configProperty": "datasourceConfiguration.connection.ssl.keyStore.file",
+              "controlType": "FILE_PICKER"
+            },
+            {
+              "label": "Key Store File Type",
+              "configProperty": "datasourceConfiguration.connection.ssl.keyStore.fileType",
+              "controlType": "DROP_DOWN",
+              "isRequired": false,
+              "initialValue": "PKCS12",
+              "options": [
+                {
+                  "label": "PKCS12",
+                  "value": "PKCS12"
+                },
+                {
+                  "label": "JKS",
+                  "value": "JKS"
+                }
+              ]
+            },
+            {
+              "label": "Key Store File Password",
+              "configProperty": "datasourceConfiguration.connection.ssl.keyStore.password",
+              "dataType": "PASSWORD",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Key Store File Password"
             }
           ]
         }

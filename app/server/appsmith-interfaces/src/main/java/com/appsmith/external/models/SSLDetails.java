@@ -62,4 +62,8 @@ public class SSLDetails implements AppsmithDomain {
 
     PEMCertificate pemCertificate;
 
+    KeyStore trustStore;
+
+    KeyStore keyStore;
+
 }
