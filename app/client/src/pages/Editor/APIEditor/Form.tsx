@@ -76,6 +76,11 @@ import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+// import DropdownField from "components/editorComponents/form/fields/DropdownField";
 
 const Form = styled.form`
   position: relative;
@@ -443,6 +448,13 @@ function ImportedKeyValue(props: { datas: any }) {
 const BoundaryContainer = styled.div`
   border: 1px solid transparent;
   border-right: none;
+
+  /*.t--apiFormHttpMethod > div {
+    background: var(--appsmith-color-black-900);
+    .appsmith-select__single-value {
+      color: white;
+    }
+  }*/
 `;
 
 function renderImportedDatasButton(
@@ -576,6 +588,10 @@ function ApiEditorForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
+  const isChangeRestricted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.MANAGE_ACTIONS,
+  );
 
   const theme = EditorTheme.LIGHT;
   const handleClickLearnHow = (e: React.MouseEvent) => {
@@ -592,7 +608,7 @@ function ApiEditorForm(props: Props) {
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor page="API_PANE" />
+              <ActionNameEditor disabled={isChangeRestricted} page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreActionsMenu
