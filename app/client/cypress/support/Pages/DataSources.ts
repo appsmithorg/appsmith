@@ -199,8 +199,9 @@ export class DataSources {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
       .trigger("click", { force: true });
+    this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Duplicate key error"), 2000
+      this.locator._specificToast("Duplicate key error"),
     );
     if (waitForToastDisappear)
       this.agHelper.WaitUntilToastDisappear("datasource created");
