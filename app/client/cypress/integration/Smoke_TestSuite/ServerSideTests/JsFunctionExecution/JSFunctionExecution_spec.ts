@@ -182,7 +182,7 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
-        toWriteAfterToastsDisappear : true
+        toWriteAfterToastsDisappear: true,
       });
 
       // Assert presence of toast message
@@ -192,7 +192,8 @@ describe("JS Function Execution", function() {
       agHelper.GetNAssertElementText(
         locator._lintErrorElement,
         highlightedLintText,
-        "contain.text", -1
+        "contain.text",
+        -1,
       );
       agHelper.ActionContextMenuWithInPane("Delete", "", true);
     };
@@ -511,6 +512,7 @@ return "yes";`;
 
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
+    agHelper.WaitUntilAllToastsDisappear();//for 'Resource not found'
     jsEditor.RunJSObj();
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
     agHelper.AssertElementAbsence(locator._runBtnSpinner, 10000);
