@@ -86,7 +86,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     jsEditor.VerifyAsyncFuncSettings("getEmployee", true, true);
   });
 
-  it("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function() {
+  it.skip("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
     deployMode.DeployApp();
