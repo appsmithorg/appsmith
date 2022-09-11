@@ -1756,7 +1756,7 @@ export function* wrapChildren(
   containerId: string,
   direction: LayoutDirection,
 ) {
-  const widgets = { ...allWidgets };
+  let widgets = { ...allWidgets };
   const container = widgets[containerId];
   if (!container) return widgets;
   const canvasId = container.children ? container.children[0] : "";
@@ -1778,45 +1778,17 @@ export function* wrapChildren(
     const child = widgets[each];
     if (!child || child.isWrapper) continue;
     // Create new wrapper
-    const wrapperPayload = getLayoutWrapperPayload(
+    const res: WrappedWidgetPayload = yield call(
+      addAndWrapWidget,
       widgets,
-      {
-        rows: child.rows || child.bottomRow - child.topRow,
-        columns: child.columns || child.rightColumn - child.leftColumn,
-        topRow: child.topRow,
-        leftColumn: child.leftColumn,
-        parentColumnSpace: parent.parentColumnSpace,
-        parentRowSpace: child.parentRowSpace,
-        widgetId: canvasId,
-      },
+      canvasId,
+      each,
+      undefined,
       direction,
+      false,
     );
-    const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-      parent,
-      wrapperPayload,
-      widgets,
-    );
-    let wrapper = containerPayload.widgets[containerPayload.widgetId];
-    wrapper = {
-      ...wrapper,
-      children: [...(wrapper.children || []), each],
-    };
-
-    // Add the wrapper to the parent
-    parent = {
-      ...parent,
-      children: [...(parent.children || []), wrapper.widgetId],
-    };
-    widgets[wrapper.widgetId] = wrapper;
-    widgets[each] = {
-      ...widgets[each],
-      parentId: wrapper.widgetId,
-      wrapperType: LayoutWrapperType.Start,
-    };
+    widgets = res.widgets;
   }
-
-  // Update parent
-  widgets[canvasId] = parent;
   return widgets;
 }
 
@@ -1863,4 +1835,114 @@ export function getLayoutWrapperPayload(
     columns: shouldStretch ? 64 : payload.columns + 1,
     tabId: "0",
   };
+}
+
+export interface WrappedWidgetPayload {
+  widgets: CanvasWidgetsReduxState;
+  wrapperId: string;
+}
+
+export function* addAndWrapWidget(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  childId?: string,
+  addChildPayload?: WidgetAddChild,
+  direction = LayoutDirection.Horizontal,
+  isWrapper = false,
+  wrapperType = LayoutWrapperType.Start,
+) {
+  let widgets = { ...allWidgets };
+  const widgetId: string = childId || addChildPayload?.newWidgetId || "";
+  if (!widgetId) return { widgets, wrapperId: parentId };
+  let child = widgets[widgetId];
+  let parent = widgets[parentId];
+
+  // remove widget from parent's children
+  parent = {
+    ...parent,
+    children: [...(parent.children || []).filter((each) => each !== widgetId)],
+  };
+
+  const payload = childId
+    ? {
+        rows: child.rows || child.bottomRow - child.topRow,
+        columns: child.columns || child.rightColumn - child.leftColumn,
+        topRow: child.topRow,
+        leftColumn: child.leftColumn,
+        parentColumnSpace: parent.parentColumnSpace,
+        parentRowSpace: child.parentRowSpace,
+        widgetId: parentId,
+      }
+    : addChildPayload
+    ? {
+        rows: addChildPayload.rows,
+        columns: addChildPayload.columns,
+        topRow: addChildPayload.topRow,
+        leftColumn: addChildPayload.leftColumn,
+        parentColumnSpace: parent.parentColumnSpace,
+        parentRowSpace: addChildPayload.parentRowSpace,
+        widgetId: parentId,
+      }
+    : null;
+  if (!payload) return { widgets, wrapperId: parentId };
+
+  // Create new wrapper
+  const wrapperPayload = getLayoutWrapperPayload(
+    widgets,
+    payload,
+    direction,
+    isWrapper,
+  );
+  const widgetsAfterCreatingWrapper: GeneratedWidgetPayload = yield generateChildWidgets(
+    parent,
+    wrapperPayload,
+    widgets,
+  );
+  let wrapper =
+    widgetsAfterCreatingWrapper.widgets[widgetsAfterCreatingWrapper.widgetId];
+
+  widgets = widgetsAfterCreatingWrapper.widgets;
+
+  // Add child to wrapper's children
+  wrapper = {
+    ...wrapper,
+    children: [...(wrapper.children || []), widgetId],
+  };
+
+  // If new widget, then create it.
+  if (addChildPayload) {
+    const childPayload: WidgetAddChild = {
+      ...addChildPayload,
+      widgetId: wrapper.widgetId,
+    };
+    const widgetsAfterCreatingChild: GeneratedWidgetPayload = yield generateChildWidgets(
+      wrapper,
+      childPayload,
+      widgets,
+      childPayload?.props?.blueprint,
+    );
+    widgets = widgetsAfterCreatingChild.widgets;
+  }
+
+  child = widgets[widgetId];
+  child = {
+    ...child,
+    parentId: wrapper.widgetId,
+    wrapperType,
+  };
+
+  // if (!isWrapper && direction === LayoutDirection.Horizontal)
+  //   child = {
+  //     ...child,
+  //     leftColumn: 0,
+  //     rightColumn: 63,
+  //   };
+
+  widgets[wrapper.widgetId] = wrapper;
+  widgets[widgetId] = child;
+  widgets[parentId] = {
+    ...parent,
+    children: [...(parent.children || []), wrapper.widgetId],
+  };
+  return { widgets, wrapperId: wrapper.widgetId };
 }

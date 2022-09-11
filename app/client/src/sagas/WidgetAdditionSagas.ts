@@ -24,8 +24,9 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import {
-  getLayoutWrapperPayload,
+  addAndWrapWidget,
   getParentBottomRowAfterAddingWidget,
+  WrappedWidgetPayload,
 } from "./WidgetOperationUtils";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -331,113 +332,58 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
 ) {
   // console.log(addChildPayload);
   // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
-  const { widgetId } = addChildPayload;
+  const { widgetId: parentId } = addChildPayload;
   // Get the current parent widget whose child will be the new widget.
-  const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
   // console.log("State parent");
   // console.log(stateParent);
   // const parent = Object.assign({}, stateParent);
   // Get all the widgets from the canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgets = Object.assign({}, stateWidgets);
+  let widgets = Object.assign({}, stateWidgets);
   // console.log(widgets);
 
-  /**
-   * START create container widget wrapper
-   */
-
-  // Generate a payload for canvas widget
-  const newContainerWidgetPayload = getLayoutWrapperPayload(
+  const res: WrappedWidgetPayload = yield call(
+    addAndWrapWidget,
     widgets,
+    parentId,
+    undefined,
     addChildPayload,
     direction,
   );
-  const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-    stateParent,
-    newContainerWidgetPayload,
-    widgets,
-  );
-  // console.log(containerPayload);
-
-  /**
-   * END create container widget wrapper
-   */
-
-  /**
-   * START create new widget
-   */
-  // const containerChildren =
-  //   containerPayload.widgets[containerPayload.widgetId].children || [];
-  // const canvasWidgetId = containerChildren ? containerChildren[0] : null;
-  // if (!canvasWidgetId) return { widgets };
-  // Generate the full WidgetProps of the widget to be added.
-  const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-    containerPayload.widgets[containerPayload.widgetId],
-    addChildPayload,
-    containerPayload.widgets,
-    // sending blueprint for onboarding usecase
-    addChildPayload.props?.blueprint,
-  );
-
-  /**
-   * END create new widget
-   */
-
-  // Update canvas widget
-  childWidgetPayload.widgets[containerPayload.widgetId] = {
-    ...childWidgetPayload.widgets[containerPayload.widgetId],
-    children: [
-      ...(childWidgetPayload.widgets[containerPayload.widgetId].children || []),
-      childWidgetPayload.widgetId,
-    ],
-  };
+  widgets = res.widgets;
 
   // Update container - canvas relationship
-  const containerWidget = childWidgetPayload.widgets[containerPayload.widgetId];
   yield put({
     type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
     payload: {
-      widgetId: containerWidget.widgetId,
-      type: containerWidget.type,
+      widgetId: res.wrapperId,
+      type: "LAYOUT_WRAPPER_WIDGET",
     },
   });
-  // console.log(canvasWidget);
-  // console.log(childWidgetPayload);
-  // yield put({
-  //   type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
-  //   payload: {
-  //     widgetId: canvasWidget.widgetId,
-  //     type: canvasWidget.type,
-  //   },
-  // });
 
-  const parentBottomRow = getParentBottomRowAfterAddingWidget(
-    stateParent,
-    containerWidget,
-  );
+  const parent = widgets[parentId];
+  const wrapper = widgets[res.wrapperId];
+  const child = widgets[addChildPayload.newWidgetId];
 
-  // Update widgets to put back in the canvasWidgetsReducer
-  // TODO(abhinav): This won't work if dont already have an empty children: []
-  const parent = {
-    ...stateParent,
+  const parentBottomRow = getParentBottomRowAfterAddingWidget(parent, wrapper);
+  widgets[parent.widgetId] = {
+    ...parent,
     bottomRow: parentBottomRow,
-    children: [...(stateParent.children || []), containerWidget.widgetId],
   };
 
-  childWidgetPayload.widgets[parent.widgetId] = parent;
   // console.log(widgets);
   AppsmithConsole.info({
     text: "Widget was created",
     source: {
       type: ENTITY_TYPE.WIDGET,
-      id: childWidgetPayload.widgetId,
-      name: childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
+      id: child.widgetId,
+      name: child.widgetName,
     },
   });
   yield put({
     type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
     payload: {
-      widgetId: childWidgetPayload.widgetId,
+      widgetId: child.widgetId,
       type: addChildPayload.type,
     },
   });
@@ -448,10 +394,10 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
     traverseTreeAndExecuteBlueprintChildOperations,
     parent,
     addChildPayload.newWidgetId,
-    childWidgetPayload.widgets,
+    widgets,
   );
   // console.log(updatedWidgets);
-  return { widgets: updatedWidgets, containerId: containerWidget.widgetId };
+  return { widgets: updatedWidgets, containerId: wrapper.widgetId };
 }
 
 /**
