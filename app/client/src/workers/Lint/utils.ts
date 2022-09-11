@@ -9,6 +9,7 @@ import {
 import { Position } from "codemirror";
 import {
   EvaluationError,
+  extraLibrariesNames,
   isDynamicValue,
   isPathADynamicBinding,
   PropertyEvaluationErrorType,
@@ -33,9 +34,8 @@ import {
 import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   isLiteralNode,
-  MemberExpressionData,
   ECMA_VERSION,
-  extraLibrariesNames,
+  MemberExpressionData,
 } from "@shared/ast";
 
 export const pathRequiresLinting = (
@@ -240,6 +240,7 @@ const getInvalidPropertyErrorsFromScript = (
         ? property.value
         : property.name;
       const objectStartLine = object.loc.start.line - 1;
+      // For computed member expressions (entity["property"]), add an extra 1 to the start column to account for "[".
       const propertyStartColumn = !isLiteralNode(property)
         ? property.loc.start.column + 1
         : property.loc.start.column + 2;

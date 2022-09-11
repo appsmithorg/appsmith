@@ -4,7 +4,11 @@ import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
 import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
-import { DATA_TREE_KEYWORDS } from "constants/WidgetValidation";
+import {
+  DATA_TREE_KEYWORDS,
+  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+  JAVASCRIPT_KEYWORDS,
+} from "constants/WidgetValidation";
 import { get, set, isNil, has } from "lodash";
 import { Workspace } from "constants/workspaceConstants";
 import {
@@ -12,7 +16,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import moment from "moment";
-import { isDynamicValue } from "./DynamicBindingUtils";
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -26,11 +30,6 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
-import {
-  JAVASCRIPT_KEYWORDS,
-  GLOBAL_WORKER_SCOPE_IDENTIFIERS,
-  extraLibrariesNames,
-} from "@shared/ast";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -378,7 +377,7 @@ export const isNameValid = (
   return !(
     has(JAVASCRIPT_KEYWORDS, name) ||
     has(DATA_TREE_KEYWORDS, name) ||
-    has(GLOBAL_WORKER_SCOPE_IDENTIFIERS, name) ||
+    has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
     extraLibrariesNames.includes(name) ||
     has(invalidNames, name)
   );

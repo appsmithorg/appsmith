@@ -1,8 +1,8 @@
 import { parse, Node, SourceLocation, Options } from 'acorn';
 import { ancestor, simple } from 'acorn-walk';
 import { ECMA_VERSION, NodeTypes } from './constants/ast';
-import { isFinite, isString, memoize, toPath } from 'lodash';
-import { isInvalidEntityReference, sanitizeScript } from './utils';
+import { has, isFinite, isString, memoize, toPath } from 'lodash';
+import { isTrueObject, sanitizeScript } from './utils';
 
 /*
  * Valuable links:
@@ -200,7 +200,8 @@ interface ExtractInfoFromCode {
 }
 export const extractInfoFromCode = (
   code: string,
-  evaluationVersion: number
+  evaluationVersion: number,
+  invalidIdentifiers?: Record<string, unknown>
 ): ExtractInfoFromCode => {
   // List of all references found
   const references = new Set<string>();
@@ -327,7 +328,7 @@ export const extractInfoFromCode = (
     return !(
       functionalParams.has(topLevelIdentifier) ||
       variableDeclarations.has(topLevelIdentifier) ||
-      isInvalidEntityReference(topLevelIdentifier)
+      has(invalidIdentifiers, topLevelIdentifier)
     );
   });
   return {
@@ -409,6 +410,23 @@ export interface MemberExpressionData {
   object: NodeWithLocation<IdentifierNode>;
 }
 
+/** Function returns Invalid top-level member expressions from code
+ * @param code
+ * @param data
+ * @param evaluationVersion
+ * @returns information about all invalid property/method assessment in code
+ * @example Given data {
+ * JSObject1: {
+ * name:"JSObject",
+ * data:[]
+ * },
+ * Api1:{
+ * name: "Api1",
+ * data: []
+ * }
+ * },
+ * For code {{Api1.name + JSObject.unknownProperty}}, function returns information about "JSObject.unknownProperty" node.
+ */
 export const extractInvalidTopLevelMemberExpressionsFromCode = (
   code: string,
   data: Record<string, any>,
@@ -424,7 +442,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
     ast = getAST(wrappedCode, { locations: true });
   } catch (e) {
     if (e instanceof SyntaxError) {
-      // Syntax error. Ignore and return 0 identifiers
+      // Syntax error. Ignore and return empty list
       return [];
     }
     throw e;
@@ -432,8 +450,12 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   simple(ast, {
     MemberExpression(node: Node) {
       const { object, property } = node as MemberExpressionNode;
+      // We are only interested in top-level MemberExpression nodes
+      // Eg. for Api1.data.name, we are only interested in Api1.data
       if (!isIdentifierNode(object)) return;
-      if (!(object.name in data)) return;
+      if (!(object.name in data) || !isTrueObject(data[object.name])) return;
+      // For computed member expressions (assessed via [], eg. JSObject1["name"] ),
+      // We are only interested in strings
       if (
         isLiteralNode(property) &&
         isString(property.value) &&
