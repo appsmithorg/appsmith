@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { AppIcon as Icon, Size, TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
-import { BindingText } from "pages/Editor/APIEditor/Form";
+import { BindingText } from "pages/Editor/APIEditor/CommonEditorForm";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import CollapseToggle from "./Entity/CollapseToggle";
 import Collapse from "./Entity/Collapse";

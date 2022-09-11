@@ -141,12 +141,18 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
-      # Upload the build artifact so that it can be used by the test & deploy job in other workflows
+      # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
         uses: actions/upload-artifact@v2
         with:
           name: rts-build
           path: app/rts/dist/
+
+      - name: Upload RTS dependencies bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
 
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
