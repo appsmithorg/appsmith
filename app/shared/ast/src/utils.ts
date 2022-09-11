@@ -1,7 +1,7 @@
 import {
   extraLibrariesNames,
   GLOBAL_FUNCTIONS,
-  GLOBAL_WORKER_SCOPE_IDENTIFIERS,
+  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from 'constants/global';
 import { has } from 'lodash';
@@ -32,7 +32,7 @@ in the worker context (where evaluations are done)
 export function isInvalidEntityReference(identifier: string) {
   return (
     has(JAVASCRIPT_KEYWORDS, identifier) ||
-    has(GLOBAL_WORKER_SCOPE_IDENTIFIERS, identifier) ||
+    has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, identifier) ||
     extraLibrariesNames.includes(identifier) ||
     has(GLOBAL_FUNCTIONS, identifier)
   );
