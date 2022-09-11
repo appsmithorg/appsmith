@@ -26,7 +26,6 @@ import {
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
-  getLayoutConfig,
 } from "utils/layoutPropertiesUtils";
 import { connect } from "react-redux";
 import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
@@ -319,9 +318,15 @@ export class ContainerWidget extends BaseWidget<
     if (this.props.positioning === Positioning.Fixed) {
       this.props.removeWrappers &&
         this.props.removeWrappers(this.props.widgetId);
-    } else if (prevProps.positioning === Positioning.Fixed)
+    } else if (prevProps.positioning === Positioning.Fixed) {
       this.props.addWrappers &&
-        this.props.addWrappers(this.props.widgetId, this.state.direction);
+        this.props.addWrappers(
+          this.props.widgetId,
+          this.props.positioning === Positioning.Horizontal
+            ? LayoutDirection.Horizontal
+            : LayoutDirection.Vertical,
+        );
+    }
   };
 
   getSnapSpaces = () => {
@@ -386,6 +391,7 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    console.log(this.state);
     // console.log(`${props.widgetName} : ${props.widgetId} =======`);
     // console.log(props);
     return (

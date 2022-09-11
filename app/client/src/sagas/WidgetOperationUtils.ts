@@ -1780,8 +1780,8 @@ export function* wrapChildren(
     const wrapperPayload = getLayoutWrapperPayload(
       widgets,
       {
-        rows: child.rows || child.rightColumn - child.leftColumn,
-        columns: child.columns || child.bottomRow - child.topRow,
+        rows: child.rows || child.bottomRow - child.topRow,
+        columns: child.columns || child.rightColumn - child.leftColumn,
         topRow: child.topRow,
         leftColumn: child.leftColumn,
         parentColumnSpace: parent.parentColumnSpace,
@@ -1832,7 +1832,12 @@ export function getLayoutWrapperPayload(
     "newWidgetId" | "tabId" | "widgetName" | "type"
   >,
   direction: LayoutDirection = LayoutDirection.Vertical,
+  isWrapper = false,
 ): WidgetAddChild {
+  // A horizontal wrapper should stretch to occupy the parent's entire width.
+  const shouldStretch = isWrapper
+    ? direction === LayoutDirection.Horizontal
+    : direction === LayoutDirection.Vertical;
   return {
     ...payload,
     newWidgetId: generateReactKey(),
@@ -1850,7 +1855,7 @@ export function getLayoutWrapperPayload(
       boxShadow: ButtonBoxShadowTypes.NONE,
       borderStyle: "none",
     },
-    columns: direction === LayoutDirection.Vertical ? 64 : payload.columns + 1,
+    columns: shouldStretch ? 64 : payload.columns + 1,
     tabId: "0",
   };
 }

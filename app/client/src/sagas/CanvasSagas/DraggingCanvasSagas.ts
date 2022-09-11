@@ -520,6 +520,7 @@ function* updateMovedWidgets(
         widgetId: parentId,
       },
       direction,
+      true,
     );
     const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
