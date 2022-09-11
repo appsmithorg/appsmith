@@ -27,8 +27,6 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import {
-  generateChildWidgets,
-  GeneratedWidgetPayload,
   getUpdateDslAfterCreatingAutoLayoutChild,
   getUpdateDslAfterCreatingChild,
 } from "sagas/WidgetAdditionSagas";
@@ -40,8 +38,9 @@ import {
   ResponsiveBehavior,
 } from "components/constants";
 import {
-  getLayoutWrapperPayload,
+  addAndWrapWidget,
   purgeEmptyWrappers,
+  WrappedWidgetPayload,
 } from "../WidgetOperationUtils";
 
 export type WidgetMoveParams = {
@@ -454,7 +453,7 @@ function* reorderAutolayoutChildren(params: {
   // calculate valid position for drop
   const pos = index > newItems.length ? newItems.length : index;
   updatedWidgets[parentId] = {
-    ...trimmedWidgets[parentId],
+    ...updatedWidgets[parentId],
     children: [
       ...newItems.slice(0, pos),
       ...newMovedWidgets,
@@ -471,74 +470,58 @@ function* updateMovedWidgets(
   wrapperType: LayoutWrapperType,
   direction: LayoutDirection,
 ) {
-  const stateParent = allWidgets[parentId];
-  if (!movedWidgets || !allWidgets)
-    return { newMovedWidgets: movedWidgets, updatedWidgets: allWidgets };
+  let widgets = { ...allWidgets };
+  if (!movedWidgets || !widgets)
+    return { newMovedWidgets: movedWidgets, updatedWidgets: widgets };
+  const stateParent = widgets[parentId];
   if (stateParent.isWrapper) {
     // If widgets are being dropped in a wrapper,
     // then updated the wrapper type and return'
     let hasFillChild = false;
     for (const each of movedWidgets) {
-      if (allWidgets[each].responsiveBehavior === ResponsiveBehavior.Fill) {
+      if (widgets[each].responsiveBehavior === ResponsiveBehavior.Fill) {
         hasFillChild = true;
         break;
       }
-      allWidgets[each] = {
-        ...allWidgets[each],
+      widgets[each] = {
+        ...widgets[each],
         wrapperType,
       };
     }
     if (hasFillChild) {
       for (const each of movedWidgets) {
-        allWidgets[each] = {
-          ...allWidgets[each],
+        widgets[each] = {
+          ...widgets[each],
           wrapperType: LayoutWrapperType.Start,
         };
       }
     }
-    return { newMovedWidgets: movedWidgets, updatedWidgets: allWidgets };
+    return { newMovedWidgets: movedWidgets, updatedWidgets: widgets };
   }
   const newMovedWidgets: string[] = [];
   for (const each of movedWidgets) {
-    const widget = allWidgets[each];
+    const widget = widgets[each];
     if (!widget) continue;
     if (widget.isWrapper) {
       newMovedWidgets.push(each);
       continue;
     }
 
-    // wrap the widget in a wrapper widget
-    const wrapperPayload = getLayoutWrapperPayload(
-      allWidgets,
-      {
-        rows: widget.rows,
-        columns: widget.columns,
-        topRow: widget.topRow,
-        leftColumn: widget.leftColumn,
-        parentRowSpace: widget.parentRowSpace,
-        parentColumnSpace: stateParent.parentColumnSpace,
-        widgetId: parentId,
-      },
+    const res: WrappedWidgetPayload = yield call(
+      addAndWrapWidget,
+      widgets,
+      parentId,
+      each,
+      undefined,
       direction,
       stateParent?.isWrapper || false,
+      wrapperType,
     );
-    const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-      stateParent,
-      wrapperPayload,
-      allWidgets,
-    );
-    // Add widget to the wrapper
-    let wrapper = containerPayload.widgets[containerPayload.widgetId];
-    wrapper = {
-      ...wrapper,
-      children: [...(wrapper.children || []), each],
-    };
-    // Update parent of the widget
-    allWidgets[each] = { ...widget, parentId: wrapper.widgetId, wrapperType };
-    allWidgets[wrapper.widgetId] = wrapper;
-    newMovedWidgets.push(wrapper.widgetId);
+
+    widgets = res.widgets;
+    newMovedWidgets.push(res.wrapperId);
   }
-  return { newMovedWidgets, updatedWidgets: allWidgets };
+  return { newMovedWidgets, updatedWidgets: widgets };
 }
 
 function* addWidgetAndReorderSaga(

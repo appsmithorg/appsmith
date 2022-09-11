@@ -103,10 +103,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       : {};
     const styles: CSSProperties = {
       // TODO: remove the widget type check. Add check for parent type.
-      position:
-        props?.useAutoLayout && !props.widgetType?.includes("AUTOLAYOUT")
-          ? "unset"
-          : "absolute",
+      position: props?.useAutoLayout ? "unset" : "absolute",
       left: x,
       top: y,
       height:
