@@ -470,7 +470,7 @@ return "yes";`;
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
-  it("10. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
+  it.skip("10. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
     const JS_OBJECT_WITH_PARSE_ERROR = `export default {
       myVar1: [],
       myVar2: {},
