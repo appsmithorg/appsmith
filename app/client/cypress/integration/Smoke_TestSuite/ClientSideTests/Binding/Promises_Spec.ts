@@ -92,8 +92,8 @@ describe("Validate basic Promises", () => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
-      "https://source.unsplash.com/collection/8439505",
-      "Christmas",
+      "https://picsum.photos/200/300",
+      "RandomImy",
       30000,
     );
     ee.SelectEntityByName("Button1", "Widgets");
@@ -101,14 +101,14 @@ describe("Validate basic Promises", () => {
       "onClick",
       `{{
             (function () {
-          return Christmas.run()
+          return RandomImy.run()
             .then(() => showAlert("You have a beautiful picture", 'success'))
             .catch(() => showAlert('Oops!', 'error'))
         })()
           }}`,
     );
     ee.SelectEntityByName("Image1");
-    propPane.UpdatePropertyFieldValue("Image", `{{Christmas.data}}`);
+    propPane.UpdatePropertyFieldValue("Image", `{{RandomImy.data}}`);
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     );
@@ -263,7 +263,7 @@ RandomUser.run(),
 GetAnime.run({ name: 'Gintama' }),
 InspiringQuotes.run(),
 Agify.run({ person: 'Scripty' }),
-Christmas.run()
+RandomImy.run()
 ]
 showAlert("Running all api's", "warning");
 return Promise.all(allFuncs).then(() =>

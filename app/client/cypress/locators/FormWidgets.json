@@ -30,6 +30,8 @@
   "dropdownInput": ".bp3-tag-input-values",
   "mulitiselectInput": ".rc-select-selection-search-input",
   "treeSelectInput": ".rc-tree-select-selection-search-input",
+  "treeSelectClearAll":".rc-tree-select-clear",
+  "treeSelectPlaceholder":".rc-tree-select-single .rc-tree-select-selection-placeholder",
   "treeSelectFilterInput": ".tree-select-dropdown .bp3-input",
   "multiTreeSelectFilterInput": ".tree-multiselect-dropdown .bp3-input",
   "labelradio": ".t--draggable-radiogroupwidget label",
