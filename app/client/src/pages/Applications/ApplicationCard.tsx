@@ -836,16 +836,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             isFetching={isFetchingApplications}
             ref={appNameWrapperRef}
           >
-            {isVerticalEllipsisActive(appNameWrapperRef?.current) ? (
-              <TooltipComponent
-                content={props.application.name}
-                maxWidth="400px"
-              >
-                {appNameText}
-              </TooltipComponent>
-            ) : (
-              appNameText
-            )}
+            Abcd
           </AppNameWrapper>
           {showOverlay && !props.isMobile && (
             <div className="overlay">
