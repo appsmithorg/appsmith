@@ -675,8 +675,9 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
+  // 2 is the index value of the JS Object in omnibar ui
   cy.get(".t--file-operation")
-    .eq(1)
+    .eq(2)
     .click({ force: true });
 });
 
