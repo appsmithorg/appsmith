@@ -50,7 +50,7 @@ import static com.appsmith.external.helpers.restApiUtils.helpers.URIUtils.DISALL
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @NoArgsConstructor
-public class TriggerUtils {
+public class RestApiTriggerUtils {
 
     public static String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
     public static String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
