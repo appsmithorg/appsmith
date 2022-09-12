@@ -533,7 +533,7 @@ public class FilterDataServiceTest {
                     .map(n -> fieldNamesIterator.next())
                     .collect(Collectors.toList());
 
-            assertThat(columnNames).containsAll(List.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus"));
+            assertThat(columnNames).containsExactlyInAnyOrder("id", "email id", "userName", "productName", "orderAmount", "orderStatus");
 
         } catch (IOException e) {
             e.printStackTrace();
