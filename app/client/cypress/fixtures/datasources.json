@@ -34,12 +34,10 @@
   "redshift-databaseName": "fakeapi",
   "redshift-username": "root",
   "redshift-password": "Redshift$123",
-
   "smtp-host":"localhost",
   "smtp-port":"25",
   "smtp-username":"root",
   "smtp-password":"root",
-
   "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
   "connection-type": "Replica set",
   "database-url": "appsmith-f9fe4.firebaseio.com",
@@ -50,5 +48,6 @@
   "mockDatabaseUsername": "fakeapi",
   "mockDatabasePassword": "LimitedAccess123#",
   "readonly":"readonly",
-  "authenticatedApiUrl": "https://fakeapi.com"
+  "authenticatedApiUrl": "https://fakeapi.com",
+  "graphqlApiUrl": "https://api.spacex.land/graphql"
 }

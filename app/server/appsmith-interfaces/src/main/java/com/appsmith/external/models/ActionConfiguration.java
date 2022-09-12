@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
@@ -55,6 +56,15 @@ public class ActionConfiguration implements AppsmithDomain {
     // Paginated API fields
     String next;
     String prev;
+
+    /**
+     * This field is supposed to hold a set of paths that are expected to contain bindings that refer to the same action
+     * object i.e. a cyclic reference. e.g. A GraphQL API response can contain pagination cursors that are required
+     * to be configured in the pagination tab of the same API. We don't want to treat these cyclic references as
+     * cyclic dependency errors.
+     */
+    @Transient
+    Set<String> selfReferencingDataPaths;
 
     // DB action fields
 

@@ -18,6 +18,8 @@ import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
+import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -123,7 +125,11 @@ const CardContentWrapper = styled.div`
 `;
 
 type ApiHomeScreenProps = {
-  createNewApiAction: (pageId: string, from: EventLocation) => void;
+  createNewApiAction: (
+    pageId: string,
+    from: EventLocation,
+    apiType?: string,
+  ) => void;
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -143,6 +149,7 @@ type Props = ApiHomeScreenProps;
 const API_ACTION = {
   IMPORT_CURL: "IMPORT_CURL",
   CREATE_NEW_API: "CREATE_NEW_API",
+  CREATE_NEW_GRAPHQL_API: "CREATE_NEW_GRAPHQL_API",
   CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
   AUTH_API: "AUTH_API",
 };
@@ -175,12 +182,18 @@ function NewApiScreen(props: Props) {
     }
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
-  const handleCreateNew = () => {
+  const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      source: "CREATE_NEW_API",
+      source,
     });
     if (pageId) {
-      createNewApiAction(pageId, "API_PANE");
+      createNewApiAction(
+        pageId,
+        "API_PANE",
+        source === API_ACTION.CREATE_NEW_GRAPHQL_API
+          ? GRAPHQL_PLUGIN_PACKAGE_NAME
+          : REST_PLUGIN_PACKAGE_NAME,
+      );
     }
   };
 
@@ -204,7 +217,8 @@ function NewApiScreen(props: Props) {
     }
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
-        handleCreateNew();
+      case API_ACTION.CREATE_NEW_GRAPHQL_API:
+        handleCreateNew(actionType);
         break;
       case API_ACTION.IMPORT_CURL: {
         AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
@@ -237,6 +251,17 @@ function NewApiScreen(props: Props) {
       default:
     }
   };
+
+  // Api plugins with Graphql
+  const API_PLUGINS = plugins.filter(
+    (p) => p.packageName === GRAPHQL_PLUGIN_PACKAGE_NAME,
+  );
+
+  plugins.forEach((p) => {
+    if (p.type === PluginType.SAAS || p.type === PluginType.REMOTE) {
+      API_PLUGINS.push(p);
+    }
+  });
 
   return (
     <StyledContainer>
@@ -289,40 +314,49 @@ function NewApiScreen(props: Props) {
             </CardContentWrapper>
           </ApiCard>
         )}
-        {plugins
-          .filter(
-            (p) => p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
-          )
-          .map((p) => (
-            <ApiCard
-              className={`t--createBlankApi-${p.packageName}`}
-              key={p.id}
-              onClick={() => {
-                AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-                  pluginName: p.name,
-                  pluginPackageName: p.packageName,
-                });
-                handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
-                  pluginId: p.id,
-                });
-              }}
-            >
-              <CardContentWrapper>
-                <div className="content-icon-wrapper">
-                  <img
-                    alt={p.name}
-                    className={
-                      "content-icon saasImage t--saas-" +
-                      p.packageName +
-                      "-image"
-                    }
-                    src={p.iconLocation}
-                  />
-                </div>
-                <p className="t--plugin-name textBtn">{p.name}</p>
-              </CardContentWrapper>
-            </ApiCard>
-          ))}
+        <ApiCard
+          className="t--createBlankApiGraphqlCard"
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
+        >
+          <CardContentWrapper>
+            <div className="content-icon-wrapper">
+              <img
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
+              />
+            </div>
+            <p className="textBtn">Create new GraphQL API</p>
+          </CardContentWrapper>
+        </ApiCard>
+        {API_PLUGINS.map((p) => (
+          <ApiCard
+            className={`t--createBlankApi-${p.packageName}`}
+            key={p.id}
+            onClick={() => {
+              AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+                pluginName: p.name,
+                pluginPackageName: p.packageName,
+              });
+              handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
+                pluginId: p.id,
+              });
+            }}
+          >
+            <CardContentWrapper>
+              <div className="content-icon-wrapper">
+                <img
+                  alt={p.name}
+                  className={
+                    "content-icon saasImage t--saas-" + p.packageName + "-image"
+                  }
+                  src={p.iconLocation}
+                />
+              </div>
+              <p className="t--plugin-name textBtn">{p.name}</p>
+            </CardContentWrapper>
+          </ApiCard>
+        ))}
       </ApiCardsContainer>
     </StyledContainer>
   );
