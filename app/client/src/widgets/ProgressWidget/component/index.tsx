@@ -154,6 +154,7 @@ const DeterminateLinearProgress = styled.div<{
     left: 0;
     top: 0;
     bottom: 0;
+    border-radius: ${({ borderRadius }) => borderRadius};
   }
 `;
 
