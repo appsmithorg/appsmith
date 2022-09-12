@@ -49,6 +49,7 @@ public enum AppsmithRole {
             Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_EXECUTE_DATASOURCES)
     ),
 
+
     // This is a role to create tenant admin policies. Since this is an internal construct, we wouldn't expose name and description
     TENANT_ADMIN("", "", Set.of(CREATE_WORKSPACES, CREATE_PERMISSION_GROUPS, CREATE_USER_GROUPS)),
     ;

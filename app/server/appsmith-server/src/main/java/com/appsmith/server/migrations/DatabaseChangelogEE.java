@@ -8,6 +8,7 @@ import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -15,6 +16,7 @@ import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.HashSet;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -51,6 +55,7 @@ public class DatabaseChangelogEE {
 
         Query permissionGroupQuery = new Query();
         permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+
         PermissionGroup instanceAdminPGBeforeChanges = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
         // Give read permission to instanceAdminPg to all the users who have been assigned this permission group
@@ -76,4 +81,11 @@ public class DatabaseChangelogEE {
         Tenant updatedTenant = policyUtils.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
         mongockTemplate.save(updatedTenant);
     }
+
+    @ChangeSet(order = "002", id = "add-index-user-groups", author = "")
+    public void addIndexOnUserGroupCollection(MongockTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+        Index tenantIdIndex = makeIndex("tenantId");
+        ensureIndexes(mongoTemplate, UserGroup.class, tenantIdIndex);
+    }
+
 }

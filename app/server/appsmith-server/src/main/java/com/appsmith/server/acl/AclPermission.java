@@ -12,6 +12,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import lombok.Getter;
 
@@ -35,6 +36,12 @@ public enum AclPermission {
     TENANT_DELETE_PERMISSION_GROUPS("tenantDeletePermissionGroups:tenant", Tenant.class),
     TENANT_ASSIGN_PERMISSION_GROUPS("tenantAssignPermissionGroups:tenant", Tenant.class),
     TENANT_UNASSIGN_PERMISSION_GROUPS("tenantUnassignPermissionGroups:tenant", Tenant.class),
+
+    TENANT_MANAGE_USER_GROUPS("tenantManageUserGroups:tenant", Tenant.class),
+    TENANT_READ_USER_GROUPS("tenantReadUserGroups:tenant", Tenant.class),
+    TENANT_DELETE_USER_GROUPS("tenantDeleteUserGroups:tenant", Tenant.class),
+    TENANT_ADD_USER_TO_ALL_USER_GROUPS("tenantAssignUserGroups:tenant", Tenant.class),
+
     CREATE_USER_GROUPS("createUserGroups:tenant", Tenant.class),
     CREATE_WORKSPACES("createWorkspaces:tenant", Tenant.class),
 
@@ -48,6 +55,8 @@ public enum AclPermission {
     // Does this user have permission to access Instance Config UI?
     @Deprecated
     MANAGE_INSTANCE_ENV("manage:instanceEnv", User.class),
+
+    TENANT_CREATE_USER_GROUPS("create:userGroups", Tenant.class),
 
     // TODO: Add these permissions to PolicyGenerator to assign them to the user when they sign up
     // The following should be applied to Workspace and not User
@@ -129,6 +138,11 @@ public enum AclPermission {
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
     DELETE_PERMISSION_GROUPS("delete:permissionGroups", PermissionGroup.class),
 
+    // User Group Permissions
+    MANAGE_USER_GROUPS("manage:userGroups", UserGroup.class),
+    READ_USER_GROUPS("read:userGroups", UserGroup.class),
+    DELETE_USER_GROUPS("delete:userGroups", UserGroup.class),
+    ADD_USERS_TO_USER_GROUPS("addUsers:userGroups", UserGroup.class),
     ;
 
 

@@ -6,6 +6,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -18,13 +19,16 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
@@ -78,6 +82,11 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Mono<PermissionGroup> findById(String id, AclPermission permission) {
         return repository.findById(id, permission);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToGroupIdsIn(Set<String> groupIds) {
+        return repository.findAllByAssignedToGroupIdsIn(groupIds);
     }
 
     @Override
@@ -141,5 +150,25 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                             .then(repository.archiveById(id));
                 })
                 .then(permissionGroupMono);
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkUnassignFromUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
+        ensureAssignedToUserGroups(permissionGroup);
+
+        // Get the userIds from all the user groups that we are unassigning
+        List<String> userIds = userGroups.stream()
+                .map(ug -> ug.getUsers())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        // Remove the user groups from the permission group
+        permissionGroup.getAssignedToGroupIds().removeAll(userGroups);
+
+        return Mono.zip(
+                        repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.UNASSIGN_PERMISSION_GROUPS),
+                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
+                )
+                .map(tuple -> tuple.getT1());
     }
 }
