@@ -22,7 +22,8 @@ const jsObjectBody = `export default {
 }`;
 
 describe("Autocomplete tests", () => {
-  it("1. Bug #13613 Verify widgets autocomplete:  Document viewer widget", () => {
+  it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
+    EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
     EntityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
 
     // create js object
@@ -37,8 +38,13 @@ describe("Autocomplete tests", () => {
     // focus on 5th line
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
 
-    // Document view widget autocomplete verification
+    // 1. Button group widget autocomplete verification
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ButtonGroup1.");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "isVisible");
+    agHelper.GetNClickByContains(CommonLocators._hints, "isVisible");
+    agHelper.Sleep();
 
+    // 2. Document view widget autocomplete verification
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
     agHelper.GetNAssertElementText(CommonLocators._hints, "docUrl");

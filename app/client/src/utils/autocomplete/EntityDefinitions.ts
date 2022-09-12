@@ -274,6 +274,12 @@ export const entityDefinitions = {
     isDisabled: "bool",
     recaptchaToken: "string",
   },
+  BUTTON_GROUP_WIDGET: {
+    "!doc":
+      "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
+    "!url": "https://docs.appsmith.com/widget-reference/button-group",
+    isVisible: isVisible,
+  },
   DATE_PICKER_WIDGET: {
     "!doc":
       "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
