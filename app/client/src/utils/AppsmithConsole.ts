@@ -13,6 +13,8 @@ import {
 import moment from "moment";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
+import { klona } from "klona/lite";
+import equal from "fast-deep-equal";
 
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);
@@ -43,6 +45,7 @@ function addLog(
     severity,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -56,6 +59,7 @@ function info(
     severity: Severity.INFO,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -69,6 +73,7 @@ function warning(
     severity: Severity.WARNING,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -85,6 +90,7 @@ function error(
     severity: Severity.ERROR,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -100,6 +106,7 @@ function addError(
       severity: severity,
       timestamp: getTimeStamp(),
       category,
+      occurrenceCount: 1,
     }),
   );
 }
@@ -107,6 +114,48 @@ function addError(
 // This is used to remove an error from the errors tab
 function deleteError(id: string, analytics?: Log["analytics"]) {
   dispatchAction(deleteErrorLogInit(id, analytics));
+}
+
+// check the last message from the current log and update the occurrence count
+export function removeRepeatedLogsAndMerge(
+  currentLogs: Log[],
+  incomingLogs: Log[],
+) {
+  // first remove the repeated logs from incoming logs
+  const outputArray = klona(currentLogs);
+  incomingLogs.forEach((incomingLog) => {
+    if (outputArray.length === 0) {
+      outputArray.push(incomingLog);
+    } else {
+      const lastLog = outputArray[outputArray.length - 1];
+      if (!compareLogs(lastLog, incomingLog)) {
+        outputArray.push(incomingLog);
+      } else {
+        lastLog.hasOwnProperty("occurrenceCount") && !!lastLog.occurrenceCount
+          ? lastLog.occurrenceCount++
+          : (lastLog.occurrenceCount = 2);
+      }
+    }
+  });
+  return outputArray;
+}
+
+// comparing logs to check if they are same, added early escape conditions
+// to improve performance
+function compareLogs(log1: Log, log2: Log) {
+  try {
+    if (log1.category !== log2.category) return false;
+    if (log1.logType !== log2.logType) return false;
+    if (log1.timestamp !== log2.timestamp) return false;
+    if (log1.severity !== log2.severity) return false;
+    if (!equal(log1.source, log2.source)) return false;
+    if (log1.text !== log2.text) return false;
+    if (!equal(log1.logData, log2.logData)) return false;
+    if (!equal(log1.state, log2.state)) return false;
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 export default {
