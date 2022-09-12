@@ -5,6 +5,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { omit, isUndefined } from "lodash";
+import { removeRepeatedLogsAndMerge } from "utils/AppsmithConsole";
 
 const initialState: DebuggerReduxState = {
   logs: [],
@@ -20,7 +21,7 @@ const debuggerReducer = createImmerReducer(initialState, {
     state: DebuggerReduxState,
     action: ReduxAction<Log[]>,
   ) => {
-    state.logs = [...state.logs, ...action.payload];
+    state.logs = removeRepeatedLogsAndMerge(state.logs, action.payload);
   },
   [ReduxActionTypes.CLEAR_DEBUGGER_LOGS]: (state: DebuggerReduxState) => {
     state.logs = [];
