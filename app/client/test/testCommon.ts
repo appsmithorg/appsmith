@@ -1,3 +1,4 @@
+import { editorInitializer } from "utils/editor/EditorUtils";
 import {
   Page,
   ReduxActionTypes,
@@ -10,7 +11,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { createSelector } from "reselect";
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { editorInitializer } from "utils/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 import { AppState } from "@appsmith/reducers";

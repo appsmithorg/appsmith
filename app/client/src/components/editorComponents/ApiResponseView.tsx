@@ -36,7 +36,7 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
 import Table from "pages/Editor/QueryEditor/Table";
-import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
+import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import {
   setActionResponseDisplayFormat,
   UpdateActionPropertyActionPayload,
