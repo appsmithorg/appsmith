@@ -86,6 +86,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -94,6 +95,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -382,7 +384,8 @@ public class ApplicationServiceTest {
                     assertThat(page.getName()).isEqualTo(FieldName.DEFAULT_PAGE_NAME);
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getPolicies()).isNotEmpty();
-                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                    assertThat(page.getPolicies().stream().map(Policy::getPermission).collect(Collectors.toSet()))
+                            .containsExactlyInAnyOrder(MANAGE_PAGES.getValue(), READ_PAGES.getValue(), PAGE_CREATE_PAGE_ACTIONS.getValue(), DELETE_PAGES.getValue());
                 })
                 .verifyComplete();
     }
