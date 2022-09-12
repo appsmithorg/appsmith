@@ -13,8 +13,11 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
+import { ObjectsRegistry } from "../support/Objects/Registry";
 
 let pageidcopy = " ";
+
+const ee = ObjectsRegistry.EntityExplorer;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -156,20 +159,22 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
-  cy.SearchEntityandOpen("Modal1");
+  //cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
-  cy.widgetText(
-    ModalName,
-    modalWidgetPage.modalName,
-    modalWidgetPage.modalName,
-  );
+  // cy.widgetText(
+  //   ModalName,
+  //   modalWidgetPage.modalName,
+  //   modalWidgetPage.modalName,
+  // );
 
   //changing the Model label
-  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
-    .first()
-    .trigger("mouseover");
+  // cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
+  //   .first()
+  //   .trigger("mouseover");
 
-  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
+  ee.SelectEntityInModal("Modal1", "Widgets");
+
+  //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);
   cy.moveToStyleTab();
   cy.get(widgetsPage.textCenterAlign).click({ force: true });
@@ -187,21 +192,23 @@ Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
-  cy.SearchEntityandOpen("Modal1");
+  //cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
-  cy.widgetText(
-    ModalName,
-    modalWidgetPage.modalName,
-    modalWidgetPage.modalName,
-  );
+  // cy.widgetText(
+  //   ModalName,
+  //   modalWidgetPage.modalName,
+  //   modalWidgetPage.modalName,
+  // );
 
-  cy.wait(20000);
+  //cy.wait(20000);
   //changing the Model label
-  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
-    .first()
-    .trigger("mouseover");
+  // cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
+  //   .first()
+  //   .trigger("mouseover");
 
-  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
+  ee.SelectEntityInModal("Modal1", "Widgets");
+
+  //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);
   cy.moveToStyleTab();
   cy.get(widgetsPage.textCenterAlign).click({ force: true });
