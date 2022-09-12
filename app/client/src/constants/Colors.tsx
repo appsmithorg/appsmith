@@ -203,6 +203,7 @@ export const Colors = {
   /* RED colors */
   RED_50: "#FFEAEC",
   RED_100: "#FFCACE",
+  RED_150: "#F1B6B6",
   RED_200: "#F09493",
   RED_300: "#E56A69",
   RED_400: "#EE4643",
