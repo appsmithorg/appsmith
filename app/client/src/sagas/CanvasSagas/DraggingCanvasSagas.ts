@@ -228,6 +228,41 @@ function* moveAndUpdateWidgets(
   return updatedWidgets;
 }
 
+function getParentWidgetType(
+  allWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+) {
+  const widget = allWidgets[widgetId];
+
+  if (!widget.parentId) return "MAIN_CONTAINER";
+
+  const containerWidget = allWidgets[widget.parentId];
+
+  /**
+   * container widget can be of type FORM_WIDGET, STATBOX_WIDGET
+   */
+  if (containerWidget.type !== "CONTAINER_WIDGET") {
+    return containerWidget.type;
+  }
+
+  /**
+   * Handling the case for list widget where we have
+   * canvas2 -> container -> canvas1 -> listWidget
+   */
+  if (containerWidget.parentId) {
+    // Take the first parent that is canvas1
+    const containerParent = allWidgets[containerWidget.parentId];
+
+    // Now take the parent of canvas1 that is listWidget
+    if (containerParent.parentId) {
+      const mainParent = allWidgets[containerParent.parentId];
+      return mainParent.type;
+    }
+  }
+
+  return containerWidget.type;
+}
+
 function* moveWidgetsSaga(
   actionPayload: ReduxAction<{
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
@@ -257,25 +292,26 @@ function* moveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+
+    const block = draggedBlocksToUpdate[0];
+    const oldParentId = block.updateWidgetParams.payload.parentId;
+    const newParentId = block.updateWidgetParams.payload.newParentId;
+
+    const oldParentWidgetType = getParentWidgetType(allWidgets, oldParentId);
+    const newParentWidgetType = getParentWidgetType(allWidgets, newParentId);
+
     AnalyticsUtil.logEvent("WIDGET_DRAG", {
       widgets: draggedBlocksToUpdate.map((block) => {
-        const widget = updatedWidgetsOnMove[block.widgetId];
-
-        const parentId = block.updateWidgetParams.payload.parentId;
-        const newParentId = block.updateWidgetParams.payload.newParentId;
-
-        const parentWidget = allWidgets[parentId].widgetName;
-        const newParentWidget = allWidgets[newParentId].widgetName;
-
+        const widget = allWidgets[block.widgetId];
         return {
           widgetType: widget.type,
           widgetName: widget.widgetName,
-          parentWidget,
-          newParentWidget,
         };
       }),
       multiple: draggedBlocksToUpdate.length > 1,
-      mainCanvas: canvasId === "0",
+      movedToNewWidget: oldParentId !== newParentId,
+      source: oldParentWidgetType,
+      destination: newParentWidgetType,
     });
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
