@@ -629,10 +629,6 @@ jobs:
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: buildjet-4vcpu-ubuntu-2004
-    permissions:
-      contents: read
-      id-token: write
-
     defaults:
       run:
         shell: bash
