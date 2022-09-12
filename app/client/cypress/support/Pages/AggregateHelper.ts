@@ -9,6 +9,7 @@ export interface IEnterValue {
   propFieldName: string;
   directInput: boolean;
   inputFieldName: string;
+  callback?: (field: unknown) => void;
 }
 
 const DEFAULT_ENTERVALUE_OPTIONS = {
@@ -203,7 +204,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleDisappear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
@@ -229,7 +230,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("be.visible"), {
@@ -643,15 +644,23 @@ export class AggregateHelper {
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
-    const { directInput, inputFieldName, propFieldName } = options;
+    const { callback, directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
       cy.get(propFieldName).then(($field: any) => {
-        this.UpdateCodeInput($field, valueToEnter);
+        if (callback) {
+          callback($field);
+        } else {
+          this.UpdateCodeInput($field, valueToEnter);
+        }
       });
     } else if (inputFieldName && !propFieldName && !directInput) {
       cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
         ($field: any) => {
-          this.UpdateCodeInput($field, valueToEnter);
+          if (callback) {
+            callback($field);
+          } else {
+            this.UpdateCodeInput($field, valueToEnter);
+          }
         },
       );
     }
