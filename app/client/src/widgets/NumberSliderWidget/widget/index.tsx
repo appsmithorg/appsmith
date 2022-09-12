@@ -450,13 +450,13 @@ class NumberSliderWidget extends BaseWidget<
     }
   }
 
-  static getDefaultPropertiesMap(): Record<string, any> {
+  static getDefaultPropertiesMap(): Record<string, unknown> {
     return {
       value: "defaultValue",
     };
   }
 
-  static getMetaPropertiesMap(): Record<string, any> {
+  static getMetaPropertiesMap(): Record<string, unknown> {
     return {
       value: 0,
       isDirty: false,

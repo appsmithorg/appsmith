@@ -519,14 +519,14 @@ class RangeSliderWidget extends BaseWidget<
     }
   }
 
-  static getDefaultPropertiesMap(): Record<string, any> {
+  static getDefaultPropertiesMap(): Record<string, unknown> {
     return {
       start: "defaultStartValue",
       end: "defaultEndValue",
     };
   }
 
-  static getMetaPropertiesMap(): Record<string, any> {
+  static getMetaPropertiesMap(): Record<string, unknown> {
     return {
       start: 0,
       end: 20,
