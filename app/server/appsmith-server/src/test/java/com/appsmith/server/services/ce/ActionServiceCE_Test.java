@@ -2574,7 +2574,7 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "url", "width"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "width", "url"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
