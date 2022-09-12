@@ -35,6 +35,13 @@
             <version>7.17.5</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.3.15</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Test Dependencies -->
 
         <dependency>
