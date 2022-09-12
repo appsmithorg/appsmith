@@ -181,6 +181,9 @@ const getFunctionalParamNamesFromNode = (
   );
 };
 
+// Memoize the ast generation code to improve performance.
+// Since this will be used by both the server and the client, we want to prevent regeneration of ast
+// for the the same code snippet
 export const getAST = memoize((code: string, options?: AstOptions) =>
   parse(code, { ...options, ecmaVersion: ECMA_VERSION })
 );

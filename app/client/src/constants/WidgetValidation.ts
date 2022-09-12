@@ -1,4 +1,5 @@
 import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
+import { extraLibraries } from "utils/DynamicBindingUtils";
 import { ValidationConfig } from "./PropertyControlConstants";
 
 // Always add a validator function in ./worker/validation for these types
@@ -115,7 +116,6 @@ export const JAVASCRIPT_KEYWORDS = {
  * Check if an identifier (or window object/property) is available in the worker context here => https://worker-playground.glitch.me/
  */
 export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
-  Infinity: "Infinity",
   AbortController: "AbortController",
   AbortSignal: "AbortSignal",
   AggregateError: "AggregateError",
@@ -218,6 +218,7 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   ImageTrack: "ImageTrack",
   ImageTrackList: "ImageTrackList",
   importScripts: "importScripts",
+  Infinity: "Infinity",
   Int8Array: "Int8Array",
   Int16Array: "Int16Array",
   Int32Array: "Int32Array",
@@ -382,3 +383,29 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   XMLHttpRequestEventTarget: "XMLHttpRequestEventTarget",
   XMLHttpRequestUpload: "XMLHttpRequestUpload",
 };
+
+export const APPSMITH_GLOBAL_FUNCTIONS = {
+  navigateTo: "navigateTo",
+  showAlert: "showAlert",
+  showModal: "showModal",
+  closeModal: "closeModal",
+  storeValue: "storeValue",
+  download: "download",
+  copyToClipboard: "copyToClipboard",
+  resetWidget: "resetWidget",
+  setInterval: "setInterval",
+  clearInterval: "clearInterval",
+};
+
+/**
+ * creates dynamic list of constants based on
+ * current list of extra libraries i.e lodash("_"), moment etc
+ * to be used in widget and entity name validations
+ */
+export const extraLibrariesNames = extraLibraries.reduce(
+  (prev: Record<string, string>, curr) => {
+    prev[curr.accessor] = curr.accessor;
+    return prev;
+  },
+  {},
+);

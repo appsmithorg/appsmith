@@ -5,8 +5,10 @@ import confetti from "assets/lottie/binding.json";
 import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
+  APPSMITH_GLOBAL_FUNCTIONS,
   DATA_TREE_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+  extraLibrariesNames,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { get, set, isNil, has } from "lodash";
@@ -16,7 +18,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import moment from "moment";
-import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -378,6 +380,7 @@ export const isNameValid = (
     has(JAVASCRIPT_KEYWORDS, name) ||
     has(DATA_TREE_KEYWORDS, name) ||
     has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
+    has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
     has(extraLibrariesNames, name) ||
     has(invalidNames, name)
   );
