@@ -68,19 +68,15 @@ registerRoute(({ url }) => {
   return url.pathname.includes("index.html");
 }, new NetworkOnly());
 
-self.addEventListener("updatefound", (event) => {
-  console.log("updateFound");
-  caches.keys().then(function(cacheNames) {
-    return Promise.all(
-      cacheNames.map(function(cacheName) {
-        console.log("caches", { cacheName });
-        // return caches.delete(cacheName);
-      }),
-    );
-  });
-});
-
-self.addEventListener("activate", (event) => {
-  console.log("activate");
-  console.log("caches", caches.keys());
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          console.log({ cacheName });
+          return caches.delete(cacheName);
+        }),
+      );
+    }),
+  );
 });
