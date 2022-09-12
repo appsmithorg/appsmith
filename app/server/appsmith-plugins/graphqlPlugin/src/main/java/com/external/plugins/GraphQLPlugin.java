@@ -198,7 +198,7 @@ public class GraphQLPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
+            WebClient.Builder webClientBuilder = restApiTriggerUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);
 
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
@@ -278,12 +278,12 @@ public class GraphQLPlugin extends BasePlugin {
             Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
                     encodeParamsToggle,
                     httpMethod);
-            WebClient client = triggerUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+            WebClient client = restApiTriggerUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
             Set<String> hintMessages = new HashSet<String>();
-            return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+            return restApiTriggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);
         }

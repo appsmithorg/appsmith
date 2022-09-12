@@ -36,7 +36,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     protected SmartSubstitutionUtils smartSubstitutionUtils;
     protected URIUtils uriUtils;
     protected DatasourceUtils datasourceUtils;
-    protected RestApiTriggerUtils triggerUtils;
+    protected RestApiTriggerUtils restApiTriggerUtils;
     protected InitUtils initUtils;
     protected HeaderUtils headerUtils;
     protected HintMessageUtils hintMessageUtils;
@@ -51,7 +51,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
         this.dataUtils = new DataUtils();
         this.smartSubstitutionUtils = new SmartSubstitutionUtils();
         this.uriUtils = new URIUtils();
-        this.triggerUtils = new RestApiTriggerUtils();
+        this.restApiTriggerUtils = new RestApiTriggerUtils();
         this.initUtils = new InitUtils();
         this.headerUtils = new HeaderUtils();
         this.datasourceUtils = new DatasourceUtils();
