@@ -359,7 +359,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.AssertContains('The action "Quotes" has failed');
 
-    agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
+    agHelper.WaitUntilAllToastsDisappear();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No"); //Ask Favour abt below
     //agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
