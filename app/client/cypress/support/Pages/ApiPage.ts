@@ -217,7 +217,11 @@ export class ApiPage {
       | "Body"
       | "Pagination"
       | "Authentication"
-      | "Settings",
+      | "Settings"
+      | "Response"
+      | "Errors"
+      | "Logs"
+      | "Inspect entity"
   ) {
     this.agHelper.PressEscape();
     this.agHelper.GetNClick(this._visibleTextSpan(tabName), 0, true);
