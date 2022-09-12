@@ -28,7 +28,11 @@ import {
   generateResponsiveBehaviorConfig,
 } from "utils/layoutPropertiesUtils";
 import { connect } from "react-redux";
-import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
+import {
+  addWrappers,
+  removeWrappers,
+  updateWrappers,
+} from "actions/autoLayoutActions";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -326,11 +330,19 @@ export class ContainerWidget extends BaseWidget<
             ? LayoutDirection.Horizontal
             : LayoutDirection.Vertical,
         );
-    }
+    } else
+      this.props.updateWrappers &&
+        this.props.updateWrappers(
+          this.props.widgetId,
+          this.props.positioning === Positioning.Horizontal
+            ? LayoutDirection.Horizontal
+            : LayoutDirection.Vertical,
+        );
   };
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
+    console.log(`${this.props.widgetName}: ${componentWidth}`);
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
     let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
     if (
@@ -420,6 +432,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   removeWrappers: (id: string) => dispatch(removeWrappers(id)),
   addWrappers: (id: string, direction: LayoutDirection) =>
     dispatch(addWrappers(id, direction)),
+  updateWrappers: (id: string, direction: LayoutDirection) =>
+    dispatch(updateWrappers(id, direction)),
 });
 
 export interface ContainerWidgetProps<T extends WidgetProps>
@@ -433,6 +447,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   spacing?: Spacing;
   removeWrappers?: (id: string) => void;
   addWrappers?: (id: string, direction: LayoutDirection) => void;
+  updateWrappers?: (id: string, direction: LayoutDirection) => void;
 }
 
 export interface ContainerWidgetState extends WidgetState {

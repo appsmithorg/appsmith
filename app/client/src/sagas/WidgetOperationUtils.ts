@@ -1869,7 +1869,7 @@ export function* addAndWrapWidget(
         columns: child.columns || child.rightColumn - child.leftColumn,
         topRow: child.topRow,
         leftColumn: child.leftColumn,
-        parentColumnSpace: parent.parentColumnSpace,
+        parentColumnSpace: child.parentColumnSpace,
         parentRowSpace: child.parentRowSpace,
         widgetId: parentId,
       }
@@ -1879,7 +1879,7 @@ export function* addAndWrapWidget(
         columns: addChildPayload.columns,
         topRow: addChildPayload.topRow,
         leftColumn: addChildPayload.leftColumn,
-        parentColumnSpace: parent.parentColumnSpace,
+        parentColumnSpace: addChildPayload.parentColumnSpace,
         parentRowSpace: addChildPayload.parentRowSpace,
         widgetId: parentId,
       }
@@ -1931,12 +1931,17 @@ export function* addAndWrapWidget(
     wrapperType,
   };
 
-  // if (!isWrapper && direction === LayoutDirection.Horizontal)
-  //   child = {
-  //     ...child,
-  //     leftColumn: 0,
-  //     rightColumn: 63,
-  //   };
+  // Update child to fill the width of the parent if it is wrapped in a vertical wrapper.
+  if (
+    (!isWrapper && direction === LayoutDirection.Horizontal) ||
+    (isWrapper && direction === LayoutDirection.Vertical)
+  ) {
+    child = {
+      ...child,
+      leftColumn: 0,
+      rightColumn: 63,
+    };
+  }
 
   widgets[wrapper.widgetId] = wrapper;
   widgets[widgetId] = child;
@@ -1945,4 +1950,55 @@ export function* addAndWrapWidget(
     children: [...(parent.children || []), wrapper.widgetId],
   };
   return { widgets, wrapperId: wrapper.widgetId };
+}
+
+export function updateWrapperDimensions(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  direction: LayoutDirection,
+): CanvasWidgetsReduxState {
+  const widgets = { ...allWidgets };
+  const container = widgets[parentId];
+  if (!container?.children) return widgets;
+  const canvas = widgets[container.children[0]];
+  const wrappers = canvas?.children;
+  if (!wrappers) return widgets;
+  if (direction === LayoutDirection.Vertical) {
+    for (const each of wrappers) {
+      const wrapper = widgets[each];
+      if (!wrapper || !wrapper.children) continue;
+      const prevRightColumn = wrapper.rightColumn;
+      widgets[each] = {
+        ...wrapper,
+        leftColumn: 0,
+        rightColumn: 63,
+      };
+      const children = wrapper.children;
+      for (const child of children) {
+        const childWidget = widgets[child];
+        widgets[child] = {
+          ...childWidget,
+          leftColumn: 0,
+          rightColumn: prevRightColumn ? prevRightColumn - 1 : 0,
+        };
+      }
+    }
+  } else {
+    for (const each of wrappers) {
+      const wrapper = widgets[each];
+      if (!wrapper || !wrapper.children) continue;
+      const children = wrapper.children;
+      let max = 0;
+      for (const child of children) {
+        const childWidget = widgets[child];
+        max = Math.max(max, childWidget.rightColumn - childWidget.leftColumn);
+      }
+      widgets[each] = {
+        ...wrapper,
+        leftColumn: 0,
+        rightColumn: max + 1,
+      };
+    }
+  }
+  return widgets;
 }

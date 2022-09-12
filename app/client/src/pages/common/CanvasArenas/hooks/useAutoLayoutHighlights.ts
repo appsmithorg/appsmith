@@ -265,15 +265,19 @@ export const useAutoLayoutHighlights = ({
     arr?.forEach((each) => {
       // Get the parent wrapper
       const wrapperId = getNearestWrapperAncestor(each);
-      if (wrapperId === canvasId) return;
+      const isEmpty = isWrapperEmpty(wrapperId, arr);
+      let el;
+      if (wrapperId === canvasId) {
+        if (isEmpty) return;
+        el = getDomElement(each);
+      } else {
+        el = isEmpty ? getDomElement(wrapperId) : getDomElement(each);
+      }
       /**
        * If the wrapper is not the dragging canvas and is empty,
        * then hide it,
        * else hide the child element.
        */
-      const el = isWrapperEmpty(wrapperId, arr)
-        ? getDomElement(wrapperId)
-        : getDomElement(each);
       el?.classList?.add("auto-temp-no-display");
     });
   };
@@ -328,8 +332,9 @@ export const useAutoLayoutHighlights = ({
       const flex = document.querySelector(`.flex-container-${canvasId}`);
       const flexOffsetTop = (flex as any)?.offsetTop || 0;
       let temp: Highlight[] = [];
-      const discardEndWrapper: boolean = hasFillChild(offsetChildren);
-      if (canvas.isWrapper && !discardEndWrapper) {
+      const discardExtraWrappers: boolean =
+        hasFillChild(offsetChildren) || direction === LayoutDirection.Vertical;
+      if (canvas.isWrapper && !discardExtraWrappers) {
         const start: string[] = [],
           center: string[] = [],
           end: string[] = [];
@@ -370,8 +375,8 @@ export const useAutoLayoutHighlights = ({
 
       if (!offsets || !offsets.length)
         offsets = [getInitialOffset(isCanvasWrapper)];
-      console.log(`#### offsets: ${JSON.stringify(offsets)}`);
-      console.log(`#### END calculate highlight offsets`);
+      // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
+      // console.log(`#### END calculate highlight offsets`);
     }
     return offsets;
   };

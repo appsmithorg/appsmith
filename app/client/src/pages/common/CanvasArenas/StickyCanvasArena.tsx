@@ -47,6 +47,7 @@ const Highlight = styled.div<{
   background-color: rgba(217, 89, 183, 0.8);
   position: absolute;
   opacity: 0;
+  z-index: 4;
 `;
 
 const StickyCanvas = styled.canvas`
