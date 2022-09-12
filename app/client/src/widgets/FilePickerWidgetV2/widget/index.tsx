@@ -21,7 +21,14 @@ import { createGlobalStyle } from "styled-components";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { Colors } from "constants/Colors";
+import Papa from "papaparse";
 
+const CSV_ARRAY_LABEL = "Array (CSVs only)";
+const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
+
+const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
+
+type Result = string | Buffer | null;
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
 }>`
@@ -317,6 +324,10 @@ class FilePickerWidget extends BaseWidget<
                 label: FileDataTypes.Text,
                 value: FileDataTypes.Text,
               },
+              {
+                label: CSV_ARRAY_LABEL,
+                value: FileDataTypes.Array,
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -499,6 +510,10 @@ class FilePickerWidget extends BaseWidget<
               {
                 label: FileDataTypes.Text,
                 value: FileDataTypes.Text,
+              },
+              {
+                label: CSV_ARRAY_LABEL,
+                value: FileDataTypes.Array,
               },
             ],
             isBindProperty: false,
@@ -831,7 +846,11 @@ class FilePickerWidget extends BaseWidget<
               const newFile = {
                 type: file.type,
                 id: file.id,
-                data: reader.result,
+                data: this.csvParser(
+                  reader.result as Result,
+                  file.type,
+                  this.props.fileDataType,
+                ),
                 name: file.meta ? file.meta.name : `File-${index + fileCount}`,
                 size: file.size,
                 dataFormat: this.props.fileDataType,
@@ -957,6 +976,42 @@ class FilePickerWidget extends BaseWidget<
         )}
       </>
     );
+  }
+
+  csvParser(result: Result, fileType: string, dataFormat: FileDataTypes) {
+    if (dataFormat !== FileDataTypes.Array) {
+      return result;
+    }
+
+    if (dataFormat === FileDataTypes.Array && !isCSVFileType(fileType)) {
+      return [];
+    }
+    if (!result) {
+      return [];
+    }
+
+    const data: any[] = [];
+    const errors: any[] = [];
+
+    function chunk(results: Papa.ParseStepResult<any>) {
+      if (results?.errors?.length) {
+        errors.push(...results.errors);
+      }
+      data.push(...results.data);
+    }
+
+    if (typeof result === "string") {
+      const config = {
+        header: true,
+        chunk,
+      };
+      try {
+        Papa.parse(result, config);
+        return data;
+      } catch (error) {
+        log.error(error);
+      }
+    }
   }
 
   static getWidgetType(): WidgetType {
