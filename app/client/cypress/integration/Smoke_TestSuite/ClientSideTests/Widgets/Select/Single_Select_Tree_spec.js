@@ -16,7 +16,7 @@ describe("Single Select Widget Functionality", function() {
     );
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultvalue", "GREEN");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "GREEN");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -31,14 +31,14 @@ describe("Single Select Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultvalue", "RED");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "RED");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
   it("2. Selects value with enter in default value", () => {
     cy.openPropertyPane("singleselecttreewidget");
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalue", "RED\n");
     cy.get(formWidgetsPage.singleselecttreeWidget)
       .find(".rc-tree-select-selection-item")
       .first()
@@ -109,6 +109,28 @@ describe("Single Select Widget Functionality", function() {
       .type("ABCD");
     cy.get(".tree-select-dropdown .rc-tree-select-empty").contains(
       "No Results Found",
+    );
+  });
+
+  it("8. To Check Clear all functionality", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{SingleSelectTree1.selectedOptionValue}}`,
+    );
+    cy.openPropertyPane("singleselecttreewidget");
+    cy.togglebar(
+      '.t--property-control-allowclearingvalue input[type="checkbox"]',
+    );
+    cy.get(formWidgetsPage.treeSelectClearAll)
+      .last()
+      .click({ force: true });
+    cy.wait(100);
+    cy.get(".t--widget-textwidget").should("contain", "");
+    cy.get(formWidgetsPage.treeSelectClearAll).should("not.exist");
+    cy.get(formWidgetsPage.treeSelectPlaceholder).should(
+      "contain",
+      "select option",
     );
   });
 });

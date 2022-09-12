@@ -29,6 +29,7 @@ export class PropertyPane {
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
+  private _styleTabBtn = "li:contains('STYLE')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
     themeName +
@@ -42,8 +43,9 @@ export class PropertyPane {
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorRing = ".border-2";
-  _colorInput = (option: string) => "//h3[text()='" + option + " Color']//parent::div//input";
-  //_colorInputField = (option: string) => "//h3[text()='" + option + " Color']//parent::div";
+  _colorInput = (option: string) =>
+    "//h3[text()='" + option + " Color']//parent::div//input";
+  _colorInputField = (option: string) => "//h3[text()='" + option + " Color']//parent::div";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -123,7 +125,7 @@ export class PropertyPane {
           placeHolderText = "{{sourceData." + $propName + "}}";
           this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
-      this.RemoveText("Default Value");
+      this.RemoveText("Default Value", false);
       //this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
@@ -140,6 +142,10 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+  }
+
+  public moveToStyleTab() {
+    cy.get(this._styleTabBtn).first().click({force:true})
   }
 
   public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
@@ -174,7 +180,7 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 
-  public RemoveText(endp: string) {
+  public RemoveText(endp: string, toVerifySave = true) {
     cy.get(
       this.locator._propertyControl +
         endp.replace(/ +/g, "").toLowerCase() +
@@ -191,7 +197,7 @@ export class PropertyPane {
     // .type("{ctrl}{shift}{downarrow}", { force: true })
     // .type("{del}", { force: true });
 
-    this.agHelper.AssertAutoSave();
+    toVerifySave && this.agHelper.AssertAutoSave();
   }
 
   public TypeTextIntoField(endp: string, value: string) {

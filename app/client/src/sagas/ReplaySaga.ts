@@ -59,7 +59,7 @@ import {
   isQueryAction,
   isSaaSAction,
 } from "entities/Action";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
@@ -71,7 +71,7 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
 import {
   setAppThemingModeStackAction,

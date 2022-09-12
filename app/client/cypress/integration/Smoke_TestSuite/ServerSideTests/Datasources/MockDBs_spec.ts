@@ -42,7 +42,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
           expect($queryCount).to.eq("2 queries on this page"),
         );
 
-      ee.ExpandCollapseEntity("QUERIES/JS");
+      ee.ExpandCollapseEntity("Queries/JS");
       ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
       ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
       dataSources.NavigateToActiveTab();
@@ -83,7 +83,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
           expect($queryCount).to.eq("2 queries on this page"),
         );
 
-      ee.ExpandCollapseEntity("QUERIES/JS");
+      ee.ExpandCollapseEntity("Queries/JS");
       ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
       ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
       dataSources.NavigateToActiveTab();

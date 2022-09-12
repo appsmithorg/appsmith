@@ -217,7 +217,7 @@ describe("Select Widget Functionality", function() {
 
     // Set default value as RANDOM11
     cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
+      ".t--property-control-defaultselectedvalue",
       `{
         "label": "RANDOM5",
         "value": "RANDOM5"
