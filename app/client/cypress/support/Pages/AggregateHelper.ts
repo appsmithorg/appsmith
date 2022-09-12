@@ -271,6 +271,18 @@ export class AggregateHelper {
     );
   }
 
+  public ValidateNetworkDataAssert(
+    aliasName: string,
+    expectedPath: string,
+    expectedRes: any,
+  ) {
+    cy.wait(aliasName).should(
+      "have.nested.property",
+      expectedPath,
+      expectedRes,
+    );
+  }
+
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {

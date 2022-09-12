@@ -16,6 +16,7 @@ public enum AnalyticsEvents {
     LOGOUT,
     FIRST_LOGIN,
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
+    EXECUTE_INVITE_USERS("execute_INVITE_USERS"),
     UPDATE_LAYOUT,
     PUBLISH_APPLICATION("publish_APPLICATION"),
     FORK,
