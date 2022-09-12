@@ -342,7 +342,6 @@ export class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
-    console.log(`${this.props.widgetName}: ${componentWidth}`);
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
     let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
     if (
