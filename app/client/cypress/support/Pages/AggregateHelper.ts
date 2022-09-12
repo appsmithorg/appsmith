@@ -693,11 +693,12 @@ export class AggregateHelper {
     input: string,
     toClear = false,
     isInput = true,
+    options = {},
   ) {
     toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
       .trigger("click")
-      .type(input);
+      .type(input, options);
   }
 
   public ClearInputText(name: string, isInput = true) {
