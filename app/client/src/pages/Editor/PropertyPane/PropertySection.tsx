@@ -10,8 +10,6 @@ import React, {
 import { Collapse } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { WidgetProps } from "widgets/BaseWidget";
-import { isFunction } from "lodash";
 import { AppIcon as Icon, Size } from "design-system";
 
 const SectionTitle = styled.div`
@@ -74,7 +72,7 @@ const StyledIcon = styled(Icon)`
 
 type PropertySectionProps = {
   id: string;
-  name: string | ((props: WidgetProps, propertyPath: string) => string);
+  name: string;
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
@@ -101,11 +99,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     return null;
   }
 
-  const sectionName = isFunction(props.name)
-    ? props.name(widgetProps, props.propertyPath || "")
-    : props.name;
-
-  const className = sectionName
+  const className = props.name
     .split(" ")
     .join("")
     .toLowerCase();
@@ -115,7 +109,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         className={`t--property-pane-section-collapse-${className} flex items-center`}
         onClick={handleSectionTitleClick}
       >
-        <span className="grow">{sectionName}</span>
+        <span className="grow">{props.name}</span>
         {props.collapsible && (
           <StyledIcon
             className="t--chevron-icon"
