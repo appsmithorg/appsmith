@@ -6,7 +6,11 @@ import log, { LogLevelDesc } from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
 
+// routes
+import ast_routes from "./routes/ast_routes";
+
 const RTS_BASE_PATH = "/rts";
+const RTS_BASE_API_PATH = "/rts-api/v1";
 
 // Setting the logLevel for all log messages
 const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
@@ -46,12 +50,16 @@ function main() {
   // Initializing Sockets
   initializeSockets(io);
 
+  // parse incoming json requests
+  app.use(express.json({ limit: "5mb" }));
   // Initializing Routes
   app.use(express.static(path.join(__dirname, "static")));
   app.get("/", (_, res) => {
     res.redirect("/index.html");
   });
-  
+
+  app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
+
   // Run the server
   server.listen(PORT, () => {
     log.info(`RTS version ${buildVersion} running at http://localhost:${PORT}`);
