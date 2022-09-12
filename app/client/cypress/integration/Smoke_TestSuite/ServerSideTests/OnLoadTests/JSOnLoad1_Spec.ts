@@ -357,7 +357,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "Quotes" has failed');
+    agHelper.AssertContains('The action "Quotes" has failed');
 
     agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
@@ -368,7 +368,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       jsEditor._dialogBody((jsName as string) + ".callTrump"),
     );
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage("Failed to execute actions during page load");
+    agHelper.AssertContains("Failed to execute actions during page load");
 
     ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
