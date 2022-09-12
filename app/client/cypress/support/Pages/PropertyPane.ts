@@ -45,7 +45,7 @@ export class PropertyPane {
   _colorRing = ".border-2";
   _colorInput = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div//input";
-  //_colorInputField = (option: string) => "//h3[text()='" + option + " Color']//parent::div";
+  _colorInputField = (option: string) => "//h3[text()='" + option + " Color']//parent::div";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -147,7 +147,7 @@ export class PropertyPane {
   public moveToStyleTab() {
     cy.get(this._styleTabBtn).first().click({force:true})
   }
-  
+
   public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
     cy.xpath(this.locator._selectPropDropdown(endpoint))
       .first()
