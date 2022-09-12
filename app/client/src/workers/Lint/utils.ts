@@ -37,7 +37,6 @@ import {
   ECMA_VERSION,
   MemberExpressionData,
 } from "@shared/ast";
-import { CURRENT_EVALUATION_VERSION } from "workers/DependencyMap/constants";
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
@@ -231,7 +230,7 @@ const getInvalidPropertyErrorsFromScript = (
     invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
       script,
       data,
-      CURRENT_EVALUATION_VERSION,
+      self.evaluationVersion,
     );
   } catch (e) {}
 

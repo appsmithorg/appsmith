@@ -1,5 +1,4 @@
 import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
-import { extraLibraries } from "utils/DynamicBindingUtils";
 import { ValidationConfig } from "./PropertyControlConstants";
 
 // Always add a validator function in ./worker/validation for these types
@@ -396,16 +395,3 @@ export const APPSMITH_GLOBAL_FUNCTIONS = {
   setInterval: "setInterval",
   clearInterval: "clearInterval",
 };
-
-/**
- * creates dynamic list of constants based on
- * current list of extra libraries i.e lodash("_"), moment etc
- * to be used in widget and entity name validations
- */
-export const extraLibrariesNames = extraLibraries.reduce(
-  (prev: Record<string, string>, curr) => {
-    prev[curr.accessor] = curr.accessor;
-    return prev;
-  },
-  {},
-);

@@ -1,11 +1,9 @@
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-  extraLibrariesNames,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-
-export const CURRENT_EVALUATION_VERSION = 2;
+import { extraLibrariesNames } from "utils/DynamicBindingUtils";
 
 /**
  * Identifiers which can not be valid names of entities and are not dynamic in nature.

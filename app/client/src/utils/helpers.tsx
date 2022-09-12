@@ -8,7 +8,6 @@ import {
   APPSMITH_GLOBAL_FUNCTIONS,
   DATA_TREE_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-  extraLibrariesNames,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { get, set, isNil, has } from "lodash";
@@ -18,7 +17,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import moment from "moment";
-import { isDynamicValue } from "./DynamicBindingUtils";
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
