@@ -163,7 +163,7 @@ function* formValueChangeSaga(
     const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
     const hasRouteChanged = field === "id";
 
-    if (isPermitted(values.userPermissions, PERMISSION_TYPE.MANAGE_ACTIONS)) {
+    if (!isPermitted(values.userPermissions, PERMISSION_TYPE.MANAGE_ACTIONS)) {
       yield validateResponse({
         status: 403,
         resourceType: values?.pluginType,

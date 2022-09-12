@@ -500,7 +500,7 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
-  const isChangeRestricted = isPermitted(
+  const isChangeRestricted = !isPermitted(
     currentActionConfig?.userPermissions || [""],
     PERMISSION_TYPE.MANAGE_ACTIONS,
   );
