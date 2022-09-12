@@ -46,6 +46,9 @@ describe("Autocomplete tests", () => {
 
     // 2. Document view widget autocomplete verification
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
+
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
     agHelper.GetNAssertElementText(CommonLocators._hints, "docUrl");
     agHelper.Sleep();
