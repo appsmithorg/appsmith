@@ -2,7 +2,7 @@ import React from "react";
 import { Cell, Row } from "react-table";
 import { ReactTableColumnProps } from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
-import { renderBodyCheckBoxCell } from "./CheckboxCell";
+import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 
 export const renderEmptyRows = (
   rowCount: number,

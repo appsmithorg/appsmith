@@ -151,7 +151,7 @@ describe("Git sync:", function() {
     });
 
     cy.switchGitBranch(mainBranch);
-
+    cy.get(gitSyncLocators.bottomBarCommitButton).should("be.visible");
     cy.get(gitSyncLocators.gitPullCount);
 
     cy.intercept("GET", "/api/v1/git/pull/app/*").as("gitPull");

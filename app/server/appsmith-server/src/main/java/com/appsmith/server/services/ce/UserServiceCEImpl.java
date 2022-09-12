@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
@@ -677,7 +678,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return permissionGroupService.bulkAssignToUsers(permissionGroup, users);
                 }).cache();
 
-        // Send analytics event and don't wait for the result
+        // Send analytics event
         Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
                 .flatMap(tuple -> {
                     User currentUser = tuple.getT1();
@@ -687,8 +688,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
                     analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
                     analyticsProperties.put("userEmails", invitedUsers);
-                    analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
-                    return Mono.empty();
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
 
         return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);

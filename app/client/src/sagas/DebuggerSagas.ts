@@ -112,7 +112,7 @@ function* onEntityDeleteSaga(payload: Log) {
   const source = payload.source;
 
   if (!source) {
-    yield put(debuggerLog(payload));
+    yield put(debuggerLog([payload]));
     return;
   }
 
@@ -127,7 +127,7 @@ function* onEntityDeleteSaga(payload: Log) {
     }
   });
 
-  yield put(debuggerLog(payload));
+  yield put(debuggerLog([payload]));
 }
 
 function* logDependentEntityProperties(payload: Log) {
@@ -142,42 +142,44 @@ function* logDependentEntityProperties(payload: Log) {
     getEvaluationInverseDependencyMap,
   );
   const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
-
-  yield all(
-    finalValue.map((path) => {
-      const entityInfo = getEntityNameAndPropertyPath(path);
-      const entity = dataTree[entityInfo.entityName];
-      let log = {
-        ...payload,
-        state: {
-          [entityInfo.propertyPath]: get(dataTree, path),
-        },
-      };
-
-      if (isAction(entity)) {
-        log = {
-          ...log,
-          text: createMessage(ACTION_CONFIGURATION_UPDATED),
-          source: {
-            type: ENTITY_TYPE.ACTION,
-            name: entityInfo.entityName,
-            id: entity.actionId,
+  //logging them all at once rather than updating them individually
+  yield put(
+    debuggerLog(
+      finalValue.map((path) => {
+        const entityInfo = getEntityNameAndPropertyPath(path);
+        const entity = dataTree[entityInfo.entityName];
+        let log = {
+          ...payload,
+          state: {
+            [entityInfo.propertyPath]: get(dataTree, path),
           },
         };
-      } else if (isWidget(entity)) {
-        log = {
-          ...log,
-          text: createMessage(WIDGET_PROPERTIES_UPDATED),
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            name: entityInfo.entityName,
-            id: entity.widgetId,
-          },
-        };
-      }
 
-      return put(debuggerLog(log));
-    }),
+        if (isAction(entity)) {
+          log = {
+            ...log,
+            text: createMessage(ACTION_CONFIGURATION_UPDATED),
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: entityInfo.entityName,
+              id: entity.actionId,
+            },
+          };
+        } else if (isWidget(entity)) {
+          log = {
+            ...log,
+            text: createMessage(WIDGET_PROPERTIES_UPDATED),
+            source: {
+              type: ENTITY_TYPE.WIDGET,
+              name: entityInfo.entityName,
+              id: entity.widgetId,
+            },
+          };
+        }
+
+        return log;
+      }),
+    ),
   );
 }
 
@@ -201,16 +203,16 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
       yield call(logDependentEntityProperties, payload);
       yield call(onTriggerPropertyUpdates, payload);
       return;
     case LOG_TYPE.ACTION_UPDATE:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
       yield call(logDependentEntityProperties, payload);
       return;
     case LOG_TYPE.JS_ACTION_UPDATE:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
       return;
     case LOG_TYPE.JS_PARSE_ERROR:
       yield put(addErrorLog(payload));
@@ -220,7 +222,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       break;
     // @ts-expect-error: Types are not available
     case LOG_TYPE.TRIGGER_EVAL_ERROR:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
     case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
@@ -238,7 +240,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
           "state",
         );
         yield put(addErrorLog(formattedLog));
-        yield put(debuggerLog(formattedLog));
+        yield put(debuggerLog([formattedLog]));
       }
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
@@ -251,14 +253,14 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
 
         AppsmithConsole.deleteError(payload.source?.id ?? "");
 
-        yield put(debuggerLog(formattedLog));
+        yield put(debuggerLog([formattedLog]));
       }
       break;
     case LOG_TYPE.ENTITY_DELETED:
       yield fork(onEntityDeleteSaga, payload);
       break;
     default:
-      yield put(debuggerLog(payload));
+      yield put(debuggerLog([payload]));
   }
 }
 
