@@ -172,6 +172,7 @@ export function getDefaultColumnProperties(
   index: number,
   widgetName: string,
   isDerived?: boolean,
+  columnType?: string,
 ): ColumnProperties {
   const columnProps = {
     allowCellWrapping: false,
@@ -182,7 +183,7 @@ export function getDefaultColumnProperties(
     alias: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
-    columnType: ColumnTypes.TEXT,
+    columnType: columnType || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
@@ -609,4 +610,54 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
       isDynamicPropertyPath: true,
     })),
   ];
+};
+
+export const getColumnType = (
+  tableData: Array<Record<string, unknown>>,
+  columnKey: string,
+): string => {
+  if (!_.isArray(tableData) || tableData.length === 0 || !columnKey) {
+    return ColumnTypes.TEXT;
+  }
+  let columnValue = null,
+    parsedColumnValue = null,
+    row = 0;
+  const maxRowsToCheck = 5;
+  /*
+    In below while loop we are trying to get a non-null value from
+    subsequent rows in case first few rows are null
+    Limited to checking upto maxRowsToCheck
+  */
+  while (!columnValue && row < maxRowsToCheck) {
+    if (tableData?.[row]?.[columnKey]) {
+      columnValue = tableData[row][columnKey];
+    }
+    row++;
+  }
+
+  if (!columnValue) {
+    return ColumnTypes.TEXT;
+  }
+
+  try {
+    parsedColumnValue = _.isString(columnValue)
+      ? JSON.parse(columnValue)
+      : columnValue;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(
+      e,
+      "Error parsing columnValue in getColumnType: ",
+      columnValue,
+    );
+  }
+
+  switch (typeof parsedColumnValue) {
+    case "number":
+      return ColumnTypes.NUMBER;
+    case "boolean":
+      return ColumnTypes.CHECKBOX;
+    default:
+      return ColumnTypes.TEXT;
+  }
 };
