@@ -7,6 +7,10 @@ export class FakerHelper {
     return faker.image.cats();
   }
 
+  public GetRandomImage() {
+    return faker.image.imageUrl();
+  }
+
   public GetRandomText(textLength = 10, casing : "upper" | "lower" | "mixed" = "mixed") {
     return faker.random.alphaNumeric(textLength, { casing: casing });
   }
