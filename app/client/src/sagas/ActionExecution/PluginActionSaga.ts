@@ -721,13 +721,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          return Toaster.show({
+          Toaster.show({
             text: createMessage(
               ACTION_EXECUTION_CANCELLED,
               `${collection.name}.${jsAction.name}`,
             ),
             variant: Variant.danger,
           });
+          // Don't proceed to executing the js function
+          return;
         }
       }
       const data = {

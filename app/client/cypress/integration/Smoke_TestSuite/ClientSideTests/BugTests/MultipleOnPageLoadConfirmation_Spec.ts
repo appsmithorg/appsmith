@@ -3,6 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
+  locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Multiple rejection of confirmation for onPageLoad function execution", function() {
@@ -63,7 +64,7 @@ describe("Multiple rejection of confirmation for onPageLoad function execution",
           functionSetting.onPageLoad,
           functionSetting.confirmBeforeExecute,
         );
-        agHelper.Sleep(1000);
+        agHelper.Sleep(2000);
       },
     );
 
@@ -71,9 +72,9 @@ describe("Multiple rejection of confirmation for onPageLoad function execution",
     // For as many as the number of actions set to run on page load and should confirm before running,
     // Expect to see confirmation dialogs.
     for (let i = 0; i < numOfOnLoadAndConfirmExecutionActions; i++) {
-      agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+      agHelper.AssertContains("Confirmation Dialog");
       agHelper.ClickButton("No");
-      agHelper.Sleep(1000);
+      agHelper.Sleep(3000);
     }
   });
 });
