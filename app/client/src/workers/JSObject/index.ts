@@ -4,7 +4,7 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import evaluateSync, { isFunctionAsync } from "workers/evaluate";
+import evaluateSync from "workers/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -131,7 +131,6 @@ export function saveResolvedFunctionsAndJSUpdates(
                   body: functionString,
                   arguments: params,
                   parsedFunction: result,
-                  isAsync: false,
                 });
               }
             } catch {
@@ -252,12 +251,6 @@ export function parseJSActions(
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        isAsync: isFunctionAsync(
-          action.parsedFunction,
-          unEvalDataTree,
-          dataTreeEvalRef.resolvedFunctions,
-          dataTreeEvalRef.logs,
-        ),
         // parsedFunction - used only to determine if function is async
         parsedFunction: undefined,
       } as ParsedJSSubAction;

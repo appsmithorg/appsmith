@@ -41,7 +41,6 @@ export const generateDataTreeJSAction = (
       const action = actions[i];
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
-        isAsync: action.actionConfiguration.isAsync,
         confirmBeforeExecute: !!action.confirmBeforeExecute,
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;

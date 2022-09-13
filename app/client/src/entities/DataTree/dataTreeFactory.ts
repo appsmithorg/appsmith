@@ -85,7 +85,6 @@ export interface DataTreeJSAction {
 
 export interface MetaArgs {
   arguments: Variable[];
-  isAsync: boolean;
   confirmBeforeExecute: boolean;
 }
 /**

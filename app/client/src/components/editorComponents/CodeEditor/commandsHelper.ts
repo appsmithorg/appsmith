@@ -11,11 +11,14 @@ import log from "loglevel";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { SlashCommandPayload } from "entities/Action";
+import { isJSAction } from "workers/evaluationUtils";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions = Object.values(data).filter(
     (entity: any) =>
-      entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH,
+      entity.ENTITY_TYPE &&
+      entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH &&
+      !isJSAction(entity),
   );
   return {
     showHint: (

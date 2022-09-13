@@ -141,7 +141,6 @@ export const convertJSActionToDropdownOption = (
   label: JSAction.name,
   value: JSAction.id,
   data: JSAction,
-  hasCustomBadge: !!JSAction.actionConfiguration.isAsync,
 });
 
 export const getActionFromJsCollection = (

@@ -404,43 +404,25 @@ export function* executeFunction(
   collectionId: string,
 ) {
   const functionCall = `${collectionName}.${action.name}()`;
-  const { isAsync } = action.actionConfiguration;
+
   let response: {
     errors: any[];
     result: any;
     logs?: LogObject[];
   };
 
-  if (isAsync) {
-    try {
-      response = yield call(
-        evaluateAndExecuteDynamicTrigger,
-        functionCall,
-        EventType.ON_JS_FUNCTION_EXECUTE,
-        {},
-      );
-    } catch (e) {
-      if (e instanceof UncaughtPromiseError) {
-        logActionExecutionError(e.message);
-      }
-      response = { errors: [e], result: undefined };
-    }
-  } else {
-    response = yield call(worker.request, EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS, {
+  try {
+    response = yield call(
+      evaluateAndExecuteDynamicTrigger,
       functionCall,
-    });
-
-    const { logs } = response;
-    // Check for any logs in the response and store them in the redux store
-    if (!!logs && logs.length > 0) {
-      yield call(
-        storeLogs,
-        logs,
-        collectionName + "." + action.name,
-        ENTITY_TYPE.JSACTION,
-        collectionId,
-      );
+      EventType.ON_JS_FUNCTION_EXECUTE,
+      {},
+    );
+  } catch (e) {
+    if (e instanceof UncaughtPromiseError) {
+      logActionExecutionError(e.message);
     }
+    response = { errors: [e], result: undefined };
   }
 
   const { errors, result } = response;

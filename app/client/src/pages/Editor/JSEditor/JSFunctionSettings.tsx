@@ -177,9 +177,6 @@ function SettingsItem({ action }: SettingsItemProps) {
 }
 
 function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
-  const asyncActions = actions.filter(
-    (action) => action.actionConfiguration.isAsync,
-  );
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
@@ -195,8 +192,8 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
             />
           ))}
         </SettingRow>
-        {asyncActions && asyncActions.length ? (
-          asyncActions.map((action) => (
+        {actions && actions.length ? (
+          actions.map((action) => (
             <SettingsItem action={action} key={action.id} />
           ))
         ) : (

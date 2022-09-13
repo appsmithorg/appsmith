@@ -8,7 +8,6 @@ export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<Variable>;
-  isAsync: boolean;
   // parsedFunction - used only to determine if function is async
   parsedFunction?: () => unknown;
 };
@@ -39,17 +38,13 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        if (
-          preExisted.actionConfiguration.body !== action.body ||
-          preExisted.actionConfiguration.isAsync !== action.isAsync
-        ) {
+        if (preExisted.actionConfiguration.body !== action.body) {
           toBeUpdatedActions.push({
             ...preExisted,
             actionConfiguration: {
               ...preExisted.actionConfiguration,
               body: action.body,
               jsArguments: action.arguments,
-              isAsync: action.isAsync,
             },
           });
         }
@@ -114,7 +109,6 @@ export const getDifferenceInJSCollection = (
         workspaceId: jsAction.workspaceId,
         actionConfiguration: {
           body: action.body,
-          isAsync: action.isAsync,
           timeoutInMillisecond: 0,
           jsArguments: [],
         },
@@ -212,7 +206,6 @@ export const createDummyJSCollectionActions = (
       executeOnLoad: false,
       actionConfiguration: {
         body: "() => {\n\t\t//write code here\n\t}",
-        isAsync: false,
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
@@ -225,7 +218,6 @@ export const createDummyJSCollectionActions = (
       executeOnLoad: false,
       actionConfiguration: {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
-        isAsync: true,
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
