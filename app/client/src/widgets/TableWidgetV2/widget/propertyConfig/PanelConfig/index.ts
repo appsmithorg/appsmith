@@ -24,6 +24,7 @@ import Basic from "./Basic";
 import SaveButtonProperties from "./SaveButtonProperties";
 import DiscardButtonproperties from "./DiscardButtonproperties";
 import { ButtonVariantTypes } from "components/constants";
+import Validations from "./Validation";
 
 export default {
   editableTitle: true,
@@ -32,6 +33,7 @@ export default {
   dependencies: ["primaryColumns", "columnOrder"],
   children: [
     ColumnControl,
+    Validations,
     ButtonProperties,
     SaveButtonProperties,
     DiscardButtonproperties,
@@ -45,6 +47,7 @@ export default {
     Data,
     Basic,
     General,
+    Validations,
     {
       sectionName: "Save Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {

@@ -1,5 +1,4 @@
 import { ColumnProperties, TableStyles } from "../component/Constants";
-import { getCurrentRowBinding } from "../constants";
 import {
   escapeString,
   getAllTableColumnKeys,
@@ -10,6 +9,16 @@ import {
   getTableStyles,
   reorderColumns,
 } from "./utilities";
+
+const getCurrentRowBinding = (
+  entityName: string,
+  userInput: string,
+  withBinding = true,
+) => {
+  let rowBinding = `${entityName}.processedTableData.map((currentRow, currentIndex) => ( ${userInput}))`;
+  if (withBinding) rowBinding = `{{${rowBinding}}}`;
+  return rowBinding;
+};
 
 describe("getOriginalRowIndex", () => {
   it("With no new data ", () => {
