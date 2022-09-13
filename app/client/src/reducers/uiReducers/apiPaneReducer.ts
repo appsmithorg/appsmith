@@ -18,7 +18,7 @@ const initialState: ApiPaneReduxState = {
   currentCategory: "",
   extraformData: {},
   selectedConfigTabIndex: 0,
-  selectedResponseTabIndex: 0,
+  selectedResponseTab: "",
   responseTabHeight: ActionExecutionResizerHeight,
 };
 
@@ -32,7 +32,7 @@ export interface ApiPaneReduxState {
   currentCategory: string;
   extraformData: Record<string, any>;
   selectedConfigTabIndex: number;
-  selectedResponseTabIndex: number;
+  selectedResponseTab: string;
   responseTabHeight: number;
 }
 
@@ -227,12 +227,12 @@ const apiPaneReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB]: (
     state: ApiPaneReduxState,
-    action: ReduxAction<{ selectedTabIndex: number }>,
+    action: ReduxAction<{ selectedTab: string }>,
   ) => {
-    const { selectedTabIndex } = action.payload;
+    const { selectedTab } = action.payload;
     return {
       ...state,
-      selectedResponseTabIndex: selectedTabIndex,
+      selectedResponseTab: selectedTab,
     };
   },
   [ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT]: (

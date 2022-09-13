@@ -1471,9 +1471,15 @@ Cypress.Commands.add("makeColumnEditable", (column) => {
 Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
-  )
-    .clear()
-    .type(text);
+  ).clear();
+
+  if (text) {
+    cy.get(
+      `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
+    )
+      .focus()
+      .type(text);
+  }
 });
 
 Cypress.Commands.add("discardTableCellValue", (x, y) => {

@@ -24,12 +24,14 @@ export type EditorContextState = {
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
+  selectedDebuggerTab: string;
 };
 
 const initialState: EditorContextState = {
   codeEditorHistory: {},
   propertySectionState: {},
   selectedPropertyTabIndex: 0,
+  selectedDebuggerTab: "",
 };
 
 /**
@@ -93,5 +95,11 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: number },
   ) => {
     state.selectedPropertyTabIndex = action.payload;
+  },
+  [ReduxActionTypes.SET_CANVAS_DEBUGGER_SELECTED_TAB]: (
+    state: EditorContextState,
+    action: { payload: string },
+  ) => {
+    state.selectedDebuggerTab = action.payload;
   },
 });

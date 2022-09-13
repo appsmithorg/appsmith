@@ -13,8 +13,8 @@ export const getDisplayFormat: GetFormData = (state, apiId) => {
 export const getApiPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.apiPane.selectedConfigTabIndex;
 
-export const getApiPaneResponseSelectedTabIndex = (state: AppState) =>
-  state.ui.apiPane.selectedResponseTabIndex;
+export const getApiPaneResponseSelectedTab = (state: AppState) =>
+  state.ui.apiPane.selectedResponseTab;
 
 export const getApiPaneResponsePaneHeight = (state: AppState) =>
   state.ui.apiPane.responseTabHeight;

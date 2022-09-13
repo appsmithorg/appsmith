@@ -1,10 +1,10 @@
 import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneResponsePaneHeight,
-  getApiPaneResponseSelectedTabIndex,
+  getApiPaneResponseSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
-  setApiPaneResponseSelectedTabIndex,
+  setApiPaneResponseSelectedTab,
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,
 } from "actions/apiPaneActions";
@@ -13,10 +13,12 @@ import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
   getFocusableField,
+  getSelectedCanvasDebuggerTab,
   getSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import {
   setAllPropertySectionState,
+  setCanvasDebuggerSelectedTab,
   setFocusableField,
   setSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
@@ -28,22 +30,22 @@ import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneResponsePaneHeight,
-  getQueryPaneResponseSelectedTabIndex,
+  getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
 import {
   setQueryPaneConfigSelectedTabIndex,
   setQueryPaneResponsePaneHeight,
-  setQueryPaneResponseSelectedTabIndex,
+  setQueryPaneResponseSelectedTab,
 } from "actions/queryPaneActions";
 import {
   getJSPaneConfigSelectedTabIndex,
   getJSPaneResponsePaneHeight,
-  getJSPaneResponseSelectedTabIndex,
+  getJSPaneResponseSelectedTab,
 } from "selectors/jsPaneSelectors";
 import {
   setJsPaneConfigSelectedTabIndex,
   setJsPaneResponsePaneHeight,
-  setJsPaneResponseSelectedTabIndex,
+  setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
 
 export enum FocusElement {
@@ -60,6 +62,7 @@ export enum FocusElement {
   PropertySections = "PropertySections",
   PropertyTabs = "PropertyTabs",
   SelectedWidgets = "SelectedWidgets",
+  CanvasDebuggerTabs = "CanvasDebuggerTabs",
 }
 
 type Config = {
@@ -84,6 +87,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: selectMultipleWidgetsInitAction,
       defaultValue: [],
     },
+    {
+      name: FocusElement.CanvasDebuggerTabs,
+      selector: getSelectedCanvasDebuggerTab,
+      setter: setCanvasDebuggerSelectedTab,
+    },
   ],
   [FocusEntity.JS_OBJECT]: [
     {
@@ -99,9 +107,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
     {
       name: FocusElement.JSPaneResponseTabs,
-      selector: getJSPaneResponseSelectedTabIndex,
-      setter: setJsPaneResponseSelectedTabIndex,
-      defaultValue: 0,
+      selector: getJSPaneResponseSelectedTab,
+      setter: setJsPaneResponseSelectedTab,
     },
     {
       name: FocusElement.JSPaneResponseHeight,
@@ -124,8 +131,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
     {
       name: FocusElement.QueryPaneResponseTabs,
-      selector: getQueryPaneResponseSelectedTabIndex,
-      setter: setQueryPaneResponseSelectedTabIndex,
+      selector: getQueryPaneResponseSelectedTab,
+      setter: setQueryPaneResponseSelectedTab,
       defaultValue: 0,
     },
     {
@@ -162,9 +169,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
     {
       name: FocusElement.ApiPaneResponseTabs,
-      selector: getApiPaneResponseSelectedTabIndex,
-      setter: setApiPaneResponseSelectedTabIndex,
-      defaultValue: 0,
+      selector: getApiPaneResponseSelectedTab,
+      setter: setApiPaneResponseSelectedTab,
     },
     {
       name: FocusElement.ApiPaneResponseHeight,

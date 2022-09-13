@@ -34,7 +34,6 @@ import EntityDeps from "./Debugger/EntityDependecies";
 import { Button, Category, Icon, Size, Text, TextType } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
-import { setCurrentTab } from "actions/debuggerActions";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import {
@@ -45,11 +44,11 @@ import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
 import {
   getApiPaneResponsePaneHeight,
-  getApiPaneResponseSelectedTabIndex,
+  getApiPaneResponseSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
   setApiPaneResponsePaneHeight,
-  setApiPaneResponseSelectedTabIndex,
+  setApiPaneResponseSelectedTab,
 } from "actions/apiPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
@@ -322,7 +321,7 @@ function ApiResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
     });
-    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setApiPaneResponseSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
   const onRunClick = () => {
@@ -353,21 +352,6 @@ function ApiResponseView(props: Props) {
     responseHeaders = {};
   }
 
-  const responseTabs =
-    responseDataTypes &&
-    responseDataTypes.map((dataType, index) => {
-      return {
-        index: index,
-        key: dataType.key,
-        title: dataType.title,
-        panelComponent: responseTabComponent(
-          dataType.key,
-          response?.body,
-          responsePaneHeight,
-        ),
-      };
-    });
-
   const onResponseTabSelect = (tab: any) => {
     updateActionResponseDisplayFormat({
       id: apiId ? apiId : "",
@@ -382,17 +366,30 @@ function ApiResponseView(props: Props) {
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
-  const selectedResponseTabIndex = useSelector(
-    getApiPaneResponseSelectedTabIndex,
-  );
-  const updateSelectedResponseTabIndex = useCallback((index: number) => {
-    dispatch(setApiPaneResponseSelectedTabIndex(index));
+  const selectedResponseTab = useSelector(getApiPaneResponseSelectedTab);
+  const updateSelectedResponseTab = useCallback((tabKey: string) => {
+    dispatch(setApiPaneResponseSelectedTab(tabKey));
   }, []);
 
   const responsePaneHeight = useSelector(getApiPaneResponsePaneHeight);
   const updateResponsePaneHeight = useCallback((height: number) => {
     dispatch(setApiPaneResponsePaneHeight(height));
   }, []);
+
+  const responseTabs =
+    responseDataTypes &&
+    responseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(
+          dataType.key,
+          response?.body,
+          responsePaneHeight,
+        ),
+      };
+    });
 
   const tabs = [
     {
@@ -454,10 +451,9 @@ function ApiResponseView(props: Props) {
                   responseTabs.length > 0 &&
                   selectedTabIndex !== -1 ? (
                   <EntityBottomTabs
-                    defaultIndex={selectedTabIndex}
                     onSelect={onResponseTabSelect}
                     responseViewer
-                    selectedTabIndex={selectedTabIndex}
+                    selectedTabKey={responseDisplayFormat.value}
                     tabs={responseTabs}
                   />
                 ) : null}
@@ -580,6 +576,7 @@ function ApiResponseView(props: Props) {
                 <Text type={TextType.P3}>Status: </Text>
                 <StatusCodeText
                   accent="secondary"
+                  className="t--response-status-code"
                   code={response.statusCode.toString()}
                 >
                   {response.statusCode}
@@ -615,9 +612,8 @@ function ApiResponseView(props: Props) {
           </ResponseMetaWrapper>
         )}
         <EntityBottomTabs
-          defaultIndex={selectedResponseTabIndex || 0}
-          onSelectIndex={updateSelectedResponseTabIndex}
-          selectedTabIndex={selectedResponseTabIndex}
+          onSelect={updateSelectedResponseTab}
+          selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
       </TabbedViewWrapper>
