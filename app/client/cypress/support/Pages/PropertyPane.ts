@@ -29,6 +29,7 @@ export class PropertyPane {
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
+  private _contentTabBtn = "li:contains('CONTENT')";
   private _styleTabBtn = "li:contains('STYLE')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
@@ -142,6 +143,10 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+  }
+
+  public moveToContentTab() {
+    cy.get(this._contentTabBtn).first().click({force:true})
   }
 
   public moveToStyleTab() {
