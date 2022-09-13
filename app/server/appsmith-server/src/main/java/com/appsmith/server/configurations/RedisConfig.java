@@ -127,7 +127,7 @@ public class RedisConfig {
                 return new SecurityContextImpl(session.makeToken());
 
             } else if (ByteUtils.startsWith(bytes, OAUTH_CLIENT_PREFIX)) {
-                final byte[] data = Arrays.copyOfRange(bytes, "appsmith-oauth-client:".getBytes().length, bytes.length);
+                final byte[] data = Arrays.copyOfRange(bytes, OAUTH_CLIENT_PREFIX.length, bytes.length);
 
                 final OAuth2AuthorizedClientDTO clientData = jsonSerializer.deserialize(data, OAuth2AuthorizedClientDTO.class);
                 if (clientData == null) {

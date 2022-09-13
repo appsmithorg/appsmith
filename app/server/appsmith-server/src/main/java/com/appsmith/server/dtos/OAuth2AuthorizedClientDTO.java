@@ -119,7 +119,6 @@ public class OAuth2AuthorizedClientDTO {
             throw new IllegalArgumentException("Could not deserialize OAuth2AuthorizedClient, unknown token type: " + accessToken.tokenType);
         }
 
-        System.out.println("!!!!! registrationId: " + clientRegistration.registrationId);
 
         final OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(
                 ClientRegistration
@@ -156,7 +155,6 @@ public class OAuth2AuthorizedClientDTO {
                 )
         );
 
-        System.out.println("!!!!! client registrationId: " + client.getClientRegistration().getRegistrationId());
 
         return client;
     }
