@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -42,4 +43,10 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Flux<PermissionGroup> getByDefaultWorkspaces(Set<String> workspaceIds, AclPermission permission);
 
     Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds);
+
+    Mono<PermissionGroup> getPublicPermissionGroup();
+
+    Mono<String> getPublicPermissionGroupId();
+
+    boolean isEntityAccessible(BaseDomain object, String permission, String publicPermissionGroupId);
 }
