@@ -82,6 +82,7 @@ interface ReactTableComponentProps {
   accentColor: string;
   borderRadius: string;
   boxShadow?: string;
+  isEditableCellValid?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -352,6 +353,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
-    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell)
+    equal(prev.editableCell, next.editableCell) &&
+    prev.isEditableCellValid === next.isEditableCellValid
   );
 });
