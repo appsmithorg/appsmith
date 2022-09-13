@@ -1592,7 +1592,7 @@ jobs:
           context: .
           push: true
           platforms: linux/arm64,linux/amd64
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
@@ -1604,7 +1604,7 @@ jobs:
           context: .
           push: true
           platforms: linux/arm64,linux/amd64
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}
@@ -1639,7 +1639,7 @@ jobs:
         with:
           context: app/server
           push: true
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
@@ -1651,7 +1651,7 @@ jobs:
         with:
           context: app/server
           push: true
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
