@@ -23,6 +23,7 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
+  migrateTableWidgetV2Validation,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -1081,11 +1082,16 @@ export const transformDSL = (
 
   if (currentDSL.version === 58) {
     currentDSL = migrateCheckboxSwitchProperty(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 59;
   }
 
   if (currentDSL.version === 59) {
     currentDSL = migrateChartWidgetReskinningData(currentDSL);
+    currentDSL.version = 60;
+  }
+
+  if (currentDSL.version === 60) {
+    currentDSL = migrateTableWidgetV2Validation(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
