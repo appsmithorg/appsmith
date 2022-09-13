@@ -11,7 +11,6 @@ import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import get from "lodash/get";
@@ -53,7 +52,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { KeyValuePair } from "entities/Action";
-import _ from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   getDatasource,
   getDatasourcesByPluginId,
@@ -68,6 +67,7 @@ type ReduxStateProps = {
   applicationId?: string;
   dataTree: DataTree;
   actionName: string;
+  formName: string;
 };
 
 type ReduxDispatchProps = {
@@ -188,7 +188,6 @@ function CustomHint(props: { datasource: Datasource }) {
   );
 }
 
-const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
 class EmbeddedDatasourcePathComponent extends React.Component<
   Props,
   { highlightedElementWidth: number }
@@ -431,10 +430,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   // if the next props is not equal to the current props, do not rerender, same for state
   shouldComponentUpdate(nextProps: any, nextState: any) {
-    if (!_.isEqual(nextProps, this.props)) {
+    if (!equal(nextProps, this.props)) {
       return true;
     }
-    if (!_.isEqual(nextState, this.state)) {
+    if (!equal(nextState, this.state)) {
       return true;
     }
     return false;
@@ -531,10 +530,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
 const mapStateToProps = (
   state: AppState,
-  ownProps: { pluginId: string; actionName: string },
+  ownProps: { pluginId: string; actionName: string; formName: string },
 ): ReduxStateProps => {
+  const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
-  let datasourceMerged = datasourceFromAction;
+  let datasourceMerged = datasourceFromAction || {};
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = getDatasource(
@@ -558,12 +558,16 @@ const mapStateToProps = (
     applicationId: getCurrentApplicationId(state),
     dataTree: getDataTree(state),
     actionName: ownProps.actionName,
+    formName: ownProps.formName,
   };
 };
 
-const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+const mapDispatchToProps = (
+  dispatch: any,
+  ownProps: any,
+): ReduxDispatchProps => ({
   updateDatasource: (datasource) =>
-    dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
+    dispatch(change(ownProps.formName, "datasource", datasource)),
   setDatasourceEditorMode: (id: string, viewMode: boolean) =>
     dispatch(setDatsourceEditorMode({ id, viewMode })),
 });
@@ -580,6 +584,7 @@ function EmbeddedDatasourcePathField(
     theme: EditorTheme;
     actionName: string;
     codeEditorVisibleOverflow?: boolean;
+    formName: string;
   },
 ) {
   return (

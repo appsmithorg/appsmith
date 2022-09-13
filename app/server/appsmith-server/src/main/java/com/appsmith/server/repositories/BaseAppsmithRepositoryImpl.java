@@ -271,32 +271,39 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
-                .flatMapMany(permissionGroups -> {
-                    Query query = new Query();
-                    if (!CollectionUtils.isEmpty(includeFields)) {
-                        for (String includeField : includeFields) {
-                            query.fields().include(includeField);
-                        }
-                    }
-                    Criteria andCriteria = new Criteria();
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criteriaList, includeFields, aclPermission, sort, permissionGroups));
+    }
 
-                    criteriaList.add(notDeleted());
-                    if (aclPermission != null) {
-                        criteriaList.add(userAcl(permissionGroups, aclPermission));
-                    }
+    public Flux<T> queryAllWithPermissionGroups(List<Criteria> criterias,
+                                         List<String> includeFields,
+                                         AclPermission aclPermission,
+                                         Sort sort,
+                                         Set<String> permissionGroups) {
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        Query query = new Query();
+        if (!CollectionUtils.isEmpty(includeFields)) {
+            for (String includeField : includeFields) {
+                query.fields().include(includeField);
+            }
+        }
+        Criteria andCriteria = new Criteria();
 
-                    andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
+        criteriaList.add(notDeleted());
+        if (aclPermission != null) {
+            criteriaList.add(userAcl(permissionGroups, aclPermission));
+        }
 
-                    query.addCriteria(andCriteria);
-                    if (sort != null) {
-                        query.with(sort);
-                    }
+        andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
 
-                    return mongoOperations.query(this.genericDomain)
-                            .matching(query)
-                            .all()
-                            .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
-                });
+        query.addCriteria(andCriteria);
+        if (sort != null) {
+            query.with(sort);
+        }
+
+        return mongoOperations.query(this.genericDomain)
+                .matching(query)
+                .all()
+                .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
     }
 
     public T setUserPermissionsInObject(T obj, Set<String> permissionGroups) {

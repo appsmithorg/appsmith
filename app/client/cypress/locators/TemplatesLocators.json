@@ -1,5 +1,7 @@
 {
     "templatesTab": ".t--templates-tab",
     "templateForkButton": ".t--fork-template",
-    "dialogForkButton": ".t--fork-template-button"
+    "dialogForkButton": ".t--fork-template-button",
+    "templateCard": "[data-cy='template-card']",
+    "templateViewForkButton": "[data-cy='template-fork-button']"
 }

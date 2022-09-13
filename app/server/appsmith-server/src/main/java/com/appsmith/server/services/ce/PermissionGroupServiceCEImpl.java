@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
@@ -9,6 +10,7 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -29,6 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static java.lang.Boolean.TRUE;
 
 
@@ -40,6 +44,10 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     private final UserRepository userRepository;
     private final PolicyUtils policyUtils;
 
+    private final ConfigRepository configRepository;
+
+    private PermissionGroup publicPermissionGroup = null;
+
     public PermissionGroupServiceCEImpl(Scheduler scheduler,
                                         Validator validator,
                                         MongoConverter mongoConverter,
@@ -49,13 +57,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         SessionUserService sessionUserService,
                                         TenantService tenantService,
                                         UserRepository userRepository,
-                                        PolicyUtils policyUtils) {
+                                        PolicyUtils policyUtils, ConfigRepository configRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;
         this.policyUtils = policyUtils;
+        this.configRepository = configRepository;
     }
 
     @Override
@@ -214,6 +223,35 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                             });
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<PermissionGroup> getPublicPermissionGroup() {
+
+        if (publicPermissionGroup != null) {
+            return Mono.just(publicPermissionGroup);
+        }
+
+        return configRepository.findByName(PUBLIC_PERMISSION_GROUP)
+                .map(configObj -> configObj.getConfig().getAsString(PERMISSION_GROUP_ID))
+                .flatMap(permissionGroupId -> repository.findById(permissionGroupId))
+                .doOnNext(permissionGroup -> publicPermissionGroup = permissionGroup);
+    }
+
+    @Override
+    public Mono<String> getPublicPermissionGroupId() {
+        return getPublicPermissionGroup()
+                .map(PermissionGroup::getId);
+    }
+
+    @Override
+    public boolean isEntityAccessible(BaseDomain object, String permission, String permissionGroupId) {
+        return object.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(permission) &&
+                        policy.getPermissionGroups().contains(permissionGroupId))
+                .findFirst()
+                .isPresent();
     }
 
 }

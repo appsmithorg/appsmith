@@ -22,7 +22,6 @@ import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
   copyActionSuccess,
-  createActionRequest,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -48,10 +47,7 @@ import {
   SlashCommand,
   SlashCommandPayload,
 } from "entities/Action";
-import {
-  ActionData,
-  ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -60,7 +56,6 @@ import {
   getPlugin,
   getSettingConfig,
   getDatasources,
-  getActions,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -85,10 +80,11 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { createNewApiAction } from "actions/apiPaneActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import {
+  createNewApiAction,
+  createNewQueryAction,
+} from "actions/apiPaneActions";
 import { getQueryParams } from "utils/URLUtils";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import {
   setGlobalSearchCategory,
   setGlobalSearchFilterContext,
@@ -683,7 +679,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 }
 
 export function* setActionPropertySaga(
-  action: ReduxAction<SetActionPropertyPayload>,
+  action: EvaluationReduxAction<SetActionPropertyPayload>,
 ) {
   const { actionId, propertyName, skipSave, value } = action.payload;
   if (!actionId) return;
@@ -719,7 +715,12 @@ export function* setActionPropertySaga(
   );
   yield all(
     Object.keys(effects).map((field) =>
-      put(updateActionProperty({ id: actionId, field, value: effects[field] })),
+      put(
+        updateActionProperty(
+          { id: actionId, field, value: effects[field] },
+          field === "dynamicBindingPathList" ? [] : action.postEvalActions,
+        ),
+      ),
     ),
   );
   if (propertyName === "executeOnLoad") {
@@ -941,36 +942,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.NEW_QUERY:
       const datasource = get(actionPayload, "payload.args.datasource");
-      const pluginId = get(datasource, "pluginId");
-      const plugin: Plugin = yield select(getPlugin, pluginId);
-      const actions: ActionDataState = yield select(getActions);
-      const pageActions = actions.filter(
-        (a: ActionData) => a.config.pageId === pageId,
-      );
-      const newQueryName =
-        plugin.type === PluginType.DB
-          ? createNewQueryName(actions, pageId)
-          : createNewApiName(pageActions, pageId);
-      const nextPayload: Partial<Action> = {
-        name: newQueryName,
-        pageId,
-        eventData: {
-          actionType: "Query",
-          from: "Quick-Commands",
-          dataSource: datasource.name,
-        },
-        pluginId: datasource.pluginId,
-        actionConfiguration: {},
-      };
-      if (plugin.type === "API") {
-        nextPayload.datasource = datasource;
-        nextPayload.actionConfiguration = DEFAULT_API_ACTION_CONFIG;
-      } else {
-        nextPayload.datasource = {
-          id: datasource.id,
-        };
-      }
-      yield put(createActionRequest(nextPayload));
+      yield put(createNewQueryAction(pageId, "QUICK_COMMANDS", datasource.id));
       // @ts-expect-error: QUERY is of type unknown
       const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       if (callback) callback(`{{${QUERY.payload.name}.data}}`);

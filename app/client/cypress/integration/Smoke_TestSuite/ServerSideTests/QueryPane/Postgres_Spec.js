@@ -306,7 +306,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(deleteTblQuery);
     cy.runQuery();
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
     cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();
