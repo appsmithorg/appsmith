@@ -50,6 +50,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    private final static int NO_RECORD_LIMIT = -1;
+
     @Autowired
     public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
                                       MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
@@ -266,7 +268,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
-        return queryAll(criterias, includeFields, aclPermission, sort, -1);
+        return queryAll(criterias, includeFields, aclPermission, sort, NO_RECORD_LIMIT);
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort, int limit) {
