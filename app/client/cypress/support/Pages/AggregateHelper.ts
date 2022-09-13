@@ -9,7 +9,6 @@ export interface IEnterValue {
   propFieldName: string;
   directInput: boolean;
   inputFieldName: string;
-  callback?: (field: unknown) => void;
 }
 
 const DEFAULT_ENTERVALUE_OPTIONS = {
@@ -26,9 +25,7 @@ export class AggregateHelper {
       ? "{cmd}{shift}{leftArrow}{backspace}"
       : "{shift}{home}{backspace}"
   }`;
-  private selectAll = `${
-    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
-  }`;
+  private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -662,23 +659,15 @@ export class AggregateHelper {
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
-    const { callback, directInput, inputFieldName, propFieldName } = options;
+    const { directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
       cy.get(propFieldName).then(($field: any) => {
-        if (callback) {
-          callback($field);
-        } else {
-          this.UpdateCodeInput($field, valueToEnter);
-        }
+        this.UpdateCodeInput($field, valueToEnter);
       });
     } else if (inputFieldName && !propFieldName && !directInput) {
       cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
         ($field: any) => {
-          if (callback) {
-            callback($field);
-          } else {
-            this.UpdateCodeInput($field, valueToEnter);
-          }
+          this.UpdateCodeInput($field, valueToEnter);
         },
       );
     }
@@ -732,16 +721,16 @@ export class AggregateHelper {
     this.GetElement(selector)
       .find("input")
       .type(this.selectAll)
-      .type(value, {delay: 1})
-      // .type(selectAllJSObjectContentShortcut)
-      // .then((ins: any) => {
-      //   //const input = ins[0].input;
-      //   ins.clear();
-      //   this.Sleep(200);
-      //   //ins.setValue(value);
-      //   ins.val(value).trigger('change');
-      //   this.Sleep(200);
-      // });
+      .type(value, { delay: 1 });
+    // .type(selectAllJSObjectContentShortcut)
+    // .then((ins: any) => {
+    //   //const input = ins[0].input;
+    //   ins.clear();
+    //   this.Sleep(200);
+    //   //ins.setValue(value);
+    //   ins.val(value).trigger('change');
+    //   this.Sleep(200);
+    // });
   }
 
   public BlurCodeInput(selector: string) {

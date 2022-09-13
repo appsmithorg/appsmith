@@ -223,12 +223,11 @@ describe("Autocomplete tests", () => {
         "Insert Document(s)",
       );
 
-      agHelper.EnterValue("", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Documents",
-        callback: (selector) => {
-          cy.wrap(selector)
+      cy.xpath(CommonLocators._inputFieldByName("Documents")).then(
+        ($field: any) => {
+          agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
+
+          cy.wrap($field)
             .find(".CodeMirror")
             .find("textarea")
             .parents(".CodeMirror")
@@ -237,9 +236,6 @@ describe("Autocomplete tests", () => {
               const input = ins[0].CodeMirror;
               input.focus();
               cy.wait(200);
-              input.setValue(`{\n"_id": "{{appsmith}}"\n}`);
-              cy.wait(200);
-
               cy.get(CommonLocators._codeMirrorTextArea)
                 .eq(1)
                 .focus()
@@ -256,7 +252,7 @@ describe("Autocomplete tests", () => {
               cy.get(".t--close-editor").click();
             });
         },
-      });
+      );
     });
   });
 
