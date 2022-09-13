@@ -145,6 +145,9 @@ describe("MySQL Datatype tests", function() {
     ["falseCases", "createTable", "deleteAllRecords", "deleteRecord", "dropTable", "insertRecord", "selectRecords"].forEach(type => {
       ee.ActionContextMenuByEntityName(type, "Delete", "Are you sure?");
     })
+    deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); 
   });
 });
