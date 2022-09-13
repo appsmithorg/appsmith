@@ -1,7 +1,7 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
 import { CopyUrlReduxForm } from "./CopyUrlForm";
-import { REDIRECT_URL_FORM } from "constants/forms";
+import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 
 let container: any = null;
 

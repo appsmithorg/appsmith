@@ -22,7 +22,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
       .click();
     cy.testJsontext("onsearchtextchanged", "{{showAlert('12')}}");
     // Verify ClientSideSearch toggle is visible
-    cy.get(".t--property-control-enableclientsidesearch").should("exist");
+    cy.get(".t--property-control-clientsidesearch").should("exist");
 
     // Verify filter still works
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
@@ -30,7 +30,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     });
     // Disable Client Search
     cy.togglebarDisable(
-      ".t--property-control-enableclientsidesearch input[type='checkbox']",
+      ".t--property-control-clientsidesearch input[type='checkbox']",
     );
     cy.wait(1000); //wait & then read the table value
     // Verify Client Search doesnt work

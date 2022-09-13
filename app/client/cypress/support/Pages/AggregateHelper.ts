@@ -20,10 +20,13 @@ export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
   private isMac = Cypress.platform === "darwin";
-  private selectLine = `${
+  private selectLineNRemove = `${
     this.isMac
       ? "{cmd}{shift}{leftArrow}{backspace}"
       : "{shift}{home}{backspace}"
+  }`;
+  private selectAll = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
 
   private selectChars = (noOfChars: number) =>
@@ -108,6 +111,16 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public RenameWidget(oldName: string, newName: string) {
+    this.GetNClick(this.locator._widgetName(oldName));
+    cy.get(this.locator._widgetNameTxt)
+      .clear({ force: true })
+      .type(newName, { force: true })
+      .should("have.value", newName)
+      .blur();
+    this.Sleep();
+  }
+
   public AssertAutoSave() {
     // wait for save query to trigger & n/w call to finish occuring
     cy.get(this.locator._saveStatusSuccess, { timeout: 30000 }).should("exist"); //adding timeout since waiting more time is not worth it!
@@ -138,11 +151,11 @@ export class AggregateHelper {
     textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
     index = 0,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    if (index >= 0) locator.eq(index).should(textPresence, text);
-    else locator.should(textPresence, text);
+    if (index >= 0)
+      this.GetElement(selector)
+        .eq(index)
+        .should(textPresence, text);
+    else this.GetElement(selector).should(textPresence, text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -204,7 +217,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilAllToastsDisappear() {
-    cy.get(this.locator._toastConatiner).waitUntil(
+    cy.get(this.locator._toastContainer).waitUntil(
       ($ele) =>
         cy
           .wrap($ele)
@@ -258,6 +271,18 @@ export class AggregateHelper {
       "have.nested.property",
       "response.body.responseMeta.status",
       expectedStatus,
+    );
+  }
+
+  public ValidateNetworkDataAssert(
+    aliasName: string,
+    expectedPath: string,
+    expectedRes: any,
+  ) {
+    cy.wait(aliasName).should(
+      "have.nested.property",
+      expectedPath,
+      expectedRes,
     );
   }
 
@@ -344,15 +369,17 @@ export class AggregateHelper {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .check({ force: true })
-          .wait(1000)
-          .should("be.checked");
+          .wait(1000);
+        cy.get(this.locator._multiSelectOptions($each)).should("be.checked");
       });
     } else {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .uncheck({ force: true })
-          .wait(1000)
-          .should("not.be.checked");
+          .wait(1000);
+        cy.get(this.locator._multiSelectOptions($each)).should(
+          "not.be.checked",
+        );
       });
     }
 
@@ -390,6 +417,7 @@ export class AggregateHelper {
   public EnterActionValue(actionName: string, value: string, paste = true) {
     cy.xpath(this.locator._actionTextArea(actionName))
       .first()
+      .scrollIntoView()
       .focus()
       .type("{uparrow}", { force: true })
       .type("{ctrl}{shift}{downarrow}{del}", { force: true });
@@ -398,6 +426,7 @@ export class AggregateHelper {
         cy.log("The field is not empty");
         cy.xpath(this.locator._actionTextArea(actionName))
           .first()
+          .scrollIntoView()
           .click({ force: true })
           .focused()
           .clear({
@@ -407,6 +436,7 @@ export class AggregateHelper {
       this.Sleep();
       cy.xpath(this.locator._actionTextArea(actionName))
         .first()
+        .scrollIntoView()
         .then((el: any) => {
           if (paste) {
             //input.invoke("val", value);
@@ -441,7 +471,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectLine);
+    return locator.type(this.selectLineNRemove);
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -466,8 +496,8 @@ export class AggregateHelper {
       .focus()
       .type(value, {
         parseSpecialCharSequences: false,
-        delay: 2,
-        force: true,
+        //delay: 3,
+        //force: true,
       });
   }
 
@@ -692,13 +722,17 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
-      .then((ins: any) => {
-        //const input = ins[0].input;
-        ins.focus();
-        this.Sleep(200);
-        ins.val(value);
-        this.Sleep(200);
-      });
+      .type(this.selectAll)
+      .type(value, {delay: 1})
+      // .type(selectAllJSObjectContentShortcut)
+      // .then((ins: any) => {
+      //   //const input = ins[0].input;
+      //   ins.clear();
+      //   this.Sleep(200);
+      //   //ins.setValue(value);
+      //   ins.val(value).trigger('change');
+      //   this.Sleep(200);
+      // });
   }
 
   public BlurCodeInput(selector: string) {
@@ -764,13 +798,11 @@ export class AggregateHelper {
     return val;
   }
 
-  public UploadFile(fixtureName: string, execStat = true) {
+  public UploadFile(fixtureName: string, toClickUpload = true) {
     cy.get(this.locator._uploadFiles)
       .attachFile(fixtureName)
       .wait(2000);
-    cy.get(this.locator._uploadBtn)
-      .click()
-      .wait(3000);
+    toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 
   public AssertDebugError(label: string, messgae: string) {
@@ -784,9 +816,9 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementAbsence(selector: ElementType) {
+  public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
-    return this.GetElement(selector, 0).should("not.exist");
+    return this.GetElement(selector, timeout).should("not.exist");
   }
 
   public GetText(
@@ -797,6 +829,18 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .invoke(textOrValue);
+  }
+
+  public AssertText(
+    selector: ElementType,
+    textOrValue: "text" | "val" = "text",
+    expectedData: string,
+    index = 0,
+  ) {
+    this.GetElement(selector)
+      .eq(index)
+      .invoke(textOrValue)
+      .should("deep.equal", expectedData);
   }
 
   public AssertElementVisible(selector: ElementType, index = 0) {

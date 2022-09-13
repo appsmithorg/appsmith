@@ -5,8 +5,8 @@ import { formValueSelector } from "redux-form";
 import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
-} from "constants/ApiEditorConstants";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+} from "constants/ApiEditorConstants/CommonApiConstants";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "@appsmith/reducers";
@@ -18,7 +18,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import MultiSwitch from "components/ads/MultiSwitch";
+import { MultiSwitch } from "design-system";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";

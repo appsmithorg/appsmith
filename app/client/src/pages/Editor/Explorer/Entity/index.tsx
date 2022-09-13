@@ -90,11 +90,17 @@ export const EntityItem = styled.div<{
   grid-template-columns: 20px auto 1fr auto auto auto;
   grid-auto-flow: column dense;
   border-radius: 0;
-  color: ${Colors.CODE_GRAY};
+  color: ${Colors.GRAY_800};
+  font-weight: 500;
   cursor: pointer;
   align-items: center;
   &:hover {
     background: ${Colors.GREY_2};
+  }
+
+  .${Classes.COLLAPSE_BODY} & {
+    color: ${Colors.GRAY_700};
+    font-weight: 400;
   }
 
   scroll-margin-top: 36px;

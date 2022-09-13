@@ -1,4 +1,4 @@
-import { Dropdown, DropdownOption } from "design-system";
+import { Dropdown, DropdownOption, RenderOption } from "design-system";
 import React, { useEffect, useState } from "react";
 import { DropdownOnSelect } from "./SelectField";
 
@@ -21,6 +21,7 @@ type DropdownWrapperProps = {
   labelRenderer?: (selected: Partial<DropdownOption>[]) => JSX.Element;
   fillOptions?: boolean;
   disabled?: boolean;
+  renderOption?: RenderOption;
 };
 
 function DropdownWrapper(props: DropdownWrapperProps) {
@@ -71,6 +72,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
       options={props.options}
       placeholder={props.placeholder}
       removeSelectedOption={onRemoveOptions}
+      renderOption={props?.renderOption}
       selected={
         props.isMultiSelect
           ? (props.selected as DropdownOption[])

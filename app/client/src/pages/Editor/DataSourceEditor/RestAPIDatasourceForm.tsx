@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
-import { DATASOURCE_REST_API_FORM } from "constants/forms";
+import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
@@ -21,7 +21,7 @@ import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
   deleteDatasource,

@@ -19,6 +19,9 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");
+    // Refresh the page to validate if the tour resumes
+    cy.reload();
+    cy.get(guidedTourLocators.banner).should("be.visible");
     // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
@@ -32,17 +35,17 @@ describe("Guided Tour", function() {
     cy.wait("@updateWidgetName");
     // Step 4: Add binding to the defaulText property of NameInput
     cy.get(guidedTourLocators.hintButton).click();
-    cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.name}}");
+    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
     cy.get(guidedTourLocators.successButton).click();
     // Step 5: Add binding to the rest of the widgets in the container
     cy.get(commonlocators.editWidgetName).contains("EmailInput");
-    cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.email}}");
+    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.email}}");
     cy.get(".t--entity-name")
       .contains("CountryInput")
       .click({ force: true });
     cy.wait(1000);
     cy.get(commonlocators.editWidgetName).contains("CountryInput");
-    cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.country}}");
+    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.country}}");
     cy.get(".t--entity-name")
       .contains("DisplayImage")
       .click({ force: true });
