@@ -318,7 +318,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -390,18 +390,24 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
+      # Tar the bundles to speed up the upload & download process
+      - name: Tar the rts bundles
+        run: |
+          tar -cvf rts-dist.tar app/rts/dist
+          tar -cvf rts-build-deps.tar app/rts/node_modules
+
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: rts-build
-          path: app/rts/dist/
+          name: rts-dist
+          path: rts-dist.tar
 
       - name: Upload RTS dependencies bundle
         uses: actions/upload-artifact@v2
         with:
           name: rts-build-deps
-          path: app/rts/node_modules/
+          path: rts-build-deps.tar
   # perf-test:
   #   needs: [buildClient, buildServer, buildRts]
 
@@ -1541,7 +1547,7 @@ jobs:
       - name: Download the rts build artifact
         uses: actions/download-artifact@v2
         with:
-          name: rts-build
+          name: rts-dist
           path: app/rts/dist
 
       - name: Download the rts build artifact
@@ -1549,6 +1555,19 @@ jobs:
         with:
           name: rts-build-deps
           path: app/rts/node_modules/
+
+      - name: List the rts directory
+        run: |
+          ls -l app/rts
+          ls -l app/rts/dist/
+          ls -l app/rts/node_modules
+          echo "**** Going to untar ****"
+          tar -xvf app/rts/dist/rts-dist.tar
+          tar -xvf app/rts/node_modules/rts-build-deps.tar
+          echo "**** Directory structure after untar ****"
+          ls -l app/rts
+          ls -l app/rts/dist/
+          ls -l app/rts/node_modules
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
