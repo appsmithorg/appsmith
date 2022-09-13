@@ -109,7 +109,9 @@ export const EntityName = React.memo(
     const nameWrapperRef = useRef<HTMLDivElement | null>(null);
     const [showTooltip, setShowTooltip] = useState(false);
     useEffect(() => {
-      setShowTooltip(!!isEllipsisActive(nameWrapperRef.current));
+      requestAnimationFrame(() => {
+        setShowTooltip(!!isEllipsisActive(nameWrapperRef.current));
+      });
     }, [updatedName, name]);
 
     const searchHighlightedName = useMemo(() => {
