@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Boolean Datatype tests", function() {
+describe("MySQL Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -25,7 +25,7 @@ describe("Boolean Datatype tests", function() {
     });
   });
 
-  it("2. Creating datatypes", () => {
+  it("2. Creating mysqlDTs table", () => {
     //IF NOT EXISTS can be used - which creates tabel if it does not exist and donot throw any error if table exists.
     //But if we add this option then next case could fail inn that case.
     query = inputData.query.createTable;
@@ -36,11 +36,11 @@ describe("Boolean Datatype tests", function() {
     dataSources.RunQuery();
 
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(ee._entityNameInExplorer(inputData.databaseName));
+    agHelper.AssertElementVisible(ee._entityNameInExplorer(inputData.tableName));
   });
 
   it("3. Creating SELECT query", () => {
-    ee.ActionTemplateMenuByEntityName(inputData.databaseName, "SELECT");
+    ee.ActionTemplateMenuByEntityName(inputData.tableName, "SELECT");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
@@ -50,33 +50,33 @@ describe("Boolean Datatype tests", function() {
 
   it("4. Creating all queries", () => {
     query = inputData.query.insertRecord;
-    ee.ActionTemplateMenuByEntityName(inputData.databaseName, "INSERT");
+    ee.ActionTemplateMenuByEntityName(inputData.tableName, "INSERT");
     agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
 
     query = inputData.query.deleteRecord;
-    ee.ActionTemplateMenuByEntityName(inputData.databaseName, "DELETE");
+    ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
     agHelper.RenameWithInPane("deleteRecord");
     dataSources.EnterQuery(query);
 
     query = inputData.query.deleteAllRecords;
-    ee.ActionTemplateMenuByEntityName(inputData.databaseName, "DELETE");
+    ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
     dataSources.EnterQuery(query);
 
     query = inputData.query.dropTable;
-    ee.ActionTemplateMenuByEntityName(inputData.databaseName, "DELETE");
+    ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
     agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);
   });
 
   //Insert false values to each column and check for the error status of the request.
   it("5. False Cases", () => {
-    ee.ActionTemplateMenuByEntityName(inputData.databaseName, "INSERT");
+    ee.ActionTemplateMenuByEntityName(inputData.tableName, "INSERT");
     agHelper.RenameWithInPane("falseCases");
     inputData.falseResult.forEach((res_array, i) => {
       res_array.forEach((value) => {
-        query = `INSERT INTO datatypes (${inputData.inputFieldName[i]}) VALUES (${value})`;
+        query = `INSERT INTO ${inputData.tableName} (${inputData.inputFieldName[i]}) VALUES (${value})`;
         dataSources.EnterQuery(query);
         dataSources.RunQuery(false);
       });
@@ -92,22 +92,12 @@ describe("Boolean Datatype tests", function() {
     inputData.input.forEach((valueArr, i) => {
       agHelper.ClickButton("Run InsertQuery");
       valueArr.forEach((value, index) => {
-        if (inputData.inputFieldName[index] === "Json_column") {
-          agHelper.EnterInputText(
-            inputData.inputFieldName[index],
-            value,
-            false,
-            true,
-            { parseSpecialCharSequences: false },
-          );
-        } else {
-          agHelper.EnterInputText(inputData.inputFieldName[index], value);
-        }
+        agHelper.EnterInputText(inputData.inputFieldName[index], value);
       });
       i % 2 && agHelper.ToggleSwitch("Bool_column");
       agHelper.ClickButton("insertRecord");
       agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-      cy.wait(2000);
+      agHelper.Sleep(2000);
     });
   });
 
@@ -126,12 +116,11 @@ describe("Boolean Datatype tests", function() {
 
   it("8. Deleting all records from table ", () => {
     agHelper.GetNClick(locator._deleteIcon);
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("15. Validate Drop of the Newly Created - datatypes - Table from MySQL datasource", () => {
+  it("9. Validate Drop of the Newly Created - mysqlDTs - Table from MySQL datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
@@ -144,18 +133,18 @@ describe("Boolean Datatype tests", function() {
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(
-      ee._entityNameInExplorer("datatypes"),
+      ee._entityNameInExplorer(inputData.tableName),
     );
     ee.ExpandCollapseEntity(dsName, false);
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("9. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("10. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     ["falseCases", "createTable", "deleteAllRecords", "deleteRecord", "dropTable", "insertRecord", "selectRecords"].forEach(type => {
       ee.ActionContextMenuByEntityName(type, "Delete", "Are you sure?");
     })
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); 
   });
 });
