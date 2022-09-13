@@ -23,18 +23,21 @@ jobs:
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   client-build:
     name: client-build
     uses: ./.github/workflows/client-build.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   rts-build:
     name: rts-build
     uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
@@ -982,5 +985,6 @@ jobs:
     if: success()
     name: perf-test
     uses: ./.github/workflows/perf-test.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}

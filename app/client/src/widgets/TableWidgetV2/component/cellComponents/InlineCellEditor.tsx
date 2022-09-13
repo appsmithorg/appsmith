@@ -1,7 +1,10 @@
+import { Colors } from "constants/Colors";
+import { isNil } from "lodash";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { EditableCell } from "widgets/TableWidgetV2/constants";
 import { TABLE_SIZES, VerticalAlignment } from "../Constants";
 
 const Wrapper = styled.div<{
@@ -10,9 +13,12 @@ const Wrapper = styled.div<{
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
+  isEditableCellValid: boolean;
 }>`
   padding: 1px;
-  border: 1px solid ${(props) => props.accentColor};
+  border: 1px solid
+    ${(props) =>
+      props.isEditableCellValid ? props.accentColor : Colors.DANGER_SOLID};
   background: #fff;
   position: absolute;
   width: 100%;
@@ -74,19 +80,23 @@ type InlineEditorPropsType = {
   compactMode: string;
   inputType: InputTypes.TEXT | InputTypes.NUMBER;
   multiline: boolean;
-  onChange: (text: string) => void;
+  onChange: (value: EditableCell["value"], inputValue: string) => void;
   onDiscard: () => void;
   onSave: () => void;
   value: any;
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
+  isEditableCellValid: boolean;
+  validationErrorMessage: string;
+  widgetId: string;
 };
 
 export function InlineCellEditor({
   accentColor,
   compactMode,
   inputType = InputTypes.TEXT,
+  isEditableCellValid,
   multiline,
   onChange,
   onDiscard,
@@ -95,6 +105,8 @@ export function InlineCellEditor({
   value,
   allowCellWrapping,
   verticalAlignment,
+  validationErrorMessage,
+  widgetId,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [cursorPos, setCursorPos] = useState(value.length);
@@ -122,11 +134,28 @@ export function InlineCellEditor({
   );
 
   const onTextChange = useCallback(
-    (data: string) => {
+    (inputValue: string) => {
       setCursorPos(inputRef.current?.selectionStart);
-      onChange(data);
+
+      let value: EditableCell["value"] = inputValue;
+
+      if (inputType === InputTypes.NUMBER) {
+        const parsedValue = Number(inputValue);
+
+        if (
+          isNaN(parsedValue) ||
+          inputValue.trim() === "" ||
+          isNil(inputValue)
+        ) {
+          value = null;
+        } else if (Number.isFinite(parsedValue)) {
+          value = parsedValue;
+        }
+      }
+
+      onChange(value, inputValue);
     },
-    [setCursorPos, onChange],
+    [setCursorPos, onChange, inputType],
   );
 
   useEffect(() => {
@@ -145,8 +174,10 @@ export function InlineCellEditor({
     <Wrapper
       accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
-      className="t--inlined-cell-editor"
+      className={`t--inlined-cell-editor ${!isEditableCellValid &&
+        "t--inlined-cell-editor-has-error"}`}
       compactMode={compactMode}
+      isEditableCellValid={isEditableCellValid}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
@@ -155,10 +186,12 @@ export function InlineCellEditor({
         autoFocus
         compactMode
         disableNewLineOnPressEnterKey={false}
+        errorMessage={validationErrorMessage}
+        errorTooltipBoundary={`#table${widgetId} .tableWrap`}
         inputHTMLType={inputType}
         inputRef={inputRef}
         inputType={inputType}
-        isInvalid={false}
+        isInvalid={!isEditableCellValid}
         isLoading={false}
         label=""
         multiline={multiline}
