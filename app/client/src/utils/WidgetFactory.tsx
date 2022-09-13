@@ -205,20 +205,9 @@ class WidgetFactory {
   static getWidgetPropertyPaneCombinedConfig(
     type: WidgetType,
   ): readonly PropertyPaneConfig[] {
-    const contentConfig = this.propertyPaneContentConfigsMap.get(type);
-    const styleConfig = this.propertyPaneStyleConfigsMap.get(type);
-    const combinedConfig = [];
-    if (contentConfig) {
-      combinedConfig.push(...contentConfig);
-    }
-    if (styleConfig) {
-      combinedConfig.push(...styleConfig);
-    }
-    if (!contentConfig && !styleConfig) {
-      log.error("Widget property pane configs not defined", type);
-      return [];
-    }
-    return combinedConfig;
+    const contentConfig = this.propertyPaneContentConfigsMap.get(type) || [];
+    const styleConfig = this.propertyPaneStyleConfigsMap.get(type) || [];
+    return [...contentConfig, ...styleConfig];
   }
 
   static getWidgetPropertyPaneConfig(
