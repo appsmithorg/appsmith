@@ -6,26 +6,13 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let themeBackgroudColor;
 let themeFont;
 let themeColour;
-let propPane = ObjectsRegistry.PropertyPane;
+let propPane = ObjectsRegistry.PropertyPane,
+  ee = ObjectsRegistry.EntityExplorer;
 
 describe("Theme validation usecase for multi-select widget", function() {
   it("Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function() {
-    cy.log("Login Successful");
-    cy.reload(); // To remove the rename tooltip
-    cy.get(explorer.addWidget).click();
-    cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    cy.get(commonlocators.entityExplorersearch)
-      .clear()
-      .wait(200)
-      .click()
-      .type("multiselect");
-    cy.dragAndDropToCanvas("multiselectwidgetv2", { x: 300, y: 80 });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(1000);
+    //cy.reload(); // To remove the rename tooltip
+    ee.DragDropWidgetNVerify("multiselectwidgetv2", 300, 80);
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
