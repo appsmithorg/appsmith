@@ -81,7 +81,6 @@ import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SearchSnippets from "components/ads/SnippetButton";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
@@ -106,12 +105,12 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneResponsePaneHeight,
-  getQueryPaneResponseSelectedTabIndex,
+  getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
 import {
   setQueryPaneConfigSelectedTabIndex,
   setQueryPaneResponsePaneHeight,
-  setQueryPaneResponseSelectedTabIndex,
+  setQueryPaneResponseSelectedTab,
 } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
@@ -751,11 +750,11 @@ export function EditorJSONtoForm(props: Props) {
       };
     });
 
-  const onResponseTabSelect = (tab: any) => {
+  const onResponseTabSelect = (tabKey: string) => {
     updateActionResponseDisplayFormat({
       id: currentActionConfig?.id || "",
       field: "responseDisplayFormat",
-      value: tab.title,
+      value: tabKey,
     });
   };
 
@@ -789,7 +788,11 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+                  dispatch(
+                    setQueryPaneResponseSelectedTab(
+                      DEBUGGER_TAB_KEYS.ERROR_TAB,
+                    ),
+                  );
                 }}
                 secondHalfText={createMessage(
                   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
@@ -815,10 +818,9 @@ export function EditorJSONtoForm(props: Props) {
             responseBodyTabs.length > 0 &&
             selectedTabIndex !== -1 && (
               <EntityBottomTabs
-                defaultIndex={selectedTabIndex}
                 onSelect={onResponseTabSelect}
                 responseViewer
-                selectedTabIndex={selectedTabIndex}
+                selectedTabKey={responseDisplayFormat.value}
                 tabs={responseBodyTabs}
               />
             )}
@@ -892,10 +894,10 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
 
-  const selectedResponseTab = useSelector(getQueryPaneResponseSelectedTabIndex);
+  const selectedResponseTab = useSelector(getQueryPaneResponseSelectedTab);
 
-  const setSelectedResponseTab = useCallback((selectedIndex: number) => {
-    dispatch(setQueryPaneResponseSelectedTabIndex(selectedIndex));
+  const setSelectedResponseTab = useCallback((tabKey: string) => {
+    dispatch(setQueryPaneResponseSelectedTab(tabKey));
   }, []);
 
   const responsePaneHeight = useSelector(getQueryPaneResponsePaneHeight);
@@ -1088,9 +1090,8 @@ export function EditorJSONtoForm(props: Props) {
               )}
 
               <EntityBottomTabs
-                defaultIndex={0}
-                onSelectIndex={setSelectedResponseTab}
-                selectedTabIndex={selectedResponseTab}
+                onSelect={setSelectedResponseTab}
+                selectedTabKey={selectedResponseTab}
                 tabs={responseTabs}
               />
             </TabbedViewContainer>

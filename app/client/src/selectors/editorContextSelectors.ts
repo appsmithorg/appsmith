@@ -83,3 +83,6 @@ export const getPropertySectionState = createSelector(
 
 export const getSelectedPropertyTabIndex = (state: AppState) =>
   state.ui.editorContext.selectedPropertyTabIndex;
+
+export const getSelectedCanvasDebuggerTab = (state: AppState) =>
+  state.ui.editorContext.selectedDebuggerTab;

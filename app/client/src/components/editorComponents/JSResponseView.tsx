@@ -37,7 +37,6 @@ import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { DebugButton } from "./Debugger/DebugCTA";
-import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
@@ -47,11 +46,11 @@ import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
 import {
   getJSPaneResponsePaneHeight,
-  getJSPaneResponseSelectedTabIndex,
+  getJSPaneResponseSelectedTab,
 } from "selectors/jsPaneSelectors";
 import {
   setJsPaneResponsePaneHeight,
-  setJsPaneResponseSelectedTabIndex,
+  setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
 
 const ResponseContainer = styled.div`
@@ -203,7 +202,7 @@ function JSResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "JS_OBJECT",
     });
-    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setJsPaneResponseSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
   useEffect(() => {
     setResponseStatus(
@@ -320,10 +319,10 @@ function JSResponseView(props: Props) {
     },
   ];
 
-  const selectedResponseTab = useSelector(getJSPaneResponseSelectedTabIndex);
+  const selectedResponseTab = useSelector(getJSPaneResponseSelectedTab);
   const responseTabHeight = useSelector(getJSPaneResponsePaneHeight);
-  const setSelectedResponseTab = useCallback((selectedIndex: number) => {
-    dispatch(setJsPaneResponseSelectedTabIndex(selectedIndex));
+  const setSelectedResponseTab = useCallback((selectedTab: string) => {
+    dispatch(setJsPaneResponseSelectedTab(selectedTab));
   }, []);
 
   const setResponseHeight = useCallback((height: number) => {
@@ -340,10 +339,9 @@ function JSResponseView(props: Props) {
       <TabbedViewWrapper>
         <EntityBottomTabs
           containerRef={panelRef}
-          defaultIndex={selectedResponseTab}
           expandedHeight={theme.actionsBottomTabInitialHeight}
-          onSelectIndex={setSelectedResponseTab}
-          selectedTabIndex={selectedResponseTab}
+          onSelect={setSelectedResponseTab}
+          selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
       </TabbedViewWrapper>

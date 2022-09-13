@@ -5,10 +5,7 @@ import { useSelector } from "store";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "@appsmith/reducers";
-import {
-  setCurrentTab,
-  showDebugger as showDebuggerAction,
-} from "actions/debuggerActions";
+import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -20,18 +17,14 @@ import {
 import { matchBuilderPath } from "constants/routes";
 import { TooltipComponent } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
+import { setCanvasDebuggerSelectedTab } from "actions/editorContextActions";
 
 function Debugger() {
-  const messageCounters = useSelector(getMessageCount);
-
-  const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
 
-  return showDebugger ? (
-    <DebuggerTabs defaultIndex={totalMessageCount ? 0 : 1} />
-  ) : null;
+  return showDebugger ? <DebuggerTabs /> : null;
 }
 
 const TriggerContainer = styled.div<{
@@ -86,9 +79,9 @@ export function DebuggerTrigger() {
       return;
     } else {
       if (totalMessageCount > 0) {
-        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
       } else {
-        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
+        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
       }
     }
     stopEventPropagation(e);
