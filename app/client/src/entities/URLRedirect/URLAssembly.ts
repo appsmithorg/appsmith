@@ -159,11 +159,27 @@ export class URLBuilder {
     return basePath;
   }
 
-  // Used to show URL preview in settings pane
   getCustomSlugPathPreview(pageId: string, customSlug: string) {
     const urlPattern =
       baseURLRegistry[URL_TYPE.CUSTOM_SLUG][APP_MODE.PUBLISHED];
-    return generatePath(urlPattern, { pageId, customSlug: `${customSlug}-` });
+    return generatePath(urlPattern, {
+      pageId,
+      customSlug: `${customSlug}-`,
+    });
+  }
+
+  getPagePathPreview(pageId: string, pageName: string) {
+    const { applicationVersion } = this.appParams;
+
+    const urlType = this.getURLType(applicationVersion);
+
+    const urlPattern = baseURLRegistry[urlType][APP_MODE.PUBLISHED];
+
+    const formattedParams = this.getFormattedParams(pageId);
+
+    formattedParams.pageSlug = `${pageName}-`;
+
+    return generatePath(urlPattern, formattedParams);
   }
 
   /**

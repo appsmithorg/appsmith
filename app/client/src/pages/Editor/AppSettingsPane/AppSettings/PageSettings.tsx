@@ -4,6 +4,7 @@ import { Page } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Button, Size, TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
+import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,13 +15,37 @@ function PageSettings(props: { page: Page }) {
   const page = props.page;
   const applicationId = useSelector(getCurrentApplicationId);
 
-  const url = urlBuilder.getCustomSlugPathPreview(page.pageId, "customslug");
-  console.log("current url", url);
-
   const [pageName, setPageName] = useState(page.pageName);
   const [customSlug, setCustomSlug] = useState(page.customSlug);
   const [isHidden, setIsHidden] = useState(page.isHidden);
   const [isDefault, setIsDefault] = useState(page.isDefault);
+
+  let pathPreview;
+
+  // when page name is changed
+  // and when custom slug doesn't exist
+  if (!customSlug && pageName !== page.pageName) {
+    // show path based on page name
+    pathPreview = urlBuilder.getPagePathPreview(page.pageId, pageName);
+  }
+  // when custom slug is changed
+  else if (customSlug !== page.customSlug) {
+    if (customSlug) {
+      // show custom slug preview
+      pathPreview = urlBuilder.getCustomSlugPathPreview(
+        page.pageId,
+        customSlug,
+      );
+    } else {
+      // when custom slug is removed
+      // show path based on page name
+      pathPreview = urlBuilder.getPagePathPreview(page.pageId, pageName);
+    }
+  }
+  // when nothing has changed
+  else {
+    pathPreview = urlBuilder.generateBasePath(page.pageId, APP_MODE.PUBLISHED);
+  }
 
   useEffect(() => {
     setPageName(page.pageName);
@@ -87,8 +112,9 @@ function PageSettings(props: { page: Page }) {
           value={customSlug}
         />
       </div>
-      <div className="bg-[#e7e7e7] pb-2">
-        <p className="p-2">{url}</p>
+
+      <div className="bg-[#e7e7e7] pb-2 break-all">
+        <p className="p-2">{window.location.hostname + pathPreview}</p>
       </div>
 
       <div className="pb-2 flex justify-between content-center">
