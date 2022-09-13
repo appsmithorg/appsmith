@@ -45,7 +45,6 @@ export class HomePage {
   private _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item";
-  private _buildFromScratchActionCard = ".t--BuildFromScratch";
   _buildFromDataTableActionCard = ".t--GenerateCRUDPage";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
@@ -187,7 +186,6 @@ export class HomePage {
     cy.get(this.locator._loading).should("not.exist");
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
-    cy.get(this._buildFromScratchActionCard).click();
     //this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
   }
 

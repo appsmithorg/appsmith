@@ -955,9 +955,6 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
       cy.get(pages.editInput).type(pageName + "{enter}");
       cy.wrap(pageId).as("currentPageId");
     }
-    if (navigateToCanvasPage) {
-      cy.get(generatePage.buildFromScratchActionCard).click();
-    }
     cy.get("#loading").should("not.exist");
   });
 });

@@ -275,8 +275,6 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
 
-  cy.get(generatePage.buildFromScratchActionCard).click();
-
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -298,7 +296,6 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
-  cy.get(generatePage.buildFromScratchActionCard).should("be.visible");
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
