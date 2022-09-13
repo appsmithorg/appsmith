@@ -335,6 +335,8 @@ export const unsafeFunctionForEval = [
   "clearInterval",
   "setImmediate",
   "Navigator",
+  "fetch",
+  "XMLHttpRequest",
 ];
 
 export const isChildPropertyPath = (
