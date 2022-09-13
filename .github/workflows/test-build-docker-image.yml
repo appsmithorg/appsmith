@@ -1662,7 +1662,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly
 
       - name: Build and push release image to Docker Hub
@@ -1687,7 +1687,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly
 
       # - name: Check and push fat image to Docker Hub with commit tag
@@ -1734,7 +1734,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:nightly
 
       # Build release Docker image and push to Docker Hub
@@ -1755,5 +1755,5 @@ jobs:
           context: app/rts
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:nightly
