@@ -11,7 +11,9 @@ export const appInitializer = () => {
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
 
   // For accessibility (https://reactcommunity.org/react-modal/accessibility/)
-  if (process.env.NODE_ENV !== "test") Modal.setAppElement("#root");
+  if (process.env.NODE_ENV !== "test") {
+    Modal.setAppElement("#root");
+  }
 };
 
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
