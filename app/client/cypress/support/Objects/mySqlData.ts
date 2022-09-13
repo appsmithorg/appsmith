@@ -1,4 +1,5 @@
 const mySqlData = {
+  databaseName: "datatypes",
   inputFieldName : [
     "Stinyint_column",
     "Utinyint_column",
@@ -109,7 +110,7 @@ const mySqlData = {
       "121231113045",
       "121231",
       "11:12",
-      "2155'",
+      "2155",
       "null",
       "null",
       "c",
@@ -221,7 +222,25 @@ const mySqlData = {
     ["a", "b", "c"],
     ["0", "1"],
     ['{"abc": "123"}', "{}", "[1, 2, 3, 4]", "", '["a", true, 0, 12.34]'],
-  ]
+  ],
+  query :{
+    createTable : `CREATE TABLE datatypes (serialId SERIAL not null primary key, stinyint_column TINYINT, utinyint_column TINYINT UNSIGNED, 
+      ssmallint_column SMALLINT, usmallint_column SMALLINT UNSIGNED, smediumint_column MEDIUMINT, umediumint_column MEDIUMINT UNSIGNED, 
+      sint_column INT, uint_column INT UNSIGNED, bigint_column BIGINT, float_column FLOAT( 10, 2 ), double_column DOUBLE, decimal_column DECIMAL( 10, 2 ), 
+      datetime_column DATETIME, timestamp_column TIMESTAMP, date_column DATE, time_column TIME, year_column YEAR, varchar_column VARCHAR( 20 ), 
+      char_column CHAR( 10 ), enum_column ENUM( 'a', 'b', 'c' ), bool_column BOOL, json_column JSON);`,
+    insertRecord : `INSERT INTO datatypes (stinyint_column, utinyint_column, ssmallint_column, usmallint_column, smediumint_column, umediumint_column, 
+      sint_column, uint_column, bigint_column, float_column, double_column, decimal_column, datetime_column, timestamp_column, 
+      date_column, time_column, year_column, varchar_column, char_column, enum_column, bool_column, json_column ) 
+      VALUES 
+      ({{InsertStinyint.text}}, {{InsertUtinyint.text}}, {{InsertSsmallint.text}}, {{InsertUsmallint.text}}, {{InsertSmediumint.text}}, 
+      {{InsertUmediumint.text}}, {{InsertSint.text}}, {{InsertUint.text}}, {{InsertBigint.text}}, {{InsertFloat.text}}, {{InsertDouble.text}}, 
+      {{InsertDecimal.text}}, {{InsertDatetime.text}}, {{InsertTimestamp.text}}, {{InsertDate.text}}, {{InsertTime.text}}, 
+      {{InsertYear.text}}, {{InsertVarchar.text}}, {{InsertChar.text}}, {{InsertEnum.text}}, {{InsertBoolean.isSwitchedOn}}, {{InputJson.text}});`,
+    deleteRecord : `DELETE FROM datatypes WHERE serialId ={{Table1.selectedRow.serialid}}`,
+    deleteAllRecords : `DELETE FROM datatypes`,
+    dropTable: `drop table datatypes`,
+  } 
 };
 
 export default mySqlData;
