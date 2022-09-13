@@ -13,8 +13,8 @@ import {
 import moment from "moment";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
-import { klona } from "klona/lite";
 import equal from "fast-deep-equal";
+import { omit } from "lodash";
 
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);
@@ -121,14 +121,19 @@ export function removeRepeatedLogsAndMerge(
   currentLogs: Log[],
   incomingLogs: Log[],
 ) {
-  // first remove the repeated logs from incoming logs
-  const outputArray = klona(currentLogs);
+  const outputArray = currentLogs;
   incomingLogs.forEach((incomingLog) => {
     if (outputArray.length === 0) {
       outputArray.push(incomingLog);
     } else {
       const lastLog = outputArray[outputArray.length - 1];
-      if (!compareLogs(lastLog, incomingLog)) {
+      // The equality needs to be tested without occurrenceCount, since that is a dynamic value
+      if (
+        !equal(
+          omit(lastLog, ["occurrenceCount"]),
+          omit(incomingLog, ["occurrenceCount"]),
+        )
+      ) {
         outputArray.push(incomingLog);
       } else {
         lastLog.hasOwnProperty("occurrenceCount") && !!lastLog.occurrenceCount
@@ -138,24 +143,6 @@ export function removeRepeatedLogsAndMerge(
     }
   });
   return outputArray;
-}
-
-// comparing logs to check if they are same, added early escape conditions
-// to improve performance
-function compareLogs(log1: Log, log2: Log) {
-  try {
-    if (log1.category !== log2.category) return false;
-    if (log1.logType !== log2.logType) return false;
-    if (log1.timestamp !== log2.timestamp) return false;
-    if (log1.severity !== log2.severity) return false;
-    if (!equal(log1.source, log2.source)) return false;
-    if (log1.text !== log2.text) return false;
-    if (!equal(log1.logData, log2.logData)) return false;
-    if (!equal(log1.state, log2.state)) return false;
-    return true;
-  } catch (e) {
-    return false;
-  }
 }
 
 export default {
