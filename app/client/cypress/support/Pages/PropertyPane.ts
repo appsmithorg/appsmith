@@ -193,6 +193,7 @@ export class PropertyPane {
         this.locator._codeMirrorTextArea,
     )
       .first()
+      .scrollIntoView()
       .focus()
       .type(this.selectAllJSObjectContentShortcut)
       .type("{backspace}", { force: true });
