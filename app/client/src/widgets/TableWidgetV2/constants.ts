@@ -73,7 +73,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   transientTableData: {
     [key: string]: Record<string, string>;
   };
-  editableCell: EditableCell;
+  editableCell?: EditableCell;
   primaryColor: string;
   borderRadius: string;
   boxShadow?: string;

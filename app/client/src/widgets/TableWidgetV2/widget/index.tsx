@@ -321,7 +321,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         /*
          * Inject the edited cell value from the editableCell object
          */
-        if (this.props.editableCell.index === rowIndex) {
+        if (this.props.editableCell?.index === rowIndex) {
           const { column, inputValue } = this.props.editableCell;
 
           newRow[column] = inputValue;
@@ -1233,8 +1233,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const isColumnEditable =
       column.isEditable && isColumnTypeEditable(column.columnType);
     const isCellEditMode =
-      props.cell.column.alias === this.props.editableCell.column &&
-      rowIndex === this.props.editableCell.index;
+      props.cell.column.alias === this.props.editableCell?.column &&
+      rowIndex === this.props.editableCell?.index;
 
     switch (column.columnType) {
       case ColumnTypes.BUTTON:
@@ -1588,8 +1588,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         if (isCellEditMode) {
           validationErrorMessage =
             column.validation.isColumnEditableCellRequired &&
-            (isNil(this.props.editableCell.inputValue) ||
-              this.props.editableCell.inputValue === "")
+            (isNil(this.props.editableCell?.inputValue) ||
+              this.props.editableCell?.inputValue === "")
               ? "This field is required"
               : column.validation?.errorMessage;
         }
@@ -1640,9 +1640,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       value: value,
       inputValue,
     });
+
     this.props.updateWidgetMetaProperty("columnEditableCellValue", {
       ...this.props.columnEditableCellValue,
-      [this.props.editableCell.column]: value,
+      [this.props.editableCell?.column || ""]: value,
     });
   };
 
@@ -1688,11 +1689,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       if (
         this.props.isEditableCellValid &&
         action === EditableCellActions.SAVE &&
-        value !== this.props.editableCell.initialValue
+        value !== this.props.editableCell?.initialValue
       ) {
         this.updateTransientTableData({
           __original_index__: this.getRowOriginalIndex(rowIndex),
-          [alias]: this.props.editableCell.value,
+          [alias]: this.props.editableCell?.value,
         });
 
         if (onSubmit) {
@@ -1703,7 +1704,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             eventType: EventType.ON_SUBMIT,
             row: {
               ...this.props.filteredTableData[rowIndex],
-              [this.props.editableCell.column]: this.props.editableCell.value,
+              [this.props.editableCell?.column || ""]: this.props.editableCell
+                ?.value,
             },
           });
         }
@@ -1711,7 +1713,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.clearEditableCell();
       } else if (
         action === EditableCellActions.DISCARD ||
-        value === this.props.editableCell.initialValue
+        value === this.props.editableCell?.initialValue
       ) {
         this.clearEditableCell();
       }
@@ -1737,8 +1739,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   isColumnCellEditable = (column: ColumnProperties, rowIndex: number) => {
     return (
-      column.alias === this.props.editableCell.column &&
-      rowIndex === this.props.editableCell.index
+      column.alias === this.props.editableCell?.column &&
+      rowIndex === this.props.editableCell?.index
     );
   };
 }
