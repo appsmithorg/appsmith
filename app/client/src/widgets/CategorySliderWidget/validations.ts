@@ -8,7 +8,6 @@ export function optionsCustomValidation(
 ): ValidationResponse {
   const validationUtil = (
     options: { label: string; value: string | number }[],
-    _: any,
   ) => {
     if (options.length < 2) {
       return {
@@ -95,7 +94,7 @@ export function optionsCustomValidation(
     }
 
     if (Array.isArray(options)) {
-      return validationUtil(options, _);
+      return validationUtil(options);
     } else {
       return invalidResponse;
     }
