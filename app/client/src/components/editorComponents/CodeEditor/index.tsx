@@ -385,6 +385,15 @@ class CodeEditor extends Component<Props, State> {
         this.editor.setValue("");
       }
       CodeEditor.updateMarkings(this.editor, this.props.marking);
+      if (
+        JSON.stringify(this.props.cursorPosition) !==
+        JSON.stringify(prevProps.cursorPosition)
+      ) {
+        if (this.props.cursorPosition) {
+          this.editor.focus();
+          this.editor.setCursor(this.props.cursorPosition);
+        }
+      }
     });
   }
 
