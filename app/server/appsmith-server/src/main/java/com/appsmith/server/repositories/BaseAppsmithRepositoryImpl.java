@@ -50,7 +50,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    private final static int NO_RECORD_LIMIT = -1;
+    protected final static int NO_RECORD_LIMIT = -1;
 
     @Autowired
     public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
