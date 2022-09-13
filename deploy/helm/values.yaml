@@ -41,6 +41,12 @@ image:
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 5
+
 serviceAccount:
   ## @param serviceAccount.create Enable creation of ServiceAccount for Appsmith; pods
   ##
@@ -167,7 +173,9 @@ resources:
   #   cpu: 100m
   #   memory: 128Mi
   limits: {}
-  requests: {}
+  requests:
+     cpu: 100m
+     memory: 128Mi
 
 nodeSelector: {}
 
@@ -181,7 +189,7 @@ persistence:
   enabled: true
   ## @param persistence.storageClass PVC Storage Class
   ##
-  storageClass: ""
+  storageClass: "-"
   ## @param persistence.annotations Additional custom annotations for the PVC
   ##
   annotations: {}
@@ -190,7 +198,7 @@ persistence:
   localStorage: false
   ## @param persistence.storagePath - local storage path
   ##
-  storagePath: /tmp/hostpath_pv
+  storagePath: /appsmith-stacks
   ## @param persistence.localCluster
   ##
   localCluster:
@@ -198,10 +206,15 @@ persistence:
   ## @param persistence.accessModes PV Access Mode
   ##
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   ## @param persistence.size PVC Storage Request
   ##
-  size: 10Gi
+  size: 90Gi
+  ReclaimPolicy: Retain
+  efs:
+    enabled: true
+    driver: efs.csi.aws.com
+    volumeHandle: fs-0dea7d805c98752dd
 # tags:
 #   install-ingress-nginx: true
 storageClass:

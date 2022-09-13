@@ -1,15 +1,24 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ if .Values.useStatefulSet }}StatefulSet{{- else }}Deployment{{- end }}
 metadata:
   name: {{ include "appsmith.fullname" . }}
   namespace: {{ include "appsmith.namespace" . }}
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: 3
+  {{- end }}
+  {{- if .Values.useStatefulSet }}
   serviceName: {{ include "appsmith.fullname" . }}
   updateStrategy:
+  {{- else }}
+  strategy:
+  {{- end }}
     type: {{ .Values.strategyType }}
+    {{- if or (and (not .Values.useStatefulSet) (eq "Recreate" .Values.strategyType)) (and .Values.useStatefulSet (eq "OnDelete" .Values.strategyType))  }}
+    rollingUpdate: null
+    {{- end }}
   selector:
     matchLabels:
       {{- include "appsmith.selectorLabels" . | nindent 6 }}
@@ -21,9 +30,6 @@ spec:
       {{- end }}
       labels:
         {{- include "appsmith.selectorLabels" . | nindent 8 }}
-        {{- if .Values.podLabels }}
-        {{- toYaml .Values.podLabels | nindent 8 }}
-        {{- end }}
     spec:
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName | quote }}
@@ -59,35 +65,39 @@ spec:
             - name: supervisord
               containerPort: 9001
               protocol: TCP
-          startupProbe:
-            # The `livenessProbe` and `readinessProbe` will be disabled until the `startupProbe` is successful.
-            httpGet:
-              path: /
-              port: http
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/v1/users/me
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/v1/users/me
               port: http
+          startupProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/v1/users/me
+              port: http
+              scheme: HTTP
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: data
-              mountPath: /appsmith-stacks
+              mountPath: {{ .Values.persistence.storagePath }}
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}
-            {{- if .Values.secretName }}
-            - secretRef:
-                name: {{ .Values.secretName }}
-            {{- end }}
       volumes:
   {{- if not .Values.persistence.enabled }}
       - name: data
         emptyDir: {}
+  {{- else if not .Values.useStatefulSet }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "appsmith.fullname" . }}
   {{- else }}
   volumeClaimTemplates:
     - metadata:
@@ -103,5 +113,8 @@ spec:
         resources:
           requests:
             storage: {{ .Values.persistence.size | quote }}
+        {{- if .Values.persistence.volumeClaimTemplates.selector }}
+        selector: {{- include "tplvalues.render" (dict "value" .Values.persistence.volumeClaimTemplates.selector "context" $) | nindent 10 }}
+        {{- end }}
         {{ include "storage.class" (dict "persistence" .Values.persistence "global" .Values.global) }}
   {{- end }}
