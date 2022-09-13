@@ -531,6 +531,21 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
           },
+
+          {
+            propertyName: "dynamicTyping",
+            label: "Enable Dynamic Typing",
+            helpText: "Controls the parsed data type",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            hidden: (props: FilePickerWidgetProps) => {
+              return props.fileDataType !== FileDataTypes.Array;
+            },
+            dependencies: ["fileDataType"],
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
@@ -1003,13 +1018,21 @@ class FilePickerWidget extends BaseWidget<
     if (typeof result === "string") {
       const config = {
         header: true,
+        dynamicTyping: this.props.dynamicTyping,
         chunk,
       };
       try {
+        const startParsing = performance.now();
+
         Papa.parse(result, config);
+
+        const endParsing = performance.now();
+
+        log.debug("### PARSING timing", `${endParsing - startParsing} ms`);
+
         return data;
       } catch (error) {
-        log.error(error);
+        log.error(errors);
       }
     }
   }
@@ -1036,6 +1059,7 @@ interface FilePickerWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  dynamicTyping?: boolean;
 }
 
 export type FilePickerWidgetV2Props = FilePickerWidgetProps;
