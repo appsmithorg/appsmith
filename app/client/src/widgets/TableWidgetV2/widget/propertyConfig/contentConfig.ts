@@ -284,7 +284,7 @@ export default [
         propertyName: "defaultSelectedRowIndex",
         label: "Default Selected Row",
         controlType: "INPUT_TEXT",
-        placeholderText: "0",
+        defaultValue: 0,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
