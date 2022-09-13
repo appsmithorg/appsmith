@@ -3,12 +3,12 @@ const { DateTime } = require("luxon");
 const cliProgress = require("cli-progress");
 var args = require("minimist")(process.argv.slice(2));
 
-const MONGODB_URL = args.mongoUrl || process.env.APPSMITH_MONGODB_URI;
 const SESSION_PRICE = args.sessionPrice || 0.3;
 const PRICE_CAP_FOR_USER = args.priceCap || 15;
 
 let BILL = {};
 async function run() {
+  const MONGODB_URL = args.mongoUrl || process.env.APPSMITH_MONGODB_URI;
   if (MONGODB_URL == undefined || MONGODB_URL.trim() === "") {
     console.log(`
 Did you forget to specify the mandatory parameter MongoDB URL?

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
@@ -226,7 +226,7 @@ function ConditionComponent(props: any, index: number) {
       <CenteredIcon
         cypressSelector={`t--where-clause-delete-[${index}]`}
         name="cross"
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
@@ -334,7 +334,7 @@ function ConditionBlock(props: any) {
                     alignSelf={"start"}
                     cypressSelector={`t--where-clause-delete-[${index}]`}
                     name="cross"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onDeletePressed(index);
                     }}

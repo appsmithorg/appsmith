@@ -1,5 +1,5 @@
 import { set } from "lodash";
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   UpdateWidgetMetaPropertyPayload,
   ResetWidgetMetaPayload,

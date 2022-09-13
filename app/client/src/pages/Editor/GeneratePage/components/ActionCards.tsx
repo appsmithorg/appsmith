@@ -2,7 +2,7 @@ import React from "react";
 import ActionCard from "./ActionCard";
 import { FormIcons } from "icons/FormIcons";
 import history from "utils/history";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
 import {

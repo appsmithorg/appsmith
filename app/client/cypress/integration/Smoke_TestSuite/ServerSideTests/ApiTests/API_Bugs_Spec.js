@@ -3,6 +3,12 @@ const dslParallel = require("../../../../fixtures/apiParallelDsl.json");
 const dslTable = require("../../../../fixtures/apiTableDsl.json");
 const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let apiPage = ObjectsRegistry.ApiPage,
+  agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer,
+  locator = ObjectsRegistry.CommonLocators;
 
 describe("Rest Bugs tests", function() {
   it("Bug 5550: Not able to run APIs in parallel", function() {
@@ -11,40 +17,32 @@ describe("Rest Bugs tests", function() {
     cy.get(".bp3-spinner").should("not.exist");
 
     //Api 1
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("CatImage");
-    cy.enterDatasource("https://api.thecatapi.com/v1/images/search");
-    cy.assertPageSave();
-    cy.get("body").click(0, 0);
+    apiPage.CreateAndFillApi(
+      "https://api.thecatapi.com/v1/images/search",
+      "CatImage",
+    );
+    agHelper.PressEscape();
 
     //Api 2
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("DogImage");
-    cy.enterDatasource("https://dog.ceo/api/breeds/image/random");
-    cy.assertPageSave();
-    //important - needed for autosave of API before running
-    cy.get("body").click(0, 0);
+    apiPage.CreateAndFillApi(
+      "https://dog.ceo/api/breeds/image/random",
+      "DogImage",
+    );
+    agHelper.PressEscape();
 
     //Api 3
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("NumberFact");
-    cy.enterDatasource("http://numbersapi.com/random/math");
-    cy.assertPageSave();
-    cy.get("body").click(0, 0);
+    apiPage.CreateAndFillApi("http://numbersapi.com/random/math", "NumberFact");
+    agHelper.PressEscape();
 
     //Api 4
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("CocktailDB");
-    cy.enterDatasource(
+    apiPage.CreateAndFillApi(
       "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita",
+      "CocktailDB",
     );
-    cy.assertPageSave();
-    cy.get("body").click(0, 0);
+    agHelper.PressEscape();
 
-    cy.contains(commonlocators.entityName, "Page1")
-      .click({ force: true })
-      .wait(2000);
-    cy.clickButton("Invoke APIs!");
+    ee.SelectEntityByName("Page1", "Pages");
+    agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
     //Cat Image
@@ -133,11 +131,11 @@ describe("Rest Bugs tests", function() {
       201,
     );
     //Api 1
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("InternalServerErrorApi");
-    cy.enterDatasource("https://api.thecatapi.com/v1/images/search");
-    cy.wait(1000);
-    cy.onlyQueryRun();
+    apiPage.CreateAndFillApi(
+      "https://api.thecatapi.com/v1/images/search",
+      "InternalServerErrorApi",
+    );
+    apiPage.RunAPI(false);
     cy.wait("@postExecuteError");
     cy.get(commonlocators.debugger)
       .should("be.visible")
@@ -157,22 +155,23 @@ describe("Rest Bugs tests", function() {
     cy.wait(5000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
     //Api 1
-    cy.CreateAPI("Currencies");
-    cy.enterDatasource("https://api.coinbase.com/v2/currencies");
-    cy.WaitAutoSave();
-    cy.onlyQueryRun();
+    apiPage.CreateAndFillApi(
+      "https://api.coinbase.com/v2/currencies",
+      "Currencies",
+    );
+    apiPage.RunAPI(false);
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
-    cy.selectEntityByName("Table1"); //expand
-    cy.selectEntityByName("Table1"); //collapse
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.selectEntityByName("Currencies");
-    cy.get(".t--dataSourceField").then(($el) => {
-      cy.updateCodeInput($el, "https://api.coinbase.com/v2/");
-    });
-    cy.WaitAutoSave();
-    cy.onlyQueryRun();
-    cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
+    ee.SelectEntityByName("Table1", "Widgets");
+    ee.SelectEntityByName("Currencies", "Queries/JS");
+    apiPage.EnterURL("https://api.coinbase.com/v2/");
+    agHelper.Sleep();
+    // cy.get(".t--dataSourceField").then(($el) => {
+    //   cy.updateCodeInput($el, "https://api.coinbase.com/v2/");
+    // });
+    apiPage.RunAPI(false);
+    agHelper.AssertElementAbsence(
+      locator._specificToast("Cyclic dependency found while evaluating"),
+    );
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.get(commonlocators.debugger)
       .should("be.visible")
@@ -188,11 +187,13 @@ describe("Rest Bugs tests", function() {
   });
 
   it("Bug 13515: API Response gets garbled if encoded with gzip", function() {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("GarbledResponseAPI");
-    cy.enterDatasource("https://postman-echo.com/gzip");
-    cy.wait(1000);
-    cy.onlyQueryRun();
+    apiPage.CreateAndFillApi(
+      "https://postman-echo.com/gzip",
+      "GarbledResponseAPI",
+      30000,
+    );
+    apiPage.RunAPI(false);
+    apiPage.SelectPaneTab("Response");
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       const bodyArr = response.body.data.body;

@@ -12,6 +12,7 @@ import {
   BaseFieldComponentProps,
   FieldEventProps,
   ComponentDefaultValuesFnProps,
+  ActionUpdateDependency,
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dateFormatOptions } from "../widget/propertyConfig/properties/date";
@@ -146,6 +147,7 @@ function DateField({
           event: {
             type: EventType.ON_DATE_SELECTED,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },

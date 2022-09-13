@@ -10,14 +10,15 @@ import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
-import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import userLogs, { LogObject } from "./UserLog";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
   triggers?: ActionDescription[];
+  logs?: LogObject[];
 };
 
 export enum EvaluationScriptType {
@@ -62,7 +63,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
 };
 
-const getScriptType = (
+export const getScriptType = (
   evalArgumentsExist = false,
   isTriggerBased = false,
 ): EvaluationScriptType => {
@@ -102,13 +103,26 @@ export function setupEvaluationEnvironment() {
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
-export const createGlobalData = (
-  dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
-  isTriggerBased: boolean,
-  context?: EvaluateContext,
-  evalArguments?: Array<any>,
-) => {
+export interface createGlobalDataArgs {
+  dataTree: DataTree;
+  resolvedFunctions: Record<string, any>;
+  context?: EvaluateContext;
+  evalArguments?: Array<unknown>;
+  isTriggerBased: boolean;
+  // Whether not to add functions like "run", "clear" to entity in global data
+  skipEntityFunctions?: boolean;
+}
+
+export const createGlobalData = (args: createGlobalDataArgs) => {
+  const {
+    context,
+    dataTree,
+    evalArguments,
+    isTriggerBased,
+    resolvedFunctions,
+    skipEntityFunctions,
+  } = args;
+
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
@@ -129,6 +143,7 @@ export const createGlobalData = (
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
       dataTree,
       context?.requestId,
+      skipEntityFunctions,
     );
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
@@ -192,30 +207,19 @@ export type EvaluateContext = {
 
 export const getUserScriptToEvaluate = (
   userScript: string,
-  GLOBAL_DATA: Record<string, unknown>,
   isTriggerBased: boolean,
   evalArguments?: Array<any>,
 ) => {
   const unescapedJS = sanitizeScript(userScript);
-  // If nothing is present to evaluate, return instead of linting
+  // If nothing is present to evaluate, return
   if (!unescapedJS.length) {
     return {
-      lintErrors: [],
       script: "",
     };
   }
   const scriptType = getScriptType(!!evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
-  // We are linting original js binding,
-  // This will make sure that the character count is not messed up when we do unescapejs
-  const scriptToLint = getScriptToEval(userScript, scriptType);
-  const lintErrors = getLintingErrors(
-    scriptToLint,
-    GLOBAL_DATA,
-    userScript,
-    scriptType,
-  );
-  return { script, lintErrors };
+  return { script };
 };
 
 export default function evaluateSync(
@@ -225,22 +229,28 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  skipLogsOperations = false,
 ): EvalResult {
   return (function() {
-    let errors: EvaluationError[] = [];
+    const errors: EvaluationError[] = [];
+    let logs: LogObject[] = [];
     let result;
+    // skipping log reset if the js collection is being evaluated without run
+    // Doing this because the promise execution is losing logs in the process due to resets
+    if (!skipLogsOperations) {
+      userLogs.resetLogs();
+    }
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = createGlobalData(
+    const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
-      isJSCollection,
+      isTriggerBased: isJSCollection,
       context,
       evalArguments,
-    );
+    });
     GLOBAL_DATA.ALLOW_ASYNC = false;
-    const { lintErrors, script } = getUserScriptToEvaluate(
+    const { script } = getUserScriptToEvaluate(
       userScript,
-      GLOBAL_DATA,
       false,
       evalArguments,
     );
@@ -252,8 +262,6 @@ export default function evaluateSync(
         triggers: [],
       };
     }
-
-    errors = lintErrors;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -277,13 +285,14 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      logs = userLogs.flushLogs(skipLogsOperations);
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
 
-    return { result, errors };
+    return { result, errors, logs };
   })();
 }
 
@@ -298,20 +307,17 @@ export async function evaluateAsync(
   return (async function() {
     const errors: EvaluationError[] = [];
     let result;
+    let logs;
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = createGlobalData(
+    userLogs.resetLogs();
+    const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
-      true,
-      { ...context, requestId },
+      isTriggerBased: true,
+      context: { ...context, requestId },
       evalArguments,
-    );
-    const { script } = getUserScriptToEvaluate(
-      userScript,
-      GLOBAL_DATA,
-      true,
-      evalArguments,
-    );
+    });
+    const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -323,6 +329,7 @@ export async function evaluateAsync(
 
     try {
       result = await eval(script);
+      logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -334,15 +341,30 @@ export async function evaluateAsync(
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
+      logs = userLogs.flushLogs();
     } finally {
-      completePromise(requestId, {
-        result,
-        errors,
-        triggers: Array.from(self.TRIGGER_COLLECTOR),
-      });
-      for (const entity in GLOBAL_DATA) {
-        // @ts-expect-error: Types are not available
-        delete self[entity];
+      // Adding this extra try catch because there are cases when logs have child objects
+      // like functions or promises that cause issue in complete promise action, thus
+      // leading the app into a bad state.
+      try {
+        completePromise(requestId, {
+          result,
+          errors,
+          logs,
+          triggers: Array.from(self.TRIGGER_COLLECTOR),
+        });
+      } catch (error) {
+        completePromise(requestId, {
+          result,
+          errors,
+          logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
+          triggers: Array.from(self.TRIGGER_COLLECTOR),
+        });
+      } finally {
+        for (const entity in GLOBAL_DATA) {
+          // @ts-expect-error: Types are not available
+          delete self[entity];
+        }
       }
     }
   })();

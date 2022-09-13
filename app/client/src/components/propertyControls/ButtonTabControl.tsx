@@ -1,8 +1,6 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import ButtonTabComponent, {
-  ButtonTabOption,
-} from "components/ads/ButtonTabComponent";
+import { ButtonTab, ButtonTabOption } from "design-system";
 import produce from "immer";
 import {
   DSEventDetail,
@@ -69,7 +67,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   render() {
     const { options, propertyValue } = this.props;
     return (
-      <ButtonTabComponent
+      <ButtonTab
         options={options}
         ref={this.componentRef}
         selectButton={this.selectButton}

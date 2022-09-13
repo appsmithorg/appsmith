@@ -3,9 +3,7 @@ import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import ButtonTabComponent, {
-  ButtonTabOption,
-} from "components/ads/ButtonTabComponent";
+import { ButtonTab, ButtonTabOption } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -72,7 +70,7 @@ class LabelAlignmentOptionsControl extends BaseControl<
     const { options, propertyValue } = this.props;
     return (
       <ControlContainer>
-        <ButtonTabComponent
+        <ButtonTab
           options={options}
           ref={this.componentRef}
           selectButton={this.handleAlign}

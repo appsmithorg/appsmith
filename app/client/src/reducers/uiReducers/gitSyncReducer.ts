@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -529,7 +529,6 @@ export type GitDiscardResponse = {
     default: boolean;
   }[];
   appIsExample: boolean;
-  unreadCommentThreads: number;
   color: string;
   icon: string;
   slug: string;

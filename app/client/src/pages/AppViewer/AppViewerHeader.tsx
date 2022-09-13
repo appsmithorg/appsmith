@@ -7,7 +7,7 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
   getViewModePageList,
@@ -22,9 +22,6 @@ import { Theme } from "constants/DefaultTheme";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton, {
-  useHideComments,
-} from "pages/Editor/ToggleModeButton";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import HtmlTitle from "./AppViewerHtmlTitle";
@@ -37,6 +34,12 @@ import BackToHomeButton from "./BackToHomeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
+import { inviteModalLinks } from "@appsmith/constants/forms";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 /**
  * ----------------------------------------------------------------------------
@@ -80,7 +83,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
@@ -124,7 +126,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
                 <div className="hidden md:flex space-x-3">
-                  {!shouldHideComments && <ToggleCommentModeButton />}
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
                     applicationId={currentApplicationDetails.id}
@@ -134,6 +135,9 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                       bgColor: "transparent",
                     }}
                     isOpen={showAppInviteUsersDialog}
+                    links={inviteModalLinks}
+                    message={createMessage(INVITE_USERS_MESSAGE)}
+                    placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                     title={currentApplicationDetails.name}
                     trigger={
                       <Button

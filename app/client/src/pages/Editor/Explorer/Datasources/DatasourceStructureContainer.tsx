@@ -44,7 +44,8 @@ const Container = (props: Props) => {
         <EntityPlaceholder step={props.step + 1}>
           {props.datasourceStructure &&
           props.datasourceStructure.error &&
-          props.datasourceStructure.error.message
+          props.datasourceStructure.error.message &&
+          props.datasourceStructure.error.message !== "null"
             ? props.datasourceStructure.error.message
             : createMessage(SCHEMA_NOT_AVAILABLE)}
         </EntityPlaceholder>

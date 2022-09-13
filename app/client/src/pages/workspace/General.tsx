@@ -7,10 +7,7 @@ import {
 } from "actions/workspaceActions";
 import { SaveWorkspaceRequest } from "api/WorkspaceApi";
 import { debounce } from "lodash";
-import TextInput, {
-  emailValidator,
-  notEmptyValidator,
-} from "components/ads/TextInput";
+import { TextInput, emailValidator, notEmptyValidator } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
@@ -38,6 +35,7 @@ const GeneralWrapper = styled.div<{
   width: ${(props) => (props.isPortrait ? "336px" : "383px")};
   margin: ${(props) =>
     props.isMobile ? (props.isPortrait ? "auto" : "120px") : null};
+  padding: 0 20px;
 `;
 
 const InputLabelWrapper = styled.div`
@@ -166,7 +164,7 @@ export function GeneralSettings() {
         <Row>
           <Col>
             <InputLabelWrapper>
-              <Text type={TextType.P1}>Organization Name</Text>
+              <Text type={TextType.P1}>Workspace Name</Text>
             </InputLabelWrapper>
             {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
@@ -175,7 +173,7 @@ export function GeneralSettings() {
                 defaultValue={currentWorkspace && currentWorkspace.name}
                 fill
                 onChange={onWorkspaceNameChange}
-                placeholder="Organization Name"
+                placeholder="Workspace Name"
                 validator={notEmptyValidator}
               />
             )}

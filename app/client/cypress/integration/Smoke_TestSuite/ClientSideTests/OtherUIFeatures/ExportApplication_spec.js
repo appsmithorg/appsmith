@@ -1,6 +1,9 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 import homePage from "../../../../locators/HomePage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const commonlocators = require("../../../../locators/commonlocators.json");
+let HomePage = ObjectsRegistry.HomePage,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Export application as a JSON file", function() {
   let workspaceId;
@@ -47,7 +50,7 @@ describe("Export application as a JSON file", function() {
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
@@ -61,8 +64,12 @@ describe("Export application as a JSON file", function() {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.adminRole);
-
+      // cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.adminRole);
+      HomePage.InviteUserToWorkspaceFromApp(
+        workspaceId,
+        Cypress.env("TESTUSERNAME1"),
+        "Administrator",
+      );
       cy.LogOut();
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
@@ -97,7 +104,7 @@ describe("Export application as a JSON file", function() {
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
@@ -111,7 +118,11 @@ describe("Export application as a JSON file", function() {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.developerRole);
+      HomePage.InviteUserToWorkspaceFromApp(
+        workspaceId,
+        Cypress.env("TESTUSERNAME1"),
+        "Developer",
+      );
 
       cy.LogOut();
 
@@ -147,7 +158,7 @@ describe("Export application as a JSON file", function() {
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
@@ -161,8 +172,12 @@ describe("Export application as a JSON file", function() {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.viewerRole);
 
+      HomePage.InviteUserToWorkspaceFromApp(
+        workspaceId,
+        Cypress.env("TESTUSERNAME1"),
+        "App Viewer",
+      );
       cy.LogOut();
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));

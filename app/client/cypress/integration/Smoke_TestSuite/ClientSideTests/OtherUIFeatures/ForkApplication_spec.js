@@ -18,7 +18,7 @@ describe("Fork application across workspaces", function() {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
-    cy.testJsontext("defaulttext", "A");
+    cy.testJsontext("defaultvalue", "A");
     cy.wait("@inputUpdate").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
     });

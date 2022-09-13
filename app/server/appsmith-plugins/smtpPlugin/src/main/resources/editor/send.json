@@ -1,6 +1,6 @@
 {
   "identifier": "SEND",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command === 'SEND'}}"
   },
@@ -8,7 +8,7 @@
     {
       "controlType": "SECTION",
       "label": "Email Configuration",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "From email *",
@@ -71,11 +71,10 @@
         {
           "label": "Attachment(s)",
           "configProperty": "actionConfiguration.formData.send.attachments",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{{Filepicker.files[0]}}"
         }
-
       ]
     }
   ]

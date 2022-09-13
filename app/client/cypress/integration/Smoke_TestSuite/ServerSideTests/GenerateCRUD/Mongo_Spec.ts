@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any;
+let dsName: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -25,24 +25,13 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     propPane.ChangeTheme("Water Lily");
-
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("MongoDB");
-      guid = uid;
-      agHelper.RenameWithInPane("Mongo " + guid, false);
-      dataSources.FillMongoDSForm();
-      dataSources.TestSaveDatasource();
-
+    dataSources.CreateDataSource("Mongo");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
       ee.AddNewPage();
       agHelper.GetNClick(homePage._buildFromDataTableActionCard);
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClickByContains(
-        dataSources._dropdownOption,
-        "Mongo " + guid,
-      );
-      cy.wrap("Mongo " + guid).as("dsName");
+      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -81,7 +70,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
-    ee.ExpandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
@@ -99,7 +88,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    //agHelper.ValidateToastMessage("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
+    agHelper.AssertContains("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);

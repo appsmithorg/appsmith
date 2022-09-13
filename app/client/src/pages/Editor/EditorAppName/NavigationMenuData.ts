@@ -5,10 +5,6 @@ import { noop } from "lodash";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { ThemeProp } from "components/ads/common";
-import {
-  setCommentModeInUrl,
-  useHideComments,
-} from "pages/Editor/ToggleModeButton";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -51,8 +47,6 @@ export const GetNavigationMenuData = ({
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
-
-  const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
 
@@ -170,27 +164,6 @@ export const GetNavigationMenuData = ({
       },
       type: MenuTypes.MENU,
       isVisible: true,
-    },
-    {
-      text: "View Modes",
-      type: MenuTypes.PARENT,
-      isVisible: !isHideComments,
-      children: [
-        {
-          text: "Edit Mode",
-          label: "V",
-          onClick: () => setCommentModeInUrl(false),
-          type: MenuTypes.MENU,
-          isVisible: true,
-        },
-        {
-          text: "Comment Mode",
-          label: "C",
-          onClick: () => setCommentModeInUrl(true),
-          type: MenuTypes.MENU,
-          isVisible: true,
-        },
-      ],
     },
     {
       text: "Deploy",

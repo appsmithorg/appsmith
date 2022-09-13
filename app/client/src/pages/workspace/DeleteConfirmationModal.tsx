@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Button, { Size, Category } from "components/ads/Button";
-import { Text, TextType } from "design-system";
+import { Button, Category, Size, Text, TextType } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,

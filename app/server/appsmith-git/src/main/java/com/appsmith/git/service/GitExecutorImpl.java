@@ -71,7 +71,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
-    private static final String SUCCESS_MERGE_STATUS = "This branch has no conflict with the base branch.";
+    private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been

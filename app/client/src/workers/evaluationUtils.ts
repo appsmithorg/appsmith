@@ -7,6 +7,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
+  isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { validate } from "./validations";
 import { Diff } from "deep-diff";
@@ -28,6 +29,8 @@ import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { isObject } from "lodash";
+import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -115,8 +118,14 @@ export const translateDiffEventToDataTreeDiffEvent = (
   if (!difference.path) {
     return result;
   }
-
   const propertyPath = convertPathToString(difference.path);
+
+  // add propertyPath to NOOP event
+  result.payload = {
+    propertyPath,
+    value: "",
+  };
+
   //we do not need evaluate these paths coz these are internal paths
   const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
     propertyPath,
@@ -638,9 +647,11 @@ export function getSafeToRenderDataTree(
 export const addErrorToEntityProperty = (
   errors: EvaluationError[],
   dataTree: DataTree,
-  path: string,
+  fullPropertyPath: string,
 ) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+    fullPropertyPath,
+  );
   const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
     entityName
   ];
@@ -660,12 +671,50 @@ export const addErrorToEntityProperty = (
   return dataTree;
 };
 
+export const removeLintErrorsFromEntityProperty = (
+  dataTree: DataTree,
+  fullPropertyPath: string,
+) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+    fullPropertyPath,
+  );
+  if (propertyPath) {
+    const existingNonLintErrors = (_.get(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      [],
+    ) as EvaluationError[]).filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+
+    _.set(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      existingNonLintErrors,
+    );
+  }
+  return dataTree;
+};
+
 // For the times when you need to know if something truly an object like { a: 1, b: 2}
 // typeof, lodash.isObject and others will return false positives for things like array, null, etc
 export const isTrueObject = (
   item: unknown,
 ): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
+};
+
+/**
+ * This function finds the datatype of the given value.
+ * typeof, lodash and others will return false positives for things like array, wrapper objects, etc
+ * @param value
+ * @returns datatype of the received value as string
+ */
+export const findDatatype = (value: unknown) => {
+  return Object.prototype.toString
+    .call(value)
+    .slice(8, -1)
+    .toLowerCase();
 };
 
 export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
@@ -826,4 +875,18 @@ export const overrideWidgetProperties = (params: {
       }
     }
   }
+};
+export function isValidEntity(
+  entity: DataTreeEntity,
+): entity is DataTreeObjectEntity {
+  if (!isObject(entity)) {
+    return false;
+  }
+  return "ENTITY_TYPE" in entity;
+}
+export const isATriggerPath = (
+  entity: DataTreeEntity,
+  propertyPath: string,
+) => {
+  return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };

@@ -12,8 +12,6 @@ describe("MySQL datasource test cases", function() {
   it("1. Create, test, save then delete a MySQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MySQL).click();
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillMySQLDatasourceForm();
     cy.generateUUID().then((UUID) => {
       datasourceName = `MySQL MOCKDS ${UUID}`;
@@ -32,7 +30,6 @@ describe("MySQL datasource test cases", function() {
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a MySQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MySQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillMySQLDatasourceForm(true);
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
@@ -44,8 +41,8 @@ describe("MySQL datasource test cases", function() {
   });
 
   it("3. Create a new query from the datasource editor", function() {
-    // cy.get(datasource.createQuerty).click();
-    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
+    // cy.get(datasource.createQuery).click();
+    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuery}`)
       .last()
       .click();
     cy.wait("@createNewApi").should(

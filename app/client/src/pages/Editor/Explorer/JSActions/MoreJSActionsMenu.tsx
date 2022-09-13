@@ -10,7 +10,7 @@ import noop from "lodash/noop";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { getJSEntityName } from "./helpers";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Position } from "@blueprintjs/core";
 import {
   CONTEXT_COPY,

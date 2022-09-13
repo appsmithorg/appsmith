@@ -10,7 +10,7 @@ import SchemaParser, {
 } from "widgets/JSONFormWidget/schemaParser";
 import styled from "constants/DefaultTheme";
 import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
-import { Category, Size } from "components/ads/Button";
+import { Category, Size } from "design-system";
 import {
   BaseItemProps,
   DroppableComponent,

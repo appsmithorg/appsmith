@@ -23,7 +23,8 @@ import {
   JSCollectionData,
   JSCollectionDataState,
 } from "reducers/entityReducers/jsActionsReducer";
-import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
+import { createNewJSFunctionName } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";

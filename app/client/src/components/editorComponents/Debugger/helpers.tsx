@@ -1,4 +1,4 @@
-import { Log, Severity } from "entities/AppsmithConsole";
+import { Log, LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -60,8 +60,24 @@ export enum DEBUGGER_TAB_KEYS {
 
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
-  [Severity.ERROR]: "error",
+  [Severity.ERROR]: "close-circle",
   [Severity.WARNING]: "warning",
+};
+
+export const getLogIcon = (log: Log) => {
+  if (log.severity === Severity.ERROR) {
+    return SeverityIcon[log.severity];
+  }
+
+  if (log.category === LOG_CATEGORY.PLATFORM_GENERATED) {
+    return "desktop";
+  }
+
+  if (log.category === LOG_CATEGORY.USER_GENERATED) {
+    return "user-2";
+  }
+
+  return SeverityIcon[log.severity];
 };
 
 export function getDependenciesFromInverseDependencies(
@@ -79,10 +95,18 @@ export function getDependenciesFromInverseDependencies(
       const { entityName: entityDependency } = getEntityNameAndPropertyPath(
         dependency,
       );
-      if (entity !== entityName && entityDependency === entityName) {
-        directDependencies.add(entity);
-      } else if (entity === entityName && entityDependency !== entityName) {
-        inverseDependencies.add(entityDependency);
+
+      /**
+       * Remove appsmith from the entity dropdown, under the property pane.
+       * We need to add a separate entity page like we have for queries and api calls
+       * to list all the values under the appsmith entity.
+       */
+      if (entity !== "appsmith") {
+        if (entity !== entityName && entityDependency === entityName) {
+          directDependencies.add(entity);
+        } else if (entity === entityName && entityDependency !== entityName) {
+          inverseDependencies.add(entityDependency);
+        }
       }
     });
   });

@@ -14,6 +14,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +27,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public abstract class BaseDomain implements Persistable<String>, AppsmithDomain {
+public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable {
 
     private static final long serialVersionUID = 7459916000501322517L;
 

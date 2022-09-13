@@ -26,7 +26,7 @@ export const options = (
             shouldCloseDropdown: false,
           },
           {
-            content: "Organization Settings",
+            content: "Workspace Settings",
             onSelect: () =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                 path: `/workspace/${workspaceId}/settings`,

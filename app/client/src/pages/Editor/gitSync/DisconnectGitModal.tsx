@@ -11,11 +11,19 @@ import {
   setIsDisconnectGitModalOpen,
 } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextInput,
+  TextType,
+} from "design-system";
 
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
-import { Text, TextType } from "design-system";
 import InfoWrapper from "./components/InfoWrapper";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
@@ -29,8 +37,6 @@ import {
   REVOKE,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
-import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
 import { Variant } from "components/ads";
@@ -135,7 +141,7 @@ function DisconnectGitModal() {
               <TextInput
                 className="t--git-app-name-input"
                 fill
-                onBlur={(event) => {
+                onBlur={(event: React.FocusEvent<any, Element>) => {
                   AnalyticsUtil.logEvent(
                     "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
                     {
@@ -144,7 +150,7 @@ function DisconnectGitModal() {
                     },
                   );
                 }}
-                onChange={(value) => setAppName(value)}
+                onChange={(value: string) => setAppName(value)}
                 trimValue={false}
                 value={appName}
               />

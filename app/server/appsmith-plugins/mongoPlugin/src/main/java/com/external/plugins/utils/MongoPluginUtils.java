@@ -107,13 +107,21 @@ public class MongoPluginUtils {
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
+        String databaseName = null;
+
         // Explicitly set default database.
-        String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+        if (datasourceConfiguration.getConnection() != null) {
+            databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+        }
 
         // If that's not available, pick the authentication database.
         final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-        if (StringUtils.isEmpty(databaseName) && authentication != null) {
+        if (!StringUtils.hasLength(databaseName) && authentication != null) {
             databaseName = authentication.getDatabaseName();
+        }
+
+        if (databaseName == null) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Missing default database name.");
         }
 
         return databaseName;

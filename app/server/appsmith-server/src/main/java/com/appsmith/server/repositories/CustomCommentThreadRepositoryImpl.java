@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 public class CustomCommentThreadRepositoryImpl extends CustomCommentThreadRepositoryCEImpl
         implements CustomCommentThreadRepository {
 
-    public CustomCommentThreadRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomCommentThreadRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

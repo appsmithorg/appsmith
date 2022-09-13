@@ -1,6 +1,6 @@
 import { ConfigFactory } from "pages/Settings/config/ConfigFactory";
 
-import { config as GeneralConfig } from "pages/Settings/config/general";
+import { config as GeneralConfig } from "@appsmith/pages/AdminSettings/config/general";
 import { config as EmailConfig } from "pages/Settings/config/email";
 import { config as MapsConfig } from "pages/Settings/config/googleMaps";
 import { config as VersionConfig } from "pages/Settings/config/version";

@@ -11,7 +11,7 @@ import { HelpIcons } from "icons/HelpIcons";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import ModalComponent from "../ModalComponent";

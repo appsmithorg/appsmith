@@ -1,4 +1,4 @@
-import { OptionProps } from "components/ads";
+import { OptionProps } from "design-system";
 import { css } from "styled-components";
 import { JSActionDropdownOption } from "./utils";
 

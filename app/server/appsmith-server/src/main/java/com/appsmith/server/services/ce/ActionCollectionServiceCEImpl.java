@@ -22,6 +22,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -37,8 +38,10 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -323,7 +326,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                             return Mono.empty();
                                         }))
                                 .collectList()
-                                .then(repository.save(toDelete));
+                                .then(repository.save(toDelete))
+                                .flatMap(modifiedActionCollection -> {
+                                    return analyticsService.sendArchiveEvent(modifiedActionCollection, getAnalyticsProperties(modifiedActionCollection));
+                                });
                     } else {
                         // This actionCollection was never published. This document can be safely archived
                         modifiedActionCollectionMono = this.archiveById(toDelete.getId());
@@ -331,7 +337,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
                     return modifiedActionCollectionMono;
                 })
-                .flatMap(analyticsService::sendDeleteEvent)
                 .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false));
     }
 
@@ -438,7 +443,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .collectList()
                 .flatMap(actionList -> actionCollectionMono)
                 .flatMap(actionCollection -> repository.archive(actionCollection).thenReturn(actionCollection))
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(deletedActionCollection -> analyticsService.sendDeleteEvent(deletedActionCollection, getAnalyticsProperties(deletedActionCollection)));
     }
 
     @Override
@@ -466,5 +471,16 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId))
                 );
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(ActionCollection savedActionCollection) {
+        final ActionCollectionDTO unpublishedCollection = savedActionCollection.getUnpublishedCollection();
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("actionCollectionName", ObjectUtils.defaultIfNull(unpublishedCollection.getName(), ""));
+        analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedActionCollection.getApplicationId(), ""));
+        analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedCollection.getPageId(), ""));
+        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedActionCollection.getWorkspaceId(), ""));
+        return analyticsProperties;
     }
 }

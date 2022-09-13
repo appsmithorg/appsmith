@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
@@ -8,7 +9,6 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
@@ -19,12 +19,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -69,7 +69,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             return Mono.justOrEmpty(mockData);
         }
 
-        return WebClient
+        return WebClientUtils
                 .create(baseUrl + "/api/v1/mocks")
                 .get()
                 .exchange()
@@ -115,6 +115,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                         " Couldn't find any mock datasource with the given name - " + mockDataSource.getName()));
             }
             Datasource datasource = new Datasource();
+            datasource.setIsMock(true);
             datasource.setWorkspaceId(mockDataSource.getWorkspaceId());
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName());

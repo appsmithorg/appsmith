@@ -28,13 +28,12 @@ describe("Entity explorer tests related to copy query", function() {
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
 
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-      cy.CheckAndUnfoldEntityItem("DATASOURCES");
+      cy.CheckAndUnfoldEntityItem("Datasources");
       cy.NavigateToActiveDSQueryPane(datasourceName);
     });
 
@@ -55,7 +54,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
-      cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+      cy.CheckAndUnfoldEntityItem("Queries/JS");
       ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(5);
@@ -73,7 +72,7 @@ describe("Entity explorer tests related to copy query", function() {
       .contains("Page1")
       .click({ force: true });
     ee.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name")
       .contains("Query1")
       .click({ force: true });
@@ -98,7 +97,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("complete uid :" + updatedName);
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
       cy.log("sliced id :" + updatedName);
-      cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+      cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.wait(1000);
       ee.ActionContextMenuByEntityName(updatedName, "Delete", "Are you sure?");

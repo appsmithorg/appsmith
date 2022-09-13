@@ -22,6 +22,15 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
 
+    /**
+     * Finds all the applications that are directly assigned to the user.
+     * This method would not return public applications.
+     *
+     * @param permission
+     * @return A Flux of applications.
+     */
+    Flux<Application> findAllUserApps(AclPermission permission);
+
     Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId);

@@ -156,10 +156,11 @@
           "applications":[
             
           ],
-          "userRoles":[
+          "users":[
             {
               "username":"b1@appsmith.com",
-              "roleName":"Administrator"
+              "permissionGroupId": "62e2291af980b36927705076",
+              "permissionGroupName":"Administrator"
             }
           ]
         },
@@ -174,7 +175,7 @@
               "publish:workspaceApplications",
               "read:workspaceApplications"
             ],
-            "name":"new org",
+            "name":"new workspace",
             "email":"b1@appsmith.com",
             "plugins":[
               {
@@ -274,17 +275,18 @@
                 "new":true
               }
             ],
-            "slug":"new-org5",
+            "slug":"new-workspace5",
             "logoUrl":"/api/v1/assets/null",
             "new":false
           },
           "applications":[
             
           ],
-          "userRoles":[
+          "users":[
             {
               "username":"b1@appsmith.com",
-              "roleName":"Administrator"
+              "permissionGroupId": "62e2291af980b36927705076",
+              "permissionGroupName":"Administrator"
             }
           ]
         }

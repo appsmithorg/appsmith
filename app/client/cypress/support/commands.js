@@ -15,32 +15,20 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
-const datasourceEditor = require("../locators/DatasourcesEditor.json");
-const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
-const queryEditor = require("../locators/QueryEditor.json");
-const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
-const LayoutPage = require("../locators/Layout.json");
-const formWidgetsPage = require("../locators/FormWidgets.json");
 import ApiEditor from "../locators/ApiEditor";
 const apiwidget = require("../locators/apiWidgetslocator.json");
-const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
-const commonLocators = require("../locators/commonlocators.json");
-import commentsLocators from "../locators/CommentsLocators";
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-const themelocator = require("../locators/ThemeLocators.json");
-import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
-const GITHUB_API_BASE = "https://api.github.com";
 const chainStart = Symbol();
 
 export const initLocalstorage = () => {
@@ -144,6 +132,7 @@ Cypress.Commands.add(
         );
         expect(firstTxt).to.equal(expectedvalue);
       });
+    cy.testSelfSignedCertificateSettingsInREST(true);
   },
 );
 
@@ -161,8 +150,24 @@ Cypress.Commands.add(
     cy.xpath("//span[text()='Send client credentials in body']").should(
       "be.visible",
     );
+    cy.testSelfSignedCertificateSettingsInREST(true);
   },
 );
+
+Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
+  cy.get(datasource.advancedSettings).click();
+  cy.get(datasource.useCertInAuth).should("not.exist");
+  cy.get(datasource.certificateDetails).should("not.exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  if (isOAuth2) {
+    cy.get(datasource.useCertInAuth).should("exist");
+  } else {
+    cy.get(datasource.useCertInAuth).should("not.exist");
+  }
+  cy.get(datasource.certificateDetails).should("exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "No");
+  cy.get(datasource.advancedSettings).click();
+});
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
   cy.get(datasource.authType).click();
@@ -380,9 +385,8 @@ Cypress.Commands.add(
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait(3000);
   cy.wait("@saveAction");
-  //cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("SelectAction", (action) => {
@@ -671,8 +675,9 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
+  // 2 is the index value of the JS Object in omnibar ui
   cy.get(".t--file-operation")
-    .eq(1)
+    .eq(2)
     .click({ force: true });
 });
 
@@ -955,7 +960,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/workspaces").as("createWorkspace");
   cy.route("POST", "api/v1/applications/import/*").as("importNewApplication");
   cy.route("GET", "api/v1/applications/export/*").as("exportApplication");
-  cy.route("GET", "/api/v1/workspaces/roles?workspaceId=*").as("getRoles");
+  cy.route("GET", "/api/v1/workspaces/*/permissionGroups").as("getRoles");
   cy.route("GET", "/api/v1/users/me").as("getMe");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
@@ -984,6 +989,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
   cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
   cy.route("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
+  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
 
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
@@ -992,6 +998,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
+  cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1003,7 +1010,7 @@ Cypress.Commands.add("startErrorRoutes", () => {
 Cypress.Commands.add("NavigateToPaginationTab", () => {
   cy.get(ApiEditor.apiTab)
     .contains("Pagination")
-    .click();
+    .click({ force: true });
   cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
 });
 
@@ -1040,10 +1047,11 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
+  cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
@@ -1076,10 +1084,11 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
+  cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
@@ -1334,14 +1343,6 @@ Cypress.Commands.add("replaceApplicationIdForInterceptPages", (fixtureFile) => {
   });
 });
 
-Cypress.Commands.add("skipCommentsOnboarding", () => {
-  cy.get(commonLocators.canvas);
-  cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
-  cy.contains("SKIP").click({ force: true });
-  cy.get("input[name='displayName']").type("Skip User");
-  cy.get("button[type='submit']").click();
-});
-
 Cypress.Commands.add(
   "paste",
   { prevSubject: true },
@@ -1364,6 +1365,7 @@ Cypress.Commands.add(
 // we would be getting the form controls by their class names and not their xpaths.
 // the xpath method is flaky and highly subjected to change.
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
+  cy.wait(2000);
   if (fieldName) {
     cy.get(fieldName).then(($field) => {
       cy.updateCodeInput($field, valueToType);
@@ -1382,11 +1384,11 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   // })
 });
 
-Cypress.Commands.add("clickButton", (btnVisibleText) => {
+Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
     .first()
     .scrollIntoView()
-    .click({ force: true });
+    .click({ force: toForceClick });
 });
 
 Cypress.Commands.add(
@@ -1528,6 +1530,17 @@ Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
   ).should("not.exist");
 });
 
+Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
+  // Give this element 10 seconds to appear
+  //cy.wait(10000)
+  cy.xpath(
+    "//div[@class='Toastify']//span[contains(text(),'" +
+      errorMsgToVerifyAbsence +
+      "')]",
+    { timeout: 0 },
+  ).should("exist");
+});
+
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.settings).click();
   cy.xpath(queryLocators.queryTimeout)
@@ -1643,6 +1656,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const isCompact = options.isCompact;
   const widgetSelector = `.t--widget-${widgetName}`;
   const labelSelector = `${widgetSelector} label`;
+  const labelContainer = `${widgetSelector} .label-container`;
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
@@ -1696,7 +1710,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .type(`${labelWidth}`);
   cy.wait(300);
   // Assert the label width
-  cy.get(labelSelector)
+  cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
   // Increase the label width
@@ -1705,7 +1719,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .click();
   // Assert the increased label width
   cy.wait(300);
-  cy.get(labelSelector)
+  cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
   // Decrease the label width
@@ -1714,7 +1728,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .click();
   cy.wait(300);
   // Assert the decreased label width
-  cy.get(labelSelector)
+  cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
 
@@ -1732,6 +1746,145 @@ Cypress.Commands.add("saveLocalStorageCache", () => {
 Cypress.Commands.add("restoreLocalStorageCache", () => {
   Object.keys(LOCAL_STORAGE_MEMORY).forEach((key) => {
     localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
+  });
+});
+
+Cypress.Commands.add("StopTheContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker stop " + containerName,
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("StopAllContainer", (path) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker kill $(docker ps -q)",
+    },
+  }).then((res) => {
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("StartTheContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker start " + containerName,
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add(
+  "CreateAContainer",
+  (url, path, version, containerName) => {
+    let comm =
+      "cd " +
+      path +
+      ";docker run -d --name " +
+      containerName +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
+      version;
+
+    cy.log(comm);
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
+      },
+    }).then((res) => {
+      cy.log(res.body.stderr);
+      cy.log(res.body.stdout);
+      expect(res.status).equal(200);
+    });
+  },
+);
+
+Cypress.Commands.add(
+  "CreateEEContainer",
+  (url, path, version, containerName) => {
+    let comm =
+      "cd " +
+      path +
+      ";docker run -d --name " +
+      containerName +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
+      version;
+
+    cy.log(comm);
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
+      },
+    }).then((res) => {
+      cy.log(res.body.stderr);
+      cy.log(res.body.stdout);
+      expect(res.status).equal(200);
+    });
+  },
+);
+
+Cypress.Commands.add("GetPath", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd:
+        "docker inspect -f '{{ .Mounts }}' " +
+        containerName +
+        "|awk '{print $2}'",
+    },
+  }).then((res) => {
+    return res.body.stdout;
+  });
+});
+
+Cypress.Commands.add("GetCWD", (path) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "pwd",
+    },
+  }).then((res) => {
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker logs " + containerName + " 2>&1 | grep 'APPLIED'",
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+    // expect(res.body.stdout).not.equal("");
   });
 });
 

@@ -3,7 +3,7 @@ import editorReducer from "./editorReducer";
 import errorReducer from "./errorReducer";
 import propertyPaneReducer from "./propertyPaneReducer";
 import appViewReducer from "./appViewReducer";
-import applicationsReducer from "./applicationsReducer";
+import applicationsReducer from "@appsmith/reducers/uiReducers/applicationsReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
@@ -26,13 +26,11 @@ import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import globalSearchReducer from "./globalSearchReducer";
 import releasesReducer from "./releasesReducer";
-import commentsReducer from "./commentsReducer/commentsReducer";
 import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
 import tourReducer from "./tourReducer";
 import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import jsPaneReducer from "./jsPaneReducer";
-import notificationsReducer from "./notificationsReducer";
 import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import gitSyncReducer from "./gitSyncReducer";
@@ -41,6 +39,7 @@ import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
 import appThemingReducer from "./appThemingReducer";
 import mainCanvasReducer from "./mainCanvasReducer";
+import guidedTourReducer from "./guidedTourReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -69,15 +68,14 @@ const uiReducer = combineReducers({
   theme: themeReducer,
   modalAction: modalActionReducer,
   onBoarding: onBoardingReducer,
+  guidedTour: guidedTourReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
-  comments: commentsReducer,
   websocket: websocketReducer,
   debugger: debuggerReducer,
   tour: tourReducer,
   jsPane: jsPaneReducer,
   jsObjectName: jsObjectNameReducer,
-  notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
   gitSync: gitSyncReducer,
   appCollab: appCollabReducer,

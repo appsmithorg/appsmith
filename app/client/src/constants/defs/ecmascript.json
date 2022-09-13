@@ -1227,11 +1227,6 @@
     "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/isFinite",
     "!doc": "Determines whether the passed value is a finite number."
   },
-  "eval": {
-    "!type": "fn(code: string) -> ?",
-    "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/eval",
-    "!doc": "Evaluates JavaScript code represented as a string."
-  },
   "encodeURI": {
     "!type": "fn(uri: string) -> string",
     "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/encodeURI",

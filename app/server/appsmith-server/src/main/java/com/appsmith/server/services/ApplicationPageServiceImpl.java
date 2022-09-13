@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl implements ApplicationPageService {
 
-    public ApplicationPageServiceImpl(ApplicationService applicationService,
+    public ApplicationPageServiceImpl(WorkspaceService workspaceService,
+                                      ApplicationService applicationService,
                                       SessionUserService sessionUserService,
                                       WorkspaceRepository workspaceRepository,
                                       LayoutActionService layoutActionService,
@@ -29,7 +30,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       ThemeService themeService,
                                       ResponseUtils responseUtils) {
 
-        super(applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
+        super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
                 gitFileUtils, commentThreadRepository, themeService, responseUtils);
     }

@@ -44,7 +44,7 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "FORM_BUTTON_WIDGET",
+                  type: "BUTTON_WIDGET",
                   size: {
                     rows: 4,
                     cols: 16,
@@ -63,7 +63,7 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "FORM_BUTTON_WIDGET",
+                  type: "BUTTON_WIDGET",
                   size: {
                     rows: 4,
                     cols: 16,
@@ -93,6 +93,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

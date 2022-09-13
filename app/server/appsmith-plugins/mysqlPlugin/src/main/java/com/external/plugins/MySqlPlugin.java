@@ -73,6 +73,7 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class MySqlPlugin extends BasePlugin {
 
     private static final String DATE_COLUMN_TYPE_NAME = "date";
@@ -137,7 +138,6 @@ public class MySqlPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
@@ -314,8 +314,7 @@ public class MySqlPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
-                                "execution result");
+                        log.debug("In the MySqlPlugin, got action execution result");
                         return result;
                     })
                     .onErrorResume(error -> {
@@ -360,7 +359,7 @@ public class MySqlPlugin extends BasePlugin {
                 return Flux.from(connectionStatement.execute());
             }
 
-            System.out.println("Query : " + query);
+            log.debug("Query : {}", query);
 
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
             try {
@@ -671,7 +670,7 @@ public class MySqlPlugin extends BasePlugin {
                         final String errorMessage = error.getMessage() == null
                                 ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
                                 : error.getMessage();
-                        System.out.println("Error when testing MySQL datasource. " + errorMessage);
+                        log.debug("Error when testing MySQL datasource. {}", errorMessage);
                         return Mono.just(new DatasourceTestResult(errorMessage));
                     })
                     .subscribeOn(scheduler);

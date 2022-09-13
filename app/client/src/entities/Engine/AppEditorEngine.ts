@@ -14,6 +14,7 @@ import {
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
 import { fetchJSCollections } from "actions/jsActionActions";
+import { loadGuidedTourInit } from "actions/onboardingActions";
 import {
   fetchAllPageEntityCompletion,
   fetchPage,
@@ -28,7 +29,7 @@ import {
   ApplicationPayload,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { all, call, put, select } from "redux-saga/effects";
@@ -40,7 +41,12 @@ import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { AppEnginePayload } from ".";
+import AppEngine, {
+  ActionsNotFoundError,
+  AppEnginePayload,
+  PluginFormConfigsNotFoundError,
+  PluginsNotFoundError,
+} from ".";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -114,7 +120,10 @@ export default class AppEditorEngine extends AppEngine {
       failureActionEffects,
     );
 
-    if (!allActionCalls) return;
+    if (!allActionCalls)
+      throw new ActionsNotFoundError(
+        `Unable to fetch actions for the application: ${applicationId}`,
+      );
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
@@ -147,7 +156,8 @@ export default class AppEditorEngine extends AppEngine {
       errorActions,
     );
 
-    if (!initActionCalls) return;
+    if (!initActionCalls)
+      throw new PluginsNotFoundError("Unable to fetch plugins");
 
     const pluginFormCall: boolean = yield call(
       failFastApiCalls,
@@ -155,7 +165,10 @@ export default class AppEditorEngine extends AppEngine {
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
-    if (!pluginFormCall) return;
+    if (!pluginFormCall)
+      throw new PluginFormConfigsNotFoundError(
+        "Unable to fetch plugin form configs",
+      );
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
@@ -173,6 +186,7 @@ export default class AppEditorEngine extends AppEngine {
       appId: currentApplication.id,
       appName: currentApplication.name,
     });
+    yield put(loadGuidedTourInit());
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

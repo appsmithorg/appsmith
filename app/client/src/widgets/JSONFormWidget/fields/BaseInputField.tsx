@@ -23,6 +23,7 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import {
+  ActionUpdateDependency,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
@@ -298,6 +299,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
           event: {
             type: EventType.ON_TEXT_CHANGE,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },

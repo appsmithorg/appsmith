@@ -1,4 +1,8 @@
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  DependencyMap,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
@@ -16,12 +20,13 @@ import {
   getDataTreeWithoutPrivateWidgets,
   isPrivateEntityPath,
   makeParentsDependOnChildren,
+  removeLintErrorsFromEntityProperty,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
-import _, { flatten } from "lodash";
-import { overrideWidgetProperties } from "./evaluationUtils";
+import _, { get, flatten } from "lodash";
+import { overrideWidgetProperties, findDatatype } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
@@ -30,6 +35,7 @@ import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
+import { Severity } from "entities/AppsmithConsole";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -124,6 +130,25 @@ const testDataTree: Record<string, DataTreeWidget> = {
     ...BASE_WIDGET,
     privateWidgets: {
       Text3: true,
+    },
+  },
+  Button1: {
+    ...BASE_WIDGET,
+    text: "undefined",
+    __evaluation__: {
+      errors: {
+        text: [
+          {
+            errorType: PropertyEvaluationErrorType.LINT,
+            raw:
+              " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+            severity: Severity.ERROR,
+            errorMessage: "'Api24' is not defined.",
+            errorSegment: " const result = Api24",
+            originalBinding: "Api24",
+          },
+        ],
+      },
     },
   },
 };
@@ -242,6 +267,25 @@ describe("privateWidgets", () => {
         ...BASE_WIDGET,
         privateWidgets: {
           Text3: true,
+        },
+      },
+      Button1: {
+        ...BASE_WIDGET,
+        text: "undefined",
+        __evaluation__: {
+          errors: {
+            text: [
+              {
+                errorType: PropertyEvaluationErrorType.LINT,
+                raw:
+                  " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+                severity: Severity.ERROR,
+                errorMessage: "'Api24' is not defined.",
+                errorSegment: " const result = Api24",
+                originalBinding: "Api24",
+              },
+            ],
+          },
         },
       },
     };
@@ -365,7 +409,7 @@ describe("translateDiffEvent", () => {
       },
       {
         payload: {
-          propertyPath: "",
+          propertyPath: "Widget2.name",
           value: "",
         },
         event: DataTreeDiffEvent.NOOP,
@@ -392,7 +436,7 @@ describe("translateDiffEvent", () => {
     const expectedTranslations: DataTreeDiff[] = [
       {
         payload: {
-          propertyPath: "",
+          propertyPath: "Widget2.name",
           value: "",
         },
         event: DataTreeDiffEvent.NOOP,
@@ -402,7 +446,6 @@ describe("translateDiffEvent", () => {
     const actualTranslations = flatten(
       diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
     );
-
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
@@ -709,5 +752,65 @@ describe("overrideWidgetProperties", () => {
       //@ts-expect-error: selectedRowIndex does not exits on type DataTreeEntity
       expect(currentTree.Table1.selectedRowIndex).toStrictEqual(0);
     });
+  });
+});
+
+describe("removeLintErrorsFromEntityProperty", () => {
+  it("returns correct result", function() {
+    const dataTree: DataTree = { ...testDataTree };
+    const path = "Button1.text";
+    removeLintErrorsFromEntityProperty(dataTree, path);
+    expect(get(dataTree, `Button1.${EVAL_ERROR_PATH}[text]`)).toEqual([]);
+  });
+});
+
+//A set of test cases to evaluate the logic for finding a given value's datatype
+describe("Evaluated Datatype of a given value", () => {
+  it("1. Numeric datatypes", () => {
+    expect(findDatatype(37)).toBe("number");
+    expect(findDatatype(3.14)).toBe("number");
+    expect(findDatatype(Math.LN2)).toBe("number");
+    expect(findDatatype(Infinity)).toBe("number");
+    expect(findDatatype(Number(1))).toBe("number");
+    expect(findDatatype(new Number(1))).toBe("number");
+    expect(findDatatype("1")).not.toBe("number");
+  });
+  it("2. String datatypes", () => {
+    expect(findDatatype("")).toBe("string");
+    expect(findDatatype("bla")).toBe("string");
+    expect(findDatatype(String("abc"))).toBe("string");
+    expect(findDatatype(new String("abc"))).toBe("string");
+    expect(findDatatype(parseInt("1"))).not.toBe("string");
+  });
+  it("3. Boolean datatypes", () => {
+    expect(findDatatype(true)).toBe("boolean");
+    expect(findDatatype(false)).toBe("boolean");
+    expect(findDatatype(Boolean(true))).toBe("boolean");
+    expect(findDatatype(Boolean(false))).toBe("boolean");
+    expect(findDatatype(new Boolean(false))).toBe("boolean");
+    expect(findDatatype("true")).not.toBe("boolean");
+  });
+  it("4. Objects datatypes", () => {
+    expect(findDatatype(null)).toBe("null");
+    expect(findDatatype(undefined)).toBe("undefined");
+    let tempDecVar;
+    expect(findDatatype(tempDecVar)).toBe("undefined");
+    expect(findDatatype({ a: 1 })).toBe("object");
+    expect(findDatatype({})).toBe("object");
+    expect(findDatatype(new Date())).toBe("date");
+    const func = function() {
+      return "hello world";
+    };
+    expect(findDatatype(func)).toBe("function");
+    expect(findDatatype(Math.sin)).toBe("function");
+    expect(findDatatype(/test/i)).toBe("regexp");
+  });
+  it("5. Array datatypes", () => {
+    expect(findDatatype([1, 2, 3])).toBe("array");
+    expect(findDatatype([])).toBe("array");
+    expect(findDatatype(["a", true, 3, null])).toBe("array");
+    expect(findDatatype([1, 2, 3])).toBe("array");
+    expect(findDatatype(Array.of("a", "b", "c"))).toBe("array");
+    expect(findDatatype("a, b, c")).not.toBe("array");
   });
 });

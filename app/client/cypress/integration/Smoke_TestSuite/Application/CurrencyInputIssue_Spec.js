@@ -36,7 +36,7 @@ describe("Currency Input Issue", function() {
         });
         cy.wait(2000);
       } else {
-        homePage.AssertImport();
+        homePage.AssertImportToast();
       }
     });
   });

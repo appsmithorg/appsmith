@@ -734,7 +734,7 @@ public class FilterDataServiceTest {
                 "    \"email id\": \"michael.lawson@reqres.in\",\n" +
                 "    \"userName\": \"Michael Lawson\",\n" +
                 "    \"productName\": \"Chicken Sandwich\",\n" +
-                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderAmount\": \"USD 4.99\",\n" +
                 "    \"date\": \"2021-09-01\"\n" +
                 "  },\n" +
                 "  {\n" +
@@ -770,9 +770,11 @@ public class FilterDataServiceTest {
             Condition condition = parseWhereClause(unparsedWhereClause);
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
-                    null, null));
+                    null, null), new HashMap<>());
 
-            assertEquals(filteredData.size(), 3);
+            assertEquals(3, filteredData.size());
+            assertEquals("USD 4.99", filteredData.get(0).get("orderAmount").asText());
+            assertEquals("9.99", filteredData.get(1).get("orderAmount").asText());
 
         } catch (IOException e) {
             e.printStackTrace();

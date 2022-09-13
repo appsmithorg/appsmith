@@ -7,14 +7,16 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { AppTheme } from "entities/AppTheming";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
-  sectionName: string;
+  sectionName: string | ((props: WidgetProps, propertyPath: string) => string);
   id?: string;
   children: PropertyPaneConfig[];
+  collapsible?: boolean;
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
@@ -32,6 +34,8 @@ export type PanelConfig = {
   titlePropertyName: string;
   panelIdPropertyName: string;
   children: PropertyPaneConfig[];
+  contentChildren?: PropertyPaneConfig[];
+  styleChildren?: PropertyPaneConfig[];
   updateHook: (
     props: any,
     propertyPath: string,
@@ -41,7 +45,7 @@ export type PanelConfig = {
 
 export type PropertyPaneControlConfig = {
   id?: string;
-  label: string;
+  label: string | ((props: WidgetProps, propertyPath: string) => string);
   propertyName: string;
   helpText?: string;
   isJSConvertible?: boolean;

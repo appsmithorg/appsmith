@@ -1,4 +1,4 @@
-import Checkbox, { CheckboxProps } from "components/ads/Checkbox";
+import { Checkbox, CheckboxProps } from "design-system";
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
 

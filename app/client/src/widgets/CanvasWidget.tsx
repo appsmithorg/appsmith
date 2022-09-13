@@ -3,11 +3,12 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { CanvasWidgetStructure } from "./constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 class CanvasWidget extends ContainerWidget {
@@ -43,29 +44,19 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
     if (!childWidgetData) return null;
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
 
-    // We don't render invisible widgets in view mode
-    if (
-      this.props.renderMode === RenderModes.PAGE &&
-      !childWidgetData.isVisible
-    ) {
-      return null;
-    }
+    const childWidget = { ...childWidgetData };
 
     const snapSpaces = this.getSnapSpaces();
 
-    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    if (this.props.noPad) childWidgetData.noContainerOffset = true;
-    childWidgetData.parentId = this.props.widgetId;
+    childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
+    childWidget.parentRowSpace = snapSpaces.snapRowSpace;
+    if (this.props.noPad) childWidget.noContainerOffset = true;
+    childWidget.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
   getPageView() {

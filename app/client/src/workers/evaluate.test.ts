@@ -66,25 +66,8 @@ describe("evaluateSync", () => {
     const response1 = evaluate("wrongJS", {}, {}, false);
     expect(response1).toStrictEqual({
       result: undefined,
+      logs: [],
       errors: [
-        {
-          ch: 1,
-          code: "W117",
-          errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "    const result = wrongJS",
-          errorType: "LINT",
-          line: 0,
-          raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
-  }
-  closedFunction.call(THIS_CONTEXT)
-  `,
-          severity: "error",
-          originalBinding: "wrongJS",
-          variables: ["wrongJS", undefined, undefined, undefined],
-        },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
           errorType: "PARSE",
@@ -103,6 +86,7 @@ describe("evaluateSync", () => {
     const response2 = evaluate("{}.map()", {}, {}, false);
     expect(response2).toStrictEqual({
       result: undefined,
+      logs: [],
       errors: [
         {
           errorMessage: "TypeError: {}.map is not a function",
@@ -130,6 +114,7 @@ describe("evaluateSync", () => {
     const response = evaluate(js, dataTree, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
+      logs: [],
       errors: [
         {
           errorMessage: "TypeError: setTimeout is not a function",
@@ -212,7 +197,7 @@ describe("evaluateAsync", () => {
       requestId: "TEST_REQUEST",
       responseData: {
         finished: true,
-        result: { errors: [], result: 123, triggers: [] },
+        result: { errors: [], logs: [], result: 123, triggers: [] },
       },
       type: "PROCESS_TRIGGER",
     });
@@ -240,6 +225,7 @@ describe("evaluateAsync", () => {
           ],
           triggers: [],
           result: undefined,
+          logs: [],
         },
       },
       type: "PROCESS_TRIGGER",

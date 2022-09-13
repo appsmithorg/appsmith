@@ -11,7 +11,7 @@ describe("Theme validation usecases", function() {
 
     // open property pane
     cy.openPropertyPane("buttonwidget");
-
+    cy.moveToStyleTab();
     // change color to red
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })

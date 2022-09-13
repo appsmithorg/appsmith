@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any, query: string;
+let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -11,16 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Array Datatype tests", function() {
   before(() => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Postgres " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -31,8 +22,8 @@ describe("Array Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(-31, "Primary");
-    propPane.ChangeColor(-27, "Background");
+    propPane.ChangeThemeColor(-31, "Primary");
+    propPane.ChangeThemeColor(-27, "Background");
   });
 
   it("1. Creating table query - arraytypes", () => {
@@ -92,7 +83,7 @@ describe("Array Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });
 
@@ -187,7 +178,7 @@ describe("Array Datatype tests", function() {
   it("8. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyArrayFunctions");
 
@@ -491,7 +482,7 @@ describe("Array Datatype tests", function() {
     });
 
     //Verifying || with NULL
-    query = `SELECT ARRAY[1, 2] || NULL as "|| with NULL", array_append(ARRAY[1, 2], NULL) as "array_append";;`;
+    query = `SELECT ARRAY[1, 2] || NULL as "|| with NULL", array_append(ARRAY[1, 2], NULL) as "array_append";`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["|| with NULL", "array_append"]);
@@ -593,7 +584,7 @@ describe("Array Datatype tests", function() {
     //Verifying error
     query = `SELECT ARRAY[1, 2] || '7';`;
     dataSources.EnterQuery(query);
-    cy.get(locator._codeMirrorTextArea).focus();
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._queryError)
@@ -604,7 +595,7 @@ describe("Array Datatype tests", function() {
       );
 
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("9. Deleting records - arraytypes", () => {
@@ -651,26 +642,26 @@ describe("Array Datatype tests", function() {
 
   it("12. Validate Drop of the Newly Created - arraytypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Queries/JS", false);
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(
       ee._entityNameInExplorer("public.arraytypes"),
     );
     ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("DATASOURCES", false);
+    ee.ExpandCollapseEntity("Datasources", false);
   });
 
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
       "deleteAllRecords",
@@ -691,7 +682,7 @@ describe("Array Datatype tests", function() {
   it("14. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

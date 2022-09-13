@@ -57,9 +57,7 @@
       "gitSyncId": "61fad216fb6b230875cd65cd_61fad347fb6b230875cd65dc",
       "name": "movies",
       "pluginId": "mongo-plugin",
-      "invalids": [
-        "Missing endpoint(s)."
-      ],
+      "invalids": ["Missing endpoint(s)."],
       "messages": [],
       "isConfigured": false,
       "isValid": false,
@@ -120,10 +118,7 @@
   ],
   "pageList": [
     {
-      "userPermissions": [
-        "read:pages",
-        "manage:pages"
-      ],
+      "userPermissions": ["read:pages", "manage:pages"],
       "gitSyncId": "6200bd7937230472baba663b_6200bd7937230472baba663d",
       "unpublishedPage": {
         "name": "Page1",
@@ -440,10 +435,7 @@
       "new": true
     },
     {
-      "userPermissions": [
-        "read:pages",
-        "manage:pages"
-      ],
+      "userPermissions": ["read:pages", "manage:pages"],
       "gitSyncId": "62431e377dac2c35c9824849_6243e20daf992c53f162c10f",
       "unpublishedPage": {
         "name": "Page2",
@@ -482,10 +474,7 @@
       "new": true
     },
     {
-      "userPermissions": [
-        "read:pages",
-        "manage:pages"
-      ],
+      "userPermissions": ["read:pages", "manage:pages"],
       "gitSyncId": "62431e377dac2c35c9824849_6243e20eaf992c53f162c112",
       "unpublishedPage": {
         "name": "Page3",
@@ -524,21 +513,13 @@
       "new": true
     }
   ],
-  "pageOrder": [
-    "Page1",
-    "Page2",
-    "Page3"
-  ],
+  "pageOrder": ["Page1", "Page2", "Page3"],
   "publishedDefaultPageName": "Page1",
   "unpublishedDefaultPageName": "Page1",
   "actionList": [
     {
       "id": "Page1_moviesQuery",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "6200bd7937230472baba663b_6204a71846c1c7358f7eeea3",
       "pluginType": "DB",
       "pluginId": "mongo-plugin",
@@ -646,11 +627,7 @@
     },
     {
       "id": "Page1_gsheetAPI",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "6200bd7937230472baba663b_6204a70746c1c7358f7eeea1",
       "pluginType": "SAAS",
       "pluginId": "google-sheets-plugin",
@@ -726,9 +703,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ]
         },
@@ -814,9 +789,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ]
         },
@@ -834,11 +807,7 @@
     },
     {
       "id": "Page1_Query1",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "6200bd7937230472baba663b_6204a77646c1c7358f7eeea8",
       "pluginType": "DB",
       "pluginId": "postgres-plugin",
@@ -910,11 +879,7 @@
     },
     {
       "id": "Page1_nonAwsS3",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "6200bd7937230472baba663b_623d55fa1d2ab8254f017303",
       "pluginType": "DB",
       "pluginId": "amazons3-plugin",
@@ -1098,11 +1063,7 @@
     },
     {
       "id": "Page1_Api1",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "6200bd7937230472baba663b_6204a73446c1c7358f7eeea6",
       "pluginType": "SAAS",
       "pluginId": "google-sheets-plugin",
@@ -1178,9 +1139,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ]
         },
@@ -1266,9 +1225,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ]
         },
@@ -1286,11 +1243,7 @@
     },
     {
       "id": "Page1_testImport",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "6200bd7937230472baba663b_62431cfa7dac2c35c9824846",
       "pluginType": "API",
       "pluginId": "restapi-plugin",
@@ -1303,9 +1256,7 @@
           "datasourceConfiguration": {
             "url": "https://mock-api.appsmith.com"
           },
-          "invalids": [
-            "Missing organization id. Please enter one."
-          ],
+          "invalids": ["Missing workspace id. Please enter one."],
           "messages": [],
           "isValid": false,
           "new": true
@@ -1394,11 +1345,7 @@
     },
     {
       "id": "Page1_s3Query",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "6200bd7937230472baba663b_623d54cc1d2ab8254f0172fe",
       "pluginType": "DB",
       "pluginId": "amazons3-plugin",
@@ -1582,11 +1529,7 @@
     },
     {
       "id": "Page1_jsObject.myFun2",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "62431e377dac2c35c9824849_6243f342ccfaea795b411e47",
       "pluginType": "JS",
       "pluginId": "js-plugin",
@@ -1643,11 +1586,7 @@
     },
     {
       "id": "Page1_jsObject.myFun1",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "62431e377dac2c35c9824849_6243f342ccfaea795b411e48",
       "pluginType": "JS",
       "pluginId": "js-plugin",
@@ -1682,9 +1621,7 @@
         "isValid": true,
         "invalids": [],
         "messages": [],
-        "jsonPathKeys": [
-          "() => {\n\t\t//write code here\n\t}"
-        ],
+        "jsonPathKeys": ["() => {\n\t\t//write code here\n\t}"],
         "confirmBeforeExecute": false,
         "userPermissions": [],
         "validName": "jsObject.myFun1"
@@ -1706,11 +1643,7 @@
   "actionCollectionList": [
     {
       "id": "Page1_jsObject",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "62431e377dac2c35c9824849_6243f343ccfaea795b411e4b",
       "unpublishedCollection": {
         "name": "jsObject",

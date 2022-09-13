@@ -1,6 +1,6 @@
-import Button, { Category, Size } from "components/ads/Button";
 import React, { useCallback } from "react";
-import { AppState } from "reducers";
+import { Button, Category, Size } from "design-system";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
@@ -102,4 +102,4 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   );
 }
 
-export default ConnectDataCTA;
+export default React.memo(ConnectDataCTA);

@@ -82,10 +82,27 @@ async function listLocalBackupFiles() {
   return backupFiles;
 }
 
+
+async function updateLastBackupErrorMailSentInMilliSec(ts) {
+  await fsPromises.mkdir(Constants.BACKUP_PATH, { recursive: true });
+  await fsPromises.writeFile(Constants.LAST_ERROR_MAIL_TS, ts.toString());
+}
+
+async function getLastBackupErrorMailSentInMilliSec() {
+  try {
+    const ts = await fsPromises.readFile(Constants.LAST_ERROR_MAIL_TS);
+    return parseInt(ts, 10);
+  } catch (error) {
+    return 0;
+  }
+}
+
 module.exports = {
   showHelp,
   start,
   stop,
   execCommand,
   listLocalBackupFiles,
+  updateLastBackupErrorMailSentInMilliSec,
+  getLastBackupErrorMailSentInMilliSec,
 };

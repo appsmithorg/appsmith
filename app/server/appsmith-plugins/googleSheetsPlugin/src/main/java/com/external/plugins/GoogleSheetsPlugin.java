@@ -16,6 +16,7 @@ import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.util.WebClientUtils;
 import com.external.config.ExecutionMethod;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.MethodConfig;
@@ -49,6 +50,7 @@ import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInForm
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class GoogleSheetsPlugin extends BasePlugin {
 
     // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
@@ -62,7 +64,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void>, SmartSubstitutionInterface {
 
@@ -157,12 +158,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Convert unreadable map to a DTO
             MethodConfig methodConfig = new MethodConfig(formData);
 
-            // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
-
             executionMethod.validateExecutionMethodRequest(methodConfig);
 
-            WebClient client = webClientBuilder
+            // Initializing webClient to be used for http call
+            WebClient client = WebClientUtils.builder()
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
                     .build();
 
@@ -242,7 +241,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 })
                                 .onErrorResume(e -> {
                                     errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                                    System.out.println(e.getMessage());
+                                    log.debug("Received error on Google Sheets action execution", e);
                                     return Mono.just(errorResult);
                                 });
                     })

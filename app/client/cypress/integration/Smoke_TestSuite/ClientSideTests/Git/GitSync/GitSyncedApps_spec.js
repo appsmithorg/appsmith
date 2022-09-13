@@ -122,15 +122,24 @@ describe("Git sync apps", function() {
     cy.wait(1000);
     // create a get api call
     cy.NavigateToAPI_Panel();
+    cy.wait(2000);
     cy.CreateAPI("get_data");
     // creating get request using echo
-    cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/get");
+    cy.get(apiwidget.resourceUrl)
+      .first()
+      .click({ force: true })
+      .type("https://mock-api.appsmith.com/echo/get", {
+        parseSpecialCharSequences: false,
+      });
+    //.type("{esc}}");
+    cy.wait(5000);
     cy.get(apiwidget.headerKey).type("info");
     cy.xpath("//span[text()='Key']").click();
     // entering the data in header
     cy.get(apiwidget.headerValue).type("This is a test", {
       parseSpecialCharSequences: false,
     });
+    cy.wait(2000);
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
     cy.get(".bp3-icon-chevron-left").click();
@@ -163,15 +172,15 @@ describe("Git sync apps", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type("{{get_data.data.headers.info}}", {
         parseSpecialCharSequences: false,
@@ -270,7 +279,7 @@ describe("Git sync apps", function() {
     cy.createJSObject('return "Success";');
     cy.wait(2000);
     // create postgres select query
-    //cy.CheckAndUnfoldEntityItem("DATASOURCES");
+    //cy.CheckAndUnfoldEntityItem("Datasources");
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.get(datasource.datasourceCard)
@@ -279,7 +288,7 @@ describe("Git sync apps", function() {
       .should("be.visible")
       .closest(datasource.datasourceCard)
       .within(() => {
-        cy.get(datasource.createQuerty).click();
+        cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type("get_users");
     cy.get(queryLocators.switch)
@@ -298,14 +307,14 @@ describe("Git sync apps", function() {
     cy.WaitAutoSave();
     cy.runQuery();
     // create a new page
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("Child_Page");
     cy.wait(1000);
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
     // move jsObject and postgres query to new page
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     ee.ActionContextMenuByEntityName("get_users", "Move to page", "Child_Page");
     cy.wait(2000);
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
@@ -318,15 +327,15 @@ describe("Git sync apps", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type("{{get_users.data[0].name}}", {
         parseSpecialCharSequences: false,
@@ -435,7 +444,7 @@ describe("Git sync apps", function() {
     cy.switchGitBranch(tempBranch);
     cy.wait(2000);
     //  clone the Child_Page
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-item:contains(Child_Page)`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
@@ -446,7 +455,7 @@ describe("Git sync apps", function() {
       201,
     );
     // change cloned page visiblity to hidden
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
 
     cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
@@ -494,11 +503,11 @@ describe("Git sync apps", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
     // create another branch and verify deleted page doesn't exist on it
     cy.createGitBranch(tempBranch0);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
   });
   it("10. Import app from git and verify page order should not change", () => {
@@ -514,7 +523,7 @@ describe("Git sync apps", function() {
     cy.importAppFromGit(repoName);
     cy.wait(2000);
     // verify page order remains same as in orignal app
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(".t--entity-item")
       .eq(1)
       .contains("crudpage_1");

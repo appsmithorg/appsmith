@@ -8,7 +8,11 @@ import Field from "widgets/JSONFormWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
-import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
+import {
+  ActionUpdateDependency,
+  BaseFieldComponentProps,
+  FieldComponentBaseProps,
+} from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
@@ -79,6 +83,7 @@ function RadioGroupField({
           event: {
             type: EventType.ON_OPTION_CHANGE,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },

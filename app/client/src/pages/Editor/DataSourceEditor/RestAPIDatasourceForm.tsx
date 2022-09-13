@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
-import { DATASOURCE_REST_API_FORM } from "constants/forms";
+import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
@@ -16,12 +16,12 @@ import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
   deleteDatasource,
@@ -845,10 +845,13 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2AdvancedSettings = () => {
-    const { authentication, authType } = this.props.formData;
+    const { authentication, authType, connection } = this.props.formData;
     const isGrantTypeAuthorizationCode =
       _.get(authentication, "grantType") === GrantType.AuthorizationCode;
     const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
+    const isConnectSelfSigned =
+      _.get(connection, "ssl.authType") === SSLType.SELF_SIGNED_CERTIFICATE;
+
     return (
       <>
         {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
@@ -919,6 +922,16 @@ class DatasourceRestAPIEditor extends React.Component<
             "DEFAULT",
           )}
         </FormInputContainer>
+        {isAuthenticationTypeOAuth2 && isConnectSelfSigned && (
+          <FormInputContainer data-replay-id={btoa("selfsignedcert")}>
+            {this.renderCheckboxViaFormControl(
+              "authentication.useSelfSignedCert",
+              "Use Self-Signed Certificate for Authorization requests",
+              "",
+              false,
+            )}
+          </FormInputContainer>
+        )}
       </>
     );
   };
@@ -1124,6 +1137,30 @@ class DatasourceRestAPIEditor extends React.Component<
         config={config}
         formName={DATASOURCE_REST_API_FORM}
         multipleConfig={[]}
+      />
+    );
+  }
+
+  renderCheckboxViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+  ) {
+    return (
+      <FormControl
+        config={{
+          id: "",
+          isValid: false,
+          isRequired: isRequired,
+          controlType: "CHECKBOX",
+          configProperty: configProperty,
+          label: label,
+          conditionals: {},
+          placeholderText: placeholderText,
+          formName: DATASOURCE_REST_API_FORM,
+        }}
+        formName={DATASOURCE_REST_API_FORM}
       />
     );
   }

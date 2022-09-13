@@ -8,18 +8,19 @@ set -o noglob
 declare -a proxy_args
 proxy_configured=0
 
-if [[ ${HTTP_PROXY-} =~ ^http://(.*):(.*)$ && ${BASH_REMATCH[2]} != 0 ]]; then
+if [[ ${HTTP_PROXY-} =~ ^http://(.*):([[:digit:]]*)/?$ && ${BASH_REMATCH[2]} != 0 ]]; then
   proxy_args+=(-Dhttp.proxyHost="${BASH_REMATCH[1]}" -Dhttp.proxyPort="${BASH_REMATCH[2]}")
   proxy_configured=1
 fi
 
-if [[ ${HTTPS_PROXY-} =~ ^https?://(.*):(.*)$ && ${BASH_REMATCH[2]} != 0 ]]; then
+if [[ ${HTTPS_PROXY-} =~ ^https?://(.*):([[:digit:]]*)/?$ && ${BASH_REMATCH[2]} != 0 ]]; then
   proxy_args+=(-Dhttps.proxyHost="${BASH_REMATCH[1]}" -Dhttps.proxyPort="${BASH_REMATCH[2]}")
   proxy_configured=1
 fi
 
-if ! isset NO_PROXY; then
+if [[ -z "${NO_PROXY-}" ]]; then
   # A default for this value is set in entrypoint.sh script.
+  # If this variable is not set, just set it to empty string.
   NO_PROXY=""
 fi
 

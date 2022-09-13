@@ -2,7 +2,7 @@ import { render, screen } from "test/testUtils";
 import React from "react";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import Group from "./group";
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";
 
 let container: any = null;
