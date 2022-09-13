@@ -113,7 +113,7 @@ export const BasicCell = React.forwardRef(
           onEdit();
         }
       },
-      [onEdit],
+      [onEdit, disabledEditIcon, isCellEditable],
     );
 
     return (
