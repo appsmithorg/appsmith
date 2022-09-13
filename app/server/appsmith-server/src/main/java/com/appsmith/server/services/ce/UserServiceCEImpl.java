@@ -534,7 +534,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
             if (commonConfig.isSignupDisabled()) {
                 // Signing up has been globally disabled. Reject.
-                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED));
+                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
             }
 
             final List<String> allowedDomains = user.getSource() == LoginSource.FORM
@@ -546,7 +546,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     && !allowedDomains.contains(user.getEmail().split("@")[1])) {
                 // There is an explicit whitelist of email address domains that should be allowed. If the new email is
                 // of a different domain, reject.
-                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED));
+                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
             }
         } else {
             isAdminUser = true;
