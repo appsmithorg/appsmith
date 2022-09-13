@@ -611,7 +611,7 @@ export default {
               value: "BOTTOM",
             },
           ],
-          defaultValue: "LEFT",
+          defaultValue: "CENTER",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
           dependencies: ["primaryColumns", "columnOrder"],

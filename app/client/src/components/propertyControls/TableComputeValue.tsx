@@ -98,7 +98,10 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     const tableId = this.props.widgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? this.getInputComputedValue(propertyValue, tableId)
+        ? ComputeTablePropertyControlV2.getInputComputedValue(
+            propertyValue,
+            tableId,
+          )
         : propertyValue
         ? propertyValue
         : defaultValue;
@@ -130,7 +133,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     );
   }
 
-  getInputComputedValue = (propertyValue: string, tableId: string) => {
+  static getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
       `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( `
         .length,

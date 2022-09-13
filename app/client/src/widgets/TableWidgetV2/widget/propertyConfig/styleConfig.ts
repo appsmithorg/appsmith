@@ -129,7 +129,7 @@ export default [
             value: "BOTTOM",
           },
         ],
-        defaultValue: "LEFT",
+        defaultValue: "CENTER",
         isBindProperty: false,
         isTriggerProperty: false,
       },
