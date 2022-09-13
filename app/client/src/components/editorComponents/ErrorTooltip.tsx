@@ -34,6 +34,7 @@ const Wrapper = styled.div`
 `;
 
 interface Props {
+  boundary?: string;
   isOpen: boolean;
   message: string;
   children: JSX.Element;
@@ -41,6 +42,27 @@ interface Props {
 }
 
 function ErrorTooltip(props: Props) {
+  let conditionalProps = {};
+  let containerElement;
+
+  if (
+    props.boundary &&
+    (containerElement = document.querySelector(props.boundary))
+  ) {
+    conditionalProps = {
+      modifiers: {
+        flip: {
+          enabled: true,
+          boundariesElement: containerElement,
+        },
+        preventOverflow: {
+          enabled: true,
+          boundariesElement: containerElement,
+        },
+      },
+    };
+  }
+
   return (
     <Wrapper>
       <TooltipStyles />
@@ -50,8 +72,9 @@ function ErrorTooltip(props: Props) {
         content={props.message}
         isOpen={props.isOpen && !!props.message}
         portalClassName={`error-tooltip ${props.customClass || ""}`}
-        position="bottom"
+        position={props.boundary ? "auto" : "bottom"}
         usePortal
+        {...conditionalProps}
       >
         {props.children}
       </Popover>
