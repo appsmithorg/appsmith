@@ -1,7 +1,5 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -12,7 +10,8 @@ public enum ApiContentType {
     JSON("application/json"),
     FORM_URLENCODED("application/x-www-form-urlencoded"),
     MULTIPART_FORM_DATA("multipart/form-data"),
-    RAW("raw")
+    RAW("raw"),
+    GRAPHQL("application/graphql")
     ;
 
     private String value;

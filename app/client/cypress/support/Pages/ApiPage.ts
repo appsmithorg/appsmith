@@ -39,6 +39,7 @@ export class ApiPage {
   private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
   private _confirmBeforeRunningAPI =
     "input[name='confirmBeforeExecute'][type='checkbox']";
+  private _paginationTypeLabels = ".t--apiFormPaginationType label";
   _saveAsDS = ".t--store-as-datasource";
 
   CreateApi(
@@ -157,10 +158,23 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  RunAPI(toValidateResponse = true, waitTimeInterval = 20) {
+  RunAPI(
+    toValidateResponse = true,
+    waitTimeInterval = 20,
+    validateNetworkAssertOptions?: { expectedPath: string; expectedRes: any },
+  ) {
     this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
     toValidateResponse &&
       this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+
+    // Asserting Network result
+    validateNetworkAssertOptions?.expectedPath &&
+      validateNetworkAssertOptions?.expectedRes &&
+      this.agHelper.ValidateNetworkDataAssert(
+        "@postExecute",
+        validateNetworkAssertOptions.expectedPath,
+        validateNetworkAssertOptions.expectedRes,
+      );
   }
 
   SetAPITimeout(timeout: number) {
@@ -203,7 +217,11 @@ export class ApiPage {
       | "Body"
       | "Pagination"
       | "Authentication"
-      | "Settings",
+      | "Settings"
+      | "Response"
+      | "Errors"
+      | "Logs"
+      | "Inspect entity"
   ) {
     this.agHelper.PressEscape();
     this.agHelper.GetNClick(this._visibleTextSpan(tabName), 0, true);
@@ -253,5 +271,11 @@ export class ApiPage {
     cy.xpath(this._verbToSelect(verb))
       .should("be.visible")
       .click();
+  }
+
+  public SelectPaginationTypeViaIndex(index: number) {
+    cy.get(this._paginationTypeLabels)
+      .eq(index)
+      .click({ force: true });
   }
 }

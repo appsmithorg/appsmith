@@ -55,7 +55,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingNewSize,0);
+    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingNewSize, 0);
 
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
     cy.readTableV2dataValidateCSS("1", "0", "font-size", "24px");

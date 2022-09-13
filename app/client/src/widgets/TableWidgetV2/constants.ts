@@ -110,6 +110,7 @@ export enum ColumnTypes {
   MENU_BUTTON = "menuButton",
   SELECT = "select",
   EDIT_ACTIONS = "editActions",
+  CHECKBOX = "checkbox",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -119,6 +120,7 @@ export enum ReadOnlyColumnTypes {
   IMAGE = "image",
   VIDEO = "video",
   DATE = "date",
+  CHECKBOX = "checkbox",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
@@ -130,7 +132,7 @@ export const DEFAULT_MENU_VARIANT = "PRIMARY";
 export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
 
 export type TransientDataPayload = {
-  [key: string]: string | number;
+  [key: string]: string | number | boolean;
   __original_index__: number;
 };
 
