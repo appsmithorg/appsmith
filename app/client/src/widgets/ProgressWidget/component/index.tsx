@@ -274,9 +274,11 @@ export const Trail = styled.path`
 
 export const Path = styled.path<{
   fillColor: string;
+  borderRadius?: string;
 }>`
   stroke: ${(props) => props.fillColor};
-  stroke-linecap: butt;
+  stroke-linecap: ${({ borderRadius }) =>
+    borderRadius === "0px" ? "butt" : "round"};
   transition: stroke-dashoffset 0.5s ease 0s;
 `;
 
@@ -347,6 +349,7 @@ function RadialSeparators(props: { steps: number }) {
 // Pure circular progress (indeterminate/determinate)
 function CircularProgress(props: ProgressComponentProps) {
   const {
+    borderRadius,
     counterClockwise,
     fillColor,
     showResult,
@@ -426,6 +429,7 @@ function CircularProgress(props: ProgressComponentProps) {
           />
 
           <Path
+            borderRadius={borderRadius}
             d={drawPath()}
             data-testvalue={value}
             fillColor={fillColor}
@@ -453,12 +457,15 @@ function CircularProgress(props: ProgressComponentProps) {
 function CircularProgressWithSteps(
   props: ProgressComponentProps & { children?: React.ReactNode },
 ) {
-  const { children, ...circularProgressProps } = props;
+  const { borderRadius, children, ...circularProgressProps } = props;
 
   return (
     <CircularProgressWithStepsWrapper isScaleY={circularProgressProps.isScaleY}>
       <CircularProgressWithStepsContainer>
-        <CircularProgress {...circularProgressProps} />
+        <CircularProgress
+          borderRadius={borderRadius}
+          {...circularProgressProps}
+        />
         {children && (
           <CircularProgressWithStepsOverlay>
             {children}
