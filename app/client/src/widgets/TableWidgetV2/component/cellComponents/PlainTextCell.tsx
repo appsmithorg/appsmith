@@ -8,6 +8,7 @@ import {
 } from "../Constants";
 import {
   ColumnTypes,
+  EditableCell,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
@@ -36,7 +37,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   tableWidth: number;
   isCellEditable: boolean;
   isCellEditMode?: boolean;
-  onCellTextChange: (data: string) => void;
+  onCellTextChange: (value: EditableCell["value"], inputValue: string) => void;
   toggleCellEditMode: (
     enable: boolean,
     rowIndex: number,
@@ -48,6 +49,9 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   hasUnsavedChanges?: boolean;
   displayText?: string;
   disabledEditIcon: boolean;
+  isEditableCellValid: boolean;
+  validationErrorMessage: string;
+  widgetId: string;
 };
 
 type editPropertyType = {
@@ -90,6 +94,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     isCellEditable,
     isCellEditMode,
     isCellVisible,
+    isEditableCellValid,
     isHidden,
     onCellTextChange,
     onSubmitString,
@@ -98,14 +103,16 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     textColor,
     textSize,
     toggleCellEditMode,
+    validationErrorMessage,
     verticalAlignment,
+    widgetId,
   } = props;
 
   let value = props.value;
 
   const editEvents = useMemo(
     () => ({
-      onChange: (text: string) => onCellTextChange(text),
+      onChange: onCellTextChange,
       onDiscard: () =>
         toggleCellEditMode(
           false,
@@ -157,13 +164,16 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
             ? InputTypes.NUMBER
             : InputTypes.TEXT
         }
+        isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
         onChange={editEvents.onChange}
         onDiscard={editEvents.onDiscard}
         onSave={editEvents.onSave}
         textSize={textSize}
+        validationErrorMessage={validationErrorMessage}
         value={value}
         verticalAlignment={verticalAlignment}
+        widgetId={widgetId}
       />
     );
   }

@@ -1398,10 +1398,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
 
-      /*
-       * Selec column type is not available for users yet
-       * Keeping this changes for future usuage
-       */
       case ColumnTypes.SELECT:
         return (
           <SelectCell
@@ -1600,7 +1596,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               this.props.updatedRowIndices.length &&
               this.props.updatedRowIndices.indexOf(originalIndex) === -1
             }
-            hasUnSavedChanges={cellProperties.hasUnsavedChanged}
+            hasUnSavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellEditable={
               (isColumnEditable && cellProperties.isCellEditable) ?? false

@@ -8,7 +8,6 @@ import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
-  SelectColumnOptionsValidations,
   showByColumnType,
   uniqueColumnAliasValidation,
   updateColumnLevelEditability,

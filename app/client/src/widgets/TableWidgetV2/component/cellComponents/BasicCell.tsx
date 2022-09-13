@@ -2,11 +2,7 @@ import React, { Ref, useCallback } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
-import { InlineCellEditor } from "./InlineCellEditor";
-import { ColumnTypes, EditableCell } from "widgets/TableWidgetV2/constants";
-import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
-import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
+import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 
