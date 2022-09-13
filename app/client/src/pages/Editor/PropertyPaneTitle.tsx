@@ -27,6 +27,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -133,9 +134,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           if (
             document.activeElement &&
             !document.activeElement?.closest(".t--property-control-wrapper") &&
-            ["input", "textarea"].indexOf(
-              document.activeElement?.tagName?.toLowerCase(),
-            ) === -1
+            shouldFocusOnPropertyControl()
           )
             if (false) {
               // TODO(aswathkk): Fix #15970 and focus on search bar

@@ -53,19 +53,15 @@ import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
 import { AppState } from "ce/reducers";
 import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
+import {
+  getPropertyControlFocusElement,
+  shouldFocusOnPropertyControl,
+} from "utils/editorContextUtils";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
 };
-
-function getFocusableDOMElement(
-  element: HTMLDivElement | null,
-): HTMLElement | undefined {
-  return element?.children?.[1]?.querySelector(
-    'button:not([tabindex="-1"]), input, [tabindex]:not([tabindex="-1"])',
-  ) as HTMLElement | undefined;
-}
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 
@@ -88,8 +84,10 @@ const PropertyControl = memo((props: Props) => {
       ? `${widgetProperties.widgetName}.${props.propertyName}`
       : undefined;
 
+  // using hasDispatchedPropertyFocus to make sure
+  // the component does not select the state after dispatching the action,
+  // which might lead to another rerender and reset the component
   let hasDispatchedPropertyFocus = false;
-
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
       getshouldFocusPropertyPath(
@@ -116,13 +114,12 @@ const PropertyControl = memo((props: Props) => {
   useEffect(() => {
     if (
       shouldFocusPropertyPath &&
-      !controlRef.current?.contains(document.activeElement) &&
-      ["input", "textarea"].indexOf(
-        document.activeElement?.tagName?.toLowerCase() || "",
-      ) === -1
+      shouldFocusOnPropertyControl(controlRef.current)
     ) {
       setTimeout(() => {
-        const focusableElement = getFocusableDOMElement(controlRef.current);
+        const focusableElement = getPropertyControlFocusElement(
+          controlRef.current,
+        );
         focusableElement?.scrollIntoView({ block: "center" });
         focusableElement?.focus();
       }, 0);

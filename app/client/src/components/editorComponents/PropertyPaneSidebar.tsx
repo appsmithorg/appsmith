@@ -19,7 +19,7 @@ import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { getAppThemingStack } from "selectors/appThemingSelectors";
 import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
-import { appendSelectedWidgetToUrl } from "actions/canvasSelectionActions";
+import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
 
 type Props = {
   width: number;

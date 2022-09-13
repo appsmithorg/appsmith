@@ -327,6 +327,10 @@ function* selectMultipleWidgetsSaga(
   }
 }
 
+/**
+ * Append Selected widgetId as hash to the url path
+ * @param action
+ */
 function* appendSelectedWidgetToUrlSaga(
   action: ReduxAction<{ selectedWidgets: string[] }>,
 ) {
@@ -365,6 +369,11 @@ function* deselectAllWidgetsSaga() {
   yield put(selectMultipleWidgetsAction([]));
 }
 
+/**
+ * Deselect widgets only if it is or inside the modal. Otherwise will not deselect any widgets.
+ * @param action
+ * @returns
+ */
 function* deselectModalWidgetSaga(
   action: ReduxAction<{
     modalId: string;
@@ -382,6 +391,12 @@ function* deselectModalWidgetSaga(
     yield put(selectMultipleWidgetsAction([]));
 }
 
+/**
+ * Checks if the given widgetId is part of the children recursively
+ * @param widgetId
+ * @param children
+ * @returns
+ */
 function isWidgetPartOfChildren(
   widgetId: string,
   children?: CanvasWidgetsStructureReduxState[],

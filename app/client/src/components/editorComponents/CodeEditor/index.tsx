@@ -104,6 +104,7 @@ import { getCodeEditorCursorPosition } from "selectors/editorContextSelectors";
 import { CursorPosition } from "reducers/uiReducers/editorContextReducer";
 import { generateKeyAndSetCodeEditorCursorPosition } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -337,12 +338,7 @@ class CodeEditor extends Component<Props, State> {
 
         this.lintCode(editor);
 
-        if (
-          this.props.cursorPosition &&
-          ["input", "textarea"].indexOf(
-            document.activeElement?.tagName?.toLowerCase() || "",
-          ) === -1
-        ) {
+        if (this.props.cursorPosition && shouldFocusOnPropertyControl()) {
           editor.focus();
           editor.setCursor(this.props.cursorPosition);
         }

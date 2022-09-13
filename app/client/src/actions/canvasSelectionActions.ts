@@ -54,10 +54,3 @@ export const selectAllWidgetsInAreaAction = (
     },
   };
 };
-
-export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
-  return {
-    type: ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
-    payload: { selectedWidgets },
-  };
-};
