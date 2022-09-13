@@ -12,17 +12,18 @@ import Icon from "./Icon";
 import TextFormatting from "./TextFormatting";
 import Color from "./Color";
 import BorderAndShadow from "./BorderAndShadow";
+import Validations from "./Validation";
 
 export default {
   editableTitle: true,
   titlePropertyName: "label",
   panelIdPropertyName: "id",
   dependencies: ["primaryColumns", "columnOrder"],
-
   contentChildren: [
     Data,
     Basic,
     General,
+    Validations,
     SaveButtonProperties,
     DiscardButtonproperties,
     Events,
