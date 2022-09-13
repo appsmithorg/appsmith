@@ -183,7 +183,7 @@ export interface ReactTableColumnProps extends TableColumnProps {
   Cell: (props: any) => JSX.Element;
 }
 
-export interface ColumnProperties {
+export interface ColumnBaseProperties {
   id: string;
   originalId: string;
   label?: string;
@@ -191,6 +191,17 @@ export interface ColumnProperties {
   isVisible: boolean;
   isDisabled?: boolean;
   index: number;
+  enableFilter?: boolean;
+  enableSort?: boolean;
+  isDerived: boolean;
+  computedValue: string;
+  isCellVisible?: boolean;
+  isAscOrder?: boolean;
+  alias: string;
+  allowCellWrapping: boolean;
+}
+
+export interface ColumnStyleProperties {
   width: number;
   cellBackground?: string;
   horizontalAlignment?: CellAlignment;
@@ -198,38 +209,27 @@ export interface ColumnProperties {
   textSize?: string;
   fontStyle?: string;
   textColor?: string;
-  enableFilter?: boolean;
-  enableSort?: boolean;
-  isDerived: boolean;
-  computedValue: string;
-  buttonLabel?: string;
-  menuButtonLabel?: string;
-  buttonColor?: string;
-  onClick?: string;
+}
+
+export interface DateColumnProperties {
   outputFormat?: string;
   inputFormat?: string;
-  dropdownOptions?: string;
-  onOptionChange?: string;
-  displayText?: string;
-  buttonVariant?: ButtonVariant;
-  isCompact?: boolean;
-  menuItems?: MenuItems;
-  menuVariant?: ButtonVariant;
-  menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: string;
-  boxShadowColor?: string;
-  iconName?: IconName;
-  menuButtoniconName?: IconName;
-  iconAlign?: Alignment;
-  onItemClicked?: (onClick: string | undefined) => void;
-  iconButtonStyle?: ButtonStyleType;
-  isCellVisible?: boolean;
-  isAscOrder?: boolean;
-  alias: string;
+}
+
+export interface ColumnEditabilityProperties {
   isCellEditable: boolean; // Cell level editability
   isEditable: boolean; // column level edtitability
-  allowCellWrapping: boolean;
+  validation?: {
+    regex?: string;
+    isEditableCellValid?: boolean;
+    errorMessage?: string;
+    isEditableCellRequired?: boolean;
+    min?: number;
+    max?: number;
+  };
+}
+
+export interface EditActionColumnProperties {
   saveButtonVariant?: ButtonVariant;
   saveButtonColor?: string;
   saveIconAlign?: Alignment;
@@ -246,6 +246,34 @@ export interface ColumnProperties {
   discardActionIconName?: string;
   isDiscardVisible?: boolean;
   isDiscardDisabled?: boolean;
+}
+
+export interface ColumnProperties
+  extends ColumnBaseProperties,
+    ColumnStyleProperties,
+    DateColumnProperties,
+    ColumnEditabilityProperties,
+    EditActionColumnProperties {
+  buttonLabel?: string;
+  menuButtonLabel?: string;
+  buttonColor?: string;
+  onClick?: string;
+  dropdownOptions?: string;
+  onOptionChange?: string;
+  displayText?: string;
+  buttonVariant?: ButtonVariant;
+  isCompact?: boolean;
+  menuItems?: MenuItems;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: string;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  menuButtoniconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
+  iconButtonStyle?: ButtonStyleType;
 }
 
 export const ConditionFunctions: {

@@ -41,6 +41,7 @@ export class ApiPage {
     "input[name='confirmBeforeExecute'][type='checkbox']";
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
   _saveAsDS = ".t--store-as-datasource";
+  _responseStatus = ".t--response-status-code";
 
   CreateApi(
     apiName = "",
@@ -251,7 +252,7 @@ export class ApiPage {
   }
 
   ReadApiResponsebyKey(key: string) {
-    let apiResp: string = "";
+    let apiResp = "";
     cy.get(this._responseBody)
       .contains(key)
       .siblings("span")
@@ -273,6 +274,10 @@ export class ApiPage {
       .click();
   }
 
+  ResponseStatusCheck(statusCode: string) {
+    this.agHelper.AssertElementVisible(this._responseStatus);
+    cy.get(this._responseStatus).contains(statusCode);
+  }
   public SelectPaginationTypeViaIndex(index: number) {
     cy.get(this._paginationTypeLabels)
       .eq(index)
