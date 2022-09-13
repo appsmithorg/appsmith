@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { isString, get } from "lodash";
 
-import config from "./propertyConfig";
+import { styleConfig, contentConfig } from "./propertyConfig";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+
+const config = [...contentConfig, ...styleConfig];
 
 declare global {
   namespace jest {
