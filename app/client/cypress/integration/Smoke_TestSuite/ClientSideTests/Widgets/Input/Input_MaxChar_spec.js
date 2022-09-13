@@ -25,7 +25,7 @@ describe("Input Widget Max Char Functionality", function() {
       .type("1234567");
 
     cy.openPropertyPane("inputwidgetv2");
-    
+
     cy.testJsontext("maxcharacters", "3");
     cy.closePropertyPane("inputwidgetv2");
     cy.get(widgetsPage.innertext).click();

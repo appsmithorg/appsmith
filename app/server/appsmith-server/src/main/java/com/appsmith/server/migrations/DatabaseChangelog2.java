@@ -18,11 +18,12 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
@@ -63,6 +64,7 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import com.google.gson.Gson;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -88,9 +90,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -115,6 +117,7 @@ import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
+import static com.appsmith.server.migrations.DatabaseChangelog.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -2557,4 +2560,24 @@ public class DatabaseChangelog2 {
         evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongockTemplate, cacheableRepositoryHelper);
     }
 
+    @ChangeSet(order = "036", id = "add-graphql-plugin", author = "")
+    public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Authenticated GraphQL API");
+        plugin.setType(PluginType.API);
+        plugin.setPackageName("graphql-plugin");
+        plugin.setUiComponent("GraphQLEditorForm");
+        plugin.setDatasourceComponent("RestAPIDatasourceForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/graphql.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-graphql-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
 }

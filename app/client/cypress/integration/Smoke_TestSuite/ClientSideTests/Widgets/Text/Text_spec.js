@@ -88,5 +88,4 @@ describe("Text Widget Functionality", function() {
   afterEach(() => {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
-
 });

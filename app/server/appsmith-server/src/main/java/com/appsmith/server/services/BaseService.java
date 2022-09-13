@@ -163,14 +163,6 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
                 });
     }
 
-
-    private Map<String, Set<Policy>> getAllPoliciesAsMap(Set<Policy> policies) {
-        return policies
-                .stream()
-                .collect(Collectors.groupingBy(Policy::getPermission,
-                        Collectors.mapping(Function.identity(), toSet())));
-    }
-
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
         return null;

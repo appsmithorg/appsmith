@@ -21,7 +21,7 @@ import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
   deleteDatasource,

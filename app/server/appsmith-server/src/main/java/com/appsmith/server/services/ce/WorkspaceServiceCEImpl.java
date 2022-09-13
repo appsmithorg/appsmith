@@ -269,7 +269,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         viewerPermissionGroup.setPermissions(Set.of());
 
         return Flux.fromIterable(List.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup))
-                .flatMap(permissionGroup1 -> permissionGroupService.create(permissionGroup1))
+                .flatMap(permissionGroup1 -> permissionGroupService.save(permissionGroup1))
                 .collect(Collectors.toSet());
     }
 
