@@ -20,50 +20,18 @@ function* handleRouteChange(
     // store current state
     yield call(storeStateOfPath, previousPath, previousHash);
     // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
-    if (shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash))
+    if (shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash)) {
       yield call(storeStateOfPath, previousPath);
+    }
   }
-  if (shouldSetState(previousPath, pathname, previousHash, hash))
+  // Check if if should restore the stored state of the path
+  if (shouldSetState(previousPath, pathname, previousHash, hash)) {
+    // restore old state for new path
     yield call(setStateOfPath, pathname, hash);
-  // restore old state for new path
+  }
+
   previousPath = pathname;
   previousHash = hash;
-}
-
-function shouldSetState(
-  prevPath: string,
-  currPath: string,
-  prevHash?: string,
-  currHash?: string,
-) {
-  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash);
-  const currFocusEntity = identifyEntityFromPath(currPath, currHash);
-
-  if (
-    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
-    currFocusEntity === FocusEntity.CANVAS &&
-    prevPath === currPath
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-function shouldStoreStateForCanvas(
-  prevPath: string,
-  currPath: string,
-  prevHash?: string,
-  currHash?: string,
-) {
-  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash);
-  const currFocusEntity = identifyEntityFromPath(currPath, currHash);
-
-  return (
-    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
-    currFocusEntity !== FocusEntity.PROPERTY_PANE &&
-    (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
-  );
 }
 
 function* storeStateOfPath(path: string, hash?: string) {
@@ -107,6 +75,62 @@ function* setStateOfPath(path: string, hash?: string) {
         yield put(selectorInfo.setter(selectorInfo.defaultValue));
     }
   }
+}
+
+/**
+ * This method returns boolean to indicate if state should be restored to the path
+ * @param prevPath
+ * @param currPath
+ * @param prevHash
+ * @param currHash
+ * @returns
+ */
+function shouldSetState(
+  prevPath: string,
+  currPath: string,
+  prevHash?: string,
+  currHash?: string,
+) {
+  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash);
+  const currFocusEntity = identifyEntityFromPath(currPath, currHash);
+
+  // While switching from selected widget state to canvas,
+  // it should not restored stored state for canvas
+  if (
+    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
+    currFocusEntity === FocusEntity.CANVAS &&
+    prevPath === currPath
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * This method returns boolean if it should store an additional intermediate state
+ * @param prevPath
+ * @param currPath
+ * @param prevHash
+ * @param currHash
+ * @returns
+ */
+function shouldStoreStateForCanvas(
+  prevPath: string,
+  currPath: string,
+  prevHash?: string,
+  currHash?: string,
+) {
+  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash);
+  const currFocusEntity = identifyEntityFromPath(currPath, currHash);
+
+  // while moving from selected widget state directly to some other state,
+  // it should also store selected widgets as well
+  return (
+    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
+    currFocusEntity !== FocusEntity.PROPERTY_PANE &&
+    (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
+  );
 }
 
 export default function* rootSaga() {

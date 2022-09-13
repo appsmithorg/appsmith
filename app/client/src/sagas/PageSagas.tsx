@@ -240,7 +240,7 @@ export function* handleFetchedPage({
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
-
+    // restore selected widgets while loading the page.
     yield call(restoreSelectedWidgetContext);
 
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page

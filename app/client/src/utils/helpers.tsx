@@ -222,6 +222,11 @@ export const flashElementsById = (
   });
 };
 
+/**
+ * Scrolls to the widget of WidgetId without any animantion.
+ * @param widgetId
+ * @returns
+ */
 export const quickScrollToWidget = (widgetId?: string) => {
   if (!widgetId) return;
 

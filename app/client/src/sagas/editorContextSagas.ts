@@ -10,6 +10,10 @@ import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { generatePropertyKey } from "utils/editorContextUtils";
 
+/**
+ * This method appends the PageId along with the focusable propertyPath
+ * @param action
+ */
 function* generateKeyAndSetFocusablePropertyFieldSaga(
   action: ReduxAction<{ path?: string }>,
 ) {
@@ -30,6 +34,10 @@ function* generateKeyAndSetFocusablePropertyFieldSaga(
   }
 }
 
+/**
+ * This method appends the PageId along with the focusable propertyPath
+ * @param action
+ */
 function* generateKeyAndSetCursorPosition(
   action: ReduxAction<{
     key: string | undefined;
@@ -50,6 +58,10 @@ function* generateKeyAndSetCursorPosition(
   }
 }
 
+/**
+ * This method appends the PageId along with the focusable propertyPath
+ * @param action
+ */
 function* generateKeyAndSetEvalPopupState(
   action: ReduxAction<{
     key: string | undefined;

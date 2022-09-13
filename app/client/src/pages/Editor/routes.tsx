@@ -189,6 +189,8 @@ function PaneDrawer(props: PaneDrawerProps) {
     if (props.isVisible) {
       showPropertyPane();
       dispatch(closeAllModals());
+      // delaying setting select and focus state,
+      // so that the focus history has time to store the selected values
       setTimeout(() => {
         selectWidget(undefined);
         focusWidget(undefined);

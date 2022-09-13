@@ -145,8 +145,9 @@ export function* showModalSaga(
       type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: action.payload.modalId },
     });
-    yield put(focusWidget(action.payload.modalId));
   }
+
+  yield put(focusWidget(action.payload.modalId));
 
   const metaProps: Record<string, unknown> = yield select(
     getWidgetMetaProps,

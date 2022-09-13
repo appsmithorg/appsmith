@@ -364,7 +364,7 @@ function* selectWidgetSaga(
 
   if (widget) {
     // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas(pageId);
+    navigateToCanvas(pageId, widget.widgetId);
     yield put(selectWidgetInitAction(widget.widgetId));
     // Delay to wait for the fields to render
     yield delay(1000);

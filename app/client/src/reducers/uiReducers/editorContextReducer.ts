@@ -32,6 +32,9 @@ const initialState: EditorContextState = {
   selectedPropertyTabIndex: 0,
 };
 
+/**
+ * Context Reducer to store states of different components of editor
+ */
 export const editorContextReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD]: (
     state: EditorContextState,
