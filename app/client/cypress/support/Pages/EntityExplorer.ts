@@ -59,7 +59,7 @@ export class EntityExplorer {
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
-    section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
+    section: "Widgets" | "Queries/JS" | "Datasources" | "Pages" | "" = "",
   ) {
     this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
