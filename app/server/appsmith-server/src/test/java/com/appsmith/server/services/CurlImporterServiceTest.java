@@ -852,7 +852,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void checkActionConfigurationFormData() {
+    public void checkActionConfigurationFormDataForApiContentKey() {
         final String API_CONTENT_TYPE = "apiContentType";
         String cURLCommand = "curl -X POST https://mockurl.com -H \"Content-Type: application/json\" -d '{\"productId\": 123456, \"quantity\": 100}'";
         String contentType = "application/json";

@@ -51,7 +51,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private static final String ARG_COOKIE = "--cookie";
     private static final String ARG_USER = "--user";
     private static final String ARG_USER_AGENT = "--user-agent";
-    private static final String FORM_DATA_KEY = "apiContentType";
+    private static final String API_CONTENT_TYPE_KEY = "apiContentType";
 
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
@@ -349,10 +349,11 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 }
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
+                    // part[0] is already set to content-type, however, it might not have consistent casing. hence resetting it to a HTTP standard.
                     parts[0] = HttpHeaders.CONTENT_TYPE;
                     //Setting the apiContentType to the content-type detected in the header with the key word content-type.
                     // required for RestAPI calls with GET method having body.
-                    actionConfiguration.setFormData(Map.of(FORM_DATA_KEY, contentType));
+                    actionConfiguration.setFormData(Map.of(API_CONTENT_TYPE_KEY, contentType));
                 }
                 headers.add(new Property(parts[0], parts[1]));
 
@@ -415,7 +416,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
                 // Setting the apiContentType to the content type detected by guessing the elements from  -f/ --form flag or -d/ --data flag
                 // required for RestAPI calls with GET method having body.
-                actionConfiguration.setFormData(Map.of(FORM_DATA_KEY, contentType));
+                actionConfiguration.setFormData(Map.of(API_CONTENT_TYPE_KEY, contentType));
             }
         }
 
