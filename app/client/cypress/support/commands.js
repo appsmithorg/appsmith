@@ -1900,6 +1900,6 @@ Cypress.Commands.add(
 Cypress.Commands.add("CreatePage", () => {
   cy.get(pages.AddPage)
     .first()
-    .click();
+    .click({ force: true });
   cy.get("[data-cy='add-page']").click();
 });
