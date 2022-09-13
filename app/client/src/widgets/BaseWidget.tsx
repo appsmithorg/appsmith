@@ -78,6 +78,20 @@ abstract class BaseWidget<
   }
 
   /**
+   * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
+   * which can set the isLoading prop of the widget.
+   * When:
+   * 1. the path is bound to an action (API/Query)
+   * 2. the action is currently in-progress
+   *
+   * if undefined, all paths can set the isLoading state
+   * if empty array, no paths can set the isLoading state
+   */
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return;
+  }
+
+  /**
    *  Widget abstraction to register the widget type
    *  ```javascript
    *   getWidgetType() {
