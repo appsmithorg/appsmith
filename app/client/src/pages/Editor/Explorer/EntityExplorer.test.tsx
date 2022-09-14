@@ -41,6 +41,16 @@ describe("Entity Explorer tests", () => {
 
   it("checks datasources section in explorer", () => {
     store.dispatch({
+      type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
+      payload: {
+        userPermissions: [
+          "create:datasources",
+          "manage:datasources",
+          "delete:datasources",
+        ],
+      },
+    });
+    store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
     });
@@ -48,6 +58,23 @@ describe("Entity Explorer tests", () => {
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
       5,
+    );
+  });
+  it("should hide create datasources section in explorer if the user don't have valid permissions", () => {
+    store.dispatch({
+      type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
+      payload: {
+        userPermissions: ["manage:datasources", "delete:datasources"],
+      },
+    });
+    store.dispatch({
+      type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      payload: mockDatasources,
+    });
+    store.dispatch(updateCurrentPage("pageId"));
+    const component = render(<Datasources />);
+    expect(component.container.getElementsByClassName("t--entity").length).toBe(
+      4,
     );
   });
   it("Should render Widgets tree in entity explorer", () => {
