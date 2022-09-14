@@ -68,11 +68,11 @@
     </build>
 
     <modules>
+        <module>reactive-caching</module>
         <module>appsmith-interfaces</module>
         <module>appsmith-plugins</module>
         <module>appsmith-server</module>
         <module>appsmith-git</module>
-        <module>reactive-caching</module>
     </modules>
 
 </project>

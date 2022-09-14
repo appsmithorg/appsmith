@@ -59,12 +59,18 @@ import NumericInputControl, {
   NumericInputControlProps,
 } from "./NumericInputControl";
 import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
+import SelectDefaultValueControl, {
+  SelectDefaultValueControlProps,
+} from "./SelectDefaultValueControl";
 import ComputeTablePropertyControlV2, {
   ComputeTablePropertyControlPropsV2,
 } from "components/propertyControls/TableComputeValue";
 import PrimaryColumnColorPickerControlV2, {
   PrimaryColumnColorPickerControlPropsV2,
 } from "components/propertyControls/PrimaryColumnColorPickerControlV2";
+import TableInlineEditValidationControlProperty, {
+  TableInlineEditValidationControlProps,
+} from "./TableInlineEditValidation";
 
 export const PropertyControls = {
   InputTextControl,
@@ -101,6 +107,8 @@ export const PropertyControls = {
   NumericInputControl,
   PrimaryColumnColorPickerControl,
   PrimaryColumnColorPickerControlV2,
+  SelectDefaultValueControl,
+  TableInlineEditValidationControlProperty,
 };
 
 export type PropertyControlPropsType =
@@ -120,7 +128,9 @@ export type PropertyControlPropsType =
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
   | PrimaryColumnDropdownControlProps
-  | PrimaryColumnColorPickerControlPropsV2;
+  | PrimaryColumnColorPickerControlPropsV2
+  | SelectDefaultValueControlProps
+  | TableInlineEditValidationControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

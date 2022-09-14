@@ -13,6 +13,8 @@ public class PageNameIdDTO {
 
     String slug;
 
+    String customSlug;
+
     Boolean isDefault;
 
     Boolean isHidden;

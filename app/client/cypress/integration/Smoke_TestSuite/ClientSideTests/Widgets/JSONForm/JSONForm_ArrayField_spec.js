@@ -241,9 +241,9 @@ describe("JSON Form Widget Array Field", () => {
     cy.openFieldConfiguration("__array_item__");
 
     // Add new custom field
-    cy.get(".t--property-pane-section-general button")
-      .contains("Add a new field")
-      .click({ force: true });
+    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn").click({
+      force: true,
+    });
 
     cy.openFieldConfiguration("customField1");
     cy.selectDropdownValue(
@@ -256,7 +256,7 @@ describe("JSON Form Widget Array Field", () => {
       ".t--property-control-allowcountrycodechange input[type='checkbox']",
     );
     // Change the label of the field to Phone Number
-    cy.testJsontext("label", "Phone Number");
+    cy.testJsontext("text", "Phone Number");
 
     // Open country code dropdown and select +91
     cy.get(".t--input-country-code-change")
@@ -279,9 +279,9 @@ describe("JSON Form Widget Array Field", () => {
     cy.openFieldConfiguration("__array_item__");
 
     // Add new custom field
-    cy.get(".t--property-pane-section-general button")
-      .contains("Add a new field")
-      .click({ force: true });
+    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn").click({
+      force: true,
+    });
 
     cy.openFieldConfiguration("customField1");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Currency Input/);
@@ -291,7 +291,7 @@ describe("JSON Form Widget Array Field", () => {
       ".t--property-control-allowcurrencychange input[type='checkbox']",
     );
     // Change the label of the field to Phone Number
-    cy.testJsontext("label", "Currency");
+    cy.testJsontext("text", "Currency");
 
     // Open country code dropdown and select gbp
     cy.get(".t--input-currency-change")

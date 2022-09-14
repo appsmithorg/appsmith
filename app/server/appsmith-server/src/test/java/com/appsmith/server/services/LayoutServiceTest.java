@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -43,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +95,11 @@ public class LayoutServiceTest {
     public void setup() {
         purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("LayoutServiceTest");
+
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        workspaceId = workspace.getId();
 
         datasource = new Datasource();
         datasource.setName("Default Database");
@@ -163,7 +169,7 @@ public class LayoutServiceTest {
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl().equals(obj));
+                    assertThat(layout.getDsl()).isEqualTo(obj);
                 })
                 .verifyComplete();
     }
@@ -238,7 +244,8 @@ public class LayoutServiceTest {
                 .flatMap(tuple -> {
                     PageDTO page = tuple.getT1();
                     Layout startLayout = tuple.getT2();
-                    return layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
+                    startLayout.setDsl(obj1);
+                    return layoutActionService.updateLayout(page.getId(), startLayout.getId(), startLayout);
                 });
 
         StepVerifier
@@ -246,7 +253,7 @@ public class LayoutServiceTest {
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl().equals(obj1));
+                    assertThat(layout.getDsl()).isEqualTo(obj1);
                 })
                 .verifyComplete();
     }
@@ -575,7 +582,7 @@ public class LayoutServiceTest {
 
         PageDTO page = createPage(app, testPage).block();
         String pageId = page.getId();
-        String layoutId = page.getLayouts().get(0).getId();
+        final AtomicReference<String> layoutId = new AtomicReference<>();
 
         Mono<LayoutDTO> testMono = Mono.just(page)
                 .flatMap(page1 -> {
@@ -604,6 +611,7 @@ public class LayoutServiceTest {
                 .flatMap(tuple2 -> {
                     final PageDTO page1 = tuple2.getT1();
                     final Layout layout = tuple2.getT2();
+                    layoutId.set(layout.getId());
 
                     Layout newLayout = new Layout();
 
@@ -629,9 +637,10 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(testMono)
                 .expectErrorMatches(throwable -> {
-                    assertThat(throwable instanceof AppsmithException);
-                    assertThat(throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE
-                            .getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId)));
+                    assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    assertThat(throwable.getMessage()).isEqualTo(
+                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), null)
+                    );
                     return true;
                 })
                 .verify();

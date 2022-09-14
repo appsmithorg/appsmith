@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Spinner } from "@blueprintjs/core";
 import { BuilderRouteParams } from "constants/routes";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
@@ -20,7 +20,7 @@ import {
   InitializeEditorPayload,
   resetEditorRequest,
 } from "actions/initActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";

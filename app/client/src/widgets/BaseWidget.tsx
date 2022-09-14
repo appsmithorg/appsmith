@@ -37,6 +37,9 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import { CanvasWidgetStructure } from "./constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import Skeleton from "./Skeleton";
 
 /***
  * BaseWidget
@@ -72,6 +75,20 @@ abstract class BaseWidget<
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  /**
+   * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
+   * which can set the isLoading prop of the widget.
+   * When:
+   * 1. the path is bound to an action (API/Query)
+   * 2. the action is currently in-progress
+   *
+   * if undefined, all paths can set the isLoading state
+   * if empty array, no paths can set the isLoading state
+   */
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return;
   }
 
   /**
@@ -299,11 +316,32 @@ abstract class BaseWidget<
     );
   }
 
+  getWidgetComponent = () => {
+    const { renderMode, type } = this.props;
+
+    /**
+     * The widget mount calls the withWidgetProps with the widgetId and type to fetch the
+     * widget props. During the computation of the props (in withWidgetProps) if the evaluated
+     * values are not present (which will not be during mount), the widget type is changed to
+     * SKELETON_WIDGET.
+     *
+     * Note: This is done to retain the old rendering flow without any breaking changes.
+     * This could be refactored into not changing the widget type but to have a boolean flag.
+     */
+    if (type === "SKELETON_WIDGET") {
+      return <Skeleton />;
+    }
+
+    return renderMode === RenderModes.CANVAS
+      ? this.getCanvasView()
+      : this.getPageView();
+  };
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
-        content = this.getCanvasView();
+        content = this.getWidgetComponent();
         content = this.addPreviewModeWidget(content);
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
@@ -317,7 +355,7 @@ abstract class BaseWidget<
 
       // return this.getCanvasView();
       case RenderModes.PAGE:
-        content = this.getPageView();
+        content = this.getWidgetComponent();
         if (this.props.isVisible) {
           content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
@@ -399,7 +437,10 @@ export interface BaseStyle {
 
 export type WidgetState = Record<string, unknown>;
 
-export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
+export interface WidgetBuilder<
+  T extends CanvasWidgetStructure,
+  S extends WidgetState
+> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
@@ -410,6 +451,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
+  childWidgets?: DataTreeWidget[];
 }
 
 export type WidgetRowCols = {

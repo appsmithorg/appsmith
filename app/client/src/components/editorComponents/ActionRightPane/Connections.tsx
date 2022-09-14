@@ -1,6 +1,6 @@
 import React from "react";
 import { Collapsible } from ".";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import { useEntityLink } from "../Debugger/hooks/debuggerHooks";

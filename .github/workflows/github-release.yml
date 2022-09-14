@@ -85,6 +85,7 @@ jobs:
           REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
           REACT_APP_VERSION_ID: "${{ needs.prelude.outputs.tag }}"
           REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
+          REACT_APP_VERSION_EDITION: "Community"
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
             yarn build
@@ -189,10 +190,16 @@ jobs:
     needs: [prelude, buildClient, buildServer, buildRts]
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v2
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
 
       - name: Download the client build artifact
         uses: actions/download-artifact@v2
@@ -218,12 +225,6 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
-      - name: Set up QEMU (needed for docker buildx)
-        uses: docker/setup-qemu-action@v1
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -231,53 +232,87 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push client image
-        working-directory: app/client
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
+        uses: depot/build-push-action@v1
+        with:
+          context: app/client
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
 
-          # Only build & tag with latest if the tag doesn't contain beta
-          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
-          fi
+      # Only build & tag with latest if the tag doesn't contain beta
+      - name: Build and push client image latest
+        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/client
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
 
       - name: Build and push fat image
-        run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}}"
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}}
 
-          # Only build & tag with latest if the tag doesn't contain beta
-          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest"
-          fi
-
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            $tag_args \
-            .
+      # Only build & tag with latest if the tag doesn't contain beta
+      - name: Build and push fat image latest
+        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest
 
       - name: Build and push server image
-        working-directory: app/server
-        run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}}
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: true
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}}
 
-          # Only build & tag with latest if the tag doesn't contain beta
-          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest
-          fi
+      # Only build & tag with latest if the tag doesn't contain beta
+      - name: Build and push server image latest
+        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest
 
       - name: Build and push RTS image
-        working-directory: app/rts
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
+        uses: depot/build-push-action@v1
+        with:
+          context: app/rts
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
 
-          # Only build & tag with latest if the tag doesn't contain beta
-          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest
-          fi
+      # Only build & tag with latest if the tag doesn't contain beta
+      - name: Build and push RTS image latest
+        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/rts
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest

@@ -2,13 +2,14 @@
 name: Label Checker
 on:
   pull_request:
+    branches: [release]
     types:
       - opened
       - synchronize
       - reopened
       - labeled
       - unlabeled
-
+    
 jobs:
 
   check_labels:

@@ -39,7 +39,7 @@ import {
   JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
@@ -47,6 +47,7 @@ import TernServer from "utils/autocomplete/TernServer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
+import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
@@ -362,10 +363,25 @@ export function* updateTernDefinitions(
   } else {
     // Only when new field is added or deleted, we want to re-create the def
     shouldUpdate = some(updates, (update) => {
-      return (
+      if (
         update.event === DataTreeDiffEvent.NEW ||
         update.event === DataTreeDiffEvent.DELETE
-      );
+      ) {
+        return true;
+      }
+
+      if (update.event === DataTreeDiffEvent.NOOP) {
+        const { entityName } = getEntityNameAndPropertyPath(
+          update.payload.propertyPath,
+        );
+        const entity = dataTree[entityName];
+        if (entity && isWidget(entity)) {
+          // if widget property name is modified then update tern def
+          return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
+        }
+      }
+
+      return false;
     });
   }
   if (shouldUpdate) {

@@ -16,7 +16,7 @@ describe("Binding the multiple input Widget", function() {
 
   it("1. Cyclic depedancy error message validation", function() {
     cy.openPropertyPane("inputwidgetv2");
-    cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -28,7 +28,7 @@ describe("Binding the multiple input Widget", function() {
 
   it("2. Binding input widget1 and validating", function() {
     cy.openPropertyPane("inputwidgetv2");
-    cy.testJsontext("defaulttext", testdata.defaultdata);
+    cy.testJsontext("defaultvalue", testdata.defaultdata);
 
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -43,7 +43,7 @@ describe("Binding the multiple input Widget", function() {
 
   it("3. Binding second input widget with first input widget and validating", function() {
     cy.selectEntityByName("Input2");
-    cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -67,7 +67,7 @@ describe("Binding the multiple input Widget", function() {
   it("4. Binding third input widget with first input widget and validating", function() {
     cy.CheckAndUnfoldWidgets();
     cy.selectEntityByName("Input3");
-    cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
       "have.nested.property",

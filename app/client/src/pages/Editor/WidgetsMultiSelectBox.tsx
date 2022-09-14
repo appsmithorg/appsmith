@@ -21,7 +21,7 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";

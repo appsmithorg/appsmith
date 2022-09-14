@@ -11,7 +11,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  [WIDGET.MULTISELECT_WIDGET]: {
+  [WIDGET.MULTISELECT]: {
     testCases: [
       {
         input:
@@ -39,7 +39,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     });
 
     it("2. Bind Button on click  and Text widget content", function() {
-      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+      cy.openPropertyPane(WIDGET.BUTTON);
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")
         .click();
@@ -60,7 +60,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         cy.wrap(item).should("contain.text", "BLUE");
       });
       const inputs = testConfig.testCases;
-      cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET))
+      cy.get(getWidgetSelector(WIDGET.BUTTON))
         .scrollIntoView()
         .click({ force: true });
       cy.wait("@updateLayout");

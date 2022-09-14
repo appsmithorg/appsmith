@@ -1,21 +1,22 @@
 import React from "react";
 
-import ContainerComponent, { ContainerStyle } from "../component";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import ContainerComponent, { ContainerStyle } from "../component";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
-import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { compact, map, sortBy } from "lodash";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
@@ -126,6 +127,113 @@ class ContainerWidget extends BaseWidget<
     ];
   }
 
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Enables scrolling for content inside the widget",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Color",
+        children: [
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "Border Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
+          {
+            helpText: "Enter value for border width",
+            propertyName: "borderWidth",
+            label: "Border Width",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+    ];
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }
@@ -162,25 +270,21 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
+    const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
+    childWidget.rightColumn = componentWidth;
+    childWidget.bottomRow = this.props.shouldScrollContents
+      ? childWidget.bottomRow
       : componentHeight;
-    childWidgetData.minHeight = componentHeight;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
+    childWidget.minHeight = componentHeight;
+    childWidget.shouldScrollContents = false;
+    childWidget.canExtend = this.props.shouldScrollContents;
 
-    childWidgetData.parentId = this.props.widgetId;
+    childWidget.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
   renderChildren = () => {
@@ -197,27 +301,28 @@ class ContainerWidget extends BaseWidget<
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
-        {props.type === "CANVAS_WIDGET" && (
-          <>
-            <CanvasDraggingArena
-              {...this.getSnapSpaces()}
-              canExtend={props.canExtend}
-              dropDisabled={!!props.dropDisabled}
-              noPad={this.props.noPad}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              widgetId={props.widgetId}
-            />
-            <CanvasSelectionArena
-              {...this.getSnapSpaces()}
-              canExtend={props.canExtend}
-              dropDisabled={!!props.dropDisabled}
-              parentId={props.parentId}
-              snapRows={snapRows}
-              widgetId={props.widgetId}
-            />
-          </>
-        )}
+        {props.type === "CANVAS_WIDGET" &&
+          props.renderMode === RenderModes.CANVAS && (
+            <>
+              <CanvasDraggingArena
+                {...this.getSnapSpaces()}
+                canExtend={props.canExtend}
+                dropDisabled={!!props.dropDisabled}
+                noPad={this.props.noPad}
+                parentId={props.parentId}
+                snapRows={snapRows}
+                widgetId={props.widgetId}
+              />
+              <CanvasSelectionArena
+                {...this.getSnapSpaces()}
+                canExtend={props.canExtend}
+                dropDisabled={!!props.dropDisabled}
+                parentId={props.parentId}
+                snapRows={snapRows}
+                widgetId={props.widgetId}
+              />
+            </>
+          )}
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}

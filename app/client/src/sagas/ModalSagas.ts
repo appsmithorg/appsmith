@@ -264,6 +264,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
     }
 
     log.debug("resize computations took", performance.now() - start, "ms");
+    //TODO Identify the updated widgets and pass the values
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({

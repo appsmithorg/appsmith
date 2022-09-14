@@ -7,10 +7,7 @@ import {
 } from "actions/workspaceActions";
 import { SaveWorkspaceRequest } from "api/WorkspaceApi";
 import { debounce } from "lodash";
-import TextInput, {
-  emailValidator,
-  notEmptyValidator,
-} from "components/ads/TextInput";
+import { TextInput, emailValidator, notEmptyValidator } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
@@ -38,6 +35,7 @@ const GeneralWrapper = styled.div<{
   width: ${(props) => (props.isPortrait ? "336px" : "383px")};
   margin: ${(props) =>
     props.isMobile ? (props.isPortrait ? "auto" : "120px") : null};
+  padding: 0 20px;
 `;
 
 const InputLabelWrapper = styled.div`

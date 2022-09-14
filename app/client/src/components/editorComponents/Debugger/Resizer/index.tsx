@@ -21,6 +21,8 @@ const Top = styled.div`
 type ResizerProps = {
   panelRef: RefObject<HTMLDivElement>;
   setContainerDimensions?: (height: number) => void;
+  snapToHeight?: number;
+  openResizer?: boolean;
 };
 
 function Resizer(props: ResizerProps) {
@@ -50,6 +52,23 @@ function Resizer(props: ResizerProps) {
   useEffect(() => {
     handleResize(0);
   }, []);
+
+  useEffect(() => {
+    // if the resizer is configured to open and the user is not actively controlling it
+    // snap the resizer to a specific height as specified by the snapToHeight prop.
+    if (props.openResizer && !mouseDown) {
+      const panel = props.panelRef.current;
+      if (!panel) return;
+
+      const { height } = panel.getBoundingClientRect();
+
+      if (props?.snapToHeight && height < props?.snapToHeight) {
+        panel.style.height = `${props?.snapToHeight}px`;
+        props.setContainerDimensions &&
+          props.setContainerDimensions(props?.snapToHeight);
+      }
+    }
+  }, [props?.openResizer]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {

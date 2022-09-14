@@ -11,18 +11,16 @@ import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { searchProperty } from "./helpers";
 import { EmptySearchResult } from "./EmptySearchResult";
+import { useSelector } from "react-redux";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { isFunction } from "lodash";
 
-export const EmptySearchResultWrapper = styled.div`
-  color: ${Colors.GRAY_700};
-
-  svg {
-    fill: ${Colors.GRAY_400};
-  }
-`;
+export enum PropertyPaneGroup {
+  CONTENT,
+  STYLE,
+}
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -42,32 +40,42 @@ type SectionProps = {
 function Section(props: SectionProps) {
   const { config, generatorProps, sectionConfig } = props;
   const sectionRef = useRef<HTMLDivElement>(null);
+  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const [hidden, setHidden] = useState(false);
+
+  const isSectionHidden =
+    sectionConfig.hidden &&
+    sectionConfig.hidden(widgetProps, sectionConfig.propertySectionPath || "");
+  const sectionName = isFunction(sectionConfig.sectionName)
+    ? sectionConfig.sectionName(
+        widgetProps,
+        sectionConfig.propertySectionPath || "",
+      )
+    : sectionConfig.sectionName;
 
   useEffect(() => {
     if (sectionRef.current?.childElementCount === 0) {
       // Fix issue where the section is not hidden when it has no children
       setHidden(true);
+    } else {
+      setHidden(false);
     }
   }, [generatorProps.searchQuery]);
 
   return hidden ? null : (
     <Boxed
       key={config.id + generatorProps.id}
-      show={
-        sectionConfig.sectionName !== "General" &&
-        generatorProps.type === "TABLE_WIDGET"
-      }
+      show={sectionName !== "General" && generatorProps.type === "TABLE_WIDGET"}
       step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
     >
       <PropertySection
         childrenWrapperRef={sectionRef}
         collapsible={sectionConfig.collapsible ?? true}
-        hidden={sectionConfig.hidden}
-        id={config.id || sectionConfig.sectionName}
+        hidden={isSectionHidden}
+        id={config.id || sectionName}
         isDefaultOpen={sectionConfig.isDefaultOpen}
         key={config.id + generatorProps.id + generatorProps.searchQuery}
-        name={sectionConfig.sectionName}
+        name={sectionName}
         propertyPath={sectionConfig.propertySectionPath}
       >
         {config.children &&
@@ -93,28 +101,6 @@ const generatePropertyControl = (
           sectionConfig={sectionConfig}
         />
       );
-      // return (
-      //   <Boxed
-      //     key={config.id + props.id}
-      //     show={
-      //       sectionConfig.sectionName !== "General" &&
-      //       props.type === "TABLE_WIDGET"
-      //     }
-      //     step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
-      //   >
-      //     <PropertySection
-      //       collapsible={sectionConfig.collapsible ?? true}
-      //       hidden={sectionConfig.hidden}
-      //       id={config.id || sectionConfig.sectionName}
-      //       isDefaultOpen={sectionConfig.isDefaultOpen}
-      //       key={config.id + props.id + props.searchQuery}
-      //       name={sectionConfig.sectionName}
-      //       propertyPath={sectionConfig.propertySectionPath}
-      //     >
-      //       {config.children && generatePropertyControl(config.children, props)}
-      //     </PropertySection>
-      //   </Boxed>
-      // );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Boxed

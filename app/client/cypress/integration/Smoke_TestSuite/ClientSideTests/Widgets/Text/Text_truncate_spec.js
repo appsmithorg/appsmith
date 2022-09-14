@@ -32,6 +32,8 @@ describe("Text Widget Truncate Functionality", function() {
   });
 
   it("Enable Truncate Text option and Validate", function() {
+    cy.wait(2000);
+    cy.get("body").type("{esc}");
     cy.selectDropdownValue(
       commonlocators.textOverflowDropdown,
       "Truncate text",

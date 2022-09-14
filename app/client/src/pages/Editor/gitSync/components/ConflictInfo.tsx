@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
 import InfoWrapper from "./InfoWrapper";
 import Link from "./Link";
 import {
@@ -9,8 +8,15 @@ import {
   LEARN_MORE,
   OPEN_REPO,
 } from "@appsmith/constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Size,
+  Text,
+  TextType,
+  Icon,
+  IconSize,
+} from "design-system";
 import { Colors } from "constants/Colors";
 
 const Row = styled.div`

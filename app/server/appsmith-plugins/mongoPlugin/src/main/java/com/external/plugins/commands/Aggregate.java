@@ -24,7 +24,6 @@ import java.util.Map;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.external.plugins.constants.FieldName.AGGREGATE;
 import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -33,6 +32,7 @@ import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter

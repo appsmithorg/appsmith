@@ -48,17 +48,38 @@ export class EntityExplorer {
     `.t--entity-name:contains(${pageName})`;
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + " Query']";
+  _createNewPopup = ".bp3-overlay-content";
+  _entityExplorerWrapper = ".t--entity-explorer-wrapper";
+  _pinEntityExplorer = ".t--pin-entity-explorer";
+  _entityExplorer = ".t--entity-explorer";
+  private _modalTextWidget = (modalName: string) =>
+    "//div[contains(@class, 't--entity-name')][text()='" +
+    modalName +
+    "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
-    section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
+    section: "Widgets" | "Queries/JS" | "Datasources" | "Pages" | "" = "",
   ) {
     this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
       .click({ multiple: true });
-    this.agHelper.Sleep();
+    this.agHelper.Sleep(500);
+  }
+
+  public SelectEntityInModal(
+    modalNameinEE: string,
+    section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
+  ) {
+    this.NavigateToSwitcher("explorer");
+    if (section) this.ExpandCollapseEntity(section); //to expand respective section
+    this.ExpandCollapseEntity(modalNameinEE);
+    cy.xpath(this._modalTextWidget(modalNameinEE))
+      .last()
+      .click({ multiple: true });
+    this.agHelper.Sleep(500);
   }
 
   public AddNewPage() {
@@ -85,16 +106,19 @@ export class EntityExplorer {
     );
   }
 
-  public ExpandCollapseEntity(entityName: string, expand = true) {
+  public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
     cy.xpath(this._expandCollapseArrow(entityName))
+      .eq(index)
       .invoke("attr", "name")
       .then((arrow) => {
         if (expand && arrow == "arrow-right")
           cy.xpath(this._expandCollapseArrow(entityName))
+            .eq(index)
             .trigger("click", { multiple: true })
             .wait(1000);
         else if (!expand && arrow == "arrow-down")
           cy.xpath(this._expandCollapseArrow(entityName))
+            .eq(index)
             .trigger("click", { multiple: true })
             .wait(1000);
         else this.agHelper.Sleep(500);
@@ -112,14 +136,17 @@ export class EntityExplorer {
       .last()
       .click({ force: true });
     cy.xpath(this._contextMenuItem(action)).click({ force: true });
-    this.agHelper.Sleep(500);
+    this.agHelper.Sleep(300);
+    if (action == "Delete") {
+      subAction = "Are you sure?";
+    }
     if (subAction) {
       cy.xpath(this._contextMenuItem(subAction)).click({ force: true });
-      this.agHelper.Sleep(500);
+      this.agHelper.Sleep(300);
     }
     if (action == "Delete") {
       jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
-      jsDelete && this.agHelper.WaitUntilToastDisappear("deleted successfully");
+      jsDelete && this.agHelper.AssertContains("deleted successfully");
     }
   }
 
@@ -150,7 +177,7 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.ExpandCollapseEntity("PAGES");
+    this.ExpandCollapseEntity("Pages");
     cy.get(this.getPageLocator(pageName))
       .trigger("mouseover")
       .click({ force: true });
@@ -175,5 +202,18 @@ export class EntityExplorer {
     this.SelectEntityByName(widgetName);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
+  }
+
+  public PinUnpinEntityExplorer(pin = true) {
+    this.agHelper
+      .GetElement(this._entityExplorer)
+      .invoke("attr", "class")
+      .then(($classes) => {
+        if (pin && !$classes?.includes("fixed"))
+          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+        else if (!pin && $classes?.includes("fixed"))
+          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+        else this.agHelper.Sleep(200); //do nothing
+      });
   }
 }

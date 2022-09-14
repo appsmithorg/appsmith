@@ -17,7 +17,7 @@ import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import { Colors } from "constants/Colors";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 
@@ -108,7 +108,7 @@ function Files() {
       isDefaultExpanded={isFilesOpen ?? true}
       isSticky
       key={pageId + "_widgets"}
-      name="QUERIES/JS"
+      name="Queries/JS"
       onCreate={onCreate}
       onToggle={onFilesToggle}
       searchKeyword={""}

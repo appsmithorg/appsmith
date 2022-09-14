@@ -27,7 +27,7 @@ import {
 import FormTextField from "components/ads/formFields/TextField";
 import { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 
 const DetailsFormWrapper = styled.div`

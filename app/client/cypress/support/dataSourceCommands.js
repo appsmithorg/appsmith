@@ -8,6 +8,7 @@ const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
+const apiEditorLocators = require("../locators/ApiEditor");
 
 const backgroundColorBlack = "rgb(0, 0, 0)";
 const backgroundColorGray1 = "rgb(250, 250, 250)";
@@ -336,7 +337,6 @@ Cypress.Commands.add(
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
   cy.get(datasourceEditor.PostgreSQL).click();
-  //cy.getPluginFormsAndCreateDatasource();
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
 });
@@ -450,6 +450,37 @@ Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
     .click();
   //Verify the status of deletion
   cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {
+  cy.NavigateToDatasourceEditor();
+  //Click on Authenticated Graphql API
+  cy.get(apiEditorLocators.createGraphQLDatasource).click({ force: true });
+  //Verify weather Authenticated Graphql Datasource is successfully created.
+  cy.wait("@createDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+
+  // Change the Graphql Datasource name
+  cy.get(".t--edit-datasource-name").click();
+  cy.get(".t--edit-datasource-name input")
+    .clear()
+    .type(datasourceName, { force: true })
+    .should("have.value", datasourceName)
+    .blur();
+
+  // Adding Graphql Url
+  cy.get("input[name='url']").type(datasourceFormData.graphqlApiUrl);
+
+  // save datasource
+  cy.get(".t--save-datasource").click({ force: true });
+  cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,

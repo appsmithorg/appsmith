@@ -112,7 +112,10 @@ Cypress.Commands.add("shareApp", (email, role) => {
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
-  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(homePage.selectRole).should("be.visible");
+  cy.xpath("//span[@name='expand-more']")
+    .last()
+    .click();
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
   cy.wait("@mockPostInvite")
@@ -292,9 +295,10 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     applicationId = response.body.data.id;
     localStorage.setItem("applicationId", applicationId);
   });
-  cy.get("#loading").should("not.exist");
+  //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  //cy.reload();
+  cy.get(generatePage.buildFromScratchActionCard).should("be.visible");
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
@@ -307,7 +311,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   cy.get("body").realHover({ position: "topLeft" });
 
   cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
-    errorMsg: "Build app from scratch not visible even aft 80 secs",
+    errorMsg: "Build app from scratch not visible even aft 20 secs",
     timeout: 20000,
     interval: 1000,
   }).then(($ele) =>

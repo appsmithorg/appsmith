@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { isNil } from "lodash";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -68,7 +68,7 @@ function Connected() {
         <NewActionButton
           datasource={datasource}
           eventFrom="datasource-pane"
-          pluginType={plugin?.type}
+          plugin={plugin}
         />
       </Header>
       <div style={{ marginTop: "30px" }}>

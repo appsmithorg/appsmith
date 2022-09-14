@@ -1,9 +1,4 @@
-import {
-  WidgetBuilder,
-  WidgetDataProps,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
 import React from "react";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
@@ -16,6 +11,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -25,7 +21,7 @@ class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
-    WidgetBuilder<WidgetProps, WidgetState>
+    WidgetBuilder<CanvasWidgetStructure, WidgetState>
   > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
@@ -52,6 +48,7 @@ class WidgetFactory {
     WidgetType,
     readonly PropertyPaneConfig[]
   > = new Map();
+  static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -68,6 +65,7 @@ class WidgetFactory {
     propertyPaneContentConfig?: PropertyPaneConfig[],
     propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
+    loadingProperties?: Array<RegExp>,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -75,6 +73,8 @@ class WidgetFactory {
       this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
       this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+      loadingProperties &&
+        this.loadingProperties.set(widgetType, loadingProperties);
 
       if (propertyPaneConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
@@ -146,10 +146,10 @@ class WidgetFactory {
   }
 
   static createWidget(
-    widgetData: WidgetDataProps,
+    widgetData: CanvasWidgetStructure,
     renderMode: RenderMode,
   ): React.ReactNode {
-    const widgetProps: WidgetProps = {
+    const widgetProps = {
       key: widgetData.widgetId,
       isVisible: true,
       ...widgetData,
@@ -157,7 +157,6 @@ class WidgetFactory {
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
-      // TODO validate props here
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {
@@ -223,7 +222,6 @@ class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneContentConfigsMap.get(type);
     if (!map) {
-      log.error("Widget property pane content configs not defined", type);
       return [];
     }
     return map;
@@ -234,7 +232,6 @@ class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneStyleConfigsMap.get(type);
     if (!map) {
-      log.error("Widget property pane style configs not defined", type);
       return [];
     }
     return map;
@@ -250,6 +247,10 @@ class WidgetFactory {
       };
     });
     return typeConfigMap;
+  }
+
+  static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
+    return this.loadingProperties.get(type);
   }
 }
 

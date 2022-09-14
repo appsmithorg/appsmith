@@ -1,9 +1,8 @@
 import React, { ReactNode } from "react";
 import { CommonComponentProps, Classes, Variant } from "./common";
 import styled from "styled-components";
-import Icon, { IconSize } from "./Icon";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system";
 
 export type CalloutProps = CommonComponentProps & {
   variant?: Variant;
@@ -17,7 +16,7 @@ export type CalloutProps = CommonComponentProps & {
 
 const CalloutContainer = styled.div<{
   variant: Variant;
-  fill?: boolean;
+  fillUp?: boolean;
   addMarginTop?: boolean;
 }>`
   position: relative;
@@ -32,7 +31,7 @@ const CalloutContainer = styled.div<{
   `}
 
   ${(props) =>
-    props.fill
+    props.fillUp
       ? `
   display: flex;
   align-items: center;
@@ -83,7 +82,7 @@ function Callout(props: CalloutProps) {
     <CalloutContainer
       addMarginTop={props.addMarginTop}
       className={props.className}
-      fill={props.fill}
+      fillUp={props.fill}
       variant={props.variant || Variant.info}
     >
       {props.text && props.variant !== Variant.info ? (

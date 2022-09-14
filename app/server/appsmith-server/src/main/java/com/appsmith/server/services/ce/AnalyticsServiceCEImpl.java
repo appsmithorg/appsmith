@@ -2,13 +2,13 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.segment.analytics.Analytics;
@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -31,19 +32,21 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     private final SessionUserService sessionUserService;
     private final CommonConfig commonConfig;
     private final ConfigService configService;
-    private final PolicyUtils policyUtils;
+
+    private final UserUtils userUtils;
 
     @Autowired
     public AnalyticsServiceCEImpl(@Autowired(required = false) Analytics analytics,
                                   SessionUserService sessionUserService,
                                   CommonConfig commonConfig,
                                   ConfigService configService,
-                                  PolicyUtils policyUtils) {
+                                  PolicyUtils policyUtils,
+                                  UserUtils userUtils) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
         this.configService = configService;
-        this.policyUtils = policyUtils;
+        this.userUtils = userUtils;
     }
 
     public boolean isActive() {
@@ -59,13 +62,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             return Mono.just(user);
         }
 
+        Mono<Boolean> isSuperUserMono = userUtils.isSuperUser(user);
+
         return Mono.just(user)
-                .map(savedUser -> {
-                    final Boolean isSuperUser = policyUtils.isPermissionPresentForUser(
-                            savedUser.getPolicies(),
-                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
-                            savedUser.getUsername()
-                    );
+                .zipWith(isSuperUserMono)
+                .map(tuple -> {
+                    User savedUser = tuple.getT1();
+                    final Boolean isSuperUser = tuple.getT2();
 
                     String username = savedUser.getUsername();
                     String name = savedUser.getName();
@@ -92,6 +95,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     }
 
     public void identifyInstance(String instanceId, String role, String useCase) {
+        if (!isActive()) {
+            return;
+        }
+
         analytics.enqueue(IdentifyMessage.builder()
                 .userId(instanceId)
                 .traits(Map.of(
@@ -164,7 +171,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             return Mono.just(object);
         }
 
-        final String eventTag = event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+        final String eventTag = getEventTag(event, object);
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
@@ -197,13 +204,32 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("oid", object.getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
-                        // To avoid sending extra audit data to analytics
-                        analyticsProperties.remove(FieldName.AUDIT_DATA);
+                        // To avoid sending extra event data to analytics
+                        analyticsProperties.remove(FieldName.EVENT_DATA);
                     }
 
                     sendEvent(eventTag, username, analyticsProperties);
                     return object;
                 });
+    }
+
+    /**
+     * Generates event name tag to analytic events
+     * @param event AnalyticsEvents
+     * @param object Analytic event resource object
+     * @return String
+     */
+    private <T extends BaseDomain> String getEventTag(AnalyticsEvents event, T object) {
+        // In case of action execution or instance setting update, event.getEventName() only is used to support backward compatibility of event name
+        List<AnalyticsEvents> nonResourceEvents = List.of(
+                AnalyticsEvents.EXECUTE_ACTION,
+                AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
+                AnalyticsEvents.EXECUTE_INVITE_USERS
+        );
+        boolean isNonResourceEvent = nonResourceEvents.contains(event);
+        final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+
+        return eventTag;
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {

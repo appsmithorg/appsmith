@@ -85,21 +85,21 @@ const FilePickerGlobalStyles = createGlobalStyle<{
       /* Sets the black background of remove file button hidden */
         visibility: hidden;
       }
-  
+
       & path:last-child {
       /* Sets the cross mark color of remove file button */
         fill: #858282;
       }
-  
+
       background-color: #FFFFFF;
       box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.1);
-  
+
       & {
       /* Sets the black background of remove file button hidden*/
         border-radius: ${({ borderRadius }) =>
           borderRadius === "0.375rem" ? "0.25rem" : borderRadius};
       }
-    }    
+    }
   }
   /*********************************************************/
 
@@ -155,7 +155,7 @@ const FilePickerGlobalStyles = createGlobalStyle<{
 
   .uppy-Dashboard-AddFiles {
     border-radius: ${({ borderRadius }) => borderRadius} !important;
-  } 
+  }
   /*********************************************************/
 
   /*********************************************************/
@@ -172,7 +172,7 @@ const FilePickerGlobalStyles = createGlobalStyle<{
   /*********************************************************/
 
   /*********************************************************/
-  /* Style the + add more files button on top right corner of the upload modal */  
+  /* Style the + add more files button on top right corner of the upload modal */
   .uppy-DashboardContent-addMore {
     color: var(--wds-accent-color);
     font-weight: 400;
@@ -420,9 +420,255 @@ class FilePickerWidget extends BaseWidget<
       },
     ];
   }
+
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "Basic",
+        children: [
+          {
+            propertyName: "allowedFileTypes",
+            helpText: "Restricts the type of files which can be uploaded",
+            label: "Allowed File Types",
+            controlType: "DROP_DOWN",
+            isMultiSelect: true,
+            placeholderText: "Select File types",
+            options: [
+              {
+                label: "Any File",
+                value: "*",
+              },
+              {
+                label: "Images",
+                value: "image/*",
+              },
+              {
+                label: "Videos",
+                value: "video/*",
+              },
+              {
+                label: "Audio",
+                value: "audio/*",
+              },
+              {
+                label: "Text",
+                value: "text/*",
+              },
+              {
+                label: "MS Word",
+                value: ".doc",
+              },
+              {
+                label: "JPEG",
+                value: "image/jpeg",
+              },
+              {
+                label: "PNG",
+                value: ".png",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                unique: true,
+                children: {
+                  type: ValidationTypes.TEXT,
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            helpText: "Set the format of the data read from the files",
+            propertyName: "fileDataType",
+            label: "Data Format",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: FileDataTypes.Base64,
+                value: FileDataTypes.Base64,
+              },
+              {
+                label: FileDataTypes.Binary,
+                value: FileDataTypes.Binary,
+              },
+              {
+                label: FileDataTypes.Text,
+                value: FileDataTypes.Text,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "maxNumFiles",
+            label: "Max No. of files",
+            helpText:
+              "Sets the maximum number of files that can be uploaded at once",
+            controlType: "INPUT_TEXT",
+            placeholderText: "1",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            propertyName: "label",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            helpText: "Sets the label of the button",
+            placeholderText: "Select Files",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Validation",
+        children: [
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "maxFileSize",
+            helpText: "Sets the maximum size of each file that can be uploaded",
+            label: "Max file size(Mb)",
+            controlType: "INPUT_TEXT",
+            placeholderText: "5",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 1, max: 100, default: 5 },
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disable",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText:
+              "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
+            propertyName: "onFilesSelected",
+            label: "onFilesSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Color",
+        children: [
+          {
+            propertyName: "buttonColor",
+            helpText: "Changes the color of the button",
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+    ];
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
   }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
@@ -551,14 +797,17 @@ class FilePickerWidget extends BaseWidget<
        * Uppy provides an argument called reason. It helps us to distinguish on which event the file-removed event was called.
        * Refer to the following issue to know about reason prop: https://github.com/transloadit/uppy/pull/2323
        */
-      if (reason !== "cancel-all") {
-        const updatedFiles = this.props.selectedFiles
+      let updatedFiles = [];
+      if (reason === "removed-by-user") {
+        updatedFiles = this.props.selectedFiles
           ? this.props.selectedFiles.filter((dslFile) => {
               return file.id !== dslFile.id;
             })
           : [];
-        this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+      } else if (reason === "cancel-all") {
+        updatedFiles = [];
       }
+      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {

@@ -14,8 +14,8 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    ee.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}",
     );
@@ -29,8 +29,8 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    ee.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{
           new Promise((resolve) => {
@@ -52,17 +52,18 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
+    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{this.params.country}}",
       "Genderize",
+      30000,
     );
     apiPage.ValidateQueryParams({
       key: "name",
       value: "{{this.params.country}}",
     }); // verifies Bug 10055
-    ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    ee.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{(async function(){
           const user = await RandomUser.run();
@@ -73,11 +74,11 @@ describe("Validate basic Promises", () => {
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg).should("have.length.at.least", 1);
-    cy.get(locator._toastMsg)
-      .first()
-      //.should("contain.text", "Your country is");
-      .contains(/Your country is|failed to execute/g);
+    agHelper.AssertElementLength(locator._toastMsg, 1);
+    agHelper.GetNAssertContains(
+      locator._toastMsg,
+      /Your country is|failed to execute/g,
+    );
 
     //Since sometimes api is failing & no 2nd toast in that case
     // cy.get(locator._toastMsg)
@@ -91,30 +92,32 @@ describe("Validate basic Promises", () => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
-      "https://source.unsplash.com/collection/8439505",
-      "Christmas",
+      "https://picsum.photos/200/300",
+      "RandomImy",
+      30000,
     );
-    ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    ee.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{
             (function () {
-          return Christmas.run()
+          return RandomImy.run()
             .then(() => showAlert("You have a beautiful picture", 'success'))
             .catch(() => showAlert('Oops!', 'error'))
         })()
           }}`,
     );
     ee.SelectEntityByName("Image1");
-    propPane.UpdatePropertyFieldValue("Image", `{{Christmas.data}}`);
+    propPane.UpdatePropertyFieldValue("Image", `{{RandomImy.data}}`);
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .contains(/You have a beautiful picture|Oops!/g);
+    agHelper.GetNAssertContains(
+      locator._toastMsg,
+      /You have a beautiful picture|Oops!/g,
+    );
   });
 
   it("5. Verify .then & .catch via JS Objects in Promises", () => {
@@ -122,19 +125,28 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
+    apiPage.CreateAndFillApi(
+      "https://favqs.com/api/qotd",
+      "InspiringQuotes",
+      30000,
+    );
     jsEditor.CreateJSObject(`const user = 'You';
 return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
+      propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     //agHelper.ValidateToastMessage("Today's quote for You")
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .contains(/Today's quote for You|Unable to fetch quote for/g);
+    agHelper
+      .GetNAssertContains(
+        locator._toastMsg,
+        /Today's quote for You|Unable to fetch quote for/g,
+      )
+      .then(($ele: string | JQuery<HTMLElement>) =>
+        agHelper.AssertElementLength($ele, 1),
+      );
   });
 
   it("6. Verify Promise.race via direct Promises", () => {
@@ -145,21 +157,24 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     apiPage.CreateAndFillApi(
       "https://api.agify.io?name={{this.params.person}}",
       "Agify",
+      30000,
     );
     apiPage.ValidateQueryParams({
       key: "name",
       value: "{{this.params.person}}",
     }); // verifies Bug 10055
-    ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    ee.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `,
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .contains(/Melinda|Trump/g);
+    agHelper
+      .AssertElementLength(locator._toastMsg, 1)
+      .then(($ele: string | JQuery<HTMLElement>) =>
+        agHelper.GetNAssertContains($ele, /Melinda|Trump/g),
+      );
   });
 
   it("7. Verify maintaining context via direct Promises", () => {
@@ -170,8 +185,9 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     apiPage.CreateAndFillApi(
       "https://api.jikan.moe/v3/search/anime?q={{this.params.name}}",
       "GetAnime",
+      30000,
     );
-    ee.SelectEntityByName("List1", "WIDGETS");
+    ee.SelectEntityByName("List1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
@@ -194,7 +210,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       "will be executed automatically on page load",
     ); //Validating 'Run API on Page Load' is set once api response is mapped
     ee.SelectEntityByName("Button1");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{
     (function () {
@@ -206,10 +222,9 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.WaitUntilEleAppear(locator._toastMsg);
-    cy.get(locator._toastMsg)
-      //.should("have.length", 1)//covered in WaitUntilEleAppear()
-      .should("have.text", "Showing results for : fruits basket : the final");
+    agHelper.WaitUntilEleAppear(
+      locator._specificToast("Showing results for : fruits basket : the final"),
+    );
   });
 
   it("8: Verify Promise.all via direct Promises", () => {
@@ -217,8 +232,8 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    ee.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       `{{
     (function () {
@@ -248,15 +263,15 @@ RandomUser.run(),
 GetAnime.run({ name: 'Gintama' }),
 InspiringQuotes.run(),
 Agify.run({ person: 'Scripty' }),
-Christmas.run()
+RandomImy.run()
 ]
 showAlert("Running all api's", "warning");
 return Promise.all(allFuncs).then(() =>
 showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); `);
 
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
+      propPane.EnterJSContext(
         "onClick",
         "{{storeValue('date', Date()).then(() => { showAlert(appsmith.store.date, 'success'); return " +
           jsObjName +
@@ -265,18 +280,10 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     });
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    //agHelper.WaitUntilEleAppear(locator._toastMsg)
-    cy.get(locator._toastMsg).should("have.length", 3);
-    cy.get(locator._toastMsg)
-      .eq(0)
-      .should("contain.text", date);
-    cy.get(locator._toastMsg)
-      .eq(1)
-      .contains("Running all api's");
-    agHelper.WaitUntilEleAppear(locator._toastMsg);
-    cy.get(locator._toastMsg)
-      .last()
-      .contains(/Wonderful|Please check/g);
+    agHelper.AssertElementLength(locator._toastMsg, 3);
+    agHelper.ValidateToastMessage(date, 0);
+    agHelper.ValidateToastMessage("Running all api's", 1);
+    agHelper.AssertContains(/Wonderful|Please check/g);
   });
 
   it("10. Verify Promises.any via direct JSObjects", () => {
@@ -308,19 +315,15 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
         shouldCreateNewJSObj: true,
       },
     );
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext("onClick", "{{" + jsObjName + ".runAny()}}");
+      propPane.EnterJSContext("onClick", "{{" + jsObjName + ".runAny()}}");
     });
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg).should("have.length", 4);
-    cy.get(locator._toastMsg)
-      .eq(0)
-      .contains("Promises reject from func2");
-    cy.get(locator._toastMsg)
-      .last()
-      .contains("Resolved promise is:func3");
+    agHelper.AssertElementLength(locator._toastMsg, 4);
+    agHelper.ValidateToastMessage("Promises reject from func2", 0);
+    agHelper.ValidateToastMessage("Resolved promise is:func3", 3); //Validating last index
   });
 
   it("11. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
@@ -328,13 +331,13 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     cy.fixture("promisesBtnDsl").then((dsl: any) => {
       agHelper.AddDsl(dsl, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    ee.SelectEntityByName("Button1", "Widgets");
+    propPane.EnterJSContext(
       "onClick",
       "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
     );
-    deployMode.DeployApp(locator._inputWidgetInDeployed);
-    cy.get(locator._inputWidgetInDeployed).type("Update value");
+    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
+    agHelper.TypeText(locator._widgetInputSelector("inputwidgetv2"), "Update value")
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Test");
   });
@@ -349,7 +352,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     ee.SelectEntityByName("Button1");
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
+      propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Today's quote for You");

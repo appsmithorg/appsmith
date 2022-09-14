@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   AppViewerRouteParams,
   BuilderRouteParams,
@@ -21,7 +21,7 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";

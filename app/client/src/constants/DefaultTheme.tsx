@@ -82,18 +82,42 @@ export const BlueprintControlTransform = css`
         box-shadow: none;
         border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
-        opacity: 0.5;
+
+      &
+        input:invalid:not(:disabled):not(:checked)
+        ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger);
       }
+
+      &:hover
+        input:invalid:not(:disabled):not(:checked)
+        ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger-hover) !important;
+      }
+
       & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        border: 1px solid ${Colors.GREY_5};
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
+      }
+
+      & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
+      }
+
+      &:hover {
+        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
+          border: 1px solid ${Colors.GREY_6} !important;
+        }
       }
     }
 
     .${Classes.SWITCH} {
-      & .${Classes.CONTROL_INDICATOR} {
+      & input ~ .${Classes.CONTROL_INDICATOR} {
+        transition: none;
+
         &::before {
-          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+          box-shadow: none;
         }
       }
       input:checked ~ .${Classes.CONTROL_INDICATOR} {
@@ -102,8 +126,22 @@ export const BlueprintControlTransform = css`
         }
       }
       input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${Colors.GREY_3};
-        border: 1px solid ${Colors.GREY_5};
+        background: var(--wds-color-bg-strong);
+        border: 1px solid var(--wds-color-border);
+      }
+
+      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
+        background: var(--wds-color-bg-disabled) !important;
+        &::before {
+          background: var(--wds-color-bg-disabled-strong);
+        }
+      }
+
+      &:hover {
+        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
+          background: var(--wds-color-bg-strong-hover);
+          border: 1px solid var(--wds-color-border-hover) !important;
+        }
       }
     }
 
@@ -342,16 +380,10 @@ export const BlueprintRadioSwitchGroupTransform = css<{
     }
     .bp3-control-indicator {
       margin-top: 0;
-      border: 1px solid ${Colors.GREY_3};
-    }
-    input:checked ~ .bp3-control-indicator,
-    &:hover input:checked ~ .bp3-control-indicator {
-      background-color: ${Colors.GREEN};
-    }
-    &:hover {
-      & input:not(:checked) ~ .bp3-control-indicator {
-        border: 1px solid ${Colors.GREY_5} !important;
-      }
+      border: 1px solid ${Colors.GREY_5};
+      box-shadow: none;
+      background-image: none;
+      background-color: white;
     }
   }
 `;
@@ -1248,7 +1280,6 @@ type ColorType = {
   debugger: {
     background: string;
     messageTextColor: string;
-    time: string;
     label: string;
     entity: string;
     entityLink: string;
@@ -1272,15 +1303,18 @@ type ColorType = {
       color: string;
     };
     info: {
+      time: string;
       borderBottom: string;
     };
     warning: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
       hoverIconColor: string;
     };
     error: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
@@ -2066,7 +2100,6 @@ export const dark: ColorType = {
   debugger: {
     background: darkShades[11],
     messageTextColor: "#D4D4D4",
-    time: "#D4D4D4",
     label: "#D4D4D4",
     entity: "rgba(212, 212, 212, 0.5)",
     entityLink: "#D4D4D4",
@@ -2092,15 +2125,18 @@ export const dark: ColorType = {
       shortcut: "#D4D4D4",
     },
     info: {
+      time: "#D4D4D4",
       borderBottom: "black",
     },
     warning: {
+      time: "#D4D4D4",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      time: "#D4D4D4",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "black",
@@ -2698,10 +2734,9 @@ export const light: ColorType = {
   debugger: {
     background: "#FFFFFF",
     messageTextColor: "#716e6e",
-    time: "#4b4848",
-    label: "#4b4848",
+    label: "#575757",
     entity: "rgba(75, 72, 72, 0.7)",
-    entityLink: "#6d6d6d",
+    entityLink: "#575757",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
     evalDebugButton: {
@@ -2724,19 +2759,22 @@ export const light: ColorType = {
       shortcut: "black",
     },
     info: {
-      borderBottom: "rgba(0, 0, 0, 0.05)",
+      time: "#939393",
+      borderBottom: "#E8E8E8",
     },
     warning: {
+      time: "#575757",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
-      borderBottom: "white",
-      backgroundColor: "rgba(254, 184, 17, 0.1)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#FFF8E2",
     },
     error: {
+      time: "#575757",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
-      borderBottom: "white",
-      backgroundColor: "rgba(242, 43, 43, 0.08)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#F9E9E9",
     },
   },
   guidedTour,

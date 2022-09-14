@@ -44,7 +44,7 @@ describe("JSEditor tests", function() {
         },
         clearStore: async () => { //function to clear store values
           Object.keys(appsmith.store).forEach((eachKey) => {
-            storeValue(eachKey, 'undefined')	
+            storeValue(eachKey, 'undefined')
             //return showAlert(eachKey)
            })
         }
@@ -56,7 +56,7 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Page1")`).click();
     cy.wait(4000);
     // verify text in the text widget
@@ -119,78 +119,6 @@ describe("JSEditor tests", function() {
       cy.get("input.bp3-input").should("have.value", "1");
     });
   });
-  it("Testing dynamic widgets display using consecutive storeValue calls", () => {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("GenerateRecords");
-    cy.enterDatasourceAndPath(
-      "http://host.docker.internal:5001/v1/dynamicrecords",
-      "/generaterecords?records=10",
-    );
-    cy.SaveAndRunAPI();
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("randomUserGenerator");
-    cy.enterDatasourceAndPath(
-      "http://host.docker.internal:5001/v1/dynamicrecords",
-      "/getstudents",
-    );
-    cy.SaveAndRunAPI();
-    cy.CreateAPI("failedQuery");
-    cy.enterDatasourceAndPath("falseapi", "/getstudents");
-    jsEditor.CreateJSObject(
-      `export default {
-        myFun1: () => { 
-          // TC1.clearStore()
-          return randomUserGenerator.run()
-            .then((res) => {
-            let values =
-                [
-                  storeValue('pic', res[0].image),
-                  storeValue('phone', res[0].phone),
-                  storeValue('email', res[0].email),
-                  storeValue('lat', res[0].latitude),
-                  storeValue('long', res[0].longitude),
-                  storeValue('title', res[0].name),
-                  storeValue('password', res[0].postalcode)
-                ]
-            return Promise.all(values)
-              .then(() => {	
-              showAlert("completed storing all values and now displaying fetched data on appropriate widgets") })
-              .catch((err) => { 
-              console.log("Could not store values ", err.toString())
-              showAlert('Could not store values ', err.toString())		}) })
-        },
-        myFun2: async () => {
-          return failedQuery.run()
-            .then(() => showAlert("Query run was successful"))
-            .catch(() => {
-            return randomUserGenerator.run()
-              .then((res) => {
-              let values =
-                  [
-                    storeValue('pic', res[0].image),
-                    storeValue('phone', res[0].phone),
-                    storeValue('email', res[0].email),
-                    storeValue('lat', res[0].latitude),
-                    storeValue('long', res[0].longitude),
-                    storeValue('title', res[0].name)
-                  ]
-              return Promise.all(values)
-                .then(() => {	
-                showAlert("completed storing all values and now displaying all values on appropriate widgets") })
-                .catch((err) => { 
-                console.log("Could not store value in store ", err.toString())
-                showAlert('Could not store values in store ', err.toString())		
-              }) 
-            })
-          })
-        }}`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-      },
-    );
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("Page1")`).click();
     cy.wait(10000);
@@ -259,6 +187,5 @@ describe("JSEditor tests", function() {
       "contain",
       "completed storing all values and now displaying fetched data on appropriate widgets",
     );
-    cy.pause();
   });
 });

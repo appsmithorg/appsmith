@@ -23,6 +23,7 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
+  migrateTableWidgetV2Validation,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -58,6 +59,7 @@ import {
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
+import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1080,6 +1082,16 @@ export const transformDSL = (
 
   if (currentDSL.version === 58) {
     currentDSL = migrateCheckboxSwitchProperty(currentDSL);
+    currentDSL.version = 59;
+  }
+
+  if (currentDSL.version === 59) {
+    currentDSL = migrateChartWidgetReskinningData(currentDSL);
+    currentDSL.version = 60;
+  }
+
+  if (currentDSL.version === 60) {
+    currentDSL = migrateTableWidgetV2Validation(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

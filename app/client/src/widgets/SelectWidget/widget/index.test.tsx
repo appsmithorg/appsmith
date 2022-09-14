@@ -69,6 +69,27 @@ describe("defaultOptionValueValidation - ", () => {
     });
   });
 
+  it("should get tested with simple string with stringified options", () => {
+    const input = "green";
+
+    expect(
+      defaultOptionValueValidation(
+        input,
+        {
+          options: JSON.stringify([
+            { label: "Green", value: "green" },
+          ]) as unknown,
+          serverSideFiltering: false,
+        } as SelectWidgetProps,
+        _,
+      ),
+    ).toEqual({
+      isValid: true,
+      parsed: "green",
+      messages: [""],
+    });
+  });
+
   it("should get tested with plain object", () => {
     const input = {
       label: "green",

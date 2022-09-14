@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+import HomePage from "../../../../locators/HomePage";
 let workspaceId: any, appid: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage;
@@ -40,6 +40,19 @@ describe("Create new workspace and invite user & validate all roles", () => {
       .first()
       .trigger("mouseover");
     cy.get(homePage._appHoverIcon("edit")).should("not.exist");
+    // verify only viewer role is visible
+    cy.xpath("//span[text()='Share']")
+      .first()
+      .click();
+    // click on selet a role
+    cy.wait(2000);
+    cy.xpath(HomePage.selectRole).click();
+    cy.get(".t--dropdown-option")
+      .should("have.length", 2)
+      .and("contain.text", `App Viewer - ${workspaceId}`);
+    cy.get(".t--dropdown-option").should("contain.text", `Select a role`);
+    cy.get(HomePage.closeBtn).click();
+
     homePage.LaunchAppFromAppHover();
     homePage.LogOutviaAPI();
   });
@@ -69,7 +82,20 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(homePage._appHoverIcon("edit"))
       .first()
       .click({ force: true });
-    cy.xpath(homePage._editPageLanding).should("exist");
+    // cy.xpath(homePage._editPageLanding).should("exist");
+    cy.wait(4000);
+    cy.xpath("//span[text()='SHARE']").click();
+    cy.wait(2000);
+    cy.xpath(HomePage.selectRole).click();
+    cy.get(".t--dropdown-option")
+      .should("have.length", 3)
+      .and(
+        "contain.text",
+        `App Viewer - ${workspaceId}`,
+        `Developer - ${workspaceId}`,
+      );
+    cy.get(".t--dropdown-option").should("contain.text", `Select a role`);
+    cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
 
@@ -100,6 +126,21 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME2"),
       "App Viewer",
     );
+    cy.wait(2000);
+    cy.xpath(HomePage.selectRole).click();
+    cy.get(".t--dropdown-option")
+      .should("have.length", 4)
+      .should(
+        "contain.text",
+        `App Viewer - ${workspaceId}`,
+        `Developer - ${workspaceId}`,
+      );
+    cy.get(".t--dropdown-option").should(
+      "contain.text",
+      `Administrator - ${workspaceId}`,
+    );
+    cy.get(".t--dropdown-option").should("contain.text", `Select a role`);
+    cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
 

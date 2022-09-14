@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
 import { SetProgress, FileType } from "components/ads/FilePicker";

@@ -101,46 +101,10 @@
       }
     };
 
-    // Note: The following handler is necessary for when we have a new deployment.
-
-    // What happens?
-    // The chunk hashes change, resulting in the server not able to find
-    // the previous chunks which the client will keep requesting, until the "new" index.html
-    // is loaded. This new index.html is loaded on page reload.
-
-    // Current solution:
-    // 1. Make sure it is indeed Appsmith's chunk which failed to fetch (regex match)
-    // 2. Reload once, and don't reload again.
-    // Pitfalls:
-    // 1. First reload will not fetch the new index.html, if the server isn't yet ready to serve it.
-    //    this can happen when the server is still deploying.
-
-    // TODO(abhinav): A comprehensive solution is involve the user when repeated
-    // reloads are necessary.
-    // 1. Delay reloads in increasing durations
-    // 2. Allow the user to pre-emptively reload or cancel reloads altogether.
-    window.onerror = function(message, url) {
-      const regex = /\/static\/js\/(\w.+).js$/;
-      const chunkLoadErrorMessage = "Unexpected token '<'"
-      if(regex.test(url) && url.indexOf(window.location.host) > -1 && message.includes(chunkLoadErrorMessage)) {
-        console.error("chunk load failed!", url);
-        // First check if we've set the flag to not reload on chunk load fail
-        const donotReload = localStorageUtil.getItem("donotReloadOnChunkLoadFail");
-          if(!donotReload){
-            // If donotReload is set to false or undefined, we can set it to true and reload
-            // This signifies that this is the first time this happened in this session.
-            localStorageUtil.setItem("donotReloadOnChunkLoadFail", true);
-            window.location.assign(window.location.href);
-          }
-      }
-    };
     window.addEventListener("DOMContentLoaded", (event) => {
       document.getElementById("loader").style.width = "50vw";
     });
     window.addEventListener("load", (event) => {
-      // This signifies that we've had a chunk load failure in this session
-      // We clear the entry, as otherwise, we will have a repeated reload scenario.
-      localStorageUtil.removeItem("donotReloadOnChunkLoadFail");
 
       document.getElementById("loader").style.width = "100vw";
       setTimeout(() => {
