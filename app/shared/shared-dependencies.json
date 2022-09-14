@@ -1,4 +1,4 @@
 {
   "client": ["@shared/ast"],
-  "rts": []
+  "rts": ["@shared/ast"]
 }
