@@ -16,7 +16,7 @@ export const CONFIG = {
     capType: "nc",
     capSide: 0,
     strokeStyle: "solid",
-    dividerColor: Colors.GREY_3,
+    dividerColor: Colors.GRAY,
     thickness: 2,
     isVisible: true,
     version: 1,

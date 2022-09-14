@@ -1,6 +1,12 @@
-import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
+import React, { CSSProperties, ReactNode, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
-import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  CSSUnits,
+  PositionTypes,
+  WidgetType,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
@@ -9,10 +15,13 @@ import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { memoize } from "lodash";
-import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import { AppState } from "@appsmith/reducers";
+import {
+  getIsReflowEffectedSelector,
+  getReflowSelector,
+} from "selectors/widgetReflowSelectors";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import equal from "fast-deep-equal";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -20,7 +29,8 @@ const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   }
 `;
 export type PositionedContainerProps = {
-  style: BaseStyle;
+  componentWidth: number;
+  componentHeight: number;
   children: ReactNode;
   parentId?: string;
   widgetId: string;
@@ -32,6 +42,11 @@ export type PositionedContainerProps = {
   isWrapper?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
   direction?: LayoutDirection;
+  topRow: number;
+  parentRowSpace: number;
+  noContainerOffset?: boolean;
+  leftColumn: number;
+  parentColumnSpace: number;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -41,12 +56,40 @@ export const checkIsDropTarget = memoize(function isDropTarget(
 });
 
 export function PositionedContainer(props: PositionedContainerProps) {
-  const x = props.style.xPosition + (props.style.xPositionUnit || "px");
-  const y = props.style.yPosition + (props.style.yPositionUnit || "px");
+  const { componentHeight, componentWidth } = props;
+
+  // Memoizing the style
+  const style: BaseStyle = useMemo(
+    () => ({
+      positionType: PositionTypes.ABSOLUTE,
+      componentHeight,
+      componentWidth,
+      yPosition:
+        props.topRow * props.parentRowSpace +
+        (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPosition:
+        props.leftColumn * props.parentColumnSpace +
+        (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPositionUnit: CSSUnits.PIXEL,
+      yPositionUnit: CSSUnits.PIXEL,
+    }),
+    [
+      componentWidth,
+      componentHeight,
+      props.topRow,
+      props.parentRowSpace,
+      props.parentColumnSpace,
+      props.leftColumn,
+      props.noContainerOffset,
+    ],
+  );
+  // const style: BaseStyle = getStyle(componentWidth, componentHeight);
+  const x = style.xPosition + (style.xPositionUnit || "px");
+  const y = style.yPosition + (style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
-  const clickToSelectWidget = useClickToSelectWidget();
+  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const isSnipingMode = useSelector(snipingModeSelector);
-  // memoized classname
+  // memoized className
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
@@ -57,34 +100,32 @@ export function PositionedContainer(props: PositionedContainerProps) {
     );
   }, [props.widgetType, props.widgetId]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
+
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
     props,
     isDropTarget,
   );
 
-  const reflowSelector = getReflowSelector(props.widgetId);
+  const reflowedPosition = useSelector(
+    getReflowSelector(props.widgetId),
+    equal,
+  );
 
-  const reflowedPosition = useSelector(reflowSelector);
-  const dragDetails = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+  const isReflowEffected = useSelector(
+    getIsReflowEffectedSelector(props.parentId, Boolean(reflowedPosition)),
   );
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
-  const isCurrentCanvasReflowing =
-    (dragDetails && dragDetails.draggedOn === props.parentId) || isResizing;
+
   const containerStyle: CSSProperties = useMemo(() => {
     const reflowX = reflowedPosition?.X || 0;
     const reflowY = reflowedPosition?.Y || 0;
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
-    const reflowEffected = isCurrentCanvasReflowing && reflowedPosition;
     const hasReflowedPosition =
-      reflowEffected && (reflowX !== 0 || reflowY !== 0);
+      isReflowEffected && (reflowX !== 0 || reflowY !== 0);
     const hasReflowedDimensions =
-      reflowEffected &&
-      ((reflowHeight && reflowHeight !== props.style.componentHeight) ||
-        (reflowWidth && reflowWidth !== props.style.componentWidth));
+      isReflowEffected &&
+      ((reflowHeight && reflowHeight !== style.componentHeight) ||
+        (reflowWidth && reflowWidth !== style.componentWidth));
     const effectedByReflow = hasReflowedPosition || hasReflowedDimensions;
     const dropTargetStyles: CSSProperties =
       isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
@@ -101,6 +142,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
           boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }
       : {};
+
     const styles: CSSProperties = {
       // TODO: remove the widget type check. Add check for parent type.
       position: props?.useAutoLayout ? "unset" : "absolute",
@@ -109,14 +151,14 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height:
         reflowHeight || props.isWrapper
           ? "auto"
-          : props.style.componentHeight + (props.style.heightUnit || "px"),
+          : style.componentHeight + (style.heightUnit || "px"),
       width:
         reflowWidth ||
         (props.useAutoLayout &&
           props.direction === LayoutDirection.Horizontal &&
           props.responsiveBehavior === ResponsiveBehavior.Fill)
           ? "auto"
-          : props.style.componentWidth + (props.style.widthUnit || "px"),
+          : style.componentWidth + (style.widthUnit || "px"),
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",
@@ -125,21 +167,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       ...dropTargetStyles,
     };
     return styles;
-  }, [
-    props.style,
-    isCurrentCanvasReflowing,
-    onHoverZIndex,
-    zIndex,
-    reflowSelector,
-    reflowedPosition,
-  ]);
-
-  const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e, props.widgetId);
-    },
-    [props.widgetId, clickToSelectWidget],
-  );
+  }, [style, isReflowEffected, onHoverZIndex, zIndex, reflowedPosition]);
 
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
   const stopEventPropagation = (e: any) => {
@@ -152,9 +180,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
       data-testid="test-widget"
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
-      // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propogated/bubbled out of this Container.
+      // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
       onClick={stopEventPropagation}
-      onClickCapture={onClickFn}
+      onClickCapture={clickToSelectWidget}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
       zIndexOnHover={onHoverZIndex}
@@ -165,5 +193,4 @@ export function PositionedContainer(props: PositionedContainerProps) {
 }
 
 PositionedContainer.padding = WIDGET_PADDING;
-
 export default PositionedContainer;
