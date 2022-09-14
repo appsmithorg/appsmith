@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
@@ -70,14 +70,20 @@ const StyledTabs = styled(Tabs)`
 type PropertyPaneTabProps = {
   styleComponent: JSX.Element | null;
   contentComponent: JSX.Element | null;
+  isPanelProperty?: boolean;
 };
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
   const dispatch = useDispatch();
-  const selectedIndex = useSelector(getSelectedPropertyTabIndex);
+  const globalSelectedIndex = useSelector(getSelectedPropertyTabIndex);
+  const [localSelectedIndex, setLocalSelectedIndex] = useState(0);
 
   const setSelectedIndex = (index: number) => {
-    dispatch(setSelectedPropertyTabIndex(index));
+    if (props.isPanelProperty) {
+      setLocalSelectedIndex(index);
+    } else {
+      dispatch(setSelectedPropertyTabIndex(index));
+    }
   };
 
   const tabs = useMemo(() => {
@@ -99,6 +105,9 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
     return arr;
   }, [props.styleComponent, props.contentComponent]);
 
+  const selectedIndex = props.isPanelProperty
+    ? localSelectedIndex
+    : globalSelectedIndex;
   return (
     <>
       <StyledTabs onSelect={setSelectedIndex} selectedIndex={selectedIndex}>

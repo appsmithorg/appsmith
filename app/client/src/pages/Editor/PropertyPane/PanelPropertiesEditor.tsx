@@ -190,6 +190,7 @@ export function PanelPropertiesEditor(
                 </PanelWrapper>
               ) : null
             }
+            isPanelProperty
             styleComponent={
               panelConfigsWithStyleAndContent.style ? (
                 <PanelWrapper>
