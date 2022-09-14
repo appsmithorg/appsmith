@@ -71,25 +71,6 @@ jobs:
       - id: timestamp
         run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
-      # In case this is second attempt try restoring status of the prior attempt from cache
-      - name: Restore the previous run result
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-
-
-      # Fetch prior run result
-      - name: Get the previous run result
-        id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
-
-      # Incase of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'
-        run: echo "I'm alive!" && exit 0
-
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
@@ -99,7 +80,6 @@ jobs:
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v2
         env:
           cache-name: cache-maven-dependencies
@@ -114,7 +94,6 @@ jobs:
       # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
       # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
       - name: Get the version to tag the Docker image
-        if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
           # Since this is an unreleased build, we set the version to incremented version number with a
@@ -128,7 +107,6 @@ jobs:
 
       # Build and test the code
       - name: Build and test
-        if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
@@ -143,16 +121,6 @@ jobs:
             -DprocessAllModules=true
           ./build.sh
 
-      # Restore the previous built bundle if present. If not push the newly built into the cache
-      - name: Restore the previous bundle
-        uses: actions/cache@v2
-        with:
-          path: |
-            app/server/dist/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
-
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
         uses: actions/upload-artifact@v2
@@ -160,4 +128,3 @@ jobs:
           name: build
           path: app/server/dist/
 
-      - run: echo "::set-output name=run_result::success" > ~/run_result
