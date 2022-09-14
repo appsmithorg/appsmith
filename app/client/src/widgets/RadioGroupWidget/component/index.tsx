@@ -6,11 +6,10 @@ import { RadioGroup, Radio, Alignment, Classes } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
-import {
-  LabelWithTooltip,
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -117,6 +116,7 @@ const RadioGroupComponent = React.forwardRef<
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           inline={inline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           optionCount={optionCount}
           position={labelPosition}

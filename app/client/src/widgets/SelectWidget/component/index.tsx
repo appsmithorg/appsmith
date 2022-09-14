@@ -21,8 +21,8 @@ import {
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
-import { LabelWithTooltip } from "design-system";
 import { labelMargin } from "../../WidgetUtils";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
@@ -244,6 +244,7 @@ class SelectComponent extends React.Component<
       boxShadow,
       compactMode,
       disabled,
+      isDynamicHeightEnabled,
       isLoading,
       labelAlignment,
       labelPosition,
@@ -313,6 +314,7 @@ class SelectComponent extends React.Component<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
             ref={this.labelRef}

@@ -25,8 +25,8 @@ import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
-import { LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 export interface TreeSelectProps
   extends Required<
@@ -264,6 +264,7 @@ const SingleSelectTreeComponent = React.forwardRef<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={loading}
             position={labelPosition}
             ref={labelRef}

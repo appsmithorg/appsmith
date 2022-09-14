@@ -17,11 +17,10 @@ import {
   StyledCheckbox,
 } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import {
-  LabelWithTooltip,
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -217,6 +216,7 @@ const CheckboxGroupComponent = React.forwardRef<
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           inline={isInline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}
