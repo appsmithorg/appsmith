@@ -212,10 +212,13 @@ const StepWrapper = styled.div`
   margin: 0px -2px;
 `;
 
-const StepContainer = styled.div`
+const StepContainer = styled.div<{
+  borderRadius?: string;
+}>`
   flex: 1;
   background: #e8e8e8;
   margin: 0px 1px;
+  border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
 // Linear Progress with steps
@@ -228,7 +231,11 @@ function LinearProgressWithSteps(props: ProgressComponentProps) {
       {[...Array(Number(steps))].map((_, index) => {
         const width = getProgressPosition(Number(value), stepSize, index);
         return (
-          <StepContainer data-cy="step" key={index}>
+          <StepContainer
+            borderRadius={props.borderRadius}
+            data-cy="step"
+            key={index}
+          >
             <DeterminateLinearProgress
               borderRadius={props.borderRadius}
               data-cy={width}
