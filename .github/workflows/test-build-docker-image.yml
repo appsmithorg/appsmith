@@ -54,7 +54,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -203,7 +203,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -367,7 +367,6 @@ jobs:
         run: |
           echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           yarn build
-          ls -l dist/node_modules/@shared/ast
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
@@ -375,16 +374,6 @@ jobs:
         with:
           path: |
             app/rts/dist/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
-
-      # Restore the previous built bundle if present. If not push the newly built into the cache
-      - name: Restore the previous bundle
-        uses: actions/cache@v2
-        with:
-          path: |
-            app/rts/node_modules/
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
@@ -401,6 +390,9 @@ jobs:
         with:
           name: rts-dist
           path: app/rts/rts-dist.tar
+
+      # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result
 
   perf-test:
     needs: [buildClient, buildServer, buildRts]
@@ -440,7 +432,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -666,7 +658,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -1073,7 +1065,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -1492,8 +1484,8 @@ jobs:
           fi
 
   package:
-    needs: buildRts
-    runs-on: ubuntu-latest
+    needs: ui-test
+    runs-on: buildjet-4vcpu-ubuntu-2004
     # Set permissions since we're using OIDC token authentication between Depot and Github
     permissions:
       contents: read
@@ -1544,17 +1536,11 @@ jobs:
           name: rts-dist
           path: app/rts/dist
 
-      - name: List the rts directory
+      - name: Untar the rts folder
         run: |
-          ls -l app/rts
-          ls -l app/rts/dist/
-          echo "**** Going to untar ****"
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
           rm app/rts/dist/rts-dist.tar
-          echo "**** Directory structure after untar ****"
-          ls -l app/rts
-          ls -al app/rts/dist/node_modules/@shared/ast
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
@@ -1572,46 +1558,25 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       # Build release Docker image and push to Docker Hub
-      - name: Push RTS release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release'
+      - name: Push client release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: depot/build-push-action@v1
         with:
-          context: app/rts
+          context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
-      - name: Push RTS master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
+      - name: Push client master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: depot/build-push-action@v1
         with:
-          context: app/rts
+          context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
-
-      # Build release Docker image and push to Docker Hub
-      # # - name: Push client release image to Docker Hub
-      # #   if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-      # #   uses: depot/build-push-action@v1
-      # #   with:
-      # #     context: app/client
-      # #     push: true
-      # #     tags: |
-      # #       ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
-
-      # # Build master Docker image and push to Docker Hub
-      # - name: Push client master image to Docker Hub with commit tag
-      #   if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-      #   uses: depot/build-push-action@v1
-      #   with:
-      #     context: app/client
-      #     push: true
-      #     tags: |
-      #       ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{ github.sha }}
-      #       ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
 
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -1661,26 +1626,46 @@ jobs:
       #     fi
 
       # Build release Docker image and push to Docker Hub
-      # - name: Push server release image to Docker Hub
-      #   if: success() && github.ref == 'refs/heads/release'
-      #   uses: depot/build-push-action@v1
-      #   with:
-      #     context: app/server
-      #     push: true
-      #     build-args: |
-      #       APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
-      #     tags: |
-      #       ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+      - name: Push server release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: true
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
-      # - name: Push server master image to Docker Hub with commit tag
-      #   if: success() && github.ref == 'refs/heads/master'
-      #   uses: depot/build-push-action@v1
-      #   with:
-      #     context: app/server
-      #     push: true
-      #     build-args: |
-      #       APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-      #     tags: |
-      #       ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
-      #       ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+      - name: Push server master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: true
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+      # Build release Docker image and push to Docker Hub
+      - name: Push RTS release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/rts
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push RTS master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        uses: depot/build-push-action@v1
+        with:
+          context: app/rts
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
