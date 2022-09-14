@@ -548,7 +548,7 @@ export class DataSources {
     });
   }
 
-  publicCreateNewQueryInDS(dsName: string, query = "", queryName = "") {
+  public CreateNewQueryInDS(dsName: string, query = "", queryName = "") {
     this.ee.CreateNewDsQuery(dsName);
 
     if (queryName) this.agHelper.RenameWithInPane(queryName);

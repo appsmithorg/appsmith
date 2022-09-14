@@ -216,7 +216,7 @@ describe("Autocomplete tests", () => {
   it("7. Autocompletion for bindings inside array and objects", () => {
     DataSources.CreateDataSource("Mongo", true, false);
     cy.get("@dsName").then(($dsName) => {
-      DataSources.publicCreateNewQueryInDS(($dsName as unknown) as string);
+      DataSources.CreateNewQueryInDS(($dsName as unknown) as string);
       DataSources.ValidateNSelectDropdown(
         "Commands",
         "Find Document(s)",
@@ -259,7 +259,7 @@ describe("Autocomplete tests", () => {
   it("8. Multiple binding in single line", () => {
     DataSources.CreateDataSource("Postgres", true, false);
     cy.get("@dsName").then(($dsName) => {
-      DataSources.publicCreateNewQueryInDS(
+      DataSources.CreateNewQueryInDS(
         ($dsName as unknown) as string,
         "SELECT * FROM worldCountryInfo where {{appsmith.store}} {{appsmith}}",
       );
