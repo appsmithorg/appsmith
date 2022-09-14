@@ -330,7 +330,6 @@ export const isThemeBoundProperty = (
 };
 
 export const unsafeFunctionForEval = [
-  "setTimeout",
   "setInterval",
   "clearInterval",
   "setImmediate",
