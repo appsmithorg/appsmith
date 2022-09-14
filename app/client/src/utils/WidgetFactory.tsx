@@ -218,7 +218,7 @@ class WidgetFactory {
     type: WidgetType,
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneConfigsMap.get(type);
-    if (!map) {
+    if (!map || (map && map.length === 0)) {
       return WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
     }
     return map;
