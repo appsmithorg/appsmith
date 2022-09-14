@@ -139,7 +139,7 @@ public class GitExecutorTest {
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s.isMergeAble());
+                    assertThat(s.isMergeAble()).isTrue();
                 })
                 .verifyComplete();
 
@@ -164,7 +164,7 @@ public class GitExecutorTest {
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s.isMergeAble());
+                    assertThat(s.isMergeAble()).isTrue();
                 })
                 .verifyComplete();
 
@@ -281,7 +281,7 @@ public class GitExecutorTest {
                 .create(gitBranchDTOMono)
                 .assertNext(gitBranchDTOS -> {
                    assertThat(gitBranchDTOS.stream().count()).isEqualTo(3);
-                   
+
                 });
     }
 
