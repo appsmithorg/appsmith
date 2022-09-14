@@ -152,6 +152,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.Sleep(1000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
