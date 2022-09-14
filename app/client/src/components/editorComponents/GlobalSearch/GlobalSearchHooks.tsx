@@ -94,7 +94,7 @@ export const useFilteredFileOperations = (query = "") => {
               pluginId: ds.pluginId,
               kind: SEARCH_ITEM_TYPES.actionOperation,
               action: (pageId: string, from: EventLocation) =>
-                createNewQueryAction(pageId, from, ds),
+                createNewQueryAction(pageId, from, ds.id),
             }))
           : []),
       ];
@@ -110,7 +110,7 @@ export const useFilteredFileOperations = (query = "") => {
               kind: SEARCH_ITEM_TYPES.actionOperation,
               pluginId: ds.pluginId,
               action: (pageId: string, from: EventLocation) =>
-                createNewQueryAction(pageId, from, ds),
+                createNewQueryAction(pageId, from, ds.id),
             }))
           : []),
       ];
