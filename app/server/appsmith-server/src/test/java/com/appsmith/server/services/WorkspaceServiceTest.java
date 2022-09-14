@@ -170,7 +170,7 @@ public class WorkspaceServiceTest {
                             .map(PermissionGroup::getId)
                             .collect(Collectors.toSet());
 
-                    assertThat(userPermissionGroupIds.contains(adminPermissionGroup.getId()));
+                    assertThat(userPermissionGroupIds).contains(adminPermissionGroup.getId());
 
                 })
                 .verifyComplete();
@@ -268,7 +268,7 @@ public class WorkspaceServiceTest {
                     Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId()))
                             .build();
-                    
+
                     Policy workspaceCreateApplicationPolicy = Policy.builder().permission(AclPermission.WORKSPACE_CREATE_APPLICATION.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
