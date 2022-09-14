@@ -172,7 +172,7 @@ export function stepSizeValidation(
 
   return {
     isValid: true,
-    parsed: step,
+    parsed: stepValue,
     messages: [""],
   };
 }

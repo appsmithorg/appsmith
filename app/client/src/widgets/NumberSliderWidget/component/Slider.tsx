@@ -1,5 +1,4 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import throttle from "lodash/throttle";
 
 import { LabelWithTooltip } from "design-system";
 import { LabelPosition } from "components/constants";
@@ -159,10 +158,6 @@ const SliderComponent = (props: SliderComponentProps) => {
     }
   };
 
-  const throttledOnChangeEnd = throttle((value: number) => {
-    onChangeEnd(value);
-  }, 800);
-
   const handleTrackKeydownCapture = (
     event: React.KeyboardEvent<HTMLDivElement>,
   ) => {
@@ -173,7 +168,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           event.preventDefault();
           thumb.current?.focus();
           const nextValue = Math.min(Math.max(_value + step, min), max);
-          throttledOnChangeEnd(nextValue);
+          onChangeEnd(nextValue);
           setValue(nextValue);
           break;
         }
@@ -183,7 +178,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           event.preventDefault();
           thumb.current?.focus();
           const nextValue = Math.min(Math.max(_value - step, min), max);
-          throttledOnChangeEnd(nextValue);
+          onChangeEnd(nextValue);
           setValue(nextValue);
           break;
         }
