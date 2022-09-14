@@ -1825,7 +1825,7 @@ describe("getColumnType", () => {
       image: "https://randomuser.me/api/portraits/med/women/39.jpg",
       country: "Germany",
       name: "Bene",
-      checked: "true",
+      checked: true,
     },
     {
       id: 2,
@@ -1838,20 +1838,20 @@ describe("getColumnType", () => {
       image: "https://randomuser.me/api/portraits/med/women/6.jpg",
       country: "Netherlandss",
       name: "AliceBggg11144",
-      checked: "false",
+      checked: false,
     },
     {
       id: 3,
       gender: "female",
       latitude: "-14.0884",
-      longitude: "27.0428",
+      longitude: 27.0428,
       dob: null,
       phone: null,
       email: null,
       image: "https://randomuser.me/api/portraits/med/women/88.jpg",
       country: "Norway",
       name: null,
-      checked: "true",
+      checked: true,
     },
     {
       id: 4,
@@ -1876,6 +1876,7 @@ describe("getColumnType", () => {
       image: "https://randomuser.me/api/portraits/med/women/91.jpg",
       country: "United Kingdom",
       name: "Sue",
+      premium: false,
     },
     {
       id: 6,
@@ -1939,13 +1940,8 @@ describe("getColumnType", () => {
     },
   ];
 
-  it("returns NUMBER column type for string number", () => {
-    const result = getColumnType(tableData, "longitude");
-    expect(ColumnTypes.NUMBER).toEqual(result);
-  });
-
   it("returns NUMBER column type for number value", () => {
-    const result = getColumnType(tableData, "latitude");
+    const result = getColumnType(tableData, "id");
     expect(ColumnTypes.NUMBER).toEqual(result);
   });
 
@@ -1954,7 +1950,7 @@ describe("getColumnType", () => {
     expect(ColumnTypes.TEXT).toEqual(result);
   });
 
-  it("returns TEXT column type for string columnKey", () => {
+  it("returns TEXT column type for string value", () => {
     const result = getColumnType(tableData, "gender");
     expect(ColumnTypes.TEXT).toEqual(result);
   });
@@ -1972,5 +1968,10 @@ describe("getColumnType", () => {
   it("returns proper column type for columnKey that has first few rows data as null", () => {
     const result = getColumnType(tableData, "longitude");
     expect(ColumnTypes.NUMBER).toEqual(result);
+  });
+
+  it("returns proper column type for columnKey that does not exist in the first few rows", () => {
+    const result = getColumnType(tableData, "premium");
+    expect(ColumnTypes.CHECKBOX).toEqual(result);
   });
 });

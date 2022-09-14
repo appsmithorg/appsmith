@@ -620,7 +620,6 @@ export const getColumnType = (
     return ColumnTypes.TEXT;
   }
   let columnValue = null,
-    parsedColumnValue = null,
     row = 0;
   const maxRowsToCheck = 5;
   /*
@@ -628,31 +627,21 @@ export const getColumnType = (
     subsequent rows in case first few rows are null
     Limited to checking upto maxRowsToCheck
   */
-  while (!columnValue && row < maxRowsToCheck) {
-    if (tableData?.[row]?.[columnKey]) {
+  while (
+    (columnValue === null || columnValue === undefined) &&
+    row < maxRowsToCheck
+  ) {
+    if (tableData?.[row]?.[columnKey] !== null) {
       columnValue = tableData[row][columnKey];
     }
     row++;
   }
 
-  if (!columnValue) {
+  if (columnValue === null) {
     return ColumnTypes.TEXT;
   }
 
-  try {
-    parsedColumnValue = _.isString(columnValue)
-      ? JSON.parse(columnValue)
-      : columnValue;
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(
-      e,
-      "Error parsing columnValue in getColumnType: ",
-      columnValue,
-    );
-  }
-
-  switch (typeof parsedColumnValue) {
+  switch (typeof columnValue) {
     case "number":
       return ColumnTypes.NUMBER;
     case "boolean":
