@@ -2,6 +2,7 @@ import { last, isNumber, isEmpty } from "lodash";
 import { Annotation, Position } from "codemirror";
 import {
   EvaluationError,
+  isDynamicValue,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
@@ -117,6 +118,11 @@ export const getLintAnnotations = (
   const annotations: Annotation[] = [];
   const lintErrors = filterLintErrors(errors, contextData);
   const lines = value.split("\n");
+
+  // The binding position of every valid JS Object is constant, so we need not
+  // waste time checking for position of binding.
+  // For JS Objects not starting with the expected "export default" statement, we return early
+  // with a "invalid start statement" lint error
   if (
     isJSObject &&
     !isEmpty(lines) &&
@@ -167,8 +173,19 @@ export const getLintAnnotations = (
       for (const bindingLocation of bindingPositions) {
         const currentLine = bindingLocation.line + line;
         const lineContent = lines[currentLine] || "";
-        const currentCh =
-          bindingLocation.line !== currentLine ? ch : bindingLocation.ch + ch;
+        let currentCh: number;
+
+        // for case where "{{" is in the same line as the lint error
+        if (bindingLocation.line === currentLine) {
+          currentCh =
+            bindingLocation.ch +
+            ch +
+            // Add 2 to account for "{{", if binding is a dynamicValue (NB: JS Objects are dynamicValues without "{{}}")
+            (isDynamicValue(originalBinding) ? 2 : 0);
+        } else {
+          currentCh = ch;
+        }
+
         // Jshint counts \t as two characters and codemirror counts it as 1.
         // So we need to subtract number of tabs to get accurate position
         const tabs = lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
