@@ -329,12 +329,7 @@ export const isThemeBoundProperty = (
   return widget && widget[path] && THEME_BINDING_REGEX.test(widget[path]);
 };
 
-export const unsafeFunctionForEval = [
-  "setInterval",
-  "clearInterval",
-  "setImmediate",
-  "Navigator",
-];
+export const unsafeFunctionForEval = ["setImmediate", "Navigator"];
 
 export const isChildPropertyPath = (
   parentPropertyPath: string,
