@@ -11,11 +11,11 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -138,6 +138,10 @@ public class LayoutActionServiceTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
+    Plugin installed_plugin;
+
+    Plugin installedJsPlugin;
+
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
@@ -216,13 +220,13 @@ public class LayoutActionServiceTest {
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
 
         jsDatasource = new Datasource();
         jsDatasource.setName("Default JS Database");
         jsDatasource.setWorkspaceId(workspaceId);
-        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         jsDatasource.setPluginId(installedJsPlugin.getId());
     }
@@ -1138,7 +1142,7 @@ public class LayoutActionServiceTest {
 
                     assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
 
-                    // Assert that both the actions dont belong to the same set. They should be run iteratively.
+                    // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
@@ -1155,7 +1159,7 @@ public class LayoutActionServiceTest {
     public void simpleOnPageLoadActionCreationTest() throws JsonProcessingException {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        // This action should be tagged as on page load since its used by firstWidget
+        // This action should be tagged as on page load since it is used by firstWidget
         ActionDTO action1 = new ActionDTO();
         action1.setName("firstAction");
         action1.setPageId(testPage.getId());
@@ -1467,12 +1471,16 @@ public class LayoutActionServiceTest {
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setDefaultResources(createdAction1.getDefaultResources());
+        newAction1.setPluginId(installed_plugin.getId());
+        newAction1.setPluginType(installed_plugin.getType());
 
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block(); // create action2
         createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
         NewAction newAction2 = new NewAction();
         newAction2.setUnpublishedAction(createdAction2);
         newAction2.setDefaultResources(createdAction2.getDefaultResources());
+        newAction2.setPluginId(installed_plugin.getId());
+        newAction2.setPluginType(installed_plugin.getType());
 
         NewAction[] newActionArray = new NewAction[2];
         newActionArray[0] = newAction1;
@@ -1533,6 +1541,8 @@ public class LayoutActionServiceTest {
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setDefaultResources(createdAction1.getDefaultResources());
+        newAction1.setPluginId(installed_plugin.getId());
+        newAction1.setPluginType(installed_plugin.getType());
 
         NewAction[] newActionArray = new NewAction[1];
         newActionArray[0] = newAction1;
