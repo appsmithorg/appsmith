@@ -173,13 +173,19 @@ export const getLintAnnotations = (
       for (const bindingLocation of bindingPositions) {
         const currentLine = bindingLocation.line + line;
         const lineContent = lines[currentLine] || "";
-        const currentCh =
-          bindingLocation.line !== currentLine
-            ? ch
-            : bindingLocation.ch +
-              ch +
-              // Add 2 to account for "{{", if binding is a dynamicValue
-              (isDynamicValue(originalBinding) ? 2 : 0);
+        let currentCh: number;
+
+        // for case where "{{" is in the same line as the lint error
+        if (bindingLocation.line === currentLine) {
+          currentCh =
+            bindingLocation.ch +
+            ch +
+            // Add 2 to account for "{{", if binding is a dynamicValue (NB: JS Objects are dynamicValues without "{{}}")
+            (isDynamicValue(originalBinding) ? 2 : 0);
+        } else {
+          currentCh = ch;
+        }
+
         // Jshint counts \t as two characters and codemirror counts it as 1.
         // So we need to subtract number of tabs to get accurate position
         const tabs = lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
