@@ -99,7 +99,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
-          name: nextEntityName(actionName, destinationPageId, false),
+          name: nextEntityName(actionName, destinationPageId),
         }),
       );
     },

@@ -7,22 +7,14 @@ import store from "store";
 export const getJSEntityName = () => {
   const state = store.getState();
   const jsCollections = selectJSCollections(state);
-  return (
-    name: string,
-    destinationPageId: string,
-    isCopyOperation?: boolean,
-  ) => {
+  return (name: string, destinationPageId: string) => {
     const groupedActions = groupBy(jsCollections, "config.pageId");
     const pageActions = groupedActions[destinationPageId] || [];
     const actionNames = pageActions.map(
       (action: JSCollectionData) => action.config.name,
     );
     return actionNames.indexOf(name) > -1
-      ? getNextEntityName(
-          isCopyOperation ? `${name}Copy` : name,
-          actionNames,
-          true,
-        )
+      ? getNextEntityName(name, actionNames, true)
       : name;
   };
 };

@@ -56,7 +56,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(actionName, pageId, true),
+          name: nextEntityName(actionName, pageId),
         }),
       );
     },
@@ -69,7 +69,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
-          name: nextEntityName(actionName, destinationPageId, false),
+          name: nextEntityName(actionName, destinationPageId),
         }),
       );
     },
