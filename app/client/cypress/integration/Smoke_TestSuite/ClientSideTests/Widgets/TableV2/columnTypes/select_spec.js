@@ -150,34 +150,34 @@ describe("Table widget - Select column type functionality", () => {
     cy.get(".t--canvas-artboard").click({ force: true });
   });
 
-  // it("6. should check that on option select is working", () => {
-  //   cy.openPropertyPane("tablewidgetv2");
-  //   cy.editColumn("step");
-  //   cy.get(".t--property-control-onoptionchange .t--js-toggle").click();
-  //   cy.updateCodeInput(
-  //     ".t--property-control-onoptionchange",
-  //     `
-  //     {{showAlert(currentRow.step)}}
-  //   `,
-  //   );
-  //   cy.editTableSelectCell(0, 0);
-  //   cy.get(".menu-item-link")
-  //     .contains("#3")
-  //     .click();
+  it("6. should check that on option select is working", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.editColumn("step");
+    cy.get(".t--property-control-onoptionchange .t--js-toggle").click();
+    cy.updateCodeInput(
+      ".t--property-control-onoptionchange",
+      `
+      {{showAlert(currentRow.step)}}
+    `,
+    );
+    cy.editTableSelectCell(0, 0);
+    cy.get(".menu-item-link")
+      .contains("#3")
+      .click();
 
-  //   cy.get(widgetsPage.toastAction).should("be.visible");
-  //   cy.get(widgetsPage.toastActionText)
-  //     .last()
-  //     .invoke("text")
-  //     .then((text) => {
-  //       expect(text).to.equal("#3");
-  //     });
+    cy.get(widgetsPage.toastAction).should("be.visible");
+    cy.get(widgetsPage.toastActionText)
+      .last()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal("#3");
+      });
 
-  //   cy.get(".menu-virtual-list").should("not.exist");
-  //   cy.readTableV2data(0, 0).then((val) => {
-  //     expect(val).to.equal("#3");
-  //   });
-  // });
+    cy.get(".menu-virtual-list").should("not.exist");
+    cy.readTableV2data(0, 0).then((val) => {
+      expect(val).to.equal("#3");
+    });
+  });
 
   it("7. should check that server side filering is working", () => {
     dataSources.CreateDataSource("Postgres");
