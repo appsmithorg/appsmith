@@ -54,6 +54,7 @@ import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
@@ -235,7 +236,14 @@ public class DatabaseChangelog {
     }
 
     public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
-        for (Workspace workspace : mongockTemplate.findAll(Workspace.class)) {
+        Query queryToFetchAllWorkspaceIds = new Query();
+        queryToFetchAllWorkspaceIds.fields().include(fieldName(QWorkspace.workspace.id));
+        List<Workspace> workspacesWithOnlyId = mongockTemplate.find(queryToFetchAllWorkspaceIds, Workspace.class);
+        for (Workspace workspaceWithId : workspacesWithOnlyId) {
+            Workspace workspace =
+                    mongockTemplate.findOne(query(where(fieldName(QWorkspace.workspace.id)).is(workspaceWithId.getId())),
+                    Workspace.class);
+
             if (CollectionUtils.isEmpty(workspace.getPlugins())) {
                 workspace.setPlugins(new HashSet<>());
             }
