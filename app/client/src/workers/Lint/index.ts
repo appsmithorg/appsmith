@@ -15,11 +15,7 @@ import {
   removeLintErrorsFromEntityProperty,
 } from "workers/evaluationUtils";
 
-import {
-  getJSSnippetToLint,
-  getLintingErrors,
-  pathRequiresLinting,
-} from "./utils";
+import { getJSToLint, getLintingErrors, pathRequiresLinting } from "./utils";
 
 interface LintTreeArgs {
   unEvalTree: DataTree;
@@ -136,19 +132,21 @@ const lintBindingPath = (
   );
 
   if (stringSegments) {
-    jsSnippets.map((jsSnippet) => {
-      const jsSnippetToLint = getJSSnippetToLint(
-        entity,
-        jsSnippet,
-        propertyPath,
-      );
+    jsSnippets.map((jsSnippet, index) => {
       if (jsSnippet) {
+        const jsSnippetToLint = getJSToLint(entity, jsSnippet, propertyPath);
+        // {{user's code}}
+        const originalBinding = getJSToLint(
+          entity,
+          stringSegments[index],
+          propertyPath,
+        );
         const scriptType = getScriptType(false, false);
         const scriptToLint = getScriptToEval(jsSnippetToLint, scriptType);
         lintErrors = getLintingErrors(
           scriptToLint,
           globalData,
-          jsSnippetToLint,
+          originalBinding,
           scriptType,
         );
       }
