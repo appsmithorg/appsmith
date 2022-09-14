@@ -177,7 +177,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getIsValid()).isFalse();
-                    assertThat(createdDatasource.getInvalids().contains("Missing plugin id. Please input correct plugin id"));
+                    assertThat(createdDatasource.getInvalids()).containsExactlyInAnyOrder("Missing plugin id. Please enter one.");
                 })
                 .verifyComplete();
     }
@@ -193,7 +193,7 @@ public class DatasourceServiceTest {
                 .assertNext(datasource1 -> {
                     assertThat(datasource1.getName()).isEqualTo(datasource.getName());
                     assertThat(datasource1.getIsValid()).isFalse();
-                    assertThat(datasource1.getInvalids().contains(AppsmithError.WORKSPACE_ID_NOT_GIVEN.getMessage()));
+                    assertThat(datasource1.getInvalids()).contains(AppsmithError.WORKSPACE_ID_NOT_GIVEN.getMessage());
                 })
                 .verifyComplete();
     }
@@ -245,7 +245,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getIsValid()).isFalse();
-                    assertThat(createdDatasource.getInvalids().contains("Plugin " + datasource.getPluginId() + " not installed"));
+                    assertThat(createdDatasource.getInvalids()).contains("Plugin " + datasource.getPluginId() + " not installed");
                 })
                 .verifyComplete();
     }
