@@ -629,10 +629,6 @@ jobs:
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: buildjet-4vcpu-ubuntu-2004
-    permissions:
-      contents: read
-      id-token: write
-
     defaults:
       run:
         shell: bash
@@ -656,9 +652,6 @@ jobs:
           - 27017:27017
 
     steps:
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
-
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -750,15 +743,13 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build  docker image
         if: steps.run_result.outputs.run_result != 'success'
-        uses: depot/build-push-action@v1
-        with:
-          context: .
-          push: false
-          load: true
-          tags: |
-            fatcontainer
+        working-directory: "."
+        run: |
+          docker build -t fatcontainer .
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -1502,6 +1493,10 @@ jobs:
   package:
     needs: ui-test
     runs-on: buildjet-4vcpu-ubuntu-2004
+    # Set permissions since we're using OIDC token authentication between Depot and Github
+    permissions:
+      contents: read
+      id-token: write
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
     if: (success() && github.ref == 'refs/heads/master') ||
@@ -1560,8 +1555,11 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -1584,7 +1582,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
 
       - name: Build and push release image to Docker Hub
@@ -1594,7 +1592,7 @@ jobs:
           context: .
           push: true
           platforms: linux/arm64,linux/amd64
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
@@ -1606,10 +1604,10 @@ jobs:
           context: .
           push: true
           platforms: linux/arm64,linux/amd64
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly
 
       # - name: Check and push fat image to Docker Hub with commit tag
@@ -1641,7 +1639,7 @@ jobs:
         with:
           context: app/server
           push: true
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
@@ -1653,10 +1651,10 @@ jobs:
         with:
           context: app/server
           push: true
-          build_args: |
+          build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
       # Build release Docker image and push to Docker Hub
@@ -1677,5 +1675,5 @@ jobs:
           context: app/rts
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{ github.sha }}
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly

@@ -111,6 +111,28 @@ describe("Single Select Widget Functionality", function() {
       "No Results Found",
     );
   });
+
+  it("8. To Check Clear all functionality", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{SingleSelectTree1.selectedOptionValue}}`,
+    );
+    cy.openPropertyPane("singleselecttreewidget");
+    cy.togglebar(
+      '.t--property-control-allowclearingvalue input[type="checkbox"]',
+    );
+    cy.get(formWidgetsPage.treeSelectClearAll)
+      .last()
+      .click({ force: true });
+    cy.wait(100);
+    cy.get(".t--widget-textwidget").should("contain", "");
+    cy.get(formWidgetsPage.treeSelectClearAll).should("not.exist");
+    cy.get(formWidgetsPage.treeSelectPlaceholder).should(
+      "contain",
+      "select option",
+    );
+  });
 });
 afterEach(() => {
   // put your clean up code if any
