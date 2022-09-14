@@ -212,10 +212,6 @@ function* setUpTourAppSaga() {
       },
     }),
   );
-  // Hide the explorer initialy
-  yield put(setExplorerPinnedAction(false));
-  yield put(setExplorerActiveAction(false));
-  yield put(toggleLoader(false));
   if (!query) return;
   history.push(
     queryEditorIdURL({
@@ -223,6 +219,10 @@ function* setUpTourAppSaga() {
       queryId: query.config.id,
     }),
   );
+  // Hide the explorer initialy
+  yield put(setExplorerPinnedAction(false));
+  yield put(setExplorerActiveAction(false));
+  yield put(toggleLoader(false));
 }
 
 function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
