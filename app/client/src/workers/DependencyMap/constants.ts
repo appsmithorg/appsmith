@@ -1,5 +1,5 @@
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/Fields";
 import {
-  APPSMITH_GLOBAL_FUNCTIONS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";

@@ -37,9 +37,7 @@
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
-    "ts-jest": "27.0.0",
-    "@types/moment-timezone": "^0.5.10",
-    "@types/node-forge": "^0.10.0"
+    "ts-jest": "27.0.0"
   },
   "author": "",
   "license": "ISC"

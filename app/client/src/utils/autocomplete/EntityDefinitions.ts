@@ -685,7 +685,6 @@ export const GLOBAL_DEFS = {
   },
 };
 
-// Also update the list of APPSMITH_GLOBAL_FUNCTIONS in app/client/src/constants/WidgetValidation.ts
 export const GLOBAL_FUNCTIONS = {
   "!name": "DATA_TREE.APPSMITH.FUNCTIONS",
   navigateTo: {

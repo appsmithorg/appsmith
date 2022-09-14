@@ -5,7 +5,6 @@ import confetti from "assets/lottie/binding.json";
 import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
-  APPSMITH_GLOBAL_FUNCTIONS,
   DATA_TREE_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
@@ -31,6 +30,7 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/Fields";
 
 export const snapToGrid = (
   columnWidth: number,

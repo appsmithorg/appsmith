@@ -233,24 +233,33 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-export const ActionType = {
-  none: "none",
-  integration: "integration",
-  showModal: "showModal",
-  closeModal: "closeModal",
+export const APPSMITH_GLOBAL_FUNCTIONS = {
   navigateTo: "navigateTo",
   showAlert: "showAlert",
+  showModal: "showModal",
+  closeModal: "closeModal",
   storeValue: "storeValue",
   download: "download",
   copyToClipboard: "copyToClipboard",
   resetWidget: "resetWidget",
-  jsFunction: "jsFunction",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
+};
+
+export const APPSMITH_NAMESPACED_FUNCTIONS = {
   getGeolocation: "appsmith.geolocation.getCurrentPosition",
   watchGeolocation: "appsmith.geolocation.watchPosition",
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
 };
+
+export const ActionType = {
+  none: "none",
+  integration: "integration",
+  jsFunction: "jsFunction",
+  ...APPSMITH_GLOBAL_FUNCTIONS,
+  ...APPSMITH_NAMESPACED_FUNCTIONS,
+};
+
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
 const ViewTypes = {
