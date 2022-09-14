@@ -30,7 +30,7 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/Fields";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 
 export const snapToGrid = (
   columnWidth: number,

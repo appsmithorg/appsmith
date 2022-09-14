@@ -25,6 +25,10 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import DividerComponent from "widgets/DividerWidget/component";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
+import {
+  APPSMITH_GLOBAL_FUNCTIONS,
+  APPSMITH_NAMESPACED_FUNCTIONS,
+} from "./constants";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -231,25 +235,6 @@ const enumTypeGetter = (
     return arg ? arg.trim() : defaultValue;
   }
   return defaultValue;
-};
-
-export const APPSMITH_GLOBAL_FUNCTIONS = {
-  navigateTo: "navigateTo",
-  showAlert: "showAlert",
-  showModal: "showModal",
-  closeModal: "closeModal",
-  storeValue: "storeValue",
-  download: "download",
-  copyToClipboard: "copyToClipboard",
-  resetWidget: "resetWidget",
-  setInterval: "setInterval",
-  clearInterval: "clearInterval",
-};
-
-export const APPSMITH_NAMESPACED_FUNCTIONS = {
-  getGeolocation: "appsmith.geolocation.getCurrentPosition",
-  watchGeolocation: "appsmith.geolocation.watchPosition",
-  stopWatchGeolocation: "appsmith.geolocation.clearWatch",
 };
 
 export const ActionType = {
