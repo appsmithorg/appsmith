@@ -239,20 +239,20 @@ export function* evaluateAndExecuteDynamicTrigger(
 ) {
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
-
-  const {
-    requestForExecutionChannel,
-    responseFromExecutionChannel,
-  } = yield call(worker.duplexRequest, EVAL_WORKER_ACTIONS.EVAL_TRIGGER, {
-    dataTree: unEvalTree,
-    dynamicTrigger,
-    callbackData,
-    globalContext,
-  });
+  const { isFinishedChannel } = yield call(
+    worker.duplexRequest,
+    EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
+    {
+      dataTree: unEvalTree,
+      dynamicTrigger,
+      callbackData,
+      globalContext,
+    },
+  );
   let keepAlive = true;
 
   while (keepAlive) {
-    const { requestData } = yield take(requestForExecutionChannel);
+    const { requestData } = yield take(isFinishedChannel);
     log.debug({ requestData });
     if (requestData.finished) {
       keepAlive = false;
@@ -283,20 +283,34 @@ export function* evaluateAndExecuteDynamicTrigger(
         );
       }
       // Return value of a promise is returned
+      isFinishedChannel.close();
       return requestData.result;
     }
     yield call(evalErrorHandler, requestData.errors);
-    if (requestData.trigger) {
-      // if we have found a trigger, we need to execute it and respond back
-      log.debug({ trigger: requestData.trigger });
-      yield spawn(
-        executeTriggerRequestSaga,
-        requestData,
-        eventType,
-        responseFromExecutionChannel,
-        triggerMeta,
-      );
-    }
+    isFinishedChannel.close();
+  }
+}
+
+export function* executeDynamicTriggerRequest(
+  requestData: any,
+  mainThreadResponseChannel: Channel<any>,
+  requestId: string,
+) {
+  log.debug({ requestData });
+  if (requestData?.trigger) {
+    // if we have found a trigger, we need to execute it and respond back
+    log.debug({ trigger: requestData.trigger });
+    yield spawn(
+      executeTriggerRequestSaga,
+      requestId,
+      requestData,
+      requestData.eventType,
+      mainThreadResponseChannel,
+      requestData.triggerMeta,
+    );
+  }
+  if (requestData?.errors) {
+    yield call(evalErrorHandler, requestData.errors);
   }
 }
 
@@ -314,6 +328,7 @@ interface ResponsePayload {
  * resolve or reject it with the data the execution has provided
  */
 function* executeTriggerRequestSaga(
+  requestId: string,
   requestData: { trigger: ActionDescription; subRequestId: string },
   eventType: EventType,
   responseFromExecutionChannel: Channel<unknown>,
@@ -345,6 +360,7 @@ function* executeTriggerRequestSaga(
   }
   responseFromExecutionChannel.put({
     method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+    requestId: requestId,
     ...responsePayload,
   });
 }
