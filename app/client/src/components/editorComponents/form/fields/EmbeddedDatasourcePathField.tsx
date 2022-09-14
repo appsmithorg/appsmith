@@ -52,6 +52,7 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
+import { extractApiUrlPath } from "transformers/RestActionTransformer";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -378,7 +379,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       let evaluatedPath = "path" in entity.config ? entity.config.path : "";
 
       if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
-        evaluatedPath = evaluatedPath.slice(0, evaluatedPath.indexOf("?"));
+        evaluatedPath = extractApiUrlPath(evaluatedPath);
       }
       const evaluatedQueryParameters = entity.config.queryParameters
         ?.filter((p: KeyValuePair) => p.key)
