@@ -363,7 +363,8 @@ export const actionOperations: ActionOperation[] = [
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2,
-    action: (pageId: string) => createNewJSCollection(pageId),
+    action: (pageId: string, from: EventLocation) =>
+      createNewJSCollection(pageId, from),
   },
   {
     title: "New cURL Import",
