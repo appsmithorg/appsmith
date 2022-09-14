@@ -8,7 +8,11 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
+  isDrawing: false,
   isDragging: false,
+  drawingDetails: {
+    selectedWidget: undefined,
+  },
   dragDetails: {},
   isResizing: false,
   lastSelectedWidget: undefined,
@@ -142,6 +146,13 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedWidgetAncestry = action.payload;
   },
+  [ReduxActionTypes.SET_WIDGET_DRAWING]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ isDrawing: boolean; selectedWidget?: string }>,
+  ) => {
+    state.isDrawing = action.payload.isDrawing;
+    state.drawingDetails.selectedWidget = action.payload.selectedWidget;
+  },
 });
 
 type DraggingGroupCenter = {
@@ -160,6 +171,10 @@ export type DragDetails = {
 export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
+  isDrawing: boolean;
+  drawingDetails: {
+    selectedWidget?: string;
+  };
   dragDetails: DragDetails;
   isResizing: boolean;
   lastSelectedWidget?: string;

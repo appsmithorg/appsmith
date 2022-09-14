@@ -7,12 +7,15 @@ import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { AppState } from "ce/reducers";
 
 type CardProps = {
   details: WidgetCardProps;
 };
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<{ isDrawing: boolean }>`
   padding: 10px 5px 10px 5px;
   border-radius: 0px;
   border: none;
@@ -22,6 +25,7 @@ export const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  background: ${(props) => (props.isDrawing ? Colors.Gallery : "inherit")};
   & > div {
     display: flex;
     flex-direction: column;
@@ -67,9 +71,20 @@ function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
 
+  const isDrawing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDrawing,
+  );
+
+  const drawingDetails = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.drawingDetails,
+  );
+
+  const dispatch = useDispatch();
+
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isDrawing) return;
     deselectAll();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
@@ -82,6 +97,26 @@ function WidgetCard(props: CardProps) {
       });
   };
 
+  const onWidgetCardClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (drawingDetails.selectedWidget === props.details.key) {
+      dispatch({
+        type: ReduxActionTypes.SET_WIDGET_DRAWING,
+        payload: { isDrawing: false },
+      });
+      return;
+    }
+
+    dispatch({
+      type: ReduxActionTypes.SET_WIDGET_DRAWING,
+      payload: { isDrawing: true, selectedWidget: props.details.key },
+    });
+  };
+
   const type = `${props.details.type
     .split("_")
     .join("")
@@ -91,7 +126,9 @@ function WidgetCard(props: CardProps) {
     <Wrapper
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
-      draggable
+      draggable={!isDrawing}
+      isDrawing={drawingDetails.selectedWidget === props.details.key}
+      onClick={onWidgetCardClick}
       onDragStart={onDragStart}
     >
       <div>

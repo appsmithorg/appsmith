@@ -74,6 +74,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isDrawing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDrawing,
+  );
 
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
@@ -101,7 +104,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { deselectAll, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
   const showDragLayer =
-    (isDragging && draggedOn === props.widgetId) || isResizing;
+    (isDragging && draggedOn === props.widgetId) || isResizing || isDrawing;
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
