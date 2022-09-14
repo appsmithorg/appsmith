@@ -68,7 +68,7 @@ function Connected() {
         <NewActionButton
           datasource={datasource}
           eventFrom="datasource-pane"
-          pluginType={plugin?.type}
+          plugin={plugin}
         />
       </Header>
       <div style={{ marginTop: "30px" }}>

@@ -110,11 +110,11 @@ describe("Binding the list widget with text widget", function() {
     cy.get(".t--toast-action span")
       .eq(0)
       .contains("56789 is removed");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // cy.wait("@updateLayout").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
     cy.reload();
     cy.wait(2000);
   });

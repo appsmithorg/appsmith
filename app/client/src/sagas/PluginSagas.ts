@@ -29,7 +29,7 @@ import {
 import { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import { PluginType } from "entities/Action";
+import { getGraphQLPlugin, PluginType } from "entities/Action";
 import {
   FormEditorConfigs,
   FormSettingsConfigs,
@@ -74,13 +74,18 @@ function* fetchPluginFormConfigsSaga() {
     const pluginIdFormsToFetch = new Set(
       datasources.map((datasource) => datasource.pluginId),
     );
-    // Add the api plugin id by default because it is the only type of action that
-    // can exist without a saved datasource
+    // Add the api plugin id by default as API, JS, Graphql can exists without datasource
     const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
     const jsPlugin = plugins.find((plugin) => plugin.type === PluginType.JS);
+    const graphqlPlugin = getGraphQLPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
+
+    if (graphqlPlugin) {
+      pluginIdFormsToFetch.add(graphqlPlugin.id);
+    }
+
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
       [...pluginIdFormsToFetch].map((id) =>
