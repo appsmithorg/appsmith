@@ -29,3 +29,6 @@ export const getIsSavingForJSObjectName = (state: AppState, id: string) =>
  */
 export const getErrorForJSObjectName = (state: AppState, id: string) =>
   state.ui.jsObjectName.errors[id];
+
+export const getFocusedWidget = (state: AppState) =>
+  state.ui.widgetDragResize.focusedWidget;
