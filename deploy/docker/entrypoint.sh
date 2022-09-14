@@ -168,7 +168,7 @@ init_replica_set() {
     # Check mongodb cloud Replica Set
     echo "Checking Replica Set of external MongoDB"
 
-    mongo_state=$(mongo --host $APPSMITH_MONGODB_URI --quiet --eval "rs.status().ok")
+    mongo_state="$(mongo --host "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
     if [[ ${mongo_state: -1} -eq 1 ]]; then
       echo "Mongodb cloud Replica Set is enabled"
     else
