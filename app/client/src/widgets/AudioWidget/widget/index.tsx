@@ -177,6 +177,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {

@@ -11,7 +11,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -582,6 +583,7 @@ class BaseInputWidget<
               return props.type !== "PHONE_INPUT_WIDGET";
             },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {

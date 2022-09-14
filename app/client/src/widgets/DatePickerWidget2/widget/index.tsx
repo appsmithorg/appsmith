@@ -10,10 +10,11 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 import derivedProperties from "./parseDerivedProperties";
 import { DatePickerType, TimePrecision } from "../constants";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { DateFormatOptions } from "./constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -654,6 +655,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {

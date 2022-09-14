@@ -16,7 +16,10 @@ import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment, Positioning, Spacing } from "components/constants";
-import { getLayoutConfig } from "utils/layoutPropertiesUtils";
+import {
+  generatePositioningConfig,
+  getLayoutConfig,
+} from "utils/layoutPropertiesUtils";
 
 const minSize = 100;
 
@@ -154,6 +157,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
+          { ...generatePositioningConfig(Positioning.Fixed) },
         ],
       },
       {

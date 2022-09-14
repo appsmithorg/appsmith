@@ -275,6 +275,7 @@ export const PropertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+      { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
     ],
   },
   {

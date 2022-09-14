@@ -774,6 +774,11 @@ class ButtonGroupWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
+                    {
+                      ...generateResponsiveBehaviorConfig(
+                        ResponsiveBehavior.Fill,
+                      ),
+                    },
                   ],
                 },
                 {

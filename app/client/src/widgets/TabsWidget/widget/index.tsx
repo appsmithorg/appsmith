@@ -20,6 +20,7 @@ import {
   Spacing,
 } from "components/constants";
 import {
+  generatePositioningConfig,
   generateResponsiveBehaviorConfig,
   getLayoutConfig,
 } from "utils/layoutPropertiesUtils";
@@ -315,6 +316,7 @@ class TabsWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
+                    { ...generatePositioningConfig(Positioning.Fixed) },
                   ],
                 },
               ],
@@ -384,6 +386,7 @@ class TabsWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
