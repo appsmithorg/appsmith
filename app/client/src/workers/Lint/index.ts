@@ -134,12 +134,6 @@ const lintBindingPath = (
 
   if (stringSegments) {
     jsSnippets.forEach((jsSnippet, index) => {
-      const jsSnippetToLint = getJSSnippetToLint(
-        entity,
-        jsSnippet,
-        propertyPath,
-      );
-
       if (jsSnippet) {
         const jsSnippetToLint = getJSToLint(entity, jsSnippet, propertyPath);
         // {{user's code}}
