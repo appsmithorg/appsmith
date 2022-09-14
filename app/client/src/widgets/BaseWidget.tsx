@@ -4,11 +4,8 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
-  CONTAINER_GRID_PADDING,
   CSSUnit,
-  CSSUnits,
   PositionType,
-  PositionTypes,
   RenderMode,
   RenderModes,
   WidgetType,
@@ -288,14 +285,21 @@ abstract class BaseWidget<
   }
 
   makePositioned(content: ReactNode) {
-    const style = this.getPositionStyle();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
       <PositionedContainer
+        componentHeight={componentHeight}
+        componentWidth={componentWidth}
         focused={this.props.focused}
+        leftColumn={this.props.leftColumn}
+        noContainerOffset={this.props.noContainerOffset}
+        parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
+        parentRowSpace={this.props.parentRowSpace}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
-        style={style}
+        topRow={this.props.topRow}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
@@ -384,27 +388,6 @@ abstract class BaseWidget<
       !shallowequal(nextProps, this.props) ||
       !shallowequal(nextState, this.state)
     );
-  }
-
-  /**
-   * generates styles that positions the widget
-   */
-  private getPositionStyle(): BaseStyle {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    return {
-      positionType: PositionTypes.ABSOLUTE,
-      componentHeight,
-      componentWidth,
-      yPosition:
-        this.props.topRow * this.props.parentRowSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPosition:
-        this.props.leftColumn * this.props.parentColumnSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPositionUnit: CSSUnits.PIXEL,
-      yPositionUnit: CSSUnits.PIXEL,
-    };
   }
 
   // TODO(abhinav): These defaultProps seem unneccessary. Check it out.
