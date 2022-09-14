@@ -1019,8 +1019,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             // This is to have consistency in how the AnalyticsService is being called.
             // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
             // from being sent to analytics provider if telemetry is disabled.
-            analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action);
-            return Mono.empty();
+            return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action)
+                    .then(Mono.empty());
         }
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;
