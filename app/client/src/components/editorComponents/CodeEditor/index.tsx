@@ -100,6 +100,7 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -329,7 +330,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
-          this.props.additionalDynamicData,
         );
 
         this.lintCode(editor);
@@ -468,10 +468,9 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    additionalDynamicData?: AdditionalDynamicDataTree,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData, additionalDynamicData);
+      return helper(editor, dynamicData);
     });
   }
 
@@ -505,7 +504,12 @@ class CodeEditor extends Component<Props, State> {
     const mode = cm.getModeAt(cm.getCursor());
     if (
       mode &&
-      [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
+      [
+        EditorModes.JAVASCRIPT,
+        EditorModes.JSON,
+        EditorModes.GRAPHQL,
+        EditorModes.GRAPHQL_WITH_BINDING,
+      ].includes(mode.name)
     ) {
       this.editor.setOption("matchBrackets", true);
     } else {
@@ -517,6 +521,8 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: true });
 
     if (!cm.state.completionActive) {
+      updateCustomDef(this.props.additionalDynamicData);
+
       const entityInformation = this.getEntityInformation();
       const { blockCompletions } = this.props;
       this.hinters

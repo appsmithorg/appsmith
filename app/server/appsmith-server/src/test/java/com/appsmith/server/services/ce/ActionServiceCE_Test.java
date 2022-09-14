@@ -56,6 +56,7 @@ import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -168,6 +169,9 @@ public class ActionServiceCE_Test {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     Application testApp = null;
 
@@ -1098,10 +1102,10 @@ public class ActionServiceCE_Test {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
-                    assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
-                    assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidgets.size());
-                    assertThat(result.getSuggestedWidgets().containsAll(expectedWidgets));
-                    assertThat(expectedWidgets.containsAll(result.getSuggestedWidgets()));
+                    assertThat(result.getDataTypes()).hasToString(expectedReturnDataTypes.toString());
+                    assertThat(result.getSuggestedWidgets())
+                            .usingRecursiveFieldByFieldElementComparator()
+                            .containsExactlyInAnyOrderElementsOf(expectedWidgets);
                     assertThat(result.getRequest().getActionId()).isEqualTo(executeActionDTO.getActionId());
                     assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
                 })
@@ -1296,8 +1300,7 @@ public class ActionServiceCE_Test {
         Mono<NewAction> actionMono = publicAppMono
                 .then(newActionService.findById(savedAction.getId()));
 
-        Mono<PermissionGroup> publicAppPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> permissionGroupRepository.findById(publicApp.getDefaultPermissionGroup()));
+        Mono<PermissionGroup> publicAppPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userService.findByEmail("anonymousUser").block();
 
@@ -2419,6 +2422,52 @@ public class ActionServiceCE_Test {
         final String data = "{\"data\": {\n" +
                 "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
                 "    \"previous\": null,\n" +
+                "    \"users\": [1, 2, 3]\n" +
+                "}}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET, "users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, "users"));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionNestedDataEmpty() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{\"data\": {\n" +
+                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
+                "    \"previous\": null,\n" +
                 "    \"users\": []\n" +
                 "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
@@ -2430,7 +2479,7 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET, null));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -2525,7 +2574,7 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "url", "width"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "width", "url"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
@@ -2712,7 +2761,7 @@ public class ActionServiceCE_Test {
                 .create(actionMono)
                 .assertNext(updatedAction -> {
                     Datasource datasource1 = updatedAction.getDatasource();
-                    assertThat(datasource1.getWorkspaceId() != null);
+                    assertThat(datasource1.getWorkspaceId()).isNotNull();
                     assertThat(datasource1.getInvalids()).isEmpty();
                 })
                 .verifyComplete();

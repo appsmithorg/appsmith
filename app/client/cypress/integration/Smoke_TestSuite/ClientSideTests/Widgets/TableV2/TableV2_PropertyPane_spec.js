@@ -15,7 +15,6 @@ describe("Table Widget V2 property pane feature validation", function() {
 
   // To be done:
   // Column Data type: Video
-
   it("1. Verify default array data", function() {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
@@ -63,7 +62,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Select show message in the "on selected row" dropdown
-    cy.onTableAction(0, "onrowselected", "Row is selected");
+    cy.onTableAction(1, "onrowselected", "Row is selected");
     cy.PublishtheApp();
     // Select 1st row
     cy.isSelectRow(2);
@@ -73,31 +72,34 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("4. Check On Page Change Action", function() {
-    // Open property pane
-    cy.openPropertyPane("tablewidgetv2");
-    // Select show message in the "on selected row" dropdown
-    cy.onTableAction(1, "onpagechange", "Page Changed");
-    cy.PublishtheApp();
-    cy.wait(2000);
-    // Change the page
-    cy.get(widgetsPage.nextPageButton).click({ force: true });
-    // Verify the page is changed
-    cy.get(commonlocators.toastmsg).contains("Page Changed");
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("5. Verify On Search Text Change Action", function() {
+  it("4. Verify On Search Text Change Action", function() {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     // Show Message on Search text change Action
-    cy.onTableAction(3, "onsearchtextchanged", "Search Text Changed");
+    cy.onTableAction(0, "onsearchtextchanged", "Search Text Changed");
     cy.PublishtheApp();
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
     cy.wait(2000);
     // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("5. Check On Page Change Action", function() {
+    // Open property pane
+    cy.openPropertyPane("tablewidgetv2");
+    cy.get(".t--property-control-serversidepagination input").click({
+      force: true,
+    });
+    // Select show message in the "on selected row" dropdown
+    cy.onTableAction(0, "onpagechange", "Page Changed");
+    cy.PublishtheApp();
+    cy.wait(2000);
+    // Change the page
+    cy.get(widgetsPage.nextPageButton).click({ force: true });
+    // Verify the page is changed
+    cy.get(commonlocators.toastmsg).contains("Page Changed");
     cy.get(publish.backToEditor).click();
   });
 
@@ -238,7 +240,9 @@ describe("Table Widget V2 property pane feature validation", function() {
       .children()
       .contains("URL")
       .click();
-    cy.get(".t--property-control-visible span.bp3-control-indicator").click();
+    // cy.get(".t--property-control-visible span.bp3-control-indicator").click();
+    cy.wait("@updateLayout");
+    cy.moveToStyleTab();
     // Verifying Center Alignment
     cy.get(widgetsPage.centerAlign)
       .first()

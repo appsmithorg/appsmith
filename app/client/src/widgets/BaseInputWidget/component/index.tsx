@@ -371,11 +371,13 @@ const TextInputWrapper = styled.div<{
   &:focus-within {
     outline: 0;
     border-color: ${({ accentColor, hasError }) =>
-      hasError ? Colors.DANGER_SOLID : accentColor};
+      hasError ? "var(--wds-color-border-danger-focus)" : accentColor};
     box-shadow: ${({ accentColor, hasError }) =>
-      `0px 0px 0px 2px ${lightenColor(
-        hasError ? Colors.DANGER_SOLID : accentColor,
-      )} !important;`};
+      `0px 0px 0px 2px ${
+        hasError
+          ? "var(--wds-color-border-danger-focus-light)"
+          : lightenColor(accentColor)
+      } !important;`};
   }
 
   ${({ inputHtmlType }) =>
@@ -684,6 +686,7 @@ class BaseInputComponent extends React.Component<
           labelPosition={labelPosition}
         >
           <ErrorTooltip
+            boundary={this.props.errorTooltipBoundary}
             isOpen={isInvalid && showError}
             message={
               errorMessage ||
@@ -756,6 +759,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
+  errorTooltipBoundary?: string;
 }
 
 export default BaseInputComponent;

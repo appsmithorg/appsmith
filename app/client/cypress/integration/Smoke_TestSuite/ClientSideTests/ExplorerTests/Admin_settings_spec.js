@@ -269,8 +269,6 @@ describe("Admin settings page", function() {
       "Product Updates",
     );
     cy.get(".bp3-dialog-close-button").should("be.visible");
-    cy.get("[data-cy='t--product-updates-close-btn']").should("be.visible");
-    cy.get("[data-cy='t--product-updates-ok-btn']").should("be.visible");
     cy.get(".bp3-dialog-close-button").click();
     cy.wait(2000);
     cy.get(".bp3-dialog-container").should("not.exist");
