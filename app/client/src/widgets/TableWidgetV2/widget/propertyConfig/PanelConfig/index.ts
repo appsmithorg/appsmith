@@ -24,6 +24,7 @@ import Basic from "./Basic";
 import SaveButtonProperties from "./SaveButtonProperties";
 import DiscardButtonproperties from "./DiscardButtonproperties";
 import { ButtonVariantTypes } from "components/constants";
+import Validations from "./Validation";
 
 export default {
   editableTitle: true,
@@ -32,6 +33,7 @@ export default {
   dependencies: ["primaryColumns", "columnOrder"],
   children: [
     ColumnControl,
+    Validations,
     ButtonProperties,
     SaveButtonProperties,
     DiscardButtonproperties,
@@ -45,6 +47,7 @@ export default {
     Data,
     Basic,
     General,
+    Validations,
     {
       sectionName: "Save Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -220,7 +223,8 @@ export default {
           return (
             !(
               columnType === ColumnTypes.TEXT ||
-              columnType === ColumnTypes.NUMBER
+              columnType === ColumnTypes.NUMBER ||
+              columnType === ColumnTypes.CHECKBOX
             ) || !isEditable
           );
         }
@@ -270,6 +274,20 @@ export default {
             const columnType = get(props, `${baseProperty}.columnType`, "");
             const isEditable = get(props, `${baseProperty}.isEditable`, "");
             return columnType !== ColumnTypes.SELECT || !isEditable;
+          },
+          dependencies: ["primaryColumns"],
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: true,
+        },
+        {
+          propertyName: "onCheckChange",
+          label: "onCheckChange",
+          controlType: "ACTION_SELECTOR",
+          hidden: (props: TableWidgetProps, propertyPath: string) => {
+            return hideByColumnType(props, propertyPath, [
+              ColumnTypes.CHECKBOX,
+            ]);
           },
           dependencies: ["primaryColumns"],
           isJSConvertible: true,
@@ -438,7 +456,12 @@ export default {
       ],
     },
     {
-      sectionName: "Text Formatting",
+      sectionName: (props: TableWidgetProps, propertyPath: string) => {
+        const columnType = get(props, `${propertyPath}.columnType`);
+        return columnType === ColumnTypes.CHECKBOX
+          ? "Alignment"
+          : "Text Formatting";
+      },
       children: [
         {
           propertyName: "textSize",
@@ -526,7 +549,13 @@ export default {
         },
         {
           propertyName: "horizontalAlignment",
-          label: "Text Align",
+          label: (props: TableWidgetProps, propertyPath: string) => {
+            const basePropertyPath = getBasePropertyPath(propertyPath);
+            const columnType = get(props, `${basePropertyPath}.columnType`);
+            return columnType === ColumnTypes.CHECKBOX
+              ? "Horizontal Alignment"
+              : "Text Align";
+          },
           controlType: "ICON_TABS",
           options: [
             {
@@ -563,6 +592,7 @@ export default {
               ColumnTypes.DATE,
               ColumnTypes.NUMBER,
               ColumnTypes.URL,
+              ColumnTypes.CHECKBOX,
             ]);
           },
         },
@@ -605,6 +635,7 @@ export default {
               ColumnTypes.DATE,
               ColumnTypes.NUMBER,
               ColumnTypes.URL,
+              ColumnTypes.CHECKBOX,
             ]);
           },
         },

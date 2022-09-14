@@ -83,7 +83,7 @@ describe("Checkbox Widget Functionality", function() {
 
   it("Checkbox Functionality To change label size of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
-    cy.moveToStyleTab()
+    cy.moveToStyleTab();
     cy.get(widgetsPage.textSizeNew)
       .last()
       .click({ force: true });

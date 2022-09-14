@@ -1,5 +1,4 @@
 import React from "react";
-import { createActionRequest } from "actions/pluginActionActions";
 import { INTEGRATION_TABS } from "constants/routes";
 import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
@@ -21,12 +20,11 @@ import {
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
-import { ApiActionConfig, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "RouteBuilder";
 import AddLineIcon from "remixicon-react/AddLineIcon";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { createNewQueryAction } from "actions/apiPaneActions";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -50,7 +48,6 @@ export const useFilteredFileOperations = (query = "") => {
   if (newApiActionIdx > -1) {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
   }
-  const actions = useSelector(getActions);
 
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -65,38 +62,6 @@ export const useFilteredFileOperations = (query = "") => {
     PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
     PERMISSION_TYPE.CREATE_ACTION,
   ]);
-
-  const createAction = (
-    pageId: string,
-    from: EventLocation,
-    ds: Datasource,
-  ) => {
-    const newActionName =
-      ds.pluginId === restApiPlugin?.id
-        ? createNewApiName(actions, pageId)
-        : createNewQueryName(actions, pageId);
-    const defaultApiActionConfig: ApiActionConfig = {
-      ...DEFAULT_API_ACTION_CONFIG,
-      headers: DEFAULT_API_ACTION_CONFIG.headers,
-    };
-    const payload = {
-      name: newActionName,
-      pageId: pageId,
-      pluginId: ds.pluginId,
-      datasource: {
-        id: ds.id,
-      },
-      actionConfiguration:
-        ds.pluginId === restApiPlugin?.id ? defaultApiActionConfig : {},
-      eventData: {
-        actionType: ds.pluginId === restApiPlugin?.id ? "API" : "Query",
-        from: from,
-        dataSource: ds?.name,
-      },
-    };
-
-    return createActionRequest(payload);
-  };
 
   return useMemo(() => {
     let fileOperations: any =
@@ -129,7 +94,7 @@ export const useFilteredFileOperations = (query = "") => {
               pluginId: ds.pluginId,
               kind: SEARCH_ITEM_TYPES.actionOperation,
               action: (pageId: string, from: EventLocation) =>
-                createAction(pageId, from, ds),
+                createNewQueryAction(pageId, from, ds),
             }))
           : []),
       ];
@@ -145,7 +110,7 @@ export const useFilteredFileOperations = (query = "") => {
               kind: SEARCH_ITEM_TYPES.actionOperation,
               pluginId: ds.pluginId,
               action: (pageId: string, from: EventLocation) =>
-                createAction(pageId, from, ds),
+                createNewQueryAction(pageId, from, ds),
             }))
           : []),
       ];

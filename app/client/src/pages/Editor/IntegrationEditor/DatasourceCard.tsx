@@ -325,7 +325,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 datasource={datasource}
                 disabled={!canCreateDatasourceActions}
                 eventFrom="active-datasources"
-                pluginType={plugin?.type}
+                plugin={plugin}
               />
               <MenuWrapper
                 className="t--datasource-menu-option"

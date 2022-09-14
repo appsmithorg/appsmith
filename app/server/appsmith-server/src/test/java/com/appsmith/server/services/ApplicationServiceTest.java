@@ -86,6 +86,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -94,6 +95,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -175,6 +177,9 @@ public class ApplicationServiceTest {
     @Autowired
     ThemeService themeService;
 
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
     @MockBean
     ReleaseNotesService releaseNotesService;
 
@@ -189,7 +194,7 @@ public class ApplicationServiceTest {
 
     @Autowired
     UserRepository userRepository;
-    
+
     @Autowired
     SessionUserService sessionUserService;
 
@@ -379,7 +384,8 @@ public class ApplicationServiceTest {
                     assertThat(page.getName()).isEqualTo(FieldName.DEFAULT_PAGE_NAME);
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getPolicies()).isNotEmpty();
-                    assertThat(page.getPolicies().containsAll(Set.of(managePagePolicy, readPagePolicy)));
+                    assertThat(page.getPolicies().stream().map(Policy::getPermission).collect(Collectors.toSet()))
+                            .containsExactlyInAnyOrder(MANAGE_PAGES.getValue(), READ_PAGES.getValue(), PAGE_CREATE_PAGE_ACTIONS.getValue(), DELETE_PAGES.getValue());
                 })
                 .verifyComplete();
     }
@@ -530,7 +536,7 @@ public class ApplicationServiceTest {
                 .collectList()
                 .block();
 
-        assertThat(applicationList.size() > 0);
+        assertThat(applicationList).isNotEmpty();
         applicationList
                 .stream()
                 .filter(t -> t.getName().equals("validGetApplications-Test"))
@@ -673,7 +679,7 @@ public class ApplicationServiceTest {
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
-                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName().startsWith(FieldName.ADMINISTRATOR));
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName()).startsWith(FieldName.ADMINISTRATOR);
                         }
                     }
 
@@ -759,7 +765,7 @@ public class ApplicationServiceTest {
 
                     // There should be atleast one workspace present in the output.
                     WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
-                    assertThat(orgAppDto.getWorkspace().getUserPermissions().contains("read:workspaces"));
+                    assertThat(orgAppDto.getWorkspace().getUserPermissions()).contains("read:workspaces");
                 })
                 .verifyComplete();
 
@@ -808,18 +814,12 @@ public class ApplicationServiceTest {
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
-        Mono<PermissionGroup> appPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono, appPermissionGroupMono))
+                .create(Mono.zip(publicAppMono, pageMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
@@ -925,7 +925,6 @@ public class ApplicationServiceTest {
                                     viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(app.getDefaultPermissionGroup()).isNull();
                     assertThat(app.getIsPublic()).isFalse();
 
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
@@ -986,18 +985,12 @@ public class ApplicationServiceTest {
                 });
 
 
-        Mono<PermissionGroup> mainAppPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup().cache();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono, mainAppPermissionGroupMono))
+                .create(Mono.zip(publicAppMono, pageMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
@@ -1037,16 +1030,8 @@ public class ApplicationServiceTest {
         // Get branch application
         Mono<Application> branchApplicationMono = applicationService.findById(application.getId()).cache();
 
-        Mono<PermissionGroup> branchAppPermissionGroupMono = branchApplicationMono
-                .flatMap(branchApp -> {
-                    String permissionGroupId = branchApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
-
         StepVerifier
-                .create(Mono.zip(branchApplicationMono,branchAppPermissionGroupMono))
+                .create(Mono.zip(branchApplicationMono,publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application branchApplication = tuple.getT1();
                     String permissionGroupId = tuple.getT2().getId();
@@ -1233,13 +1218,7 @@ public class ApplicationServiceTest {
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
                 .cache();
 
-        Mono<PermissionGroup> appPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
@@ -1253,7 +1232,7 @@ public class ApplicationServiceTest {
                 .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
 
         StepVerifier
-                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, appPermissionGroupMono))
+                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasource1 = tuple.getT1();
                     NewAction action1 = tuple.getT2();
@@ -1359,9 +1338,9 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication).isNotNull();
                     assertThat(clonedApplication.isAppIsExample()).isFalse();
                     assertThat(clonedApplication.getId()).isNotNull();
-                    assertThat(clonedApplication.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(clonedApplication.getName()).isEqualTo("gitConnectedApp Copy");
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getWorkspaceId().equals(workspaceId));
+                    assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
@@ -1373,7 +1352,7 @@ public class ApplicationServiceTest {
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
-                    assertThat(clonedPageIdsFromApplication.containsAll(clonedPageIdsFromDb));
+                    assertThat(clonedPageIdsFromApplication).containsAll(clonedPageIdsFromDb);
 
                     Set<String> srcPageIdsFromDb = srcPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> defaultSrcPageIdsFromDb = srcPageList.stream().map(page -> page.getDefaultResources().getPageId()).collect(Collectors.toSet());
@@ -1529,7 +1508,7 @@ public class ApplicationServiceTest {
                             .build();
 
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getWorkspaceId().equals(workspaceId));
+                    assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
 
@@ -1731,16 +1710,16 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest Clone Source TestApp Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getWorkspaceId().equals(workspaceId));
+                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
-                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
+                    assertThat(pageIdsFromApplication).containsAll(pageIdsFromDb);
 
                     assertThat(pageList).isNotEmpty();
                     for (NewPage page : pageList) {
@@ -2067,16 +2046,16 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest-clone-application-deleted-action-within-collection Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getWorkspaceId().equals(workspaceId));
+                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
-                    Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
-                    Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    Set<String> pageIdsFromApplication = pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
+                    Set<String> pageIdsFromDb = pageList.stream().map(BaseDomain::getId).collect(Collectors.toSet());
 
-                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
+                    assertThat(pageIdsFromApplication).containsAll(pageIdsFromDb);
 
                     assertThat(pageList).isNotEmpty();
                     for (NewPage page : pageList) {
@@ -2228,11 +2207,11 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals(appName));
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getName()).isEqualTo(appName);
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPublishedPages()).hasSize(1);
 
-                    assertThat(pages.size()).isEqualTo(1);
+                    assertThat(pages).hasSize(1);
                     NewPage newPage = pages.get(0);
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getId()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getId());
@@ -2913,18 +2892,12 @@ public class ApplicationServiceTest {
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
                 .findFirst().get();
 
-        Mono<PermissionGroup> mainAppPermissionGroupMono = applicationFromDbPostViewChange
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         StepVerifier
-                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono, mainAppPermissionGroupMono))
+                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application updatedApplication = tuple.getT1();
                     List<NewAction> actions = tuple.getT2();

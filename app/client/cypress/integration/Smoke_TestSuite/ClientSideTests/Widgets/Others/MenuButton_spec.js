@@ -8,7 +8,7 @@ describe("Menu Button Widget Functionality", () => {
 
   it("1. Icon alignment should not change when changing the icon", () => {
     cy.openPropertyPane("menubuttonwidget");
-    cy.moveToStyleTab()
+    cy.moveToStyleTab();
     // Add an icon
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -52,7 +52,7 @@ describe("Menu Button Widget Functionality", () => {
 
   it("2. MenuButton widget functionality on undo after delete", function() {
     cy.openPropertyPane("menubuttonwidget");
-    cy.moveToContentTab()
+    cy.moveToContentTab();
     // Delete Second Menu Item
     cy.get(".t--property-control-menuitems .t--delete-column-btn")
       .eq(1)

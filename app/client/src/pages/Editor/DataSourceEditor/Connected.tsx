@@ -83,7 +83,7 @@ function Connected() {
           datasource={datasource}
           disabled={!canCreateDatasourceActions}
           eventFrom="datasource-pane"
-          pluginType={plugin?.type}
+          plugin={plugin}
         />
       </Header>
       <div style={{ marginTop: "30px" }}>
