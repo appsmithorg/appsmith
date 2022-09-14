@@ -25,15 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -271,6 +263,55 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     return onPageLoadActions.stream()
                             .filter(setOfActions -> !setOfActions.isEmpty())
                             .collect(Collectors.toList());
+                });
+    }
+
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings) {
+        return getPossibleEntityReferences(actionNameToActionMapMono, bindings, null);
+    }
+
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, Set<EntityDependencyNode> bindingsInDsl) {
+        return actionNameToActionMapMono
+                .zipWith(MustacheHelper.getPossibleEntityParentsMap(bindings, 0b11))
+                .map(tuple -> {
+                    Map<String, ActionDTO> actionMap = tuple.getT1();
+                    Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
+
+                    Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+
+                    bindingToPossibleParentMap
+                            .entrySet()
+                            .stream()
+                            .forEach(entry -> {
+                                Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
+                                entry.getValue()
+                                        .stream()
+                                        .forEach(binding -> {
+                                            ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
+                                            if (actionDTO != null) {
+                                                if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION).contains(binding.getEntityReferenceType())) {
+                                                    binding.setIsAsync(actionDTO.getActionConfiguration().getIsAsync());
+                                                    binding.setActionDTO(actionDTO);
+                                                    bindingsWithActionReference.add(binding);
+                                                    if (!(TRUE.equals(binding.getIsAsync()) && TRUE.equals(binding.getIsFunctionCall()))) {
+                                                        possibleEntitiesReferences.add(binding);
+                                                    }
+                                                }
+                                            } else {
+                                                if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
+                                                    possibleEntitiesReferences.add(binding);
+                                                }
+                                            }
+                                        });
+
+                                // if the binding is referring to the action, ensure that for ASYNC JS functions, it
+                                // shouldn't be a function call since that is not supported in dynamic bindings.
+                                if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
+                                    bindingsInDsl.addAll(bindingsWithActionReference);
+                                }
+                            });
+
+                    return possibleEntitiesReferences;
                 });
     }
 
