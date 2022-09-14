@@ -13,7 +13,7 @@ const {
 const jsObjectBody = `export default {
 	myVar1: [],
 	myVar2: {},
-	myFun1(){
+	myFun1(){   
 
 	},
 	myFun2: async () => {
@@ -70,12 +70,15 @@ describe("Autocomplete tests", () => {
 
     // focus on 5th line
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "D");
     agHelper.GetNAssertElementText(
       CommonLocators._hints,
-      "DocumentViewer1",
+      "docUrl",
       "not.have.text",
+    );
+    agHelper.TypeText(
+      CommonLocators._codeMirrorTextArea,
+      "ocumentViewer.docUrl",
     );
   });
 
