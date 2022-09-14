@@ -138,7 +138,7 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   btoa: "btoa",
   BroadcastChannel: "BroadcastChannel",
   ByteLengthQueuingStrategy: "ByteLengthQueuingStrategy",
-  caches: caches,
+  caches: "caches",
   CSSSkewX: "CSSSkewX",
   CSSSkewY: "CSSSkewY",
   Cache: "Cache",
