@@ -62,7 +62,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -129,7 +129,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
-          ./build.sh
+          yarn build
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
@@ -141,18 +141,18 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
+      # Tar the bundles to speed up the upload & download process
+      - name: Tar the rts bundles
+        run: |
+          ls -al dist/node_modules/@shared/ast
+          tar -cvf rts-dist.tar dist
+
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: rts-build
-          path: app/rts/dist/
-
-      - name: Upload RTS dependencies bundle
-        uses: actions/upload-artifact@v2
-        with:
-          name: rts-build-deps
-          path: app/rts/node_modules/
+          name: rts-dist
+          path: app/rts/rts-dist.tar
 
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
