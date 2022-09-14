@@ -1,0 +1,12 @@
+---
+- name: Remove sensitive credential (1)
+  shell: find / -name "authorized_keys" -exec rm -f {} \;
+  become: yes
+
+- name: Remove sensitive credential (2)
+  shell: find /root/ /home/*/ -name .cvspass -exec rm -f {} \;
+  become: yes
+
+- name: Restart rsyslog
+  shell: service rsyslog restart
+  become: yes
