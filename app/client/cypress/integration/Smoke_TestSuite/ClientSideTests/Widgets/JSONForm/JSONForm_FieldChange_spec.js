@@ -135,10 +135,15 @@ describe("JSON Form Widget Field Change", () => {
 
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Array");
+    cy.wait(2000);
+    /*
     cy.get(`${fieldPrefix}-name`)
       .find(".t--jsonformfield-array-add-btn")
       .should("exist");
-
+    */
+    cy.get('button span:contains("Add New")')
+      .first()
+      .should("be.visible");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
     cy.closePropertyPane();
   });
@@ -173,6 +178,7 @@ describe("JSON Form Widget Field Change", () => {
 
     cy.openFieldConfiguration("hobbies");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Array");
+    cy.wait(2000); //for array field to reflect
     cy.get(`${fieldPrefix}-hobbies`).then((hobbies) => {
       cy.wrap(hobbies)
         .find(".t--jsonformfield-array-add-btn")
