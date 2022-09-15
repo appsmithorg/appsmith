@@ -50,6 +50,7 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import PropertyPaneHelperText from "./PropertyPaneHelperText";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -618,6 +619,7 @@ const PropertyControl = memo((props: Props) => {
             additionAutocomplete,
             hideEvaluatedValue(),
           )}
+          <PropertyPaneHelperText helperText={props.helperText} />
         </ControlWrapper>
       );
     } catch (e) {

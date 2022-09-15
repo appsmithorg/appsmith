@@ -47,7 +47,10 @@ export type PropertyPaneControlConfig = {
   id?: string;
   label: string | ((props: WidgetProps, propertyPath: string) => string);
   propertyName: string;
+  // Serves in the tooltip
   helpText?: string;
+  // Serves below the property pane inputs
+  helperText?: string;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;
