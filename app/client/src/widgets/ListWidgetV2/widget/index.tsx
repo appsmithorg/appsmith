@@ -268,7 +268,9 @@ class ListWidget extends BaseWidget<
         (name) => `${name}.data`,
       )}]}}`;
 
-      this.props.updateWidgetMetaProperty(
+      // This doesn't trigger another evaluation
+      this.context?.syncUpdateWidgetMetaProperty?.(
+        this.props.widgetId,
         "currentViewItems",
         currentViewItemsBinding,
       );
@@ -656,7 +658,6 @@ class ListWidget extends BaseWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         hasPagination={shouldPaginate}
-        key={`list-widget-page-${this.state.page}`}
         listData={this.props.listData || []}
       >
         <MetaWidgetContextProvider
