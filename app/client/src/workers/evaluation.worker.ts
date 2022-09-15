@@ -356,13 +356,14 @@ ctx.addEventListener(
           }
           // const text = await fetch(url).then((res) => res.());
           const newKeys = Object.keys(self);
-          const latestKey = newKeys.filter((key) => !oldKeys.includes(key));
+          const latestKeys = newKeys.filter((key) => !oldKeys.includes(key));
+          const accessor = latestKeys[latestKeys.length - 1];
           //@ts-expect-error test
-          const entity = self[latestKey[0]];
-          newLibraries.push(latestKey[0]);
+          const entity = self[accessor];
+          newLibraries.push(accessor);
           return {
-            accessor: latestKey[0],
-            backupDefs: { [latestKey[0]]: generateDefs(entity) },
+            accessor,
+            backupDefs: { [accessor]: generateDefs(entity) },
           };
         } catch (e) {
           console.log(e);
@@ -408,7 +409,7 @@ function generateDefs(obj: Record<string, any>) {
     generate(obj, def);
     generate(obj.prototype, protoDef);
   } catch (e) {
-    return Object.keys(obj).reduce((acc, key) => {
+    return Object.keys(obj || {}).reduce((acc, key) => {
       acc[key] = acc[key] || {};
       acc[key] = {
         "!type":
