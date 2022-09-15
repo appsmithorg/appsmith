@@ -15,6 +15,7 @@ import {
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { BaseStyle, WidgetProps } from "widgets/BaseWidget";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
@@ -377,7 +378,11 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }
 
     function onMaxUpdate(dx: number, dy: number) {
-      if (maxY + dy <= 40) {
+      if (
+        maxY + dy <=
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
         return;
       }
 
@@ -423,7 +428,11 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }, [minDynamicHeight]);
 
     function onMinUpdate(dx: number, dy: number) {
-      if (minY + dy <= 40) {
+      if (
+        minY + dy <=
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
         return;
       }
 
