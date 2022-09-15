@@ -8,7 +8,11 @@ import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { getFocusedWidget, getSelectedWidget, getSelectedWidgets } from "./ui";
+import {
+  getFocusedWidget,
+  getLastSelectedWidget,
+  getSelectedWidgets,
+} from "./ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { get } from "lodash";
 import { getAppMode } from "selectors/applicationSelectors";
@@ -96,7 +100,7 @@ export const isCurrentWidgetFocused = (widgetId: string) => {
 // Check if current widget is the last selected widget
 export const isCurrentWidgetLastSelected = (widgetId: string) => {
   return createSelector(
-    getSelectedWidget,
+    getLastSelectedWidget,
     (widget): boolean => widget === widgetId,
   );
 };
