@@ -1,5 +1,6 @@
 {
   "name": "@shared/ast",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
@@ -12,7 +13,7 @@
     "directory": "build"
   },
   "scripts": {
-    "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
+    "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "build": "rollup -c",
     "start": "rollup -c",
@@ -34,6 +35,7 @@
     "@types/lodash": "^4.14.120",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
+    "jest": "^28.0.0",
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
