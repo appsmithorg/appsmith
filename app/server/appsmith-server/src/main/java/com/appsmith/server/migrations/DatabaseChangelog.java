@@ -237,6 +237,9 @@ public class DatabaseChangelog {
 
     public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
         Query queryToFetchAllWorkspaceIds = new Query();
+        /* Filter in only those workspaces that don't have the plugin installed */
+        queryToFetchAllWorkspaceIds.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
+        /* Only read the workspace id and leave out other fields */
         queryToFetchAllWorkspaceIds.fields().include(fieldName(QWorkspace.workspace.id));
         List<Workspace> workspacesWithOnlyId = mongockTemplate.find(queryToFetchAllWorkspaceIds, Workspace.class);
         for (Workspace workspaceWithId : workspacesWithOnlyId) {
