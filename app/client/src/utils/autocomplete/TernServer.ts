@@ -241,6 +241,13 @@ class TernServer {
     ) {
       after = '"]';
     }
+    /* 
+      fix autocomplete positioning to point to end instead of start
+
+      scenario: when user types backspace to remove code in such cases autocomplete hint was showing in the start position of char instead of end. 
+    */
+    from.ch = end.ch + extraChars;
+
     // Actual char space
     const trimmedFocusedValueLength = focusedValue.trim().length;
     // end.ch counts tab space as 1 instead of 2 space chars in string
