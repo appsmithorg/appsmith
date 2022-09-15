@@ -7,7 +7,7 @@ describe("Label feature", () => {
 
   it("CheckboxGroupWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
-      widgetName: "checkboxgroupwidget",
+      widgetName: "checkboxgroupwidgetxyz",
       parentColumnSpace: 11.9375,
       containerSelector: "[data-testid='checkboxgroup-container']",
       isCompact: true,
