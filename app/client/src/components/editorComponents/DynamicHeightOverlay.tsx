@@ -323,6 +323,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       (state: AppState) => state.ui.widgetDragResize.isResizing,
     );
 
+    const isDragging = useSelector(
+      (state: AppState) => state.ui.widgetDragResize.isDragging,
+    );
+
     const [isMinDotDragging, setIsMinDotDragging] = useState(false);
     const [isMaxDotDragging, setIsMaxDotDragging] = useState(false);
 
@@ -522,7 +526,8 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
 
     const isWidgetSelected = selectedWidget === widgetId;
     const multipleWidgetsSelected = selectedWidgets.length > 1;
-    const isOverlayToBeDisplayed = isWidgetSelected && !multipleWidgetsSelected;
+    const isOverlayToBeDisplayed =
+      isWidgetSelected && !multipleWidgetsSelected && !isDragging;
 
     return (
       <StyledDynamicHeightOverlay
