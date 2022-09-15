@@ -54,11 +54,6 @@ describe("MySQL Datatype tests", function() {
     agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
 
-    query = inputData.query.deleteRecord;
-    ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
-    agHelper.RenameWithInPane("deleteRecord");
-    dataSources.EnterQuery(query);
-
     query = inputData.query.deleteAllRecords;
     ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
@@ -142,7 +137,7 @@ describe("MySQL Datatype tests", function() {
   it("10. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ["falseCases", "createTable", "deleteAllRecords", "deleteRecord", "dropTable", "insertRecord", "selectRecords"].forEach(type => {
+    ["falseCases", "createTable", "deleteAllRecords", "dropTable", "insertRecord", "selectRecords"].forEach(type => {
       ee.ActionContextMenuByEntityName(type, "Delete", "Are you sure?");
     })
     deployMode.DeployApp();
