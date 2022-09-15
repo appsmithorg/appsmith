@@ -6,9 +6,16 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "allowJs": true
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@constants/*": ["./src/constants/*"],
+      "@services/*": ["./src/services/*"],
+      "@middlewares/*": ["./src/middlewares/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@rules/*": ["./src/middlewares/rules/*"],
+      "@utils/*": ["./src/utils/*"],
+    }
   },
-  "lib": [
-    "es2015"
-  ]
+  "lib": ["es2015"]
 }

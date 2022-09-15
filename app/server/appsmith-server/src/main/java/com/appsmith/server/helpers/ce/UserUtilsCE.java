@@ -60,13 +60,7 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> makeSuperUser(List<User> users) {
-        return configRepository.findByName(INSTANCE_CONFIG)
-                .switchIfEmpty(Mono.defer(() -> createInstanceConfigForSuperUser()))
-                .flatMap(instanceConfig -> {
-                    JSONObject config = instanceConfig.getConfig();
-                    String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-                    return permissionGroupRepository.findById(defaultPermissionGroup);
-                })
+        return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
 
                     Set<String> assignedToUserIds = new HashSet<>();
@@ -89,13 +83,7 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> removeSuperUser(List<User> users) {
-        return configRepository.findByName(INSTANCE_CONFIG)
-                .switchIfEmpty(Mono.defer(() -> createInstanceConfigForSuperUser()))
-                .flatMap(instanceConfig -> {
-                    JSONObject config = instanceConfig.getConfig();
-                    String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-                    return permissionGroupRepository.findById(defaultPermissionGroup);
-                })
+        return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getAssignedToUserIds() == null) {
                         permissionGroup.setAssignedToUserIds(new HashSet<>());
@@ -191,5 +179,15 @@ public class UserUtilsCE {
         existingPermissions.addAll(permissions);
         permissionGroup.setPermissions(existingPermissions);
         return permissionGroupRepository.save(permissionGroup);
+    }
+
+    public Mono<PermissionGroup> getSuperAdminPermissionGroup() {
+        return configRepository.findByName(INSTANCE_CONFIG)
+                .switchIfEmpty(Mono.defer(() -> createInstanceConfigForSuperUser()))
+                .flatMap(instanceConfig -> {
+                    JSONObject config = instanceConfig.getConfig();
+                    String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
+                    return permissionGroupRepository.findById(defaultPermissionGroup);
+                });
     }
 }
