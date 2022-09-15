@@ -749,22 +749,22 @@ export function* installScript(payload: string, lib?: ExtraLibrary) {
   yield put({ type: ReduxActionTypes.UPDATE_INSTALL_PROGRESS });
   if (workerResponse.accessor) {
     try {
-      // const apiCall: unknown = yield fetch(
-      //   `https://appsmith-ternclear.herokuapp.com/getDef?url=${payload}`,
-      // );
-      // //@ts-expect-error test
-      // let res: Record<string, any> = yield apiCall.json();
+      const apiCall: unknown = yield fetch(
+        `https://appsmith-ternclear.herokuapp.com/getDef?url=${payload}`,
+      );
+      //@ts-expect-error test
+      let res: Record<string, any> = yield apiCall.json();
       yield put({ type: ReduxActionTypes.UPDATE_INSTALL_PROGRESS });
-      // if (Object.keys(res).length === 1) {
-      //   res = { ...res, ...workerResponse.backupDefs };
-      // }
+      if (Object.keys(res).length === 1) {
+        res = { ...res, ...workerResponse.backupDefs };
+      }
       try {
+        TernServer.updateDef(workerResponse.accessor, res);
+      } catch (e) {
         TernServer.updateDef(
           workerResponse.accessor,
           workerResponse.backupDefs,
         );
-      } catch (e) {
-        console.log("Autocomplete will not work");
       }
       yield put({ type: ReduxActionTypes.UPDATE_INSTALL_PROGRESS });
       yield put({
