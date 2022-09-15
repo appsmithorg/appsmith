@@ -352,7 +352,11 @@ ctx.addEventListener(
                 function(text: string) {
                   eval(text);
                 }.bind({ ...self, window }),
-              );
+              )
+              .catch(function(e) {
+                console.log(e);
+                throw new Error("Installation failed");
+              });
           }
           // const text = await fetch(url).then((res) => res.());
           const newKeys = Object.keys(self);
