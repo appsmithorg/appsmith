@@ -51,44 +51,67 @@ const Wrapper = styled.div<{
   }
 `;
 
-const ControlBtnWrapper = styled.div`
+const ControlBtnWrapper = styled.div<{
+  borderRadius?: string;
+  boxShadow?: string;
+}>`
   position: absolute;
-  top: 2px;
-  right: 2px;
-  padding: 5px 0px;
+  top: 8px;
+  right: 8px;
+  padding: 3px 2px;
   z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   background: white;
+  border: 1px solid ${Colors.GREY_5};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`};
 `;
 
-const ControlBtn = styled.a`
-  height: 25px;
-  width: 45px;
+const ControlBtn = styled.a<{
+  borderRadius?: string;
+}>`
+  height: 20px;
+  width: 20px;
   color: white;
-  padding: 0px 10px;
-  display: inline-block;
+  padding: 0px 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s linear;
+  margin: 0px 2px;
+  border-radius: ${({ borderRadius }) => borderRadius};
 
-  &.separator {
-    border-right: 1px solid ${Colors.ALTO2};
+  svg {
+    height: 11px;
+    width: 11px;
   }
 
-  & > div {
-    cursor: pointer;
-    height: 100%;
-    width: 100%;
-    padding: 4px;
-    transition: background 0.2s linear;
+  svg.is-download-icon {
+    height: 13px;
+    width: 15px;
 
-    & > svg {
-      height: 16px;
-      width: 17px;
-    }
-    &: hover {
-      background: #ebebeb;
+    path {
+      fill: ${Colors.GREY_7};
     }
   }
+
+  &:hover {
+    background: ${Colors.GREY_3};
+
+    svg path {
+      fill: ${Colors.GREY_9};
+    }
+  }
+`;
+
+const Separator = styled.div`
+  height: 18px;
+  width: 1px;
+  background-color: ${Colors.GREY_5};
+  margin: 0px 2px;
 `;
 
 const ErrorContainer = styled.div`
@@ -254,6 +277,8 @@ class ImageComponent extends React.Component<
 
   renderImageControl = () => {
     const {
+      borderRadius,
+      boxShadow,
       defaultImageUrl,
       enableDownload,
       enableRotation,
@@ -265,67 +290,69 @@ class ImageComponent extends React.Component<
 
     if (showImageControl && (enableRotation || showDownloadBtn)) {
       return (
-        <ControlBtnWrapper>
+        <ControlBtnWrapper borderRadius={borderRadius} boxShadow={boxShadow}>
           {enableRotation && (
             <>
-              <ControlBtn onClick={this.handleImageRotate(false)}>
-                <div>
-                  <svg
-                    fill="none"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    width="12"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M2.28492 1.81862C3.27446 0.939565 4.57489 0.400391 6.00002 0.400391C9.08724 0.400391 11.6 2.91317 11.6 6.00039C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039H1.33336C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039C10.6667 3.41761 8.58281 1.33372 6.00002 1.33372C4.82777 1.33372 3.76447 1.7682 2.94573 2.47943L4.13336 3.66706H1.33336V0.867057L2.28492 1.81862Z"
-                      fill="#858282"
-                      stroke="#858282"
-                      strokeWidth="0.5"
-                    />
-                  </svg>
-                </div>
+              <ControlBtn
+                borderRadius={borderRadius}
+                onClick={this.handleImageRotate(false)}
+              >
+                <svg
+                  fill="none"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  width="12"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.23333 2.17702C3.19999 1.21035 4.52666 0.610352 5.99999 0.610352C8.94666 0.610352 11.3267 2.99702 11.3267 5.94368C11.3267 8.89035 8.94666 11.277 5.99999 11.277C3.51333 11.277 1.43999 9.57702 0.846661 7.27702H2.23333C2.77999 8.83035 4.25999 9.94368 5.99999 9.94368C8.20666 9.94368 9.99999 8.15035 9.99999 5.94368C9.99999 3.73702 8.20666 1.94368 5.99999 1.94368C4.89333 1.94368 3.90666 2.40368 3.18666 3.13035L5.33333 5.27702H0.66666V0.610352L2.23333 2.17702Z"
+                    fill="#858282"
+                  />
+                </svg>
               </ControlBtn>
               <ControlBtn
-                className="separator"
+                borderRadius={borderRadius}
                 onClick={this.handleImageRotate(true)}
               >
-                <div>
-                  <svg
-                    fill="none"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    width="12"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M0.400024 6.00039C0.400024 2.91317 2.91281 0.400391 6.00002 0.400391C7.42515 0.400391 8.72559 0.939565 9.71513 1.81862L10.6667 0.867057V3.66706H7.86669L9.05432 2.47943C8.23558 1.7682 7.17228 1.33372 6.00002 1.33372C3.41724 1.33372 1.33336 3.41761 1.33336 6.00039C1.33336 8.58317 3.41724 10.6671 6.00002 10.6671C8.58281 10.6671 10.6667 8.58317 10.6667 6.00039H11.6C11.6 9.08761 9.08724 11.6004 6.00002 11.6004C2.91281 11.6004 0.400024 9.08761 0.400024 6.00039Z"
-                      fill="#858282"
-                      stroke="#858282"
-                      strokeWidth="0.5"
-                    />
-                  </svg>
-                </div>
+                <svg
+                  fill="none"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  width="12"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.76667 2.17702C8.80001 1.21035 7.47334 0.610352 6.00001 0.610352C3.05334 0.610352 0.67334 2.99702 0.67334 5.94368C0.67334 8.89035 3.05334 11.277 6.00001 11.277C8.48667 11.277 10.56 9.57702 11.1533 7.27702H9.76667C9.22001 8.83035 7.74001 9.94368 6.00001 9.94368C3.79334 9.94368 2.00001 8.15035 2.00001 5.94368C2.00001 3.73702 3.79334 1.94368 6.00001 1.94368C7.10667 1.94368 8.09334 2.40368 8.81334 3.13035L6.66667 5.27702H11.3333V0.610352L9.76667 2.17702Z"
+                    fill="#858282"
+                  />
+                </svg>
               </ControlBtn>
             </>
           )}
+
+          {enableRotation && enableDownload && <Separator />}
+
           {showDownloadBtn && (
             <ControlBtn
+              borderRadius={borderRadius}
               data-cy="t--image-download"
               download
               href={hrefUrl}
               target="_blank"
             >
-              <div>
-                <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
-                  <path
-                    clipRule="evenodd"
-                    d="M15.4547 16.4284H13.117H6.88326H4.54559C2.8243 16.4284 1.42871 14.8933 1.42871 12.9999C1.42871 11.3987 2.43157 10.0641 3.7804 9.68786C3.93001 6.28329 6.47884 3.57129 9.61053 3.57129C12.7072 3.57129 15.2349 6.22243 15.4352 9.57386C17.183 9.56015 18.5716 11.1167 18.5716 12.9999C18.5716 14.8933 17.176 16.4284 15.4547 16.4284ZM12.7266 11.4286L9.99929 14.8572L7.27202 11.4286L8.83045 11.4286L8.83045 8.00004L11.1681 8.00003V11.4286L12.7266 11.4286Z"
-                    fill="#939090"
-                    fillRule="evenodd"
-                  />
-                </svg>
-              </div>
+              <svg
+                className="is-download-icon"
+                fill="none"
+                height="13"
+                viewBox="0 0 16 13"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.666749 8.6102C0.666338 7.87383 0.853696 7.14953 1.21112 6.50573C1.56854 5.86193 2.08421 5.3199 2.70942 4.93086C2.87442 3.64425 3.50261 2.46186 4.47643 1.60497C5.45024 0.748069 6.70294 0.275391 8.00008 0.275391C9.29723 0.275391 10.5499 0.748069 11.5237 1.60497C12.4976 2.46186 13.1257 3.64425 13.2907 4.93086C14.0662 5.41332 14.6695 6.12846 15.0143 6.97418C15.3591 7.8199 15.4279 8.75295 15.2108 9.64009C14.9938 10.5272 14.502 11.3231 13.8056 11.9141C13.1093 12.5051 12.244 12.8609 11.3334 12.9309L4.66675 12.9435C2.42942 12.7609 0.666749 10.8915 0.666749 8.6102ZM11.2321 11.6015C11.8626 11.553 12.4617 11.3065 12.9438 10.8972C13.4259 10.4879 13.7663 9.9367 13.9164 9.32236C14.0665 8.70801 14.0186 8.06195 13.7796 7.47645C13.5405 6.89095 13.1226 6.39596 12.5854 6.0622L12.0474 5.72686L11.9674 5.09886C11.8428 4.13465 11.3713 3.24882 10.6411 2.60692C9.91093 1.96502 8.97198 1.61099 7.99975 1.61099C7.02752 1.61099 6.08856 1.96502 5.35836 2.60692C4.62816 3.24882 4.1567 4.13465 4.03208 5.09886L3.95208 5.72686L3.41542 6.0622C2.87828 6.39593 2.46034 6.89085 2.22128 7.4763C1.98222 8.06174 1.93427 8.70775 2.08429 9.32207C2.2343 9.93639 2.5746 10.4876 3.05658 10.897C3.53857 11.3063 4.13758 11.5529 4.76808 11.6015L4.88341 11.6102H11.1167L11.2321 11.6015ZM8.66675 6.94353H10.6667L8.00008 10.2769L5.33342 6.94353H7.33342V4.27686H8.66675V6.94353Z"
+                  fill="#858282"
+                />
+              </svg>
             </ControlBtn>
           )}
         </ControlBtnWrapper>
