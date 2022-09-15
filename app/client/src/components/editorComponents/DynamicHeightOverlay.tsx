@@ -156,8 +156,8 @@ const MinHeightOverlayHandleDot = styled(OverlayHandleDot)<{
   isActive: boolean;
   isDragging: boolean;
 }>`
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   transform: scale(${(props) => (props.isDragging ? "1.67" : "1")});
   border: 1px solid ${OVERLAY_COLOR};
   background-color: ${(props) => (props.isActive ? OVERLAY_COLOR : "none")};
@@ -212,14 +212,13 @@ const Border = styled.div`
     ${OVERLAY_COLOR} 50%,
     rgba(255, 255, 255, 0) 0%
   );
-  background-position: bottom;
-  background-size: 22px 1px;
+  background-size: 8% 1px;
   background-repeat: repeat-x;
   position: absolute;
   left: 0;
   right: 0;
   height: 1px;
-  top: -1px;
+  top: 0px;
 `;
 
 const OverlayHandles: React.FC<OverlayHandlesProps> = ({
