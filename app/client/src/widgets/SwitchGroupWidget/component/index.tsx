@@ -6,12 +6,11 @@ import { ThemeProp } from "components/ads/common";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
-import {
-  LabelWithTooltip,
+import { StyledSwitch } from "widgets/SwitchWidget/component";
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
-import { StyledSwitch } from "widgets/SwitchWidget/component";
+} from "widgets/components/LabelWithTooltip";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
@@ -112,6 +111,7 @@ const SwitchGroupComponent = React.forwardRef<
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           inline={inline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}

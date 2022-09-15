@@ -13,12 +13,13 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
-import { Icon, LabelWithTooltip } from "design-system";
+import { Icon } from "design-system";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -54,6 +55,7 @@ export interface MultiSelectProps
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -64,6 +66,7 @@ function MultiSelectComponent({
   disabled,
   dropdownStyle,
   dropDownWidth,
+  isDynamicHeightEnabled,
   isValid,
   labelAlignment,
   labelPosition,
@@ -186,6 +189,7 @@ function MultiSelectComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           text={labelText}

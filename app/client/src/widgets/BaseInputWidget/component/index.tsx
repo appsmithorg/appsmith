@@ -24,16 +24,15 @@ import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import {
-  Icon,
-  LabelWithTooltip,
-  labelLayoutStyles,
-  LABEL_CONTAINER_CLASS,
-} from "design-system";
+import { Icon } from "design-system";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
 import { lightenColor } from "widgets/WidgetUtils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "widgets/components/LabelWithTooltip";
 
 /**
  * All design system component specific logic goes here.
@@ -668,7 +667,7 @@ class BaseInputComponent extends React.Component<
               fontSize={labelTextSize}
               fontStyle={labelStyle}
               helpText={tooltip}
-              // isDynamicHeightEnabled={isDynamicHeightEnabled}
+              isDynamicHeightEnabled={isDynamicHeightEnabled}
               loading={isLoading}
               position={labelPosition}
               text={label}
