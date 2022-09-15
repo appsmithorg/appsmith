@@ -55,7 +55,8 @@ export const pathRequiresLinting = (
   return requiresLinting;
 };
 
-export const getJSSnippetToLint = (
+// Removes "export default" statement from js Object
+export const getJSToLint = (
   entity: DataTreeEntity,
   snippet: string,
   propertyPath: string,
@@ -97,6 +98,7 @@ function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
 export const getLintingErrors = (
   script: string,
   data: Record<string, unknown>,
+  // {{user's code}}
   originalBinding: string,
   scriptType: EvaluationScriptType,
 ): EvaluationError[] => {

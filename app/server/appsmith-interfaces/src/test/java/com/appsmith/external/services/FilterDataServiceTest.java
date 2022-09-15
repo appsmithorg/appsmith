@@ -24,7 +24,7 @@ import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_LIM
 import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_OFFSET_KEY;
 import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_COLUMN_NAME_KEY;
 import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_TYPE_KEY;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -134,7 +134,7 @@ public class FilterDataServiceTest {
             List<Condition> conditions = (List<Condition>) condition.getValue();
 
             String expression = filterDataService.generateLogicalExpression(conditions, new ArrayList<>(), schema, operator);
-            assertThat(expression.equals("( \"i\" >= ? )  and (  ( \"d\" <= ? )  and (  ( \"a\" <= ? )  )  )  and (  ( \"u\" <= ? )  ) "));
+            assertThat(expression).isEqualTo(" ( \"i\" >= ? )  and (  ( \"d\" <= ? )  and (  ( \"a\" <= ? )  )  )  and (  ( \"u\" <= ? )  ) ");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -533,8 +533,7 @@ public class FilterDataServiceTest {
                     .map(n -> fieldNamesIterator.next())
                     .collect(Collectors.toList());
 
-            assertThat(columnNames.containsAll(List.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus")));
-
+            assertThat(columnNames).containsExactlyInAnyOrder("id", "email id", "userName", "productName", "orderAmount", "orderStatus");
 
         } catch (IOException e) {
             e.printStackTrace();
