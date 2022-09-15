@@ -148,10 +148,11 @@ describe("Tern server", () => {
           requestCallbackData: {
             completions: [{ name: "Api1" }],
             start: { ch: 2, line: 0 },
-            end: { ch: 2, line: 0 },
+            end: { ch: 6, line: 0 },
           },
         },
-        expectedOutput: { ch: 2, line: 0 },
+        // we will receive end position in `from`
+        expectedOutput: { ch: 6, line: 0 },
       },
       {
         input: {
@@ -168,10 +169,11 @@ describe("Tern server", () => {
           requestCallbackData: {
             completions: [{ name: "Api1" }],
             start: { ch: 0, line: 0 },
-            end: { ch: 0, line: 0 },
+            end: { ch: 4, line: 0 },
           },
         },
-        expectedOutput: { ch: 3, line: 0 },
+        // we will receive end position in `from`
+        expectedOutput: { ch: 7, line: 0 },
       },
     ];
 
