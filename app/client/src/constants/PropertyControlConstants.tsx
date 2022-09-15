@@ -49,8 +49,8 @@ export type PropertyPaneControlConfig = {
   propertyName: string;
   // Serves in the tooltip
   helpText?: string;
-  // Serves below the property pane inputs
-  helperText?: string;
+  //Dynamic text serves below the property pane inputs
+  helperText?: ((props: any) => string) | string;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;

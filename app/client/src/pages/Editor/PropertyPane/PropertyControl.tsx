@@ -419,6 +419,9 @@ const PropertyControl = memo((props: Props) => {
   const label = isFunction(props.label)
     ? props.label(widgetProperties, propertyName)
     : props.label;
+  const helperText = isFunction(props.helperText)
+    ? props.helperText(widgetProperties)
+    : props.helperText;
 
   if (widgetProperties) {
     // get the dataTreePath and apply enhancement if exists
@@ -619,7 +622,7 @@ const PropertyControl = memo((props: Props) => {
             additionAutocomplete,
             hideEvaluatedValue(),
           )}
-          <PropertyPaneHelperText helperText={props.helperText} />
+          <PropertyPaneHelperText helperText={helperText} />
         </ControlWrapper>
       );
     } catch (e) {

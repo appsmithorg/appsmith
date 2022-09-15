@@ -498,6 +498,11 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "fileDataType",
             label: "Data Format",
             controlType: "DROP_DOWN",
+            helperText: (props: FilePickerWidgetProps) => {
+              return props.fileDataType === FileDataTypes.Array
+                ? "Larger files will slow down the app. In such cases upload files to a database and query them."
+                : "";
+            },
             options: [
               {
                 label: FileDataTypes.Base64,
