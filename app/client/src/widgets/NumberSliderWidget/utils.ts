@@ -43,7 +43,7 @@ export function getChangeValue({
 
   const nextValue = (dx !== 0 ? Math.round(dx / step) * step : 0) + min;
 
-  return nextValue;
+  return Math.max(Math.min(nextValue, max), min);
 }
 
 export function getClientPosition(event: any) {

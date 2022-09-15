@@ -122,6 +122,16 @@ export function stepSizeValidation(
     };
   }
 
+  const minRange = props.minRange;
+
+  if (stepValue > minRange) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: [`This value must be less than or equal to minRange`],
+    };
+  }
+
   return {
     isValid: true,
     parsed: stepValue,
