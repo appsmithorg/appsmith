@@ -59,7 +59,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
 
-  const onClick = () => {
+  const saveOrEditDatasource = () => {
     if (props.shouldSave) {
       dispatch(storeAsDatasource());
     } else {
@@ -80,7 +80,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
     <StoreDatasourceWrapper
       className="t--store-as-datasource"
       enable={props.enable}
-      onClick={onClick}
+      onClick={saveOrEditDatasource}
     >
       {props.shouldSave ? (
         <CloudLine className={Classes.ICON} size={14} />
