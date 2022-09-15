@@ -160,7 +160,7 @@ const MinHeightOverlayHandleDot = styled(OverlayHandleDot)<{
   height: 7px;
   transform: scale(${(props) => (props.isDragging ? "1.67" : "1")});
   border: 1px solid ${OVERLAY_COLOR};
-  background-color: ${(props) => (props.isActive ? OVERLAY_COLOR : "none")};
+  background-color: ${OVERLAY_COLOR};
   box-shadow: 0px 0px 0px 1px white;
 `;
 
