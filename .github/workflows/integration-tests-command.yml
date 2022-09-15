@@ -91,7 +91,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -485,7 +485,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -501,7 +501,7 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
@@ -753,7 +753,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -764,7 +764,7 @@ jobs:
         with:
           path: |
             ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -773,7 +773,7 @@ jobs:
         with:
           path: |
             app/client/cypress/snapshots/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -829,7 +829,7 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
