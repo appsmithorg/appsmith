@@ -241,7 +241,6 @@ class TernServer {
     ) {
       after = '"]';
     }
-
     // Actual char space
     const trimmedFocusedValueLength = focusedValue.trim().length;
     // end.ch counts tab space as 1 instead of 2 space chars in string
