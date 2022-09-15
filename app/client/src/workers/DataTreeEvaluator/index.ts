@@ -1021,7 +1021,6 @@ export default class DataTreeEvaluator {
       widget,
       propertyPath,
     );
-
     const evaluatedValue = isValid
       ? parsed
       : _.isUndefined(transformed)
