@@ -8,7 +8,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getSelectedWidget, getSelectedWidgets } from "./ui";
+import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { generateClassName } from "utils/generators";
@@ -201,7 +201,7 @@ const isResizingorDragging = (state: AppState) =>
 export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
   isResizingorDragging,
-  getSelectedWidget,
+  getLastSelectedWidget,
   getSelectedWidgets,
   (
     pane: PropertyPaneReduxState,
