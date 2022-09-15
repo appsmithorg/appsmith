@@ -7,9 +7,13 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UserCompactDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserGroupRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -37,6 +41,10 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     private final PolicyGenerator policyGenerator;
     private final PermissionGroupService permissionGroupService;
 
+    private final UserService userService;
+
+    private final ModelMapper modelMapper;
+
     public UserGroupServiceImpl(Scheduler scheduler,
                                 Validator validator,
                                 MongoConverter mongoConverter,
@@ -46,12 +54,16 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 SessionUserService sessionUserService,
                                 TenantService tenantService,
                                 PolicyGenerator policyGenerator,
-                                PermissionGroupService permissionGroupService) {
+                                PermissionGroupService permissionGroupService,
+                                UserService userService,
+                                ModelMapper modelMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.policyGenerator = policyGenerator;
         this.permissionGroupService = permissionGroupService;
+        this.userService = userService;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -102,11 +114,43 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     @Override
     public Mono<UserGroup> getById(String id) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<UserGroupDTO> getGroupById(String id) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById(id, READ_USER_GROUPS);
+        return repository.findById(id, READ_USER_GROUPS)
+                .flatMap(userGroup -> {
+
+                    Mono<List<PermissionGroupInfoDTO>> groupRolesMono = permissionGroupService.findAllByAssignedToGroupIdsIn(Set.of(id))
+                            .map(permissionGroup -> {
+                                PermissionGroupInfoDTO permissionGroupDTO = new PermissionGroupInfoDTO();
+                                modelMapper.map(permissionGroup, permissionGroupDTO);
+                                return permissionGroupDTO;
+                            })
+                            .collectList();
+
+                    Mono<List<UserCompactDTO>> usersMono = userService.findAllByIdsIn(userGroup.getUsers())
+                            .map(user -> {
+                                UserCompactDTO userDTO = new UserCompactDTO();
+                                modelMapper.map(user, userDTO);
+                                return userDTO;
+                            })
+                            .collectList();
+
+                    return Mono.zip(groupRolesMono, usersMono)
+                            .flatMap(tuple -> {
+                                UserGroupDTO userGroupDTO = new UserGroupDTO();
+                                modelMapper.map(userGroup, userGroupDTO);
+                                userGroupDTO.setRoles(tuple.getT1());
+                                userGroupDTO.setUsers(tuple.getT2());
+                                return Mono.just(userGroupDTO);
+                            });
+                });
     }
 
     @Override
