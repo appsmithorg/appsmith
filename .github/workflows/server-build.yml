@@ -67,19 +67,13 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      # Timestamp will be used to create cache key
-      - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
-
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         uses: actions/cache@v2
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-
+          key: ${{ github.run_id }}-${{ github.job }}-server
 
       # Fetch prior run result
       - name: Get the previous run result
@@ -149,9 +143,7 @@ jobs:
         with:
           path: |
             app/server/dist/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-server
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
