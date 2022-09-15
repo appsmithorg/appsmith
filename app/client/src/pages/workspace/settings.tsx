@@ -20,9 +20,9 @@ import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceInviteUsersForm from "./WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
-import { navigateToTab } from "./helpers";
+import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

@@ -129,7 +129,7 @@ describe("Git import flow", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
-  it.skip("Create a new branch, clone page and validate data on that branch in deploy and edit mode", () => {
+  it("Create a new branch, clone page and validate data on that branch in deploy and edit mode", () => {
     cy.createGitBranch(newBranch);
     cy.get(".tbody")
       .first()
@@ -142,7 +142,7 @@ describe("Git import flow", function() {
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     // clone the page1 and validate data binding
     cy.get(".t--entity-name:contains(Page1)")
       .trigger("mouseover")
@@ -158,7 +158,7 @@ describe("Git import flow", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -197,7 +197,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it.skip("Switch to master and verify data in edit and deploy mode", () => {
+  it("Switch to master and verify data in edit and deploy mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
     // validate data binding in edit and deploy mode
@@ -219,7 +219,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it.skip("Add widget to master, merge then checkout to child branch and verify data", () => {
+  it("Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });

@@ -22,11 +22,11 @@ import styled from "styled-components";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import { Icon } from "design-system";
+import { Icon, LabelWithTooltip } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
-import { LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
+import { isNil } from "lodash";
 
 export interface TreeSelectProps
   extends Required<
@@ -155,12 +155,14 @@ function SingleSelectTreeComponent({
 
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
-      setFilter("");
-      onChange(value, labelList);
+      if (value !== undefined) {
+        setFilter("");
+        onChange(value, labelList);
+      }
     },
     [],
   );
-  const onClear = useCallback(() => onChange([], []), []);
+  const onClear = useCallback(() => onChange("", []), []);
   const clearButton = useMemo(
     () =>
       filter ? (
@@ -218,6 +220,12 @@ function SingleSelectTreeComponent({
     // Clear the search input on closing the widget
     setFilter("");
   };
+  const allowClearMemo = useMemo(
+    () => allowClear && !isNil(value) && value !== "",
+    [allowClear, value],
+  );
+
+  const memoValue = useMemo(() => (value !== "" ? value : undefined), [value]);
 
   return (
     <TreeSelectContainer
@@ -255,7 +263,7 @@ function SingleSelectTreeComponent({
       )}
       <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
         <TreeSelect
-          allowClear={allowClear}
+          allowClear={allowClearMemo}
           animation="slide-up"
           choiceTransitionName="rc-tree-select-selection__choice-zoom"
           className="rc-tree-select"
@@ -302,7 +310,7 @@ function SingleSelectTreeComponent({
           treeDefaultExpandAll={expandAll}
           treeIcon
           treeNodeFilterProp="label"
-          value={filter ? "" : value} // value should empty when filter value exist otherwise dropdown flickers #12714
+          value={memoValue}
         />
       </InputContainer>
     </TreeSelectContainer>

@@ -32,8 +32,7 @@ import {
 import { Space } from "./StyledComponents";
 import { Icon, IconSize, IconWrapper } from "design-system";
 import { get } from "lodash";
-import { TooltipComponent as Tooltip } from "design-system";
-import Spinner from "components/ads/Spinner";
+import { Spinner, TooltipComponent as Tooltip } from "design-system";
 import {
   isLocalBranch,
   isRemoteBranch,

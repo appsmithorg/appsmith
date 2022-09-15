@@ -8,7 +8,10 @@ import {
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import {
+  DATASOURCE_DB_FORM,
+  QUERY_EDITOR_FORM_NAME,
+} from "@appsmith/constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {
@@ -26,12 +29,18 @@ import {
   getActions,
   getPlugins,
 } from "selectors/entitiesSelector";
-import { Action, PluginType, QueryAction } from "entities/Action";
+import {
+  Action,
+  ApiActionConfig,
+  isGraphqlPlugin,
+  PluginType,
+  QueryAction,
+} from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -51,18 +60,16 @@ import {
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
-import {
-  ActionData,
-  ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
-import { Plugin } from "api/PluginApi";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   datasourcesEditorIdURL,
   integrationEditorURL,
   queryEditorIdURL,
 } from "RouteBuilder";
-import { UIComponentTypes } from "api/PluginApi";
+import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -152,6 +159,7 @@ function* formValueChangeSaga(
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
+  const hasRouteChanged = field === "id";
 
   if (field === "datasource.id") {
     const datasource: Datasource | undefined = yield select(
@@ -176,25 +184,50 @@ function* formValueChangeSaga(
     return;
   }
 
+  const plugins: Plugin[] = yield select(getPlugins);
+  const uiComponent = getUIComponent(values.pluginId, plugins);
+
+  // Editing form fields triggers evaluations.
+  // We pass the action to run form evaluations when the dataTree evaluation is complete
+  const postEvalActions =
+    uiComponent === UIComponentTypes.UQIDbEditorForm
+      ? [
+          startFormEvaluations(
+            values.id,
+            values.actionConfiguration,
+            values.datasource.id,
+            values.pluginId,
+            field,
+            hasRouteChanged,
+          ),
+        ]
+      : [];
+
   if (
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
   ) {
     const value = get(values, field);
     yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value,
-      }),
+      setActionProperty(
+        {
+          actionId: values.id,
+          propertyName: field,
+          value,
+        },
+        postEvalActions,
+      ),
     );
   } else {
     yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value: actionPayload.payload,
-      }),
+      setActionProperty(
+        {
+          actionId: values.id,
+          propertyName: field,
+          value: actionPayload.payload,
+        },
+        postEvalActions,
+      ),
     );
   }
   yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
@@ -303,6 +336,10 @@ function* handleNameChangeSuccessSaga(
   }
 }
 
+/**
+ * Creates an action with specific datasource created by a user
+ * @param action
+ */
 function* createNewQueryForDatasourceSaga(
   action: ReduxAction<{
     pageId: string;
@@ -315,23 +352,44 @@ function* createNewQueryForDatasourceSaga(
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const actions: ActionDataState = yield select(getActions);
 
-  const pageApiNames = actions
-    .filter((a: ActionData) => a.config.pageId === pageId)
-    .map((a: ActionData) => a.config.name);
-  const newQueryName = getNextEntityName("Query", pageApiNames);
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+  const pluginType: PluginType = plugin?.type;
+  const isGraphql: boolean = isGraphqlPlugin(plugin);
+
+  // If the datasource is Graphql then get Graphql default config else Api config
+  const DEFAULT_CONFIG = isGraphql
+    ? DEFAULT_GRAPHQL_ACTION_CONFIG
+    : DEFAULT_API_ACTION_CONFIG;
+
+  const DEFAULT_HEADERS = isGraphql
+    ? DEFAULT_GRAPHQL_ACTION_CONFIG.headers
+    : DEFAULT_API_ACTION_CONFIG.headers;
+
+  /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
+  const defaultApiActionConfig: ApiActionConfig = {
+    ...DEFAULT_CONFIG,
+    headers: DEFAULT_HEADERS,
+  };
+
+  const newActionName =
+    pluginType === PluginType.DB
+      ? createNewQueryName(actions, pageId || "")
+      : createNewApiName(actions, pageId || "");
+
   const createActionPayload = {
-    name: newQueryName,
+    name: newActionName,
     pageId,
     pluginId: datasource?.pluginId,
     datasource: {
       id: datasourceId,
     },
     eventData: {
-      actionType: "Query",
+      actionType: pluginType === PluginType.DB ? "Query" : "API",
       from: action.payload.from,
       dataSource: datasource.name,
     },
-    actionConfiguration: {},
+    actionConfiguration:
+      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
   };
 
   yield put(createActionRequest(createActionPayload));

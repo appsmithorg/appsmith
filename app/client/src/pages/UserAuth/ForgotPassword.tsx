@@ -29,7 +29,7 @@ import {
 } from "@appsmith/constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/ads/formFields/FormMessage";
-import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
+import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormGroup from "components/ads/formFields/FormGroup";
 import { Button, Size } from "design-system";
 import FormTextField from "components/ads/formFields/TextField";

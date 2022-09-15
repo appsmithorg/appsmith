@@ -24,7 +24,7 @@ import {
 import tinycolor from "tinycolor2";
 import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
+import { Classes as DTClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
@@ -279,37 +279,100 @@ export const PopoverStyles = createGlobalStyle<{
   portalClassName: string;
   accentColor: string;
 }>`
-  ${(props) => `
-    .${props.portalClassName} .${Classes.POPOVER} {
-      border-radius: ${props.borderRadius} !important;
+  ${({ accentColor, borderRadius, portalClassName }) => `
+    .${portalClassName} .${Classes.POPOVER} {
+      border-radius: ${borderRadius} !important;
       overflow: hidden;
       box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
       margin-top: 4px !important;
     }
 
-    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY},
-    .${props.portalClassName} .${Classes.BUTTON} {
-      border-radius: ${props.borderRadius} !important;
-    }
-    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY_SELECTED} {
-      background-color: ${props.accentColor} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY},
+    .${portalClassName} .${Classes.BUTTON} {
+      border-radius: ${borderRadius} !important;
     }
 
-    .${props.portalClassName}  .${Classes.INPUT} {
-      border-radius: ${props.borderRadius} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:hover
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:focus,
+    .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select:focus,
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select:focus,
+    .${portalClassName} .${Classes.BUTTON}:hover {
+      background: var(--wds-color-bg-hover);
     }
 
-    .${props.portalClassName}  .${Classes.INPUT}:focus, .${
-    props.portalClassName
-  }  .${Classes.INPUT}:active {
-      border: 1px solid ${props.accentColor} !important;
-      box-shadow:  0px 0px 0px 2px ${lightenColor(
-        props.accentColor,
-      )} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY_SELECTED} {
+      background-color: ${accentColor} !important;
     }
 
-    .${props.portalClassName} .ads-dropdown-options-wrapper {
+    .${portalClassName}  .${Classes.INPUT} {
+      border-radius: ${borderRadius} !important;
+    }
+
+    .${portalClassName}  .${Classes.INPUT}:focus,
+    .${portalClassName}  .${Classes.INPUT}:active {
+      border: 1px solid ${accentColor} !important;
+      box-shadow:  0px 0px 0px 2px ${lightenColor(accentColor)} !important;
+    }
+
+    .${portalClassName} .ads-dropdown-options-wrapper {
       border: 0px solid !important;
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT_ROW} {
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border);
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT_ROW}:hover {
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border-hover);
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT}:focus {
+      box-shadow: 0px 0px 0px 1px ${accentColor},
+                  0px 0px 0px 3px ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${Classes.BUTTON} {
+      color: ${accentColor};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${
+    Classes.BUTTON
+  }:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON} span {
+      color: var(--wds-color-icon) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON}:disabled span {
+      color: var(--wds-color-icon-disabled) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select + .${
+    Classes.ICON
+  }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
+    Classes.ICON
+  } {
+      color: var(--wds-color-icon) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a {
+      border-radius: ${borderRadius};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a.${
+    Classes.ACTIVE
+  } {
+      color: ${getComplementaryGrayscaleColor(accentColor)};
+      background-color: ${accentColor};
     }
   `}
 `;
@@ -589,3 +652,27 @@ export function composePropertyUpdateHook(
     }
   };
 }
+
+interface DropdownOption {
+  label: string;
+  value: string | number;
+  disabled?: boolean;
+  children?: DropdownOption[];
+}
+
+/*
+ * Helps flatten nested Array of objects
+ *  Array -> Object { value, label,  children : Array -> Object { value, label } }
+ * This would be flattened to Array -> { value, label } , { value, label }
+ */
+
+export const flat = (array: DropdownOption[]) => {
+  let result: { value: string | number; label: string }[] = [];
+  array.forEach((a) => {
+    result.push({ value: a.value, label: a.label });
+    if (Array.isArray(a.children)) {
+      result = result.concat(flat(a.children));
+    }
+  });
+  return result;
+};

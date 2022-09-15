@@ -34,7 +34,7 @@ export const PROPERTY_SELECTOR = {
   onClick: ".t--property-control-onclick",
   onSubmit: ".t--property-control-onsubmit",
   text: ".t--property-control-text",
-  defaultValue: ".t--property-control-defaultvalue",
+  defaultValue: ".t--property-control-defaultselectedvalues",
   propertyName: ".t--property-control-propertyname",
   onClickFieldName : "onClick",
   TextFieldName: "Text"

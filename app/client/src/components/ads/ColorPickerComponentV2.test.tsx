@@ -1,5 +1,4 @@
 import React from "react";
-import store from "store";
 import { Provider } from "react-redux";
 import "@testing-library/jest-dom";
 import {
@@ -11,6 +10,28 @@ import { ThemeProvider } from "constants/DefaultTheme";
 import ColorPickerComponent from "./ColorPickerComponentV2";
 import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
+import configureStore from "redux-mock-store";
+
+const mockStore = configureStore([]);
+const store = mockStore({
+  entities: {
+    canvasWidgets: {
+      0: {},
+    },
+  },
+  ui: {
+    appTheming: {
+      selectedTheme: {
+        properties: {
+          colors: {
+            primaryColor: "#553DE9",
+            backgroundColor: "#F6F6F6",
+          },
+        },
+      },
+    },
+  },
+});
 
 const getTestComponent = (handleOnChange: any = undefined) => (
   <Provider store={store}>
@@ -60,7 +81,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     expect(screen.getByRole("textbox")).toHaveFocus();
   });
 
-  it("Pressing {Enter} should open the colorpicker", async () => {
+  it("Pressing {Enter} should open the colorpicker", () => {
     render(getTestComponent());
     userEvent.tab();
     expect(screen.queryByTestId("color-picker")).toBeNull();
@@ -78,7 +99,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
   });
 
-  it("Pressing {Tab} should shift sections in the colorpicker", async () => {
+  it("Pressing {Tab} should shift sections in the colorpicker", () => {
     render(getTestComponent());
     userEvent.tab();
     userEvent.keyboard("{Enter}");
@@ -204,5 +225,5 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     userEvent.keyboard("{Enter}");
     expect(onColorChange).toBeCalled();
     await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
-  }, 10000);
+  });
 });

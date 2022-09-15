@@ -1,5 +1,6 @@
 import React, { memo, useCallback } from "react";
-import _, { get, isEqual } from "lodash";
+import _, { get, isFunction } from "lodash";
+import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import {
@@ -49,7 +50,6 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { getWidgetParent } from "sagas/selectors";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -67,17 +67,7 @@ const PropertyControl = memo((props: Props) => {
     props.evaluatedDependencies,
   );
 
-  const widgetProperties: WidgetProperties = useSelector(
-    propsSelector,
-    isEqual,
-  );
-
-  /**
-   * get actual parent of widget
-   * for button inside form, button's parent is form
-   * for button on canvas, parent is main container
-   */
-  const parentWidget = useSelector(getWidgetParent(widgetProperties.widgetId));
+  const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);
 
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
@@ -85,7 +75,7 @@ const PropertyControl = memo((props: Props) => {
 
   const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
     enhancementSelector,
-    isEqual,
+    equal,
   );
 
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -418,14 +408,17 @@ const PropertyControl = memo((props: Props) => {
 
   // Do not render the control if it needs to be hidden
   if (
-    (props.hidden &&
-      props.hidden(widgetProperties, props.propertyName, parentWidget)) ||
+    (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
     props.invisible
   ) {
     return null;
   }
 
-  const { label, propertyName } = props;
+  const { propertyName } = props;
+  const label = isFunction(props.label)
+    ? props.label(widgetProperties, propertyName)
+    : props.label;
+
   if (widgetProperties) {
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =
@@ -454,6 +447,7 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
+      label,
     };
     config.expected = getExpectedValue(props.validation);
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
@@ -471,7 +465,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName,
     );
     const isConvertible = !!props.isJSConvertible;
-    const className = props.label
+    const className = label
       .split(" ")
       .join("")
       .toLowerCase();

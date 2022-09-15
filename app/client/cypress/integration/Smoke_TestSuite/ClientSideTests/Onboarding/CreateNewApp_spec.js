@@ -5,10 +5,11 @@ const homePage = require("../../../../locators/HomePage");
 
 describe("Creating new app after discontinuing guided tour should not start the same", function() {
   it("Creating new app after discontinuing guided tour should not start the same", function() {
+    cy.wait(4000); //internally waiting for mock db's to connect!
     // Start guided tour
     cy.get(commonlocators.homeIcon)
       .click({ force: true })
-      .wait(2000);
+      .wait(8000); //for page to settle!
     cy.get(guidedTourLocators.welcomeTour)
       .click()
       .wait(2000);

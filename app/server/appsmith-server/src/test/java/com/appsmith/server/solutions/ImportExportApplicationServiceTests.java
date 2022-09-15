@@ -51,6 +51,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -106,6 +107,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -160,6 +162,9 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -290,6 +295,38 @@ public class ImportExportApplicationServiceTests {
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                 throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
             .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportPublicApplicationTest() {
+
+        Application application = new Application();
+        application.setName("exportPublicApplicationTest-Test");
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        // Make the application public
+        applicationService.changeViewAccess(createdApplication.getId(), applicationAccessDTO).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(createdApplication.getId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    assertThat(exportedApplication).isNotNull();
+                    // Assert that the exported application is NOT public
+                    assertThat(exportedApplication.getDefaultPermissionGroup()).isNull();
+                    assertThat(exportedApplication.getPolicies()).isNullOrEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -1476,7 +1513,7 @@ public class ImportExportApplicationServiceTests {
         applicationAccessDTO.setPublicAccess(true);
         Application newApplication = applicationService.changeViewAccess(application.getId(), "master", applicationAccessDTO).block();
 
-        PermissionGroup anonymousPermissionGroup = permissionGroupRepository.findById(newApplication.getDefaultPermissionGroup()).block();
+        PermissionGroup anonymousPermissionGroup = permissionGroupService.getPublicPermissionGroup().block();
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))

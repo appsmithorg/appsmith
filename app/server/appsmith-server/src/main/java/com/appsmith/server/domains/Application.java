@@ -151,6 +151,7 @@ public class Application extends BaseDomain {
     Boolean exportWithConfiguration;
 
     @JsonIgnore
+    @Deprecated
     String defaultPermissionGroup;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
@@ -192,6 +193,7 @@ public class Application extends BaseDomain {
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
         this.sanitiseToExportBaseObject();
+        this.setDefaultPermissionGroup(null);
     }
 
     public List<ApplicationPage> getPages() {
