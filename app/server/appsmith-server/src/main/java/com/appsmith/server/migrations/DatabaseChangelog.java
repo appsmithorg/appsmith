@@ -251,13 +251,8 @@ public class DatabaseChangelog {
                 workspace.setPlugins(new HashSet<>());
             }
 
-            final Set<String> installedPlugins = workspace.getPlugins()
-                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
-
-            if (!installedPlugins.contains(pluginId)) {
-                workspace.getPlugins()
-                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
-            }
+            workspace.getPlugins()
+                    .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
 
             mongockTemplate.save(workspace);
         }
