@@ -1,51 +1,52 @@
-import React from "react";
+import equal from "fast-deep-equal/es6";
 import log from "loglevel";
-import {
-  get,
-  set,
-  isNumber,
-  range,
-  omit,
-  isEmpty,
-  isEqual,
-  difference,
-} from "lodash";
+import React from "react";
+import { get, isNumber, range, omit, isEmpty } from "lodash";
+import { klona } from "klona";
+
+import derivedProperties from "./parseDerivedProperties";
+import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
+import MetaWidgetGenerator from "../MetaWidgetGenerator";
+import propertyPaneConfig from "./propertyConfig";
 import WidgetFactory from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetOperation } from "widgets/BaseWidget";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
+import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { GridDefaults } from "constants/WidgetConstants";
+import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import BaseWidget, {
+  WidgetBaseProps,
+  WidgetOperation,
+  WidgetProps,
+} from "widgets/BaseWidget";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-import propertyPaneConfig from "./propertyConfig";
 import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  combineDynamicBindings,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
-import { GridDefaults } from "constants/WidgetConstants";
-import derivedProperties from "./parseDerivedProperties";
-import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona";
-import { generateReactKey } from "utils/generators";
-import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
-export type DynamicPathList = Record<string, string[]>;
-
-type MetaWidget = FlattenedWidgetProps & {
-  __index: number;
-};
+export enum DynamicPathType {
+  CURRENT_ITEM = "currentItem",
+  CURRENT_INDEX = "currentIndex",
+  CURRENT_ROW = "currentRow",
+}
+export type DynamicPathMap = Record<string, DynamicPathType[]>;
+export type DynamicPathMapList = Record<string, DynamicPathMap>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
+export type MetaWidget = FlattenedWidgetProps & {
+  currentIndex: number;
+  currentRow: string;
+  currentItem: string;
+};
 
 export type GenerateMetaWidgetOptions = {
   parentId: string;
@@ -56,17 +57,6 @@ export type GenerateMetaWidgetOptions = {
   prevFlattenedChildCanvasWidgets: ListWidgetProps<
     WidgetProps
   >["flattenedChildCanvasWidgets"];
-};
-
-type MetaWidgetIdCache = {
-  [key: string]: Record<string, string>;
-};
-
-type MetaWidgetsReferenceData = {
-  [key: string]: {
-    index: number;
-    templateWidgetId: string;
-  };
 };
 
 type ListWidgetState = {
@@ -89,36 +79,8 @@ class ListWidget extends BaseWidget<
     page: 1,
   };
 
-  /**
-   * Used to maintain a cache the metaWidget id with the actual widget id
-   * Example
-   * {
-   *  "001": {
-   *    "dj10jd1": "kdos1d19",
-   *    "pdirnrt": "jfyer82j"
-   *  },
-   *  "002": {
-   *    "dj10jd1": "pgfjktr8",
-   *    "pdirnrt": "mcelod09"
-   *  }
-   * }
-   *
-   * Here 001 is the unique identifier "key" in the listData
-   * "dj10jd1", "pdirnrt" are the child widgetId
-   * The rest of the values are the meta widget id that is generated.
-   *  */
-  metaWidgetIdCache: MetaWidgetIdCache;
-  /**
-   * List of meta widget ids in the current view. This helps in figuring out if a meta widget
-   * is present in the current view or not during a re-render.
-   *  */
-  currentViewMetaWidgetsRef: Set<string>;
-
-  /**
-   * Contains metadata for each meta widget generated, eg - index, actual widgetId that was created from (templateWidget)
-   */
-  metaWidgetsReferenceData: MetaWidgetsReferenceData;
-
+  metaWidgetGenerator: MetaWidgetGenerator;
+  prevMetaContainerNames: string[];
   /**
    * returns the property pane config of the widget
    */
@@ -143,6 +105,7 @@ class ListWidget extends BaseWidget<
     return {
       pageNo: 1,
       templateBottomRow: 16,
+      currentViewItems: "{{[]}}",
     };
   }
 
@@ -153,9 +116,10 @@ class ListWidget extends BaseWidget<
   ) {
     super(props);
 
-    this.metaWidgetIdCache = {};
-    this.currentViewMetaWidgetsRef = new Set();
-    this.metaWidgetsReferenceData = {};
+    this.metaWidgetGenerator = new MetaWidgetGenerator({
+      renderMode: this.props.renderMode,
+    });
+    this.prevMetaContainerNames = [];
   }
 
   componentDidMount() {
@@ -167,40 +131,18 @@ class ListWidget extends BaseWidget<
       this.getMainContainer()?.bottomRow,
     );
 
-    // generate childMetaPropertyMap
-    // this.generateChildrenDefaultPropertiesMap(this.props);
-    // this.generateChildrenMetaPropertiesMap(this.props);
     this.generateChildrenEntityDefinitions(this.props);
 
     // add privateWidgets to ListWidget
     this.addPrivateWidgetsForChildren(this.props);
 
-    this.initMetaWidgets();
+    this.generateMetaWidgets();
   }
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
-    const currentListWidgetChildren: WidgetProps[] = get(
-      this.props,
-      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
-    );
+    this.generateMetaWidgets(prevProps.flattenedChildCanvasWidgets);
 
-    this.initMetaWidgets(prevProps.flattenedChildCanvasWidgets);
-
-    const previousListWidgetChildren: WidgetProps[] = get(
-      prevProps,
-      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
-    );
-
-    // if (
-    //   xor(
-    //     Object.keys(get(prevProps, "template", {})),
-    //     Object.keys(get(this.props, "template", {})),
-    //   ).length > 0
-    // ) {
-    //   this.generateChildrenDefaultPropertiesMap(this.props);
-    //   this.generateChildrenMetaPropertiesMap(this.props);
-    //   this.generateChildrenEntityDefinitions(this.props);
-    // }
+    // TODO: Call generateChildrenEntityDefinitions to update
 
     if (this.props.serverSidePaginationEnabled) {
       if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
@@ -251,135 +193,93 @@ class ListWidget extends BaseWidget<
     //   );
     // }
 
-    // Update privateWidget field if there is a change in the List widget children
-    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
-      this.addPrivateWidgetsForChildren(this.props);
-    }
+    // TODO: Update privateWidget field if there is a change in the List widget children
+    // if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
+    //   this.addPrivateWidgetsForChildren(this.props);
+    // }
   }
 
-  getDeletedAndAddedMetaWidgetIds = () => {
-    let currentIds: string[] = [];
+  generateMetaWidgets = (
+    prevFlattenedChildCanvasWidgets?: WidgetBaseProps["flattenedChildCanvasWidgets"],
+  ) => {
     const { page } = this.state;
-    const { pageSize, listData = [], mainCanvasId = "" } = this.props;
+    const {
+      dynamicPathMapList = {},
+      flattenedChildCanvasWidgets = {},
+      listData = [],
+      mainCanvasId = "",
+      mainContainerId = "",
+      pageSize,
+    } = this.props;
     const startIndex = pageSize * (page - 1);
     const currentViewData = listData.slice(startIndex, startIndex + pageSize);
 
-    currentViewData.forEach((datum) => {
-      const key = String(datum["id"]);
-      const map = this.metaWidgetIdCache[key] || {};
-      currentIds = [...currentIds, ...Object.values(map)];
-    });
+    const { metaWidgets, removedMetaWidgetIds } = this.metaWidgetGenerator
+      .withOptions({
+        containerParentId: mainCanvasId,
+        containerWidgetId: mainContainerId,
+        currFlattenedWidgets: flattenedChildCanvasWidgets,
+        data: currentViewData,
+        dynamicPathMapList,
+        gridGap: this.getGridGap(),
+        pathsWithCurrentRow: this.props.pathsWithCurrentRow,
+        prevFlattenedWidgets: prevFlattenedChildCanvasWidgets,
+        primaryKey: "id",
+        startIndex,
+        widgetName: this.props.widgetName,
+      })
+      .generate();
 
-    currentIds.push(mainCanvasId);
+    this.updateCurrentViewItems();
+    this.addMainCanvasMetaWidgetTo(metaWidgets);
+    this.syncMetaContainerNames();
 
-    const prevIds = [...this.currentViewMetaWidgetsRef];
-
-    return {
-      // present in prevIds but not in currentIds
-      deletedIds: difference(prevIds, currentIds),
-      // present in currentIds but not in prevIds
-      addedIds: difference(currentIds, prevIds),
-    };
-  };
-
-  updateCurrentViewRefs = (newIds: string[], deletedIds: string[]) => {
-    newIds.forEach((id) => this.currentViewMetaWidgetsRef.add(id));
-    deletedIds.forEach((id) => this.currentViewMetaWidgetsRef.delete(id));
-  };
-
-  initMetaWidgets = (
-    prevFlattenedChildCanvasWidgets?: ListWidgetProps<
-      WidgetProps
-    >["flattenedChildCanvasWidgets"],
-  ) => {
-    const metaWidgets = this.generateMetaWidgetsForCurrentView(
-      prevFlattenedChildCanvasWidgets,
-    );
-
-    if (metaWidgets) {
-      const { addedIds, deletedIds } = this.getDeletedAndAddedMetaWidgetIds();
-      this.updateCurrentViewRefs(addedIds, deletedIds);
-
+    if (!isEmpty(metaWidgets)) {
       this.modifyMetaWidgets({
         addOrUpdate: metaWidgets,
-        delete: deletedIds,
+        delete: removedMetaWidgetIds,
       });
     }
   };
 
-  generateMetaWidgetsForCurrentView = (
-    prevFlattenedChildCanvasWidgets: ListWidgetProps<
-      WidgetProps
-    >["flattenedChildCanvasWidgets"],
-  ) => {
-    const { page } = this.state;
-    const { pageSize, listData = [], mainCanvasId } = this.props;
-    const startIndex = pageSize * (page - 1);
-    const currentViewData = listData.slice(startIndex, startIndex + pageSize);
-    const itemsCount = currentViewData.length;
+  addMainCanvasMetaWidgetTo = (metaWidgets: MetaWidgets) => {
+    const { mainCanvasId } = this.props;
+    const {
+      ids: currMetaContainerIds,
+      names: currMetaContainerNames,
+    } = this.metaWidgetGenerator.getMetaContainers();
 
-    let generatedMetaWidgets: Record<string, FlattenedWidgetProps> = {};
-    const canvasChildrenIds: string[] = [];
-    if (itemsCount > 0) {
-      Array.from(Array(itemsCount).keys()).forEach((idx) => {
-        const index = startIndex + idx;
-        const data = currentViewData[idx];
-        const key = String(data["id"]);
-        const { mainCanvasId = "", mainContainerId } = this.props;
-
-        const { metaWidgetId, metaWidgets } = this.generateMetaWidget(index, {
-          parentId: mainCanvasId,
-          templateWidgetId: mainContainerId,
-          key,
-          prevFlattenedChildCanvasWidgets,
-        });
-
-        generatedMetaWidgets = {
-          ...generatedMetaWidgets,
-          ...metaWidgets,
-        };
-
-        canvasChildrenIds.push(metaWidgetId);
-      });
-
-      // TODO: (Ashit) Find a way to not include main canvas in the generatedMetaWidgets
-      // when it hasn't change. The reason this is done, to make sure if new rows got added
-      // the children property of main canvas also get updated.
-      if (mainCanvasId) {
-        generatedMetaWidgets[mainCanvasId] = this.mainCanvasMetaWidget();
-        generatedMetaWidgets[mainCanvasId].children = canvasChildrenIds;
-      }
-
-      return generatedMetaWidgets;
+    if (
+      !equal(this.prevMetaContainerNames, currMetaContainerNames) &&
+      mainCanvasId
+    ) {
+      metaWidgets[mainCanvasId] = this.mainCanvasMetaWidget() as MetaWidget;
+      metaWidgets[mainCanvasId].children = currMetaContainerIds;
     }
   };
 
-  getBinding = (value: string, widgetName: string) => {
-    const { jsSnippets, stringSegments } = getDynamicBindings(value);
+  updateCurrentViewItems = () => {
+    const {
+      names: currMetaContainerNames,
+    } = this.metaWidgetGenerator.getMetaContainers();
 
-    const js = combineDynamicBindings(jsSnippets, stringSegments);
+    if (!equal(this.prevMetaContainerNames, currMetaContainerNames)) {
+      const currentViewItemsBinding = `{{[${currMetaContainerNames.map(
+        (name) => `${name}.data`,
+      )}]}}`;
 
-    return `{{((currentItem) => ${js})(${this.props.widgetName}.listData[${widgetName}.__index])}}`;
+      this.props.updateWidgetMetaProperty(
+        "currentViewItems",
+        currentViewItemsBinding,
+      );
+    }
   };
 
-  disableWidgetOperations = (metaWidget: FlattenedWidgetProps) => {
-    set(metaWidget, "resizeDisabled", true);
-    set(metaWidget, "disablePropertyPane", true);
-    set(metaWidget, "dragDisabled", true);
-    set(metaWidget, "dropDisabled", true);
-
-    set(metaWidget, "ignoreCollision", true);
-    set(metaWidget, "shouldScrollContents", undefined);
-
-    set(metaWidget, `disabledResizeHandles`, [
-      "left",
-      "top",
-      "right",
-      "bottomRight",
-      "topLeft",
-      "topRight",
-      "bottomLeft",
-    ]);
+  syncMetaContainerNames = () => {
+    const {
+      names: currMetaContainerNames,
+    } = this.metaWidgetGenerator.getMetaContainers();
+    this.prevMetaContainerNames = [...currMetaContainerNames];
   };
 
   getMainContainer = () => {
@@ -388,149 +288,6 @@ class ListWidget extends BaseWidget<
       flattenedChildCanvasWidgets = {},
     } = this.props;
     return flattenedChildCanvasWidgets[mainContainerId] || {};
-  };
-
-  updateContainerPosition = (
-    metaContainerWidget: FlattenedWidgetProps,
-    index: number,
-  ) => {
-    const mainContainerWidget = this.getMainContainer();
-    const gap = this.getGridGap();
-    const {
-      borderRadius,
-      boxShadow,
-      boxShadowColor,
-      itemBackgroundColor,
-    } = this.props;
-
-    metaContainerWidget.gap = gap;
-    metaContainerWidget.backgroundColor = itemBackgroundColor;
-    metaContainerWidget.borderRadius = borderRadius;
-    metaContainerWidget.boxShadow = boxShadow;
-    metaContainerWidget.boxShadowColor = boxShadowColor;
-    metaContainerWidget.topRow =
-      index * mainContainerWidget.bottomRow +
-      index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
-    metaContainerWidget.bottomRow =
-      (index + 1) * mainContainerWidget.bottomRow +
-      index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
-  };
-
-  getMetaWidgetId = (widgetId: string, key: string, viewIndex: number) => {
-    // Initialize when cache for key is undefined
-    if (!this.metaWidgetIdCache[key]) {
-      this.metaWidgetIdCache[key] = {};
-    }
-
-    const metaWidgetId = this.isClonedItem(viewIndex)
-      ? this.metaWidgetIdCache[key]?.[widgetId] || generateReactKey()
-      : widgetId;
-
-    this.metaWidgetIdCache[key][widgetId] = metaWidgetId;
-
-    return metaWidgetId;
-  };
-
-  isClonedItem = (viewIndex: number) => {
-    const { renderMode } = this.props;
-
-    return (
-      renderMode === RenderModes.PAGE ||
-      (renderMode === RenderModes.CANVAS && viewIndex !== 0)
-    );
-  };
-
-  generateMetaWidget = (index: number, options: GenerateMetaWidgetOptions) => {
-    const {
-      dynamicPathMap = {},
-      widgetName,
-      mainContainerId,
-      pageSize,
-      flattenedChildCanvasWidgets = {},
-    } = this.props;
-    const { page } = this.state;
-    const {
-      parentId,
-      metaWidgets = {},
-      key,
-      templateWidgetId = "",
-      prevFlattenedChildCanvasWidgets = {},
-    } = options;
-    const templateWidget = flattenedChildCanvasWidgets[templateWidgetId];
-
-    if (!templateWidget) return { metaWidgets, metaWidgetId: "" };
-
-    const metaWidget = klona(templateWidget);
-    const dynamicPaths = dynamicPathMap[templateWidgetId] || [];
-    const viewIndex = index - pageSize * (page - 1);
-    const metaWidgetId = this.getMetaWidgetId(templateWidgetId, key, viewIndex);
-    const children: string[] = [];
-
-    (templateWidget.children || []).map((childWidgetId: string) => {
-      const { metaWidgetId: metaChildWidgetId } = this.generateMetaWidget(
-        index,
-        {
-          parentId: metaWidgetId,
-          metaWidgets,
-          templateWidgetId: childWidgetId,
-          key,
-          prevFlattenedChildCanvasWidgets,
-        },
-      );
-
-      children.push(metaChildWidgetId);
-    });
-
-    metaWidget.children = children;
-
-    const isEqual =
-      templateWidget === prevFlattenedChildCanvasWidgets[templateWidgetId];
-    if (isEqual && this.currentViewMetaWidgetsRef.has(metaWidgetId)) {
-      return { metaWidgets, metaWidgetId };
-    }
-
-    if (this.isClonedItem(viewIndex)) {
-      this.disableWidgetOperations(metaWidget);
-
-      metaWidget.widgetId = metaWidgetId;
-      metaWidget.widgetName = `${widgetName}_${templateWidget.widgetName}_${metaWidget.widgetId}`;
-    }
-
-    if (templateWidgetId === mainContainerId) {
-      this.updateContainerPosition(metaWidget, viewIndex);
-    }
-
-    metaWidget.__index = index;
-    metaWidget.parentId = parentId;
-
-    dynamicPaths.forEach((dynamicPath) => {
-      const templateValue = get(templateWidget, dynamicPath);
-      const dynamicValue = this.getBinding(
-        templateValue,
-        metaWidget.widgetName,
-      );
-
-      set(metaWidget, dynamicPath, dynamicValue);
-    });
-
-    this.updateMetaWidgetReferenceData(metaWidget, templateWidgetId);
-
-    metaWidgets[metaWidget.widgetId] = metaWidget as MetaWidget;
-
-    return {
-      metaWidgets,
-      metaWidgetId,
-    };
-  };
-
-  updateMetaWidgetReferenceData = (
-    metaWidget: FlattenedWidgetProps,
-    templateWidgetId: string,
-  ) => {
-    this.metaWidgetsReferenceData[metaWidget.widgetId] = {
-      index: metaWidget?.__index,
-      templateWidgetId: templateWidgetId,
-    };
   };
 
   mainCanvasMetaWidget = () => {
@@ -589,6 +346,12 @@ class ListWidget extends BaseWidget<
       );
     }
   }
+
+  getEntityDefinitionsFor = (widgetType: string) => {
+    return Object.keys(
+      omit(get(entityDefinitions, widgetType), ["!doc", "!url"]),
+    );
+  };
 
   // updates the "privateWidgets" field of the List Widget
   addPrivateWidgetsForChildren(props: ListWidgetProps<WidgetProps>) {
@@ -666,7 +429,6 @@ class ListWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
-    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend = undefined;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.minHeight = componentHeight;
@@ -752,12 +514,14 @@ class ListWidget extends BaseWidget<
     const { id: metaWidgetId } = triggerPayload?.source || {};
 
     if (metaWidgetId) {
-      const metadata = this.metaWidgetsReferenceData[metaWidgetId];
+      const { index } = this.metaWidgetGenerator.getPropsByMetaWidgetId(
+        metaWidgetId,
+      );
       const { listData = [] } = this.props;
 
       const globalContext = {
-        currentIndex: metadata.index,
-        currentItem: listData[metadata.index],
+        currentIndex: index,
+        currentItem: listData[index],
         ...triggerPayload.globalContext,
       };
 
@@ -779,7 +543,9 @@ class ListWidget extends BaseWidget<
     updates: BatchPropertyUpdatePayload,
     shouldReplay: boolean,
   ) => {
-    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+    const {
+      templateWidgetId,
+    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
 
     this.context?.batchUpdateWidgetProperty?.(
       templateWidgetId,
@@ -793,7 +559,9 @@ class ListWidget extends BaseWidget<
     metaWidgetId: string,
     payload: any,
   ) => {
-    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+    const {
+      templateWidgetId,
+    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
 
     this.context?.updateWidget?.(operation, templateWidgetId, payload);
   };
@@ -803,7 +571,9 @@ class ListWidget extends BaseWidget<
     propertyName: string,
     propertyValue: any,
   ) => {
-    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+    const {
+      templateWidgetId,
+    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
 
     this.context?.updateWidgetProperty?.(
       templateWidgetId,
@@ -816,7 +586,9 @@ class ListWidget extends BaseWidget<
     metaWidgetId: string,
     propertyPaths: string[],
   ) => {
-    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+    const {
+      templateWidgetId,
+    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
 
     this.context?.deleteWidgetProperty?.(templateWidgetId, propertyPaths);
   };
@@ -934,12 +706,13 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   boxShadow?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
-  dynamicPathMap?: Record<string, string[]>;
+  dynamicPathMapList?: DynamicPathMapList;
   mainCanvasId?: string;
   listData?: Array<Record<string, unknown>>;
   mainContainerId?: string;
   onListItemClick?: string;
   shouldScrollContents?: boolean;
+  gridGap?: number;
 }
 
 export default ListWidget;
