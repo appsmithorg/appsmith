@@ -520,6 +520,21 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
           },
           {
+            propertyName: "dynamicTyping",
+            label: "Infer data-types from CSV",
+            helpText:
+              "Controls if the arrays should try to infer the best possible data type based on the values in csv files",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            hidden: (props: FilePickerWidgetProps) => {
+              return props.fileDataType !== FileDataTypes.Array;
+            },
+            dependencies: ["fileDataType"],
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "maxNumFiles",
             label: "Max No. of files",
             helpText:
@@ -530,21 +545,6 @@ class FilePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
-          },
-
-          {
-            propertyName: "dynamicTyping",
-            label: "Enable Dynamic Typing",
-            helpText: "Controls the parsed data type",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            hidden: (props: FilePickerWidgetProps) => {
-              return props.fileDataType !== FileDataTypes.Array;
-            },
-            dependencies: ["fileDataType"],
-            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
