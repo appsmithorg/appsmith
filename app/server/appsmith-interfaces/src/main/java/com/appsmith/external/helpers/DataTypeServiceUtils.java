@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DataTypeService {
+public class DataTypeServiceUtils {
     final static Map<ClientDataType, List<AppsmithType>> defaultAppsmithTypes = new HashMap<>();
 
     static  {
