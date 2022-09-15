@@ -158,6 +158,7 @@ jobs:
       # Untar the bundles
       - name: Untar the rts bundles
         run: |
+          cd app/rts/
           tar -xvf rts-dist.tar dist
 
       # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
