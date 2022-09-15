@@ -6,8 +6,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.dtos.ErrorDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,7 +47,9 @@ public class ActionCollectionDTO {
     String pluginId;
 
     //this attribute carries error messages while processing the actionCollection
-    List<Map<String, Object>> errorReports;
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    ErrorDTO errorReports;
 
     PluginType pluginType;
 

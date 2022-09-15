@@ -5,13 +5,14 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
+import com.appsmith.server.dtos.ErrorDTO;
 
-import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,7 +41,8 @@ public class Layout extends BaseDomain {
     List<Set<DslActionDTO>> layoutOnLoadActions;
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
-    List<Map<String,Object>> layoutOnLoadActionErrors;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    ErrorDTO layoutOnLoadActionErrors;
 
     @Deprecated
     @JsonIgnore

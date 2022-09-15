@@ -23,6 +23,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.ErrorDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -98,7 +99,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
-    private final String layoutOnLoadActionErrorToastMessage = "A Cyclic dependency has been encountered on current page, \nqueries on Page load will not run. \nCheck debugger for more information";
+    private final String layoutOnLoadActionErrorToastMessage = "A Cyclic dependency has been encountered on current page, \nqueries on Page load will not run. \n Check debugger and Appsmith documentation for more information";
 
 
     /**
@@ -901,18 +902,18 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
 
-        //setting the layoutOnLoadActionErrors to an empty List
-        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
+        // setting the layoutOnLoadActionActionErrors to null to remove the existing errors before new DAG calculation.
+        layout.setLayoutOnLoadActionErrors(null);
 
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
                 .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
-                    layout.getLayoutOnLoadActionErrors().add(Map.of(
-                            "errorMessage", layoutOnLoadActionErrorToastMessage,
-                            "appErrorId", error.getAppErrorCode(),
-                            "debuggerErrorMessage", error.getMessage()));
+                    layout.setLayoutOnLoadActionErrors(
+                            new ErrorDTO(layoutOnLoadActionErrorToastMessage,
+                                    error.getAppErrorCode(),
+                                    error.getMessage()));
                     return Mono.just(new ArrayList<>());
                 });
 

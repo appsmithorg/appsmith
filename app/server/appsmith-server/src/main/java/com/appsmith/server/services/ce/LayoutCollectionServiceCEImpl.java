@@ -534,7 +534,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId))
                 );
 
-        Mono<NewPage> newPageMono =  newPageService.findById(pageId, MANAGE_PAGES);
 
         // First collect all valid action ids from before, and diff against incoming action ids
         return branchedActionCollectionMono
@@ -589,7 +588,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
-                .zipWith(newPageMono,
+                .zipWith(newPageService.findById(pageId, MANAGE_PAGES),
                         (branchedActionCollection, newPage) -> {
                     if (newPage.getUnpublishedPage().getLayouts().size() > 0 ) {
                         // redundant check as the collection lies inside a layout.

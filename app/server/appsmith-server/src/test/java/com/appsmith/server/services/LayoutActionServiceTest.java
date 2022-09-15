@@ -23,6 +23,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.ErrorDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -1556,6 +1557,8 @@ public class LayoutActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void introduceCyclicDependencyAndRemoveLater(){
 
+        Integer appErrorCode = 4041;
+
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         // creating new action based on which we will introduce cyclic dependency
@@ -1568,6 +1571,9 @@ public class LayoutActionServiceTest {
         actionDTO.setDatasource(datasource);
         actionDTO.setExecuteOnLoad(true);
 
+        ActionDTO createdAction = layoutActionService.createSingleAction(actionDTO).block();
+
+        // retrieving layout from test page;
         Layout layout = testPage.getLayouts().get(0);
 
         JSONObject mainDsl = layout.getDsl();
@@ -1593,18 +1599,17 @@ public class LayoutActionServiceTest {
         mainDsl.put("children", objects);
         layout.setDsl(mainDsl);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(actionDTO).block();
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
         // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports will be null
         if (createdAction.getErrorReports() != null) {
             assert(createdAction.getErrorReports() instanceof List || createdAction.getErrorReports() == null);
-            assert(createdAction.getErrorReports().size() == 0);
+            assert(createdAction.getErrorReports() == null);
         }
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated layoutOnLoadActionErrors
-        assert(firstLayout.getLayoutOnLoadActionErrors() instanceof List);
-        assert (firstLayout.getLayoutOnLoadActionErrors().get(0).keySet().equals(Set.of("appErrorId", "errorMessage", "debuggerErrorMessage")));
+        assert(firstLayout.getLayoutOnLoadActionErrors() instanceof ErrorDTO);
+        assert (firstLayout.getLayoutOnLoadActionErrors() != null);
 
         // refactoring action to carry the existing error in DSL
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -1616,8 +1621,8 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
         StepVerifier.create(layoutDTOMono
-                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().get(0).keySet()))
-                .expectNext(Set.of("appErrorId", "errorMessage", "debuggerErrorMessage")).verifyComplete();
+                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().getAppErrorId()))
+                .expectNext(appErrorCode).verifyComplete();
 
 
         // updateAction to see if the error persists
@@ -1626,9 +1631,9 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(actionDTOMono.map(
 
-                actionDTO1 -> actionDTO1.getErrorReports().get(0).keySet()
+                actionDTO1 -> actionDTO1.getErrorReports().getAppErrorId()
                         ))
-                .expectNext(Set.of("appErrorId", "errorMessage", "debuggerErrorMessage")).verifyComplete();
+                .expectNext(appErrorCode).verifyComplete();
 
 
 
@@ -1645,8 +1650,7 @@ public class LayoutActionServiceTest {
 
         LayoutDTO changedLayoutDTO = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
-        assert(changedLayoutDTO.getLayoutOnLoadActionErrors() instanceof List);
-        assert (changedLayoutDTO.getLayoutOnLoadActionErrors().size() == 0);
+        assert (changedLayoutDTO.getLayoutOnLoadActionErrors() == null);
 
     }
 
