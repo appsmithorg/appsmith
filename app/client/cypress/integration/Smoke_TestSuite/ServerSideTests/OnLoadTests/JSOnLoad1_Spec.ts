@@ -318,7 +318,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       );
       agHelper.ClickButton("No");
       agHelper.WaitUntilToastDisappear(
-        `${jsName + ".getEmployee"} was cancelled`,
+        `${jsName + ".callTrump"} was cancelled`,
       ); //When Confirmation is NO validate error toast!
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
