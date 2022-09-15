@@ -153,7 +153,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: rts-build
-          path: app/rts/dist/
+          path: app/rts/rts-dist.tar
+          
+      # Untar the bundles
+      - name: Untar the rts bundles
+        run: |
+          tar -xvf rts-dist.tar dist
 
       - name: Download the rts build dependencies
         uses: actions/download-artifact@v2
