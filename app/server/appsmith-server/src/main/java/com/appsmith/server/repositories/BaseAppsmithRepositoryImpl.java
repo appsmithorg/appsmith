@@ -294,7 +294,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
             }
         }
 
-        if (limit != -1) {
+        if (limit != NO_RECORD_LIMIT) {
             query.limit(limit);
         }
         Criteria andCriteria = new Criteria();
