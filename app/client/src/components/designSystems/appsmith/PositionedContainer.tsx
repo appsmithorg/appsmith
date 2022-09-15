@@ -155,8 +155,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
       width:
         reflowWidth ||
         (props.useAutoLayout &&
-          props.direction === LayoutDirection.Horizontal &&
-          props.responsiveBehavior === ResponsiveBehavior.Fill)
+          !(
+            props.direction === LayoutDirection.Horizontal &&
+            props.responsiveBehavior === ResponsiveBehavior.Hug
+          ))
           ? "auto"
           : style.componentWidth + (style.widthUnit || "px"),
       padding: padding + "px",

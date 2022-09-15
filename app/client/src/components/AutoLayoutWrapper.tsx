@@ -62,13 +62,10 @@ const ZIndexContainer = styled.div<{
 `;
 
 export function AutoLayoutWrapper(props: AutoLayoutProps) {
-  const clickToSelectWidget = useClickToSelectWidget();
-  const onClickFn = useCallback(
-    (e) => {
-      clickToSelectWidget(e, props.widgetId);
-    },
-    [props.widgetId, clickToSelectWidget],
-  );
+  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
+  const onClickFn = useCallback(() => {
+    clickToSelectWidget(props.widgetId);
+  }, [props.widgetId, clickToSelectWidget]);
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const isDragging = useSelector(

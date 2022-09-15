@@ -1932,16 +1932,16 @@ export function* addAndWrapWidget(
   };
 
   // Update child to fill the width of the parent if it is wrapped in a vertical wrapper.
-  if (
-    (!isWrapper && direction === LayoutDirection.Horizontal) ||
-    (isWrapper && direction === LayoutDirection.Vertical)
-  ) {
-    child = {
-      ...child,
-      leftColumn: 0,
-      rightColumn: 63,
-    };
-  }
+  // if (
+  //   (!isWrapper && direction === LayoutDirection.Horizontal) ||
+  //   (isWrapper && direction === LayoutDirection.Vertical)
+  // ) {
+  //   child = {
+  //     ...child,
+  //     leftColumn: 0,
+  //     rightColumn: 63,
+  //   };
+  // }
 
   widgets[wrapper.widgetId] = wrapper;
   widgets[widgetId] = child;
