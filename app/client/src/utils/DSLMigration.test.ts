@@ -16,12 +16,15 @@ import * as radioGroupMigration from "./migrations/RadioGroupWidget";
 import * as propertyPaneMigrations from "./migrations/PropertyPaneMigrations";
 import * as themingMigration from "./migrations/ThemingMigrations";
 import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
+import { isArray } from "lodash";
 
-interface IMigrationList {
-  moduleObj: any;
-  funcName: string;
-  nextVersion: number;
-}
+type Migration = {
+  functionLookup: {
+    moduleObj: any;
+    functionName: string;
+  }[];
+  version: number | undefined;
+};
 const originalDSL = {
   widgetName: "MainContainer",
   backgroundColor: "none",
@@ -3813,7 +3816,7 @@ const originalDSL = {
  * migrationList is an array of objects, were each object has
  * - moduleObj: A namespace import that includes all the exported function present in the module. Refer to line 3.
  * - funcName: Name of the migration function to spyOn
- * - nextVersion: The next version of the DSL
+ * - version: The next version of the DSL
  * 
  * migrationList will be used to construct mockFnObj object where mockFnObj's key is the funcName and value is a jest mock function.
  * 
@@ -3825,357 +3828,661 @@ const originalDSL = {
  * {
     moduleObj: DSLMigrations,
     funcName: "canvasNameConflictMigration",
-    nextVersion: 8,
+    version: 8,
   }
  * - Whenever the canvasNameConflictMigration is executed then the updated DSL version is the nextVersion
  * - For cases were migration is skipped, we won't include them in migrationList. 
  *   Simply add the object with funcName and nextVersion being the updated version of skipped migration. 
  *   Refer to the addPrivateWidgetsToAllListWidgets object inside migrationList
  */
-const migrationList: IMigrationList[] = [
+const migrations: Migration[] = [
   {
-    moduleObj: DSLMigrations,
-    funcName: "calculateDynamicHeight",
-    nextVersion: 1,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "calculateDynamicHeight",
+      },
+    ],
+    version: undefined,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "updateContainers",
-    nextVersion: 2,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "updateContainers",
+      },
+    ],
+    version: 1,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "chartDataMigration",
-    nextVersion: 3,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "chartDataMigration",
+      },
+    ],
+    version: 2,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "mapDataMigration",
-    nextVersion: 4,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "mapDataMigration",
+      },
+    ],
+    version: 3,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "singleChartDataMigration",
-    nextVersion: 5,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "singleChartDataMigration",
+      },
+    ],
+    version: 4,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "tabsWidgetTabsPropertyMigration",
-    nextVersion: 6,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "tabsWidgetTabsPropertyMigration",
+      },
+    ],
+    version: 5,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "dynamicPathListMigration",
-    nextVersion: 7,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "dynamicPathListMigration",
+      },
+    ],
+    version: 6,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "canvasNameConflictMigration",
-    nextVersion: 8,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "canvasNameConflictMigration",
+      },
+    ],
+    version: 7,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "renamedCanvasNameConflictMigration",
-    nextVersion: 9,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "renamedCanvasNameConflictMigration",
+      },
+    ],
+    version: 8,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "tableWidgetPropertyPaneMigrations",
-    nextVersion: 10,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "tableWidgetPropertyPaneMigrations",
+      },
+    ],
+    version: 9,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "addVersionNumberMigration",
-    nextVersion: 11,
-  },
-
-  {
-    moduleObj: tableMigrations,
-    funcName: "migrateTablePrimaryColumnsBindings",
-    nextVersion: 12,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "addVersionNumberMigration",
+      },
+    ],
+    version: 10,
   },
   {
-    moduleObj: IncorrectDynamicBindingPathLists,
-    funcName: "migrateIncorrectDynamicBindingPathLists",
-    nextVersion: 13,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTablePrimaryColumnsBindings",
+      },
+    ],
+    version: 11,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateOldChartData",
-    nextVersion: 14,
+    functionLookup: [
+      {
+        moduleObj: IncorrectDynamicBindingPathLists,
+        functionName: "migrateIncorrectDynamicBindingPathLists",
+      },
+    ],
+    version: 12,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "rteDefaultValueMigration",
-    nextVersion: 15,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateOldChartData",
+      },
+    ],
+    version: 13,
   },
   {
-    moduleObj: TextStyleFromTextWidget,
-    funcName: "migrateTextStyleFromTextWidget",
-    nextVersion: 16,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "rteDefaultValueMigration",
+      },
+    ],
+    version: 14,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateChartDataFromArrayToObject",
-    nextVersion: 17,
+    functionLookup: [
+      {
+        moduleObj: TextStyleFromTextWidget,
+        functionName: "migrateTextStyleFromTextWidget",
+      },
+    ],
+    version: 15,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateTabsData",
-    nextVersion: 18,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateChartDataFromArrayToObject",
+      },
+    ],
+    version: 16,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateInitialValues",
-    nextVersion: 19,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateTabsData",
+      },
+    ],
+    version: 17,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateToNewLayout",
-    nextVersion: 20,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateInitialValues",
+      },
+    ],
+    version: 18,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateNewlyAddedTabsWidgetsMissingData",
-    nextVersion: 21,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateToNewLayout",
+      },
+    ],
+    version: 19,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateWidgetsWithoutLeftRightColumns",
-    nextVersion: 22,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateNewlyAddedTabsWidgetsMissingData",
+      },
+    ],
+    version: 20,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateOverFlowingTabsWidgets",
-    nextVersion: 22,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateWidgetsWithoutLeftRightColumns",
+      },
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateOverFlowingTabsWidgets",
+      },
+    ],
+    version: 21,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "migrateTableWidgetParentRowSpaceProperty",
-    nextVersion: 23,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetParentRowSpaceProperty",
+      },
+    ],
+    version: 22,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "addLogBlackListToAllListWidgetChildren",
-    nextVersion: 24,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "addLogBlackListToAllListWidgetChildren",
+      },
+    ],
+    version: 23,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "migrateTableWidgetHeaderVisibilityProperties",
-    nextVersion: 25,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetHeaderVisibilityProperties",
+      },
+    ],
+    version: 24,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateItemsToListDataInListWidget",
-    nextVersion: 26,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateItemsToListDataInListWidget",
+      },
+    ],
+    version: 25,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateDatePickerMinMaxDate",
-    nextVersion: 27,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateDatePickerMinMaxDate",
+      },
+    ],
+    version: 26,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateFilterValueForDropDownWidget",
-    nextVersion: 28,
-  },
-
-  {
-    moduleObj: tableMigrations,
-    funcName: "migrateTablePrimaryColumnsComputedValue",
-    nextVersion: 29,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateFilterValueForDropDownWidget",
+      },
+    ],
+    version: 27,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateToNewMultiSelect",
-    nextVersion: 30,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTablePrimaryColumnsComputedValue",
+      },
+    ],
+    version: 28,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "migrateTableWidgetDelimiterProperties",
-    nextVersion: 31,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateToNewMultiSelect",
+      },
+    ],
+    version: 29,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateIsDisabledToButtonColumn",
-    nextVersion: 32,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetDelimiterProperties",
+      },
+    ],
+    version: 30,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateTableDefaultSelectedRow",
-    nextVersion: 33,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateIsDisabledToButtonColumn",
+      },
+    ],
+    version: 31,
   },
   {
-    moduleObj: MenuButtonWidgetButtonProperties,
-    funcName: "migrateMenuButtonWidgetButtonProperties",
-    nextVersion: 34,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateTableDefaultSelectedRow",
+      },
+    ],
+    version: 32,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateButtonWidgetValidation",
-    nextVersion: 35,
+    functionLookup: [
+      {
+        moduleObj: MenuButtonWidgetButtonProperties,
+        functionName: "migrateMenuButtonWidgetButtonProperties",
+      },
+    ],
+    version: 33,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateInputValidation",
-    nextVersion: 36,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateButtonWidgetValidation",
+      },
+    ],
+    version: 34,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "revertTableDefaultSelectedRow",
-    nextVersion: 37,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateInputValidation",
+      },
+    ],
+    version: 35,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "migrateTableSanitizeColumnKeys",
-    nextVersion: 38,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "revertTableDefaultSelectedRow",
+      },
+    ],
+    version: 36,
   },
   {
-    moduleObj: modalMigration,
-    funcName: "migrateResizableModalWidgetProperties",
-    nextVersion: 39,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableSanitizeColumnKeys",
+      },
+    ],
+    version: 37,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "migrateTableWidgetSelectedRowBindings",
-    nextVersion: 40,
+    functionLookup: [
+      {
+        moduleObj: modalMigration,
+        functionName: "migrateResizableModalWidgetProperties",
+      },
+    ],
+    version: 38,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "revertButtonStyleToButtonColor",
-    nextVersion: 41,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetSelectedRowBindings",
+      },
+    ],
+    version: 39,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "migrateButtonVariant",
-    nextVersion: 42,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "revertButtonStyleToButtonColor",
+      },
+    ],
+    version: 40,
   },
   {
-    moduleObj: mapWidgetMigration,
-    funcName: "migrateMapWidgetIsClickedMarkerCentered",
-    nextVersion: 43,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "migrateButtonVariant",
+      },
+    ],
+    version: 41,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "mapAllowHorizontalScrollMigration",
-    nextVersion: 44,
+    functionLookup: [
+      {
+        moduleObj: mapWidgetMigration,
+        functionName: "migrateMapWidgetIsClickedMarkerCentered",
+      },
+    ],
+    version: 42,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "isSortableMigration",
-    nextVersion: 45,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "mapAllowHorizontalScrollMigration",
+      },
+    ],
+    version: 43,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "migrateTableWidgetIconButtonVariant",
-    nextVersion: 46,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "isSortableMigration",
+      },
+    ],
+    version: 44,
   },
   {
-    moduleObj: checkboxMigration,
-    funcName: "migrateCheckboxGroupWidgetInlineProperty",
-    nextVersion: 48,
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetIconButtonVariant",
+      },
+    ],
+    version: 45,
   },
   {
-    moduleObj: buttonWidgetMigrations,
-    funcName: "migrateRecaptchaType",
-    nextVersion: 49,
+    functionLookup: [
+      {
+        moduleObj: checkboxMigration,
+        functionName: "migrateCheckboxGroupWidgetInlineProperty",
+      },
+    ],
+    version: 46,
   },
   {
-    moduleObj: DSLMigrations,
-    funcName: "addPrivateWidgetsToAllListWidgets",
-    nextVersion: 51,
+    functionLookup: [
+      {
+        moduleObj: "",
+        functionName: "skippedMigration47",
+      },
+    ],
+    version: 47,
   },
   {
-    moduleObj: phoneInputMigration,
-    funcName: "migratePhoneInputWidgetAllowFormatting",
-    nextVersion: 52,
+    functionLookup: [
+      {
+        moduleObj: buttonWidgetMigrations,
+        functionName: "migrateRecaptchaType",
+      },
+    ],
+    version: 48,
   },
   {
-    moduleObj: modalMigration,
-    funcName: "migrateModalIconButtonWidget",
-    nextVersion: 53,
+    functionLookup: [
+      {
+        moduleObj: DSLMigrations,
+        functionName: "addPrivateWidgetsToAllListWidgets",
+      },
+    ],
+    version: 49,
   },
   {
-    moduleObj: TextStyleFromTextWidget,
-    funcName: "migrateScrollTruncateProperties",
-    nextVersion: 54,
+    functionLookup: [
+      {
+        moduleObj: "",
+        functionName: "skippedMigration50",
+      },
+    ],
+    version: 50,
   },
   {
-    moduleObj: phoneInputMigration,
-    funcName: "migratePhoneInputWidgetDefaultDialCode",
-    nextVersion: 55,
+    functionLookup: [
+      {
+        moduleObj: phoneInputMigration,
+        functionName: "migratePhoneInputWidgetAllowFormatting",
+      },
+    ],
+    version: 51,
   },
   {
-    moduleObj: inputCurrencyMigration,
-    funcName: "migrateCurrencyInputWidgetDefaultCurrencyCode",
-    nextVersion: 56,
+    functionLookup: [
+      {
+        moduleObj: modalMigration,
+        functionName: "migrateModalIconButtonWidget",
+      },
+    ],
+    version: 52,
   },
   {
-    moduleObj: radioGroupMigration,
-    funcName: "migrateRadioGroupAlignmentProperty",
-    nextVersion: 57,
+    functionLookup: [
+      {
+        moduleObj: TextStyleFromTextWidget,
+        functionName: "migrateScrollTruncateProperties",
+      },
+    ],
+    version: 53,
   },
   {
-    moduleObj: themingMigration,
-    funcName: "migrateStylingPropertiesForTheming",
-    nextVersion: 58,
+    functionLookup: [
+      {
+        moduleObj: phoneInputMigration,
+        functionName: "migratePhoneInputWidgetDefaultDialCode",
+      },
+    ],
+    version: 54,
   },
   {
-    moduleObj: propertyPaneMigrations,
-    funcName: "migrateCheckboxSwitchProperty",
-    nextVersion: 60,
+    functionLookup: [
+      {
+        moduleObj: inputCurrencyMigration,
+        functionName: "migrateCurrencyInputWidgetDefaultCurrencyCode",
+      },
+    ],
+    version: 55,
   },
   {
-    moduleObj: chartWidgetReskinningMigrations,
-    funcName: "migrateChartWidgetReskinningData",
-    nextVersion: 61,
+    functionLookup: [
+      {
+        moduleObj: radioGroupMigration,
+        functionName: "migrateRadioGroupAlignmentProperty",
+      },
+    ],
+    version: 56,
   },
   {
-    moduleObj: tableMigrations,
-    funcName: "migrateTableWidgetV2Validation",
-    nextVersion: 61,
+    functionLookup: [
+      {
+        moduleObj: themingMigration,
+        functionName: "migrateStylingPropertiesForTheming",
+      },
+    ],
+    version: 57,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: propertyPaneMigrations,
+        functionName: "migrateCheckboxSwitchProperty",
+      },
+    ],
+    version: 58,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: chartWidgetReskinningMigrations,
+        functionName: "migrateChartWidgetReskinningData",
+      },
+    ],
+    version: 59,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2Validation",
+      },
+    ],
+    version: 60,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: chartWidgetReskinningMigrations,
+        functionName: "migrateChartWidgetReskinningData",
+      },
+    ],
+    version: 61,
   },
 ];
 
-const mockFnObj: Record<string, any> = {};
+const mockFnObj: Record<number, any> = {};
 let migratedDSL: ContainerWidgetProps<WidgetProps>;
 
 describe("Test all the migrations are running", () => {
   afterAll(() => {
     jest.clearAllMocks();
   });
-  migrationList.forEach((migration: IMigrationList) => {
+  migrations.forEach((migration: Migration) => {
     /**
      * Generates mock fucntion for each migration function.
      * Mocks the implementation
      */
-    const { funcName, moduleObj, nextVersion } = migration;
-    if (moduleObj) {
-      mockFnObj[funcName] = jest.spyOn(moduleObj, funcName);
-      mockFnObj[funcName].mockImplementation(() => ({
-        version: nextVersion,
-        validationFuncName: funcName,
-      }));
-    }
+    const version = migration.version ?? 0;
+    mockFnObj[version] = [];
+
+    migration.functionLookup.forEach(
+      (funcDetails: { moduleObj: any; functionName: string }) => {
+        const { functionName, moduleObj } = funcDetails;
+        if (moduleObj) {
+          mockFnObj[version].push({
+            spyOnFunc: jest
+              .spyOn(moduleObj, functionName)
+              .mockImplementation((dsl: any) => {
+                /**
+                 * We need to delete the children property on the first migration(calculateDynamicHeight),
+                 * to avoid the recursion in the second migration(updateContainers)
+                 */
+                dsl && delete dsl.children;
+                return {
+                  version: dsl?.version,
+                  validationFuncName: functionName,
+                };
+              }),
+          });
+        }
+      },
+    );
   });
 
+  // Runs all the migrations
   migratedDSL = DSLMigrations.transformDSL(
     (originalDSL as unknown) as ContainerWidgetProps<WidgetProps>,
   );
 
-  test.each(migrationList)(
-    "has $funcName ran successfully?",
-    ({ funcName, nextVersion }) => {
-      expect(
-        mockFnObj[funcName].mock.results[0].value.validationFuncName,
-      ).toEqual(funcName);
-      expect(mockFnObj[funcName].mock.results[0].value.version).toEqual(
-        nextVersion,
-      );
-    },
-  );
+  migrations.forEach((item: any, testIdx: number) => {
+    const { functionLookup, version } = item;
+    const dslVersion = version ?? 0;
 
-  test("Check final DSL version matches with the LATEST_VERSION", () => {
-    expect(migratedDSL.version).toEqual(LATEST_PAGE_VERSION);
+    functionLookup.forEach(
+      (
+        funcDetails: { moduleObj: any; functionName: string },
+        index: number,
+      ) => {
+        const { functionName, moduleObj } = funcDetails;
+        if (moduleObj) {
+          const mockObj = mockFnObj[dslVersion][index].spyOnFunc;
+          const calls = mockObj.mock?.calls;
+          const results = mockObj.mock?.results;
+          const resultsLastIdx = mockObj.mock.results.length - 1;
+
+          describe(`Test ${testIdx}:`, () => {
+            test(`Has ${functionName} function executed?`, () => {
+              // Check if the migration function is called
+              expect(results[resultsLastIdx].value.validationFuncName).toEqual(
+                functionName,
+              );
+            });
+
+            test(`Does ${functionName} executes with DSL version: ${version}?`, () => {
+              // Check if the migration function is called with the current DSL version
+              calls.forEach((args: any) => {
+                if (args[0]?.version === version) {
+                  expect(args[0]?.version).toEqual(version);
+                }
+              });
+            });
+          });
+        }
+      },
+    );
+  });
+
+  test("Check the migration count matches the lates page version", () => {
+    expect(migrations.length).toEqual(LATEST_PAGE_VERSION);
   });
 });

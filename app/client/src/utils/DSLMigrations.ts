@@ -1095,17 +1095,22 @@ export const transformDSL = (
 
   if (currentDSL.version === 59) {
     /**
-     * We are moving the migrateChartWidgetReskinningData to execute on version 60 so as to re-run the migration.
+     * migrateChartWidgetReskinningData function will be executed again in version 61,
+     * since for older apps the accentColor and fontFamily didn't get migrated.
      */
+    currentDSL = migrateChartWidgetReskinningData(currentDSL);
     currentDSL.version = 60;
   }
 
   if (currentDSL.version === 60) {
     currentDSL = migrateTableWidgetV2Validation(currentDSL);
+    currentDSL.version = 61;
+  }
+
+  if (currentDSL.version === 61) {
     currentDSL = migrateChartWidgetReskinningData(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
-
   return currentDSL;
 };
 
