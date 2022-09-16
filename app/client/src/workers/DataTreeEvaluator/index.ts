@@ -867,7 +867,6 @@ export default class DataTreeEvaluator {
       dynamicBinding,
       entity,
     );
-
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths
       const values = jsSnippets.map((jsSnippet, index) => {
