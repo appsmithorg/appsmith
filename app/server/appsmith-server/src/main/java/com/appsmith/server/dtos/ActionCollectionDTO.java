@@ -6,7 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.dtos.ErrorDTO;
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

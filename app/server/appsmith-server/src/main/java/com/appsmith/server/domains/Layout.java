@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
-import com.appsmith.server.dtos.ErrorDTO;
+import com.appsmith.external.exceptions.ErrorDTO;
 
 import java.util.List;
 import java.util.Set;

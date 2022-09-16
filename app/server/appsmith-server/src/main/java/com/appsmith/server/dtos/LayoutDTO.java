@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.JSONObject;
-import com.appsmith.server.dtos.ErrorDTO;
+import com.appsmith.external.exceptions.ErrorDTO;
 import org.springframework.data.annotation.Transient;
 
 import java.util.HashSet;
@@ -26,6 +26,7 @@ public class LayoutDTO {
     List<Set<DslActionDTO>> layoutOnLoadActions;
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
+    @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     List<ErrorDTO> layoutOnLoadActionErrors;
 

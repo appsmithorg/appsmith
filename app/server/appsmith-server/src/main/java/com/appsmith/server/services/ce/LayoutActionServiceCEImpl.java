@@ -23,7 +23,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
-import com.appsmith.server.dtos.ErrorDTO;
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -99,7 +99,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
-    private final String layoutOnLoadActionErrorToastMessage = "A Cyclic dependency has been encountered on current page, \nqueries on Page load will not run. \n Check debugger and Appsmith documentation for more information";
+    private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and appsmith documentation for more information";
 
 
     /**
@@ -911,8 +911,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     log.info(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
                     layout.setLayoutOnLoadActionErrors(List.of(
-                            new ErrorDTO(layoutOnLoadActionErrorToastMessage,
-                                    error.getAppErrorCode(),
+                            new ErrorDTO(error.getAppErrorCode(),
+                                    layoutOnLoadActionErrorToastMessage,
                                     error.getMessage())));
                     return Mono.just(new ArrayList<>());
                 });
