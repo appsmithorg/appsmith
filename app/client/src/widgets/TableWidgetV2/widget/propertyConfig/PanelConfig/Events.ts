@@ -26,7 +26,8 @@ export default {
         !(
           columnType === ColumnTypes.TEXT ||
           columnType === ColumnTypes.NUMBER ||
-          columnType === ColumnTypes.CHECKBOX
+          columnType === ColumnTypes.CHECKBOX ||
+          columnType === ColumnTypes.SWITCH
         ) || !isEditable
       );
     }
@@ -108,10 +109,17 @@ export default {
     },
     {
       propertyName: "onCheckChange",
-      label: "onCheckChange",
+      label: (props: TableWidgetProps, propertyPath: string) => {
+        const basePropertyPath = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${basePropertyPath}.columnType`);
+        return columnType === ColumnTypes.SWITCH ? "onChange" : "onCheckChange";
+      },
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
+        ]);
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,
