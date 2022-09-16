@@ -141,7 +141,9 @@ describe("JSON Form Widget Field Change", () => {
       .find(".t--jsonformfield-array-add-btn")
       .should("exist");
     */
-    cy.get('button span:contains("Add New")').first().should("be.visible");
+    cy.get('button span:contains("Add New")')
+      .first()
+      .should("be.visible");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
     cy.closePropertyPane();
   });
