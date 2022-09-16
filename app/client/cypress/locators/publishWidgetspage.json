@@ -54,5 +54,6 @@
   "downloadOption": ".t--table-download-data-option",
   "addFilter": ".t--add-filter-btn",
   "operatorsDropdown": ".t--table-filter-operators-dropdown",
-  "attributesDropdown": ".t--table-filter-columns-dropdown"
+  "attributesDropdown": ".t--table-filter-columns-dropdown",
+  "codescannerwidget": ".t--widget-codescannerwidget"
 }
