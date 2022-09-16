@@ -4,6 +4,7 @@ import { isNumber, isNil } from "lodash";
 import { BaseCellComponentProps } from "../Constants";
 import {
   ColumnTypes,
+  EditableCell,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { TextCell } from "./TextCell";
@@ -15,7 +16,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   tableWidth: number;
   isCellEditable: boolean;
   isCellEditMode?: boolean;
-  onCellTextChange: (data: string) => void;
+  onCellTextChange: (value: EditableCell["value"], inputValue: string) => void;
   toggleCellEditMode: (
     enable: boolean,
     rowIndex: number,
@@ -27,6 +28,9 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   hasUnsavedChanged?: boolean;
   displayText?: string;
   disabledEditIcon: boolean;
+  isEditableCellValid: boolean;
+  validationErrorMessage: string;
+  widgetId: string;
 };
 
 type editPropertyType = {
@@ -70,6 +74,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     isCellEditable,
     isCellEditMode,
     isCellVisible,
+    isEditableCellValid,
     isHidden,
     onCellTextChange,
     onDiscardString,
@@ -79,13 +84,15 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     textColor,
     textSize,
     toggleCellEditMode,
+    validationErrorMessage,
     value,
     verticalAlignment,
+    widgetId,
   } = props;
 
   const editEvents = useMemo(
     () => ({
-      onChange: (text: string) => onCellTextChange(text),
+      onChange: onCellTextChange,
       onDiscard: () =>
         toggleCellEditMode(
           false,
@@ -122,6 +129,8 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       alias,
       onDiscardString,
       onSubmitString,
+      isEditableCellValid,
+      validationErrorMessage,
     ],
   );
 
@@ -139,6 +148,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       isCellEditMode={isCellEditMode}
       isCellEditable={isCellEditable}
       isCellVisible={isCellVisible}
+      isEditableCellValid={isEditableCellValid}
       isHidden={isHidden}
       onCellTextChange={onCellTextChange}
       onChange={editEvents.onChange}
@@ -149,8 +159,10 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       textColor={textColor}
       textSize={textSize}
       toggleCellEditMode={toggleCellEditMode}
+      validationErrorMessage={validationErrorMessage}
       value={getCellText(value, columnType, displayText)}
       verticalAlignment={verticalAlignment}
+      widgetId={widgetId}
     />
   );
 }

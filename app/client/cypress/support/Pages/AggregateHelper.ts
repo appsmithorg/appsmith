@@ -697,7 +697,7 @@ export class AggregateHelper {
     toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
       .trigger("click")
-      .type(input);
+      .type(input, { parseSpecialCharSequences: false });
   }
 
   public ClearInputText(name: string, isInput = true) {
