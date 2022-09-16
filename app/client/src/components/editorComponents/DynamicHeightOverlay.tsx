@@ -15,6 +15,7 @@ import {
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { BaseStyle, WidgetProps } from "widgets/BaseWidget";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
@@ -160,7 +161,7 @@ const MinHeightOverlayHandleDot = styled(OverlayHandleDot)<{
   transform: scale(${(props) => (props.isDragging ? "1.67" : "1")});
   border: 1px solid ${OVERLAY_COLOR};
   background-color: ${OVERLAY_COLOR};
-  box-shadow: 0px 0px 0px 1px white;
+  box-shadow: 0px 0px 0px 2px white;
 `;
 
 const MaxHeightOverlayHandle = styled(OverlayHandle)<OverlayHandleProps>`
@@ -430,6 +431,14 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }
 
     function onMaxUpdate(dx: number, dy: number) {
+      if (
+        maxY + dy <=
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
+        return;
+      }
+
       const snapped = getSnappedValues(dx, dy, snapGrid);
 
       if (maxY + snapped.y <= minY) {
@@ -472,7 +481,11 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }, [minDynamicHeight]);
 
     function onMinUpdate(dx: number, dy: number) {
-      if (minY + dy <= 10) {
+      if (
+        minY + dy <=
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
         return;
       }
 
