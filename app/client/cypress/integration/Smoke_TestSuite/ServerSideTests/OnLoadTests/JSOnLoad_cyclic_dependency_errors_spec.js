@@ -88,7 +88,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   //Case 1: On page load actions
   it ("3. Reload Page and it should provide errors in response", () => {
-    cy.get(widgetsPage.NavHomePage).click({ force: true });
+    // cy.get(widgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("inputwidgetv2");
     cy.wait("@getPage").should(
