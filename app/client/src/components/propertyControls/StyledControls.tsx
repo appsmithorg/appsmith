@@ -432,7 +432,22 @@ export const StyledDeleteIcon = styled(
 `;
 
 export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`
-  ${CommonIconStyles}
   cursor: ${(props) => (props.disabled ? "default" : "cursor")};
   width: 18px;
+  ${CommonIconStyles}
+`;
+
+export const StyledNavigateToFieldWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: auto;
+`;
+
+export const StyledDividerContainer = styled.div`
+  width: 1%;
+  margin-top: 9px;
+`;
+
+export const StyledNavigateToFieldsContainer = styled.div`
+  width: 95%;
 `;
