@@ -72,6 +72,7 @@ import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
 import { klona as clone } from "klona";
 import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
+import { SwitchCell } from "../component/cellComponents/SwitchCell";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1232,6 +1233,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isColumnEditable =
       column.isEditable && isColumnTypeEditable(column.columnType);
+    const alias = props.cell.column.columnProperties.alias;
     const isCellEditMode =
       props.cell.column.alias === this.props.editableCell?.column &&
       rowIndex === this.props.editableCell?.index;
@@ -1528,7 +1530,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.CHECKBOX:
-        const alias = props.cell.column.columnProperties.alias;
         return (
           <CheckboxCell
             accentColor={this.props.accentColor}
@@ -1538,6 +1539,50 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
             disabledCheckbox={
+              this.props.inlineEditingSaveOption ===
+                InlineEditingSaveOptions.ROW_LEVEL &&
+              this.props.updatedRowIndices.length &&
+              this.props.updatedRowIndices.indexOf(originalIndex) === -1
+            }
+            hasUnSavedChanges={cellProperties.hasUnsavedChanged}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellEditable={
+              (isColumnEditable && cellProperties.isCellEditable) ?? false
+            }
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            onChange={() => {
+              const row = filteredTableData[rowIndex];
+              const cellValue = !props.cell.value;
+
+              this.updateTransientTableData({
+                __original_index__: originalIndex,
+                [alias]: cellValue,
+              });
+
+              this.onColumnEvent({
+                rowIndex,
+                action: column.onCheckChange,
+                triggerPropertyName: "onCheckChange",
+                eventType: EventType.ON_CHECK_CHANGE,
+                row: {
+                  ...row,
+                  [alias]: cellValue,
+                },
+              });
+            }}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.SWITCH:
+        return (
+          <SwitchCell
+            accentColor={this.props.accentColor}
+            cellBackground={cellProperties.cellBackground}
+            compactMode={compactMode}
+            disabledSwitch={
               this.props.inlineEditingSaveOption ===
                 InlineEditingSaveOptions.ROW_LEVEL &&
               this.props.updatedRowIndices.length &&
