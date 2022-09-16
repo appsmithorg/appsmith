@@ -63,7 +63,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .fromUriString(cloudServicesConfig.getBaseUrl())
                 .pathSegment("api/v1/app-templates", templateId, "similar")
                 .queryParams(params)
-                .queryParam("version", releaseNotesService.getReleasedVersion())
+                .queryParam("version", releaseNotesService.getRunningVersion())
                 .build();
 
         String apiUrl = uriComponents.toUriString();
@@ -87,7 +87,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance()
-                .queryParam("version", releaseNotesService.getReleasedVersion());
+                .queryParam("version", releaseNotesService.getRunningVersion());
 
         if (!CollectionUtils.isEmpty(templateIds)) {
             uriComponentsBuilder.queryParam("id", templateIds);
