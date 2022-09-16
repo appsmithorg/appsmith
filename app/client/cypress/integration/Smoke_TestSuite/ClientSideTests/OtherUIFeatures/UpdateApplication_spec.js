@@ -83,7 +83,7 @@ describe("Update Application", () => {
     );
   });
 
-  it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", () => {
+  it("Updates the name of first application to very long name and checks whether update is reflected in the application card with no popover", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
