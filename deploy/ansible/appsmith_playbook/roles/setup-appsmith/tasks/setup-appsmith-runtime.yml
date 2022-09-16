@@ -1,0 +1,48 @@
+---
+- name: create runtime path folder
+  file:
+    dest: "{{ cloud_directory }}/scripts"
+    mode: 0755
+    recurse: yes
+    owner: "{{ cloud_user }}"
+    group: "{{ cloud_group }}"
+    state: directory
+
+- name: create boot script
+  template:
+    src: templates/appsmith/scripts/boot.sh
+    dest: "{{ cloud_directory }}/scripts/boot.sh"
+    mode: 0755
+
+- name: create first-time-setup script
+  template:
+    src: templates/appsmith/scripts/first-time-setup.sh
+    dest: "{{ cloud_directory }}/scripts/first-time-setup.sh"
+    mode: 0755
+    owner: "{{ cloud_user }}"
+    group: "{{ cloud_group }}"
+
+- name: create reboot entry job
+  cron:
+    name: "appsmith job"
+    special_time: reboot
+    user: "{{ cloud_user }}"
+    job: "{{ cloud_directory }}/scripts/boot.sh"
+
+- name: setup ssh key for appsmith user
+  copy:
+    src: templates/init-ssh.sh
+    dest: /var/lib/cloud/scripts/per-instance
+    mode: 0755
+    owner: "{{ cloud_user }}"
+    group: "{{ cloud_group }}"
+  become: yes
+
+- name: setup ssh key for {{ default_user }} user
+  copy:
+    src: templates/init-ssh.sh
+    dest: /var/lib/cloud/scripts/per-instance
+    mode: 0755
+    owner: "{{ default_user }}"
+    group: "{{ cloud_group }}"
+  become: yes

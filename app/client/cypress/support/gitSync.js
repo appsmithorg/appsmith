@@ -53,9 +53,11 @@ Cypress.Commands.add(
         req.headers["origin"] = "Cypress";
       },
     );
+
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       `generateKey-${repo}`,
     );
+
     cy.get(gitSyncLocators.gitRepoInput).type(
       `git@github.com:${owner}/${repo}.git`,
     );
@@ -154,7 +156,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
-  cy.wait(400);
+  cy.wait(1000);
   cy.get(gitSyncLocators.branchListItem)
     .contains(branch)
     .click();
@@ -163,6 +165,7 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
     cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
     cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
   }
+
   cy.wait(2000);
 });
 
@@ -295,6 +298,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     "response.body.data.isMergeAble",
     true,
   );
+  cy.wait(2000);
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
   cy.wait("@mergeBranch").should(

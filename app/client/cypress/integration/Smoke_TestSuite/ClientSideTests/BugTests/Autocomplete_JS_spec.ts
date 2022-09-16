@@ -133,6 +133,7 @@ describe("Autocomplete tests", () => {
 
   it("4. Api data with array of object autocompletion test", () => {
     ApiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    agHelper.Sleep(2000);
     ApiPage.RunAPI();
     // Using same js object
     EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");

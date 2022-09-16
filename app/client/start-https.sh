@@ -1,106 +1,312 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# run the following commands before the docker run command
-# brew install mkcert (if you don't already have it installed)
-# run the following commented command from the project root directory
-# cd docker && mkcert -install && mkcert "*.appsmith.com" && cd ..
-# If this returns a hash successfully, then you can access the application locally using https://dev.appsmith.com
+set -o errexit
+set -o nounset
+set -o pipefail
+if [[ -n ${TRACE-} ]]; then
+    set -o xtrace
+fi
 
-if ! docker_loc="$(type -p "docker")" || [[ -z $docker_loc ]]; then
-    echo "Could not find docker cli"
+if [[ ${1-} =~ ^-*h(elp)?$ ]]; then
+    echo 'Run '"$0"' [option...]
+
+   --with-docker: Start NGINX with Docker. Fail if Docker is not available.
+--without-docker: Start NGINX directly. Fail if NGINX is not installed.
+
+        If neither of the above are set, we check if NGINX is installed, and use that if yes, or Docker otherwise.
+
+--https: Require start with https.
+ --http: Require start with http.
+
+        If neither of the above ar set, then we check if mkcert is available, and use https if yes, or http otherwise.
+
+--env-file: Specify an alternate env file. Defaults to '.env' at the root of the project.
+
+A single positional argument can be given to set the backend server proxy address. Example:
+
+'"$0"' https://localhost:8080
+'"$0"' https://host.docker.internal:8080
+'"$0"' https://release.app.appsmith.com:8080
+' >&2
     exit
 fi
 
-if ! envsubst_loc="$(type -p "envsubst")" || [[ -z $envsubst_loc ]]; then
-    echo "Could not find envsubst: If you're on a mac; brew install gettext"
-    exit
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --with-docker)
+            run_as=docker
+            shift
+            ;;
+        --without-docker)
+            run_as=nginx
+            shift
+            ;;
+        --https)
+            use_https=1
+            shift
+            ;;
+        --http)
+            use_https=0
+            shift
+            ;;
+        --env-file)
+            env_file=$2
+            shift
+            shift
+            ;;
+        -*|--*)
+            echo "Unknown option $1" >&2
+            exit 1
+            ;;
+        *)
+            backend="$1"
+            shift
+            ;;
+    esac
+done
+
+if [[ -z ${run_as-} ]]; then
+    if type nginx; then
+        run_as=nginx
+    elif type docker; then
+        run_as=docker
+    else
+        echo 'Could not find nginx or docker. Do a "brew install nginx" and try again.'
+        exit
+    fi
 fi
 
-
-KEY_FILE=./docker/_wildcard.appsmith.com-key.pem
-CERT_FILE=./docker/_wildcard.appsmith.com.pem
-if ! test -f "$KEY_FILE" || ! test -f "$CERT_FILE"; then
-    echo "
-    KEY and/or CERTIFICATE not found
-    Please install mkcert and generate
-    the key and certificate files
-    by running the following command
-
-    cd docker && mkcert -install && mkcert \"*.appsmith.com\" && cd ..
-
-    "
-    exit
+if [[ $run_as == docker ]]; then
+    echo 'Running with Docker. You may "brew install nginx" to run this without Docker.'
 fi
 
-ENV_FILE=../../.env
-if ! test -f "$ENV_FILE"; then
+working_dir="$PWD/nginx"
+mkdir -pv "$working_dir"
+
+domain=dev.appsmith.com
+
+key_file="$working_dir/$domain-key.pem"
+cert_file="$working_dir/$domain.pem"
+
+if [[ -z ${use_https-} ]]; then
+    if type mkcert; then
+        use_https=1
+    else
+        echo 'SSL cert isn'\''t there, and "mkcert" is not installed either. Starting with http.' >&2
+        echo 'Please "brew install mkcert" and re-run this script to start with https.' >&2
+        use_https=0
+    fi
+fi
+
+if [[ $use_https == 1 ]]; then
+    if ! [[ -f $key_file && -f $cert_file ]]; then
+        if type mkcert; then
+            pushd "$working_dir"
+            mkcert -install
+            mkcert "$domain"
+            popd
+        else
+            echo 'I got "--use-https", but "mkcert" is not available. Please "brew install mkcert" and try again.' >&2
+            exit 1
+        fi
+    fi
+fi
+
+upstream_host=localhost
+if [[ $run_as == docker ]]; then
+    upstream_host=host.docker.internal
+fi
+
+frontend_host=${frontend_host-$upstream_host}
+backend_host=${backend_host-$upstream_host}
+rts_host=${rts_host-$upstream_host}
+
+frontend_port=${frontend_port-3000}
+backend_port=${backend_port-8080}
+rts_port=${rts_port-8091}
+
+backend="${backend-http://$backend_host:$backend_port}"
+frontend="http://$frontend_host:$frontend_port"
+rts="http://$rts_host:$rts_port"
+
+
+if [[ -n ${env_file-} && ! -f $env_file ]]; then
+    echo "I got --env-file as '$env_file', but I cannot access it." >&2
+    exit 1
+elif [[ -n ${env_file-} || -f ../../.env ]]; then
+    set -o allexport
+    source "${env_file-../../.env}"
+    set +o allexport
+else
     echo "
         Please populate the .env at the root of the project and run again
         Or add the environment variables defined in .env.example to the environment
         -- to enable features
-    "
-else
-    export $(grep -v '^[[:space:]]*#' ${ENV_FILE} | xargs)
+    " >&2
 fi
 
-default_server_proxy="http://host.docker.internal:8080"
-default_client_proxy="http://host.docker.internal:3000"
 
-default_linux_server_proxy="http://localhost:8080"
-default_linux_client_proxy="http://localhost:3000"
-
-# default server to internal docker
-server_proxy_pass="${1:-$default_server_proxy}"
-if [[ $server_proxy_pass =~ /$ ]]; then
-    echo "The given server proxy ($1) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
-    echo "Exiting. Please run again, removing the trailing slash(es) for the server proxy endpoint." >&2
+if [[ -f /etc/nginx/mime.types || $run_as == docker ]]; then
+    mime_types=/etc/nginx/mime.types
+elif [[ -f /usr/local/etc/nginx/mime.types ]]; then
+    mime_types=/usr/local/etc/nginx/mime.types
+else
+    echo "No mime.types file found. Can't start NGINX." >&2
     exit 1
 fi
 
-# Stop and remove existing container
-# Ignore outcome in case someone decides to set -e later
-docker rm -f wildcard-nginx || true
 
-uname_out="$(uname -s)"
-vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z0-9_]\+" "$ENV_FILE" | xargs))"
-client_proxy_pass="${default_client_proxy}"
-network_mode="bridge"
-case "${uname_out}" in
-    Linux*)
+nginx_pid="$working_dir/wildcard-nginx.pid"
+nginx_access_log="$working_dir/access.log"
+nginx_error_log="$working_dir/error.log"
+rm -f "$nginx_access_log" "$nginx_error_log"
 
-        source ../util/is_wsl.sh
-        if [ $IS_WSL ]; then
-            : # ignore to continue using host.docker.internal
-        else
-            network_mode="host"
-            client_proxy_pass=$default_linux_client_proxy
-            # if no server was passed
-            if [[ -z $1 ]]; then
-                server_proxy_pass=$default_linux_server_proxy
-            fi
-        fi
-        echo "
-    Starting nginx for Linux...
-        "
-        cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|${client_proxy_pass}|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|${server_proxy_pass}|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf  &&
-        cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf  &&
-        sudo docker run --network ${network_mode} --name wildcard-nginx -d -p 80:80 -p 443:443 -v "`pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf" -v "`pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf" -v "`pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem" -v "`pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem" nginx:latest \
-        && echo "
-    nginx is listening on port 443 and forwarding to port 3000
-    visit https://dev.appsmith.com
-        "
-    ;;
-    Darwin*)
-        echo "
-    Starting nginx for MacOS...
-        "
-        cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|${client_proxy_pass}|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|${server_proxy_pass}|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf  &&
-        cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf  &&
-        docker run --name wildcard-nginx -d -p 80:80 -p 443:443 -v "`pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf" -v "`pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf" -v "`pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem" -v "`pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem" nginx:latest \
-        && echo "
-    nginx is listening on port 443 and forwarding to port 3000
-    visit https://dev.appsmith.com
-        "
-    ;;
-    *)          echo "Unknown OS: Please use MacOS or a distribution of linux."
-esac
+nginx_dev_conf="$working_dir/nginx.dev.conf"
+
+echo "
+worker_processes  1;
+
+error_log $nginx_error_log info;
+
+$(if [[ $run_as == nginx ]]; then echo "pid $nginx_pid;"; fi)
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    map \$http_x_forwarded_proto \$origin_scheme {
+        default \$http_x_forwarded_proto;
+        '' \$scheme;
+    }
+
+    include $mime_types;
+    default_type application/octet-stream;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    access_log $nginx_access_log;
+
+    gzip on;
+    gzip_types *;
+
+$(if [[ $use_https == 1 ]]; then echo "
+    server {
+        listen 80 default_server;
+        server_name $domain;
+        return 301 https://\$host\$request_uri;
+    }
+"; fi)
+
+    server {
+$(if [[ $use_https == 1 ]]; then echo "
+        listen 443 ssl http2 default_server;
+        server_name $domain;
+        ssl_certificate '$cert_file';
+        ssl_certificate_key '$key_file';
+"; else echo "
+        listen 80 default_server;
+        server_name _;
+"; fi)
+
+        client_max_body_size 100m;
+        gzip on;
+
+        proxy_ssl_server_name on;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection upgrade;
+        proxy_set_header X-Forwarded-Proto \$origin_scheme;
+        proxy_set_header X-Forwarded-Host \$host;
+        proxy_set_header Accept-Encoding '';
+
+        sub_filter_once off;
+        location / {
+            proxy_pass $frontend;
+            sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN-}';
+            sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID-}';
+            sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID-}';
+            sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID-}';
+            sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '${APPSMITH_MARKETPLACE_ENABLED-}';
+            sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY-}';
+            sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID-}';
+            sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME-}';
+            sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY-}';
+            sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL-}';
+            sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY-}';
+            sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP-}';
+            sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE-}';
+            sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT-}';
+            sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID-}';
+            sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE-}';
+            sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID-}';
+            sub_filter __APPSMITH_MAIL_ENABLED__ '${APPSMITH_MAIL_ENABLED-}';
+            sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY-}';
+            sub_filter __APPSMITH_CLOUD_SERVICES_BASE_URL__ '${APPSMITH_CLOUD_SERVICES_BASE_URL-}';
+            sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '${APPSMITH_RECAPTCHA_SITE_KEY-}';
+            sub_filter __APPSMITH_DISABLE_INTERCOM__ '${APPSMITH_DISABLE_INTERCOM-}';
+            sub_filter __APPSMITH_FORM_LOGIN_DISABLED__ '${APPSMITH_FORM_LOGIN_DISABLED-}';
+            sub_filter __APPSMITH_SIGNUP_DISABLED__ '${APPSMITH_SIGNUP_DISABLED-}';
+            sub_filter __APPSMITH_ZIPY_SDK_KEY__ '${APPSMITH_ZIPY_SDK_KEY-}';
+            sub_filter __APPSMITH_HIDE_WATERMARK__ '${APPSMITH_HIDE_WATERMARK-}';
+        }
+
+        location /api {
+            proxy_pass $backend;
+        }
+
+        location /oauth2 {
+            proxy_pass $backend;
+        }
+
+        location /login {
+            proxy_pass $backend;
+        }
+
+        location /rts {
+            proxy_pass $rts;
+            proxy_http_version 1.1;
+            proxy_set_header Host \$host;
+            proxy_set_header Connection upgrade;
+            proxy_set_header Upgrade \$http_upgrade;
+        }
+    }
+}
+" > "$nginx_dev_conf"
+
+if type docker &>/dev/null; then
+    docker rm --force wildcard-nginx >/dev/null 2>&1 || true
+fi
+
+if [[ -f $nginx_pid ]]; then
+    nginx -g "pid $nginx_pid;" -s quit
+    rm "$nginx_pid"
+fi
+
+if [[ $run_as == nginx ]]; then
+    nginx -c "$nginx_dev_conf"
+    stop_cmd="nginx -g 'pid $nginx_pid;' -s quit"
+
+elif [[ $run_as == docker ]]; then
+    docker run \
+        --name wildcard-nginx \
+        --detach \
+        --publish 80:80 \
+        --publish 443:443 \
+        --add-host=host.docker.internal:host-gateway \
+        --volume "$nginx_dev_conf:/etc/nginx/nginx.conf:ro" \
+        --volume "$working_dir:$working_dir" \
+        nginx:alpine \
+        >/dev/null
+    stop_cmd='docker rm --force wildcard-nginx'
+
+else
+    echo "I don't know how to start NGINX with '$run_as'."
+
+fi
+
+echo '✅ Started NGINX'
+echo "ℹ️  Stop with: $stop_cmd"
+echo "🎉 $(if [[ $use_https == 1 ]]; then echo "https://$domain"; else echo "http://localhost"; fi)"
