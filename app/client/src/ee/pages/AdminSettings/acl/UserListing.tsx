@@ -31,6 +31,7 @@ import {
   getAllAclUsers,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
+import { UserProps } from "./types";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -85,17 +86,6 @@ export const ShowLess = styled.div`
   }
 `;
 
-export type User = {
-  allGroups: Array<string>;
-  allRoles: Array<string>;
-  userId: string;
-  username: string;
-  name: string;
-  roleName?: string;
-  isDeleting: boolean;
-  isChangingRole: boolean;
-};
-
 export function UserListing() {
   const history = useHistory();
   const params = useParams() as any;
@@ -105,7 +95,7 @@ export function UserListing() {
   const selectedUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
 
-  const [data, setData] = useState<User[]>([]);
+  const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [showModal, setShowModal] = useState(false);
 

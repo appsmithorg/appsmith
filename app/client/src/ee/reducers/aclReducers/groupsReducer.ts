@@ -1,15 +1,16 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { GroupProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const groupsReducers = {
-  [ReduxActionTypes.FETCH_ACL_GROUP]: (state: any) => ({
+  [ReduxActionTypes.FETCH_ACL_GROUPS]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_GROUP_ERROR]: (state: any) => ({
+  [ReduxActionTypes.FETCH_ACL_GROUPS_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ACL_GROUP_SUCCESS]: (state: any, action: any) => ({
+  [ReduxActionTypes.FETCH_ACL_GROUPS_SUCCESS]: (state: any, action: any) => ({
     ...state,
     groups: action.payload,
     isLoading: false,
@@ -43,17 +44,23 @@ export const groupsReducers = {
     groups: action.payload,
     isLoading: false,
   }),
+  [ReduxActionTypes.ACL_GROUP_IS_SAVING]: (state: any, action: any) => ({
+    ...state,
+    isSaving: action.payload.isSaving,
+  }),
   [ReduxActionTypes.UPDATE_ACL_GROUP]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
   [ReduxActionTypes.UPDATE_ACL_GROUP_ERROR]: (state: any) => ({
     ...state,
+    isSaving: false,
     isLoading: false,
   }),
   [ReduxActionTypes.UPDATE_ACL_GROUP_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    groups: action.payload,
+    selectedGroup: action.payload,
+    isSaving: false,
     isLoading: false,
   }),
   [ReduxActionTypes.DELETE_ACL_GROUP]: (state: any) => ({
@@ -66,7 +73,9 @@ export const groupsReducers = {
   }),
   [ReduxActionTypes.DELETE_ACL_GROUP_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    groups: action.payload,
+    groups: state.groups.filter(
+      (group: GroupProps) => group.id !== action.payload.id,
+    ),
     isLoading: false,
   }),
 };

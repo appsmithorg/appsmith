@@ -19,7 +19,7 @@ import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory } from "react-router";
-import { User } from "./UserListing";
+import { GroupEditProps, Permissions, UserProps } from "./types";
 import { Position, Spinner } from "@blueprintjs/core";
 import {
   ADD_USERS,
@@ -29,32 +29,16 @@ import {
   DELETE_GROUP,
   INVITE_USERS_SUBMIT_BUTTON_TEXT,
   NO_USERS_MESSAGE,
-  ROLES_UPDATED_SUCCESS,
-  RENAME_SUCCESSFUL,
   RENAME_GROUP,
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
+  GROUP_UPDATED_SUCCESS,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
-
-export type GroupProps = {
-  isEditing: boolean;
-  isDeleting: boolean;
-  rolename: string;
-  id: string;
-  allUsers: Array<any>;
-  allRoles: Array<any>;
-  activePermissions: Array<any>;
-  isNew?: boolean;
-};
-
-export type GroupEditProps = {
-  selected: GroupProps;
-  onDelete: any;
-  // onClone: any;
-  isLoading: boolean;
-};
+import { useDispatch } from "react-redux";
+import { updateGroupById } from "@appsmith/actions/aclActions";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const ListUsers = styled.div`
   margin-top: 4px;
@@ -130,17 +114,12 @@ const NoUsersText = styled.div`
   color: var(--appsmith-color-black-700);
 `;
 
-export type Permissions = {
-  activePermissions: string[];
-  allRoles: string[];
-};
-
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isLoading, selected } = props;
+  const { isLoading, isSaving, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [users, setUsers] = useState<User[]>(selected.allUsers || []);
+  const [users, setUsers] = useState<UserProps[]>(selected.users || []);
   const [permissions, setPermissions] = useState<Permissions>({
     activePermissions: selected.activePermissions || [],
     allRoles: selected.allRoles || [],
@@ -150,34 +129,39 @@ export function GroupAddEdit(props: GroupEditProps) {
     [],
   );
   const [addedAllGroups, setAddedAllGroups] = useState<Array<any>>([]);
-  const [isSaving, setIsSaving] = useState(false);
-  const [pageTitle, setPageTitle] = useState(selected.rolename);
+  const [pageTitle, setPageTitle] = useState(selected.name);
 
   const history = useHistory();
-
-  useEffect(() => {
-    setUsers(selected.allUsers || []);
-    setPermissions({
-      activePermissions: selected.activePermissions || [],
-      allRoles: selected.allRoles || [],
-    });
-    setPageTitle(selected.rolename || "");
-  }, [selected]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const saving =
       removedActiveGroups.length > 0 ||
       addedAllGroups.length > 0 ||
-      pageTitle !== selected.rolename;
-    setIsSaving(saving);
+      pageTitle !== selected.name;
+    dispatch({
+      type: ReduxActionTypes.ACL_GROUP_IS_SAVING,
+      payload: {
+        isSaving: saving,
+      },
+    });
   }, [removedActiveGroups, addedAllGroups, pageTitle]);
+
+  useEffect(() => {
+    setUsers(selected.users || []);
+    setPermissions({
+      activePermissions: selected.activePermissions || [],
+      allRoles: selected.allRoles || [],
+    });
+    setPageTitle(selected.name || "");
+  }, [selected]);
 
   const onButtonClick = () => {
     setShowModal(true);
   };
 
   const onSearch = debounce((search: string) => {
-    let userResults: User[] = [];
+    let userResults: UserProps[] = [];
     let permissionResults: Permissions;
     if (search && search.trim().length > 0) {
       setSearchValue(search);
@@ -198,7 +182,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       setPermissions({ ...permissionResults });
     } else {
       setSearchValue("");
-      setUsers(selected.allUsers);
+      setUsers(selected.users);
       setPermissions({
         activePermissions: selected.activePermissions || [],
         allRoles: selected.allRoles || [],
@@ -239,8 +223,16 @@ export function GroupAddEdit(props: GroupEditProps) {
     });
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
+    dispatch(
+      updateGroupById({
+        ...selected,
+        allRoles: updatedAllGroups,
+        activePermissions: updatedActiveGroups,
+        name: pageTitle,
+      }),
+    );
     Toaster.show({
-      text: createMessage(ROLES_UPDATED_SUCCESS),
+      text: createMessage(GROUP_UPDATED_SUCCESS),
       variant: Variant.success,
     });
   };
@@ -248,15 +240,11 @@ export function GroupAddEdit(props: GroupEditProps) {
   const onClearChanges = () => {
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
-    setPageTitle(selected.rolename);
+    setPageTitle(selected.name);
   };
 
   const onEditTitle = (name: string) => {
     setPageTitle(name);
-    Toaster.show({
-      text: createMessage(RENAME_SUCCESSFUL),
-      variant: Variant.success,
-    });
   };
 
   const columns = [
@@ -430,7 +418,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       <BackButton />
       <PageHeader
         buttonText={createMessage(ADD_USERS)}
-        isEditingTitle={selected.isNew}
+        isEditingTitle={selected.new}
         isTitleEditable
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}

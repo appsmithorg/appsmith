@@ -61,7 +61,7 @@ describe("<Listing />", () => {
   it("should render table with given data", () => {
     const { getAllByTestId } = render(<Listing {...userListingProps} />);
     const actual = getAllByTestId("user-listing-userCell").map(
-      (cell) => cell.textContent,
+      (cell: any) => cell.textContent,
     );
     const expected = userListingProps.data.map((user) => user.username);
     expect(actual).toEqual(expected);
@@ -80,7 +80,7 @@ describe("<Listing />", () => {
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
     const menuItems = userListingProps.listMenuItems
-      .map((item) => getAllByText(item.text))
+      .map((item: any) => getAllByText(item.text))
       .flat();
     expect(menuItems).toHaveLength(2);
     expect(menuItems[0]).toHaveTextContent(

@@ -11,12 +11,12 @@ import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { AclWrapper } from "./components";
-import { User } from "./UserListing";
 // import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
+  createGroup,
   // cloneGroup,
   deleteGroup,
   getGroupById,
@@ -26,7 +26,6 @@ import {
   ADD_GROUP,
   GROUP_DELETED,
   // GROUP_CLONED,
-  // COPY_OF_GROUP,
   // CLONE_GROUP,
   EDIT_GROUP,
   DELETE_GROUP,
@@ -34,26 +33,17 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getAclIsLoading,
+  getAclIsSaving,
   getGroups,
   getSelectedGroup,
 } from "@appsmith/selectors/aclSelectors";
+import { GroupProps } from "./types";
 
 const CellContainer = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
 `;
-
-export type UserGroup = {
-  isEditing: boolean;
-  isDeleting: boolean;
-  rolename: string;
-  id: string;
-  allRoles: string[];
-  activePermissions: string[];
-  allUsers: Partial<User>[];
-  isNew?: boolean;
-};
 
 export function GroupListing() {
   const history = useHistory();
@@ -63,11 +53,11 @@ export function GroupListing() {
   const userGroups = useSelector(getGroups);
   const selectedGroup = useSelector(getSelectedGroup);
   const isLoading = useSelector(getAclIsLoading);
+  const isSaving = useSelector(getAclIsSaving);
 
-  const [data, setData] = useState<UserGroup[]>([]);
+  const [data, setData] = useState<GroupProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedUserGroup, setSelectedUserGroup] = useState<any>({});
-  const [isNewGroup, setIsNewGroup] = useState(false);
 
   const selectedUserGroupId = params?.selected;
 
@@ -80,46 +70,28 @@ export function GroupListing() {
   }, [selectedGroup]);
 
   useEffect(() => {
-    if (isNewGroup && params?.selected) {
-      setSelectedUserGroup({
-        isEditing: false,
-        isDeleting: false,
-        rolename: "Untitled Group",
-        isNew: true,
-        id: "10109",
-        allRoles: [
-          "Administrator",
-          "App Viewer",
-          "HR_Appsmith",
-          "devops_design",
-          "devops_eng_nov",
-          "marketing_nov",
-        ],
-        activePermissions: [],
-        allUsers: [],
-      });
-    } else if (selectedUserGroupId) {
+    if (selectedUserGroupId) {
       dispatch(getGroupById({ id: selectedUserGroupId }));
-      setIsNewGroup(false);
     } else {
-      dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUP });
-      setIsNewGroup(false);
+      dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });
     }
   }, [selectedUserGroupId]);
 
   const onDeleteHandler = (id: string) => {
     dispatch(deleteGroup(id));
+    /* for jest tests */
     const updatedData = data.filter((userGroup) => {
       return userGroup.id !== id;
     });
     setData(updatedData);
+    /* for jest tests */
     Toaster.show({
       text: createMessage(GROUP_DELETED),
       variant: Variant.success,
     });
   };
 
-  /*const onCloneHandler = (selected: UserGroup) => {
+  /*const onCloneHandler = (selected: GroupProps) => {
     dispatch(cloneGroup(selected));
     Toaster.show({
       text: createMessage(GROUP_CLONED),
@@ -130,7 +102,7 @@ export function GroupListing() {
   const columns = [
     {
       Header: `Groups (${data.length})`,
-      accessor: "rolename",
+      accessor: "name",
       Cell: function GroupCell(cellProps: any) {
         return (
           <Link
@@ -143,7 +115,7 @@ export function GroupListing() {
             <CellContainer>
               <HighlightText
                 highlight={searchValue}
-                text={cellProps.cell.row.values.rolename}
+                text={cellProps.cell.row.original.name}
               />
             </CellContainer>
           </Link>
@@ -196,8 +168,11 @@ export function GroupListing() {
   ];
 
   const onAddButtonClick = () => {
-    setIsNewGroup(true);
-    history.push(`/settings/groups/10109`);
+    dispatch(
+      createGroup({
+        name: "Untitled Group",
+      }),
+    );
   };
 
   const onSearch = debounce((search: string) => {
@@ -206,7 +181,7 @@ export function GroupListing() {
       const results =
         userGroups &&
         userGroups.filter((userGroup) =>
-          userGroup.rolename?.toLocaleUpperCase().includes(search),
+          userGroup.name?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {
@@ -220,6 +195,7 @@ export function GroupListing() {
       {selectedUserGroupId && selectedUserGroup ? (
         <GroupAddEdit
           isLoading={isLoading}
+          isSaving={isSaving}
           // onClone={onCloneHandler}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}

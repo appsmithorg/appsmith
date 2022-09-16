@@ -1,11 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
-import { RoleAddEdit, RoleEditProps } from "./RoleAddEdit";
+import { RoleAddEdit } from "./RoleAddEdit";
 import { rolesTableData } from "./mocks/RolesListingMock";
 import { hashtable } from "./RolesTree";
 import userEvent from "@testing-library/user-event";
 import { response2 } from "./mocks/mockRoleTreeResponse";
+import { RoleEditProps } from "./types";
 
 let container: any = null;
 
@@ -123,15 +124,17 @@ describe("<RoleAddEdit />", () => {
   it("should render the selected role name as title", () => {
     renderComponent();
     const title = screen.queryAllByTestId("t--editatble-title");
-    expect(title[0]).toHaveTextContent(props.selected.permissionName);
+    expect(title[0]).toHaveTextContent(props.selected.name);
   });
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    const options = listMenuItems.map((menuItem) => menuItem.text);
-    const menuElements = options.map((option) => getAllByText(option)).flat();
-    options.map((option, index) => {
+    const options = listMenuItems.map((menuItem: any) => menuItem.text);
+    const menuElements = options
+      .map((option: any) => getAllByText(option))
+      .flat();
+    options.map((option: any, index: any) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
@@ -176,7 +179,7 @@ describe("<RoleAddEdit />", () => {
     await userEvent.type(searchInput[0], "put");
     expect(searchInput[0]).toHaveValue("put");
 
-    const searchResultsCounts = searchResultsMock.map((result) =>
+    const searchResultsCounts = searchResultsMock.map((result: any) =>
       result.count.toString(),
     );
 
@@ -187,7 +190,7 @@ describe("<RoleAddEdit />", () => {
       expect(highlighted).toHaveLength(searchResultsMock[0].count);
       const tabCount = screen.queryAllByTestId("t--tab-count");
       expect(tabCount).toHaveLength(response2.length);
-      expect(tabCount.map((tab) => tab.textContent)).toEqual(
+      expect(tabCount.map((tab: any) => tab.textContent)).toEqual(
         searchResultsCounts,
       );
     });
@@ -219,7 +222,7 @@ describe("<RoleAddEdit />", () => {
     const inputs = rows[1].getElementsByTagName("input");
     const data = response2[0].data[0].permission;
     const noCheckboxCount = response2[0].data[0].permission.filter(
-      (p) => p === 0,
+      (p: any) => p === 0,
     );
     expect(inputs.length).toEqual(data.length - noCheckboxCount.length);
     for (let i = 0; i < td.length; i++) {
@@ -243,7 +246,7 @@ describe("<RoleAddEdit />", () => {
     const hoverCheckboxEl = screen.getAllByTestId(elId);
     userEvent.hover(hoverCheckboxEl[0]);
     const hoverEls: any[] = [];
-    hashtable[elId].map((item) => {
+    hashtable[elId].map((item: any) => {
       hoverEls.push(
         ...screen.queryAllByTestId(item.id + "-" + item.permission),
       );
@@ -254,7 +257,7 @@ describe("<RoleAddEdit />", () => {
 
   // it("should update data on clicking a checkbox as expected", async () => {});
   // it("should save data on save button click", async () => {});
-  /*it("should clone the group when clone menu item is clicked", async () => {
+  /*it("should clone the role when clone menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
@@ -263,10 +266,10 @@ describe("<RoleAddEdit />", () => {
     await waitFor(
       () => {
         expect(window.location.pathname).toEqual("/settings/roles");
-        const clonedGroup = screen.queryByText(
-          `Copy of ${props.selected.permissionName}`,
+        const clonedRole = screen.queryByText(
+          `Copy of ${props.selected.name}`,
         );
-        return expect(clonedGroup).toBeTruthy();
+        return expect(clonedRole).toBeTruthy();
       },
       { timeout: 1000 },
     );
@@ -298,7 +301,7 @@ describe("<RoleAddEdit />", () => {
     await waitFor(
       () => {
         expect(window.location.pathname).toEqual("/settings/roles");
-        const deletedGroup = screen.queryByText(props.selected.permissionName);
+        const deletedGroup = screen.queryByText(props.selected.name);
         return expect(deletedGroup).toBeFalsy();
       },
       { timeout: 1000 },

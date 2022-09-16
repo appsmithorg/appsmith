@@ -1,4 +1,8 @@
-import AclApi, { FetchSingleDataPayload } from "@appsmith/api/AclApi";
+import AclApi, {
+  CreateGroupResponse,
+  CreateRoleResponse,
+  FetchSingleDataPayload,
+} from "@appsmith/api/AclApi";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -8,6 +12,8 @@ import { validateResponse } from "sagas/ErrorSagas";
 
 import { ApiResponse } from "api/ApiResponses";
 import { User } from "constants/userConstants";
+import { RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
+import history from "utils/history";
 
 export function* fetchAclUsersSaga() {
   try {
@@ -83,22 +89,22 @@ export function* fetchAclUserSagaById(
 
 export function* fetchAclGroupsSaga() {
   try {
-    const response: ApiResponse = yield call(AclApi.fetAclGroups);
+    const response: ApiResponse = yield call(AclApi.fetchAclGroups);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_GROUP_SUCCESS,
+        type: ReduxActionTypes.FETCH_ACL_GROUPS_SUCCESS,
         payload: response.data,
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_GROUP_ERROR,
+        type: ReduxActionTypes.FETCH_ACL_GROUPS_ERROR,
       });
     }
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_GROUP_ERROR,
+      type: ReduxActionTypes.FETCH_ACL_GROUPS_ERROR,
     });
   }
 }
@@ -129,6 +135,36 @@ export function* fetchAclGroupSagaById(
   }
 }
 
+export function* createAclGroupSaga(action: ReduxAction<any>) {
+  try {
+    const response: CreateGroupResponse = yield AclApi.createAclGroup(
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CREATE_ACL_GROUP_SUCCESS,
+        payload: response.data,
+      });
+      const role: RoleProps = {
+        ...response.data,
+        id: response.data.id,
+        name: response.data.name,
+      };
+      history.push(`/settings/groups/${role.id}`);
+    } else {
+      yield put({
+        type: ReduxActionTypes.CREATE_ACL_GROUP_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.CREATE_ACL_GROUP_ERROR,
+    });
+  }
+}
+
 export function* deleteAclGroupSaga(action: ReduxAction<any>) {
   try {
     const response: ApiResponse = yield AclApi.deleteAclGroup(action.payload);
@@ -152,7 +188,7 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
   }
 }
 
-export function* cloneGroupSaga(action: ReduxAction<any>) {
+/*export function* cloneGroupSaga(action: ReduxAction<any>) {
   try {
     const response: ApiResponse = yield AclApi.cloneAclGroup(action.payload);
 
@@ -173,6 +209,29 @@ export function* cloneGroupSaga(action: ReduxAction<any>) {
       type: ReduxActionTypes.CLONE_ACL_GROUP_ERROR,
     });
   }
+}*/
+
+export function* updateGroupSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.updateAclGroup(action.payload);
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_GROUP_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_GROUP_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.UPDATE_ACL_GROUP_ERROR,
+    });
+  }
 }
 
 export function* fetchAclRolesSaga() {
@@ -182,17 +241,17 @@ export function* fetchAclRolesSaga() {
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_ROLE_SUCCESS,
+        type: ReduxActionTypes.FETCH_ACL_ROLES_SUCCESS,
         payload: response.data,
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_ROLE_ERROR,
+        type: ReduxActionTypes.FETCH_ACL_ROLES_ERROR,
       });
     }
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_ROLE_ERROR,
+      type: ReduxActionTypes.FETCH_ACL_ROLES_ERROR,
     });
   }
 }
@@ -218,6 +277,36 @@ export function* fetchAclRoleSagaById(
   } catch (e) {
     yield put({
       type: ReduxActionTypes.FETCH_ACL_ROLE_BY_ID_ERROR,
+    });
+  }
+}
+
+export function* createAclRoleSaga(action: ReduxAction<any>) {
+  try {
+    const response: CreateRoleResponse = yield AclApi.createAclRole(
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CREATE_ACL_ROLE_SUCCESS,
+        payload: response.data,
+      });
+      const role: RoleProps = {
+        ...response.data,
+        id: response.data.id,
+        name: response.data.name,
+      };
+      history.push(`/settings/roles/${role.id}`);
+    } else {
+      yield put({
+        type: ReduxActionTypes.CREATE_ACL_ROLE_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.CREATE_ACL_ROLE_ERROR,
     });
   }
 }
@@ -274,27 +363,19 @@ export function* InitAclSaga(action: ReduxAction<User>) {
     yield all([
       takeLatest(ReduxActionTypes.FETCH_ACL_USERS, fetchAclUsersSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserSagaById),
-      takeLatest(ReduxActionTypes.FETCH_ACL_GROUP, fetchAclGroupsSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
-      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE, fetchAclRolesSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
       // takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
-      // takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
-      // takeLatest(
-      //   ReduxActionTypes.CREATE_ACL_ROLE,
-      //   createAclRoleSaga,
-      // ),
-      // takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
-      // takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
-      // takeLatest(
-      //   ReduxActionTypes.CREATE_ACL_ROLE,
-      //   createAclRoleSaga,
-      // ),
+      takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
+      takeLatest(ReduxActionTypes.CREATE_ACL_ROLE, createAclRoleSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
-      takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
+      // takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
       takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP, updateGroupSaga),
     ]);
   }
 }

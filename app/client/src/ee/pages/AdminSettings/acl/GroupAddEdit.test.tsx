@@ -1,9 +1,10 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
-import { GroupAddEdit, GroupEditProps } from "./GroupAddEdit";
+import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import userEvent from "@testing-library/user-event";
+import { GroupEditProps } from "./types";
 
 let container: any = null;
 
@@ -35,6 +36,7 @@ const props: GroupEditProps = {
   // onClone: jest.fn(),
   onDelete: jest.fn(),
   isLoading: false,
+  isSaving: false,
 };
 
 function renderComponent() {
@@ -54,7 +56,7 @@ describe("<GroupAddEdit />", () => {
   it("should render the selected group name as title", () => {
     renderComponent();
     const title = screen.queryAllByTestId("t--editatble-title");
-    expect(title[0]).toHaveTextContent(props.selected.rolename);
+    expect(title[0]).toHaveTextContent(props.selected.name);
   });
   it("should show empty state when there are no users", async () => {
     renderComponent();
@@ -78,6 +80,7 @@ describe("<GroupAddEdit />", () => {
       // onClone: jest.fn(),
       onDelete: jest.fn(),
       isLoading: false,
+      isSaving: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
@@ -90,7 +93,7 @@ describe("<GroupAddEdit />", () => {
     const tabCount = screen.queryAllByTestId("t--tab-count");
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
-      userGroupTableData[1].allUsers.length.toString(),
+      userGroupTableData[1].users.length.toString(),
       userGroupTableData[1].activePermissions.length.toString(),
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
@@ -120,6 +123,7 @@ describe("<GroupAddEdit />", () => {
       // onClone: jest.fn(),
       onDelete: jest.fn(),
       isLoading: false,
+      isSaving: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
@@ -132,7 +136,7 @@ describe("<GroupAddEdit />", () => {
     const tabCount = screen.queryAllByTestId("t--tab-count");
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
-      userGroupTableData[1].allUsers.length.toString(),
+      userGroupTableData[1].users.length.toString(),
       userGroupTableData[1].activePermissions.length.toString(),
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
@@ -190,7 +194,7 @@ describe("<GroupAddEdit />", () => {
       () => {
         expect(window.location.pathname).toEqual("/settings/groups");
         const clonedGroup = screen.queryByText(
-          `Copy of ${props.selected.rolename}`,
+          `Copy of ${props.selected.name}`,
         );
         return expect(clonedGroup).toBeTruthy();
       },
@@ -224,7 +228,7 @@ describe("<GroupAddEdit />", () => {
     await waitFor(
       () => {
         expect(window.location.pathname).toEqual("/settings/groups");
-        const deletedGroup = screen.queryByText(props.selected.rolename);
+        const deletedGroup = screen.queryByText(props.selected.name);
         return expect(deletedGroup).toBeFalsy();
       },
       { timeout: 1000 },
