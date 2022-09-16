@@ -10,7 +10,7 @@ export const CONFIG = {
   needsMeta: true,
   iconSVG: IconSVG,
   defaults: {
-    min: 1,
+    min: 0,
     max: 100,
     minRange: 5,
     step: 1,
