@@ -30,17 +30,12 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import StoreAsDatasource, {
-  DatasourceIcon,
-} from "components/editorComponents/StoreAsDatasource";
+import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system";
 import { Text, FontWeight, TextType } from "design-system";
-import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
-import { getQueryParams } from "utils/URLUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
@@ -57,14 +52,12 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
-import { datasourcesEditorIdURL } from "RouteBuilder";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
 
 type ReduxStateProps = {
   workspaceId: string;
   datasource: Datasource | EmbeddedRestDatasource;
   datasourceList: Datasource[];
-  currentPageId?: string;
   applicationId?: string;
   dataTree: DataTree;
   actionName: string;
@@ -97,6 +90,10 @@ const DatasourceContainer = styled.div`
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
     }
+  }
+
+  .t--store-as-datasource {
+    margin-left: 10px;
   }
 `;
 
@@ -504,26 +501,15 @@ class EmbeddedDatasourcePathComponent extends React.Component<
             </Text>
           </CustomToolTip>
         )}
-        {displayValue && datasource && !("id" in datasource) ? (
-          <StoreAsDatasource enable={!!displayValue} />
-        ) : datasource && "id" in datasource ? (
-          <DatasourceIcon
+        {displayValue && (
+          <StoreAsDatasource
+            datasourceId={
+              datasource && "id" in datasource ? datasource.id : undefined
+            }
             enable
-            onClick={() => {
-              this.props.setDatasourceEditorMode(datasource.id, false);
-              history.push(
-                datasourcesEditorIdURL({
-                  pageId: this.props.currentPageId ?? "",
-                  datasourceId: datasource.id,
-                  params: getQueryParams(),
-                }),
-              );
-            }}
-          >
-            <Icon name="edit-line" size={IconSize.XXL} />
-            <Text type={TextType.P1}>Edit Datasource</Text>
-          </DatasourceIcon>
-        ) : null}
+            shouldSave={datasource && !("id" in datasource)}
+          />
+        )}
       </DatasourceContainer>
     );
   }
@@ -555,7 +541,6 @@ const mapStateToProps = (
     workspaceId: state.ui.workspaces.currentWorkspace.id,
     datasource: datasourceMerged,
     datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),
-    currentPageId: state.entities.pageList.currentPageId,
     applicationId: getCurrentApplicationId(state),
     dataTree: getDataTree(state),
     actionName: ownProps.actionName,
