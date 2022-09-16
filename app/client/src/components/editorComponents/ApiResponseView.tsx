@@ -569,6 +569,7 @@ function ApiResponseView(props: Props) {
                 <Text type={TextType.P3}>Status: </Text>
                 <StatusCodeText
                   accent="secondary"
+                  className="t--response-status-code"
                   code={response.statusCode.toString()}
                 >
                   {response.statusCode}
