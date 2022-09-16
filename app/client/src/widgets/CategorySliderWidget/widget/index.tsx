@@ -431,13 +431,15 @@ class CategorySliderWidget extends BaseWidget<
       (option) => option.value === sliderValue,
     )?.optionValue;
 
-    this.props.updateWidgetMetaProperty("value", selectedValue, {
-      triggerPropertyName: "onChange",
-      dynamicString: this.props.onChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
+    if (this.props.value !== selectedValue) {
+      this.props.updateWidgetMetaProperty("value", selectedValue, {
+        triggerPropertyName: "onChange",
+        dynamicString: this.props.onChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
 
     // Set isDirty to true when we change slider value
     if (!this.props.isDirty) {

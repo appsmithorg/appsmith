@@ -464,13 +464,15 @@ class NumberSliderWidget extends BaseWidget<
   }
 
   onChangeEnd = (value: number) => {
-    this.props.updateWidgetMetaProperty("value", value, {
-      triggerPropertyName: "onChange",
-      dynamicString: this.props.onChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
+    if (this.props.value !== value) {
+      this.props.updateWidgetMetaProperty("value", value, {
+        triggerPropertyName: "onChange",
+        dynamicString: this.props.onChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
 
     // Set isDirty to true when we change slider value
     if (!this.props.isDirty) {
