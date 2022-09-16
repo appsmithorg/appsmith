@@ -18,11 +18,12 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
@@ -63,6 +64,7 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import com.google.gson.Gson;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -88,9 +90,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -114,6 +117,7 @@ import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
+import static com.appsmith.server.migrations.DatabaseChangelog.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -2376,4 +2380,217 @@ public class DatabaseChangelog2 {
         return mongockTemplate.save(user);
     }
 
+    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
+    public void updateBadThemeState(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator,
+                                    CacheableRepositoryHelper cacheableRepositoryHelper) {
+        Query query = new Query();
+        query.addCriteria(
+                new Criteria().andOperator(
+                        new Criteria(fieldName(QTheme.theme.isSystemTheme)).is(false),
+                        new Criteria(fieldName(QTheme.theme.deleted)).is(false)
+                )
+        );
+
+        mongockTemplate.stream(query, Theme.class)
+                .stream()
+                .forEach(theme -> {
+                    Query applicationQuery = new Query();
+                    Criteria themeCriteria = new Criteria(fieldName(QApplication.application.editModeThemeId)).is(theme.getId())
+                            .orOperator(new Criteria(fieldName(QApplication.application.publishedModeThemeId)).is(theme.getId()));
+
+                    List<Application> applications = mongockTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
+                    // This is an erroneous state where the theme is being used by multiple applications
+                    if (applications != null && applications.size() > 1) {
+                        // Create new themes for the rest of the applications which are copies of the original theme
+                        for (int i = 0; i < applications.size(); i++) {
+                            Application application = applications.get(i);
+                            Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+
+                            if (i == 0) {
+                                // Don't create a new theme for the first application
+                                // Just update the policies
+                                theme.setPolicies(themePolicies);
+                                mongockTemplate.save(theme);
+                            } else {
+
+                                Theme newTheme = new Theme();
+                                newTheme.setSystemTheme(false);
+                                newTheme.setName(theme.getName());
+                                newTheme.setDisplayName(theme.getDisplayName());
+                                newTheme.setConfig(theme.getConfig());
+                                newTheme.setStylesheet(theme.getStylesheet());
+                                newTheme.setProperties(theme.getProperties());
+                                newTheme.setCreatedAt(Instant.now());
+                                newTheme.setUpdatedAt(Instant.now());
+                                newTheme.setPolicies(themePolicies);
+
+                                newTheme = mongockTemplate.save(newTheme);
+
+                                if (application.getEditModeThemeId().equals(theme.getId())) {
+                                    application.setEditModeThemeId(newTheme.getId());
+                                }
+                                if (application.getPublishedModeThemeId().equals(theme.getId())) {
+                                    application.setPublishedModeThemeId(newTheme.getId());
+                                }
+                                mongockTemplate.save(application);
+                            }
+                        }
+                    }
+                });
+    }
+
+    @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
+    public void migratePublicAppsSinglePg(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
+
+        Query anonymousUserPermissionConfig = new Query();
+        anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        Config publicPermissionGroupConfig = mongockTemplate.findOne(anonymousUserPermissionConfig, Config.class);
+
+        String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
+
+        ConcurrentHashMap<String, Boolean> oldPermissionGroupMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap.KeySetView<Object, Boolean> oldPgIds = oldPermissionGroupMap.newKeySet();
+        // Find all public apps
+        Query publicAppQuery = new Query();
+        publicAppQuery.addCriteria(where(fieldName(QApplication.application.defaultPermissionGroup)).exists(true));
+
+        org.springframework.data.util.StreamUtils.createStreamFromIterator(mongockTemplate.stream(publicAppQuery, Application.class))
+                .parallel()
+                .forEach(application -> {
+                    String oldPermissionGroupId = application.getDefaultPermissionGroup();
+                    // Store the existing permission group providing view access to the app for cleanup
+                    oldPgIds.add(oldPermissionGroupId);
+                    application.setDefaultPermissionGroup(null);
+
+                    // Update the application policies to use the public permission group
+                    application.getPolicies()
+                            .stream()
+                            .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
+                            .forEach(policy -> {
+                                policy.getPermissionGroups().remove(oldPermissionGroupId);
+                                policy.getPermissionGroups().add(permissionGroupId);
+                            });
+                    mongockTemplate.save(application);
+
+                    Set<String> datasourceIds = new HashSet<>();
+                    Query applicationActionsQuery = new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId()));
+                    // Only fetch the datasources that are used in the action
+                    applicationActionsQuery.fields()
+                            .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource))
+                            .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.datasource));
+
+                    mongockTemplate.stream(applicationActionsQuery, NewAction.class)
+                            .stream()
+                            .forEach(newAction -> {
+                                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                                ActionDTO publishedAction = newAction.getPublishedAction();
+
+                                if (unpublishedAction.getDatasource() != null &&
+                                        unpublishedAction.getDatasource().getId() != null) {
+                                    datasourceIds.add(unpublishedAction.getDatasource().getId());
+                                }
+
+                                if (publishedAction != null &&
+                                        publishedAction.getDatasource() != null &&
+                                        publishedAction.getDatasource().getId() != null) {
+                                    datasourceIds.add(publishedAction.getDatasource().getId());
+                                }
+                            });
+
+                    // Update datasources
+                    Query datasourceQuery = new Query().addCriteria(where(fieldName(QDatasource.datasource.id)).in(datasourceIds));
+                    mongockTemplate.stream(datasourceQuery, Datasource.class)
+                            .stream()
+                            .parallel()
+                            .forEach(datasource -> {
+                                // Update the datasource policies.
+                                datasource.getPolicies()
+                                        .stream()
+                                        .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
+                                        .forEach(policy -> {
+                                            policy.getPermissionGroups().remove(oldPermissionGroupId);
+                                            policy.getPermissionGroups().add(permissionGroupId);
+                                        });
+                                mongockTemplate.save(datasource);
+                            });
+
+                    // Update pages
+                    Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).is(application.getId())),
+                            new Update().set(fieldName(QNewPage.newPage.policies), pagePolicies),
+                            NewPage.class);
+
+                    // Update actions
+                    Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
+                            new Update().set(fieldName(QNewAction.newAction.policies), actionPolicies),
+                            NewAction.class);
+
+                    // Update js objects
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).is(application.getId())),
+                            new Update().set(fieldName(QActionCollection.actionCollection.policies), actionPolicies),
+                            ActionCollection.class);
+
+                    // Update application themes
+                    Criteria nonSystemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(false);
+                    Criteria idCriteria = Criteria.where(fieldName(QTheme.theme.id)).in(
+                            application.getEditModeThemeId(),
+                            application.getPublishedModeThemeId()
+                    );
+                    Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
+                    Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(queryCriteria),
+                            new Update().set(fieldName(QTheme.theme.policies), themePolicies),
+                            Theme.class);
+                });
+        // All the applications have been migrated.
+
+        // Clean up all the permission groups which were created to provide views to public apps
+        mongockTemplate.findAllAndRemove(new Query().addCriteria(Criteria.where(fieldName(QPermissionGroup.permissionGroup.id)).in(oldPgIds)), PermissionGroup.class);
+
+        // Finally evict the anonymous user cache entry so that it gets recomputed on next use.
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query userQuery = new Query();
+        userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+        User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
+        evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongockTemplate, cacheableRepositoryHelper);
+    }
+
+    @ChangeSet(order = "036", id = "add-graphql-plugin", author = "")
+    public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Authenticated GraphQL API");
+        plugin.setType(PluginType.API);
+        plugin.setPackageName("graphql-plugin");
+        plugin.setUiComponent("GraphQLEditorForm");
+        plugin.setDatasourceComponent("RestAPIDatasourceForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/graphql.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-graphql-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
+
+    /**
+     * This method attempts to add GraphQL plugin to all workspaces once again since the last migration was
+     * interrupted due to issues on prod cluster. Hence, during the last migration the plugin could not be installed in
+     * few workspaces.The method installPluginToAllWorkspaces only installs the plugin in those workspaces where it is
+     * missing.
+     */
+    @ChangeSet(order = "037", id = "install-graphql-plugin-to-remaining-workspaces", author = "")
+    public void reInstallGraphQLPluginToWorkspaces(MongockTemplate mongoTemplate) {
+        Plugin graphQLPlugin = mongoTemplate
+                .findOne(query(where("packageName").is("graphql-plugin")), Plugin.class);
+        installPluginToAllWorkspaces(mongoTemplate, graphQLPlugin.getId());
+    }
 }

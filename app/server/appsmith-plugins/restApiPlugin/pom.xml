@@ -46,6 +46,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
+            <scope>provided</scope>
             <version>5.3.20</version>
             <exclusions>
                 <exclusion>
@@ -133,11 +134,6 @@
             <artifactId>spring-test</artifactId>
             <version>5.3.20</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor.netty</groupId>
-            <artifactId>reactor-netty-http</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

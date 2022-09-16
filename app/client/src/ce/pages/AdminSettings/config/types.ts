@@ -51,7 +51,7 @@ export interface Setting {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
-  calloutType?: "Info" | "Warning";
+  calloutType?: "Info" | "Warning" | "Notify";
   advanced?: Setting[];
   isRequired?: boolean;
   formName?: string;

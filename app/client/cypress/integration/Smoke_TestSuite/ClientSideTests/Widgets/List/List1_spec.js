@@ -104,21 +104,18 @@ describe("Binding the list widget with text widget", function() {
   it("4. Validate delete widget action from side bar", function() {
     cy.openPropertyPane("listwidget");
     cy.verifyUpdatedWidgetName("Test");
-    cy.get(commonlocators.editWidgetName)
-      .click({ force: true })
-      .type("#$%1234", { delay: 300 })
-      .type("{enter}");
-    cy.wait(500);
-    cy.get(".t--widget-name").contains("___1234");
-    cy.verifyUpdatedWidgetName("12345");
+    cy.verifyUpdatedWidgetName("#$%1234", "___1234");
+    cy.verifyUpdatedWidgetName("56789");
     cy.get(".t--delete-widget").click({ force: true });
     cy.get(".t--toast-action span")
       .eq(0)
-      .contains("12345 is removed");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+      .contains("56789 is removed");
+    // cy.wait("@updateLayout").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+    cy.reload();
+    cy.wait(2000);
   });
 });

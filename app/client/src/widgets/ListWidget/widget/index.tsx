@@ -11,7 +11,6 @@ import {
   isBoolean,
   omit,
   isEmpty,
-  isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
@@ -285,7 +284,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     // Update privateWidget field if there is a change in the List widget children
-    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
+    if (!equal(currentListWidgetChildren, previousListWidgetChildren)) {
       this.addPrivateWidgetsForChildren(this.props);
     }
   }

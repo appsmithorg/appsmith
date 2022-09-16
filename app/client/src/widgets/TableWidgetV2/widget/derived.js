@@ -421,6 +421,12 @@ export default {
       isBefore: (a, b) => {
         return moment(a).isBefore(moment(b), "minute");
       },
+      isChecked: (a) => {
+        return a === true;
+      },
+      isUnChecked: (a) => {
+        return a === false;
+      },
     };
     let searchKey;
 
@@ -567,6 +573,108 @@ export default {
     } else {
       return [];
     }
+  },
+  //
+  getPageOffset: (props, moment, _) => {
+    const pageSize =
+      props.serverSidePaginationEnabled && props.tableData
+        ? props.tableData?.length
+        : props.pageSize;
+
+    if (
+      Number.isFinite(props.pageNo) &&
+      Number.isFinite(pageSize) &&
+      props.pageNo >= 0 &&
+      pageSize >= 0
+    ) {
+      /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
+      return Math.max(props.pageNo - 1, 0) * pageSize;
+    }
+    return 0;
+  },
+  //
+  getEditableCellValidity: (props, moment, _) => {
+    if (!props.editableCell.column || !props.primaryColumns) {
+      return true;
+    }
+
+    const createRegex = (regex) => {
+      if (!regex) {
+        return new RegExp("//");
+      }
+
+      /*
+       * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
+       * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
+       */
+      const regexParts = regex.match(/(\/?)(.+)\\1([a-z]*)/i);
+      let parsedRegex;
+
+      if (!regexParts) {
+        parsedRegex = new RegExp(regex);
+      } else {
+        /*
+         * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
+         */
+        if (
+          regexParts[3] &&
+          !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])
+        ) {
+          parsedRegex = RegExp(regex);
+        } else {
+          /*
+           * if we have a regex flags, use it to form regexp
+           */
+          parsedRegex = new RegExp(regexParts[2], regexParts[3]);
+        }
+      }
+
+      return parsedRegex;
+    };
+
+    const editedColumn = Object.values(props.primaryColumns).find(
+      (column) => column.alias === props.editableCell.column,
+    );
+    const value = props.editableCell.value;
+
+    if (editedColumn && editedColumn.validation) {
+      const validation = editedColumn.validation;
+
+      /* General validations */
+      if (!validation.isColumnEditableCellRequired && value === "") {
+        return true;
+      } else if (
+        (!_.isNil(validation.isColumnEditableCellValid) &&
+          !validation.isColumnEditableCellValid) ||
+        (validation.regex && !createRegex(validation.regex).test(value)) ||
+        (validation.isColumnEditableCellRequired && value === "")
+      ) {
+        return false;
+      }
+
+      /* Column type related validations */
+      switch (editedColumn.columnType) {
+        case "number":
+          if (
+            !_.isNil(validation.min) &&
+            validation.min !== "" &&
+            validation.min > value
+          ) {
+            return false;
+          }
+
+          if (
+            !_.isNil(validation.max) &&
+            validation.max !== "" &&
+            validation.max < value
+          ) {
+            return false;
+          }
+          break;
+      }
+    }
+
+    return true;
   },
   //
 };

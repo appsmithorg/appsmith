@@ -43,6 +43,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.editColumn("id");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
+    cy.moveToStyleTab();
     // Click on cell background JS button
     cy.get(widgetsPage.toggleJsBcgColor)
       .first()

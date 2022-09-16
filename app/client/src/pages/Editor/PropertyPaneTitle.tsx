@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
   EditInteractionKind,
@@ -27,7 +27,6 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -48,7 +47,6 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   props: PropertyPaneTitleProps,
 ) {
   const dispatch = useDispatch();
-  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const updating = useSelector(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
@@ -67,7 +65,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
-  const widgets = useSelector(getExistingWidgetNames, isEqual);
+  const widgets = useSelector(getExistingWidgetNames, equal);
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
   const valueRef = useRef("");
@@ -138,7 +136,8 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       )
         setTimeout(
           () => {
-            if (featureFlags.PROPERTY_PANE_GROUPING) {
+            if (false) {
+              // TODO(aswathkk): Fix #15970 and focus on search bar
               document
                 .querySelector(".propertyPaneSearch input")
                 // @ts-expect-error: Focus
@@ -200,7 +199,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   return props.widgetId || props.isPanelTitle ? (
     <div
-      className="flex items-center w-full p-3 space-x-1 fixed bg-white z-3"
+      className="flex items-center w-full px-4 py-3 space-x-1 fixed bg-white z-3"
       ref={eventEmitterRef}
     >
       {/* BACK BUTTON */}

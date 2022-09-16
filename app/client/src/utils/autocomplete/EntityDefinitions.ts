@@ -155,6 +155,7 @@ export const entityDefinitions = {
     updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
+    pageOffset: generateTypeDef(widget.pageOffset),
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -646,6 +647,13 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/reference/widgets/document-viewer",
     isVisible: isVisible,
     docUrl: "string",
+  },
+  CODE_SCANNER_WIDGET: {
+    "!doc": "Scan a Code",
+    "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    value: "string",
   },
 };
 

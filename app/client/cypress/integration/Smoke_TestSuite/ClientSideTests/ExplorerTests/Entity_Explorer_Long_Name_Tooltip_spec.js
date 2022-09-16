@@ -11,7 +11,7 @@ describe("Entity Explorer showing tooltips on long names", function() {
     // create an API with a short name
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(shortName);
-    ee.ExpandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("Queries/JS", true);
     // assert that a tooltip does not show up during hover
     cy.get(`.t--entity-item:contains(${shortName})`).realHover();
     cy.get(".bp3-tooltip > .bp3-popover-content").should("not.exist");

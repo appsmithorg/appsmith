@@ -27,8 +27,8 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SKIP;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter

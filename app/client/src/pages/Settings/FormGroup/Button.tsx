@@ -1,4 +1,4 @@
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import React from "react";
 import { Button, Category } from "design-system";
 import { useDispatch } from "react-redux";
