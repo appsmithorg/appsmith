@@ -3813,27 +3813,21 @@ const originalDSL = {
 };
 
 /**
- * migrationList is an array of objects, were each object has
+ * Migrations is an array of objects, were each object has
  * - moduleObj: A namespace import that includes all the exported function present in the module. Refer to line 3.
- * - funcName: Name of the migration function to spyOn
- * - version: The next version of the DSL
+ * - functionName: Name of the migration function to spyOn
+ * - version: The DSL version in which the function is executing
  * 
- * migrationList will be used to construct mockFnObj object where mockFnObj's key is the funcName and value is a jest mock function.
+ * Migrations will be used to construct mockFnObj object where mockFnObj's key is the version and value is an array of jest mock functions.
  * 
  * NOTE: 
- * - In migrationList the sequence of object should exactly match the sequence that is present in the transformDSL function.
- * - The nextVersion is the new version of the DSL when the migration function is completed. 
+ * - In Migrations the sequence of object should exactly match the sequence that is present in the transformDSL function.
  * 
- * For example, 
- * {
-    moduleObj: DSLMigrations,
-    funcName: "canvasNameConflictMigration",
-    version: 8,
-  }
+
  * - Whenever the canvasNameConflictMigration is executed then the updated DSL version is the nextVersion
- * - For cases were migration is skipped, we won't include them in migrationList. 
- *   Simply add the object with funcName and nextVersion being the updated version of skipped migration. 
- *   Refer to the addPrivateWidgetsToAllListWidgets object inside migrationList
+ * - For cases were migration is skipped, we include them in Migrations. 
+ *   Simply add the object with functionName and version being the updated version of skipped migration. 
+ *   Refer to the skippedMigration50 object inside Migrations
  */
 const migrations: Migration[] = [
   {
@@ -4468,12 +4462,20 @@ describe("Test all the migrations are running", () => {
               );
             });
 
-            test(`Does ${functionName} executes with DSL version: ${version}?`, () => {
-              // Check if the migration function is called with the current DSL version
-              calls.forEach((args: any) => {
+            // Check if the migration function is called with the current DSL version
+            calls.forEach((args: any) => {
+              console.log(Object.keys(mockFnObj), args[0]?.version.toString());
+              test(`Does ${functionName} executes with DSL version: ${version}?`, () => {
                 if (args[0]?.version === version) {
                   expect(args[0]?.version).toEqual(version);
                 }
+              });
+              test(`For ${functionName}, is the ${args[0]?.version} registerd in tests?`, () => {
+                expect(
+                  Object.keys(mockFnObj).includes(
+                    args[0]?.version.toString() ?? "0",
+                  ),
+                ).toBe(true);
               });
             });
           });
