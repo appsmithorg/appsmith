@@ -21,7 +21,6 @@ export const CONFIG = {
     defaultOptionValue: "md",
     isVisible: true,
     isDisabled: false,
-    tooltipAlwaysOn: false,
     showMarksLabel: false,
     rows: 8,
     columns: 42,

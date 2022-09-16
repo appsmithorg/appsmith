@@ -216,16 +216,6 @@ class CategorySliderWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          {
-            propertyName: "tooltipAlwaysOn",
-            helpText: "Keep showing the tooltip with value",
-            label: "Tooltip Always On",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
         ],
       },
       {
@@ -478,7 +468,7 @@ class CategorySliderWidget extends BaseWidget<
         }
         sliderValue={sliderValue || stepSize}
         step={stepSize}
-        tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}
+        tooltipAlwaysOn={false}
       />
     );
   }
