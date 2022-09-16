@@ -2580,4 +2580,17 @@ public class DatabaseChangelog2 {
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
+
+    /**
+     * This method attempts to add GraphQL plugin to all workspaces once again since the last migration was
+     * interrupted due to issues on prod cluster. Hence, during the last migration the plugin could not be installed in
+     * few workspaces.The method installPluginToAllWorkspaces only installs the plugin in those workspaces where it is
+     * missing.
+     */
+    @ChangeSet(order = "037", id = "install-graphql-plugin-to-remaining-workspaces", author = "")
+    public void reInstallGraphQLPluginToWorkspaces(MongockTemplate mongoTemplate) {
+        Plugin graphQLPlugin = mongoTemplate
+                .findOne(query(where("packageName").is("graphql-plugin")), Plugin.class);
+        installPluginToAllWorkspaces(mongoTemplate, graphQLPlugin.getId());
+    }
 }
