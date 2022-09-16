@@ -6,7 +6,11 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 import jsActions from "../../../../locators/jsActionLocators.json";
+import { Entity } from "draft-js";
 const jsEditor = ObjectsRegistry.JSEditor;
+const ee = ObjectsRegistry.EntityExplorer;
+const explorer = require("../../../../locators/explorerlocators.json");
+const agHelper = ObjectsRegistry.AggregateHelper;
 const pageid = "MyPage";
 let queryName;
 
@@ -23,11 +27,11 @@ Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 describe("Cyclic Dependency Informational Error Messagaes", function() {
   before(() => {
     cy.addDsl(dsl);
-    cy.wait(5000); //dsl to settle!
+    cy.wait(3000); //dsl to settle! 
   });
 
-  // Step 1: simulate cyclic depedency
-  it("Create Users Sample DB & Sample DB Query", () => {
+
+  it("1. Create Users Sample DB & Sample DB Query", () => {
     //Step1
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
@@ -49,16 +53,16 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
       queryName = "query" + uid;
       //Step5.2: Click the editing field
       cy.get(queryLocators.queryNameField).type(queryName);
-  
+
       // switching off Use Prepared Statement toggle
       cy.get(queryLocators.switch)
         .last()
         .click({ force: true });
-  
+
       //Step 6.1: Click on Write query area
       cy.get(queryLocators.templateMenu).click();
       cy.get(queryLocators.query).click({ force: true });
-  
+
       // Step6.2: writing query to get the schema
       cy.get(".CodeMirror textarea")
         .first()
@@ -72,7 +76,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
   });
 
   // Step 1: simulate cyclic depedency
-  it("Create Input Widget & Bind Input Widget Default text to Query Created", () => {
+  it("2. Create Input Widget & Bind Input Widget Default text to Query Created", () => {
     cy.get(widgetsPage.widgetSwitchId).click();
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type("{{" + queryName + ".data[0].gender");
@@ -80,8 +84,10 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     cy.assertPageSave();
   });
 
-  // Case 1: On page load actions
-  it("Reload Page and it should provide errors in response", () => {
+ 
+
+  //Case 1: On page load actions
+  it ("3. Reload Page and it should provide errors in response", () => {
     cy.get(widgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("inputwidgetv2");
@@ -92,7 +98,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     );
   });
 
-  it ("update input widget's placeholder property and check errors array", () => {
+  it ("4. update input widget's placeholder property and check errors array", () => {
     // Case 2: When updating DSL attribute
     cy.get(widgetsPage.placeholder).type("cyclic placeholder");
     cy.wait("@updateLayout").should(
@@ -102,7 +108,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     );
   });
 
-  it("Add JSObject and update its name, content and check for errors", () => {
+  it("5. Add JSObject and update its name, content and check for errors", () => {
     // Case 3: When updating JS Object name
     cy.createJSObject('return "Success";');
     cy.get(jsActions.name).click({ force: true });
@@ -132,14 +138,30 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
   });
 
   // Case 5: When updating DSL name
-  it("Update Widget Name and check for errors", () => {
+  it("6. Update Widget Name and check for errors", () => {
+
+    let entityName = "gender";
+    let newEntityName = "newInput";
+    cy.get(ee._entityExplorer).click();
+    cy.get("#switcher--explorer").click();
+    cy.wait(3000);
+    ee.ExpandCollapseEntity("Widgets", true);
+    ee.SelectEntityByName(entityName);
+    agHelper.RenameWidget(entityName, newEntityName);
+    cy.wait("@updateWidgetName").should(
+      "have.nested.property",
+      "response.body.data.layoutOnLoadActionErrors.length",
+      1,
+    );
 
   });
 
   // Case 6: When updating Datasource query
-  it("Update Query and check for errors", () => {
-    cy.wait(5000);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  it("7. Update Query and check for errors", () => {
+
+    cy.get(ee._entityExplorer).click();
+    cy.get("#switcher--explorer").click();
+    cy.wait(3000);
     cy.get(".t--entity-name")
       .contains(queryName)
       .click({ force: true });
