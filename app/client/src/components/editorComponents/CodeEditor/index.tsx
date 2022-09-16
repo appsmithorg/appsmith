@@ -100,7 +100,11 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { getCodeEditorCursorPosition } from "selectors/editorContextSelectors";
+import { CursorPosition } from "reducers/uiReducers/editorContextReducer";
+import { generateKeyAndSetCodeEditorCursorPosition } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -333,6 +337,11 @@ class CodeEditor extends Component<Props, State> {
         );
 
         this.lintCode(editor);
+
+        if (this.props.cursorPosition && shouldFocusOnPropertyControl()) {
+          editor.focus();
+          editor.setCursor(this.props.cursorPosition);
+        }
       }.bind(this);
 
       // Finally create the Codemirror editor
@@ -372,6 +381,15 @@ class CodeEditor extends Component<Props, State> {
         this.editor.setValue("");
       }
       CodeEditor.updateMarkings(this.editor, this.props.marking);
+      if (
+        JSON.stringify(this.props.cursorPosition) !==
+        JSON.stringify(prevProps.cursorPosition)
+      ) {
+        if (this.props.cursorPosition) {
+          this.editor.focus();
+          this.editor.setCursor(this.props.cursorPosition);
+        }
+      }
     });
   }
 
@@ -511,15 +529,14 @@ class CodeEditor extends Component<Props, State> {
         EditorModes.GRAPHQL_WITH_BINDING,
       ].includes(mode.name)
     ) {
-      this.editor.setOption("matchBrackets", true);
+      this.editor?.setOption("matchBrackets", true);
     } else {
-      this.editor.setOption("matchBrackets", false);
+      this.editor?.setOption("matchBrackets", false);
     }
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-
     if (!cm.state.completionActive) {
       updateCustomDef(this.props.additionalDynamicData);
 
@@ -535,11 +552,13 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
-    this.editor.setOption("matchBrackets", false);
+    this.editor?.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
+    const { ch, line } = cm.getCursor();
+    this.props.setCursorPosition(this.props.dataTreePath, { line, ch });
   };
 
   handleBeforeChange = (
@@ -575,7 +594,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue() || "";
+    const value = this.editor?.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
@@ -873,6 +892,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
+          dataTreePath={this.props.dataTreePath}
           entity={entityInformation}
           errors={errors}
           evaluatedValue={evaluated}
@@ -959,17 +979,22 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
+  cursorPosition: getCodeEditorCursorPosition(state, props.dataTreePath || ""),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
+  setCursorPosition: (
+    key: string | undefined,
+    cursorPosition: CursorPosition,
+  ) => dispatch(generateKeyAndSetCodeEditorCursorPosition(key, cursorPosition)),
 });
 
 export default Sentry.withProfiler(

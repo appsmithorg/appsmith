@@ -27,6 +27,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -128,14 +129,13 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       containerRef.current?.focus();
     } else {
       // Checks if the property pane opened not because of focusing an input inside a widget
-      if (
-        document.activeElement &&
-        ["input", "textarea"].indexOf(
-          document.activeElement?.tagName?.toLowerCase(),
-        ) === -1
-      )
-        setTimeout(
-          () => {
+      setTimeout(
+        () => {
+          if (
+            document.activeElement &&
+            !document.activeElement?.closest(".t--property-control-wrapper") &&
+            shouldFocusOnPropertyControl()
+          )
             if (false) {
               // TODO(aswathkk): Fix #15970 and focus on search bar
               document
@@ -150,9 +150,9 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
                 // @ts-expect-error: Focus
                 ?.focus();
             }
-          },
-          200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
-        );
+        },
+        200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
+      );
     }
 
     return () => {

@@ -12,7 +12,6 @@ const initialState: DebuggerReduxState = {
   errors: {},
   expandId: "",
   hideErrors: true,
-  currentTab: "",
 };
 
 const debuggerReducer = createImmerReducer(initialState, {
@@ -57,12 +56,6 @@ const debuggerReducer = createImmerReducer(initialState, {
   ) => {
     state.hideErrors = action.payload;
   },
-  [ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB]: (
-    state: DebuggerReduxState,
-    action: ReduxAction<string>,
-  ) => {
-    state.currentTab = action.payload;
-  },
   // Resetting debugger state after page switch
   [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: () => {
     return {
@@ -77,7 +70,6 @@ export interface DebuggerReduxState {
   errors: Record<string, Log>;
   expandId: string;
   hideErrors: boolean;
-  currentTab: string;
 }
 
 export default debuggerReducer;
