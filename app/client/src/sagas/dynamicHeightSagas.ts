@@ -315,6 +315,7 @@ export function* updateWidgetDynamicHeightSaga() {
               canvasHeightOffset,
               minHeightInRows,
               maxBottomRow,
+              maxDynamicHeight,
             });
 
             // We need to make sure that the canvas widget doesn't have
@@ -603,6 +604,23 @@ function* dynamicallyUpdateContainersSaga() {
               parentContainerWidget.type,
             );
             maxBottomRow += canvasHeightOffset;
+
+            // Get the boundaries for possible min and max dynamic height.
+            const minDynamicHeightInRows = getWidgetMinDynamicHeight(
+              parentContainerWidget,
+            );
+            const maxDynamicHeightInRows = getWidgetMaxDynamicHeight(
+              parentContainerWidget,
+            );
+
+            // If the new height is below the min threshold
+            if (maxBottomRow < minDynamicHeightInRows) {
+              maxBottomRow = minDynamicHeightInRows;
+            }
+            // If the new height is above the max threshold
+            if (maxBottomRow > maxDynamicHeightInRows) {
+              maxBottomRow = maxDynamicHeightInRows;
+            }
 
             if (
               maxBottomRow !==
