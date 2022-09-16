@@ -62,10 +62,6 @@ jobs:
       # Depot CLI helps building Docker images via Depot's remote builder infrastructure, faster.
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
-      
-      # Timestamp will be used to create cache key
-      - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -73,9 +69,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-
+          key: ${{ github.run_id }}-${{ github.job }}-shared-modules
       
       # Fetch prior run result
       - name: Get the previous run result
@@ -96,3 +90,6 @@ jobs:
       - name: Run the jest tests
         if: steps.run_result.outputs.run_result != 'success'
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+      
+      # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result
