@@ -83,7 +83,12 @@ const childHasPanelConfig = (
         const { panelIdPropertyName } = config.panelConfig;
         const propertyPath = `${basePath}.${widgetPanelPropertyValue[panelIdPropertyName]}`;
 
-        config.panelConfig.children.forEach((panelColumnConfig: any) => {
+        const panelConfigChildren = config.panelConfig.children || [
+          ...(config.panelConfig.contentChildren || []),
+          ...(config.panelConfig.styleChilren || []),
+        ];
+
+        panelConfigChildren.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
           if ("hidden" in panelColumnConfig) {
             isSectionHidden = panelColumnConfig.hidden(
