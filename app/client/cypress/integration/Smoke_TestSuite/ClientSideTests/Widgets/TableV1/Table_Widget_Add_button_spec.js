@@ -190,7 +190,7 @@ describe("Table Widget property pane feature validation", function() {
     const color1 = "rgb(255, 255, 0)";
     cy.get(widgetsPage.menuColor)
       .clear()
-      .click()
+      .click({ force: true })
       .type(color1);
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
 
@@ -198,7 +198,7 @@ describe("Table Widget property pane feature validation", function() {
     const color2 = "rgb(255, 0, 0)";
     cy.get(widgetsPage.menuColor)
       .clear()
-      .click()
+      .click({ force: true })
       // following wait is required to reproduce #9526
       .wait(500)
       .type(color2);

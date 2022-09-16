@@ -114,7 +114,8 @@ after(function() {
   //-- LogOut Application---//
   cy.LogOut();
 
-  const testUrl = "http://localhost:5001/v1/parent/cmd";
-  cy.log("Start the appsmith container");
-  cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
+  //Commenting until Upgrade Appsmith cases are fixed
+  // const testUrl = "http://localhost:5001/v1/parent/cmd";
+  // cy.log("Start the appsmith container");
+  // cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
 });
