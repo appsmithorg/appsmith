@@ -368,7 +368,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       jsEditor._dialogBody((jsName as string) + ".callTrump"),
     );
     agHelper.ClickButton("No");
-    agHelper.AssertContains(`${jsName + ".getEmployee"} was cancelled`);
+    agHelper.AssertContains(`${jsName + ".callTrump"} was cancelled`);
     ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);
