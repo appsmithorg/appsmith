@@ -108,7 +108,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       background-color: ${Colors.RED_150};
     }
     &.${Severity.WARNING} {
-      background-color: ${Colors.GREY_200};
+      background-color: ${Colors.WARNING_DEBUGGER_GROUPING_BADGE};
     }
     ${(props) => getTypographyByKey(props, "u2")}
   }
