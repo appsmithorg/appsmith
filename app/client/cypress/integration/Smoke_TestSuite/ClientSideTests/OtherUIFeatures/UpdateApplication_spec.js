@@ -111,6 +111,6 @@ describe("Update Application", () => {
       .first()
       .find(homePage.applicationCardName)
       .trigger("mouseover");
-    cy.get(".bp3-popover-target.bp3-popover-open").should("have.length", 1);
+    cy.get(".bp3-popover-target.bp3-popover-open").should("not.exist");
   });
 });
