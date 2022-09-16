@@ -281,13 +281,19 @@ if type docker &>/dev/null; then
 fi
 
 if [[ -f $nginx_pid ]]; then
-    nginx -g "pid $nginx_pid;" -s quit
-    rm "$nginx_pid"
+    # We never run `nginx` without the `-c` argument, since that can load the default system configuration, which is
+    # different for different systems. It introduces too many unknowns, with little value.
+    # So we build a temp config, just to have a predictable value for the `pid` directive.
+    temp_nginx_conf="$PWD/nginx/temp.nginx.conf"
+    echo "pid $nginx_pid; events { worker_connections  1024; }" > "$temp_nginx_conf"
+    nginx -c "$temp_nginx_conf" -s quit
+    rm "$nginx_pid" "$temp_nginx_conf"
+    unset temp_nginx_conf
 fi
 
 if [[ $run_as == nginx ]]; then
     nginx -c "$nginx_dev_conf"
-    stop_cmd="nginx -g 'pid $nginx_pid;' -s quit"
+    stop_cmd="nginx -c '$nginx_dev_conf' -s quit"
 
 elif [[ $run_as == docker ]]; then
     docker run \
