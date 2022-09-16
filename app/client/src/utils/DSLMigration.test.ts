@@ -621,28 +621,26 @@ describe("Test all the migrations are running", () => {
     const version = migration.version ?? 0;
     mockFnObj[version] = [];
 
-    migration.functionLookup.forEach(
-      (funcDetails: { moduleObj: any; functionName: string }) => {
-        const { functionName, moduleObj } = funcDetails;
-        if (moduleObj) {
-          mockFnObj[version].push({
-            spyOnFunc: jest
-              .spyOn(moduleObj, functionName)
-              .mockImplementation((dsl: any) => {
-                /**
-                 * We need to delete the children property on the first migration(calculateDynamicHeight),
-                 * to avoid the recursion in the second migration(updateContainers)
-                 */
-                dsl && delete dsl.children;
-                return {
-                  version: dsl?.version,
-                  validationFuncName: functionName,
-                };
-              }),
-          });
-        }
-      },
-    );
+    migration.functionLookup.forEach((lookup) => {
+      const { functionName, moduleObj } = lookup;
+      if (moduleObj) {
+        mockFnObj[version].push({
+          spyOnFunc: jest
+            .spyOn(moduleObj, functionName)
+            .mockImplementation((dsl: any) => {
+              /**
+               * We need to delete the children property on the first migration(calculateDynamicHeight),
+               * to avoid the recursion in the second migration(updateContainers)
+               */
+              dsl && delete dsl.children;
+              return {
+                version: dsl?.version,
+                validationFuncName: functionName,
+              };
+            }),
+        });
+      }
+    });
   });
 
   // Runs all the migrations
@@ -657,11 +655,8 @@ describe("Test all the migrations are running", () => {
     const dslVersion = version ?? 0;
 
     functionLookup.forEach(
-      (
-        funcDetails: { moduleObj: any; functionName: string },
-        index: number,
-      ) => {
-        const { functionName, moduleObj } = funcDetails;
+      (lookup: { moduleObj: any; functionName: string }, index: number) => {
+        const { functionName, moduleObj } = lookup;
         if (moduleObj) {
           const mockObj = mockFnObj[dslVersion][index].spyOnFunc;
           const calls = mockObj.mock?.calls;
