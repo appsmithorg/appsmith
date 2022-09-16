@@ -111,27 +111,27 @@ export function removeRepeatedLogsAndMerge(
   currentLogs: Log[],
   incomingLogs: Log[],
 ) {
-  const outputArray = currentLogs;
-  incomingLogs.forEach((incomingLog) => {
-    if (outputArray.length === 0) {
-      outputArray.push(incomingLog);
+  const outputArray = incomingLogs.reduce((acc: Log[], incomingLog: Log) => {
+    if (acc.length === 0) {
+      acc.push(incomingLog);
     } else {
-      const lastLog = outputArray[outputArray.length - 1];
-      // The equality needs to be tested without occurrenceCount, since that is a dynamic value
+      const lastLog = acc[acc.length - 1];
       if (
-        !equal(
+        equal(
           omit(lastLog, ["occurrenceCount"]),
           omit(incomingLog, ["occurrenceCount"]),
         )
       ) {
-        outputArray.push(incomingLog);
-      } else {
         lastLog.hasOwnProperty("occurrenceCount") && !!lastLog.occurrenceCount
           ? lastLog.occurrenceCount++
           : (lastLog.occurrenceCount = 2);
+      } else {
+        acc.push(incomingLog);
       }
     }
-  });
+    return acc;
+  }, currentLogs);
+
   return outputArray;
 }
 
