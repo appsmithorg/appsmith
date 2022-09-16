@@ -11,6 +11,8 @@ export enum EditorModes {
   JSON_WITH_BINDING = "json-js",
   SQL_WITH_BINDING = "sql-js",
   JAVASCRIPT = "javascript",
+  GRAPHQL = "graphql",
+  GRAPHQL_WITH_BINDING = "graphql-js",
 }
 
 export enum EditorTheme {

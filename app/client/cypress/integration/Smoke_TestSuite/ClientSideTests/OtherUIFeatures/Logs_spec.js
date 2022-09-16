@@ -118,7 +118,25 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logStringChild);
   });
 
-  it("8. Console log in sync function", function() {
+  it("8. Console log on text widget with normal moustache binding", function() {
+    ee.DragDropWidgetNVerify("textwidget", 400, 400);
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      `{{(function(){
+  	const temp = "Hello!"
+
+  	console.log("${logString}");
+  	return temp;
+  })()}}`,
+    );
+    agHelper.RefreshPage();
+    // Wait for the debugger icon to be visible
+    agHelper.AssertElementVisible(".t--debugger");
+    agHelper.GetNClick(locator._debuggerIcon);
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
+  });
+
+  it("9. Console log in sync function", function() {
     ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
@@ -142,7 +160,7 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
-  it("9. Console log in async function", function() {
+  it("10. Console log in async function", function() {
     ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
@@ -168,13 +186,67 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
-  it("10. Console log after API succedes", function() {
+  it("11. Console log after API succedes", function() {
     ee.NavigateToSwitcher("explorer");
-    apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "Test1");
+    apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "Api1");
+    const returnText = "success";
     jsEditor.CreateJSObject(
       `export default {
         myFun1: async () => {
-          return Test1.run().then(()=>{
+          return storeValue("test", "test").then(() => {
+            console.log("${logString} Started");
+            return Api1.run().then(()=>{
+              console.log("${logString} Success");
+              return "${returnText}";
+            }).catch(()=>{
+              console.log("${logString} Failed");
+              return "fail";
+            });
+          });
+        },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    agHelper.WaitUntilAllToastsDisappear();
+
+    cy.get("@jsObjName").then((jsObjName) => {
+      agHelper.GetNClick(jsEditor._runButton);
+      agHelper.GetNClick(jsEditor._logsTab);
+      agHelper.GetNAssertContains(
+        locator._debuggerLogMessage,
+        `${logString} Started`,
+      );
+      agHelper.GetNAssertContains(
+        locator._debuggerLogMessage,
+        `${logString} Success`,
+      );
+      ee.DragDropWidgetNVerify("textwidget", 200, 600);
+      propPane.UpdatePropertyFieldValue("Text", `{{${jsObjName}.myFun1.data}}`);
+      agHelper.GetNAssertElementText(
+        commonlocators.textWidgetContainer,
+        returnText,
+        "have.text",
+        1,
+      );
+    });
+  });
+
+  it("12. Console log after API execution fails", function() {
+    ee.NavigateToSwitcher("explorer");
+    apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods + "xyz", "Api2");
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: async () => {
+          console.log("${logString} Started");
+          return Api2.run().then(()=>{
             console.log("${logString} Success");
             return "success";
           }).catch(()=>{
@@ -198,44 +270,42 @@ describe("Debugger logs", function() {
     agHelper.GetNClick(jsEditor._logsTab);
     agHelper.GetNAssertContains(
       locator._debuggerLogMessage,
-      `${logString} Success`,
+      `${logString} Started`,
     );
-  });
-
-  it("11. Console log after API execution fails", function() {
-    ee.NavigateToSwitcher("explorer");
-    apiPage.CreateAndFillApi(
-      dataSet.baseUrl + dataSet.methods + "xyz",
-      "Test2",
-    );
-    jsEditor.CreateJSObject(
-      `export default {
-        myFun1: async () => {
-          return Test2.run().then(()=>{
-            console.log("${logString} Success");
-            return "success";
-          }).catch(()=>{
-            console.log("${logString} Failed");
-            return "fail";
-          });
-        },
-        myFun2: () => {
-          return 1;
-        }
-      }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-      },
-    );
-    agHelper.WaitUntilAllToastsDisappear();
-    agHelper.GetNClick(jsEditor._runButton);
-    agHelper.GetNClick(jsEditor._logsTab);
     agHelper.GetNAssertContains(
       locator._debuggerLogMessage,
       `${logString} Failed`,
+    );
+  });
+
+  it("13. Console log source inside nested function", function() {
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: async () => {
+          console.log("Parent ${logString}");
+          return Api1.run(()=>{console.log("Child ${logString}");});
+        },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: false,
+      },
+    );
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
+    agHelper.GetNAssertContains(
+      locator._debuggerLogMessage,
+      `Parent ${logString}`,
+    );
+    agHelper.GetNAssertContains(
+      locator._debuggerLogMessage,
+      `Child ${logString}`,
     );
   });
 

@@ -882,12 +882,19 @@ export default class DataTreeEvaluator {
             !!entity && isJSAction(entity),
             contextData,
             callBackData,
+            fullPropertyPath?.includes("body") ||
+              !toBeSentForEval.includes("console."),
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty(result.errors, data, fullPropertyPath);
           }
           // if there are any console outputs found from the evaluation, extract them and add them to the logs array
-          if (!!entity && !!result.logs && result.logs.length > 0) {
+          if (
+            !!entity &&
+            !!result.logs &&
+            result.logs.length > 0 &&
+            !propertyPath.includes("body")
+          ) {
             let type = CONSOLE_ENTITY_TYPE.WIDGET;
             let id = "";
 
@@ -985,6 +992,7 @@ export default class DataTreeEvaluator {
     createGlobalData: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
+    skipUserLogsOperations = false,
   ): EvalResult {
     try {
       return evaluateSync(
@@ -994,6 +1002,7 @@ export default class DataTreeEvaluator {
         createGlobalData,
         contextData,
         callbackData,
+        skipUserLogsOperations,
       );
     } catch (error) {
       return {

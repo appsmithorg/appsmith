@@ -1,5 +1,10 @@
 ---
-- include_tasks: preflight.yml
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+  tags: always
+
+- import_tasks: preflight.yml
 
 - name: Throw error when finding out properly running container
   fail:
@@ -13,9 +18,33 @@
     msg: "Appsmith may be installed but not work properly. Please check on server (IP: {{ansible_host}})"
   when: container_running.stdout == 'true'
 
-- include_tasks: "{{ ansible_distribution }}-setup-docker.yml"
+- name: setup init config
+  include_tasks:
+    file: "setup-init-config.yml"
+    apply:
+      tags: packer
+  tags: packer
+
+- import_tasks: setup-appsmith-runtime.yml
+  tags: packer
+
+- import_tasks: cleanup-packer-build.yml
+  tags: packer
+
+- name: Install Docker
+  include_tasks:
+    file: "{{ ansible_distribution }}-setup-docker.yml"
+    apply:
+      tags: always
   when: "'docker' not in ansible_facts.packages"
+  tags: always
 
-- include_tasks: start-docker.yml
+- name: Setup user data AWS AMI
+  include_tasks:
+    file: setup-user-data.yml
+    apply:
+      tags: packer-aws
+  tags: packer-aws
 
-- include_tasks: setup-appsmith.yml
+- import_tasks: start-docker.yml
+- import_tasks: setup-appsmith.yml
