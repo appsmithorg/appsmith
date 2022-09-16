@@ -14,8 +14,6 @@ import {
 import moment from "moment";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
-import equal from "fast-deep-equal";
-import { omit } from "lodash";
 
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);
@@ -104,35 +102,6 @@ function addError(
 // This is used to remove an error from the errors tab
 function deleteError(id: string, analytics?: Log["analytics"]) {
   dispatchAction(deleteErrorLogInit(id, analytics));
-}
-
-// check the last message from the current log and update the occurrence count
-export function removeRepeatedLogsAndMerge(
-  currentLogs: Log[],
-  incomingLogs: Log[],
-) {
-  const outputArray = incomingLogs.reduce((acc: Log[], incomingLog: Log) => {
-    if (acc.length === 0) {
-      acc.push(incomingLog);
-    } else {
-      const lastLog = acc[acc.length - 1];
-      if (
-        equal(
-          omit(lastLog, ["occurrenceCount"]),
-          omit(incomingLog, ["occurrenceCount"]),
-        )
-      ) {
-        lastLog.hasOwnProperty("occurrenceCount") && !!lastLog.occurrenceCount
-          ? lastLog.occurrenceCount++
-          : (lastLog.occurrenceCount = 2);
-      } else {
-        acc.push(incomingLog);
-      }
-    }
-    return acc;
-  }, currentLogs);
-
-  return outputArray;
 }
 
 export default {
