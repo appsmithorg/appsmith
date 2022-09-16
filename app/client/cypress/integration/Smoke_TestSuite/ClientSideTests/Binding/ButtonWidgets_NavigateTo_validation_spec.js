@@ -16,7 +16,13 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
       .children()
       .contains("Navigate to")
       .click();
-    cy.enterNavigatePageName(testdata.externalPage);
+    cy.get("#switcher--url").click();
+    cy.get("label")
+      .contains("Enter URL")
+      .siblings("div")
+      .within(() => {
+        cy.get(".t--code-editor-wrapper").type(testdata.externalPage);
+      });
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);

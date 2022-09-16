@@ -58,7 +58,7 @@ describe("<UserEdit />", () => {
     );
     expect(confirmationText[0]).toHaveTextContent("Are you sure?");
     await userEvent.dblClick(menu[0]);
-    // expect(props.onDelete).toHaveBeenCalledWith(selectedUser.userId);
+    expect(props.onDelete).toHaveBeenCalledWith(selectedUser.userId);
     expect(window.location.pathname).toEqual("/settings/users");
   });
   it("should search and filter users groups on search", async () => {
@@ -82,6 +82,8 @@ describe("<UserEdit />", () => {
   });
   it("should mark group to be removed", () => {
     renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[1].click();
     const activeGroups = screen.getAllByTestId("t--active-group-row");
     userEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");

@@ -4,6 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.services.UserGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -57,9 +57,9 @@ public class UserGroupController {
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseDTO<UserGroup>> getById(@PathVariable String id) {
+    public Mono<ResponseDTO<UserGroupDTO>> getById(@PathVariable String id) {
         log.debug("Going to get resource from user group controller for id: {}", id);
-        return service.getById(id)
+        return service.getGroupById(id)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

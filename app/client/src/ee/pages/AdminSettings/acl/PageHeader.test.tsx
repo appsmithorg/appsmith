@@ -4,7 +4,6 @@ import { render, screen } from "test/testUtils";
 import { PageHeader } from "./PageHeader";
 import userEvent from "@testing-library/user-event";
 import { UserListing } from "./UserListing";
-import * as reactRedux from "react-redux";
 import { allUsers } from "./mocks/UserListingMock";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
@@ -54,7 +53,6 @@ function renderUserListing() {
 }
 
 describe("<PageHeader />", () => {
-  const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);

@@ -12,14 +12,8 @@ import {
   ApiMethodIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
+import { RoleTreeProps } from "./types";
 // import { replayHighlightClass } from "globalStyles/portals";
-
-export type RoleProps = {
-  tabData: any;
-  expanded?: any;
-  searchValue?: string;
-  noData?: boolean;
-};
 
 type hashtableType = {
   [key: string]: Array<{
@@ -1403,7 +1397,7 @@ function Table({
   );
 }
 
-export default function RolesTree(props: RoleProps) {
+export default function RolesTree(props: RoleTreeProps) {
   const { noData, searchValue = "", tabData } = props;
   const columns: Array<Column> = [
     {

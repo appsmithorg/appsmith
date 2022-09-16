@@ -29,24 +29,7 @@ import {
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
-
-type UserProps = {
-  isChangingRole: boolean;
-  isDeleting: boolean;
-  name: string;
-  allGroups: Array<string>;
-  allRoles: Array<string>;
-  username: string;
-  userId: string;
-  roleName?: string;
-};
-
-type UserEditProps = {
-  selectedUser: UserProps;
-  onDelete: (userId: string) => void;
-  searchPlaceholder: string;
-  isLoading: boolean;
-};
+import { UserEditProps } from "./types";
 
 const Header = styled.div`
   display: flex;

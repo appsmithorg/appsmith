@@ -10,6 +10,7 @@ import {
   ALL_ROLES,
   NO_ROLES_MESSAGE,
 } from "@appsmith/constants/messages";
+import { ActiveAllGroupsProps } from "./types";
 
 const ActiveGroups = styled.div``;
 
@@ -91,18 +92,6 @@ const EmptyActiveGroups = styled.div`
   line-height: 1.5;
   color: var(--appsmith-color-black-700);
 `;
-
-export type ActiveAllGroupsProps = {
-  activeGroups: Array<any>;
-  allGroups?: Array<any>;
-  activeOnly?: boolean;
-  title?: string;
-  searchValue?: string;
-  addedAllGroups?: Array<any>;
-  removedActiveGroups: Array<any>;
-  onAddGroup?: (group: any) => void;
-  onRemoveGroup: (group: any) => void;
-};
 
 export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
   const {

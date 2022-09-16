@@ -1,8 +1,11 @@
 package com.appsmith.server.services.ee;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
@@ -18,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
@@ -26,17 +30,20 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
+@DirtiesContext
 public class UserGroupServiceTest {
 
     @Autowired
@@ -57,6 +64,7 @@ public class UserGroupServiceTest {
     WorkspaceService workspaceService;
 
     User api_user = null;
+    User admin_user = null;
 
     Set<String> superAdminIds;
 
@@ -64,16 +72,16 @@ public class UserGroupServiceTest {
 
     @Before
     public void setup() {
-        if (api_user == null) {
-            api_user = userRepository.findByEmail("api_user").block();
-        }
+
+        api_user = userRepository.findByEmail("api_user").block();
+
         // Create a new user
         User newUser = new User();
-        newUser.setEmail(UUID.randomUUID().toString() + "@email.com");
+        newUser.setEmail(UUID.randomUUID() + "@email.com");
         newUser.setPassword("password");
-        User anotherAdminUser = userService.create(newUser).block();
+        admin_user = userService.create(newUser).block();
 
-        superAdminIds = Set.of(api_user.getId(), anotherAdminUser.getId());
+        superAdminIds = Set.of(api_user.getId(), admin_user.getId());
 
         // Make api_user instance administrator before starting the tests
         userUtils.makeSuperUser(List.of(api_user)).block();
@@ -322,6 +330,83 @@ public class UserGroupServiceTest {
                     assertThat(group.getPolicies()).containsAll(
                             Set.of(manageGroupPolicy, readGroupPolicy, deleteGroupPolicy, inviteGroupPolicy)
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getByIdValid() {
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        String name = "Test Role";
+        String description = "Test Role Description";
+        permissionGroup.setName(name);
+        permissionGroup.setDescription(description);
+        // create the role
+        PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
+
+        // create the group
+        UserGroup userGroup = new UserGroup();
+        name = "Test Group invalidUpdateGroup_userIds";
+        description = "Test Group Description invalidUpdateGroup_userIds";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+        // Let the users be the same as that of super admins in the group
+        userGroup.setUsers(superAdminIds);
+        UserGroup createdGroup = userGroupService.create(userGroup).block();
+
+        // Manually set the roles of the group
+        createdRole.setAssignedToGroupIds(Set.of(createdGroup.getId()));
+        permissionGroupService.save(createdRole).block();
+
+        // Get the group
+        Mono<UserGroupDTO> userGroupMono = userGroupService.getGroupById(createdGroup.getId());
+
+        StepVerifier.create(userGroupMono)
+                .assertNext(group -> {
+                    assertEquals(createdGroup.getId(), group.getId());
+                    assertEquals(createdGroup.getTenantId(), group.getTenantId());
+                    assertEquals(createdGroup.getName(), group.getName());
+                    assertEquals(createdGroup.getDescription(), group.getDescription());
+
+                    // Assert that the api_user is returned properly.
+                    group.getUsers().stream().
+                            filter(user -> user.getUsername().equals(api_user.getUsername()))
+                            .findFirst()
+                            .ifPresentOrElse(user -> {
+                                        assertEquals(api_user.getName(), user.getName());
+                                        assertEquals(api_user.getId(), user.getId());
+                                    },
+                                    () -> fail("api_user not found")
+                            );
+                    // Assert that the non api super admin user is returned properly.
+                    group.getUsers().stream().
+                            filter(user -> user.getUsername().equals(admin_user.getUsername()))
+                            .findFirst()
+                            .ifPresentOrElse(user -> {
+                                        assertEquals(admin_user.getName(), user.getName());
+                                        assertEquals(admin_user.getId(), user.getId());
+                                    },
+                                    () -> fail("admin user not found")
+
+                            );
+
+                    // Assert that the role is returned properly.
+                    assertThat(group.getRoles())
+                            .containsExactly(
+                                    List.of(createdRole).stream()
+                                            .map(role -> {
+                                                PermissionGroupInfoDTO permissionGroupInfoDTO = new PermissionGroupInfoDTO();
+                                                permissionGroupInfoDTO.setId(role.getId());
+                                                permissionGroupInfoDTO.setName(role.getName());
+                                                permissionGroupInfoDTO.setDescription(role.getDescription());
+                                                return permissionGroupInfoDTO;
+                                            })
+                                            .collect(Collectors.toList())
+                                            .get(0)
+                            );
+
                 })
                 .verifyComplete();
     }
