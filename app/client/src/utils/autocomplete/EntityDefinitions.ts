@@ -648,6 +648,13 @@ export const entityDefinitions = {
     isVisible: isVisible,
     docUrl: "string",
   },
+  CODE_SCANNER_WIDGET: {
+    "!doc": "Scan a Code",
+    "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    value: "string",
+  },
 };
 
 /* 
