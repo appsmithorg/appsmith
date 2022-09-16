@@ -17,8 +17,9 @@ import { ButtonVariant } from "components/constants";
 export type EditableCell = {
   column: string;
   index: number;
-  value: string;
+  value: string | number | null;
   initialValue: string;
+  inputValue: string;
 };
 
 export enum EditableCellActions {
@@ -72,23 +73,14 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   transientTableData: {
     [key: string]: Record<string, string>;
   };
-  editableCell: EditableCell;
+  editableCell?: EditableCell;
   primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
+  isEditableCellValid: boolean;
 }
-
-export const getCurrentRowBinding = (
-  entityName: string,
-  userInput: string,
-  withBinding = true,
-) => {
-  let rowBinding = `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput}))`;
-  if (withBinding) rowBinding = `{{${rowBinding}}}`;
-  return rowBinding;
-};
 
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
 
@@ -111,6 +103,7 @@ export enum ColumnTypes {
   SELECT = "select",
   EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -121,6 +114,7 @@ export enum ReadOnlyColumnTypes {
   VIDEO = "video",
   DATE = "date",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
@@ -165,3 +159,11 @@ export enum DateInputFormat {
   EPOCH = "Epoch",
   MILLISECONDS = "Milliseconds",
 }
+
+export const defaultEditableCell = {
+  column: "",
+  index: -1,
+  inputValue: "",
+  value: "",
+  initialValue: "",
+};

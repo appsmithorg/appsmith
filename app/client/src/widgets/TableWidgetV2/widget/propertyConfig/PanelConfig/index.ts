@@ -24,6 +24,7 @@ import Basic from "./Basic";
 import SaveButtonProperties from "./SaveButtonProperties";
 import DiscardButtonproperties from "./DiscardButtonproperties";
 import { ButtonVariantTypes } from "components/constants";
+import Validations from "./Validation";
 
 export default {
   editableTitle: true,
@@ -32,6 +33,7 @@ export default {
   dependencies: ["primaryColumns", "columnOrder"],
   children: [
     ColumnControl,
+    Validations,
     ButtonProperties,
     SaveButtonProperties,
     DiscardButtonproperties,
@@ -45,6 +47,7 @@ export default {
     Data,
     Basic,
     General,
+    Validations,
     {
       sectionName: "Save Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -221,7 +224,8 @@ export default {
             !(
               columnType === ColumnTypes.TEXT ||
               columnType === ColumnTypes.NUMBER ||
-              columnType === ColumnTypes.CHECKBOX
+              columnType === ColumnTypes.CHECKBOX ||
+              columnType === ColumnTypes.SWITCH
             ) || !isEditable
           );
         }
@@ -279,11 +283,18 @@ export default {
         },
         {
           propertyName: "onCheckChange",
-          label: "onCheckChange",
+          label: (props: TableWidgetProps, propertyPath: string) => {
+            const basePropertyPath = getBasePropertyPath(propertyPath);
+            const columnType = get(props, `${basePropertyPath}.columnType`);
+            return columnType === ColumnTypes.SWITCH
+              ? "onChange"
+              : "onCheckChange";
+          },
           controlType: "ACTION_SELECTOR",
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             return hideByColumnType(props, propertyPath, [
               ColumnTypes.CHECKBOX,
+              ColumnTypes.SWITCH,
             ]);
           },
           dependencies: ["primaryColumns"],
@@ -455,7 +466,8 @@ export default {
     {
       sectionName: (props: TableWidgetProps, propertyPath: string) => {
         const columnType = get(props, `${propertyPath}.columnType`);
-        return columnType === ColumnTypes.CHECKBOX
+        return columnType === ColumnTypes.CHECKBOX ||
+          columnType === ColumnTypes.SWITCH
           ? "Alignment"
           : "Text Formatting";
       },
@@ -549,7 +561,8 @@ export default {
           label: (props: TableWidgetProps, propertyPath: string) => {
             const basePropertyPath = getBasePropertyPath(propertyPath);
             const columnType = get(props, `${basePropertyPath}.columnType`);
-            return columnType === ColumnTypes.CHECKBOX
+            return columnType === ColumnTypes.CHECKBOX ||
+              columnType === ColumnTypes.SWITCH
               ? "Horizontal Alignment"
               : "Text Align";
           },
@@ -590,6 +603,7 @@ export default {
               ColumnTypes.NUMBER,
               ColumnTypes.URL,
               ColumnTypes.CHECKBOX,
+              ColumnTypes.SWITCH,
             ]);
           },
         },
@@ -633,6 +647,7 @@ export default {
               ColumnTypes.NUMBER,
               ColumnTypes.URL,
               ColumnTypes.CHECKBOX,
+              ColumnTypes.SWITCH,
             ]);
           },
         },

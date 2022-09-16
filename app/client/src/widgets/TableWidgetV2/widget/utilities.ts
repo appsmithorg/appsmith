@@ -202,6 +202,7 @@ export function getDefaultColumnProperties(
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
           id,
         )}"]))}}`,
+    validation: {},
   };
 
   return columnProps;
@@ -426,6 +427,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.NUMBER,
   ColumnTypes.SELECT,
   ColumnTypes.CHECKBOX,
+  ColumnTypes.SWITCH,
 ];
 
 export function isColumnTypeEditable(columnType: string) {
