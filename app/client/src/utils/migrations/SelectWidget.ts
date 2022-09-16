@@ -11,7 +11,7 @@ const SelectTypeWidgets = ["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"];
 export function MigrateSelectTypeWidgetDefaultValue(currentDSL: DSLWidget) {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (SelectTypeWidgets.includes(child.type)) {
-      const defaultOptionValue: string = child.defaultOptionValue;
+      const defaultOptionValue = child.defaultOptionValue;
       const { prefixTemplate, suffixTemplate } = getBindingTemplate(
         child.widgetName,
       );
