@@ -103,6 +103,7 @@ export enum ColumnTypes {
   SELECT = "select",
   EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -113,6 +114,7 @@ export enum ReadOnlyColumnTypes {
   VIDEO = "video",
   DATE = "date",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
