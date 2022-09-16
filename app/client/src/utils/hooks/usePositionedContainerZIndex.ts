@@ -3,8 +3,7 @@ import { Layers } from "constants/Layers";
 
 import { useMemo } from "react";
 import { AppState } from "@appsmith/reducers";
-
-import { getSelectedWidgets } from "selectors/ui";
+import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "store";
 
 export const usePositionedContainerZIndex = (
@@ -14,9 +13,8 @@ export const usePositionedContainerZIndex = (
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const selectedWidgets = useSelector(getSelectedWidgets);
-  const isThisWidgetDragging =
-    isDragging && selectedWidgets.includes(props.widgetId);
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  const isThisWidgetDragging = isDragging && isSelected;
 
   const zIndex = useMemo(() => {
     if (isDragging) {
@@ -48,7 +46,7 @@ export const usePositionedContainerZIndex = (
   const zIndicesObj = useMemo(() => {
     const onHoverZIndex = isDragging ? zIndex : Layers.positionedWidget + 1;
     return { zIndex, onHoverZIndex };
-  }, [isDragging, zIndex]);
+  }, [isDragging, zIndex, Layers.positionedWidget]);
 
   return zIndicesObj;
 };
