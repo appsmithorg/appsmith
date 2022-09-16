@@ -65,7 +65,7 @@ public class ActionDTO {
     //this attribute carries error messages while processing the actionCollection
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Transient
-    ErrorDTO errorReports;
+    List<ErrorDTO> errorReports;
 
     Boolean executeOnLoad;
 

@@ -42,7 +42,7 @@ public class Layout extends BaseDomain {
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    ErrorDTO layoutOnLoadActionErrors;
+    List<ErrorDTO> layoutOnLoadActionErrors;
 
     @Deprecated
     @JsonIgnore

@@ -27,7 +27,7 @@ public class LayoutDTO {
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    ErrorDTO layoutOnLoadActionErrors;
+    List<ErrorDTO> layoutOnLoadActionErrors;
 
     // All the actions which have been updated as part of updateLayout function call
     List<LayoutActionUpdateDTO> actionUpdates;

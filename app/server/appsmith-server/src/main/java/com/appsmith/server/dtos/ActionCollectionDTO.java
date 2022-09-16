@@ -49,7 +49,7 @@ public class ActionCollectionDTO {
     //this attribute carries error messages while processing the actionCollection
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    ErrorDTO errorReports;
+    List<ErrorDTO> errorReports;
 
     PluginType pluginType;
 

@@ -1557,8 +1557,6 @@ public class LayoutActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void introduceCyclicDependencyAndRemoveLater(){
 
-        Integer appErrorCode = 4041;
-
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         // creating new action based on which we will introduce cyclic dependency
@@ -1608,8 +1606,8 @@ public class LayoutActionServiceTest {
         }
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated layoutOnLoadActionErrors
-        assert(firstLayout.getLayoutOnLoadActionErrors() instanceof ErrorDTO);
-        assert (firstLayout.getLayoutOnLoadActionErrors() != null);
+        assert(firstLayout.getLayoutOnLoadActionErrors() instanceof List);
+        assert (firstLayout.getLayoutOnLoadActionErrors().size() ==1 );
 
         // refactoring action to carry the existing error in DSL
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -1621,8 +1619,8 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
         StepVerifier.create(layoutDTOMono
-                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().getAppErrorId()))
-                .expectNext(appErrorCode).verifyComplete();
+                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
+                .expectNext(1).verifyComplete();
 
 
         // updateAction to see if the error persists
@@ -1631,9 +1629,9 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(actionDTOMono.map(
 
-                actionDTO1 -> actionDTO1.getErrorReports().getAppErrorId()
+                actionDTO1 -> actionDTO1.getErrorReports().size()
                         ))
-                .expectNext(appErrorCode).verifyComplete();
+                .expectNext(1).verifyComplete();
 
 
 
@@ -1649,8 +1647,8 @@ public class LayoutActionServiceTest {
         layout.setDsl(mainDsl);
 
         LayoutDTO changedLayoutDTO = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
-
-        assert (changedLayoutDTO.getLayoutOnLoadActionErrors() == null);
+        assert(changedLayoutDTO.getLayoutOnLoadActionErrors() instanceof List);
+        assert (changedLayoutDTO.getLayoutOnLoadActionErrors().size() == 0);
 
     }
 

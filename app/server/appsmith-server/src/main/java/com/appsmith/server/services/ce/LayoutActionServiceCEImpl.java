@@ -903,17 +903,17 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
 
         // setting the layoutOnLoadActionActionErrors to null to remove the existing errors before new DAG calculation.
-        layout.setLayoutOnLoadActionErrors(null);
+        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
                 .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
-                    layout.setLayoutOnLoadActionErrors(
+                    layout.setLayoutOnLoadActionErrors(List.of(
                             new ErrorDTO(layoutOnLoadActionErrorToastMessage,
                                     error.getAppErrorCode(),
-                                    error.getMessage()));
+                                    error.getMessage())));
                     return Mono.just(new ArrayList<>());
                 });
 
