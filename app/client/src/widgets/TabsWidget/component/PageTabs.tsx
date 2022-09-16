@@ -87,11 +87,9 @@ function PageTabName({
   );
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      if (isEllipsisActive(tabNameRef?.current)) {
-        setEllipsisActive(true);
-      }
-    });
+    if (isEllipsisActive(tabNameRef?.current)) {
+      setEllipsisActive(true);
+    }
   }, [tabNameRef]);
 
   return (
