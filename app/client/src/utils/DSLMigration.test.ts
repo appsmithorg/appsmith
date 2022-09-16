@@ -678,7 +678,6 @@ describe("Test all the migrations are running", () => {
 
             // Check if the migration function is called with the current DSL version
             calls.forEach((args: any) => {
-              console.log(Object.keys(mockFnObj), args[0]?.version.toString());
               test(`Does ${functionName} executes with DSL version: ${version}?`, () => {
                 if (args[0]?.version === version) {
                   expect(args[0]?.version).toEqual(version);
