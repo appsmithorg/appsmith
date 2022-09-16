@@ -153,14 +153,14 @@ export const CONFIG = {
         ) => {
           if (!parentProps.widgetId) return [];
 
-          const dynamicPathMapList = parentProps.dynamicPathMapList
+          let dynamicPathMapList = parentProps.dynamicPathMapList
             ? klona(parentProps.dynamicPathMapList)
             : {};
 
           const dynamicPathTypes = getDynamicPathTypesFor(propertyValue);
 
           if (!dynamicPathTypes.length) {
-            omit(
+            dynamicPathMapList = omit(
               dynamicPathMapList,
               `${widgetProperties.widgetId}.${propertyPath}`,
             );
