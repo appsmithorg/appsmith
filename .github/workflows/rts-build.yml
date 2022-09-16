@@ -60,19 +60,13 @@ jobs:
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
-      # Timestamp will be used to create cache key
-      - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
-
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         uses: actions/cache@v2
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-
+          key: ${{ github.run_id }}-${{ github.job }}-rts
 
       # Fetch prior run result
       - name: Get the previous run result
@@ -137,9 +131,7 @@ jobs:
         with:
           path: |
             app/rts/dist/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-rts
 
       # Tar the bundles to speed up the upload & download process
       - name: Tar the rts bundles

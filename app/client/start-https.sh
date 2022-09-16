@@ -171,7 +171,7 @@ error_log $nginx_error_log info;
 $(if [[ $run_as == nginx ]]; then echo "pid $nginx_pid;"; fi)
 
 events {
-    worker_connections  10;
+    worker_connections  1024;
 }
 
 http {
