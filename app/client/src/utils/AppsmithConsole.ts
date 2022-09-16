@@ -1,5 +1,6 @@
 import {
   addErrorLogInit,
+  debuggerLog,
   debuggerLogInit,
   deleteErrorLogInit,
 } from "actions/debuggerActions";
@@ -34,19 +35,8 @@ function getTimeStamp() {
   return moment().format("hh:mm:ss");
 }
 
-function addLog(
-  ev: LogActionPayload,
-  severity = Severity.INFO,
-  timestamp = getTimeStamp(),
-  category = LOG_CATEGORY.USER_GENERATED,
-) {
-  log({
-    ...ev,
-    severity,
-    timestamp,
-    category,
-    occurrenceCount: 1,
-  });
+function addLogs(logs: Log[]) {
+  dispatchAction(debuggerLog(logs));
 }
 
 function info(
@@ -146,7 +136,7 @@ export function removeRepeatedLogsAndMerge(
 }
 
 export default {
-  addLog,
+  addLogs,
   info,
   warning,
   error,

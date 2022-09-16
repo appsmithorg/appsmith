@@ -1,9 +1,18 @@
 import React from "react";
 
-import { TreeDropdown, Setter, TreeDropdownOption } from "design-system";
+import {
+  TreeDropdown,
+  Setter,
+  TreeDropdownOption,
+  Switcher,
+  SwitcherProps,
+} from "design-system";
 import {
   ControlWrapper,
   FieldWrapper,
+  StyledDividerContainer,
+  StyledNavigateToFieldsContainer,
+  StyledNavigateToFieldWrapper,
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
@@ -13,6 +22,9 @@ import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
+import DividerComponent from "widgets/DividerWidget/component";
+import store from "store";
+import { getPageList } from "selectors/entitiesSelector";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -36,6 +48,12 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
  * 1. Add the new action entry and its text in the baseOptions array
  * 2. Attach fields to the new action in the getFieldFromValue function
  **/
+
+type Switch = {
+  id: string;
+  text: string;
+  action: () => void;
+};
 
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
@@ -240,6 +258,7 @@ const ViewTypes = {
   KEY_VALUE_VIEW: "KEY_VALUE_VIEW",
   TEXT_VIEW: "TEXT_VIEW",
   BOOL_VIEW: "BOOL_VIEW",
+  TAB_VIEW: "TAB_VIEW",
 };
 type ViewTypes = typeof ViewTypes[keyof typeof ViewTypes];
 
@@ -266,6 +285,7 @@ type TextViewProps = ViewProps & {
   index?: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
+type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
@@ -324,6 +344,16 @@ const views = {
       </FieldWrapper>
     );
   },
+  [ViewTypes.TAB_VIEW]: function TabView(props: TabViewProps) {
+    return (
+      <FieldWrapper>
+        <ControlWrapper>
+          {props.label && <label>{props.label}</label>}
+          <Switcher activeObj={props.activeObj} switches={props.switches} />
+        </ControlWrapper>
+      </FieldWrapper>
+    );
+  },
 };
 
 export enum FieldType {
@@ -353,6 +383,9 @@ export enum FieldType {
   DELAY_FIELD = "DELAY_FIELD",
   ID_FIELD = "ID_FIELD",
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
+  MESSAGE_FIELD = "MESSAGE_FIELD",
+  TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
+  PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD = "PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD",
 }
 
 type FieldConfig = {
@@ -392,7 +425,7 @@ const fieldConfigs: FieldConfigs = {
           value = `${value}.run`;
           break;
         case ActionType.navigateTo:
-          defaultParams = `'#', {}`;
+          defaultParams = `'', {}, 'SAME_WINDOW'`;
           break;
         case ActionType.jsFunction:
           defaultArgs = option.args ? option.args : [];
@@ -437,10 +470,10 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
     getter: (value: any) => {
-      return textGetter(value, 0);
+      return enumTypeGetter(value, 0, "");
     },
     setter: (option: any, currentValue: string) => {
-      return textSetter(option, currentValue, 0);
+      return enumTypeSetter(option.value, currentValue, 0);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -467,7 +500,10 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.URL_FIELD]: {
     getter: (value: string) => {
-      return textGetter(value, 0);
+      const appState = store.getState();
+      const pageList = getPageList(appState).map((page) => page.pageName);
+      const urlFieldValue = textGetter(value, 0);
+      return pageList.includes(urlFieldValue) ? "" : urlFieldValue;
     },
     setter: (value: string, currentValue: string) => {
       return textSetter(value, currentValue, 0);
@@ -620,6 +656,33 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.MESSAGE_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 0);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.TARGET_ORIGIN_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 1);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD]: {
+    getter: (value: any) => {
+      return enumTypeGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return enumTypeSetter(option.value, currentValue, 0);
+    },
+    view: ViewTypes.TAB_VIEW,
+  },
 };
 
 function renderField(props: {
@@ -634,6 +697,8 @@ function renderField(props: {
   depth: number;
   maxDepth: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  activeNavigateToTab: Switch;
+  navigateToSwitches: Array<Switch>;
 }) {
   const { field } = props;
   const fieldType = field.field;
@@ -712,7 +777,7 @@ function renderField(props: {
         defaultText = "Select Widget";
       }
       if (fieldType === FieldType.PAGE_SELECTOR_FIELD) {
-        label = "Page Name";
+        label = "Choose Page";
         options = props.pageDropdownOptions;
         defaultText = "Select Page";
       }
@@ -752,6 +817,14 @@ function renderField(props: {
         getDefaults: getDefaults,
         selectedLabelModifier: selectedLabelModifier,
         displayValue: displayValue ? displayValue : "",
+      });
+      break;
+    case FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD:
+      viewElement = (view as (props: TabViewProps) => JSX.Element)({
+        activeObj: props.activeNavigateToTab,
+        switches: props.navigateToSwitches,
+        label: "Type",
+        value: props.value,
       });
       break;
     case FieldType.ARGUMENT_KEY_VALUE_FIELD:
@@ -799,7 +872,7 @@ function renderField(props: {
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.URL_FIELD) {
-        fieldLabel = "Page Name or URL";
+        fieldLabel = "Enter URL";
       } else if (fieldType === FieldType.KEY_TEXT_FIELD) {
         fieldLabel = "Key";
       } else if (fieldType === FieldType.VALUE_TEXT_FIELD) {
@@ -855,10 +928,45 @@ function Fields(props: {
   depth: number;
   maxDepth: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  navigateToSwitches: Array<Switch>;
+  activeNavigateToTab: Switch;
 }) {
   const { fields, ...otherProps } = props;
+
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
     const remainingFields = fields.slice(1);
+    if (
+      remainingFields[0]?.field ===
+      FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD
+    ) {
+      /* Navigate to does not follow the tree like structure
+       * other global functions have
+       * This if condition achieves that design */
+      return (
+        <>
+          {renderField({
+            field: fields[0],
+            ...otherProps,
+          })}
+
+          <StyledNavigateToFieldWrapper>
+            <StyledDividerContainer>
+              <DividerComponent
+                capType="dot"
+                dividerColor="#b3b3b3"
+                orientation="vertical"
+                thickness={2}
+              />
+            </StyledDividerContainer>
+            <StyledNavigateToFieldsContainer>
+              {remainingFields.map((paramField: any) => {
+                return renderField({ field: paramField, ...otherProps });
+              })}
+            </StyledNavigateToFieldsContainer>
+          </StyledNavigateToFieldWrapper>
+        </>
+      );
+    }
     return (
       <>
         {renderField({
@@ -876,6 +984,7 @@ function Fields(props: {
               return (
                 <li key={index}>
                   <Fields
+                    activeNavigateToTab={props.activeNavigateToTab}
                     additionalAutoComplete={props.additionalAutoComplete}
                     depth={props.depth + 1}
                     fields={field}
@@ -884,6 +993,7 @@ function Fields(props: {
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
+                    navigateToSwitches={props.navigateToSwitches}
                     onValueChange={(
                       value: any,
                       isUpdatedViaKeyboard: boolean,
@@ -927,6 +1037,7 @@ function Fields(props: {
         const selectorField = field[0];
         return (
           <Fields
+            activeNavigateToTab={props.activeNavigateToTab}
             depth={props.depth + 1}
             fields={field}
             integrationOptionTree={props.integrationOptionTree}
@@ -934,6 +1045,7 @@ function Fields(props: {
             label={selectorField.label}
             maxDepth={props.maxDepth}
             modalDropdownList={props.modalDropdownList}
+            navigateToSwitches={props.navigateToSwitches}
             onValueChange={(value: any, isUpdatedViaKeyboard: boolean) => {
               const parentValue = selectorField.getParentValue(
                 value.substring(2, value.length - 2),
