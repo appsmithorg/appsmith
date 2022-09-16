@@ -1,6 +1,6 @@
 import { updateFunctionProperty } from "actions/jsPaneActions";
 import {
-  ASYNC_FUNCTION_SETTINGS_HEADING,
+  FUNCTION_SETTINGS_HEADING,
   createMessage,
   NO_ASYNC_FUNCTIONS,
 } from "@appsmith/constants/messages";
@@ -180,7 +180,7 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
-        <h3>{createMessage(ASYNC_FUNCTION_SETTINGS_HEADING)}</h3>
+        <h3>{createMessage(FUNCTION_SETTINGS_HEADING)}</h3>
         <SettingRow isHeading>
           {SETTINGS_HEADINGS.map((setting, index) => (
             <SettingsHeading
