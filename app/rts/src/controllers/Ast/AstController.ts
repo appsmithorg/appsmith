@@ -18,14 +18,11 @@ export default class AstController extends BaseController {
     super();
   }
 
-  async getDependentIdentifiers(req: Request, res: Response) {
+  async getInfoFromScript(req: Request, res: Response) {
     try {
       // By default the application eval version is set to be 2
       const { script, evalVersion = 2 }: ScriptToIdentifiersType = req.body;
-      const data = await AstService.getIdentifiersFromScript(
-        script,
-        evalVersion
-      );
+      const data = await AstService.extractInfoFromScript(script, evalVersion);
       return super.sendResponse(res, data);
     } catch (err) {
       return super.sendError(
@@ -37,7 +34,7 @@ export default class AstController extends BaseController {
     }
   }
 
-  async getMultipleDependentIdentifiers(req: Request, res: Response) {
+  async getInfoFromMultipleScripts(req: Request, res: Response) {
     try {
       // By default the application eval version is set to be 2
       const { scripts, evalVersion = 2 }: MultipleScriptToIdentifiersType =
@@ -46,7 +43,7 @@ export default class AstController extends BaseController {
       Promise.all(
         scripts.map(
           async (script) =>
-            await AstService.getIdentifiersFromScript(script, evalVersion)
+            await AstService.extractInfoFromScript(script, evalVersion)
         )
       ).then((data) => {
         return super.sendResponse(res, data);
