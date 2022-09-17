@@ -123,7 +123,7 @@ export const CONFIG = {
         key: "currentViewItems",
       },
     ],
-    currentViewItems: [],
+    currentViewItems: "{{[]}}",
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
