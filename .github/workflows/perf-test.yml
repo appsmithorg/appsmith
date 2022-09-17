@@ -1,0 +1,264 @@
+name: Appsmith Performance Test Workflow
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+  repository_dispatch:
+    types: [perf-test-command]
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/client
+    shell: bash
+
+jobs:
+  perf-test:
+    runs-on: buildjet-4vcpu-ubuntu-2004
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'repository_dispatch'
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+    steps:
+      # Check out merge commit between the PR branch & base branch
+      - name: Fork based /perf-test checkout
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
+      - name: Figure out the PR number
+        run: echo ${{ inputs.pr }}
+
+      - name: Print the Github event
+        run: echo ${{ github.event_name }}
+
+      # Timestamp will be used to create cache key
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # Incase of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.14.0"
+
+      - name: Get yarn cache directory path
+        if: steps.run_result.outputs.run_result != 'success'
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --frozen-lockfile
+
+      - name: Download the react build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/server/dist
+
+      # Start server
+      - name: start server
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: app/server
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
+          APPSMITH_CLOUD_SERVICES_USERNAME: ""
+          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
+          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+        run: |
+          ls -l
+          ls -l scripts/
+          ls -l dist/
+          # Run the server in the background and redirect logs to a log file
+          ./scripts/start-dev-server.sh &> server-logs.log &
+
+      - name: Wait for 30 seconds for server to start
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          sleep 30s
+
+      - name: Exit if Server hasnt started
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+             echo "Server Not Started";
+             exit 1;
+           else
+             echo "Server Found";
+           fi
+
+      - name: Installing Yarn serve
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          yarn global add serve
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+
+      - name: Setting up the perf tests
+        if: steps.run_result.outputs.run_result != 'success'
+        shell: bash
+        env:
+          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          POSTGRES_PASSWORD: postgres
+        run: |
+          ./cypress/setup-test.sh
+
+      - name: Checkout Performance Infra code
+        uses: actions/checkout@v3
+        with:
+          repository: appsmithorg/performance-infra
+          token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
+          ref: main
+          path: app/client/perf
+
+      - name: Installing performance tests dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: app/client/perf
+        shell: bash
+        run: yarn install --frozen-lockfile
+
+      - name: Change test script permissions
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: app/client/perf
+        run: chmod +x ./start-test.sh
+
+      - name: Run performance tests
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: app/client/perf
+        shell: bash
+        env:
+          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME9 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD9 }}
+          APPSMITH_PERFORMANCE_DB_CONFIG: ${{ secrets.APPSMITH_PERFORMANCE_DB_CONFIG }}
+          PERF_GITHUB_PAT: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          POSTGRES_PASSWORD: postgres
+          NODE_TLS_REJECT_UNAUTHORIZED: "0"
+        run: ./start-test.sh
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/client/perf/traces
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: performance-summaries
+          path: app/client/perf/traces
+
+      - name: Read summary file
+        id: read_summary
+        uses: andstor/file-reader-action@v1
+        with:
+          path: app/client/perf/traces/reports/summary.md
+
+      - name: Add a comment with the results on the PR with link to workflow run
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            UI Performance test run logs and artifacts: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
+            Commit: `${{ github.event.client_payload.slash_command.sha }}`.
+            Results: ${{ steps.read_summary.outputs.contents }}
+
+        # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result

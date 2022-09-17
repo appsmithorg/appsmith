@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _, { get } from "lodash";
+import _, { get, isFunction } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
@@ -414,7 +414,11 @@ const PropertyControl = memo((props: Props) => {
     return null;
   }
 
-  const { label, propertyName } = props;
+  const { propertyName } = props;
+  const label = isFunction(props.label)
+    ? props.label(widgetProperties, propertyName)
+    : props.label;
+
   if (widgetProperties) {
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =
@@ -443,6 +447,7 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
+      label,
     };
     config.expected = getExpectedValue(props.validation);
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
@@ -460,7 +465,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName,
     );
     const isConvertible = !!props.isJSConvertible;
-    const className = props.label
+    const className = label
       .split(" ")
       .join("")
       .toLowerCase();

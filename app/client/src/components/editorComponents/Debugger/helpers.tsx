@@ -7,7 +7,7 @@ import {
   OPEN_THE_DEBUGGER,
   PRESS,
 } from "@appsmith/constants/messages";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import { DependencyMap, isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
   matchBuilderPath,
   matchApiPath,
@@ -15,6 +15,7 @@ import {
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import { modText } from "utils/helpers";
+import { union } from "lodash";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -126,17 +127,20 @@ export function getDependencyChain(
   let currentChain: string[] = [];
   const dependents = inverseMap[propertyPath];
 
-  if (!dependents) return currentChain;
+  if (!dependents.length) return currentChain;
 
-  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+  const { entityName } = getEntityNameAndPropertyPath(propertyPath);
 
-  dependents.map((e) => {
-    if (!e.includes(dependentInfo.entityName)) {
-      currentChain.push(e);
+  dependents.map((dependentPath) => {
+    if (!isChildPropertyPath(entityName, dependentPath)) {
+      currentChain.push(dependentPath);
     }
 
-    if (e !== dependentInfo.entityName) {
-      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    if (dependentPath !== entityName) {
+      currentChain = union(
+        currentChain,
+        getDependencyChain(dependentPath, inverseMap),
+      );
     }
   });
   return currentChain;
