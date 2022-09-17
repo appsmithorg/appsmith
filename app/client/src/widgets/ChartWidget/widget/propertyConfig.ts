@@ -3,6 +3,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 import { isLabelOrientationApplicableFor } from "../component";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 export default [
   {
@@ -345,7 +346,7 @@ export default [
       },
     ],
   },
-];
+] as PropertyPaneConfig[];
 
 export const contentConfig = [
   {
