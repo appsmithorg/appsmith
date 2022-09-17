@@ -251,6 +251,14 @@ export function minRangeValidation(
   const defaultMinRange = Number(minRange);
   const stepSize = props.step;
 
+  if (!Number.isFinite(defaultMinRange)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be a number"],
+    };
+  }
+
   if (defaultMinRange < 0.1) {
     return {
       isValid: false,

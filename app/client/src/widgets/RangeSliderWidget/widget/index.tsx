@@ -104,7 +104,7 @@ class RangeSliderWidget extends BaseWidget<
           },
           {
             propertyName: "step",
-            helpText: "Sets the step size of the widget",
+            helpText: "The amount by which the slider value should increase",
             label: "Step Size",
             controlType: "INPUT_TEXT",
             placeholderText: "10",
