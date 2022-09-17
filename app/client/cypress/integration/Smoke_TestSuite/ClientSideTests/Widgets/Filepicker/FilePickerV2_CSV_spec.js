@@ -10,6 +10,9 @@ describe("File picker widget v2", () => {
 
   it("1. Parse CSV data to table Widget", () => {
     cy.openPropertyPane(widgetName);
+    cy.get(
+      `.t--property-control-dataformat ${commonlocators.helperText}`,
+    ).should("not.exist");
     cy.selectDropdownValue(
       commonlocators.filePickerDataFormat,
       "Array (CSVs only)",
@@ -17,6 +20,9 @@ describe("File picker widget v2", () => {
     cy.get(commonlocators.filePickerDataFormat)
       .last()
       .should("have.text", "Array (CSVs only)");
+    cy.get(
+      `.t--property-control-dataformat ${commonlocators.helperText}`,
+    ).should("exist");
     cy.get(commonlocators.filePickerInput)
       .first()
       .attachFile("Test csv.csv");
