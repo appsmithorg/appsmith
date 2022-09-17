@@ -22,10 +22,6 @@ import java.util.Set;
 public class WebClientUtils {
 
     private static final Set<String> DISALLOWED_HOSTS = Set.of(
-            "localhost",
-            "::1",
-            "0:0:0:0:0:0:0:1",
-            "127.0.0.1",
             "169.254.169.254",
             "metadata.google.internal"
     );
