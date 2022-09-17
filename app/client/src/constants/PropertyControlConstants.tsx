@@ -50,7 +50,7 @@ export type PropertyPaneControlConfig = {
   // Serves in the tooltip
   helpText?: string;
   //Dynamic text serves below the property pane inputs
-  helperText?: ((props: any) => string) | string;
+  helperText?: ((props: WidgetProps) => string) | string;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;
@@ -64,25 +64,25 @@ export type PropertyPaneControlConfig = {
     props: any,
   ) => UpdateWidgetPropertyPayload[];
   updateHook?: (
-    props: any,
+    props: WidgetProps,
     propertyName: string,
     propertyValue: any,
   ) => Array<PropertyHookUpdates> | undefined;
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: (props: WidgetProps, propertyPath: string) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
   validation?: ValidationConfig;
   useValidationMessage?: boolean;
   additionalAutoComplete?: (
-    props: any,
+    props: WidgetProps,
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
   getStylesheetValue?: (
-    props: any,
+    props: WidgetProps,
     propertyPath: string,
     stylesheet?: AppTheme["stylesheet"][string],
   ) => AppTheme["stylesheet"][string][string];

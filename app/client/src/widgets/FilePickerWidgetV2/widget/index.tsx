@@ -28,7 +28,8 @@ const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
 
 const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
 
-type Result = string | Buffer | null;
+type Result = string | Buffer | ArrayBuffer | null;
+
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
 }>`
@@ -866,8 +867,8 @@ class FilePickerWidget extends BaseWidget<
               const newFile = {
                 type: file.type,
                 id: file.id,
-                data: this.csvParser(
-                  reader.result as Result,
+                data: this.parseUploadResult(
+                  reader.result,
                   file.type,
                   this.props.fileDataType,
                 ),
@@ -998,20 +999,21 @@ class FilePickerWidget extends BaseWidget<
     );
   }
 
-  csvParser(result: Result, fileType: string, dataFormat: FileDataTypes) {
-    if (dataFormat !== FileDataTypes.Array) {
+  parseUploadResult(
+    result: Result,
+    fileType: string,
+    dataFormat: FileDataTypes,
+  ) {
+    if (
+      dataFormat !== FileDataTypes.Array ||
+      !isCSVFileType(fileType) ||
+      !result
+    ) {
       return result;
     }
 
-    if (dataFormat === FileDataTypes.Array && !isCSVFileType(fileType)) {
-      return [];
-    }
-    if (!result) {
-      return [];
-    }
-
-    const data: any[] = [];
-    const errors: any[] = [];
+    const data: Record<string, string>[] = [];
+    const errors: Papa.ParseError[] = [];
 
     function chunk(results: Papa.ParseStepResult<any>) {
       if (results?.errors?.length) {
@@ -1033,12 +1035,18 @@ class FilePickerWidget extends BaseWidget<
 
         const endParsing = performance.now();
 
-        log.debug("### PARSING timing", `${endParsing - startParsing} ms`);
+        log.debug(
+          `### FILE_PICKER_WIDGET_V2 - ${this.props.widgetName} - CSV PARSING  `,
+          `${endParsing - startParsing} ms`,
+        );
 
         return data;
       } catch (error) {
         log.error(errors);
+        return [];
       }
+    } else {
+      return [];
     }
   }
 

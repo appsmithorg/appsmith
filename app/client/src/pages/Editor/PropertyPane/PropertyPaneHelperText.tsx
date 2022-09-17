@@ -20,10 +20,10 @@ const PropertyPaneHelperText = (props: Props) => {
 
   return (
     <StyledHelperText
-      className={`t--property-control-helperText`}
+      className="t--property-control-helperText"
       type={TextType.P1}
     >
-      {props.helperText || ""}
+      {props.helperText}
     </StyledHelperText>
   );
 };
