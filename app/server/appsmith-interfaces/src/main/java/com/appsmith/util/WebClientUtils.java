@@ -81,7 +81,7 @@ public class WebClientUtils {
         private static boolean isDisallowedAndFail(String host, Promise<?> promise) {
             if (DISALLOWED_HOSTS.contains(host)) {
                 log.warn("Host {} is disallowed. Failing the request.", host);
-                promise.setFailure(new UnknownHostException("Host not allowed"));
+                promise.setFailure(new UnknownHostException("Host not allowed."));
                 return true;
             }
             return false;
