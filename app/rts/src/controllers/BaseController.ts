@@ -1,6 +1,9 @@
 import { Response } from "express";
 import { ValidationError } from "express-validator";
 import { StatusCodes } from "http-status-codes";
+import { ExtractInfoFromCode } from "@shared/ast";
+
+type Extractions = ExtractInfoFromCode;
 
 type ErrorData = {
   error: string | string[];
@@ -16,7 +19,7 @@ type ErrorBag = {
 type ResponseData = {
   success: boolean;
   message?: string;
-  data: unknown; //setting unknown for now, to be modified later.
+  data: Extractions;
 };
 
 export default class BaseController {

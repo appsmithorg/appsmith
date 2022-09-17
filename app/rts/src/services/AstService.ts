@@ -1,16 +1,10 @@
-import { extractIdentifiersFromCode } from "@shared/ast";
+import { extractInfoFromCode } from "@shared/ast";
 
 export default class AstService {
-  static async getIdentifiersFromScript(
-    script,
-    evalVersion
-  ): Promise<any> {
+  static async extractInfoFromScript(script, evalVersion): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        const extractions = extractIdentifiersFromCode(
-          script,
-          evalVersion
-        );
+        const extractions = extractInfoFromCode(script, evalVersion);
 
         resolve(extractions);
       } catch (err) {
