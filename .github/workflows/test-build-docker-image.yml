@@ -383,9 +383,8 @@ jobs:
         run: |
           ls -al dist/node_modules/@shared/ast
           tar -cvf rts-dist.tar dist
-
-      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload server build bundle
+      # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
+      - name: Upload rts build bundle
         uses: actions/upload-artifact@v2
         with:
           name: rts-dist
@@ -727,8 +726,14 @@ jobs:
       - name: Download the rts build artifact
         uses: actions/download-artifact@v2
         with:
-          name: rts-build
+          name: rts-dist
           path: app/rts/dist
+
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v2
@@ -1073,7 +1078,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -1089,7 +1094,7 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
@@ -1401,7 +1406,7 @@ jobs:
         with:
           path: |
             app/client/cypress/snapshots/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -1457,7 +1462,7 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
