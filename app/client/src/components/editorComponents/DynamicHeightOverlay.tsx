@@ -14,7 +14,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { BaseStyle, WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 
 const StyledDynamicHeightOverlay = styled.div`
@@ -326,11 +326,18 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
   );
 };
 
+export interface DynamicHeightOverlayStyle {
+  width: string | number;
+  height: string | number;
+  top: number;
+  left: number;
+}
+
 interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
   batchUpdate: (height: number) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
-  style: BaseStyle;
+  style: DynamicHeightOverlayStyle;
 }
 
 const getSnappedValues = (
@@ -595,10 +602,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       <StyledDynamicHeightOverlay
         style={{
           position: "absolute",
-          height: style.componentHeight,
-          width: style.componentWidth,
-          left: style.xPosition,
-          top: style.yPosition,
+          height: style.height,
+          width: style.width,
+          left: style.left,
+          top: style.top,
           zIndex: 3,
           pointerEvents: "none",
         }}
