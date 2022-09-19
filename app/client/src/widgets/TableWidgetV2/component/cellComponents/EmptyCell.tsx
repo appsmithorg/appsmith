@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import { Cell, Row } from "react-table";
 import { ReactTableColumnProps } from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
@@ -13,6 +13,7 @@ export const renderEmptyRows = (
   multiRowSelection = false,
   accentColor: string,
   borderRadius: string,
+  style?: CSSProperties,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
 
@@ -23,7 +24,10 @@ export const renderEmptyRows = (
       prepareRow(row);
       const rowProps = {
         ...row.getRowProps(),
-        style: { display: "flex" },
+        style: {
+          display: "flex",
+          ...style,
+        },
       };
       return (
         <div {...rowProps} className="tr" key={index}>
@@ -41,26 +45,18 @@ export const renderEmptyRows = (
       ? columns
       : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
 
-    return (
-      <>
-        {rows.map((row: string, index: number) => {
-          return (
-            <EmptyRow className="tr" key={index}>
-              {multiRowSelection &&
-                renderBodyCheckBoxCell(false, accentColor, borderRadius)}
-              {tableColumns.map((column: any, colIndex: number) => {
-                return (
-                  <EmptyCell
-                    className="td"
-                    key={colIndex}
-                    width={column.width}
-                  />
-                );
-              })}
-            </EmptyRow>
-          );
-        })}
-      </>
-    );
+    return rows.map((row: string, index: number) => {
+      return (
+        <EmptyRow className="tr" key={index} style={style}>
+          {multiRowSelection &&
+            renderBodyCheckBoxCell(false, accentColor, borderRadius)}
+          {tableColumns.map((column: any, colIndex: number) => {
+            return (
+              <EmptyCell className="td" key={colIndex} width={column.width} />
+            );
+          })}
+        </EmptyRow>
+      );
+    });
   }
 };

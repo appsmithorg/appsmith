@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { pick, reduce } from "lodash";
 import {
   useTable,
@@ -6,7 +6,7 @@ import {
   useBlockLayout,
   useResizeColumns,
   useRowSelect,
-  Row,
+  Row as ReactTableRowType,
 } from "react-table";
 import {
   TableWrapper,
@@ -33,7 +33,8 @@ import {
   renderHeaderCheckBoxCell,
 } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
-import { EditableCell } from "../constants";
+import { DEFAULT_COLUMN_WIDTH, EditableCell } from "../constants";
+import { Row } from "./Row";
 
 interface TableProps {
   width: number;
@@ -68,7 +69,7 @@ interface TableProps {
   enableDrag: () => void;
   toggleAllRowSelect: (
     isSelect: boolean,
-    pageData: Row<Record<string, unknown>>[],
+    pageData: ReactTableRowType<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
   searchTableData: (searchKey: any) => void;
@@ -228,6 +229,18 @@ export function Table(props: TableProps) {
     [props.width],
   );
 
+  const totalColumnWidth = useMemo(() => {
+    return props.columns.reduce((prev, curr) => {
+      return prev + (curr.width || DEFAULT_COLUMN_WIDTH);
+    }, 6);
+  }, [columnString]);
+
+  const isCellWrappingAllowed = useMemo(() => {
+    return props.columns.some(
+      (column) => column.columnProperties.allowCellWrapping,
+    );
+  }, [columnString]);
+
   return (
     <TableWrapper
       accentColor={props.accentColor}
@@ -360,67 +373,25 @@ export function Table(props: TableProps) {
                   props.borderRadius,
                 )}
             </div>
-            <div
-              {...getTableBodyProps()}
-              className={`tbody ${
-                props.pageSize > subPage.length ? "no-scroll" : ""
-              }`}
+            <Row
+              accentColor={props.accentColor}
+              borderRadius={props.borderRadius}
+              columns={props.columns}
+              getTableBodyProps={getTableBodyProps}
+              height={props.height}
+              multiRowSelection={props.multiRowSelection}
+              pageSize={props.pageSize}
+              prepareRow={prepareRow}
               ref={tableBodyRef}
-            >
-              {subPage.map((row, rowIndex) => {
-                prepareRow(row);
-                const rowProps = {
-                  ...row.getRowProps(),
-                  style: { display: "flex" },
-                };
-                const isRowSelected = props.multiRowSelection
-                  ? selectedRowIndices.includes(row.index)
-                  : row.index === selectedRowIndex;
-                return (
-                  <div
-                    {...rowProps}
-                    className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
-                    key={rowIndex}
-                    onClick={(e) => {
-                      row.toggleRowSelected();
-                      props.selectTableRow(row);
-                      e.stopPropagation();
-                    }}
-                  >
-                    {props.multiRowSelection &&
-                      renderBodyCheckBoxCell(
-                        isRowSelected,
-                        props.accentColor,
-                        props.borderRadius,
-                      )}
-                    {row.cells.map((cell, cellIndex) => {
-                      return (
-                        <div
-                          {...cell.getCellProps()}
-                          className="td"
-                          data-colindex={cellIndex}
-                          data-rowindex={rowIndex}
-                          key={cellIndex}
-                        >
-                          {cell.render("Cell")}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-              {props.pageSize > subPage.length &&
-                renderEmptyRows(
-                  props.pageSize - subPage.length,
-                  props.columns,
-                  props.width,
-                  subPage,
-                  prepareRow,
-                  props.multiRowSelection,
-                  props.accentColor,
-                  props.borderRadius,
-                )}
-            </div>
+              rows={subPage}
+              selectTableRow={props.selectTableRow}
+              selectedRowIndex={props.selectedRowIndex}
+              selectedRowIndices={props.selectedRowIndices}
+              tableSizes={tableSizes}
+              totalColumnWidth={totalColumnWidth}
+              useVirtual={!isCellWrappingAllowed}
+              width={props.width}
+            />
           </div>
         </Scrollbars>
       </div>

@@ -81,6 +81,9 @@ export const TableWrapper = styled.div<{
       overflow-y: auto;
       ${hideScrollbar};
     }
+    .tbody.no-scroll {
+      overflow: unset;
+    }
     .tr {
       overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
