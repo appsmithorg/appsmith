@@ -735,12 +735,6 @@ jobs:
           echo "Cleaning up the tar files"
           rm app/rts/dist/rts-dist.tar
 
-      - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: rts-build-deps
-          path: app/rts/node_modules/
-
       # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
       # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build  docker image
@@ -1379,7 +1373,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -1390,7 +1384,7 @@ jobs:
         with:
           path: |
             ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
