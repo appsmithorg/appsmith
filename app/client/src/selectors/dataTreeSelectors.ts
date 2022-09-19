@@ -85,7 +85,6 @@ export const getWidgetEvalValues = createSelector(
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
   getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
     //js actions needs to be added
     const cachedResponses: Record<string, any> = {};

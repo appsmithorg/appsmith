@@ -160,6 +160,13 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
+    .navigable-entity-highlight {
+      color: #69b5ff;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
     .CodeMirror-matchingbracket {
       text-decoration: none;
       color: #ffd600 !important;
@@ -283,7 +290,7 @@ export const EditorWrapper = styled.div<{
     &&&&&&&& .CodeMirror-scroll {
       overflow: visible;
     }
-   
+
     & .CodeEditorTarget {
       height: ${props.isFocused ? "auto" : "35px"};
     }
@@ -291,7 +298,7 @@ export const EditorWrapper = styled.div<{
 
   ${(props) =>
     props.isReadOnly &&
-    ` 
+    `
       &&&&&&&&&& .cm-m-javascript.cm-number {
         color: ${props.isRawView ? "#000" : "#268bd2"};
 

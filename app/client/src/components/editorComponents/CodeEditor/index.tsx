@@ -51,7 +51,10 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
+import {
+  bindingMarker,
+  entityMarker,
+} from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
@@ -101,6 +104,10 @@ import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
+import {
+  EntityNavigationData,
+  getEntitiesForNavigation,
+} from "selectors/navigationSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -198,7 +205,7 @@ type State = {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker],
+    marking: [bindingMarker, entityMarker],
     hinting: [bindingHint, commandsHelper],
   };
   // this is the higlighted element for any highlighted text in the codemirror
@@ -324,7 +331,11 @@ class CodeEditor extends Component<Props, State> {
           editor.setSize("100%", "100%");
         }
 
-        CodeEditor.updateMarkings(editor, this.props.marking);
+        CodeEditor.updateMarkings(
+          editor,
+          this.props.marking,
+          this.props.entitiesForNavigation,
+        );
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
@@ -371,7 +382,11 @@ class CodeEditor extends Component<Props, State> {
         // handles case when inputValue changes from a truthy to a falsy value
         this.editor.setValue("");
       }
-      CodeEditor.updateMarkings(this.editor, this.props.marking);
+      CodeEditor.updateMarkings(
+        this.editor,
+        this.props.marking,
+        this.props.entitiesForNavigation,
+      );
     });
   }
 
@@ -592,7 +607,11 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.input.onChange(value);
     }
-    CodeEditor.updateMarkings(this.editor, this.props.marking);
+    CodeEditor.updateMarkings(
+      this.editor,
+      this.props.marking,
+      this.props.entitiesForNavigation,
+    );
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
@@ -738,8 +757,9 @@ class CodeEditor extends Component<Props, State> {
   static updateMarkings = (
     editor: CodeMirror.Editor,
     marking: Array<MarkHelper>,
+    entityNavigationData: EntityNavigationData,
   ) => {
-    marking.forEach((helper) => helper(editor));
+    marking.forEach((helper) => helper(editor, entityNavigationData));
   };
 
   updatePropertyValue(value: string, cursor?: number) {
@@ -964,6 +984,7 @@ const mapStateToProps = (state: AppState) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
+  entitiesForNavigation: getEntitiesForNavigation(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
