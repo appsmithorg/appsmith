@@ -48,6 +48,7 @@ class WidgetFactory {
     WidgetType,
     readonly PropertyPaneConfig[]
   > = new Map();
+  static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -64,6 +65,7 @@ class WidgetFactory {
     propertyPaneContentConfig?: PropertyPaneConfig[],
     propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
+    loadingProperties?: Array<RegExp>,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -71,6 +73,8 @@ class WidgetFactory {
       this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
       this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+      loadingProperties &&
+        this.loadingProperties.set(widgetType, loadingProperties);
 
       if (propertyPaneConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
@@ -243,6 +247,10 @@ class WidgetFactory {
       };
     });
     return typeConfigMap;
+  }
+
+  static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
+    return this.loadingProperties.get(type);
   }
 }
 

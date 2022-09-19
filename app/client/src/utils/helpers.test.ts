@@ -9,6 +9,7 @@ import {
   captureInvalidDynamicBindingPath,
   mergeWidgetConfig,
   extractColorsFromString,
+  isNameValid,
 } from "./helpers";
 import WidgetFactory from "./WidgetFactory";
 import * as Sentry from "@sentry/react";
@@ -565,5 +566,34 @@ describe("#extractColorsFromString", () => {
 
     //Check rgb
     expect(extractColorsFromString(borderWithRgb)[0]).toEqual("rgb(0,0,0)");
+  });
+});
+
+describe("isNameValid()", () => {
+  it("works properly", () => {
+    const invalidEntityNames = [
+      "console",
+      "moment",
+      "Promise",
+      "appsmith",
+      "Math",
+      "_",
+      "forge",
+      "yield",
+      "Boolean",
+      "ReferenceError",
+      "clearTimeout",
+      "parseInt",
+      "eval",
+    ];
+    // Some window object methods and properties names should be valid entity names since evaluation is done
+    // in the worker thread, and some of the window methods and properties are not available there.
+    const validEntityNames = ["history", "parent", "screen"];
+    for (const invalidName of invalidEntityNames) {
+      expect(isNameValid(invalidName, {})).toBe(false);
+    }
+    for (const validName of validEntityNames) {
+      expect(isNameValid(validName, {})).toBe(true);
+    }
   });
 });

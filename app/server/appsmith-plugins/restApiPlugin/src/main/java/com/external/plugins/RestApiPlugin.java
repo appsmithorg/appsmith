@@ -5,6 +5,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
+import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -15,18 +17,16 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
-import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
-import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -125,7 +125,7 @@ public class RestApiPlugin extends BasePlugin {
             initUtils.initializeResponseWithError(errorResult);
 
             // Set of hint messages that can be returned to the user.
-            Set<String> hintMessages = new HashSet();
+            Set<String> hintMessages = new HashSet<>();
 
             // Initializing request URL
             String url = initUtils.initializeRequestUrl(actionConfiguration, datasourceConfiguration);
@@ -147,18 +147,6 @@ public class RestApiPlugin extends BasePlugin {
 
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
-
-            try {
-                if (uriUtils.isHostDisallowed(uri)) {
-                    errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
-                    errorResult.setRequest(actionExecutionRequest);
-                    return Mono.just(errorResult);
-                }
-            } catch (UnknownHostException e) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Unknown host."));
-                errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult);
-            }
 
             WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);

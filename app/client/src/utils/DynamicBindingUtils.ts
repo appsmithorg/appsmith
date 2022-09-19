@@ -4,6 +4,7 @@ import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "widgets/BaseWidget";
 import parser from "fast-xml-parser";
+
 import { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
@@ -186,20 +187,18 @@ export const extraLibraries: ExtraLibrary[] = [
     displayName: "forge",
   },
 ];
-
 /**
  * creates dynamic list of constants based on
  * current list of extra libraries i.e lodash("_"), moment etc
  * to be used in widget and entity name validations
  */
 export const extraLibrariesNames = extraLibraries.reduce(
-  (prev: any, curr: any) => {
+  (prev: Record<string, string>, curr) => {
     prev[curr.accessor] = curr.accessor;
     return prev;
   },
   {},
 );
-
 export interface DynamicPath {
   key: string;
   value?: string;
