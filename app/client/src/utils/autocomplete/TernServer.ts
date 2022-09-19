@@ -216,10 +216,9 @@ class TernServer {
       return this.showError(cm, "No suggestions");
     }
     const doc = this.findDoc(cm.getDoc());
+    const lineValue = this.lineValue(doc);
     const cursor = cm.getCursor();
-    const { extraChars, value: focusedValue } = this.getFocusedDocValueAndPos(
-      doc,
-    );
+    const { extraChars } = this.getFocusedDocValueAndPos(doc);
 
     let completions: Completion[] = [];
     let after = "";
@@ -241,14 +240,6 @@ class TernServer {
     ) {
       after = '"]';
     }
-    // Actual char space
-    const trimmedFocusedValueLength = focusedValue.trim().length;
-    // end.ch counts tab space as 1 instead of 2 space chars in string
-    // For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
-    // hence tabSpacesCount = end.ch - trimmedFocusedValueLength
-    const tabSpacesCount = end.ch - trimmedFocusedValueLength;
-    const cursorHorizontalPos =
-      tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
 
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
@@ -277,6 +268,19 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
+
+        const trimmedFocusedValueLength = lineValue.substring(0, end.ch).trim()
+          .length;
+
+        /**
+         * end.ch counts tab space as 1 instead of 2 space chars in string
+         * For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
+         * hence tabSpacesCount = end.ch - trimmedFocusedValueLength
+         */
+        const tabSpacesCount = end.ch - trimmedFocusedValueLength;
+        const cursorHorizontalPos =
+          tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
+
         // Add relevant keyword completions
         const keywordCompletions = getCompletionsForKeyword(
           codeMirrorCompletion,
@@ -588,6 +592,10 @@ class TernServer {
     let newCursorPosition = cursor.ch;
 
     let currentLine = 0;
+    let sameLineSegmentCount = 1;
+
+    const lineValueSplitByBindingStart = lineValue.split("{{");
+    const lineValueSplitByBindingEnd = lineValue.split("}}");
 
     for (let index = 0; index < stringSegments.length; index++) {
       // segment is divided according to binding {{}}
@@ -617,15 +625,23 @@ class TernServer {
        *
        */
 
+      const posOfBindingStart = lineValueSplitByBindingStart
+        .slice(0, sameLineSegmentCount)
+        .join("{{").length;
+      const posOfBindingClose = lineValueSplitByBindingEnd
+        .slice(0, sameLineSegmentCount)
+        .join("}}").length;
+
       const isCursorInBetweenSegmentStartAndEndLine =
         cursor.line > currentLine && cursor.line < segmentEndLine;
 
+      const isCursorAtSegmentEndLine = cursor.line === segmentEndLine;
+
       const isCursorAtSegmentStartLine = cursor.line === currentLine;
       const isCursorAfterBindingOpenAtSegmentStart =
-        isCursorAtSegmentStartLine && cursor.ch > lineValue.indexOf("{{") + 1;
-      const isCursorAtSegmentEndLine = cursor.line === segmentEndLine;
+        isCursorAtSegmentStartLine && cursor.ch >= posOfBindingStart;
       const isCursorBeforeBindingCloseAtSegmentEnd =
-        isCursorAtSegmentEndLine && cursor.ch < lineValue.indexOf("}}") + 1;
+        isCursorAtSegmentEndLine && cursor.ch <= posOfBindingClose;
 
       const isSegmentStartLineAndEndLineSame = currentLine === segmentEndLine;
       const isCursorBetweenSingleLineSegmentBinding =
@@ -645,12 +661,19 @@ class TernServer {
         dynamicString = currentSegment;
         newCursorLine = cursor.line - currentLine;
         if (lineValue.includes("{{")) {
-          extraChars = lineValue.indexOf("{{") + 2;
+          extraChars = posOfBindingStart + 2;
         }
         newCursorPosition = cursor.ch - extraChars;
 
         break;
       }
+
+      if (currentLine !== segmentEndLine) {
+        sameLineSegmentCount = 1;
+      } else if (isDynamicValue(segment)) {
+        sameLineSegmentCount += 1;
+      }
+
       currentLine = segmentEndLine;
     }
 
