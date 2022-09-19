@@ -67,3 +67,15 @@ registerRoute(
 registerRoute(({ url }) => {
   return url.pathname.includes("index.html");
 }, new NetworkOnly());
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          return caches.delete(cacheName);
+        }),
+      );
+    }),
+  );
+});
