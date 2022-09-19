@@ -1,4 +1,4 @@
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { getContentTypeHeaderValue, getIndextoUpdate, parseUrlForQueryParams } from "utils/ApiPaneUtils";
 
 describe("api pane header insertion or removal", () => {

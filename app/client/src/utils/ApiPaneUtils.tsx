@@ -1,4 +1,4 @@
-import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants";
+import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 
 /**
  * This function updates the header at a given index.
