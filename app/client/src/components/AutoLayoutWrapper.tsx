@@ -9,6 +9,7 @@ import { checkIsDropTarget } from "./designSystems/appsmith/PositionedContainer"
 import { getSelectedWidgets } from "selectors/ui";
 import { Layers } from "constants/Layers";
 import { AppState } from "ce/reducers";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -20,6 +21,8 @@ export type AutoLayoutProps = {
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
   isWrapper?: boolean;
+  componentWidth: number;
+  minWidth?: number;
 };
 
 const AutoLayout = styled("div")<{
@@ -28,6 +31,9 @@ const AutoLayout = styled("div")<{
   useAutoLayout?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
   isWrapper?: boolean;
+  componentWidth: number;
+  minWidth?: number;
+  isMobile?: boolean;
 }>`
   position: unset;
   width: auto;
@@ -39,6 +45,10 @@ const AutoLayout = styled("div")<{
     responsiveBehavior === ResponsiveBehavior.Fill || isWrapper
       ? "stretch"
       : "auto"};
+  min-width: ${({ isMobile, minWidth, responsiveBehavior }) =>
+    responsiveBehavior === ResponsiveBehavior.Fill && isMobile
+      ? "100%"
+      : `${minWidth}px` || "auto"};
 `;
 
 const ZIndexContainer = styled.div<{
@@ -49,19 +59,13 @@ const ZIndexContainer = styled.div<{
   position: relative;
   z-index: ${({ zIndex }) => zIndex || Layers.positionedWidget};
 
-  width: ${({ alignItems, direction }) =>
-    alignItems === AlignItems.Stretch && direction === LayoutDirection.Vertical
-      ? "calc(100% - 16px)"
-      : "auto"};
-  height: ${({ alignItems, direction }) =>
-    alignItems === AlignItems.Stretch &&
-    direction === LayoutDirection.Horizontal
-      ? "calc(100% - 16px)"
-      : "auto"};
+  width: "auto";
+  height: "auto";
   min-height: 30px;
 `;
 
 export function AutoLayoutWrapper(props: AutoLayoutProps) {
+  const isMobile = useIsMobileDevice();
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(() => {
     clickToSelectWidget(props.widgetId);
@@ -83,8 +87,11 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
   return (
     <AutoLayout
       alignItems={props.alignItems}
+      componentWidth={props.componentWidth}
       direction={props.direction}
+      isMobile={isMobile}
       isWrapper={props.isWrapper}
+      minWidth={props.minWidth}
       onClickCapture={onClickFn}
       responsiveBehavior={props.responsiveBehavior}
       useAutoLayout={props.useAutoLayout}

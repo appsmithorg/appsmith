@@ -301,6 +301,7 @@ abstract class BaseWidget<
         focused={this.props.focused}
         isWrapper={this.props.isWrapper}
         leftColumn={this.props.leftColumn}
+        minWidth={this.props.minWidth}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
@@ -331,11 +332,14 @@ abstract class BaseWidget<
   }
 
   addAutoLayoutWrapper(content: ReactNode) {
+    const { componentWidth } = this.getComponentDimensions();
     return (
       <AutoLayoutWrapper
         alignItems={this.props.alignItems}
+        componentWidth={componentWidth}
         direction={this.props.direction}
         isWrapper={this.props.isWrapper}
+        minWidth={this.props.minWidth}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
         useAutoLayout={this.props.useAutoLayout}
@@ -396,7 +400,8 @@ abstract class BaseWidget<
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
-          content = this.addAutoLayoutWrapper(content);
+          if (this.props.useAutoLayout)
+            content = this.addAutoLayoutWrapper(content);
           return content;
         }
         return null;
@@ -476,6 +481,7 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
+  minWidth?: number;
 };
 
 export interface WidgetPositionProps extends WidgetRowCols {

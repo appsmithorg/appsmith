@@ -175,7 +175,11 @@ class LayoutWrapperWidget extends ContainerWidget {
           <LayoutWrapper
             alignment={this.props.alignment || Alignment.Left}
             direction={this.state.direction}
-            overflow={Overflow.NoWrap}
+            overflow={
+              this.state.direction === LayoutDirection.Horizontal
+                ? Overflow.Wrap
+                : Overflow.NoWrap
+            }
             spacing={this.props.spacing || Spacing.None}
             stretchHeight={stretchFlexBox}
             useAutoLayout={this.state.useAutoLayout}
@@ -198,7 +202,7 @@ class LayoutWrapperWidget extends ContainerWidget {
 
     const style: CSSProperties = {
       width: "100%",
-      height: `${height}px`,
+      height: "100%",
       background: "none",
       position: "relative",
     };

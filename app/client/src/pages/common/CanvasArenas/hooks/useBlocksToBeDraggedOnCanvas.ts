@@ -322,12 +322,17 @@ export const useBlocksToBeDraggedOnCanvas = ({
         updateWidgetParams,
       };
     });
+    const payload = blocksToUpdate[0]?.updateWidgetParams?.payload;
     // Add wrapperType to props of the new widget
     const widgetPayload = {
-      ...blocksToUpdate[0]?.updateWidgetParams?.payload,
+      ...payload,
       props: {
-        ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
+        ...payload?.props,
         wrapperType,
+        minWidth:
+          payload.columns && payload.parentColumnSpace
+            ? payload.parentColumnSpace * payload.columns
+            : 0,
       },
     };
     dispatch({

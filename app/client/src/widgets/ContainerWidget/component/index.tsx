@@ -86,6 +86,7 @@ export const FlexContainer = styled.div<{
   alignItems?: AlignItems;
   stretchHeight: boolean;
   overflow: Overflow;
+  isWrapper?: boolean;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
@@ -110,6 +111,8 @@ const SubWrapper = styled.div<{
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   align-items: ${({ flexDirection }) =>
     flexDirection === FlexDirection.Column ? "flex-start" : "center"};
+  flex-wrap: ${({ flexDirection }) =>
+    flexDirection === FlexDirection.Row ? "wrap" : "nowrap"};
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -209,6 +212,7 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
       {...layoutProps}
+      isWrapper
       overflow={props.overflow}
       stretchHeight={props.stretchHeight}
       useAutoLayout={props.useAutoLayout}

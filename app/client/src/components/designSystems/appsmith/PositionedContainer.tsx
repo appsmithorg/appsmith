@@ -22,6 +22,7 @@ import {
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import equal from "fast-deep-equal";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -47,6 +48,7 @@ export type PositionedContainerProps = {
   noContainerOffset?: boolean;
   leftColumn: number;
   parentColumnSpace: number;
+  minWidth?: number;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -57,6 +59,7 @@ export const checkIsDropTarget = memoize(function isDropTarget(
 
 export function PositionedContainer(props: PositionedContainerProps) {
   const { componentHeight, componentWidth } = props;
+  const isMobile = useIsMobileDevice();
 
   // Memoizing the style
   const style: BaseStyle = useMemo(
@@ -160,6 +163,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
             props.responsiveBehavior === ResponsiveBehavior.Hug
           ))
           ? "auto"
+          : isMobile
+          ? props?.minWidth || "auto"
           : style.componentWidth + (style.widthUnit || "px"),
       padding: padding + "px",
       zIndex,
