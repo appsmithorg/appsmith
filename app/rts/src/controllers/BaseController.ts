@@ -1,9 +1,7 @@
 import { Response } from "express";
 import { ValidationError } from "express-validator";
 import { StatusCodes } from "http-status-codes";
-import { ExtractInfoFromCode } from "@shared/ast";
-
-type Extractions = ExtractInfoFromCode;
+import { Extractions } from "@shared/ast";
 
 type ErrorData = {
   error: string | string[];
