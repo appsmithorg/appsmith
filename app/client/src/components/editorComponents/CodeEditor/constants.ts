@@ -40,3 +40,15 @@ export const SUPPORTED_WEB_APIS = {
   console: true,
   crypto: true,
 };
+export enum CustomLintErrorCode {
+  INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",
+}
+export const CUSTOM_LINT_ERRORS: Record<
+  CustomLintErrorCode,
+  (...args: any[]) => string
+> = {
+  [CustomLintErrorCode.INVALID_ENTITY_PROPERTY]: (
+    entityName: string,
+    propertyName: string,
+  ) => `"${propertyName}" doesn't exist in ${entityName}`,
+};

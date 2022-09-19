@@ -29,6 +29,7 @@ import {
   TROUBLESHOOT_ISSUE,
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
+import { Colors } from "constants/Colors";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -90,6 +91,26 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     &.${Severity.WARNING} {
       color: ${(props) => props.theme.colors.debugger.warning.time};
     }
+  }
+  .debugger-occurences{
+    height: 18px;
+    width: 18px;
+    border-radius: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: ${Colors.GRAY_900};
+    &.${Severity.INFO} {
+      background-color: ${Colors.GREY_200};
+    }
+    margin-right: 4px;
+    &.${Severity.ERROR} {
+      background-color: ${Colors.RED_150};
+    }
+    &.${Severity.WARNING} {
+      background-color: ${Colors.WARNING_DEBUGGER_GROUPING_BADGE};
+    }
+    ${(props) => getTypographyByKey(props, "u2")}
   }
   .debugger-description {
     display: flex;
@@ -208,6 +229,7 @@ export const getLogItemProps = (e: Log) => {
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
     collapsable: showToggleIcon(e),
+    occurences: e.occurrenceCount || 1,
   };
 };
 
@@ -226,6 +248,7 @@ type LogItemProps = {
   source?: SourceEntity;
   expand?: boolean;
   messages?: Message[];
+  occurences: number;
 };
 
 function LogItem(props: LogItemProps) {
@@ -286,6 +309,13 @@ function LogItem(props: LogItemProps) {
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
           <div className="debugger-description">
+            {props.occurences > 1 && (
+              <span
+                className={`t--debugger-log-message-occurence debugger-occurences ${props.severity}`}
+              >
+                {props.occurences}
+              </span>
+            )}
             <span
               className="debugger-label t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
