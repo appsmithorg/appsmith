@@ -142,11 +142,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
     let entityName = "gender";
     let newEntityName = "newInput";
-    cy.get(ee._entityExplorer).click();
-    cy.get("#switcher--explorer").click();
-    cy.wait(3000);
-    ee.ExpandCollapseEntity("Widgets", true);
-    ee.SelectEntityByName(entityName);
+    ee.SelectEntityByName(entityName, "Widgets");
     agHelper.RenameWidget(entityName, newEntityName);
     cy.wait("@updateWidgetName").should(
       "have.nested.property",
@@ -158,10 +154,6 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   // Case 6: When updating Datasource query
   it("7. Update Query and check for errors", () => {
-
-    cy.get(ee._entityExplorer).click();
-    cy.get("#switcher--explorer").click();
-    cy.wait(3000);
     cy.get(".t--entity-name")
       .contains(queryName)
       .click({ force: true });
