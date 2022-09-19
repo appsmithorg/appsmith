@@ -59,11 +59,7 @@ import {
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
-import {
-  isVerticalEllipsisActive,
-  truncateString,
-  howMuchTimeBeforeText,
-} from "utils/helpers";
+import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -836,16 +832,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             isFetching={isFetchingApplications}
             ref={appNameWrapperRef}
           >
-            {isVerticalEllipsisActive(appNameWrapperRef?.current) ? (
-              <TooltipComponent
-                content={props.application.name}
-                maxWidth="400px"
-              >
-                {appNameText}
-              </TooltipComponent>
-            ) : (
-              appNameText
-            )}
+            {appNameText}
           </AppNameWrapper>
           {showOverlay && !props.isMobile && (
             <div className="overlay">

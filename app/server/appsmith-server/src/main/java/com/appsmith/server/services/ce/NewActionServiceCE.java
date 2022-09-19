@@ -101,5 +101,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     public Mono<NewAction> sanitizeAction(NewAction action);
 
+    Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
+
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
 }

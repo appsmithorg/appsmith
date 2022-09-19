@@ -70,12 +70,12 @@ public class PluginUtilsTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            assertThat(condition.getOperator().equals(ConditionalOperator.AND));
+            assertThat(condition.getOperator()).isEqualTo(ConditionalOperator.AND);
             Object conditionValue = condition.getValue();
             assertThat(conditionValue).isNotNull();
-            assertThat(conditionValue instanceof List);
+            assertThat(conditionValue).isInstanceOf(List.class);
             List<Condition> conditionList = (List<Condition>) conditionValue;
-            assertThat(conditionList.size()).isEqualTo(3);
+            assertThat(conditionList).hasSize(3);
             for (Condition conditionFromChildren : conditionList) {
                 ConditionalOperator operator = conditionFromChildren.getOperator();
                 assertThat(operator).isNotNull();
@@ -84,10 +84,10 @@ public class PluginUtilsTest {
                 Object value = conditionFromChildren.getValue();
                 if (operator.equals(ConditionalOperator.AND)) {
                     assertThat(path).isNull();
-                    assertThat(value instanceof List);
+                    assertThat(value).isInstanceOf(List.class);
                 } else {
                     assertThat(path).isNotNull();
-                    assertThat(value instanceof String);
+                    assertThat(value).isInstanceOf(String.class);
                 }
             }
 
@@ -109,7 +109,7 @@ public class PluginUtilsTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            assertThat(condition.getOperator().equals(ConditionalOperator.AND));
+            assertThat(condition.getOperator()).isEqualTo(ConditionalOperator.AND);
             Object conditionValue = condition.getValue();
             assertThat(conditionValue).isNull();
 
