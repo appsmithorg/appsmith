@@ -129,9 +129,9 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
 }
 
 export interface LayoutOnLoadActionErrors {
-  errorMessage: string;
-  appErrorId: number;
-  debuggerErrorMessage: string;
+  errorType: string;
+  code: number;
+  message: string;
 }
 
 // Group 1 = datasource (https://www.domain.com)

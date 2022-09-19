@@ -63,20 +63,20 @@ export const logCyclicDependecyErrors = (
     for (let index = 0; index < layoutErrors.length; index++) {
       Toaster.show({
         text: createMessage(() => {
-          return layoutErrors[index]?.errorMessage;
+          return layoutErrors[index]?.errorType;
         }),
         variant: Variant.danger,
       });
       AppsmithConsole.addError({
-        id: layoutErrors[index]?.appErrorId?.toString(),
+        id: layoutErrors[index]?.code?.toString(),
         logType: LOG_TYPE.JS_ACTION_UPDATE,
-        text: !!layoutErrors[index].debuggerErrorMessage
-          ? layoutErrors[index].debuggerErrorMessage
-          : layoutErrors[index].errorMessage,
+        text: !!layoutErrors[index].message
+          ? layoutErrors[index].message
+          : layoutErrors[index].errorType,
         source: {
           type: ENTITY_TYPE.ACTION,
-          name: layoutErrors[index]?.appErrorId?.toString(),
-          id: layoutErrors[index]?.appErrorId?.toString(),
+          name: layoutErrors[index]?.code?.toString(),
+          id: layoutErrors[index]?.code?.toString(),
         },
       });
     }
