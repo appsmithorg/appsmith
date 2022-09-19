@@ -326,11 +326,18 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
   );
 };
 
+export interface DynamicHeightOverlayStyle {
+  width: string | number;
+  height: string | number;
+  top: number;
+  left: number;
+}
+
 interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
   batchUpdate: (height: number) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
-  style: BaseStyle;
+  style: DynamicHeightOverlayStyle;
 }
 
 const getSnappedValues = (
@@ -591,14 +598,16 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const isOverlayToBeDisplayed =
       isWidgetSelected && !multipleWidgetsSelected && !isDragging;
 
+    console.log("StyledDynamicHeightOverlay", isOverlayToBeDisplayed);
+
     return (
       <StyledDynamicHeightOverlay
         style={{
           position: "absolute",
-          height: style.componentHeight,
-          width: style.componentWidth,
-          left: style.xPosition,
-          top: style.yPosition,
+          height: style.height,
+          width: style.width,
+          left: style.left,
+          top: style.top,
           zIndex: 3,
           pointerEvents: "none",
         }}

@@ -42,7 +42,9 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
-import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
+import DynamicHeightOverlay, {
+  DynamicHeightOverlayStyle,
+} from "components/editorComponents/DynamicHeightOverlay";
 import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -421,7 +423,10 @@ abstract class BaseWidget<
     );
   }
 
-  addDynamicHeightOverlay(content: ReactNode) {
+  addDynamicHeightOverlay(
+    content: ReactNode,
+    style?: DynamicHeightOverlayStyle,
+  ) {
     const onMaxHeightSet = (height: number) => {
       this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
     };
@@ -439,6 +444,8 @@ abstract class BaseWidget<
       });
     };
 
+    const position = this.getPositionStyle();
+
     return (
       <div>
         <DynamicHeightOverlay
@@ -448,7 +455,13 @@ abstract class BaseWidget<
           minDynamicHeight={this.props.minDynamicHeight}
           onMaxHeightSet={onMaxHeightSet}
           onMinHeightSet={onMinHeightSet}
-          style={this.getPositionStyle()}
+          style={{
+            width: position.componentWidth,
+            height: position.componentHeight,
+            top: position.yPosition,
+            left: position.xPosition,
+            ...style,
+          }}
         />
         {content}
       </div>
@@ -476,6 +489,7 @@ abstract class BaseWidget<
   };
 
   private getWidgetView(): ReactNode {
+    console.log("getWidgetView", this.props.renderMode);
     let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
@@ -488,7 +502,7 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
-
+          console.log("AUTO_HEIGHT_WITH_LIMITS", this.props.dynamicHeight);
           if (
             this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
           ) {

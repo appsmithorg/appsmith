@@ -16,6 +16,7 @@ import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const minSize = 100;
 
@@ -333,6 +334,14 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
     children = this.showWidgetName(children, true);
+    if (this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+      children = this.addDynamicHeightOverlay(children, {
+        width: "100%",
+        height: "100%",
+        left: 0,
+        top: 0,
+      });
+    }
     return this.makeModalComponent(children, true);
   }
 
