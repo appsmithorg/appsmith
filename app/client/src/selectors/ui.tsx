@@ -1,6 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 
-export const getSelectedWidget = (state: AppState) =>
+export const getLastSelectedWidget = (state: AppState) =>
   state.ui.widgetDragResize.lastSelectedWidget;
 
 export const getSelectedWidgets = (state: AppState) =>
