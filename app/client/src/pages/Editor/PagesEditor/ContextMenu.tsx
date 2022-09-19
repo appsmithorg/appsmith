@@ -18,7 +18,7 @@ import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system";
 import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,

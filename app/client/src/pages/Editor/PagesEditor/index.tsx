@@ -20,7 +20,7 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { builderURL } from "RouteBuilder";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,

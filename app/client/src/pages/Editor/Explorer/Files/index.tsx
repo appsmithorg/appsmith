@@ -20,7 +20,7 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,

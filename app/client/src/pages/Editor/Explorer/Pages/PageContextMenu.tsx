@@ -24,7 +24,7 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,

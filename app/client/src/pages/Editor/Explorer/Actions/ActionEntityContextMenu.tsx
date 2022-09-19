@@ -29,7 +29,7 @@ import {
 } from "@appsmith/constants/messages";
 import { builderURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,

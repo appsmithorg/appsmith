@@ -26,7 +26,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,
