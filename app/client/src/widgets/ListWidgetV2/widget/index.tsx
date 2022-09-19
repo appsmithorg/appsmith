@@ -13,9 +13,12 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { GridDefaults } from "constants/WidgetConstants";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WidgetType,
+} from "constants/WidgetConstants";
 import BaseWidget, {
   WidgetBaseProps,
   WidgetOperation,

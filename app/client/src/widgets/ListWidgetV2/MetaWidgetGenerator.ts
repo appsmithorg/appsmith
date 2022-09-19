@@ -75,7 +75,7 @@ type GenerateMetaWidgetChildrenProps = {
   rowIndex: number;
 };
 
-type generateMetaWidgetReturn = {
+type GenerateMetaWidget = {
   metaWidgetId?: string;
   metaWidgetName?: string;
   childMetaWidgets?: MetaWidgets;
@@ -192,10 +192,11 @@ class MetaWidgetGenerator {
     parentId,
     rowIndex,
     templateWidgetId,
-  }: GenerateMetaWidgetProps): generateMetaWidgetReturn => {
+  }: GenerateMetaWidgetProps): GenerateMetaWidget => {
     const templateWidget = this.currTemplateWidgets?.[templateWidgetId];
 
-    if (!templateWidget) return { metaWidgetId: "", metaWidgetName: "" };
+    if (!templateWidget)
+      return { metaWidgetId: undefined, metaWidgetName: undefined };
 
     const key = this.getPrimaryKey(rowIndex);
     const metaWidget = klona(templateWidget) as MetaWidget;
@@ -260,7 +261,7 @@ class MetaWidgetGenerator {
     const children: string[] = [];
     let metaWidgets: MetaWidgets = {};
 
-    (templateWidget.children || []).map((childWidgetId: string) => {
+    (templateWidget.children || []).forEach((childWidgetId: string) => {
       const {
         childMetaWidgets,
         metaWidget,
@@ -478,10 +479,7 @@ class MetaWidgetGenerator {
     const newWidgetIds = Object.keys(this.currTemplateWidgets || {});
     const prevWidgetIds = Object.keys(this.prevTemplateWidgets || {});
 
-    this.templateWidgetStatus.added.clear();
-    this.templateWidgetStatus.removed.clear();
-    this.templateWidgetStatus.unchanged.clear();
-    this.templateWidgetStatus.updated.clear();
+    this.resetTemplateWidgetStatuses();
 
     const addedIds = difference(newWidgetIds, prevWidgetIds);
     const removedIds = difference(prevWidgetIds, newWidgetIds);
@@ -503,6 +501,12 @@ class MetaWidgetGenerator {
       } else {
         this.templateWidgetStatus.updated.add(updatedId);
       }
+    });
+  };
+
+  resetTemplateWidgetStatuses = () => {
+    Object.values(this.templateWidgetStatus).forEach((status) => {
+      status.clear();
     });
   };
 
