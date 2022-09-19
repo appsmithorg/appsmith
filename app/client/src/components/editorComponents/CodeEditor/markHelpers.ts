@@ -45,8 +45,10 @@ const createLink = (name: string, url: string): HTMLSpanElement => {
   const linkElement = document.createElement("span");
   linkElement.innerText = name;
   linkElement.className = "navigable-entity-highlight";
-  linkElement.addEventListener("click", () => {
-    history.push(url);
+  linkElement.addEventListener("click", (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      history.push(url);
+    }
   });
   return linkElement;
 };
