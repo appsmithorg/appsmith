@@ -82,11 +82,14 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 
-function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
+function* handleCreateNewJsActionSaga(
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
+) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { pageId } = action.payload;
+  const { from, pageId } = action.payload;
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
     JS_PLUGIN_PACKAGE_NAME,
@@ -103,24 +106,27 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     );
     yield put(
       createJSCollectionRequest({
-        name: newJSCollectionName,
-        pageId,
-        workspaceId,
-        pluginId,
-        body: body,
-        variables: [
-          {
-            name: "myVar1",
-            value: [],
-          },
-          {
-            name: "myVar2",
-            value: {},
-          },
-        ],
-        actions: actions,
-        applicationId,
-        pluginType: PluginType.JS,
+        from: from,
+        request: {
+          name: newJSCollectionName,
+          pageId,
+          workspaceId,
+          pluginId,
+          body: body,
+          variables: [
+            {
+              name: "myVar1",
+              value: [],
+            },
+            {
+              name: "myVar2",
+              value: {},
+            },
+          ],
+          actions: actions,
+          applicationId,
+          pluginType: PluginType.JS,
+        },
       }),
     );
   }
@@ -213,6 +219,12 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
         if (updateCollection) {
+          newActions.forEach((action) => {
+            AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
+              name: action.name,
+              jsObjectName: jsAction.name,
+            });
+          });
           yield call(updateJSCollection, {
             jsCollection: jsActionTobeUpdated,
             newActions: newActions,
@@ -417,9 +429,10 @@ export function* handleStartExecuteJSFunctionSaga(
     collectionName: string;
     action: JSAction;
     collectionId: string;
+    from: EventLocation;
   }>,
 ): any {
-  const { action, collectionId, collectionName } = data.payload;
+  const { action, collectionId, collectionName, from } = data.payload;
   const actionId = action.id;
   if (action.confirmBeforeExecute) {
     const modalPayload = {
@@ -438,6 +451,11 @@ export function* handleStartExecuteJSFunctionSaga(
       throw new UserCancelledActionExecutionError();
     }
   }
+  AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_RUN", {
+    name: action.name,
+    num_params: action.actionConfiguration?.jsArguments?.length,
+    from: from,
+  });
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,
     action: action,

@@ -6,12 +6,10 @@ import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
+  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
-  WINDOW_OBJECT_METHODS,
-  WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
-import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set, isNil } from "lodash";
+import { get, set, isNil, has } from "lodash";
 import { Workspace } from "constants/workspaceConstants";
 import {
   isPermitted,
@@ -32,6 +30,7 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -377,13 +376,12 @@ export const isNameValid = (
   invalidNames: Record<string, any>,
 ) => {
   return !(
-    name in JAVASCRIPT_KEYWORDS ||
-    name in DATA_TREE_KEYWORDS ||
-    name in GLOBAL_FUNCTIONS ||
-    name in WINDOW_OBJECT_PROPERTIES ||
-    name in WINDOW_OBJECT_METHODS ||
-    name in extraLibrariesNames ||
-    name in invalidNames
+    has(JAVASCRIPT_KEYWORDS, name) ||
+    has(DATA_TREE_KEYWORDS, name) ||
+    has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
+    has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
+    has(extraLibrariesNames, name) ||
+    has(invalidNames, name)
   );
 };
 

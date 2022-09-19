@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
@@ -907,6 +908,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Param param = new Param();
                     String pseudoBindingName = part.name();
                     param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
+                    param.setClientDataType(ClientDataType.valueOf(dto.getParamProperties().get(pseudoBindingName).toUpperCase()));
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
@@ -1028,8 +1030,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             // This is to have consistency in how the AnalyticsService is being called.
             // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
             // from being sent to analytics provider if telemetry is disabled.
-            analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action);
-            return Mono.empty();
+            return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action)
+                    .then(Mono.empty());
         }
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;
