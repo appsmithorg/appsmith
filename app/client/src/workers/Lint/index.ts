@@ -1,5 +1,5 @@
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import { get } from "lodash";
+import { get, union } from "lodash";
 import { EvaluationError, getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   createGlobalData,
@@ -15,32 +15,28 @@ import {
   removeLintErrorsFromEntityProperty,
 } from "workers/evaluationUtils";
 
-import {
-  getJSSnippetToLint,
-  getLintingErrors,
-  pathRequiresLinting,
-} from "./utils";
+import { getJSToLint, getLintingErrors, pathRequiresLinting } from "./utils";
 
 interface LintTreeArgs {
+  extraPathsToLint: string[];
   unEvalTree: DataTree;
   evalTree: DataTree;
   sortedDependencies: string[];
-  triggerPathsToLint: string[];
 }
 
 export const lintTree = (args: LintTreeArgs) => {
-  const { evalTree, sortedDependencies, triggerPathsToLint, unEvalTree } = args;
+  const { evalTree, extraPathsToLint, sortedDependencies, unEvalTree } = args;
   const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({
     dataTree: unEvalTree,
     resolvedFunctions: {},
     isTriggerBased: false,
   });
   // trigger paths
-  const triggerPaths = [...triggerPathsToLint];
+  const triggerPaths = new Set<string>();
   // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
-  const bindingPathsRequiringFunctions: string[] = [];
+  const bindingPathsRequiringFunctions = new Set<string>();
 
-  sortedDependencies.forEach((fullPropertyPath) => {
+  union(sortedDependencies, extraPathsToLint).forEach((fullPropertyPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       fullPropertyPath,
     );
@@ -54,10 +50,9 @@ export const lintTree = (args: LintTreeArgs) => {
     // We are only interested in paths that require linting
     if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
     if (isATriggerPath(entity, propertyPath))
-      return triggerPaths.push(fullPropertyPath);
+      return triggerPaths.add(fullPropertyPath);
     if (isJSAction(entity))
-      return bindingPathsRequiringFunctions.push(fullPropertyPath);
-
+      return bindingPathsRequiringFunctions.add(`${entityName}.body`);
     const lintErrors = lintBindingPath(
       unEvalPropertyValue,
       entity,
@@ -68,7 +63,7 @@ export const lintTree = (args: LintTreeArgs) => {
       addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
   });
 
-  if (triggerPaths.length || bindingPathsRequiringFunctions.length) {
+  if (triggerPaths.size || bindingPathsRequiringFunctions.size) {
     // we only create GLOBAL_DATA_WITH_FUNCTIONS if there are paths requiring it
     // In trigger based fields, functions such as showAlert, storeValue, etc need to be added to the global data
     const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData({
@@ -79,7 +74,7 @@ export const lintTree = (args: LintTreeArgs) => {
     });
 
     // lint binding paths that need GLOBAL_DATA_WITH_FUNCTIONS
-    if (bindingPathsRequiringFunctions.length) {
+    if (bindingPathsRequiringFunctions.size) {
       bindingPathsRequiringFunctions.forEach((fullPropertyPath) => {
         const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
         const entity = unEvalTree[entityName];
@@ -87,6 +82,8 @@ export const lintTree = (args: LintTreeArgs) => {
           unEvalTree,
           fullPropertyPath,
         ) as unknown) as string;
+        // remove all lint errors from path
+        removeLintErrorsFromEntityProperty(evalTree, fullPropertyPath);
         const lintErrors = lintBindingPath(
           unEvalPropertyValue,
           entity,
@@ -99,7 +96,7 @@ export const lintTree = (args: LintTreeArgs) => {
     }
 
     // Lint triggerPaths
-    if (triggerPaths.length) {
+    if (triggerPaths.size) {
       triggerPaths.forEach((triggerPath) => {
         const { entityName } = getEntityNameAndPropertyPath(triggerPath);
         const entity = unEvalTree[entityName];
@@ -136,21 +133,24 @@ const lintBindingPath = (
   );
 
   if (stringSegments) {
-    jsSnippets.map((jsSnippet) => {
-      const jsSnippetToLint = getJSSnippetToLint(
-        entity,
-        jsSnippet,
-        propertyPath,
-      );
+    jsSnippets.forEach((jsSnippet, index) => {
       if (jsSnippet) {
+        const jsSnippetToLint = getJSToLint(entity, jsSnippet, propertyPath);
+        // {{user's code}}
+        const originalBinding = getJSToLint(
+          entity,
+          stringSegments[index],
+          propertyPath,
+        );
         const scriptType = getScriptType(false, false);
         const scriptToLint = getScriptToEval(jsSnippetToLint, scriptType);
-        lintErrors = getLintingErrors(
+        const lintErrorsFromSnippet = getLintingErrors(
           scriptToLint,
           globalData,
-          jsSnippetToLint,
+          originalBinding,
           scriptType,
         );
+        lintErrors = lintErrors.concat(lintErrorsFromSnippet);
       }
     });
   }

@@ -11,6 +11,11 @@ import { promisifyAction } from "workers/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
 declare global {
+  /** All identifiers added to the worker global scope should also
+   * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
+   * app/client/src/constants/WidgetValidation.ts
+   * */
+
   interface Window {
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
