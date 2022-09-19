@@ -15,15 +15,11 @@ describe("Property pane js enabled field", function() {
       .find(".t--js-toggle")
       .first()
       .click({ force: true });
-
     cy.get(".t--property-control-buttonvariant")
       .find(".t--js-toggle")
       .first()
       .should("have.class", "is-active");
-
-    cy.get(".t--property-control-buttonvariant .CodeMirror-code").type(
-      "PRIMARY",
-    );
+    cy.testJsontext("buttonvariant", "PRIMARY");
     cy.get(".t--property-control-buttonvariant")
       .find(".CodeMirror-code")
       .invoke("text")
@@ -35,7 +31,7 @@ describe("Property pane js enabled field", function() {
     cy.openPropertyPane("jsonformwidget");
     cy.moveToStyleTab();
     cy.wait(500);
-    //cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click();
+    cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click();
     cy.get(".t--property-control-buttonvariant")
       .find(".CodeMirror-code")
       .invoke("text")

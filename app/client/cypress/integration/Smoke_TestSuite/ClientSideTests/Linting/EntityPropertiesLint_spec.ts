@@ -25,6 +25,7 @@ describe("Linting of entity properties", () => {
         console.log(Api1.${invalidProperty})
     }()}}`,
     );
+    cy.focused().blur();
     propPane.UpdatePropertyFieldValue("Label", `{{Api1.${invalidProperty}}}`);
     cy.get(locator._lintErrorElement)
       .should("have.length", 2)
