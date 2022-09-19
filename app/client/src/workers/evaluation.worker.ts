@@ -124,7 +124,7 @@ ctx.addEventListener(
                 widgetTypeConfigMap,
                 allActionValidationConfig,
               );
-              const dataTreeResponse = dataTreeEvaluator.createFirstTree(
+              const dataTreeResponse = await dataTreeEvaluator.createFirstTree(
                 unevalTree,
               );
               isCreateFirstTree = true;
@@ -153,7 +153,7 @@ ctx.addEventListener(
                   allActionValidationConfig,
                 );
               }
-              const dataTreeResponse = dataTreeEvaluator.createFirstTree(
+              const dataTreeResponse = await dataTreeEvaluator.createFirstTree(
                 unevalTree,
               );
               isCreateFirstTree = true;
@@ -171,7 +171,7 @@ ctx.addEventListener(
               if (shouldReplay) {
                 replayMap[CANVAS]?.update({ widgets, theme });
               }
-              const updateResponse = dataTreeEvaluator.updateDataTree(
+              const updateResponse = await dataTreeEvaluator.updateDataTree(
                 unevalTree,
               );
               evaluationOrder = updateResponse.evaluationOrder;
@@ -228,7 +228,7 @@ ctx.addEventListener(
             return { values: undefined, errors: [] };
           }
 
-          const values = dataTreeEvaluator.evaluateActionBindings(
+          const values = await dataTreeEvaluator.evaluateActionBindings(
             bindings,
             executionParams,
           );
@@ -249,7 +249,7 @@ ctx.addEventListener(
           if (!dataTreeEvaluator) {
             return { triggers: [], errors: [] };
           }
-          dataTreeEvaluator.updateDataTree(dataTree);
+          await dataTreeEvaluator.updateDataTree(dataTree);
           const evalTree = dataTreeEvaluator.evalTree;
           const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
