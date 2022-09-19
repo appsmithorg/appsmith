@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { pick, reduce } from "lodash";
 import {
   useTable,
@@ -29,10 +29,7 @@ import { ScrollIndicator } from "design-system";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
-import {
-  renderBodyCheckBoxCell,
-  renderHeaderCheckBoxCell,
-} from "./cellComponents/SelectionCheckboxCell";
+import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { DEFAULT_COLUMN_WIDTH, EditableCell } from "../constants";
 import { Row } from "./Row";
@@ -188,7 +185,6 @@ export function Table(props: TableProps) {
     endIndex = props.data.length;
   }
   const subPage = page.slice(startIndex, endIndex);
-  const selectedRowIndex = props.selectedRowIndex;
   const selectedRowIndices = props.selectedRowIndices || [];
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
