@@ -8,6 +8,7 @@ import { FixedSizeList, ListChildComponentProps } from "react-window";
 import { ReactTableColumnProps, TableSizes } from "./Constants";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 type BasicRowType = {
   accentColor: string;
@@ -129,7 +130,7 @@ const VirtualRowComponent = React.forwardRef(
             props.height -
             props.tableSizes.TABLE_HEADER_HEIGHT -
             props.tableSizes.COLUMN_HEADER_HEIGHT -
-            10
+            2 * WIDGET_PADDING // Top and bottom padding
           }
           itemCount={Math.max(props.rows.length, props.pageSize)}
           itemSize={props.tableSizes.ROW_HEIGHT}

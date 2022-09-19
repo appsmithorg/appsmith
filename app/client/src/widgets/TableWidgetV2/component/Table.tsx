@@ -21,6 +21,7 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
+  MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -35,6 +36,7 @@ import {
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { DEFAULT_COLUMN_WIDTH, EditableCell } from "../constants";
 import { Row } from "./Row";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 interface TableProps {
   width: number;
@@ -230,10 +232,16 @@ export function Table(props: TableProps) {
   );
 
   const totalColumnWidth = useMemo(() => {
+    let offset = 2 * WIDGET_PADDING;
+
+    if (props.multiRowSelection) {
+      offset += MULTISELECT_CHECKBOX_WIDTH;
+    }
+
     return props.columns.reduce((prev, curr) => {
       return prev + (curr.width || DEFAULT_COLUMN_WIDTH);
-    }, 6);
-  }, [columnString]);
+    }, offset);
+  }, [columnString, props.multiRowSelection]);
 
   const isCellWrappingAllowed = useMemo(() => {
     return props.columns.some(
