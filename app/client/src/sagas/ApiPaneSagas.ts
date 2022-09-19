@@ -457,7 +457,7 @@ function* formValueChangeSaga(
     if (field === "dynamicBindingPathList" || field === "name") return;
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
     if (!values.id) return;
-    if (!isPermitted(values.userPermissions, PERMISSION_TYPE.MANAGE_ACTIONS)) {
+    if (isPermitted(values.userPermissions, PERMISSION_TYPE.MANAGE_ACTIONS)) {
       yield validateResponse({
         status: 403,
         resourceType: values?.pluginType,
@@ -529,6 +529,16 @@ function* formValueChangeSaga(
     yield put({
       type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
       payload: { error },
+    });
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+    // OR
+    yield put({
+      type: ReduxActionErrorTypes.ENTITY_UPDATE_ERROR,
     });
     yield put(reset(API_EDITOR_FORM_NAME));
   }

@@ -250,6 +250,16 @@ function* formValueChangeSaga(
       type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
       payload: { error },
     });
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+    // OR
+    yield put({
+      type: ReduxActionErrorTypes.ENTITY_UPDATE_ERROR,
+    });
     yield put(reset(QUERY_EDITOR_FORM_NAME));
   }
 }

@@ -73,6 +73,7 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
+  getPageById,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -119,6 +120,10 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -147,6 +152,7 @@ export function* fetchPageListSaga(
         isDefault: page.isDefault,
         isHidden: !!page.isHidden,
         slug: page.slug,
+        userPermissions: page.userPermissions,
       }));
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
@@ -219,6 +225,7 @@ export function* handleFetchedPage({
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
   const pageSlug = fetchPageResponse.data.slug;
+  const pagePermissions = fetchPageResponse.data.userPermissions;
 
   if (isValidResponse) {
     // Clear any existing caches
@@ -230,7 +237,7 @@ export function* handleFetchedPage({
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
     // set current page
-    yield put(updateCurrentPage(pageId, pageSlug));
+    yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
 
@@ -527,6 +534,21 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
+    const currentPageId: string = yield select(getCurrentPageId);
+    const currentPage: Page = yield select(getPageById(currentPageId));
+
+    if (
+      isPermitted(
+        currentPage?.userPermissions || [""],
+        PERMISSION_TYPE.MANAGE_PAGES,
+      )
+    ) {
+      yield validateResponse({
+        status: 403,
+        resourceId: currentPage.pageId,
+      });
+    }
+
     const appMode: APP_MODE | undefined = yield select(getAppMode);
     if (appMode === APP_MODE.EDIT) {
       yield put(saveLayout(action.payload.isRetry));
@@ -537,6 +559,10 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       payload: {
         error,
       },
+    });
+    // if no permissions remove above
+    yield put({
+      type: ReduxActionErrorTypes.ENTITY_UPDATE_ERROR,
     });
   }
 }
@@ -563,6 +589,7 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
           slug: response.data.slug,
           customSlug: response.data.customSlug,
+          userPermissions: response.data.userPermissions,
         },
       });
       // Add this to the page DSLs for entity explorer

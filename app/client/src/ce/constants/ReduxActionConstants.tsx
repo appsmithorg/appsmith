@@ -642,6 +642,7 @@ export const ReduxActionTypes = {
     "GET_SIMILAR_TEMPLATES_SUCCESS" /* This action constants is for identifying the status of the updates of the entities */,
   ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
   ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
+  ENTITY_UPDATE_ERROR: "ENTITY_UPDATE_ERROR",
   SET_APP_VIEWER_HEADER_HEIGHT: "SET_APP_VIEWER_HEADER_HEIGHT",
   UPDATE_BETA_CARD_SHOWN: "UPDATE_BETA_CARD_SHOWN",
   CLOSE_BETA_CARD_SHOWN: "CLOSE_BETA_CARD_SHOWN",
@@ -825,6 +826,7 @@ export const ReduxActionErrorTypes = {
   GET_TEMPLATE_ERROR: "GET_TEMPLATE_ERROR",
   UPDATE_CUSTOM_SLUG_ERROR: "UPDATE_CUSTOM_SLUG_ERROR",
   UPDATE_FIELD_ERROR: "@@redux-form/UPDATE_SYNC_ERRORS",
+  ENTITY_UPDATE_ERROR: "ENTITY_UPDATE_ERROR",
 };
 
 export const ReduxFormActionTypes = {
@@ -922,6 +924,7 @@ export interface Page {
   isHidden?: boolean;
   slug: string;
   customSlug?: string;
+  userPermissions?: string[];
 }
 
 export interface ClonePageSuccessPayload {
