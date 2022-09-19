@@ -196,7 +196,7 @@ export const getAST = memoize((code: string, options?: AstOptions) =>
  * @param code: The piece of script where references need to be extracted from
  */
 
-export interface ExtractInfoFromCode {
+export interface Extractions {
   references: string[];
   functionalParams: string[];
   variables: string[];
@@ -205,7 +205,7 @@ export const extractInfoFromCode = (
   code: string,
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
-): ExtractInfoFromCode => {
+): Extractions => {
   // List of all references found
   const references = new Set<string>();
   // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed

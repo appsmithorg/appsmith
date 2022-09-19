@@ -13,7 +13,7 @@ import {
   getFunctionalParamsFromNode,
   isTypeOfFunction,
   MemberExpressionData,
-  ExtractInfoFromCode,
+  Extractions,
 } from "./src";
 
 // constants
@@ -27,7 +27,7 @@ export type {
   ObjectExpression,
   PropertyNode,
   MemberExpressionData,
-  ExtractInfoFromCode,
+  Extractions,
 };
 
 export {
