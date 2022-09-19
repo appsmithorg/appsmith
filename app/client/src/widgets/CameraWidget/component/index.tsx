@@ -1129,7 +1129,7 @@ function CameraComponent(props: CameraComponentProps) {
         <Webcam
           audio
           audioConstraints={audioConstraints}
-          forceScreenshotSourceSize
+          forceScreenshotSourceSize={isMobile ? true : undefined}
           mirrored={mirrored}
           muted
           onUserMedia={handleUserMedia}
