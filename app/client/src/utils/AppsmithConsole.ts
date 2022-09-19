@@ -47,6 +47,7 @@ function info(
     severity: Severity.INFO,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -60,6 +61,7 @@ function warning(
     severity: Severity.WARNING,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -76,6 +78,7 @@ function error(
     severity: Severity.ERROR,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -91,6 +94,7 @@ function addError(
       severity: severity,
       timestamp: getTimeStamp(),
       category,
+      occurrenceCount: 1,
     }),
   );
 }
