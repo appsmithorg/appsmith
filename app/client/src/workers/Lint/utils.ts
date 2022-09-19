@@ -25,11 +25,18 @@ import {
   getLintErrorMessage,
   getLintSeverity,
 } from "components/editorComponents/CodeEditor/lintHelpers";
-import { ECMA_VERSION } from "@shared/ast";
 import {
+  CustomLintErrorCode,
+  CUSTOM_LINT_ERRORS,
   IGNORED_LINT_ERRORS,
   SUPPORTED_WEB_APIS,
 } from "components/editorComponents/CodeEditor/constants";
+import {
+  extractInvalidTopLevelMemberExpressionsFromCode,
+  isLiteralNode,
+  ECMA_VERSION,
+  MemberExpressionData,
+} from "@shared/ast";
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
@@ -49,9 +56,8 @@ export const pathRequiresLinting = (
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
     isPathADynamicBinding(entity, propertyPath);
   const requiresLinting =
-    isADynamicBindingPath &&
-    (isDynamicValue(unEvalPropertyValue) ||
-      (isJSAction(entity) && propertyPath === "body"));
+    (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
+    isJSAction(entity);
   return requiresLinting;
 };
 
@@ -142,22 +148,31 @@ export const getLintingErrors = (
 
   jshint(script, options);
 
-  return getValidLintErrors(jshint.errors, scriptPos).map((lintError) => {
-    const ch = lintError.character;
-    return {
-      errorType: PropertyEvaluationErrorType.LINT,
-      raw: script,
-      severity: getLintSeverity(lintError.code),
-      errorMessage: getLintErrorMessage(lintError.reason),
-      errorSegment: lintError.evidence,
-      originalBinding,
-      // By keeping track of these variables we can highlight the exact text that caused the error.
-      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
-      code: lintError.code,
-      line: lintError.line - scriptPos.line,
-      ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
-    };
-  });
+  const jshintErrors = getValidLintErrors(jshint.errors, scriptPos).map(
+    (lintError) => {
+      const ch = lintError.character;
+      return {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: script,
+        severity: getLintSeverity(lintError.code),
+        errorMessage: getLintErrorMessage(lintError.reason),
+        errorSegment: lintError.evidence,
+        originalBinding,
+        // By keeping track of these variables we can highlight the exact text that caused the error.
+        variables: [lintError.a, lintError.b, lintError.c, lintError.d],
+        code: lintError.code,
+        line: lintError.line - scriptPos.line,
+        ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
+      };
+    },
+  );
+  const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
+    script,
+    data,
+    scriptPos,
+    originalBinding,
+  );
+  return jshintErrors.concat(invalidPropertyErrors);
 };
 
 const getValidLintErrors = (lintErrors: LintError[], scriptPos: Position) => {
@@ -202,4 +217,51 @@ const getValidLintErrors = (lintErrors: LintError[], scriptPos: Position) => {
     });
     return result;
   }, []);
+};
+
+const getInvalidPropertyErrorsFromScript = (
+  script: string,
+  data: Record<string, unknown>,
+  scriptPos: Position,
+  originalBinding: string,
+) => {
+  let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
+  try {
+    invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
+      script,
+      data,
+      self.evaluationVersion,
+    );
+  } catch (e) {}
+
+  const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
+    ({ object, property }) => {
+      const propertyName = isLiteralNode(property)
+        ? property.value
+        : property.name;
+      const objectStartLine = object.loc.start.line - 1;
+      // For computed member expressions (entity["property"]), add an extra 1 to the start column to account for "[".
+      const propertyStartColumn = !isLiteralNode(property)
+        ? property.loc.start.column + 1
+        : property.loc.start.column + 2;
+      return {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: script,
+        severity: getLintSeverity(CustomLintErrorCode.INVALID_ENTITY_PROPERTY),
+        errorMessage: CUSTOM_LINT_ERRORS[
+          CustomLintErrorCode.INVALID_ENTITY_PROPERTY
+        ](object.name, propertyName),
+        errorSegment: `${object.name}.${propertyName}`,
+        originalBinding,
+        variables: [propertyName, null, null, null],
+        code: CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+        line: objectStartLine - scriptPos.line,
+        ch:
+          objectStartLine === scriptPos.line
+            ? propertyStartColumn - scriptPos.ch
+            : propertyStartColumn,
+      };
+    },
+  );
+  return invalidPropertyErrors;
 };

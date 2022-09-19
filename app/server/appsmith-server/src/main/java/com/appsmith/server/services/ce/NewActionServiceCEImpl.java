@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
@@ -898,6 +899,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Param param = new Param();
                     String pseudoBindingName = part.name();
                     param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
+                    param.setClientDataType(ClientDataType.valueOf(dto.getParamProperties().get(pseudoBindingName).toUpperCase()));
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
