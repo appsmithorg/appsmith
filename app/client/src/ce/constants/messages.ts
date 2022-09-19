@@ -259,7 +259,7 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
 export const EDIT_DATASOURCE = () => "Edit Datasource";
-export const SAVE_DATASOURCE = () => "Save Datasource";
+export const SAVE_DATASOURCE = () => "Save as Datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save API as datasource to setup authentication";
 export const EDIT_DATASOURCE_MESSAGE = () =>
