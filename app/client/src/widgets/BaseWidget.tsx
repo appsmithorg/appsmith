@@ -489,7 +489,6 @@ abstract class BaseWidget<
   };
 
   private getWidgetView(): ReactNode {
-    console.log("getWidgetView", this.props.renderMode);
     let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
@@ -502,7 +501,6 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
-          console.log("AUTO_HEIGHT_WITH_LIMITS", this.props.dynamicHeight);
           if (
             this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
           ) {

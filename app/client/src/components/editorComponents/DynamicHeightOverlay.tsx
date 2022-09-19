@@ -14,7 +14,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { BaseStyle, WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 
 const StyledDynamicHeightOverlay = styled.div`
@@ -597,8 +597,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const multipleWidgetsSelected = selectedWidgets.length > 1;
     const isOverlayToBeDisplayed =
       isWidgetSelected && !multipleWidgetsSelected && !isDragging;
-
-    console.log("StyledDynamicHeightOverlay", isOverlayToBeDisplayed);
 
     return (
       <StyledDynamicHeightOverlay
