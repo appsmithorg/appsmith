@@ -10,7 +10,7 @@ import {
 } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
-import { getSelectedWidget } from "selectors/ui";
+import { getLastSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -47,7 +47,6 @@ export const useFilteredLogs = (query: string, filter?: any) => {
         return true;
     });
   }
-
   return logs;
 };
 
@@ -59,7 +58,7 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
   useEffect(() => {
     const data = currentData();
     setPaginatedData(data);
-  }, [currentPage, data.length]);
+  }, [currentPage, data.length, data[data.length - 1]?.occurrenceCount]);
 
   const currentData = useCallback(() => {
     const newMaxPage = Math.ceil(data.length / itemsPerPage);
@@ -97,7 +96,7 @@ export const useSelectedEntity = () => {
     return null;
   });
 
-  const selectedWidget = useSelector(getSelectedWidget);
+  const selectedWidget = useSelector(getLastSelectedWidget);
   const widget = useSelector((state: AppState) => {
     if (onCanvas()) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;

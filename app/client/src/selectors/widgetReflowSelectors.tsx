@@ -16,3 +16,21 @@ export const getReflowSelector = (widgetId: string) => {
     return undefined;
   });
 };
+
+export const getIsReflowEffectedSelector = (
+  widgetId: string | undefined,
+  reflowed: boolean,
+) => {
+  return createSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+    (dragDetails) => {
+      return (
+        widgetId &&
+        dragDetails &&
+        !!dragDetails.draggedOn &&
+        dragDetails.draggedOn === widgetId &&
+        reflowed
+      );
+    },
+  );
+};
