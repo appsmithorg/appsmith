@@ -2,11 +2,11 @@ package com.external.plugins;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
@@ -350,7 +350,7 @@ public class ElasticSearchPluginTest {
                         .map(result -> {
                             return (Set<String>) result.getInvalids();
                         }))
-                .expectNext(Set.of(ElasticSearchPlugin.ElasticSearchPluginExecutor.esDatasourceUnauthorizedMessage))
+                .expectNext(Set.of("Your username or password is not correct"))
                 .verifyComplete();
 
     }
@@ -368,7 +368,7 @@ public class ElasticSearchPluginTest {
                         .map(result -> {
                             return (Set<String>) result.getInvalids();
                         }))
-                .expectNext(Set.of(ElasticSearchPlugin.ElasticSearchPluginExecutor.esDatasourceNotFoundMessage))
+                .expectNext(Set.of("Either your host URL is invalid or the page you are trying to access does not exist"))
                 .verifyComplete();
 
     }
@@ -385,7 +385,24 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
                 .assertNext(result -> {
                     assertFalse(result.getInvalids().isEmpty());
-                    assertTrue(result.getInvalids().contains("Invalid host provided."));
+                    assertTrue(result.getInvalids().contains("Host(s) not allowed."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldDenyTestDatasourceWithInstanceMetadataAwsWithDnsResolution() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://169.254.169.254.nip.io");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
+                .assertNext(result -> {
+                    assertFalse(result.getInvalids().isEmpty());
+                    assertTrue(result.getInvalids().contains("Host(s) not allowed."));
                 })
                 .verifyComplete();
     }

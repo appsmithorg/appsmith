@@ -13,16 +13,101 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScheme;
+import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthState;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthenticationStrategy;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.RedirectStrategy;
+import org.apache.http.client.UserTokenHandler;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.protocol.RequestAddCookies;
+import org.apache.http.client.protocol.RequestAuthCache;
+import org.apache.http.client.protocol.RequestClientConnControl;
+import org.apache.http.client.protocol.RequestDefaultHeaders;
+import org.apache.http.client.protocol.RequestExpectContinue;
+import org.apache.http.client.protocol.ResponseProcessCookies;
+import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.config.Lookup;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.SchemePortResolver;
+import org.apache.http.conn.routing.HttpRoutePlanner;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.util.PublicSuffixMatcher;
+import org.apache.http.conn.util.PublicSuffixMatcherLoader;
+import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.NoConnectionReuseStrategy;
+import org.apache.http.impl.auth.BasicSchemeFactory;
+import org.apache.http.impl.auth.DigestSchemeFactory;
+import org.apache.http.impl.auth.KerberosSchemeFactory;
+import org.apache.http.impl.auth.NTLMSchemeFactory;
+import org.apache.http.impl.auth.SPNegoSchemeFactory;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.ProxyAuthenticationStrategy;
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
+import org.apache.http.impl.client.TargetAuthenticationStrategy;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.impl.conn.DefaultRoutePlanner;
+import org.apache.http.impl.conn.DefaultSchemePortResolver;
+import org.apache.http.impl.conn.SystemDefaultDnsResolver;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.impl.cookie.DefaultCookieSpecProvider;
+import org.apache.http.impl.cookie.IgnoreSpecProvider;
+import org.apache.http.impl.cookie.NetscapeDraftSpecProvider;
+import org.apache.http.impl.cookie.RFC6265CookieSpecProvider;
+import org.apache.http.impl.nio.client.AbstractClientExchangeHandler;
+import org.apache.http.impl.nio.client.CloseableHttpPipeliningClient;
+import org.apache.http.impl.nio.client.DefaultAsyncUserTokenHandler;
+import org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl;
+import org.apache.http.impl.nio.client.FutureWrapper;
+import org.apache.http.impl.nio.client.InternalClientExec;
+import org.apache.http.impl.nio.client.InternalIODispatch;
+import org.apache.http.impl.nio.client.MainClientExec;
+import org.apache.http.impl.nio.conn.ManagedNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
+import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.nio.NHttpClientEventHandler;
+import org.apache.http.nio.conn.NHttpClientConnectionManager;
+import org.apache.http.nio.conn.NoopIOSessionStrategy;
+import org.apache.http.nio.conn.SchemeIOSessionStrategy;
+import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
+import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
+import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
+import org.apache.http.nio.reactor.ConnectingIOReactor;
+import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpProcessorBuilder;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.ssl.SSLContexts;
+import org.elasticsearch.client.Node;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -36,17 +121,27 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.ProxySelector;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -58,19 +153,420 @@ public class ElasticSearchPlugin extends BasePlugin {
         super(wrapper);
     }
 
+    public void makeClient() throws IOReactorException {
+        PublicSuffixMatcher publicSuffixMatcher = null;
+        if (publicSuffixMatcher == null) {
+            publicSuffixMatcher = PublicSuffixMatcherLoader.getDefault();
+        }
+
+        NHttpClientConnectionManager connManager = null;
+        if (connManager == null) {
+            SchemeIOSessionStrategy sslStrategy = null;
+            if (sslStrategy == null) {
+                SSLContext sslcontext = null;
+                if (sslcontext == null) {
+                    if (false) {
+                        sslcontext = SSLContexts.createSystemDefault();
+                    } else {
+                        sslcontext = SSLContexts.createDefault();
+                    }
+                }
+                final String[] supportedProtocols = null;
+                final String[] supportedCipherSuites = null;
+                HostnameVerifier hostnameVerifier = null;
+                if (hostnameVerifier == null) {
+                    hostnameVerifier = new DefaultHostnameVerifier(publicSuffixMatcher);
+                }
+                sslStrategy = new SSLIOSessionStrategy(
+                        sslcontext, supportedProtocols, supportedCipherSuites, hostnameVerifier);
+            }
+            final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.DEFAULT, null);
+            final PoolingNHttpClientConnectionManager poolingmgr = new PoolingNHttpClientConnectionManager(
+                    ioReactor,
+                    ManagedNHttpClientConnectionFactory.INSTANCE,
+                    RegistryBuilder.<SchemeIOSessionStrategy>create()
+                            .register("http", NoopIOSessionStrategy.INSTANCE)
+                            .register("https", sslStrategy)
+                            .build(),
+                    DefaultSchemePortResolver.INSTANCE,
+                    SystemDefaultDnsResolver.INSTANCE,
+                    -1,
+                    TimeUnit.MILLISECONDS
+            );
+            poolingmgr.setMaxTotal(30);
+            poolingmgr.setDefaultMaxPerRoute(10);
+            connManager = poolingmgr;
+        }
+        ConnectionReuseStrategy reuseStrategy = null;
+        if (reuseStrategy == null) {
+            if (false) {
+                final String s = System.getProperty("http.keepAlive", "true");
+                if ("true".equalsIgnoreCase(s)) {
+                    reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+                } else {
+                    reuseStrategy = NoConnectionReuseStrategy.INSTANCE;
+                }
+            } else {
+                reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+            }
+        }
+        ConnectionKeepAliveStrategy keepAliveStrategy = null;
+        if (keepAliveStrategy == null) {
+            keepAliveStrategy = DefaultConnectionKeepAliveStrategy.INSTANCE;
+        }
+        AuthenticationStrategy targetAuthStrategy = new TargetAuthenticationStrategy() {
+            // Taken from PersistentCredentialsAuthenticationStrategy
+
+            private final Log logger = LogFactory.getLog(TargetAuthenticationStrategy.class);
+
+            @Override
+            public void authFailed(HttpHost host, AuthScheme authScheme, HttpContext context) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                            "Authentication to "
+                                    + host
+                                    + " failed (scheme: "
+                                    + authScheme.getSchemeName()
+                                    + "). Preserving credentials for next request"
+                    );
+                }
+                // Do nothing.
+                // The superclass implementation of method will clear the credentials from the cache, but we don't
+            }
+        };
+        if (targetAuthStrategy == null) {
+            targetAuthStrategy = TargetAuthenticationStrategy.INSTANCE;
+        }
+        AuthenticationStrategy proxyAuthStrategy = null;
+        if (proxyAuthStrategy == null) {
+            proxyAuthStrategy = ProxyAuthenticationStrategy.INSTANCE;
+        }
+        UserTokenHandler userTokenHandler = null;
+        if (userTokenHandler == null) {
+            userTokenHandler = DefaultAsyncUserTokenHandler.INSTANCE;
+        }
+        SchemePortResolver schemePortResolver = null;
+        if (schemePortResolver == null) {
+            schemePortResolver = DefaultSchemePortResolver.INSTANCE;
+        }
+
+        HttpProcessor httpprocessor = null;
+        if (httpprocessor == null) {
+            String userAgent = "";
+
+            final HttpProcessorBuilder b = HttpProcessorBuilder.create();
+            b.addAll(
+                    new RequestDefaultHeaders(null),
+                    new RequestContent(),
+                    new RequestTargetHost(),
+                    new RequestClientConnControl(),
+                    new RequestUserAgent(userAgent),
+                    new RequestExpectContinue()
+            );
+            b.add(new RequestAddCookies());
+            b.add(new RequestAuthCache());
+            b.add(new ResponseProcessCookies());
+            httpprocessor = b.build();
+        }
+        // Add redirect executor, if not disabled
+        HttpRoutePlanner routePlanner = null;
+        if (routePlanner == null) {
+            HttpHost proxy = null;
+            if (proxy != null) {
+                routePlanner = new DefaultProxyRoutePlanner(proxy, schemePortResolver);
+            } else if (false) {
+                routePlanner = new SystemDefaultRoutePlanner(
+                        schemePortResolver, ProxySelector.getDefault());
+            } else {
+                routePlanner = new DefaultRoutePlanner(schemePortResolver);
+            }
+        }
+        Lookup<AuthSchemeProvider> authSchemeRegistry = null;
+        if (authSchemeRegistry == null) {
+            authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
+                    .register(AuthSchemes.BASIC, new BasicSchemeFactory())
+                    .register(AuthSchemes.DIGEST, new DigestSchemeFactory())
+                    .register(AuthSchemes.NTLM, new NTLMSchemeFactory())
+                    .register(AuthSchemes.SPNEGO, new SPNegoSchemeFactory())
+                    .register(AuthSchemes.KERBEROS, new KerberosSchemeFactory())
+                    .build();
+        }
+        Lookup<CookieSpecProvider> cookieSpecRegistry = null;
+        if (cookieSpecRegistry == null) {
+            final CookieSpecProvider defaultProvider = new DefaultCookieSpecProvider(publicSuffixMatcher);
+            final CookieSpecProvider laxStandardProvider = new RFC6265CookieSpecProvider(
+                    RFC6265CookieSpecProvider.CompatibilityLevel.RELAXED, publicSuffixMatcher);
+            final CookieSpecProvider strictStandardProvider = new RFC6265CookieSpecProvider(
+                    RFC6265CookieSpecProvider.CompatibilityLevel.STRICT, publicSuffixMatcher);
+            cookieSpecRegistry = RegistryBuilder.<CookieSpecProvider>create()
+                    .register(CookieSpecs.DEFAULT, defaultProvider)
+                    .register("best-match", defaultProvider)
+                    .register("compatibility", defaultProvider)
+                    .register(CookieSpecs.STANDARD, laxStandardProvider)
+                    .register(CookieSpecs.STANDARD_STRICT, strictStandardProvider)
+                    .register(CookieSpecs.NETSCAPE, new NetscapeDraftSpecProvider())
+                    .register(CookieSpecs.IGNORE_COOKIES, new IgnoreSpecProvider())
+                    .build();
+        }
+
+        CookieStore defaultCookieStore = null;
+        if (defaultCookieStore == null) {
+            defaultCookieStore = new BasicCookieStore();
+        }
+
+        CredentialsProvider defaultCredentialsProvider = null;
+        if (defaultCredentialsProvider == null) {
+            if (false) {
+                defaultCredentialsProvider = new SystemDefaultCredentialsProvider();
+            } else {
+                defaultCredentialsProvider = new BasicCredentialsProvider();
+            }
+        }
+        RedirectStrategy redirectStrategy = null;
+        if (redirectStrategy == null) {
+            redirectStrategy = DefaultRedirectStrategy.INSTANCE;
+        }
+
+        RequestConfig defaultRequestConfig = RequestConfig.custom()
+                .setConnectTimeout(1_000)
+                .setSocketTimeout(30_000)
+                .build();
+        if (defaultRequestConfig == null) {
+            defaultRequestConfig = RequestConfig.DEFAULT;
+        }
+
+        final MainClientExec exec = new MainClientExec(
+                httpprocessor,
+                routePlanner,
+                redirectStrategy,
+                targetAuthStrategy,
+                proxyAuthStrategy,
+                userTokenHandler);
+
+        ThreadFactory threadFactory = null;
+        NHttpClientEventHandler eventHandler = null;
+        if (!false) {
+            threadFactory = null;
+            if (threadFactory == null) {
+                threadFactory = Executors.defaultThreadFactory();
+            }
+            eventHandler = null;
+            if (eventHandler == null) {
+                eventHandler = new HttpAsyncRequestExecutor();
+            }
+        }
+        return new InternalHttpAsyncClient(
+                connManager,
+                reuseStrategy,
+                keepAliveStrategy,
+                threadFactory,
+                eventHandler,
+                exec,
+                cookieSpecRegistry,
+                authSchemeRegistry,
+                defaultCookieStore,
+                defaultCredentialsProvider,
+                defaultRequestConfig);
+    }
+
+    abstract class CloseableHttpAsyncClientBase extends CloseableHttpPipeliningClient {
+
+        private final Log log = LogFactory.getLog(getClass());
+
+        static enum Status {INACTIVE, ACTIVE, STOPPED}
+
+        private final NHttpClientConnectionManager connmgr;
+        private final Thread reactorThread;
+
+        private final AtomicReference<org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status> status;
+
+        public CloseableHttpAsyncClientBase(
+                final NHttpClientConnectionManager connmgr,
+                final ThreadFactory threadFactory,
+                final NHttpClientEventHandler handler) {
+            super();
+            this.connmgr = connmgr;
+            if (threadFactory != null && handler != null) {
+                this.reactorThread = threadFactory.newThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            final IOEventDispatch ioEventDispatch = new InternalIODispatch(handler);
+                            connmgr.execute(ioEventDispatch);
+                        } catch (final Exception ex) {
+                            log.error("I/O reactor terminated abnormally", ex);
+                        } finally {
+                            status.set(org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status.STOPPED);
+                        }
+                    }
+
+                });
+            } else {
+                this.reactorThread = null;
+            }
+            this.status = new AtomicReference<org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status>(org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status.INACTIVE);
+        }
+
+        @Override
+        public void start() {
+            if (this.status.compareAndSet(org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status.INACTIVE, org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status.ACTIVE)) {
+                if (this.reactorThread != null) {
+                    this.reactorThread.start();
+                }
+            }
+        }
+
+        @Override
+        public void close() {
+            if (this.status.compareAndSet(org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status.ACTIVE, org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status.STOPPED)) {
+                if (this.reactorThread != null) {
+                    try {
+                        this.connmgr.shutdown();
+                    } catch (final IOException ex) {
+                        this.log.error("I/O error shutting down connection manager", ex);
+                    }
+                    try {
+                        this.reactorThread.join();
+                    } catch (final InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean isRunning() {
+            return this.status.get() == org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase.Status.ACTIVE;
+        }
+
+        final void execute(final AbstractClientExchangeHandler handler) {
+            try {
+                if (!isRunning()) {
+                    throw new CancellationException("Request execution cancelled");
+                }
+                handler.start();
+            } catch (final Exception ex) {
+                handler.failed(ex);
+            }
+        }
+
+    }
+
+    class InternalHttpAsyncClient extends CloseableHttpAsyncClientBase {
+
+        private final Log log = LogFactory.getLog(getClass());
+
+        private final NHttpClientConnectionManager connmgr;
+        private final ConnectionReuseStrategy connReuseStrategy;
+        private final ConnectionKeepAliveStrategy keepaliveStrategy;
+        private final InternalClientExec exec;
+        private final Lookup<CookieSpecProvider> cookieSpecRegistry;
+        private final Lookup<AuthSchemeProvider> authSchemeRegistry;
+        private final CookieStore cookieStore;
+        private final CredentialsProvider credentialsProvider;
+        private final RequestConfig defaultConfig;
+
+        public InternalHttpAsyncClient(
+                final NHttpClientConnectionManager connmgr,
+                final ConnectionReuseStrategy connReuseStrategy,
+                final ConnectionKeepAliveStrategy keepaliveStrategy,
+                final ThreadFactory threadFactory,
+                final NHttpClientEventHandler handler,
+                final InternalClientExec exec,
+                final Lookup<CookieSpecProvider> cookieSpecRegistry,
+                final Lookup<AuthSchemeProvider> authSchemeRegistry,
+                final CookieStore cookieStore,
+                final CredentialsProvider credentialsProvider,
+                final RequestConfig defaultConfig) {
+            super(connmgr, threadFactory, handler);
+            this.connmgr = connmgr;
+            this.connReuseStrategy = connReuseStrategy;
+            this.keepaliveStrategy = keepaliveStrategy;
+            this.exec = exec;
+            this.cookieSpecRegistry = cookieSpecRegistry;
+            this.authSchemeRegistry = authSchemeRegistry;
+            this.cookieStore = cookieStore;
+            this.credentialsProvider = credentialsProvider;
+            this.defaultConfig = defaultConfig;
+        }
+
+        private void setupContext(final HttpClientContext context) {
+            if (context.getAttribute(HttpClientContext.TARGET_AUTH_STATE) == null) {
+                context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
+            }
+            if (context.getAttribute(HttpClientContext.PROXY_AUTH_STATE) == null) {
+                context.setAttribute(HttpClientContext.PROXY_AUTH_STATE, new AuthState());
+            }
+            if (context.getAttribute(HttpClientContext.AUTHSCHEME_REGISTRY) == null) {
+                context.setAttribute(HttpClientContext.AUTHSCHEME_REGISTRY, this.authSchemeRegistry);
+            }
+            if (context.getAttribute(HttpClientContext.COOKIESPEC_REGISTRY) == null) {
+                context.setAttribute(HttpClientContext.COOKIESPEC_REGISTRY, this.cookieSpecRegistry);
+            }
+            if (context.getAttribute(HttpClientContext.COOKIE_STORE) == null) {
+                context.setAttribute(HttpClientContext.COOKIE_STORE, this.cookieStore);
+            }
+            if (context.getAttribute(HttpClientContext.CREDS_PROVIDER) == null) {
+                context.setAttribute(HttpClientContext.CREDS_PROVIDER, this.credentialsProvider);
+            }
+            if (context.getAttribute(HttpClientContext.REQUEST_CONFIG) == null) {
+                context.setAttribute(HttpClientContext.REQUEST_CONFIG, this.defaultConfig);
+            }
+        }
+
+        @Override
+        public <T> Future<T> execute(
+                final HttpAsyncRequestProducer requestProducer,
+                final HttpAsyncResponseConsumer<T> responseConsumer,
+                final HttpContext context,
+                final FutureCallback<T> callback) {
+            final BasicFuture<T> future = new BasicFuture<T>(callback);
+            final HttpClientContext localcontext = HttpClientContext.adapt(
+                    context != null ? context : new BasicHttpContext());
+            setupContext(localcontext);
+
+            final DefaultClientExchangeHandlerImpl<T> handler = new DefaultClientExchangeHandlerImpl<T>(
+                    this.log,
+                    requestProducer,
+                    responseConsumer,
+                    localcontext,
+                    future,
+                    this.connmgr,
+                    this.connReuseStrategy,
+                    this.keepaliveStrategy,
+                    this.exec);
+            execute(handler);
+            return new FutureWrapper<T>(future, handler);
+        }
+
+        @Override
+        public <T> Future<List<T>> execute(
+                final HttpHost target,
+                final List<? extends HttpAsyncRequestProducer> requestProducers,
+                final List<? extends HttpAsyncResponseConsumer<T>> responseConsumers,
+                final HttpContext context,
+                final FutureCallback<List<T>> callback) {
+            throw new UnsupportedOperationException("Pipelining not supported");
+        }
+
+    }
+
     @Slf4j
     @Extension
     public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient> {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
-        public static final String esDatasourceNotFoundMessage = "Either your host URL is invalid or the page you are trying to access does not exist";
+        private static final Pattern patternForUnauthorized = Pattern.compile(
+                ".*unauthorized.*",
+                Pattern.CASE_INSENSITIVE
+        );
 
-        public static final String esDatasourceUnauthorizedMessage = "Your username or password is not correct";
-
-        public static final String esDatasourceUnauthorizedPattern = ".*unauthorized.*";
-
-        public static final String esDatasourceNotFoundPattern = ".*(?:not.?found)|(?:refused)|(?:not.?known)|(?:timed?\\s?out).*";
+        private static final Pattern patternForNotFound = Pattern.compile(
+                ".*not.?found|refused|not.?known|timed?\\s?out.*",
+                Pattern.CASE_INSENSITIVE
+        );
 
         private static final Set<String> DISALLOWED_HOSTS = Set.of(
                 "169.254.169.254",
@@ -177,16 +673,9 @@ public class ElasticSearchPlugin extends BasePlugin {
                 URL url;
                 try {
                     url = new URL(endpoint.getHost());
-                    if (DISALLOWED_HOSTS.contains(url.getHost())
-                            || DISALLOWED_HOSTS.contains(InetAddress.getByName(url.getHost()).getHostAddress())) {
-                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Invalid host provided."));
-                    }
                 } catch (MalformedURLException e) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
-                } catch (UnknownHostException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            esDatasourceNotFoundMessage));
                 }
                 String scheme = "http";
                 if (url.getProtocol() != null) {
@@ -197,6 +686,29 @@ public class ElasticSearchPlugin extends BasePlugin {
             }
 
             final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[]{}));
+
+            clientBuilder.setHttpClientConfigCallback(httpClientBuilder -> {
+                httpClientBuilder.setSSLHostnameVerifier((hostname, session) -> {
+                    return !DISALLOWED_HOSTS.contains(hostname);
+                });
+                return httpClientBuilder;
+            });
+
+            clientBuilder.setRequestConfigCallback(requestConfigBuilder -> {
+                requestConfigBuilder.setConnectTimeout(10000);
+                requestConfigBuilder.setSocketTimeout(60000);
+                return requestConfigBuilder;
+            });
+
+            clientBuilder.setNodeSelector(nodes -> {
+                for (Iterator<Node> itr = nodes.iterator(); itr.hasNext();) {
+                    final Node node = itr.next();
+                    if (DISALLOWED_HOSTS.contains(node.getHost().getHostName())
+                            || DISALLOWED_HOSTS.contains(node.getHost().getAddress().getHostAddress())) {
+                        itr.remove();
+                    }
+                }
+            });
 
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null
@@ -259,7 +771,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         } catch (MalformedURLException e) {
                             invalids.add("Invalid host provided. It should be of the form http(s)://your-es-url.com");
                         } catch (UnknownHostException e) {
-                            invalids.add(esDatasourceNotFoundMessage);
+                            invalids.add("Either your host URL is invalid or the page you are trying to access does not exist");
                         }
                     }
 
@@ -289,24 +801,25 @@ public class ElasticSearchPlugin extends BasePlugin {
                         try {
                             response = client.performRequest(request);
                         } catch (IOException e) {
+                            final String message = e.getMessage();
 
                             /* since the 401, and 403 are registered as IOException, but for the given connection it
                              * in the current rest-client. We will figure out with matching patterns with regexes.
                              */
 
-                            Pattern patternForUnauthorized = Pattern.compile(esDatasourceUnauthorizedPattern, Pattern.CASE_INSENSITIVE);
-                            Pattern patternForNotFound = Pattern.compile(esDatasourceNotFoundPattern, Pattern.CASE_INSENSITIVE);
-
-                            if (patternForUnauthorized.matcher(e.getMessage()).find()) {
-                                return new DatasourceTestResult(esDatasourceUnauthorizedMessage);
+                            if (patternForUnauthorized.matcher(message).find()) {
+                                return new DatasourceTestResult("Your username or password is not correct");
                             }
 
-                            if (patternForNotFound.matcher(e.getMessage()).find()) {
-                                return new DatasourceTestResult(esDatasourceNotFoundMessage);
+                            if (patternForNotFound.matcher(message).find()) {
+                                return new DatasourceTestResult("Either your host URL is invalid or the page you are trying to access does not exist");
                             }
 
+                            if (message.contains("rejected all nodes")) {
+                                return new DatasourceTestResult("Host(s) not allowed.");
+                            }
 
-                            return new DatasourceTestResult("Error running HEAD request: " + e.getMessage());
+                            return new DatasourceTestResult("Error running HEAD request: " + message);
                         }
 
                         final StatusLine statusLine = response.getStatusLine();
@@ -319,7 +832,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         // earlier it was 404 and 200, now it has been changed to just expect 200 status code
                         // here it checks if it is anything else than 200, even 404 is not allowed!
                         if (statusLine.getStatusCode() == 404) {
-                            return new DatasourceTestResult(esDatasourceNotFoundMessage);
+                            return new DatasourceTestResult("Either your host URL is invalid or the page you are trying to access does not exist");
                         }
 
                         if (statusLine.getStatusCode() != 200) {
