@@ -3,6 +3,7 @@ import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
+  getPlugins,
 } from "selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -16,18 +17,27 @@ export type EntityNavigationData = Record<
 
 export const getEntitiesForNavigation = createSelector(
   getActionsForCurrentPage,
+  getPlugins,
   getJSCollectionsForCurrentPage,
   getWidgets,
   getCurrentPageId,
-  (actions, jsActions, widgets, pageId) => {
+  (actions, plugins, jsActions, widgets, pageId) => {
     const navigationData: EntityNavigationData = {};
 
     actions.forEach((action) => {
+      const plugin = plugins.find(
+        (plugin) => plugin.id === action.config.pluginId,
+      );
       const config = getActionConfig(action.config.pluginType);
       navigationData[action.config.name] = {
         id: action.config.id,
         type: ENTITY_TYPE.ACTION,
-        url: config?.getURL(pageId, action.config.id, action.config.pluginType),
+        url: config?.getURL(
+          pageId,
+          action.config.id,
+          action.config.pluginType,
+          plugin,
+        ),
       };
     });
 
