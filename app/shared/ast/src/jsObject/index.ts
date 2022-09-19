@@ -1,21 +1,21 @@
-import { Node } from "acorn";
-import { getAST } from "../index";
-import { generate } from "astring";
-import { simple } from "acorn-walk";
+import { Node } from 'acorn';
+import { getAST } from '../index';
+import { generate } from 'astring';
+import { simple } from 'acorn-walk';
 import {
   getFunctionalParamsFromNode,
   isPropertyAFunctionNode,
   isVariableDeclarator,
   isObjectExpression,
   PropertyNode,
-  functionParams,
-} from "../index";
+  functionParam,
+} from '../index';
 
 type JsObjectProperty = {
   key: string;
   value: string;
   type: string;
-  arguments?: Array<functionParams>;
+  arguments?: Array<functionParam>;
 };
 
 export const parseJSObjectWithAST = (
@@ -27,7 +27,7 @@ export const parseJSObjectWithAST = (
       Keeping this just for sanity check if any caveat was missed.
     */
   const jsObjectVariableName =
-    "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
+    '____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____';
   const jsCode = `var ${jsObjectVariableName} = ${jsObjectBody}`;
 
   const ast = getAST(jsCode);
@@ -49,7 +49,7 @@ export const parseJSObjectWithAST = (
   });
 
   JSObjectProperties.forEach((node) => {
-    let params = new Set<functionParams>();
+    let params = new Set<functionParam>();
     const propertyNode = node;
     let property: JsObjectProperty = {
       key: generate(propertyNode.key),

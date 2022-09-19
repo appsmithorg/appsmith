@@ -1,5 +1,6 @@
 import {
   addErrorLogInit,
+  debuggerLog,
   debuggerLogInit,
   deleteErrorLogInit,
 } from "actions/debuggerActions";
@@ -32,18 +33,8 @@ function getTimeStamp() {
   return moment().format("hh:mm:ss");
 }
 
-function addLog(
-  ev: LogActionPayload,
-  severity = Severity.INFO,
-  timestamp = getTimeStamp(),
-  category = LOG_CATEGORY.USER_GENERATED,
-) {
-  log({
-    ...ev,
-    severity,
-    timestamp,
-    category,
-  });
+function addLogs(logs: Log[]) {
+  dispatchAction(debuggerLog(logs));
 }
 
 function info(
@@ -56,6 +47,7 @@ function info(
     severity: Severity.INFO,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -69,6 +61,7 @@ function warning(
     severity: Severity.WARNING,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -85,6 +78,7 @@ function error(
     severity: Severity.ERROR,
     timestamp,
     category,
+    occurrenceCount: 1,
   });
 }
 
@@ -100,6 +94,7 @@ function addError(
       severity: severity,
       timestamp: getTimeStamp(),
       category,
+      occurrenceCount: 1,
     }),
   );
 }
@@ -110,7 +105,7 @@ function deleteError(id: string, analytics?: Log["analytics"]) {
 }
 
 export default {
-  addLog,
+  addLogs,
   info,
   warning,
   error,
