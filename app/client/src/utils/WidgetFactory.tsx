@@ -206,20 +206,13 @@ class WidgetFactory {
     return map;
   }
 
-  static getWidgetPropertyPaneCombinedConfig(
-    type: WidgetType,
-  ): readonly PropertyPaneConfig[] {
-    const contentConfig = this.propertyPaneContentConfigsMap.get(type) || [];
-    const styleConfig = this.propertyPaneStyleConfigsMap.get(type) || [];
-    return [...contentConfig, ...styleConfig];
-  }
-
   static getWidgetPropertyPaneConfig(
     type: WidgetType,
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneConfigsMap.get(type);
-    if (!map || (map && map.length === 0)) {
-      return WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
+    if (!map) {
+      log.error("Widget property pane configs not defined", type);
+      return [];
     }
     return map;
   }
