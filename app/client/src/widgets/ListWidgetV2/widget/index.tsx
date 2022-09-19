@@ -218,12 +218,11 @@ class ListWidget extends BaseWidget<
       .withOptions({
         containerParentId: mainCanvasId,
         containerWidgetId: mainContainerId,
-        currFlattenedWidgets: flattenedChildCanvasWidgets,
+        currTemplateWidgets: flattenedChildCanvasWidgets,
         data: currentViewData,
         dynamicPathMapList,
         gridGap: this.getGridGap(),
-        pathsWithCurrentRow: this.props.pathsWithCurrentRow,
-        prevFlattenedWidgets: prevFlattenedChildCanvasWidgets,
+        prevTemplateWidgets: prevFlattenedChildCanvasWidgets,
         primaryKey: "id",
         startIndex,
         widgetName: this.props.widgetName,
@@ -234,7 +233,7 @@ class ListWidget extends BaseWidget<
     this.addMainCanvasMetaWidgetTo(metaWidgets);
     this.syncMetaContainerNames();
 
-    if (!isEmpty(metaWidgets)) {
+    if (!isEmpty(metaWidgets) || removedMetaWidgetIds.length) {
       this.modifyMetaWidgets({
         addOrUpdate: metaWidgets,
         delete: removedMetaWidgetIds,

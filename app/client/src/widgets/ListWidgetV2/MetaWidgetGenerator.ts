@@ -18,21 +18,20 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 
-type FlattenedWidgets = ListWidgetProps<
+type TemplateWidgets = ListWidgetProps<
   WidgetProps
 >["flattenedChildCanvasWidgets"];
 
 type Options = {
   data: Record<string, unknown>[];
-  currFlattenedWidgets: FlattenedWidgets;
-  prevFlattenedWidgets?: FlattenedWidgets;
+  currTemplateWidgets: TemplateWidgets;
+  prevTemplateWidgets?: TemplateWidgets;
   gridGap: number;
   containerWidgetId: string;
   containerParentId: string;
   primaryKey: string;
   startIndex: number;
   widgetName: string;
-  pathsWithCurrentRow: Record<string, string[] | undefined>;
   dynamicPathMapList: DynamicPathMapList;
 };
 
@@ -88,8 +87,8 @@ class MetaWidgetGenerator {
   containerWidgetId: Options["containerWidgetId"];
   currViewMetaWidgetIds: string[];
   prevViewMetaWidgetIds: string[];
-  currFlattenedWidgets: FlattenedWidgets;
-  prevFlattenedWidgets: FlattenedWidgets;
+  currTemplateWidgets: TemplateWidgets;
+  prevTemplateWidgets: TemplateWidgets;
   dynamicPathMapList: Options["dynamicPathMapList"];
   data: Options["data"];
   gridGap: Options["gridGap"];
@@ -110,7 +109,7 @@ class MetaWidgetGenerator {
     this.data = [];
     this.gridGap = 0;
     this.metaWidgetCache = {};
-    this.prevFlattenedWidgets = {};
+    this.prevTemplateWidgets = {};
     this.primaryKey = "";
     this.renderMode = props.renderMode;
     this.startIndex = 0;
@@ -127,8 +126,8 @@ class MetaWidgetGenerator {
   withOptions = (options: Options) => {
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
-    this.currFlattenedWidgets = options.currFlattenedWidgets || {};
-    this.prevFlattenedWidgets = options.prevFlattenedWidgets;
+    this.currTemplateWidgets = options.currTemplateWidgets || {};
+    this.prevTemplateWidgets = options.prevTemplateWidgets;
     this.data = options.data;
     this.dynamicPathMapList = options.dynamicPathMapList;
     this.gridGap = options.gridGap;
@@ -194,7 +193,7 @@ class MetaWidgetGenerator {
     rowIndex,
     templateWidgetId,
   }: GenerateMetaWidgetProps): generateMetaWidgetReturn => {
-    const templateWidget = this.currFlattenedWidgets?.[templateWidgetId];
+    const templateWidget = this.currTemplateWidgets?.[templateWidgetId];
 
     if (!templateWidget) return { metaWidgetId: "", metaWidgetName: "" };
 
@@ -296,8 +295,7 @@ class MetaWidgetGenerator {
     const key = this.getPrimaryKey(rowIndex);
     const cache = this.metaWidgetCache[key] || {};
     const isClonedRow = this.isClonedRow(index);
-    const templateWidgets =
-      Object.values(this.currFlattenedWidgets || {}) || [];
+    const templateWidgets = Object.values(this.currTemplateWidgets || {}) || [];
 
     templateWidgets.forEach((templateWidget) => {
       const {
@@ -406,7 +404,6 @@ class MetaWidgetGenerator {
     metaWidget.currentItem = `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
     metaWidget.dynamicBindingPathList = [
       ...(metaWidget.dynamicBindingPathList || []),
-      { key: "currentIndex" },
       { key: "currentItem" },
     ];
   };
@@ -456,7 +453,7 @@ class MetaWidgetGenerator {
   };
 
   updateContainerPosition = (metaWidget: MetaWidget, index: number) => {
-    const mainContainer = this.getMainWidget();
+    const mainContainer = this.getContainerWidget();
     const gap = this.gridGap;
 
     metaWidget.gap = gap;
@@ -478,8 +475,8 @@ class MetaWidgetGenerator {
    *
    *  */
   updateTemplateWidgetStatus = () => {
-    const newWidgetIds = Object.keys(this.currFlattenedWidgets || {});
-    const prevWidgetIds = Object.keys(this.prevFlattenedWidgets || {});
+    const newWidgetIds = Object.keys(this.currTemplateWidgets || {});
+    const prevWidgetIds = Object.keys(this.prevTemplateWidgets || {});
 
     this.templateWidgetStatus.added.clear();
     this.templateWidgetStatus.removed.clear();
@@ -498,8 +495,8 @@ class MetaWidgetGenerator {
 
     updatedIds.forEach((updatedId) => {
       const isEqual =
-        this.prevFlattenedWidgets?.[updatedId] ===
-        this.currFlattenedWidgets?.[updatedId];
+        this.prevTemplateWidgets?.[updatedId] ===
+        this.currTemplateWidgets?.[updatedId];
 
       if (isEqual) {
         this.templateWidgetStatus.unchanged.add(updatedId);
@@ -599,8 +596,8 @@ class MetaWidgetGenerator {
     return containers;
   };
 
-  getMainWidget = () =>
-    this.currFlattenedWidgets?.[this.containerWidgetId] as FlattenedWidgetProps;
+  getContainerWidget = () =>
+    this.currTemplateWidgets?.[this.containerWidgetId] as FlattenedWidgetProps;
 
   getPrimaryKey = (rowIndex: number) => {
     // TODO: Make sure a key is always returned from here, either a hash key
@@ -621,7 +618,7 @@ class MetaWidgetGenerator {
   };
 
   getCurrentRowMetaWidgets = (key: string) => {
-    const templateWidgetIds = Object.keys(this.currFlattenedWidgets || {});
+    const templateWidgetIds = Object.keys(this.currTemplateWidgets || {});
     const metaWidgetsCache = this.metaWidgetCache[key];
 
     const metaWidgets: MetaWidgetCacheProps[] = [];
