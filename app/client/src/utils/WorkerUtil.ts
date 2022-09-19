@@ -3,6 +3,11 @@ import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
 import WebpackWorker from "worker-loader!";
+
+export enum RequestOrigin {
+  Worker,
+  Main,
+}
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -48,6 +53,8 @@ export class GracefulWorkerService {
   // Channel to signal all waiters that we're ready. Always use it with `this._isReady`.
   private readonly _readyChan: Channel<any>;
 
+  public requestsFromWorker: Channel<any>;
+
   private readonly _workerClass: typeof WebpackWorker;
 
   constructor(workerClass: typeof WebpackWorker) {
@@ -64,6 +71,7 @@ export class GracefulWorkerService {
     this._isReady = false;
     this._channels = new Map<string, Channel<any>>();
     this._workerClass = workerClass;
+    this.requestsFromWorker = channel(buffers.fixed(100));
   }
 
   /**
@@ -119,7 +127,12 @@ export class GracefulWorkerService {
    *
    * @returns response from the worker
    */
-  *request(method: string, requestData = {}): any {
+  *request(
+    method: string,
+    requestData = {},
+    requestOrigin = RequestOrigin.Main,
+    requestId?: string,
+  ): any {
     yield this.ready(true);
     // Impossible case, but helps avoid `?` later in code and makes it clearer.
     if (!this._evaluationWorker) return;
@@ -127,9 +140,11 @@ export class GracefulWorkerService {
     /**
      * We create a unique channel to wait for a response of this specific request.
      */
-    const requestId = `${method}__${_.uniqueId()}`;
     const ch = channel();
-    this._channels.set(requestId, ch);
+    if (requestOrigin === RequestOrigin.Main && !requestId) {
+      requestId = `${method}__${_.uniqueId()}`;
+      this._channels.set(requestId, ch);
+    }
     const mainThreadStartTime = performance.now();
     let timeTaken;
 
@@ -140,6 +155,7 @@ export class GracefulWorkerService {
         requestId,
       });
       // The `this._broker` method is listening to events and will pass response to us over this channel.
+      if (requestOrigin === RequestOrigin.Worker) return {};
       const response = yield take(ch);
       timeTaken = response.timeTaken;
       const { responseData } = response;
@@ -163,7 +179,7 @@ export class GracefulWorkerService {
       }
       // Cleanup
       ch.close();
-      this._channels.delete(requestId);
+      if (requestId) this._channels.delete(requestId);
     }
   }
 
@@ -290,12 +306,27 @@ export class GracefulWorkerService {
     if (!event || !event.data) {
       return;
     }
-    const { requestId, responseData, timeTaken } = event.data;
-    const ch = this._channels.get(requestId);
-    // Channel could have been deleted if the request gets cancelled before the WebWorker can respond.
-    // In that case, we want to drop the request.
-    if (ch) {
-      ch.put({ responseData, timeTaken });
+    const {
+      data,
+      requestId,
+      requestOrigin,
+      responseData,
+      timeTaken,
+    } = event.data;
+
+    if (requestOrigin === RequestOrigin.Worker) {
+      this.requestsFromWorker.put({
+        requestId,
+        requestOrigin,
+        requestData: data,
+      });
+    } else {
+      const ch = this._channels.get(requestId);
+      // Channel could have been deleted if the request gets cancelled before the WebWorker can respond.
+      // In that case, we want to drop the request.
+      if (ch) {
+        ch.put({ responseData, timeTaken });
+      }
     }
   }
 }

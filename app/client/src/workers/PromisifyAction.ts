@@ -15,6 +15,23 @@ import {
 } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
+import { RequestOrigin } from "utils/WorkerUtil";
+
+export const talkToMainThread = (actionDescription: ActionDescription) => {
+  const requestId = _.uniqueId(`${actionDescription.type}_`);
+  return new Promise((resolve, reject) => {
+    const handler = handleResponseFromMainThread(requestId, resolve, reject);
+    ctx.addEventListener("message", handler);
+    ctx.postMessage({
+      requestId,
+      requestOrigin: RequestOrigin.Worker,
+      data: {
+        trigger: actionDescription,
+        errors: [],
+      },
+    });
+  });
+};
 
 export const promisifyAction = (
   workerRequestId: string,
@@ -116,3 +133,38 @@ export const confirmationPromise = function(
   };
   return promisifyAction(requestId, payload).then(() => func(...args));
 };
+
+function handleResponseFromMainThread(
+  requestId: string,
+  resolve: any,
+  reject: any,
+) {
+  function responseHandler(event: MessageEvent) {
+    const {
+      method,
+      requestData: { data, success },
+      requestId: requestIdFromMainThread,
+    } = event.data;
+    if (method !== EVAL_WORKER_ACTIONS.PROCESS_TRIGGER) return;
+    if (requestId !== requestIdFromMainThread) return;
+    if (!dataTreeEvaluator) {
+      reject("No Data Tree Evaluator found");
+      ctx.removeEventListener("message", responseHandler);
+      return;
+    }
+    self.ALLOW_ASYNC = true;
+    const globalData = createGlobalData({
+      dataTree: dataTreeEvaluator.evalTree,
+      resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
+      isTriggerBased: true,
+    });
+    Object.assign(self, globalData);
+    if (success) {
+      resolve(data.resolve);
+    } else {
+      reject(data.reason);
+    }
+    ctx.removeEventListener("message", responseHandler);
+  }
+  return responseHandler;
+}

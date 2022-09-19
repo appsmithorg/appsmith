@@ -145,6 +145,7 @@ export enum EVAL_WORKER_ACTIONS {
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
   INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
+  EXECUTE_JS_STRING = "EXECUTE_JS_STRING",
 }
 
 export type ExtraLibrary = {
@@ -314,7 +315,6 @@ export const isThemeBoundProperty = (
 };
 
 export const unsafeFunctionForEval = [
-  "setTimeout",
   "fetch",
   "setInterval",
   "clearInterval",

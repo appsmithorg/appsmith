@@ -404,48 +404,23 @@ export function* executeFunction(
   collectionId: string,
 ) {
   const functionCall = `${collectionName}.${action.name}()`;
-  const { isAsync } = action.actionConfiguration;
-  let response: {
+  const response: {
     errors: any[];
     result: any;
-    logs?: LogObject[];
-  };
+    logs: LogObject[];
+  } = yield call(worker.request, EVAL_WORKER_ACTIONS.EXECUTE_JS_STRING, {
+    functionCall,
+  });
 
-  if (isAsync) {
-    try {
-      response = yield call(
-        evaluateAndExecuteDynamicTrigger,
-        functionCall,
-        EventType.ON_JS_FUNCTION_EXECUTE,
-        {},
-      );
-    } catch (e) {
-      if (e instanceof UncaughtPromiseError) {
-        logActionExecutionError(e.message);
-      }
-      response = { errors: [e], result: undefined };
-    }
-  } else {
-    response = yield call(worker.request, EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS, {
-      functionCall,
-    });
+  const { errors, logs, result } = response;
 
-    const { logs } = response;
-    // Check for any logs in the response and store them in the redux store
-    if (!!logs && logs.length > 0) {
-      yield call(
-        storeLogs,
-        logs,
-        collectionName + "." + action.name,
-        ENTITY_TYPE.JSACTION,
-        collectionId,
-      );
-    }
-  }
-
-  const { errors, result } = response;
-
-  const isDirty = !!errors.length;
+  yield call(
+    storeLogs,
+    logs,
+    collectionName + "." + action.name,
+    ENTITY_TYPE.JSACTION,
+    collectionId,
+  );
 
   yield call(
     handleJSFunctionExecutionErrorLog,
@@ -454,7 +429,8 @@ export function* executeFunction(
     action,
     errors,
   );
-  return { result, isDirty };
+
+  return { result, isDirty: !!errors.length };
 }
 
 export function* validateProperty(
@@ -745,11 +721,46 @@ export function* setAppVersionOnWorkerSaga(action: {
   });
 }
 
+function* listenToEventsFromWorkerSaga() {
+  while (true) {
+    const action: unknown = yield take(worker.requestsFromWorker);
+    const { requestData, requestId, requestOrigin } = action as any;
+    yield call(evalErrorHandler, requestData?.errors || []);
+    if (requestData.trigger) {
+      log.debug({ trigger: requestData.trigger });
+      const responsePayload: any = { data: {} };
+      try {
+        const response: unknown = yield call(
+          executeActionTriggers,
+          requestData.trigger,
+          EventType.ON_JS_FUNCTION_EXECUTE,
+          {},
+        );
+        responsePayload.data.resolve = response;
+        responsePayload.success = true;
+      } catch (e) {
+        responsePayload.data.reason = { message: (e as any).message };
+        responsePayload.success = false;
+      }
+      yield call(
+        worker.request,
+        EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+        responsePayload,
+        requestOrigin,
+        requestId,
+      );
+    }
+  }
+}
+
 export default function* evaluationSagaListeners() {
   yield take(ReduxActionTypes.START_EVALUATION);
   while (true) {
     try {
-      yield call(evaluationChangeListenerSaga);
+      yield all([
+        call(evaluationChangeListenerSaga),
+        call(listenToEventsFromWorkerSaga),
+      ]);
     } catch (e) {
       log.error(e);
       Sentry.captureException(e);

@@ -57,6 +57,7 @@ import evaluateSync, {
   EvalResult,
   EvaluateContext,
   evaluateAsync,
+  evaluateJSString,
 } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import {
@@ -821,7 +822,7 @@ export default class DataTreeEvaluator {
     }
   }
 
-  getDynamicValue(
+  async getDynamicValue(
     dynamicBinding: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
@@ -832,7 +833,7 @@ export default class DataTreeEvaluator {
   ) {
     // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
-    let propertyPath: string;
+    let propertyPath = "";
     if (fullPropertyPath) {
       const entityName = fullPropertyPath.split(".")[0];
       propertyPath = fullPropertyPath.split(".")[1];
@@ -843,99 +844,102 @@ export default class DataTreeEvaluator {
       dynamicBinding,
       entity,
     );
-    if (stringSegments.length) {
-      // Get the Data Tree value of those "binding "paths
-      const values = jsSnippets.map((jsSnippet, index) => {
+    if (stringSegments.length === 0) return undefined;
+    // Get the Data Tree value of those "binding "paths
+    const values = await Promise.all(
+      jsSnippets.map(async (jsSnippet, index) => {
         const toBeSentForEval =
           entity && isJSAction(entity) && propertyPath === "body"
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
-        if (jsSnippet) {
-          const result = this.evaluateDynamicBoundValue(
-            toBeSentForEval,
-            data,
-            resolvedFunctions,
-            !!entity && isJSAction(entity),
-            contextData,
-            callBackData,
-            fullPropertyPath?.includes("body") ||
-              !toBeSentForEval.includes("console."),
-          );
-          if (fullPropertyPath && result.errors.length) {
-            addErrorToEntityProperty(result.errors, data, fullPropertyPath);
-          }
-          // if there are any console outputs found from the evaluation, extract them and add them to the logs array
-          if (
-            !!entity &&
-            !!result.logs &&
-            result.logs.length > 0 &&
-            !propertyPath.includes("body")
-          ) {
-            let type = CONSOLE_ENTITY_TYPE.WIDGET;
-            let id = "";
+        if (!jsSnippet) return stringSegments[index];
 
-            // extracting the id and type of the entity from the entity for logs object
-            if (isWidget(entity)) {
-              type = CONSOLE_ENTITY_TYPE.WIDGET;
-              id = entity.widgetId;
-            } else if (isAction(entity)) {
-              type = CONSOLE_ENTITY_TYPE.ACTION;
-              id = entity.actionId;
-            } else if (isJSAction(entity)) {
-              type = CONSOLE_ENTITY_TYPE.JSACTION;
-              id = entity.actionId;
-            }
-
-            // This is the object that will help to associate the log with the origin entity
-            const source: SourceEntity = {
-              type,
-              name: fullPropertyPath?.split(".")[0] || "Widget",
-              id,
-            };
-            this.userLogs.push({
-              logObject: result.logs,
-              source,
-            });
-          }
-          return result.result;
-        } else {
-          return stringSegments[index];
-        }
-      });
-
-      // We don't need to substitute template of the result if only one binding exists
-      // But it should not be of prepared statements since that does need a string
-      if (
-        stringSegments.length === 1 &&
-        evaluationSubstitutionType !== EvaluationSubstitutionType.PARAMETER
-      ) {
-        return values[0];
-      }
-      try {
-        // else return a combined value according to the evaluation type
-        return substituteDynamicBindingWithValues(
-          dynamicBinding,
-          stringSegments,
-          values,
-          evaluationSubstitutionType,
+        return this.evaluateDynamicBoundValue(
+          toBeSentForEval,
+          data,
+          resolvedFunctions,
+          !!entity && isJSAction(entity),
+          contextData,
+          callBackData,
+          fullPropertyPath?.includes("body") ||
+            !toBeSentForEval.includes("console."),
         );
-      } catch (error) {
-        if (fullPropertyPath) {
-          addErrorToEntityProperty(
-            [
-              {
-                raw: dynamicBinding,
-                errorType: PropertyEvaluationErrorType.PARSE,
-                errorMessage: (error as Error).message,
-                severity: Severity.ERROR,
-              },
-            ],
-            data,
-            fullPropertyPath,
-          );
-        }
-        return undefined;
+      }),
+    );
+
+    for (const result of values) {
+      if (typeof result === "string") continue;
+      if (fullPropertyPath && result.errors.length) {
+        addErrorToEntityProperty(result.errors, data, fullPropertyPath);
       }
+      // if there are any console outputs found from the evaluation, extract them and add them to the logs array
+      if (
+        !!entity &&
+        !!result.logs &&
+        result.logs.length > 0 &&
+        !propertyPath.includes("body")
+      ) {
+        let type = CONSOLE_ENTITY_TYPE.WIDGET;
+        let id = "";
+
+        // extracting the id and type of the entity from the entity for logs object
+        if (isWidget(entity)) {
+          type = CONSOLE_ENTITY_TYPE.WIDGET;
+          id = entity.widgetId;
+        } else if (isAction(entity)) {
+          type = CONSOLE_ENTITY_TYPE.ACTION;
+          id = entity.actionId;
+        } else if (isJSAction(entity)) {
+          type = CONSOLE_ENTITY_TYPE.JSACTION;
+          id = entity.actionId;
+        }
+
+        // This is the object that will help to associate the log with the origin entity
+        const source: SourceEntity = {
+          type,
+          name: fullPropertyPath?.split(".")[0] || "Widget",
+          id,
+        };
+        this.userLogs.push({
+          logObject: result.logs,
+          source,
+        });
+      }
+      return result.result;
+    }
+
+    // We don't need to substitute template of the result if only one binding exists
+    // But it should not be of prepared statements since that does need a string
+    if (
+      stringSegments.length === 1 &&
+      evaluationSubstitutionType !== EvaluationSubstitutionType.PARAMETER
+    ) {
+      return values[0];
+    }
+    try {
+      // else return a combined value according to the evaluation type
+      return substituteDynamicBindingWithValues(
+        dynamicBinding,
+        stringSegments,
+        values,
+        evaluationSubstitutionType,
+      );
+    } catch (error) {
+      if (fullPropertyPath) {
+        addErrorToEntityProperty(
+          [
+            {
+              raw: dynamicBinding,
+              errorType: PropertyEvaluationErrorType.PARSE,
+              errorMessage: (error as Error).message,
+              severity: Severity.ERROR,
+            },
+          ],
+          data,
+          fullPropertyPath,
+        );
+      }
+      return undefined;
     }
     return undefined;
   }
@@ -961,7 +965,7 @@ export default class DataTreeEvaluator {
 
   // Paths are expected to have "{name}.{path}" signature
   // Also returns any action triggers found after evaluating value
-  evaluateDynamicBoundValue(
+  async evaluateDynamicBoundValue(
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
@@ -969,9 +973,9 @@ export default class DataTreeEvaluator {
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
-  ): EvalResult {
+  ): Promise<EvalResult> {
     try {
-      return evaluateSync(
+      return evaluateJSString(
         js,
         data,
         resolvedFunctions,

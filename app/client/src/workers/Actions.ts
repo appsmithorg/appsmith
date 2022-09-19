@@ -7,9 +7,15 @@ import {
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import { promisifyAction } from "workers/PromisifyAction";
+import { promisifyAction, talkToMainThread } from "workers/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
+import { createGlobalData } from "./evaluate";
+import { dataTreeEvaluator } from "./evaluation.worker";
+
+export const _internalSetTimeout = setTimeout;
+export const _internalClearTimeout = clearTimeout;
+
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -36,15 +42,7 @@ type ActionDispatcherWithExecutionType = (
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 
-export const DATA_TREE_FUNCTIONS: Record<
-  string,
-  | ActionDispatcherWithExecutionType
-  | {
-      qualifier: (entity: DataTreeEntity) => boolean;
-      func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
-      path?: string;
-    }
-> = {
+export const DATA_TREE_FUNCTIONS: Record<string, any> = {
   navigateTo: function(
     pageNameOrUrl: string,
     params: Record<string, string>,
@@ -122,8 +120,8 @@ export const DATA_TREE_FUNCTIONS: Record<
     };
   },
   run: {
-    qualifier: (entity) => isAction(entity),
-    func: (entity) =>
+    qualifier: (entity: any) => isAction(entity),
+    func: (entity: any) =>
       function(
         onSuccessOrParams?: () => unknown | Record<string, unknown>,
         onError?: () => unknown,
@@ -163,8 +161,8 @@ export const DATA_TREE_FUNCTIONS: Record<
       },
   },
   clear: {
-    qualifier: (entity) => isAction(entity),
-    func: (entity) =>
+    qualifier: (entity: any) => isAction(entity),
+    func: (entity: any) =>
       function() {
         return {
           type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
@@ -196,7 +194,7 @@ export const DATA_TREE_FUNCTIONS: Record<
     };
   },
   getGeoLocation: {
-    qualifier: (entity) => isAppsmithEntity(entity),
+    qualifier: (entity: any) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.getCurrentPosition",
     func: () =>
       function(
@@ -227,7 +225,7 @@ export const DATA_TREE_FUNCTIONS: Record<
       },
   },
   watchGeoLocation: {
-    qualifier: (entity) => isAppsmithEntity(entity),
+    qualifier: (entity: any) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.watchPosition",
     func: () =>
       function(
@@ -255,7 +253,7 @@ export const DATA_TREE_FUNCTIONS: Record<
       },
   },
   stopWatchGeoLocation: {
-    qualifier: (entity) => isAppsmithEntity(entity),
+    qualifier: (entity: any) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.clearWatch",
     func: () =>
       function() {
@@ -266,6 +264,23 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
+  setTimeout: function(cb: (...args: any) => any, delay: number, ...args: any) {
+    return _internalSetTimeout(
+      function(...args: any) {
+        if (!dataTreeEvaluator) return;
+        self.ALLOW_ASYNC = true;
+        const globalData = createGlobalData({
+          dataTree: dataTreeEvaluator.evalTree,
+          resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
+          isTriggerBased: true,
+        });
+        Object.assign(self, globalData);
+        cb(...args);
+      },
+      delay,
+      ...args,
+    );
+  },
 };
 
 export const enhanceDataTreeWithFunctions = (
@@ -273,10 +288,14 @@ export const enhanceDataTreeWithFunctions = (
   requestId = "",
   // Whether not to add functions like "run", "clear" to entity
   skipEntityFunctions = false,
+  isTriggerBased = false,
 ): DataTree => {
+  if (!isTriggerBased) return dataTree;
+
   const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
-  Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
+
+  for (const [name, funcOrFuncCreator] of Object.entries(DATA_TREE_FUNCTIONS)) {
     if (
       typeof funcOrFuncCreator === "object" &&
       "qualifier" in funcOrFuncCreator
@@ -313,7 +332,7 @@ export const enhanceDataTreeWithFunctions = (
         ),
       );
     }
-  });
+  }
 
   return clonedDT;
 };
@@ -346,7 +365,9 @@ export const pusher = function(
 
   if (executionType && executionType === ExecutionType.TRIGGER) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
+  } else if (executionType === ExecutionType.PROMISE) {
+    return talkToMainThread(actionPayload);
   } else {
-    return promisifyAction(this.REQUEST_ID, actionPayload);
+    return actionDescription;
   }
 };

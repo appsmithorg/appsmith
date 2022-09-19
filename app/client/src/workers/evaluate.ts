@@ -138,51 +138,35 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
       });
     }
   }
-  if (isTriggerBased) {
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-      dataTree,
-      context?.requestId,
-      skipEntityFunctions,
-    );
-    ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
-  } else {
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
-    });
-  }
-  if (!isEmpty(resolvedFunctions)) {
-    Object.keys(resolvedFunctions).forEach((datum: any) => {
-      const resolvedObject = resolvedFunctions[datum];
-      Object.keys(resolvedObject).forEach((key: any) => {
-        const dataTreeKey = GLOBAL_DATA[datum];
-        if (dataTreeKey) {
-          const data = dataTreeKey[key]?.data;
-          //do not remove we will be investigating this
-          //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
-          //const confirmBeforeExecute =
-          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
-          dataTreeKey[key] = resolvedObject[key];
-          // if (isAsync && confirmBeforeExecute) {
-          //   dataTreeKey[key] = confirmationPromise.bind(
-          //     {},
-          //     context?.requestId,
-          //     resolvedObject[key],
-          //     dataTreeKey.name + "." + key,
-          //   );
-          // } else {
-          //   dataTreeKey[key] = resolvedObject[key];
-          // }
-          if (!!data) {
-            dataTreeKey[key]["data"] = data;
-          }
+
+  //// Add internal functions to dataTree;
+  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+    dataTree,
+    context?.requestId,
+    skipEntityFunctions,
+    isTriggerBased,
+  );
+  ///// Adding Data tree with functions
+  Object.keys(dataTreeWithFunctions).forEach((datum) => {
+    GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+  });
+
+  if (isEmpty(resolvedFunctions)) return GLOBAL_DATA;
+
+  Object.keys(resolvedFunctions).forEach((datum: any) => {
+    const resolvedObject = resolvedFunctions[datum];
+    Object.keys(resolvedObject).forEach((key: any) => {
+      const dataTreeKey = GLOBAL_DATA[datum];
+      if (dataTreeKey) {
+        const data = dataTreeKey[key]?.data;
+        dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+        dataTreeKey[key] = resolvedObject[key];
+        if (!!data) {
+          dataTreeKey[key]["data"] = data;
         }
-      });
+      }
     });
-  }
+  });
   return GLOBAL_DATA;
 };
 
@@ -222,6 +206,65 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
+export function evaluateJSString(
+  code: string,
+  dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
+  isJSCollection: boolean,
+  context?: EvaluateContext,
+  evalArguments?: Array<any>,
+  skipLogsOperations = false,
+): Promise<EvalResult> {
+  return (async function() {
+    let result = {},
+      logs: LogObject[] = [];
+    const errors: EvaluationError[] = [];
+    const GLOBAL_DATA: Record<string, any> = createGlobalData({
+      dataTree,
+      resolvedFunctions,
+      isTriggerBased: isJSCollection,
+      context,
+      evalArguments,
+    });
+
+    GLOBAL_DATA.ALLOW_ASYNC = false;
+
+    const executionScript = `new Promise((resolve, reject) => {
+      try {
+        resolve(${code})
+      } catch(e) {
+        reject(e)
+      }
+    }).catch(e => { 
+      throw new EvalError(e);
+    })`;
+
+    Object.assign(self, GLOBAL_DATA);
+
+    try {
+      result = await eval(executionScript);
+    } catch (error) {
+      const errorMessage = `${(error as Error).name}: ${
+        (error as Error).message
+      }`;
+      errors.push({
+        errorMessage: errorMessage,
+        severity: Severity.ERROR,
+        raw: executionScript,
+        errorType: PropertyEvaluationErrorType.PARSE,
+        originalBinding: code,
+      });
+    } finally {
+      logs = userLogs.flushLogs(skipLogsOperations);
+      for (const entity in GLOBAL_DATA) {
+        // @ts-expect-error: Types are not available
+        delete self[entity];
+      }
+      return { result, errors, logs };
+    }
+  })();
+}
+
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
@@ -248,7 +291,7 @@ export default function evaluateSync(
       context,
       evalArguments,
     });
-    GLOBAL_DATA.ALLOW_ASYNC = false;
+    GLOBAL_DATA.ALLOW_ASYNC = true;
     const { script } = getUserScriptToEvaluate(
       userScript,
       false,
