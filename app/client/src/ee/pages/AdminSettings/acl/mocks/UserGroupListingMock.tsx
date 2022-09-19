@@ -1,10 +1,10 @@
-import { UserGroup } from "../GroupsListing";
+import { GroupProps } from "../types";
 
-export const userGroupTableData: UserGroup[] = [
+export const userGroupTableData: GroupProps[] = [
   {
     isEditing: false,
     isDeleting: false,
-    rolename: "Eng_New",
+    name: "Eng_New",
     id: "123",
     allRoles: [
       "devops_eng_nov",
@@ -13,22 +13,24 @@ export const userGroupTableData: UserGroup[] = [
       "App Viewer",
     ],
     activePermissions: ["HR_Appsmith", "devops_design"],
-    allUsers: [],
+    users: [],
   },
   {
     isEditing: false,
     isDeleting: false,
-    rolename: "Design",
+    name: "Design",
     id: "456",
     allRoles: ["HR_Appsmith", "devops_design", "Administrator", "App Viewer"],
     activePermissions: ["devops_eng_nov", "marketing_nov"],
-    allUsers: [
+    users: [
       {
         isChangingRole: false,
         isDeleting: false,
         name: "Ankita Kinger",
         username: "techak@appsmith.com",
         userId: "123",
+        allGroups: [],
+        allRoles: [],
       },
       {
         isChangingRole: false,
@@ -36,13 +38,15 @@ export const userGroupTableData: UserGroup[] = [
         name: "Hello",
         username: "hello123@appsmith.com",
         userId: "456",
+        allGroups: [],
+        allRoles: [],
       },
     ],
   },
   {
     isEditing: false,
     isDeleting: false,
-    rolename: "contractors_ruby",
+    name: "contractors_ruby",
     id: "789",
     allRoles: [
       "HR_Appsmith",
@@ -51,7 +55,7 @@ export const userGroupTableData: UserGroup[] = [
       "marketing_nov",
     ],
     activePermissions: ["Administrator", "App Viewer"],
-    allUsers: [
+    users: [
       {
         isChangingRole: false,
         isDeleting: false,
@@ -59,6 +63,7 @@ export const userGroupTableData: UserGroup[] = [
         allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
         userId: "123",
+        allRoles: [],
       },
       {
         isChangingRole: false,
@@ -66,17 +71,19 @@ export const userGroupTableData: UserGroup[] = [
         name: "Hello",
         username: "hello123@appsmith.com",
         userId: "456",
+        allGroups: [],
+        allRoles: [],
       },
     ],
   },
   {
     isEditing: false,
     isDeleting: false,
-    rolename: "marketing_newsletter",
+    name: "marketing_newsletter",
     id: "103",
     allRoles: ["HR_Appsmith", "marketing_nov", "Administrator", "App Viewer"],
     activePermissions: ["devops_design", "devops_eng_nov"],
-    allUsers: [
+    users: [
       {
         isChangingRole: false,
         isDeleting: false,
@@ -84,6 +91,7 @@ export const userGroupTableData: UserGroup[] = [
         allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
         userId: "123",
+        allRoles: [],
       },
       {
         isChangingRole: false,
@@ -91,13 +99,15 @@ export const userGroupTableData: UserGroup[] = [
         name: "Hello",
         username: "hello123@appsmith.com",
         userId: "456",
+        allGroups: [],
+        allRoles: [],
       },
     ],
   },
   {
     isEditing: false,
     isDeleting: false,
-    rolename: "Administrator",
+    name: "Administrator",
     id: "120",
     allRoles: [
       "HR_Appsmith",
@@ -107,7 +117,7 @@ export const userGroupTableData: UserGroup[] = [
       "App Viewer",
     ],
     activePermissions: ["Administrator"],
-    allUsers: [
+    users: [
       {
         isChangingRole: false,
         isDeleting: false,
@@ -115,6 +125,7 @@ export const userGroupTableData: UserGroup[] = [
         allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
         userId: "123",
+        allRoles: [],
       },
       {
         isChangingRole: false,
@@ -122,13 +133,15 @@ export const userGroupTableData: UserGroup[] = [
         name: "Hello",
         username: "hello123@appsmith.com",
         userId: "456",
+        allGroups: [],
+        allRoles: [],
       },
     ],
   },
   {
     isEditing: false,
     isDeleting: false,
-    rolename: "App Viewer",
+    name: "App Viewer",
     id: "125",
     allRoles: [
       "HR_Appsmith",
@@ -138,13 +151,15 @@ export const userGroupTableData: UserGroup[] = [
       "Administrator",
     ],
     activePermissions: ["App Viewer"],
-    allUsers: [
+    users: [
       {
         isChangingRole: false,
         isDeleting: false,
         name: "Ankita Kinger",
         username: "techak@appsmith.com",
         userId: "123",
+        allGroups: [],
+        allRoles: [],
       },
       {
         isChangingRole: false,
@@ -152,6 +167,8 @@ export const userGroupTableData: UserGroup[] = [
         name: "Hello",
         username: "hello123@appsmith.com",
         userId: "456",
+        allGroups: [],
+        allRoles: [],
       },
     ],
   },

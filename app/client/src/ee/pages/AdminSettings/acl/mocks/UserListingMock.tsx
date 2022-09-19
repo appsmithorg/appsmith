@@ -10,8 +10,8 @@ import {
   ShowLess,
   MoreGroups,
   GroupWrapper,
-  User,
 } from "../UserListing";
+import { UserProps } from "../types";
 
 export const columns = [
   {
@@ -82,7 +82,7 @@ export const columns = [
   },
 ];
 
-export const allUsers: User[] = [
+export const allUsers: UserProps[] = [
   {
     isChangingRole: false,
     isDeleting: false,

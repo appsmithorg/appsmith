@@ -23,10 +23,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -88,5 +90,10 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
                     return profile;
                 });
+    }
+
+    @Override
+    public Flux<User> findAllByIdsIn(Set<String> ids) {
+        return repository.findAllById(ids);
     }
 }

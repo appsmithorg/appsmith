@@ -2,13 +2,11 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
 import userEvent from "@testing-library/user-event";
-import {
-  ActiveAllGroupsList,
-  ActiveAllGroupsProps,
-} from "./ActiveAllGroupsList";
+import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import { createMessage, ACTIVE_ROLES } from "@appsmith/constants/messages";
+import { ActiveAllGroupsProps } from "./types";
 
 let container: any = null;
 
@@ -52,27 +50,15 @@ describe("<ActiveAllGroupsList />", () => {
       <ActiveAllGroupsList {...props} title="Roles assigned to Design" />,
     );
     const activeGroups = getAllByTestId("t--active-group-row");
-    props.activeGroups.map((group, index) => {
+    props.activeGroups.map((group: any, index: any) => {
       expect(activeGroups[index]).toHaveTextContent(group);
     });
 
     const allGroups = getAllByTestId("t--all-group-row");
-    props?.allGroups?.map((group, index) => {
+    props?.allGroups?.map((group: any, index: any) => {
       expect(allGroups[index]).toHaveTextContent(group);
     });
   });
-  /*it("should mark group to be removed", () => {
-    renderComponent();
-    const activeGroups = screen.getAllByTestId("t--active-group-row");
-    userEvent.click(activeGroups[0]);
-    expect(activeGroups[0]).toHaveClass("removed");
-  });
-  it("should mark group to be added", () => {
-    renderComponent();
-    const allGroups = screen.getAllByTestId("t--all-group-row");
-    userEvent.click(allGroups[0]);
-    expect(allGroups[0]).toHaveClass("added");
-  });*/
   it("should highlight search value", async () => {
     const { getAllByTestId } = render(
       <ActiveAllGroupsList
@@ -84,7 +70,7 @@ describe("<ActiveAllGroupsList />", () => {
 
     await waitFor(() => {
       const searchedActive = getAllByTestId("t--highlighted-text");
-      searchedActive.map((searched) => {
+      searchedActive.map((searched: any) => {
         expect(searched).toHaveTextContent("devops");
       });
     });
@@ -96,6 +82,7 @@ describe("<ActiveAllGroupsList />", () => {
       onDelete: jest.fn(),
       onBack: jest.fn(),
       isLoading: false,
+      isSaving: false,
     };
     const { getAllByTestId, getByText } = render(
       <GroupAddEdit {...userGroupAddEditProps} />,
@@ -110,7 +97,7 @@ describe("<ActiveAllGroupsList />", () => {
       expect(activeGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
       expect(searchedActive[0]).toHaveTextContent("devops");
-      activeGroups.map((group) => {
+      activeGroups.map((group: any) => {
         expect(group).not.toHaveTextContent("marketing_nov");
         expect(group).toHaveTextContent("devops");
       });
@@ -121,7 +108,7 @@ describe("<ActiveAllGroupsList />", () => {
       expect(allGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
       expect(searchedActive[0]).toHaveTextContent("devops");
-      allGroups.map((group) => {
+      allGroups.map((group: any) => {
         expect(group).not.toHaveTextContent("Administrator");
         expect(group).toHaveTextContent("devops");
       });

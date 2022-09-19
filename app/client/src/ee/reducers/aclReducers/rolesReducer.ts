@@ -1,15 +1,16 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const rolesReducers = {
-  [ReduxActionTypes.FETCH_ACL_ROLE]: (state: any) => ({
+  [ReduxActionTypes.FETCH_ACL_ROLES]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_ROLE_ERROR]: (state: any) => ({
+  [ReduxActionTypes.FETCH_ACL_ROLES_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
+  [ReduxActionTypes.FETCH_ACL_ROLES_SUCCESS]: (state: any, action: any) => ({
     ...state,
     roles: action.payload,
     isLoading: false,
@@ -30,6 +31,19 @@ export const rolesReducers = {
     selectedRole: action.payload,
     isLoading: false,
   }),
+  [ReduxActionTypes.CREATE_ACL_ROLE]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.CREATE_ACL_ROLE_ERROR]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.CREATE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
+    ...state,
+    roles: action.payload,
+    isLoading: false,
+  }),
   [ReduxActionTypes.CLONE_ACL_ROLE]: (state: any) => ({
     ...state,
     isLoading: true,
@@ -45,16 +59,16 @@ export const rolesReducers = {
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE]: (state: any) => ({
     ...state,
-    isLoading: true,
+    isSaving: true,
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_ERROR]: (state: any) => ({
     ...state,
-    isLoading: false,
+    isSaving: false,
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    roles: action.payload,
-    isLoading: false,
+    selectedRole: action.payload,
+    isSaving: false,
   }),
   [ReduxActionTypes.DELETE_ACL_ROLE]: (state: any) => ({
     ...state,
@@ -66,7 +80,9 @@ export const rolesReducers = {
   }),
   [ReduxActionTypes.DELETE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    roles: action.payload,
+    roles: state.roles.filter(
+      (role: RoleProps) => role.id !== action.payload.id,
+    ),
     isLoading: false,
   }),
 };

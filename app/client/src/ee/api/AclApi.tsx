@@ -16,32 +16,48 @@ export interface FetchSingleDataPayload {
   id: string;
 }
 
+export interface RoleResponsePayload {
+  id: string;
+  name: string;
+  assignedToGroupIds: string[];
+  assignedToUserIds: string[];
+  new: boolean;
+  permissions: {
+    documentId: string;
+    aclPermission: string;
+  }[];
+  tenantId: string;
+  userPermissions: string[];
+}
+
+export type CreateRoleResponse = ApiResponse<RoleResponsePayload>;
+
+export interface GroupResponsePayload {
+  id: string;
+  name: string;
+  new: boolean;
+  tenantId: string;
+  userPermissions: string[];
+  users: string[];
+}
+
+export type CreateGroupResponse = ApiResponse<GroupResponsePayload>;
+
 export class AclApi extends Api {
   static aclUsersURL = "/mockUsers";
-  static aclGroupsURL = "/mockGroups";
-  static aclRolesURL = "/mockRoles";
+  static roles = "/v1/roles";
+  static userGroups = "/v1/user-groups";
 
   static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {
-    const testRes = await Api.get(AclApi.aclUsersURL, "", { baseURL: "/" });
-    return testRes;
-    // const response = Api.get(AclApi.aclUsersURL, "", { baseURL: "/" });
-    // return response;
+    const response = await Api.get(AclApi.aclUsersURL, "", { baseURL: "/" });
+    return response;
   }
 
   static async fetchSingleAclUser(
     payload: FetchSingleDataPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const res = await Api.get(`${AclApi.aclUsersURL}/${payload.id}`, "", {
-      baseURL: "/",
-    });
+    const res = await Api.get(`${AclApi.aclUsersURL}/${payload.id}`);
     return res;
-    // return Api.get(`${AclApi.aclUsersURL}/${payload.id}`, "", { baseURL: "/" });
-    // const response = Api.get(AclApi.aclUsersURL, "", { baseURL: "/" });
-    // const result = response.then((data) => {
-    //   const user = data.data.find((user: any) => user?.userId === payload.id);
-    //   return { responseMeta: { status: 200, success: true }, data: user };
-    // });
-    // return result;
   }
 
   static createAclUser(request: any): AxiosPromise<ApiResponse> {
@@ -62,40 +78,9 @@ export class AclApi extends Api {
     return result;
   }
 
-  static async fetAclGroups(): Promise<AxiosPromise<ApiResponse>> {
-    const testRes = await Api.get(AclApi.aclGroupsURL, "", { baseURL: "/" });
-    return testRes;
-    // return Api.get(AclApi.aclGroupsURL, "", { baseURL: "/" });
-  }
-
-  static async fetchSingleAclGroup(
-    payload: FetchSingleDataPayload,
-  ): Promise<AxiosPromise<ApiResponse>> {
-    // return Api.get(`${AclApi.aclUsersURL}/${payload.id}`, "", { baseURL: "/" });
-    const response = await Api.get(`${AclApi.aclGroupsURL}/${payload.id}`, "", {
-      baseURL: "/",
-    });
-    return response;
-    // const result = response.then((data) => {
-    //   const userGroup = data.data.find(
-    //     (userGroup: any) => userGroup?.id === payload.id,
-    //   );
-    //   return { responseMeta: { status: 200, success: true }, data: userGroup };
-    // });
-    // return result;
-  }
-
-  static createAclGroup(request: any): AxiosPromise<ApiResponse> {
-    return Api.post(AclApi.aclGroupsURL, request, { baseURL: "/" });
-  }
-
-  static updateAclGroup(request: any): AxiosPromise<ApiResponse> {
-    return Api.put(AclApi.aclGroupsURL, request, { baseURL: "/" });
-  }
-
-  static cloneAclGroup(payload: any): Promise<ApiResponse> {
-    // return Api.post(AclApi.aclGroupsURL, request, { baseURL: "/" });
-    const response = Api.get(AclApi.aclGroupsURL, "", {
+  /*static cloneAclGroup(payload: any): Promise<ApiResponse> {
+    // return Api.post(AclApi.userGroups, request, { baseURL: "/" });
+    const response = Api.get(AclApi.userGroups, "", {
       baseURL: "/",
     });
     const clonedData = {
@@ -111,93 +96,81 @@ export class AclApi extends Api {
       };
     });
     return result;
-  }
+  }*/
 
-  static deleteAclGroup(id: string): Promise<ApiResponse> {
-    // return Api.delete(AclApi.aclGroupsURL, id, { baseURL: "/" });
-    const response = Api.get(AclApi.aclGroupsURL, "", { baseURL: "/" });
-    const result = response.then((data) => {
-      const userGroup = data.data.filter(
-        (userGroup: any) => userGroup?.id !== id,
-      );
-      return { responseMeta: { status: 200, success: true }, data: userGroup };
-    });
-    return result;
-  }
-
+  /* Updated */
   static async fetchAclRoles(): Promise<AxiosPromise<ApiResponse>> {
-    const testRes = await Api.get(AclApi.aclRolesURL, "", {
-      baseURL: "/",
-    });
-    return testRes;
-    // return Api.get(AclApi.aclRolesURL, "", {
-    //   baseURL: "/",
-    // });
+    const response = await Api.get(AclApi.roles);
+    return response;
   }
 
+  static async createAclRole(request: any): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.post(AclApi.roles, request);
+    return response;
+  }
+
+  static async deleteAclRole(id: string): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.roles}/${id}`);
+    return response;
+  }
+
+  static async fetchAclGroups(): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.userGroups);
+    return response;
+  }
+
+  static async fetchSingleAclGroup(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(`${AclApi.userGroups}/${payload.id}`);
+    return response;
+  }
+
+  static async createAclGroup(
+    request: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.post(AclApi.userGroups, request);
+    return response;
+  }
+
+  static async updateAclGroup(
+    payload: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(
+      `${AclApi.userGroups}/${payload.id}`,
+      payload,
+    );
+    return response;
+  }
+
+  static async deleteAclGroup(id: string): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.userGroups}/${id}`);
+    return response;
+  }
+
+  /* to be re-checked*/
   static async fetchSingleRole(
     payload: FetchSingleDataPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
-    // return Api.get(`${AclApi.aclUsersURL}/${payload.id}`, "", { baseURL: "/" });
-    const response = await Api.get(`${AclApi.aclRolesURL}/${payload.id}`, "", {
-      baseURL: "/",
-    });
+    const response = await Api.get(`${AclApi.roles}/${payload.id}`);
     return response;
-    // const result = response.then((data) => {
-    //   const permissionGroup = data.data.find(
-    //     (permissionGroup: any) => permissionGroup?.id === payload.id,
-    //   );
-    //   return {
-    //     responseMeta: { status: 200, success: true },
-    //     data: permissionGroup,
-    //   };
-    // });
-    // return result;
   }
 
-  static createAclRole(request: any): AxiosPromise<ApiResponse> {
-    return Api.post(AclApi.aclRolesURL, request, { baseURL: "/" });
+  static async updateAclRole(payload: any): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(`${AclApi.roles}/${payload.id}`);
+    return response;
   }
 
-  static updateAclRole(request: any): AxiosPromise<ApiResponse> {
-    return Api.put(AclApi.aclRolesURL, request, { baseURL: "/" });
-  }
-
-  static cloneAclRole(payload: any): Promise<ApiResponse> {
-    // return Api.post(AclApi.aclRolesURL, request, { baseURL: "/" });
-    const response = Api.get(AclApi.aclRolesURL, "", {
-      baseURL: "/",
-    });
+  static async cloneAclRole(payload: any): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.roles);
     const clonedData = {
       ...payload,
       id: uniqueId("pg"),
-      permissionName: `Copy of ${payload.permissionName}`,
+      name: `Copy of ${payload.name}`,
     };
-    const result = response.then((data) => {
-      const updatedResponse = [...data.data, clonedData];
-      return {
-        responseMeta: { status: 200, success: true },
-        data: updatedResponse,
-      };
-    });
-    return result;
-  }
-
-  static deleteAclRole(id: string): Promise<ApiResponse> {
-    // return Api.delete(AclApi.aclRolesURL, id, { baseURL: "/" });
-    const response = Api.get(AclApi.aclRolesURL, "", {
-      baseURL: "/",
-    });
-    const result = response.then((data) => {
-      const permissionGroup = data.data.filter(
-        (permissionGroup: any) => permissionGroup?.id !== id,
-      );
-      return {
-        responseMeta: { status: 200, success: true },
-        data: permissionGroup,
-      };
-    });
-    return result;
+    const updatedResponse = [...response.data, clonedData];
+    response.data = updatedResponse;
+    return response;
   }
 }
 

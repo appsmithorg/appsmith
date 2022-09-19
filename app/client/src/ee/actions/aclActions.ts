@@ -1,7 +1,6 @@
 import { FetchSingleDataPayload } from "@appsmith/api/AclApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { RoleProps } from "@appsmith/pages/AdminSettings/acl/RoleAddEdit";
-import { UserGroup } from "@appsmith/pages/AdminSettings/acl/GroupsListing";
+import { GroupProps, RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const getUserById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
@@ -18,13 +17,23 @@ export const getGroupById = (payload: FetchSingleDataPayload) => ({
   payload,
 });
 
+export const updateGroupById = (payload: GroupProps) => ({
+  type: ReduxActionTypes.UPDATE_ACL_GROUP,
+  payload,
+});
+
 export const deleteGroup = (id: string) => ({
   type: ReduxActionTypes.DELETE_ACL_GROUP,
   payload: id,
 });
 
-export const cloneGroup = (payload: UserGroup) => ({
+export const cloneGroup = (payload: GroupProps) => ({
   type: ReduxActionTypes.CLONE_ACL_GROUP,
+  payload,
+});
+
+export const createGroup = (payload: { name: string }) => ({
+  type: ReduxActionTypes.CREATE_ACL_GROUP,
   payload,
 });
 
@@ -40,5 +49,10 @@ export const deleteRole = (id: string) => ({
 
 export const cloneRole = (payload: RoleProps) => ({
   type: ReduxActionTypes.CLONE_ACL_ROLE,
+  payload,
+});
+
+export const createRole = (payload: { name: string }) => ({
+  type: ReduxActionTypes.CREATE_ACL_ROLE,
   payload,
 });

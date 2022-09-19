@@ -5,14 +5,7 @@ import { Table } from "components/ads";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
-
-type ListingProps = {
-  data: any[];
-  columns: any[];
-  listMenuItems: MenuItemProps[];
-  keyAccessor: string;
-  isLoading: boolean;
-};
+import { ListingProps } from "./types";
 
 const ListingWrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);

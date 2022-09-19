@@ -20,38 +20,23 @@ import {
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
 import { Spinner } from "@blueprintjs/core";
-
-export type RoleProps = {
-  isEditing: boolean;
-  isDeleting: boolean;
-  permissionName: string;
-  isAppsmithProvided: boolean;
-  id: string;
-  isNew?: boolean;
-};
-
-export type RoleEditProps = {
-  selected: RoleProps;
-  onClone: any;
-  onDelete: any;
-  isLoading: boolean;
-};
+import { RoleEditProps } from "./types";
 
 export function RoleAddEdit(props: RoleEditProps) {
   const { isLoading, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
-  const [pageTitle, setPageTitle] = useState(selected.permissionName);
+  const [pageTitle, setPageTitle] = useState(selected.name);
   const [searchValue, setSearchValue] = useState("");
   const [filteredData, setFilteredData] = useState<any>([]);
   const history = useHistory();
 
   useEffect(() => {
-    setPageTitle(selected.permissionName || "");
+    setPageTitle(selected.name || "");
   }, [selected]);
 
   useEffect(() => {
-    if (pageTitle !== selected.permissionName) {
+    if (pageTitle !== selected.name) {
       setIsSaving(true);
     } else {
       setIsSaving(false);
@@ -70,7 +55,7 @@ export function RoleAddEdit(props: RoleEditProps) {
   };
 
   const onClearChanges = () => {
-    setPageTitle(selected.permissionName);
+    setPageTitle(selected.name);
   };
 
   function searchTree(
@@ -203,7 +188,7 @@ export function RoleAddEdit(props: RoleEditProps) {
     <div className="scrollable-wrapper" data-testid="t--role-edit-wrapper">
       <BackButton />
       <PageHeader
-        isEditingTitle={selected.isNew}
+        isEditingTitle={selected.new}
         isTitleEditable
         onEditTitle={onEditTitle}
         onSearch={onSearch}

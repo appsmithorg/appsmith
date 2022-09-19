@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
-import { DebouncedFunc } from "lodash";
 import {
   Button,
   IconSize,
@@ -28,18 +27,7 @@ import {
   createMessage,
   ENTER_GROUP_NAME,
 } from "@appsmith/constants/messages";
-
-type PageHeaderProps = {
-  buttonText?: string;
-  searchPlaceholder: string;
-  onButtonClick?: () => void;
-  onSearch?: DebouncedFunc<(search: string) => void>;
-  pageMenuItems: MenuItemProps[];
-  title?: string;
-  isTitleEditable?: boolean;
-  isEditingTitle?: boolean;
-  onEditTitle?: (name: string) => void;
-};
+import { PageHeaderProps } from "./types";
 
 const Container = styled.div`
   display: flex;

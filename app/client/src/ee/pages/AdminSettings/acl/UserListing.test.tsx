@@ -95,10 +95,12 @@ describe("<UserListing />", () => {
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
     const options = userListingProps.listMenuItems.map(
-      (menuItem) => menuItem.text,
+      (menuItem: any) => menuItem.text,
     );
-    const menuElements = options.map((option) => getAllByText(option)).flat();
-    options.map((option, index) => {
+    const menuElements = options
+      .map((option: any) => getAllByText(option))
+      .flat();
+    options.map((option: any, index: any) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });

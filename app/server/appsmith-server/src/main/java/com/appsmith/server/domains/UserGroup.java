@@ -2,9 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -25,7 +23,7 @@ public class UserGroup extends BaseDomain {
     String tenantId;
 
     /*
-    TODO: Ideally, the client should set this field when creating or updating the user groups. Users will be added to
+    TODO: Ideally, the client should NOT set this field when creating or updating the user groups. Users will be added to
      user groups through the /invite API
     */
     private Set<String> users = new HashSet<>();
