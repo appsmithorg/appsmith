@@ -1,0 +1,155 @@
+# This workflow is responsible for building, testing & packaging the Java server codebase
+name: Appsmith Server Workflow
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+
+  pull_request:
+    branches: [release, master]
+    paths:
+      - "app/server/**"
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/server
+
+jobs:
+  build:
+    runs-on: buildjet-8vcpu-ubuntu-2004
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'repository_dispatch'
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+
+    steps:
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # Github Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
+
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Check out merged commit from PR and base branch
+        uses: actions/checkout@v2
+        if: inputs.pr != 0
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Check out the head commit of the branch
+        uses: actions/checkout@v2
+        if: inputs.pr == 0
+        with:
+          fetch-depth: 0
+
+      - name: Figure out the PR number
+        run: echo ${{ inputs.pr }}
+
+      - name: Print the Github event
+        run: echo ${{ github.event_name }}
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-server
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # Incase of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      # Build and test the code
+      - name: Build and test
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+        run: |
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+          ./build.sh
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/server/dist/
+          key: ${{ github.run_id }}-${{ github.job }}-server
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/server/dist/
+
+      - run: echo "::set-output name=run_result::success" > ~/run_result

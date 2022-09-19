@@ -1,6 +1,9 @@
 const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
   beforeEach(() => {
@@ -535,8 +538,7 @@ describe("Table widget inline editing functionality", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
-
+    agHelper.EnterActionValue("Message", "Submitted!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.saveTableCellValue(0, 0);
@@ -559,11 +561,7 @@ describe("Table widget inline editing functionality", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage(
-      "{{Table1.triggeredRow.step}}",
-      ".t--property-control-onsubmit",
-    );
-
+    agHelper.EnterActionValue("Message", "{{Table1.triggeredRow.step}}");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, value);
     cy.saveTableCellValue(0, 0);
@@ -582,13 +580,15 @@ describe("Table widget inline editing functionality", () => {
     cy.makeColumnEditable("step");
     cy.editColumn("EditActions1");
     //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
-    cy.get(".t--property-pane-section-collapse-discardbutton").click({force:true});
+    cy.get(".t--property-pane-section-collapse-discardbutton").click({
+      force: true,
+    });
     cy.get(".t--property-control-onsave .t--open-dropdown-Select-Action")
       .last()
-      .click({force:true});
+      .click({ force: true });
     cy.selectShowMsg();
     //cy.addSuccessMessage("Saved!!", ".t--property-control-onsave");
-    cy.toggleJsAndUpdateWithIndex("onsave","Saved!!",1);
+    agHelper.EnterActionValue("Message", "Saved!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");
@@ -607,13 +607,14 @@ describe("Table widget inline editing functionality", () => {
     cy.makeColumnEditable("step");
     cy.editColumn("EditActions1");
     //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
-    cy.get(".t--property-pane-section-collapse-discardbutton").click({force:true});
+    cy.get(".t--property-pane-section-collapse-discardbutton").click({
+      force: true,
+    });
     cy.get(".t--property-control-onsave .t--open-dropdown-Select-Action")
       .last()
-      .click({force:true});
+      .click({ force: true });
     cy.selectShowMsg();
-    cy.toggleJsAndUpdateWithIndex("onsave","{{Table1.triggeredRow.step}}",1);
-
+    agHelper.EnterActionValue("Message", "{{Table1.triggeredRow.step}}");
     /*
     cy.addSuccessMessage(
       "{{Table1.triggeredRow.step}}",
@@ -641,10 +642,9 @@ describe("Table widget inline editing functionality", () => {
     //cy.get(".t--property-pane-section-collapse-discardbutton").click();
     cy.get(".t--property-control-ondiscard .t--open-dropdown-Select-Action")
       .last()
-      .click({force:true});
+      .click({ force: true });
     cy.selectShowMsg();
-    cy.toggleJsAndUpdateWithIndex("ondiscard","discarded!!",3);
-    //cy.addSuccessMessage("discarded!!", ".t--property-control-ondiscard");
+    agHelper.EnterActionValue("Message", "discarded!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");
@@ -679,7 +679,7 @@ describe("Table widget inline editing functionality with Text wrapping functiona
     cy.editColumn("step");
     cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
       .first()
-      .click({force:true});
+      .click({ force: true });
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
@@ -705,7 +705,7 @@ describe("Table widget inline editing functionality with Text wrapping functiona
     cy.editColumn("step");
     cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
       .first()
-      .click({force:true});
+      .click({ force: true });
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",

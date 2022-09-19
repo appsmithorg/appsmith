@@ -82,9 +82,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 public class AmazonS3PluginTest {
@@ -1282,5 +1280,171 @@ public class AmazonS3PluginTest {
         ActionExecutionResult actionExecutionResult = invoke.block();
         assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
 
+    }
+
+    @Test
+    public void uploadsSingleFileWithFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "{\n" +
+                "\t\"type\":\"text/plain\",\n" +
+                "\t\"data\": \"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\"\n" +
+                "}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(((HashMap) result.getBody()).get("signedUrl"), signedURLS.get(0));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsMultipleFilesWithFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "[{\"data\":\"data:application/json;base64,ewogICAgIm1vc3QiOiAic2ltcGxlIgp9Cg==\",\"size\":25,\"dataFormat\":\"Base64\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"},{\"data\":\"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\",\"size\":13,\"dataFormat\":\"Base64\",\"name\":\"testFile.txt\",\"id\":\"uppy-testfile/txt-1e-text/plain-13-1659676685242\",\"type\":\"text/plain\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url1");
+        signedURLS.add("https://example.signed.url2");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayList<String> x = (ArrayList<String>) ((HashMap) result.getBody()).get("signedUrls");
+                    assertEquals(x.size() , signedURLS.size());
+                    assertEquals(x.get(0), signedURLS.get(0));
+                    assertEquals(x.get(1), signedURLS.get(1));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsSingleFileWithoutFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "{\n" +
+                "   \"type\": \"text/json\",\n" +
+                "   \"data\": {\"data\":\"{\\n    \\\"most\\\": \\\"simple\\\"\\n}\\n\",\"size\":25,\"dataFormat\":\"Text\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"}\n" +
+                "}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(((HashMap) result.getBody()).get("signedUrl"), signedURLS.get(0));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsMultipleFilesWithoutFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "[{\"data\":\"data:application/json;base64,ewogICAgIm1vc3QiOiAic2ltcGxlIgp9Cg==\",\"size\":25,\"dataFormat\":\"Base64\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"},{\"data\":\"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\",\"size\":13,\"dataFormat\":\"Base64\",\"name\":\"testFile.txt\",\"id\":\"uppy-testfile/txt-1e-text/plain-13-1659676685242\",\"type\":\"text/plain\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url1");
+        signedURLS.add("https://example.signed.url2");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayList<String> x = (ArrayList<String>) ((HashMap) result.getBody()).get("signedUrls");
+                    assertEquals(x.size() , signedURLS.size());
+                    assertEquals(x.get(0), signedURLS.get(0));
+                    assertEquals(x.get(1), signedURLS.get(1));
+
+                })
+                .verifyComplete();
     }
 }

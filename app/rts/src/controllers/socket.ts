@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { tryAuth } from "../middlewares/socket-auth";
+import { tryAuth } from "@middlewares/socket-auth";
 import {
   START_EDIT_EVENT_NAME,
   LEAVE_EDIT_EVENT_NAME,
@@ -7,13 +7,13 @@ import {
   PAGE_EDIT_NAMESPACE,
   PAGE_ROOM_PREFIX,
   EDITORS_EVENT_NAME,
-} from "../constants/socket";
+} from "@constants/socket";
 import {
   AppUser,
   Policy,
   CurrentEditorsEvent,
   MousePointerEvent,
-} from "../utils/models";
+} from "@utils/models";
 
 function subscribeToEditEvents(socket: Socket, appRoomPrefix: string) {
   socket.on(START_EDIT_EVENT_NAME, (resourceId) => {
