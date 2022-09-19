@@ -497,29 +497,19 @@ describe("DataTreeEvaluator", () => {
     });
     it("Creates correct triggerFieldDependencyMap", () => {
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1", "Button2", "Api2"],
-        "Button2.onClick": ["Api2"],
+        "Button3.onClick": ["Api1.run", "Button2.text", "Api2.run"],
+        "Button2.onClick": ["Api2.run"],
       });
     });
-    it("Creates correct triggerFieldInverseDependencyMap", () => {
-      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
-        Api1: ["Button3.onClick"],
-        Api2: ["Button3.onClick", "Button2.onClick"],
-        Button2: ["Button3.onClick"],
-      });
-    });
-    it("Correctly updates triggerFieldDependencyMap and triggerFieldInverseDependencyMap", () => {
+
+    it("Correctly updates triggerFieldDependencyMap", () => {
       const newUnEvalTree = ({ ...lintingUnEvalTree } as unknown) as DataTree;
       // delete Api2
       delete newUnEvalTree["Api2"];
       dataTreeEvaluator.updateDataTree(newUnEvalTree);
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1", "Button2"],
+        "Button3.onClick": ["Api1.run", "Button2.text"],
         "Button2.onClick": [],
-      });
-      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
-        Api1: ["Button3.onClick"],
-        Button2: ["Button3.onClick"],
       });
 
       // Add Api2
@@ -527,14 +517,8 @@ describe("DataTreeEvaluator", () => {
       newUnEvalTree["Api2"] = { ...lintingUnEvalTree }["Api2"];
       dataTreeEvaluator.updateDataTree(newUnEvalTree);
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1", "Button2", "Api2"],
-        "Button2.onClick": ["Api2"],
-      });
-
-      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
-        Api1: ["Button3.onClick"],
-        Api2: ["Button3.onClick", "Button2.onClick"],
-        Button2: ["Button3.onClick"],
+        "Button3.onClick": ["Api1.run", "Button2.text", "Api2.run"],
+        "Button2.onClick": ["Api2.run"],
       });
 
       // self-reference Button2
@@ -549,12 +533,7 @@ describe("DataTreeEvaluator", () => {
       dataTreeEvaluator.updateDataTree(newUnEvalTree);
 
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1", "Api2"],
-      });
-
-      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
-        Api1: ["Button3.onClick"],
-        Api2: ["Button3.onClick"],
+        "Button3.onClick": ["Api1.run", "Api2.run"],
       });
     });
   });
