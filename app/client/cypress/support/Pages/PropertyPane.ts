@@ -193,9 +193,6 @@ export class PropertyPane {
 
   public RemoveText(endp: string, toVerifySave = true) {
     cy.get(
-      this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase(),
-    ).scrollIntoView();
-    cy.get(
       this.locator._propertyControl +
         endp.replace(/ +/g, "").toLowerCase() +
         " " +

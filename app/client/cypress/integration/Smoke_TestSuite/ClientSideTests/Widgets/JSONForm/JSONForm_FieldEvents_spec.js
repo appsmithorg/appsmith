@@ -140,6 +140,7 @@ describe("Input Field", () => {
     cy.testJsontext("ontextchanged", "{{showAlert(formData.name)}}");
 
     // Change input value
+    cy.get(`${fieldPrefix}-name`).click();
     cy.get(`${fieldPrefix}-name`).type(" Doe");
 
     // Check for alert
@@ -232,6 +233,7 @@ describe("Date Field", () => {
     cy.testJsontext("ondateselected", "{{showAlert(formData.dob)}}");
 
     // Click on select field
+    cy.get(`${fieldPrefix}-dob .bp3-input`).click();
     cy.get(`${fieldPrefix}-dob .bp3-input`)
       .clear({ force: true })
       .type("10/08/2010");
