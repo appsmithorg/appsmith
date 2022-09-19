@@ -57,7 +57,6 @@ const BASE_JS_ACTION = (useLiterals = false) => {
       body: useLiterals
         ? BASE_JS_OBJECT_BODY_WITH_LITERALS
         : BASE_JS_OBJECT_BODY,
-      isAsync: true,
       timeoutInMillisecond: 1000,
       jsArguments: [],
     },

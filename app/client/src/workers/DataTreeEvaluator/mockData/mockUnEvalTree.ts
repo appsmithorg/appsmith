@@ -406,7 +406,6 @@ export const asyncTagUnevalTree: DataTree = {
     meta: {
       myFun1: {
         arguments: [],
-        isAsync: false,
         confirmBeforeExecute: false,
       },
     },
@@ -444,7 +443,6 @@ export const asyncTagUnevalTree: DataTree = {
     meta: {
       callApi: {
         arguments: [],
-        isAsync: false,
         confirmBeforeExecute: false,
       },
     },
@@ -758,12 +756,10 @@ export const lintingUnEvalTree = {
     meta: {
       myFun2: {
         arguments: [],
-        isAsync: true,
         confirmBeforeExecute: false,
       },
       myFun1: {
         arguments: [],
-        isAsync: true,
         confirmBeforeExecute: false,
       },
     },

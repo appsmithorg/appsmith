@@ -1,7 +1,6 @@
 import evaluate, {
   setupEvaluationEnvironment,
   evaluateAsync,
-  isFunctionAsync,
 } from "workers/evaluate";
 import {
   DataTree,
@@ -230,40 +229,5 @@ describe("evaluateAsync", () => {
       },
       type: "PROCESS_TRIGGER",
     });
-  });
-});
-
-describe("isFunctionAsync", () => {
-  it("identifies async functions", () => {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    const cases: Array<{ script: Function | string; expected: boolean }> = [
-      {
-        script: () => {
-          return 1;
-        },
-        expected: false,
-      },
-      {
-        script: () => {
-          return new Promise((resolve) => {
-            resolve(1);
-          });
-        },
-        expected: true,
-      },
-      {
-        script: "() => { showAlert('yo') }",
-        expected: true,
-      },
-    ];
-
-    for (const testCase of cases) {
-      let testFunc = testCase.script;
-      if (typeof testFunc === "string") {
-        testFunc = eval(testFunc);
-      }
-      const actual = isFunctionAsync(testFunc, {}, {});
-      expect(actual).toBe(testCase.expected);
-    }
   });
 });

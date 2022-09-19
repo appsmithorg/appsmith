@@ -39,7 +39,6 @@ const JSObject1: JSCollection = {
         encodeParamsToggle: true,
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
-        isAsync: true,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -82,7 +81,6 @@ const JSObject1: JSCollection = {
         encodeParamsToggle: true,
         body: "() => {\n\t\t//write code here\n\t}",
         jsArguments: [],
-        isAsync: false,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -152,7 +150,6 @@ const JSObject2: JSCollection = {
         encodeParamsToggle: true,
         body: "() => {\n\t\t//write code here\n\t}",
         jsArguments: [],
-        isAsync: false,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -195,7 +192,6 @@ const JSObject2: JSCollection = {
         encodeParamsToggle: true,
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
-        isAsync: true,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -234,13 +230,11 @@ const parsedBodyWithRenamedAction: ParsedBody = {
       name: "myFun11",
       body: "() => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: false,
     },
     {
       name: "myFun2",
       body: "async () => {\n\t\t//use async-await or promises\n\t}",
       arguments: [],
-      isAsync: true,
     },
   ],
   variables: [
@@ -283,7 +277,6 @@ const resultRenamedActions = {
         encodeParamsToggle: true,
         body: "() => {\n\t\t//write code here\n\t}",
         jsArguments: [],
-        isAsync: false,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -320,7 +313,6 @@ const parsedBodyWithDeletedAction: ParsedBody = {
       name: "myFun1",
       body: "() => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: false,
     },
   ],
   variables: [
@@ -364,7 +356,6 @@ const resultDeletedActions = {
         encodeParamsToggle: true,
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
-        isAsync: true,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -392,13 +383,11 @@ const parsedBodyWithChangedVariable: ParsedBody = {
       name: "myFun1",
       body: "() => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: false,
     },
     {
       name: "myFun2",
       body: "async () => {\n\t\t//use async-await or promises\n\t}",
       arguments: [],
-      isAsync: true,
     },
   ],
   variables: [
@@ -431,14 +420,12 @@ const parsedBodyWithChangeInBody: ParsedBody = {
       name: "myFun1",
       body: "() => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: false,
     },
     {
       name: "myFun2",
       body:
         "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
       arguments: [],
-      isAsync: true,
     },
   ],
   variables: [
@@ -482,7 +469,6 @@ const resultChangedBody = {
         body:
           "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
         jsArguments: [],
-        isAsync: true,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -510,7 +496,6 @@ const parsedBodyWithChangedParameters: ParsedBody = {
       name: "myFun1",
       body: "() => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: false,
     },
     {
       name: "myFun2",
@@ -519,7 +504,6 @@ const parsedBodyWithChangedParameters: ParsedBody = {
         { name: "a", value: undefined },
         { name: "b", value: undefined },
       ],
-      isAsync: true,
     },
   ],
   variables: [
@@ -565,7 +549,6 @@ const resultChangedParameters = {
           { name: "a", value: undefined },
           { name: "b", value: undefined },
         ],
-        isAsync: true,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -594,13 +577,11 @@ const parsedBodyWithRemovedAsync: ParsedBody = {
       name: "myFun1",
       body: "() => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: false,
     },
     {
       name: "myFun2",
       body: "() => {\n\t\t//use async-await or promises\n\t}",
       arguments: [],
-      isAsync: false,
     },
   ],
   variables: [
@@ -643,7 +624,6 @@ const resultRemovedAsync = {
         encodeParamsToggle: true,
         body: "() => {\n\t\t//use async-await or promises\n\t}",
         jsArguments: [],
-        isAsync: false,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -672,13 +652,11 @@ const parsedBodyWithAddedAsync: ParsedBody = {
       name: "myFun1",
       body: "async () => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: true,
     },
     {
       name: "myFun2",
       body: "async () => {\n\t\t//use async-await or promises\n\t}",
       arguments: [],
-      isAsync: true,
     },
   ],
   variables: [
@@ -721,7 +699,6 @@ const resultAddedAsync = {
         encodeParamsToggle: true,
         body: "async () => {\n\t\t//write code here\n\t}",
         jsArguments: [],
-        isAsync: true,
       },
       executeOnLoad: false,
       clientSideExecution: true,
@@ -750,19 +727,16 @@ const parsedBodyWithAddedAction: ParsedBody = {
       name: "myFun1",
       body: "() => {\n\t\t//write code here\n\t}",
       arguments: [],
-      isAsync: false,
     },
     {
       name: "myFun2",
       body: "async () => {\n\t\t//use async-await or promises\n\t}",
       arguments: [],
-      isAsync: true,
     },
     {
       name: "myFun3",
       body: "async () => {\n\t\t//use async-await or promises\n\t}",
       arguments: [],
-      isAsync: true,
     },
   ],
   variables: [
@@ -787,7 +761,7 @@ const resultAddedAction = {
       workspaceId: "workspace123",
       actionConfiguration: {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
-        isAsync: true,
+
         timeoutInMillisecond: 0,
         jsArguments: [],
       },

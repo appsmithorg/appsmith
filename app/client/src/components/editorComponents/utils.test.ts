@@ -27,7 +27,6 @@ const TEST_JS_FUNCTION = {
     encodeParamsToggle: true,
     body: "async () => {\n\t\t//use async-await or promises here\n\t\t\n\t}",
     jsArguments: [],
-    isAsync: true,
   },
   executeOnLoad: false,
   clientSideExecution: true,
