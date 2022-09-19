@@ -25,7 +25,7 @@ describe("File picker widget v2", () => {
     ).should("exist");
     cy.get(commonlocators.filePickerInput)
       .first()
-      .attachFile("Test csv.csv");
+      .attachFile("Test_csv.csv");
     cy.wait(3000);
 
     cy.readTableV2dataPublish("1", "1").then((tabData) => {
