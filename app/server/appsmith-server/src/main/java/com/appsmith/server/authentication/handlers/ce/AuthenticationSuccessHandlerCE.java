@@ -1,19 +1,22 @@
 package com.appsmith.server.authentication.handlers.ce;
 
-import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +56,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final UserDataService userDataService;
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
 
     /**
@@ -96,23 +100,23 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             if (user.getPassword() != null) {
                 user.setPassword(null);
                 user.setSource(
-                    LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
+                        LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
                 );
                 // Update the user in separate thread
                 userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
             }
-            if(isFromSignup) {
+            if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
-                redirectionMono = createDefaultApplication(defaultWorkspaceId)
-                        .flatMap(defaultApplication->handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
+                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
+                        .flatMap(defaultApplication -> handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
             } else {
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
             boolean finalIsFromSignup = isFromSignup;
-            if(createDefaultApplication && isFromSignup) {
-                redirectionMono = createDefaultApplication(defaultWorkspaceId).flatMap(
-                        defaultApplication->handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
+            if (createDefaultApplication && isFromSignup) {
+                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication).flatMap(
+                        defaultApplication -> handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
                 );
             } else {
                 redirectionMono = handleRedirect(webFilterExchange, null, finalIsFromSignup);
@@ -126,7 +130,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
                     String modeOfLogin = FieldName.FORM_LOGIN;
-                    if(authentication instanceof OAuth2AuthenticationToken) {
+                    if (authentication instanceof OAuth2AuthenticationToken) {
                         modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                     }
 
@@ -138,7 +142,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         final String invitedAs = inviteToken == null ? "" : inviteToken.split(":", 2)[0];
 
                         modeOfLogin = "FormSignUp";
-                        if(authentication instanceof OAuth2AuthenticationToken) {
+                        if (authentication instanceof OAuth2AuthenticationToken) {
                             modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
 
@@ -167,12 +171,42 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
-    private Mono<Application> createDefaultApplication(String defaultWorkspaceId) {
+    protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
+
         // need to create default application
         Application application = new Application();
         application.setWorkspaceId(defaultWorkspaceId);
         application.setName("My first application");
-        return applicationPageService.createApplication(application);
+        Mono<Application> applicationMono = Mono.just(application);
+        if (defaultWorkspaceId == null) {
+
+            applicationMono = workspaceRepository.findAll(AclPermission.MANAGE_WORKSPACES)
+                    .take(1, true)
+                    .collectList()
+                    .flatMap(workspaces -> {
+                        // Since this is the first application creation, the first workspace would be the only
+                        // workspace user has access to, and would be user's default workspace. Hence, we use this
+                        // workspace to create the application.
+                        if (workspaces.size() == 1) {
+                            application.setWorkspaceId(workspaces.get(0).getId());
+                            return Mono.just(application);
+                        }
+
+                        // In case no workspaces are found for the user, create a new default workspace
+                        String email = ((User) authentication.getPrincipal()).getEmail();
+
+                        return userRepository.findByEmail(email)
+                                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+                                .map(workspace -> {
+                                    application.setWorkspaceId(workspace.getId());
+                                    return application;
+                                });
+
+                    });
+        }
+
+        return applicationMono
+                .flatMap(application1 ->applicationPageService.createApplication(application1));
     }
 
     /**
@@ -188,7 +222,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      */
     @SuppressWarnings(
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
-           "JavadocReference"
+            "JavadocReference"
     )
     private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
@@ -206,7 +240,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
         boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
-            if(isDefaultRedirectUrl(redirectUrl) && defaultApplication != null) {
+            if (isDefaultRedirectUrl(redirectUrl) && defaultApplication != null) {
                 addFirstTimeExperienceParam = true;
                 HttpHeaders headers = exchange.getRequest().getHeaders();
                 redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
@@ -219,11 +253,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     /**
      * Checks if the provided url is default redirect url
+     *
      * @param url which needs to be checked
      * @return true if default url. false otherwise
      */
     private boolean isDefaultRedirectUrl(String url) {
-        if(StringUtils.isEmpty(url)) {
+        if (StringUtils.isEmpty(url)) {
             return true;
         }
         try {
@@ -246,7 +281,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         boolean addFirstTimeExperienceParam = false;
 
                         // only redirect to default application if the redirectUrl contains no other url
-                        if(isDefaultRedirectUrl(url) && defaultApplication != null) {
+                        if (isDefaultRedirectUrl(url) && defaultApplication != null) {
                             addFirstTimeExperienceParam = true;
                             HttpHeaders headers = exchange.getRequest().getHeaders();
                             url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
@@ -262,7 +297,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     private String buildSignupSuccessUrl(String redirectUrl, boolean enableFirstTimeUserExperience) {
         String url = SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
-        if(enableFirstTimeUserExperience) {
+        if (enableFirstTimeUserExperience) {
             url += "&" + FIRST_TIME_USER_EXPERIENCE_PARAM + "=true";
         }
         return url;

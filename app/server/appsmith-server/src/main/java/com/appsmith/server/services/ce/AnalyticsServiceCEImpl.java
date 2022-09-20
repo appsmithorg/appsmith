@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -170,8 +171,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             return Mono.just(object);
         }
 
-        // In case of action execution, event.getEventName() only is used to support backward compatibility of event name
-        final String eventTag = AnalyticsEvents.EXECUTE_ACTION.equals(event) ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+        final String eventTag = getEventTag(event, object);
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
@@ -211,6 +211,25 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     sendEvent(eventTag, username, analyticsProperties);
                     return object;
                 });
+    }
+
+    /**
+     * Generates event name tag to analytic events
+     * @param event AnalyticsEvents
+     * @param object Analytic event resource object
+     * @return String
+     */
+    private <T extends BaseDomain> String getEventTag(AnalyticsEvents event, T object) {
+        // In case of action execution or instance setting update, event.getEventName() only is used to support backward compatibility of event name
+        List<AnalyticsEvents> nonResourceEvents = List.of(
+                AnalyticsEvents.EXECUTE_ACTION,
+                AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
+                AnalyticsEvents.EXECUTE_INVITE_USERS
+        );
+        boolean isNonResourceEvent = nonResourceEvents.contains(event);
+        final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+
+        return eventTag;
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {

@@ -15,7 +15,12 @@ describe("Autocomplete bug fixes", function() {
     propPane.TypeTextIntoField("Text", "{{Table1.");
     agHelper.AssertElementExist(locator._hints);
     agHelper.GetNAssertElementText(locator._hints, "Best Match");
-    agHelper.GetNAssertElementText(locator._hints, "selectedRow", "have.text", 1);
+    agHelper.GetNAssertElementText(
+      locator._hints,
+      "selectedRow",
+      "have.text",
+      1,
+    );
   });
 
   it("2. Bug #14990 Checks if copied widget show up on autocomplete suggestions", function() {
@@ -25,7 +30,12 @@ describe("Autocomplete bug fixes", function() {
     propPane.TypeTextIntoField("Text", "{{Te");
     agHelper.AssertElementExist(locator._hints);
     agHelper.GetNAssertElementText(locator._hints, "Best Match");
-    agHelper.GetNAssertElementText(locator._hints, "Text1Copy.text", "have.text", 1);
+    agHelper.GetNAssertElementText(
+      locator._hints,
+      "Text1Copy.text",
+      "have.text",
+      1,
+    );
   });
 
   it("3. Bug #14100 Custom columns name label change should reflect in autocomplete", function() {
@@ -38,13 +48,27 @@ describe("Autocomplete bug fixes", function() {
       "[data-rbd-draggable-id='customColumn1'] .t--edit-column-btn",
     ).click();
 
-    propPane.UpdatePropertyFieldValue("Property name", "columnAlias");
+    propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
     cy.wait(500);
     // select text widget
     ee.SelectEntityByName("Text1");
 
     // type {{Table1.selectedRow. and check for autocompletion suggestion having edited column name
     propPane.TypeTextIntoField("Text", "{{Table1.selectedRow.");
-    agHelper.GetNAssertElementText(locator._hints, "columnAlias", "have.text", 1);
+    agHelper.GetNAssertElementText(
+      locator._hints,
+      "columnAlias",
+      "have.text",
+      1,
+    );
+  });
+
+  it("4. feat #16426 Autocomplete for fast-xml-parser", function() {
+    ee.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{xmlParser.j");
+    agHelper.GetNAssertElementText(locator._hints, "j2xParser()");
+
+    propPane.TypeTextIntoField("Text", "{{new xmlParser.j2xParser().p");
+    agHelper.GetNAssertElementText(locator._hints, "parse()");
   });
 });

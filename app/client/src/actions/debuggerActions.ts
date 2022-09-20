@@ -20,7 +20,7 @@ export const debuggerLogInit = (payload: Log) => ({
   payload,
 });
 
-export const debuggerLog = (payload: Log) => ({
+export const debuggerLog = (payload: Log[]) => ({
   type: ReduxActionTypes.DEBUGGER_LOG,
   payload,
 });

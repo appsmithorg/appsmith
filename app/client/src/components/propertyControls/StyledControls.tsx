@@ -30,7 +30,10 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   align-items: center;
   flex-direction: ${(props) =>
     props.orientation === "VERTICAL" ? "column" : "row"};
-  padding: ${(props) => (props.isAction ? "0" : "4px 0 ")};
+  padding-top: 4px;
+  &:not(:last-of-type) {
+    padding-bottom: 4px;
+  }
   & > label {
     color: ${(props) => props.theme.colors.propertyPane.label};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
@@ -51,7 +54,7 @@ export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    color: ${Colors.GRAY_700};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
@@ -429,7 +432,22 @@ export const StyledDeleteIcon = styled(
 `;
 
 export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`
-  ${CommonIconStyles}
   cursor: ${(props) => (props.disabled ? "default" : "cursor")};
   width: 18px;
+  ${CommonIconStyles}
+`;
+
+export const StyledNavigateToFieldWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: auto;
+`;
+
+export const StyledDividerContainer = styled.div`
+  width: 1%;
+  margin-top: 9px;
+`;
+
+export const StyledNavigateToFieldsContainer = styled.div`
+  width: 95%;
 `;

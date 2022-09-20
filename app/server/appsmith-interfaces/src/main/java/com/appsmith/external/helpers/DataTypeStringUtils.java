@@ -49,7 +49,7 @@ public class DataTypeStringUtils {
 
     private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
 
-    private static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
+    public static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -57,7 +57,6 @@ public class DataTypeStringUtils {
 
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
-
 
     public static DataType stringToKnownDataTypeConverter(String input) {
 

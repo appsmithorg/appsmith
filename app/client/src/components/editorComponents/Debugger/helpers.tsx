@@ -1,4 +1,4 @@
-import { Log, Severity } from "entities/AppsmithConsole";
+import { Log, LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -7,7 +7,7 @@ import {
   OPEN_THE_DEBUGGER,
   PRESS,
 } from "@appsmith/constants/messages";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import { DependencyMap, isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
   matchBuilderPath,
   matchApiPath,
@@ -15,6 +15,7 @@ import {
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import { modText } from "utils/helpers";
+import { union } from "lodash";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -60,8 +61,24 @@ export enum DEBUGGER_TAB_KEYS {
 
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
-  [Severity.ERROR]: "error",
+  [Severity.ERROR]: "close-circle",
   [Severity.WARNING]: "warning",
+};
+
+export const getLogIcon = (log: Log) => {
+  if (log.severity === Severity.ERROR) {
+    return SeverityIcon[log.severity];
+  }
+
+  if (log.category === LOG_CATEGORY.PLATFORM_GENERATED) {
+    return "desktop";
+  }
+
+  if (log.category === LOG_CATEGORY.USER_GENERATED) {
+    return "user-2";
+  }
+
+  return SeverityIcon[log.severity];
 };
 
 export function getDependenciesFromInverseDependencies(
@@ -110,17 +127,20 @@ export function getDependencyChain(
   let currentChain: string[] = [];
   const dependents = inverseMap[propertyPath];
 
-  if (!dependents) return currentChain;
+  if (!dependents || !dependents.length) return currentChain;
 
-  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+  const { entityName } = getEntityNameAndPropertyPath(propertyPath);
 
-  dependents.map((e) => {
-    if (!e.includes(dependentInfo.entityName)) {
-      currentChain.push(e);
+  dependents.map((dependentPath) => {
+    if (!isChildPropertyPath(entityName, dependentPath)) {
+      currentChain.push(dependentPath);
     }
 
-    if (e !== dependentInfo.entityName) {
-      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    if (dependentPath !== entityName) {
+      currentChain = union(
+        currentChain,
+        getDependencyChain(dependentPath, inverseMap),
+      );
     }
   });
   return currentChain;
