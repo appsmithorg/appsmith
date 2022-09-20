@@ -27,7 +27,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,12 +36,12 @@ import java.util.Set;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
 import static com.external.utils.GraphQLBodyUtils.PAGINATION_DATA_INDEX;
-import static com.external.utils.GraphQLDataTypeUtils.smartlyReplaceGraphQLQueryBodyPlaceholderWithValue;
-import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
 import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAndVariables;
 import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
+import static com.external.utils.GraphQLDataTypeUtils.smartlyReplaceGraphQLQueryBodyPlaceholderWithValue;
+import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -186,18 +185,6 @@ public class GraphQLPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            try {
-                if (uriUtils.isHostDisallowed(uri)) {
-                    errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
-                    errorResult.setRequest(actionExecutionRequest);
-                    return Mono.just(errorResult);
-                }
-            } catch (UnknownHostException e) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Unknown host."));
-                errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult);
-            }
-
             WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);
 
@@ -282,7 +269,7 @@ public class GraphQLPlugin extends BasePlugin {
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            Set<String> hintMessages = new HashSet<String>();
+            Set<String> hintMessages = new HashSet<>();
             return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);

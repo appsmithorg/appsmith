@@ -1,1 +1,1 @@
-declare module "@shared/ast";
+declare module '@shared/ast';
