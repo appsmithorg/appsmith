@@ -2452,7 +2452,7 @@ public class DatabaseChangelog2 {
     }
 
     private void softDeleteRapidApiPluginFromAllWorkspaces(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
-        Query queryToGetNonDeletedWorkspaces = new Query(where("deleted").ne(true));
+        Query queryToGetNonDeletedWorkspaces = new Query();
         queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
         List<Workspace> workspaces = mongockTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
         workspaces.stream()
