@@ -187,6 +187,13 @@ export function EditableText(props: EditableTextProps) {
 
   const errorMessage = isInvalid && isInvalid(value);
   const error = errorMessage ? errorMessage : undefined;
+  const showEditIcon = !(
+    disabled ||
+    minimal ||
+    hideEditIcon ||
+    updating ||
+    isEditing
+  );
   return (
     <EditableTextWrapper
       isEditing={isEditing}
@@ -220,18 +227,14 @@ export function EditableText(props: EditableTextProps) {
             selectAllOnFocus
             value={value}
           />
-          {!disabled &&
-            !minimal &&
-            !hideEditIcon &&
-            !updating &&
-            !isEditing && (
-              <Icon
-                className="t--action-name-edit-icon"
-                fillColor="#939090"
-                name="edit"
-                size={IconSize.XXL}
-              />
-            )}
+          {showEditIcon && (
+            <Icon
+              className="t--action-name-edit-icon"
+              fillColor="#939090"
+              name="edit"
+              size={IconSize.XXL}
+            />
+          )}
         </TextContainer>
       </ErrorTooltip>
     </EditableTextWrapper>
