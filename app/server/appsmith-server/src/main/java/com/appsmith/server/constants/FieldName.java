@@ -141,4 +141,6 @@ public class FieldName {
     public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String USER_EMAILS = "userEmails";
+    public static final String NUMBER_OF_USERS_INVITED = "numberOfUsersInvited";
 }

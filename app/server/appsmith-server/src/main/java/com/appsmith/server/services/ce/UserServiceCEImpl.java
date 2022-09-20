@@ -686,8 +686,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     Map<String, Object> analyticsProperties = new HashMap<>();
                     long numberOfUsers = users.size();
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
-                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
-                    analyticsProperties.put("userEmails", invitedUsers);
+                    analyticsProperties.put(FieldName.NUMBER_OF_USERS_INVITED, numberOfUsers);
+                    analyticsProperties.put(FieldName.USER_EMAILS, invitedUsers);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
 
