@@ -16,6 +16,12 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
     isUpdatedViaKeyboard?: boolean,
   ) {
     if (
+      this.props.propertyValue === undefined &&
+      propertyValue === this.props.defaultValue
+    ) {
+      return;
+    }
+    if (
       !_.isNil(this.props.onPropertyChange) &&
       this.props.propertyValue !== propertyValue
     ) {
@@ -64,6 +70,7 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete" | "label"> {
   propertyValue?: any;
+  defaultValue?: any;
   errorMessage?: string;
   expected?: CodeEditorExpected;
   evaluatedValue: any;
