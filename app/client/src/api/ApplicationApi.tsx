@@ -28,6 +28,7 @@ export interface ApplicationPagePayload {
   slug: string;
   isHidden?: boolean;
   customSlug?: string;
+  userPermissions?: string;
 }
 
 export type GitApplicationMetadata =

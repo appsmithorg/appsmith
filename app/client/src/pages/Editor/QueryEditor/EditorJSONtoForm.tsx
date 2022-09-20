@@ -106,6 +106,10 @@ import {
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -496,6 +500,10 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
+  const isChangeRestricted = !isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.MANAGE_ACTIONS,
+  );
 
   // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
@@ -894,7 +902,7 @@ export function EditorJSONtoForm(props: Props) {
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>
-            <ActionNameEditor />
+            <ActionNameEditor disabled={isChangeRestricted} />
           </NameWrapper>
           <ActionsWrapper>
             <MoreActionsMenu

@@ -96,9 +96,13 @@ export const fetchAllPageEntityCompletion = (
   payload: undefined,
 });
 
-export const updateCurrentPage = (id: string, slug?: string) => ({
+export const updateCurrentPage = (
+  id: string,
+  slug?: string,
+  permissions?: string[],
+) => ({
   type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-  payload: { id, slug },
+  payload: { id, slug, permissions },
 });
 
 export const initCanvasLayout = (

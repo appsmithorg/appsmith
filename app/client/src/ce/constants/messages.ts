@@ -7,7 +7,7 @@ export function createMessage(
 
 /*
   For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
-  For cloud hosting, it displays "Appsmith v1.10.0". 
+  For cloud hosting, it displays "Appsmith v1.10.0".
   This is because Appsmith Cloud doesn't support business features yet.
  */
 export const APPSMITH_DISPLAY_VERSION = (
@@ -125,6 +125,7 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_403 = () => `No Access`;
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
