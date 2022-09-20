@@ -1,6 +1,13 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
