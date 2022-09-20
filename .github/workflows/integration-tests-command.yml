@@ -6,21 +6,38 @@ on:
     types: [ok-to-test-command]
 
 jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      # This step creates a comment on the PR with a link to this workflow run.
+      - name: Add a comment on the PR with link to workflow run
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Workflow: `${{ github.workflow }}`.
+            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            PR: ${{ github.event.client_payload.pull_request.number }}.
+
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   client-build:
     name: client-build
     uses: ./.github/workflows/client-build.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   rts-build:
     name: rts-build
     uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
@@ -66,7 +83,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -74,7 +91,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -120,7 +137,7 @@ jobs:
         with:
           java-version: "11.0.10"
 
-      - name: Download the react build artifact
+      - name: Download the client build artifact
         uses: actions/download-artifact@v2
         with:
           name: build
@@ -135,17 +152,22 @@ jobs:
       - name: Download the rts build artifact
         uses: actions/download-artifact@v2
         with:
-          name: rts-build
-          path: app/rts/dist/
+          name: rts-dist
+          path: app/rts/dist
 
-      - name: Build docker image
-        uses: depot/build-push-action@v1
-        with:
-          context: .
-          push: false
-          load: true
-          tags: |
-            fatcontainer
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
+
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
+      - name: Build  docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          docker build -t fatcontainer .
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -344,7 +366,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -355,7 +377,7 @@ jobs:
         with:
           path: |
             ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -455,7 +477,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -463,7 +485,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -479,7 +501,7 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
@@ -731,7 +753,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -742,7 +764,7 @@ jobs:
         with:
           path: |
             ~/failed_spec
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -751,7 +773,7 @@ jobs:
         with:
           path: |
             app/client/cypress/snapshots/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -807,7 +829,7 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+          key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
@@ -963,5 +985,6 @@ jobs:
     if: success()
     name: perf-test
     uses: ./.github/workflows/perf-test.yml
+    secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
