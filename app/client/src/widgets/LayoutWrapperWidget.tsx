@@ -189,16 +189,9 @@ class LayoutWrapperWidget extends ContainerWidget {
   }
 
   getPageView() {
-    let height = 0;
-    const snapRows = getCanvasSnapRows(
-      this.props.bottomRow,
-      this.props.canExtend,
-    );
-    height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
     const style: CSSProperties = {
       width: "100%",
-      height: `${height}px`,
+      height: "100%",
       background: "none",
       position: "relative",
     };
