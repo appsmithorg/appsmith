@@ -5,7 +5,6 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 
-import { Colors } from "constants/Colors";
 import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 import { isMacOs } from "utils/AppsmithUtils";
 
@@ -14,6 +13,8 @@ const StyledRTEditor = styled.div<{
   boxShadow?: string;
   compactMode: boolean;
   labelPosition?: LabelPosition;
+  isValid?: boolean;
+  isDisabled?: boolean;
 }>`
   && {
     width: 100%;
@@ -28,6 +29,8 @@ const StyledRTEditor = styled.div<{
     }
   }
   .tox {
+    font-family: inherit;
+
     width: 100%;
     .tox-tbtn {
       cursor: pointer;
@@ -35,6 +38,147 @@ const StyledRTEditor = styled.div<{
         cursor: inherit;
       }
     }
+  }
+
+  .tox .tox-toolbar__primary {
+    background: ${(props) =>
+      props.isDisabled
+        ? "var(--wds-color-bg-disabled)"
+        : "var(--wds-color-bg)"};
+  }
+
+  .tox .tox-edit-area__iframe {
+    background: ${(props) =>
+      props.isDisabled
+        ? "var(--wds-color-bg-disabled)"
+        : "var(--wds-color-bg)"};
+  }
+
+  .tox-tinymce {
+    border: 1px solid
+      ${(props) =>
+        props.isValid
+          ? "var(--wds-color-border)"
+          : "var(--wds-color-border-danger)"};
+  }
+
+  &.disabled {
+    cursor: not-allowed !important;
+  }
+
+  &.disabled .tox {
+    pointer-events: none;
+  }
+
+  &:not(.disabled):hover .tox-tinymce {
+    border: 1px solid
+      ${(props) =>
+        props.isValid
+          ? "var(--wds-color-border-hover)"
+          : "var(--wds-color-border-danger-hover)"};
+  }
+
+  .tox .tox-statusbar {
+    background: ${(props) =>
+      props.isDisabled
+        ? "var(--wds-color-bg-disabled)"
+        : "var(--wds-color-bg)"};
+  }
+
+  .tox:not([dir="rtl"]) .tox-toolbar__group:not(:last-of-type) {
+    border-right: none;
+    border-bottom: none;
+    position: relative;
+
+    &::after {
+      content: "";
+      height: 39px;
+      width: 1px;
+      position: absolute;
+      right: 0;
+      background: var(--wds-color-border);
+    }
+  }
+
+  .tox:not([dir="rtl"]) .tox-toolbar__group:not(:last-of-type),
+  .tox .tox-statusbar {
+    border-color: var(--wds-color-border);
+  }
+
+  .tox .tox-tbtn svg,
+  #tox-icon-highlight-bg-color__color,
+  #tox-icon-text-color__color {
+    fill: ${(props) =>
+      props.isDisabled
+        ? "var(--wds-color-icon-disabled)"
+        : "var(--wds-color-icon)"};
+  }
+
+  .tox .tox-tbtn {
+    margin: 3px 0 2px 0;
+    border-radius: ${({ borderRadius }) => borderRadius};
+
+    &:hover {
+      background: var(--wds-color-bg-hover);
+    }
+  }
+
+  .tox .tox-toolbar,
+  .tox .tox-toolbar__overflow {
+    background: linear-gradient(
+      to bottom,
+      var(--wds-color-border) 1px,
+      transparent 1px
+    );
+    background-size: auto 39px;
+  }
+
+  .tox-editor-header {
+    border-bottom: 1px solid var(--wds-color-border);
+  }
+
+  .tox-tbtn__select-label {
+    color: ${(props) =>
+      props.isDisabled
+        ? "var(--wds-color-text-disabled)"
+        : "var(--wds-color-text)"};
+  }
+
+  .tox .tox-split-button {
+    margin: 3px 0 2px 0;
+    border-radius: ${({ borderRadius }) => borderRadius};
+
+    &:hover {
+      box-shadow: 0 0 0 1px var(--wds-color-border) inset;
+    }
+    &:focus {
+      background: var(--wds-color-bg-focus);
+    }
+  }
+
+  .tox .tox-tbtn:focus:not(.tox-tbtn--disabled) {
+    color: var(--wds-color-bg-selected);
+  }
+
+  .tox .tox-split-button__chevron {
+    width: 24px;
+    padding-right: 0px;
+  }
+
+  .tox .tox-tbtn--enabled {
+    background: var(--wds-color-bg-focus);
+    color: var(--wds-color-text);
+
+    .tox-tbtn svg,
+    .tox-tbtn__icon-wrap svg,
+    #tox-icon-highlight-bg-color__color,
+    #tox-icon-text-color__color {
+      fill: var(--wds-color-text);
+    }
+  }
+
+  .tox .tox-toolbar__group {
+    height: 39px;
   }
 
   ${labelLayoutStyles}
@@ -48,7 +192,6 @@ export const RichTextEditorInputWrapper = styled.div<{
   width: 100%;
   min-width: 0;
   height: 100%;
-  border: 1px solid ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
   border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
@@ -126,9 +269,13 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     <StyledRTEditor
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      className={`container-${props.widgetId}`}
+      className={`container-${props.widgetId} ${
+        props.isDisabled ? "disabled" : ""
+      }`}
       compactMode={compactMode}
       data-testid="rte-container"
+      isDisabled={props.isDisabled}
+      isValid={props.isValid}
       labelPosition={labelPosition}
     >
       {labelText && (
