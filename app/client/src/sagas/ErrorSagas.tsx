@@ -22,6 +22,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { put, takeLatest, call, select } from "redux-saga/effects";
 import {
   ERROR_401,
+  ERROR_403,
   ERROR_500,
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
@@ -59,6 +60,8 @@ const getErrorMessage = (code: number) => {
       return createMessage(ERROR_401);
     case 500:
       return createMessage(ERROR_500);
+    case 403:
+      return createMessage(ERROR_403);
     case 0:
       return createMessage(ERROR_0);
   }

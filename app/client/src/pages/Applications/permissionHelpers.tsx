@@ -19,6 +19,8 @@ export enum PERMISSION_TYPE {
   MANAGE_ACTION = "manage:actions",
   DELETE_ACTION = "delete:actions",
   EXECUTE_ACTION = "execute:actions",
+  MANAGE_ACTIONS = "manage:actions",
+  MANAGE_PAGES = "manage:pages",
 }
 
 export enum LOGIC_FILTER {
