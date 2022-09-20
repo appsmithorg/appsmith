@@ -98,7 +98,7 @@ const RadioGroupComponent = React.forwardRef<
     [onRadioSelectionChange],
   );
 
-  const finalComponent = (
+  return (
     <RadioGroupContainer
       compactMode={compactMode}
       data-testid="radiogroup-container"
@@ -152,12 +152,6 @@ const RadioGroupComponent = React.forwardRef<
       </StyledRadioGroup>
     </RadioGroupContainer>
   );
-
-  if (isDynamicHeightEnabled) {
-    return <div style={{ overflow: "auto" }}>{finalComponent}</div>;
-  } else {
-    return finalComponent;
-  }
 });
 
 RadioGroupComponent.displayName = "RadioGroupComponent";

@@ -49,6 +49,7 @@ import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import DynamicHeightContainer from "./DynamicHeightContainer";
 
 /***
  * BaseWidget
@@ -263,8 +264,9 @@ abstract class BaseWidget<
   componentDidUpdate(prevProps: T) {
     requestAnimationFrame(() => {
       const expectedHeight = this.contentRef.current?.scrollHeight;
-      if (expectedHeight !== undefined)
+      if (expectedHeight !== undefined) {
         this.updateDynamicHeight(expectedHeight);
+      }
     });
   }
 
@@ -475,6 +477,14 @@ abstract class BaseWidget<
       : this.getPageView();
   };
 
+  addDynamicHeightContainer = (content: ReactNode) => {
+    return (
+      <DynamicHeightContainer maxDynamicHeight={this.props.maxDynamicHeight}>
+        {content}
+      </DynamicHeightContainer>
+    );
+  };
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
@@ -521,7 +531,10 @@ abstract class BaseWidget<
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {
-    const content = this.getPageView();
+    let content = this.getPageView();
+    if (this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+      content = this.addDynamicHeightContainer(content);
+    }
     return this.addErrorBoundary(content);
   }
 

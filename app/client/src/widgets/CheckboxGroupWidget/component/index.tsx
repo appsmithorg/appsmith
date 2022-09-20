@@ -198,7 +198,7 @@ const CheckboxGroupComponent = React.forwardRef<
     optionCount += 1;
   }
 
-  const finalComponent = (
+  return (
     <CheckboxGroupContainer
       compactMode={compactMode}
       data-testid="checkboxgroup-container"
@@ -267,12 +267,6 @@ const CheckboxGroupComponent = React.forwardRef<
       </InputContainer>
     </CheckboxGroupContainer>
   );
-
-  if (isDynamicHeightEnabled) {
-    return <div style={{ overflow: "auto" }}>{finalComponent}</div>;
-  } else {
-    return finalComponent;
-  }
 });
 
 CheckboxGroupComponent.displayName = "CheckboxGroupComponent";

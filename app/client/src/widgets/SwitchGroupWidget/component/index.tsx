@@ -74,7 +74,6 @@ const SwitchGroupComponent = React.forwardRef<
     labelTextColor,
     labelTextSize,
     labelWidth,
-    maxDynamicHeight,
     onChange,
     options,
     selected,
@@ -83,17 +82,7 @@ const SwitchGroupComponent = React.forwardRef<
 
   const optionCount = (options || []).length;
 
-  const clientHeight = (ref as React.RefObject<HTMLDivElement>)?.current
-    ?.clientHeight;
-  const maxHeight = (maxDynamicHeight || 1000) * 10;
-
-  let toOverflowOrNot = false;
-
-  if (clientHeight) {
-    toOverflowOrNot = maxHeight < clientHeight;
-  }
-
-  const finalComponent = (
+  return (
     <SwitchGroupContainer
       compactMode={compactMode}
       data-testid="switchgroup-container"
@@ -144,16 +133,6 @@ const SwitchGroupComponent = React.forwardRef<
       </InputContainer>
     </SwitchGroupContainer>
   );
-
-  if (isDynamicHeightEnabled) {
-    return (
-      <div style={toOverflowOrNot ? { overflow: "auto" } : undefined}>
-        {finalComponent}
-      </div>
-    );
-  } else {
-    return finalComponent;
-  }
 });
 
 export interface SwitchGroupComponentProps {
