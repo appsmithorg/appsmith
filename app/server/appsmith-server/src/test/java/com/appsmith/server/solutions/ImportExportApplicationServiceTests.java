@@ -483,7 +483,7 @@ public class ImportExportApplicationServiceTests {
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action))
                             .then(layoutActionService.createSingleAction(action2))
-                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
+                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
                 .cache();
@@ -2230,7 +2230,7 @@ public class ImportExportApplicationServiceTests {
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action))
                             .then(layoutActionService.createSingleAction(action2))
-                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
+                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
                 .cache();

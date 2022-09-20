@@ -1037,7 +1037,7 @@ public class GitServiceTest {
 
                     return Mono.zip(
                             layoutActionService.createSingleAction(action)
-                                    .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout)),
+                                    .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
                             layoutCollectionService.createCollection(actionCollectionDTO)
                     )
                             .map(tuple2 -> application);
@@ -1991,7 +1991,7 @@ public class GitServiceTest {
 
                     return Mono.zip(
                             layoutActionService.createSingleActionWithBranch(action, null)
-                                    .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout)),
+                                    .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
                             layoutCollectionService.createCollection(actionCollectionDTO, null)
                     )
                             .then(gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"));
