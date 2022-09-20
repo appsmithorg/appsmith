@@ -1833,7 +1833,7 @@ describe("getValueFromTree - ", () => {
     it("should trim canvas close to the lowest bottomRow of it's children widget", () => {
       const currentWidgets = klona(widgets);
       resizePublishedMainCanvasToLowestWidget(currentWidgets);
-      expect(currentWidgets["0"].bottomRow).toEqual(430);
+      expect(currentWidgets["0"].bottomRow).toEqual(400);
     });
   });
 });
