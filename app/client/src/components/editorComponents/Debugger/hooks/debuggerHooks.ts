@@ -47,7 +47,6 @@ export const useFilteredLogs = (query: string, filter?: any) => {
         return true;
     });
   }
-
   return logs;
 };
 
@@ -59,7 +58,7 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
   useEffect(() => {
     const data = currentData();
     setPaginatedData(data);
-  }, [currentPage, data.length]);
+  }, [currentPage, data.length, data[data.length - 1]?.occurrenceCount]);
 
   const currentData = useCallback(() => {
     const newMaxPage = Math.ceil(data.length / itemsPerPage);
