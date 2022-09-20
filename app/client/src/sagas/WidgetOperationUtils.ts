@@ -1743,7 +1743,7 @@ export function resizePublishedMainCanvasToLowestWidget(
 
   widgets[MAIN_CONTAINER_WIDGET_ID].bottomRow = Math.max(
     CANVAS_DEFAULT_MIN_HEIGHT_PX,
-    (lowestBottomRow + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET) *
+    (lowestBottomRow + GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET) *
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
 }
