@@ -2435,6 +2435,13 @@ public class DatabaseChangelog2 {
                     }
                 });
     }
+    
+    public void softDeletePlugin(MongockTemplate mongockTemplate, Plugin plugin) {
+        softDeleteAllPluginActions(plugin, mongockTemplate);
+        softDeleteAllPluginDatasources(plugin, mongockTemplate);
+        softDeletePluginFromAllWorkspaces(plugin, mongockTemplate);
+        softDeleteInPluginCollection(plugin, mongockTemplate);        
+    }
 
     @ChangeSet(order = "035", id = "delete-rapid-api-plugin-related-items", author = "")
     public void deleteRapidApiPluginRelatedItems(MongockTemplate mongockTemplate) {
@@ -2445,13 +2452,10 @@ public class DatabaseChangelog2 {
             return;
         }
 
-        softDeleteAllRapidApiActions(rapidApiPlugin, mongockTemplate);
-        softDeleteAllRapidApiDatasources(rapidApiPlugin, mongockTemplate);
-        softDeleteRapidApiPluginFromAllWorkspaces(rapidApiPlugin, mongockTemplate);
-        softDeletePlugin(rapidApiPlugin, mongockTemplate);
+        softDeletePlugin(mongockTemplate, rapidApiPlugin);
     }
 
-    private void softDeleteRapidApiPluginFromAllWorkspaces(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
+    private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
         Query queryToGetNonDeletedWorkspaces = new Query();
         queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
         List<Workspace> workspaces = mongockTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
@@ -2461,7 +2465,7 @@ public class DatabaseChangelog2 {
                 .forEachOrdered(workspace -> {
                     workspace.getPlugins().stream()
                             .filter(workspacePlugin -> workspacePlugin != null && workspacePlugin.getPluginId() != null)
-                            .filter(workspacePlugin -> workspacePlugin.getPluginId().equals(rapidApiPlugin.getId()))
+                            .filter(workspacePlugin -> workspacePlugin.getPluginId().equals(plugin.getId()))
                             .forEach(workspacePlugin -> {
                                 workspacePlugin.setDeleted(true);
                                 workspacePlugin.setDeletedAt(Instant.now());
@@ -2470,39 +2474,39 @@ public class DatabaseChangelog2 {
                 });
     }
 
-    private void softDeletePlugin(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
-        rapidApiPlugin.setDeleted(true);
-        rapidApiPlugin.setDeletedAt(Instant.now());
-        mongockTemplate.save(rapidApiPlugin);
+    private void softDeleteInPluginCollection(Plugin plugin, MongockTemplate mongockTemplate) {
+        plugin.setDeleted(true);
+        plugin.setDeletedAt(Instant.now());
+        mongockTemplate.save(plugin);
     }
 
-    private void softDeleteAllRapidApiDatasources(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
-        /* Query to get all RapidApi datasources which are not deleted */
-        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(rapidApiPlugin);
+    private void softDeleteAllPluginDatasources(Plugin plugin, MongockTemplate mongockTemplate) {
+        /* Query to get all plugin datasources which are not deleted */
+        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(plugin);
 
         /* Update the previous query to only include id field */
         queryToGetDatasources.fields().include(fieldName(QDatasource.datasource.id));
 
-        /* Fetch RapidApi datasources using the previous query */
-        List<Datasource> rapidApiDatasources = mongockTemplate.find(queryToGetDatasources, Datasource.class);
+        /* Fetch plugin datasources using the previous query */
+        List<Datasource> datasources = mongockTemplate.find(queryToGetDatasources, Datasource.class);
 
         /* Mark each selected datasource as deleted */
-        updateDeleteAndDeletedAtFieldsForEachDomainObject(rapidApiDatasources, mongockTemplate,
+        updateDeleteAndDeletedAtFieldsForEachDomainObject(datasources, mongockTemplate,
                 QDatasource.datasource.id, Datasource.class);
     }
 
-    private void softDeleteAllRapidApiActions(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
-        /* Query to get all RapidApi actions which are not deleted */
-        Query queryToGetActions = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(rapidApiPlugin);
+    private void softDeleteAllPluginActions(Plugin plugin, MongockTemplate mongockTemplate) {
+        /* Query to get all plugin actions which are not deleted */
+        Query queryToGetActions = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(plugin);
 
         /* Update the previous query to only include id field */
         queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
 
-        /* Fetch RapidApi actions using the previous query */
-        List<NewAction> rapidApiActions = mongockTemplate.find(queryToGetActions, NewAction.class);
+        /* Fetch plugin actions using the previous query */
+        List<NewAction> actions = mongockTemplate.find(queryToGetActions, NewAction.class);
 
         /* Mark each selected action as deleted */
-        updateDeleteAndDeletedAtFieldsForEachDomainObject(rapidApiActions, mongockTemplate, QNewAction.newAction.id,
+        updateDeleteAndDeletedAtFieldsForEachDomainObject(actions, mongockTemplate, QNewAction.newAction.id,
                 NewAction.class);
     }
 
