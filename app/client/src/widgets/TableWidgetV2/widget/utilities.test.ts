@@ -1984,4 +1984,9 @@ describe("getColumnType", () => {
     const result = getColumnType(tableData, "premium");
     expect(ColumnTypes.CHECKBOX).toEqual(result);
   });
+
+  it("returns Date column type for valid Date field", () => {
+    const result = getColumnType(tableData, "dob");
+    expect(ColumnTypes.DATE).toEqual(result);
+  });
 });
