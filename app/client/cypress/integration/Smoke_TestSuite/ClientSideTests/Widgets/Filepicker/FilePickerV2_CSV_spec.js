@@ -2,7 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/filePickerTableDSL.json");
 
 const widgetName = "filepickerwidgetv2";
-const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
+const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value`;
 
 describe("File picker widget v2", () => {
   before(() => {
