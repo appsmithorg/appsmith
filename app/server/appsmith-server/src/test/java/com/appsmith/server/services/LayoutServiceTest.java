@@ -449,6 +449,14 @@ public class LayoutServiceTest {
                     action.setPluginType(PluginType.JS);
                     monos.add(layoutActionService.createSingleAction(action));
 
+                    action = new ActionDTO();
+                    action.setName("anIgnoredAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
                     return Mono.zip(monos, objects -> page1);
                 })
                 .zipWhen(page1 -> {
@@ -471,7 +479,7 @@ public class LayoutServiceTest {
                             "widgetName", "testWidget",
                             "key", "value-updated",
                             "another", "Hello people of the {{input1.text}} planet!",
-                            "dynamicGet", "some dynamic {{aGetAction.data}}",
+                            "dynamicGet", "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
                             "dynamicPost", "some dynamic {{aPostAction.data}}",
                             "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
