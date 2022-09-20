@@ -583,11 +583,13 @@ function* dynamicallyUpdateContainersSaga() {
       if (canvasWidget.parentId) {
         const parentContainerWidget = stateWidgets[canvasWidget.parentId];
         if (isDynamicHeightEnabledForWidget(parentContainerWidget)) {
+          let maxBottomRow =
+            parentContainerWidget.bottomRow - parentContainerWidget.topRow;
           if (
             Array.isArray(canvasWidget.children) &&
             canvasWidget.children.length > 0
           ) {
-            let maxBottomRow = canvasWidget.children.reduce(
+            maxBottomRow = canvasWidget.children.reduce(
               (prev: number, next: string) => {
                 if (stateWidgets[next].bottomRow > prev)
                   return stateWidgets[next].bottomRow;
@@ -604,32 +606,31 @@ function* dynamicallyUpdateContainersSaga() {
               parentContainerWidget.type,
             );
             maxBottomRow += canvasHeightOffset;
+          }
+          // Get the boundaries for possible min and max dynamic height.
+          const minDynamicHeightInRows = getWidgetMinDynamicHeight(
+            parentContainerWidget,
+          );
+          const maxDynamicHeightInRows = getWidgetMaxDynamicHeight(
+            parentContainerWidget,
+          );
 
-            // Get the boundaries for possible min and max dynamic height.
-            const minDynamicHeightInRows = getWidgetMinDynamicHeight(
-              parentContainerWidget,
-            );
-            const maxDynamicHeightInRows = getWidgetMaxDynamicHeight(
-              parentContainerWidget,
-            );
+          // If the new height is below the min threshold
+          if (maxBottomRow < minDynamicHeightInRows) {
+            maxBottomRow = minDynamicHeightInRows;
+          }
+          // If the new height is above the max threshold
+          if (maxBottomRow > maxDynamicHeightInRows) {
+            maxBottomRow = maxDynamicHeightInRows;
+          }
 
-            // If the new height is below the min threshold
-            if (maxBottomRow < minDynamicHeightInRows) {
-              maxBottomRow = minDynamicHeightInRows;
-            }
-            // If the new height is above the max threshold
-            if (maxBottomRow > maxDynamicHeightInRows) {
-              maxBottomRow = maxDynamicHeightInRows;
-            }
-
-            if (
-              maxBottomRow !==
-              parentContainerWidget.bottomRow - parentContainerWidget.topRow
-            ) {
-              if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
-                updates[parentContainerWidget.widgetId] =
-                  maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-              }
+          if (
+            maxBottomRow !==
+            parentContainerWidget.bottomRow - parentContainerWidget.topRow
+          ) {
+            if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
+              updates[parentContainerWidget.widgetId] =
+                maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
             }
           }
         }

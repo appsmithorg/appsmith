@@ -43,6 +43,7 @@ export function hideDynamicHeightPropertyControl(props: WidgetProps) {
 function validateMinHeight(value: unknown, props: WidgetProps) {
   const _value: number = parseInt(value as string, 10);
   const _maxHeight: number = parseInt(props.maxDynamicHeight as string, 10);
+
   if (isNaN(_value) || _value <= 2) {
     return {
       isValid: false,
@@ -69,6 +70,7 @@ function validateMinHeight(value: unknown, props: WidgetProps) {
 function validateMaxHeight(value: unknown, props: WidgetProps) {
   const _value: number = parseInt(value as string, 10);
   const _minHeight: number = parseInt(props.minDynamicHeight as string, 10);
+
   if (isNaN(_value) || _value <= 2) {
     return {
       isValid: false,
@@ -261,7 +263,7 @@ export const PropertyPaneConfigTemplates = {
             fn: validateMaxHeight,
             expected: {
               type: "Number of Rows. Greater than or equal to Min. Height",
-              example: 1000,
+              example: 100,
               autocompleteDataType: "NUMBER" as AutocompleteDataType,
             },
           },

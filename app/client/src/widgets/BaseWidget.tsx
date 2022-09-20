@@ -193,14 +193,6 @@ abstract class BaseWidget<
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
-    log.debug(
-      "Dynamic height: Checking if we should update:",
-      { props: this.props },
-      { currentHeightInRows },
-      { expectedHeightInRows },
-      { diff: Math.abs(currentHeightInRows - expectedHeightInRows) },
-    );
-
     // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
     // then we need to compute.
     // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
@@ -211,13 +203,13 @@ abstract class BaseWidget<
     if (!isDynamicHeightEnabled) return false;
 
     const maxDynamicHeightInRows =
-      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
       this.props.maxDynamicHeight > 0
         ? this.props.maxDynamicHeight
         : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
 
     const minDynamicHeightInRows =
-      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
       this.props.minDynamicHeight > 0
         ? this.props.minDynamicHeight
         : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
@@ -228,7 +220,7 @@ abstract class BaseWidget<
       // If we're not already at the max height, we can increase height
       if (
         maxDynamicHeightInRows >= currentHeightInRows &&
-        Math.abs(maxDynamicHeightInRows - expectedHeightInRows) >= 2
+        Math.abs(maxDynamicHeightInRows - expectedHeightInRows) >= 1
       ) {
         return true;
       }
@@ -241,13 +233,8 @@ abstract class BaseWidget<
       // We can safely reduce the height
       if (
         minDynamicHeightInRows <= expectedHeightInRows &&
-        Math.abs(minDynamicHeightInRows - expectedHeightInRows) >= 2
+        Math.abs(minDynamicHeightInRows - expectedHeightInRows) >= 1
       ) {
-        return true;
-      }
-
-      // If minDynamicHeightInRows is larger than expectedHeightInRows
-      if (minDynamicHeightInRows > expectedHeightInRows) {
         return true;
       }
     }
@@ -440,7 +427,7 @@ abstract class BaseWidget<
     };
 
     return (
-      <div>
+      <>
         <DynamicHeightOverlay
           {...this.props}
           batchUpdate={onBatchUpdate}
@@ -451,7 +438,7 @@ abstract class BaseWidget<
           style={this.getPositionStyle()}
         />
         {content}
-      </div>
+      </>
     );
   }
   getWidgetComponent = () => {
@@ -488,17 +475,16 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
-
-          if (
-            this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
-          ) {
-            log.debug(
-              "AUTO_HEIGHT_WITH_LIMITS",
-              this.props.maxDynamicHeight,
-              this.props.minDynamicHeight,
-            );
-            content = this.addDynamicHeightOverlay(content);
-          }
+        }
+        if (
+          this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+        ) {
+          log.debug(
+            "AUTO_HEIGHT_WITH_LIMITS",
+            this.props.maxDynamicHeight,
+            this.props.minDynamicHeight,
+          );
+          content = this.addDynamicHeightOverlay(content);
         }
 
         return content;
