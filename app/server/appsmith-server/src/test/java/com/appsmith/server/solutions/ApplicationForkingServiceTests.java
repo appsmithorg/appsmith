@@ -254,7 +254,7 @@ public class ApplicationForkingServiceTests {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(parentDsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
         // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceWorkspace and we are
         // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork

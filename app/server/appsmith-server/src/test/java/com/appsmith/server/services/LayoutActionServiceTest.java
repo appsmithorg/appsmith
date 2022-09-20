@@ -190,7 +190,7 @@ public class LayoutActionServiceTest {
 
             layout.setDsl(dsl);
             layout.setPublishedDsl(dsl);
-            layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
+            layoutActionService.updateLayout(pageId, testApp.getId(), layout.getId(), layout).block();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
@@ -397,7 +397,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -461,7 +461,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), layout.getId(), layout, branchName).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), gitConnectedPage.getApplicationId(), layout.getId(), layout, branchName).block();
 
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -515,7 +515,7 @@ public class LayoutActionServiceTest {
         ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
 
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
 
         applicationPageService.publish(testPage.getApplicationId(), true).block();
 
@@ -572,7 +572,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
@@ -626,7 +626,7 @@ public class LayoutActionServiceTest {
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -655,7 +655,7 @@ public class LayoutActionServiceTest {
 
         layout.setDsl(dsl);
 
-        updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -748,7 +748,7 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).cache();
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).cache();
 
         Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
 
@@ -816,7 +816,7 @@ public class LayoutActionServiceTest {
         // Now save this action directly in the repo to create a duplicate action name scenario
         actionRepository.save(duplicateNameCompleteAction).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
@@ -892,7 +892,7 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -933,7 +933,7 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -977,7 +977,7 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -1009,7 +1009,7 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
 
         // Create an action collection that refers to the table
         ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
@@ -1135,7 +1135,7 @@ public class LayoutActionServiceTest {
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -1232,7 +1232,7 @@ public class LayoutActionServiceTest {
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 }).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -1376,7 +1376,7 @@ public class LayoutActionServiceTest {
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -1414,7 +1414,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(layoutDTO -> {
@@ -1488,7 +1488,7 @@ public class LayoutActionServiceTest {
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
         Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -1549,7 +1549,7 @@ public class LayoutActionServiceTest {
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
         Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {

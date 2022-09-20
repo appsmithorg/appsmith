@@ -379,7 +379,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
                                             layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(page.getId(), layout.getId(), layout);
+                                            return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
                             })
@@ -394,7 +394,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
                                             layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(page.getId(), layout.getId(), layout);
+                                            return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
                             })

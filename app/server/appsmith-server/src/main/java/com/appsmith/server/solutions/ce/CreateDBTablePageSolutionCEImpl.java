@@ -342,7 +342,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     }
 
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
-                    return layoutActionService.updateLayout(savedPageId, layoutId, layout)
+                    return layoutActionService.updateLayout(savedPageId, page.getApplicationId(), layoutId, layout)
                             .then(Mono.zip(
                                     Mono.just(datasource),
                                     Mono.just(templateActionList),
