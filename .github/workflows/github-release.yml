@@ -170,21 +170,20 @@ jobs:
       - name: Build
         run: |
           echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
-          ./build.sh
-          ls -l dist
+          yarn build
 
-      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload RTS build bundle
+      # Tar the bundles to speed up the upload & download process
+      - name: Tar the rts bundles
+        run: |
+          ls -al dist/node_modules/@shared/ast
+          tar -cvf rts-dist.tar dist
+
+      # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
+      - name: Upload rts build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: rts-build
-          path: app/rts/dist/
-
-      - name: Upload RTS dependencies bundle
-        uses: actions/upload-artifact@v2
-        with:
-          name: rts-build-deps
-          path: app/rts/node_modules/
+          name: rts-dist
+          path: app/rts/rts-dist.tar
 
   package:
     needs: [prelude, buildClient, buildServer, buildRts]
@@ -216,14 +215,14 @@ jobs:
       - name: Download the rts build artifact
         uses: actions/download-artifact@v2
         with:
-          name: rts-build
+          name: rts-dist
           path: app/rts/dist
 
-      - name: Download the rts dependencies artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: rts-build-deps
-          path: app/rts/node_modules/
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -241,7 +240,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push client image latest
-        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
         uses: depot/build-push-action@v1
         with:
           context: app/client
@@ -262,7 +261,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push fat image latest
-        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
         uses: depot/build-push-action@v1
         with:
           context: .
@@ -285,7 +284,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push server image latest
-        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
         uses: depot/build-push-action@v1
         with:
           context: app/server
@@ -306,7 +305,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push RTS image latest
-        if: '!contains(needs.prelude.outputs.tag, "beta")'
+        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
         uses: depot/build-push-action@v1
         with:
           context: app/rts
