@@ -60,7 +60,6 @@ COPY ./app/client/build editor/
 
 # Add RTS - Application Layer
 COPY ./app/rts/package.json ./app/rts/dist rts/
-COPY ./app/rts/node_modules rts/node_modules
 
 # Nginx & MongoDB config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \

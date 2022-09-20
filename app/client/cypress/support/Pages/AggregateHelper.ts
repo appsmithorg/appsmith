@@ -20,11 +20,12 @@ export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
   private isMac = Cypress.platform === "darwin";
-  private selectLine = `${
+  private selectLineNRemove = `${
     this.isMac
       ? "{cmd}{shift}{leftArrow}{backspace}"
       : "{shift}{home}{backspace}"
   }`;
+  private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -203,7 +204,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleDisappear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
@@ -229,7 +230,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("be.visible"), {
@@ -268,6 +269,18 @@ export class AggregateHelper {
       "have.nested.property",
       "response.body.responseMeta.status",
       expectedStatus,
+    );
+  }
+
+  public ValidateNetworkDataAssert(
+    aliasName: string,
+    expectedPath: string,
+    expectedRes: any,
+  ) {
+    cy.wait(aliasName).should(
+      "have.nested.property",
+      expectedPath,
+      expectedRes,
     );
   }
 
@@ -402,6 +415,7 @@ export class AggregateHelper {
   public EnterActionValue(actionName: string, value: string, paste = true) {
     cy.xpath(this.locator._actionTextArea(actionName))
       .first()
+      .scrollIntoView()
       .focus()
       .type("{uparrow}", { force: true })
       .type("{ctrl}{shift}{downarrow}{del}", { force: true });
@@ -410,6 +424,7 @@ export class AggregateHelper {
         cy.log("The field is not empty");
         cy.xpath(this.locator._actionTextArea(actionName))
           .first()
+          .scrollIntoView()
           .click({ force: true })
           .focused()
           .clear({
@@ -419,6 +434,7 @@ export class AggregateHelper {
       this.Sleep();
       cy.xpath(this.locator._actionTextArea(actionName))
         .first()
+        .scrollIntoView()
         .then((el: any) => {
           if (paste) {
             //input.invoke("val", value);
@@ -453,7 +469,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectLine);
+    return locator.type(this.selectLineNRemove);
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -478,8 +494,8 @@ export class AggregateHelper {
       .focus()
       .type(value, {
         parseSpecialCharSequences: false,
-        delay: 3,
-        force: true,
+        //delay: 3,
+        //force: true,
       });
   }
 
@@ -679,7 +695,7 @@ export class AggregateHelper {
     toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
       .trigger("click")
-      .type(input);
+      .type(input, { parseSpecialCharSequences: false });
   }
 
   public ClearInputText(name: string, isInput = true) {
@@ -704,13 +720,17 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
-      .then((ins: any) => {
-        //const input = ins[0].input;
-        ins.focus();
-        this.Sleep(200);
-        ins.val(value);
-        this.Sleep(200);
-      });
+      .type(this.selectAll)
+      .type(value, { delay: 1 });
+    // .type(selectAllJSObjectContentShortcut)
+    // .then((ins: any) => {
+    //   //const input = ins[0].input;
+    //   ins.clear();
+    //   this.Sleep(200);
+    //   //ins.setValue(value);
+    //   ins.val(value).trigger('change');
+    //   this.Sleep(200);
+    // });
   }
 
   public BlurCodeInput(selector: string) {

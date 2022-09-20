@@ -5,7 +5,7 @@ import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseC
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";
 import { Text, FontWeight, TextType } from "design-system";
-import { TabbedViewContainer } from "./Form";
+import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
 import { getQueryParams } from "utils/URLUtils";
 import ActionRightPane, {

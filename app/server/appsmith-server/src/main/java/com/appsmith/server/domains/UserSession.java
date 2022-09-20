@@ -21,6 +21,8 @@ public class UserSession {
 
     private String email;
 
+    private String name;
+
     private LoginSource source;
 
     private UserState state;
@@ -60,6 +62,7 @@ public class UserSession {
 
         session.userId = user.getId();
         session.email = user.getEmail();
+        session.name = user.getName();
         session.source = user.getSource();
         session.state = user.getState();
         session.isEnabled = user.isEnabled();
@@ -91,6 +94,7 @@ public class UserSession {
 
         user.setId(userId);
         user.setEmail(email);
+        user.setName(name);
         user.setSource(source);
         user.setState(state);
         user.setIsEnabled(isEnabled);

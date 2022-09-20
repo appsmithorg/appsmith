@@ -58,6 +58,7 @@ import {
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -115,7 +116,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   };
 
   // Executes JS action
-  const executeJSAction = (jsAction: JSAction) => {
+  const executeJSAction = (jsAction: JSAction, from: EventLocation) => {
     setActiveResponse(jsAction);
     if (jsAction.id !== selectedJSActionOption.data?.id)
       setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
@@ -130,6 +131,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         collectionName: currentJSCollection.name || "",
         action: jsAction,
         collectionId: currentJSCollection.id || "",
+        from: from,
       }),
     );
   };
@@ -169,6 +171,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const handleRunAction = (
     event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
+    from: EventLocation,
   ) => {
     event.preventDefault();
     if (
@@ -176,7 +179,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       !isExecutingCurrentJSAction &&
       selectedJSActionOption.data
     ) {
-      executeJSAction(selectedJSActionOption.data);
+      executeJSAction(selectedJSActionOption.data, from);
     }
   };
 
@@ -212,7 +215,13 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   return (
     <FormWrapper>
-      <JSObjectHotKeys runActiveJSFunction={handleRunAction}>
+      <JSObjectHotKeys
+        runActiveJSFunction={(
+          event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
+        ) => {
+          handleRunAction(event, "KEYBOARD_SHORTCUT");
+        }}
+      >
         <CloseEditor />
         <Form>
           <StyledFormRow className="form-row-header">
@@ -234,7 +243,13 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 disabled={disableRunFunctionality}
                 isLoading={isExecutingCurrentJSAction}
                 jsCollection={currentJSCollection}
-                onButtonClick={handleRunAction}
+                onButtonClick={(
+                  event:
+                    | React.MouseEvent<HTMLElement, MouseEvent>
+                    | KeyboardEvent,
+                ) => {
+                  handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+                }}
                 onSelect={handleJSActionOptionSelection}
                 options={convertJSActionsToDropdownOptions(jsActions)}
                 selected={selectedJSActionOption}
@@ -291,7 +306,13 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               errors={parseErrors}
               isLoading={isExecutingCurrentJSAction}
               jsObject={currentJSCollection}
-              onButtonClick={handleRunAction}
+              onButtonClick={(
+                event:
+                  | React.MouseEvent<HTMLElement, MouseEvent>
+                  | KeyboardEvent,
+              ) => {
+                handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
+              }}
               theme={theme}
             />
           </SecondaryWrapper>
