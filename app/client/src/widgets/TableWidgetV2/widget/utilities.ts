@@ -25,6 +25,8 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { dateFormatOptions } from "widgets/constants";
+import moment from "moment";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -621,7 +623,7 @@ export const getColumnType = (
   if (!_.isArray(tableData) || tableData.length === 0 || !columnKey) {
     return ColumnTypes.TEXT;
   }
-  let columnValue = null,
+  let columnValue: unknown = null,
     row = 0;
   const maxRowsToCheck = 5;
   /*
@@ -629,17 +631,15 @@ export const getColumnType = (
     subsequent rows in case first few rows are null
     Limited to checking upto maxRowsToCheck
   */
-  while (
-    (columnValue === null || columnValue === undefined) &&
-    row < maxRowsToCheck
-  ) {
-    if (tableData?.[row]?.[columnKey] !== null) {
+  while (_.isNil(columnValue) && row < maxRowsToCheck) {
+    if (!_.isNil(tableData?.[row]?.[columnKey])) {
       columnValue = tableData[row][columnKey];
+      break;
     }
     row++;
   }
 
-  if (columnValue === null) {
+  if (_.isNil(columnValue)) {
     return ColumnTypes.TEXT;
   }
 
@@ -648,6 +648,12 @@ export const getColumnType = (
       return ColumnTypes.NUMBER;
     case "boolean":
       return ColumnTypes.CHECKBOX;
+    case "string":
+      return dateFormatOptions.some(({ value: format }) =>
+        moment(columnValue as string, format, true).isValid(),
+      )
+        ? ColumnTypes.DATE
+        : ColumnTypes.TEXT;
     default:
       return ColumnTypes.TEXT;
   }
