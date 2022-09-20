@@ -127,7 +127,7 @@ export function getDependencyChain(
   let currentChain: string[] = [];
   const dependents = inverseMap[propertyPath];
 
-  if (!dependents.length) return currentChain;
+  if (!dependents || !dependents.length) return currentChain;
 
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
 
