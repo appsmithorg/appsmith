@@ -252,19 +252,15 @@ ctx.addEventListener(
           await dataTreeEvaluator.updateDataTree(dataTree);
           const evalTree = dataTreeEvaluator.evalTree;
           const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-
-          dataTreeEvaluator.evaluateTriggers(
+          return dataTreeEvaluator.evaluateTriggers(
             dynamicTrigger,
             evalTree,
-            requestId,
             resolvedFunctions,
             callbackData,
             {
               globalContext,
             },
           );
-
-          break;
         }
         case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
           /**

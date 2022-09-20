@@ -53,7 +53,7 @@ import {
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import evaluateSync, {
+import {
   EvalResult,
   EvaluateContext,
   evaluateAsync,
@@ -255,7 +255,7 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     evalMetaUpdates: EvalMetaUpdates;
   }> {
-    let localUnEvalTree = Object.assign({}, unEvalTree);
+    let localUnEvalTree = klona(unEvalTree);
     const totalStart = performance.now();
     let jsUpdates: Record<string, JSUpdate> = {};
     // Calculate diff
@@ -841,13 +841,13 @@ export default class DataTreeEvaluator {
     );
     if (stringSegments.length === 0) return undefined;
     // Get the Data Tree value of those "binding "paths
-    const values = await Promise.all(
+    const evaluatedValues = await Promise.all(
       jsSnippets.map(async (jsSnippet, index) => {
         const toBeSentForEval =
           entity && isJSAction(entity) && propertyPath === "body"
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
-        if (!jsSnippet) return stringSegments[index];
+        if (!jsSnippet) return Promise.resolve(stringSegments[index]);
 
         return this.evaluateDynamicBoundValue(
           toBeSentForEval,
@@ -862,7 +862,8 @@ export default class DataTreeEvaluator {
       }),
     );
 
-    for (const result of values) {
+    const values = [];
+    for (const result of evaluatedValues) {
       if (typeof result === "string") continue;
       if (fullPropertyPath && result.errors.length) {
         addErrorToEntityProperty(result.errors, data, fullPropertyPath);
@@ -900,7 +901,7 @@ export default class DataTreeEvaluator {
           source,
         });
       }
-      return result.result;
+      values.push(result.result);
     }
 
     // We don't need to substitute template of the result if only one binding exists
@@ -913,6 +914,7 @@ export default class DataTreeEvaluator {
     }
     try {
       // else return a combined value according to the evaluation type
+      debugger;
       return substituteDynamicBindingWithValues(
         dynamicBinding,
         stringSegments,
@@ -942,17 +944,16 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
-    requestId: string,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
-    return evaluateAsync(
+    return evaluateJSString(
       jsSnippets[0] || userScript,
       dataTree,
-      requestId,
       resolvedFunctions,
+      true,
       context,
       callbackData,
     );

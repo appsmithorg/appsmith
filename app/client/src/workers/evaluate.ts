@@ -219,6 +219,7 @@ export function evaluateJSString(
     let result,
       logs: LogObject[] = [];
     const errors: EvaluationError[] = [];
+    code = sanitizeScript(code);
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
@@ -227,7 +228,7 @@ export function evaluateJSString(
       evalArguments,
     });
 
-    GLOBAL_DATA.ALLOW_ASYNC = false;
+    GLOBAL_DATA.ALLOW_ASYNC = true;
 
     const executionScript = `new Promise((resolve, reject) => {
       try {

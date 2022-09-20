@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import {
@@ -7,7 +7,7 @@ import {
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import { promisifyAction, talkToMainThread } from "workers/PromisifyAction";
+import { talkToMainThread } from "workers/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
 import { createGlobalData } from "./evaluate";
@@ -280,6 +280,9 @@ export const DATA_TREE_FUNCTIONS: Record<string, any> = {
       delay,
       ...args,
     );
+  },
+  clearTimeout: function(timerId: number) {
+    return _internalClearTimeout(timerId);
   },
 };
 

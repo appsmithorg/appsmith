@@ -55,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isUndefined } from "lodash";
+import { get, isEmpty, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -261,86 +261,30 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
 
-  const { requestChannel, responseChannel } = yield call(
-    worker.duplexRequest,
+  const { errors, logs } = yield call(
+    worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
   );
-  let keepAlive = true;
-
-  while (keepAlive) {
-    const { requestData } = yield take(requestChannel);
-    log.debug({ requestData, eventType, triggerMeta, dynamicTrigger });
-    if (requestData.finished) {
-      keepAlive = false;
-
-      const { result } = requestData;
-      yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
-
-      // Check for any logs in the response and store them in the redux store
-      if (
-        !!result &&
-        result.hasOwnProperty("logs") &&
-        !!result.logs &&
-        result.logs.length
-      ) {
-        yield call(
-          storeLogs,
-          result.logs,
-          triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
-          eventType === EventType.ON_JS_FUNCTION_EXECUTE
-            ? ENTITY_TYPE.JSACTION
-            : ENTITY_TYPE.WIDGET,
-          triggerMeta.source?.id || "",
-        );
-      }
-
-      /* Handle errors during evaluation
-       * A finish event with errors means that the error was not caught by the user code.
-       * We raise an error telling the user that an uncaught error has occurred
-       * */
-      if (
-        !!result &&
-        result.hasOwnProperty("errors") &&
-        !!result.errors &&
-        result.errors.length
-      ) {
-        if (
-          result.errors[0].errorMessage !==
-          "UncaughtPromiseRejection: User cancelled action execution"
-        ) {
-          throw new UncaughtPromiseError(result.errors[0].errorMessage);
-        }
-      }
-
-      // It is possible to get a few triggers here if the user
-      // still uses the old way of action runs and not promises. For that we
-      // need to manually execute these triggers outside the promise flow
-      const { triggers } = result;
-      if (triggers && triggers.length) {
-        log.debug({ triggers });
-        yield all(
-          triggers.map((trigger: ActionDescription) =>
-            call(executeActionTriggers, trigger, eventType, triggerMeta),
-          ),
-        );
-      }
-      // Return value of a promise is returned
-      return result;
-    }
-    yield call(evalErrorHandler, requestData.errors);
-    if (requestData.trigger) {
-      // if we have found a trigger, we need to execute it and respond back
-      log.debug({ trigger: requestData.trigger });
-      yield spawn(
-        executeTriggerRequestSaga,
-        requestData,
-        eventType,
-        responseChannel,
-        triggerMeta,
-      );
-    }
-  }
+  yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
+  yield call(
+    storeLogs,
+    logs || [],
+    triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
+    eventType === EventType.ON_JS_FUNCTION_EXECUTE
+      ? ENTITY_TYPE.JSACTION
+      : ENTITY_TYPE.WIDGET,
+    triggerMeta.source?.id || "",
+  );
+  yield call(evalErrorHandler, errors);
+  // if (!isEmpty(errors)) {
+  //   if (
+  //     errors[0].errorMessage !==
+  //     "UncaughtPromiseRejection: User cancelled action execution"
+  //   ) {
+  //     throw new UncaughtPromiseError(errors[0].errorMessage);
+  //   }
+  // }
 }
 
 interface ResponsePayload {
