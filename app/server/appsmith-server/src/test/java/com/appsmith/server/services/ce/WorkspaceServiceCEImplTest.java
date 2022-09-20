@@ -77,72 +77,46 @@ public class WorkspaceServiceCEImplTest {
     @Test
     public void testValidateIncomingWorkspaceValidEmail() {
         Workspace workspaceWithEmail = new Workspace();
-        workspaceWithEmail.setEmail("valid@email.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithEmail);
-        workspaceWithEmail.setEmail("valid@email.co.in");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithEmail);
-        workspaceWithEmail.setEmail("valid@email-assoc.co.in");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithEmail);
+        String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
+        for (String validEmail:
+             validEmails) {
+            workspaceWithEmail.setEmail(validEmail);
+            workspaceServiceCE.validateIncomingWorkspace(workspaceWithEmail);
+        }
     }
 
     @Test()
     public void testValidateIncomingWorkspaceInvalidEmail() {
         Workspace workspaceWithEmail = new Workspace();
-        workspaceWithEmail.setEmail("invalid@.com");
-        AppsmithException exception = assertThrows(
-                AppsmithException.class, () ->workspaceServiceCE.validateIncomingWorkspace(workspaceWithEmail));
-        assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL).getMessage(), exception.getMessage());
-        workspaceWithEmail.setEmail("@invalid.com");
-        exception = assertThrows(
-                AppsmithException.class, () ->workspaceServiceCE.validateIncomingWorkspace(workspaceWithEmail));
-        assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL).getMessage(), exception.getMessage());
+        String[] invalidEmails = {"invalid@.com", "@invalid.com"};
+        for (String invalidEmail: invalidEmails) {
+            workspaceWithEmail.setEmail(invalidEmail);
+            AppsmithException exception = assertThrows(
+                    AppsmithException.class, () -> workspaceServiceCE.validateIncomingWorkspace(workspaceWithEmail));
+            assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL).getMessage(),
+                    exception.getMessage());
+        }
     }
 
     @Test
     public void testValidateIncomingWorkspaceValidWebsite() {
         Workspace workspaceWithWebsite = new Workspace();
-        workspaceWithWebsite.setWebsite("https://www.valid.website.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("http://www.valid.website.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("https://valid.website.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("http://valid.website.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("www.valid.website.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("valid.website.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("valid-website.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("valid.12345.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("12345.com");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite("");
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
-        workspaceWithWebsite.setWebsite(null);
-        workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
+        String[] validWebsites = {"https://www.valid.website.com", "http://www.valid.website.com", "https://valid.website.com", "http://valid.website.com", "www.valid.website.com", "valid.website.com", "valid-website.com", "valid.12345.com", "12345.com", "", null};
+        for (String validWebsite : validWebsites) {
+            workspaceWithWebsite.setWebsite(validWebsite);
+            workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite);
+        }
     }
 
     @Test
     public void testValidateIncomingWorkspaceInvalidWebsite() {
         Workspace workspaceWithWebsite = new Workspace();
-        workspaceWithWebsite.setWebsite("htp://www.invalid.website.com");
-        AppsmithException exception = assertThrows(
-                AppsmithException.class, () ->workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite));
-        assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE).getMessage(), exception.getMessage());
-        workspaceWithWebsite.setWebsite("htp://invalid.website.com");
-        exception = assertThrows(
-                AppsmithException.class, () ->workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite));
-        assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE).getMessage(), exception.getMessage());
-        workspaceWithWebsite.setWebsite("htp://www");
-        exception = assertThrows(
-                AppsmithException.class, () ->workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite));
-        assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE).getMessage(), exception.getMessage());
-        workspaceWithWebsite.setWebsite("www");
-        exception = assertThrows(
-                AppsmithException.class, () ->workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite));
-        assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE).getMessage(), exception.getMessage());
+        String[] invalidWebsites = {"htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www", "www."};
+        workspaceWithWebsite.setWebsite("www.");
+        for (String invalidWebsite : invalidWebsites) {
+            AppsmithException exception = assertThrows(
+                    AppsmithException.class, () -> workspaceServiceCE.validateIncomingWorkspace(workspaceWithWebsite));
+            assertEquals(new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE).getMessage(), exception.getMessage());
+        }
     }
 }
