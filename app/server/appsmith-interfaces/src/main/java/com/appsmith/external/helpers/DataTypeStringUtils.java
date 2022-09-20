@@ -58,7 +58,6 @@ public class DataTypeStringUtils {
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
 
-
     public static DataType stringToKnownDataTypeConverter(String input) {
 
         if (input == null) {

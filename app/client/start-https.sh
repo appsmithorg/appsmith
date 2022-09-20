@@ -7,6 +7,8 @@ if [[ -n ${TRACE-} ]]; then
     set -o xtrace
 fi
 
+cd "$(dirname "$0")"
+
 if [[ ${1-} =~ ^-*h(elp)?$ ]]; then
     echo 'Run '"$0"' [option...]
 
@@ -148,9 +150,14 @@ fi
 
 if [[ -f /etc/nginx/mime.types || $run_as == docker ]]; then
     mime_types=/etc/nginx/mime.types
-elif [[ -f /usr/local/etc/nginx/mime.types ]]; then
-    mime_types=/usr/local/etc/nginx/mime.types
-else
+elif type nginx >/dev/null; then
+    mime_types="$(dirname "$(nginx -t 2>&1 | head -1 | cut -d' ' -f5)")/mime.types"
+    if [[ ! -f $mime_types ]]; then
+        mime_types=
+    fi
+fi
+
+if [[ -z ${mime_types-} ]]; then
     echo "No mime.types file found. Can't start NGINX." >&2
     exit 1
 fi
@@ -284,7 +291,7 @@ if [[ -f $nginx_pid ]]; then
     # We never run `nginx` without the `-c` argument, since that can load the default system configuration, which is
     # different for different systems. It introduces too many unknowns, with little value.
     # So we build a temp config, just to have a predictable value for the `pid` directive.
-    temp_nginx_conf="$PWD/nginx/temp.nginx.conf"
+    temp_nginx_conf="$working_dir/temp.nginx.conf"
     echo "pid $nginx_pid; events { worker_connections  1024; }" > "$temp_nginx_conf"
     nginx -c "$temp_nginx_conf" -s quit
     rm "$nginx_pid" "$temp_nginx_conf"
