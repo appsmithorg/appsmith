@@ -16,7 +16,7 @@ import {
   WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import React, { Component, ReactNode } from "react";
+import React, { Component, ReactNode, useRef, useState } from "react";
 import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -64,9 +64,53 @@ import styled from "styled-components";
  *
  */
 
-const DynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
+const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
 `;
+
+function DynamicHeightContainer({
+  children,
+  maxDynamicHeight,
+}: {
+  children: ReactNode;
+  maxDynamicHeight: number;
+}) {
+  const [expectedHeight, setExpectedHeight] = useState(0);
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  const observer = React.useRef(
+    new ResizeObserver((entries) => {
+      setExpectedHeight(entries[0].contentRect.height);
+    }),
+  );
+
+  React.useEffect(() => {
+    if (ref.current) {
+      observer.current.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.current.unobserve(ref.current);
+      }
+    };
+  }, [observer]);
+
+  const expectedHeightInRows = Math.ceil(
+    expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+
+  return (
+    <StyledDynamicHeightContainer
+      isOverflow={maxDynamicHeight < expectedHeightInRows}
+    >
+      <div ref={ref} style={{ height: "auto" }}>
+        {children}
+      </div>
+    </StyledDynamicHeightContainer>
+  );
+}
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -218,13 +262,13 @@ abstract class BaseWidget<
     if (!isDynamicHeightEnabled) return false;
 
     const maxDynamicHeightInRows =
-      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
       this.props.maxDynamicHeight > 0
         ? this.props.maxDynamicHeight
         : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
 
     const minDynamicHeightInRows =
-      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
       this.props.minDynamicHeight > 0
         ? this.props.minDynamicHeight
         : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
@@ -281,8 +325,9 @@ abstract class BaseWidget<
   componentDidUpdate(prevProps: T) {
     requestAnimationFrame(() => {
       const expectedHeight = this.contentRef.current?.scrollHeight;
-      if (expectedHeight !== undefined)
+      if (expectedHeight !== undefined) {
         this.updateDynamicHeight(expectedHeight);
+      }
     });
   }
 
@@ -494,24 +539,8 @@ abstract class BaseWidget<
   };
 
   addDynamicHeightContainer = (content: ReactNode) => {
-    const currentHeightInRows = this.props.bottomRow - this.props.topRow;
-    const expectedHeight =
-      this.contentRef.current?.scrollHeight || currentHeightInRows;
-    const expectedHeightInRows = Math.ceil(
-      expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-    );
-    const maxDynamicHeight = this.props.maxDynamicHeight;
-    console.log(
-      "DynamicHeightContainer",
-      currentHeightInRows,
-      (this.contentRef.current?.scrollHeight || 0) /
-        GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      maxDynamicHeight,
-    );
     return (
-      <DynamicHeightContainer
-        isOverflow={maxDynamicHeight < expectedHeightInRows}
-      >
+      <DynamicHeightContainer maxDynamicHeight={this.props.maxDynamicHeight}>
         {content}
       </DynamicHeightContainer>
     );
