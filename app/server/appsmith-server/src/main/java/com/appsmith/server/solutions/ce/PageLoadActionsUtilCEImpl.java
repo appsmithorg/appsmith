@@ -53,6 +53,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
     private final NewActionService newActionService;
 
     private final AstService astService;
+
+    private final ApplicationService applicationService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -264,14 +266,19 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 });
     }
 
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings) {
-        return getPossibleEntityReferences(actionNameToActionMapMono, bindings, null);
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                        Set<String> bindings,
+                                                                        int evalVersion) {
+        return getPossibleEntityReferences(actionNameToActionMapMono, bindings, evalVersion, null);
     }
 
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, Set<EntityDependencyNode> bindingsInDsl) {
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                        Set<String> bindings,
+                                                                        int evalVersion,
+                                                                        Set<EntityDependencyNode> bindingsInDsl) {
         final int entityTypes = ACTION_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
         return actionNameToActionMapMono
-                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes))
+                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
                 .map(tuple -> {
                     Map<String, ActionDTO> actionMap = tuple.getT1();
                     Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
@@ -309,10 +316,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 });
     }
 
-    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Set<String> bindings, int types) {
+    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Set<String> bindings, int types, int evalVersion) {
         Flux<Tuple2<String, List<String>>> findingToReferencesFlux = Flux.fromIterable(bindings)
                 .flatMap(bindingValue -> {
-                    Mono<List<String>> possibleReferencesFromDynamicBinding = astService.getPossibleReferencesFromDynamicBinding(bindingValue, 2);
+                    Mono<List<String>> possibleReferencesFromDynamicBinding = astService.getPossibleReferencesFromDynamicBinding(bindingValue, evalVersion);
                     return Mono.zip(Mono.just(bindingValue), possibleReferencesFromDynamicBinding);
                 });
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
