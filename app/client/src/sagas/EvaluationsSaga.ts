@@ -251,6 +251,7 @@ export function* evaluateActionBindings(
  * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
  * execution is returned to the worker where it can resolve/reject the current promise.
  */
+
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -270,6 +271,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       globalContext,
     },
   );
+
   let keepAlive = true;
 
   while (keepAlive) {
@@ -340,25 +342,29 @@ export function* evaluateAndExecuteDynamicTrigger(
 }
 
 export function* executeDynamicTriggerRequest(
-  requestData: any,
-  mainThreadResponseChannel: Channel<any>,
-  requestId: string,
+  mainThreadRequestChannel: Channel<any>,
 ) {
-  log.debug({ requestData });
-  if (requestData?.trigger) {
-    // if we have found a trigger, we need to execute it and respond back
-    log.debug({ trigger: requestData.trigger });
-    yield spawn(
-      executeTriggerRequestSaga,
-      requestId,
-      requestData,
-      requestData.eventType,
-      mainThreadResponseChannel,
-      requestData.triggerMeta,
+  while (true) {
+    const { mainThreadResponseChannel, requestData, requestId } = yield take(
+      mainThreadRequestChannel,
     );
-  }
-  if (requestData?.errors) {
-    yield call(evalErrorHandler, requestData.errors);
+    log.debug({ requestData });
+    if (requestData?.trigger) {
+      // if we have found a trigger, we need to execute it and respond back
+      log.debug({ trigger: requestData.trigger });
+      yield spawn(
+        executeTriggerRequestSaga,
+        requestId,
+        requestData,
+        requestData.eventType,
+        mainThreadResponseChannel,
+        requestData.triggerMeta,
+      );
+    }
+
+    if (requestData?.errors) {
+      yield call(evalErrorHandler, requestData.errors);
+    }
   }
 }
 
@@ -569,8 +575,11 @@ function getPostEvalActions(
 function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(worker.shutdown);
-  yield call(worker.start);
+  const { mainThreadRequestChannel } = yield call(worker.start);
+
   yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield spawn(executeDynamicTriggerRequest, mainThreadRequestChannel);
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: {
     postEvalActions: Array<ReduxAction<unknown>>;

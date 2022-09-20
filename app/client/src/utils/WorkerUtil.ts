@@ -1,9 +1,9 @@
-import { cancelled, delay, put, spawn, take, call } from "redux-saga/effects";
+import { cancelled, delay, put, spawn, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
 import WebpackWorker from "worker-loader!";
-import { executeDynamicTriggerRequest } from "sagas/EvaluationsSaga";
+// import { executeDynamicTriggerRequest } from "sagas/EvaluationsSaga";
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -60,7 +60,6 @@ export class GracefulWorkerService {
     this.request = this.request.bind(this);
     this._broker = this._broker.bind(this);
     this.duplexRequest = this.duplexRequest.bind(this);
-    this.duplexRequestHandler = this.duplexRequestHandler.bind(this);
     this.duplexResponseHandler = this.duplexResponseHandler.bind(this);
 
     // Do not buffer messages on this channel
@@ -83,8 +82,10 @@ export class GracefulWorkerService {
     // Inform all pending requests that we're good to go!
     this._isReady = true;
     yield put(this._readyChan, true);
-    yield spawn(this.duplexRequestHandler, this.mainThreadRequestChannel);
     yield spawn(this.duplexResponseHandler, this.mainThreadResponseChannel);
+    return {
+      mainThreadRequestChannel: this.mainThreadRequestChannel,
+    };
   }
 
   /**
@@ -206,30 +207,6 @@ export class GracefulWorkerService {
       isFinishedChannel: isFinishedChannel,
     };
   }
-  *duplexRequestHandler(mainThreadRequestChannel: Channel<any>) {
-    if (!this._evaluationWorker) return;
-    try {
-      const keepAlive = true;
-      while (keepAlive) {
-        // Wait for a message from the worker
-        const workerResponse: {
-          requestId: string;
-          responseData: {
-            finished: unknown;
-          };
-        } = yield take(mainThreadRequestChannel);
-        const { requestId, responseData } = workerResponse;
-        yield call(
-          executeDynamicTriggerRequest,
-          responseData,
-          this.mainThreadResponseChannel,
-          requestId,
-        );
-      }
-    } catch (e) {
-      log.error(e);
-    }
-  }
 
   *duplexResponseHandler(mainThreadResponseChannel: Channel<any>) {
     if (!this._evaluationWorker) return;
@@ -267,9 +244,10 @@ export class GracefulWorkerService {
         }
       } else {
         this.mainThreadRequestChannel.put({
-          responseData,
+          requestData: responseData,
           timeTaken,
           requestId,
+          mainThreadResponseChannel: this.mainThreadResponseChannel,
         });
       }
     } else {
