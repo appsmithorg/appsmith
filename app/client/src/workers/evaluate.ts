@@ -216,7 +216,7 @@ export function evaluateJSString(
   skipLogsOperations = false,
 ): Promise<EvalResult> {
   return (async function() {
-    let result = {},
+    let result,
       logs: LogObject[] = [];
     const errors: EvaluationError[] = [];
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
@@ -235,8 +235,6 @@ export function evaluateJSString(
       } catch(e) {
         reject(e)
       }
-    }).catch(e => { 
-      throw new EvalError(e);
     })`;
 
     Object.assign(self, GLOBAL_DATA);
