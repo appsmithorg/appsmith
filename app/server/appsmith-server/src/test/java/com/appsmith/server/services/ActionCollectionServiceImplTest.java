@@ -912,7 +912,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(jsonObject);
 
         Mockito
-                .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.moveCollection(actionCollectionMoveDTO);

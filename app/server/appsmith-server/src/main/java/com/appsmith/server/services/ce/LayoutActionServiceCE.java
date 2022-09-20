@@ -12,9 +12,9 @@ import reactor.core.publisher.Mono;
 
 public interface LayoutActionServiceCE {
 
-    Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout);
+    Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout);
 
-    Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout, String branchName);
+    Mono<LayoutDTO> updateLayout(String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName);
 
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
 

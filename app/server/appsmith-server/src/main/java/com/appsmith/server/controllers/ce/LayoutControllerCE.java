@@ -55,11 +55,12 @@ public class LayoutControllerCE {
 
     @PutMapping("/{layoutId}/pages/{pageId}")
     public Mono<ResponseDTO<LayoutDTO>> updateLayout(@PathVariable String pageId,
+                                                     @PathVariable String applicationId,
                                                      @PathVariable String layoutId,
                                                      @RequestBody Layout layout,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("update layout received for page {}", pageId);
-        return layoutActionService.updateLayout(pageId, layoutId, layout, branchName)
+        return layoutActionService.updateLayout(pageId, applicationId, layoutId, layout, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

@@ -429,6 +429,22 @@ public class MustacheHelper {
         return dependencyNodes;
     }
 
+    public static Set<String> getPossibleParentsOld(String mustacheKey) {
+        Set<String> bindingNames = new HashSet<>();
+        String key = mustacheKey.trim();
+
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            String word = matcher.group();
+            bindingNames.add(word);
+        }
+
+        return bindingNames;
+    }
+
     public static Set<String> getPossibleParents(String mustacheKey) {
         Set<String> bindingNames = new HashSet<>();
         String key = mustacheKey.trim();
