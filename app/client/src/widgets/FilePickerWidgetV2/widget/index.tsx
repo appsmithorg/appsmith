@@ -26,6 +26,8 @@ import Papa from "papaparse";
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
 
+const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
+
 const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
 
 type Result = string | Buffer | ArrayBuffer | null;
@@ -501,7 +503,7 @@ class FilePickerWidget extends BaseWidget<
             controlType: "DROP_DOWN",
             helperText: (props: FilePickerWidgetProps) => {
               return props.fileDataType === FileDataTypes.Array
-                ? "Larger files will slow down the app. In such cases upload files to a database and query them."
+                ? ARRAY_CSV_HELPER_TEXT
                 : "";
             },
             options: [
