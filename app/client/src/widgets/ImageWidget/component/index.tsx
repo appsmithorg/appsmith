@@ -2,7 +2,6 @@ import * as React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { Colors } from "constants/Colors";
 import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
 import { ReactComponent as RotateLeftIcon } from "assets/icons/widget/image/rotate-left.svg";
 import { ReactComponent as RotateRightIcon } from "assets/icons/widget/image/rotate-right.svg";
@@ -67,7 +66,7 @@ const ControlBtnWrapper = styled.div<{
   justify-content: center;
   align-items: center;
   background: white;
-  border: 1px solid ${Colors.GREY_5};
+  border: 1px solid var(--wds-color-border);
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`};
 `;
@@ -97,15 +96,15 @@ const ControlBtn = styled.a<{
     width: 15px;
 
     path {
-      fill: ${Colors.GREY_7};
+      fill: var(--wds-color-icon);
     }
   }
 
   &:hover {
-    background: ${Colors.GREY_3};
+    background: var(--wds-color-bg-hover);
 
     svg path {
-      fill: ${Colors.GREY_9};
+      fill: var(--wds-color-hover);
     }
   }
 `;
@@ -113,7 +112,7 @@ const ControlBtn = styled.a<{
 const Separator = styled.div`
   height: 18px;
   width: 1px;
-  background-color: ${Colors.GREY_5};
+  background-color: var(--wds-color-bg-strong);
   margin: 0px 2px;
 `;
 
