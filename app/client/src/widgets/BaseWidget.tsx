@@ -49,6 +49,7 @@ import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import styled from "styled-components";
 
 /***
  * BaseWidget
@@ -62,6 +63,10 @@ import Skeleton from "./Skeleton";
  * 3) Call actions in widgets or connect the widgets to the entity reducers
  *
  */
+
+const DynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
+  overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
+`;
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -213,13 +218,13 @@ abstract class BaseWidget<
     if (!isDynamicHeightEnabled) return false;
 
     const maxDynamicHeightInRows =
-      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
       this.props.maxDynamicHeight > 0
         ? this.props.maxDynamicHeight
         : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
 
     const minDynamicHeightInRows =
-      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
       this.props.minDynamicHeight > 0
         ? this.props.minDynamicHeight
         : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
@@ -488,6 +493,30 @@ abstract class BaseWidget<
       : this.getPageView();
   };
 
+  addDynamicHeightContainer = (content: ReactNode) => {
+    const currentHeightInRows = this.props.bottomRow - this.props.topRow;
+    const expectedHeight =
+      this.contentRef.current?.scrollHeight || currentHeightInRows;
+    const expectedHeightInRows = Math.ceil(
+      expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    );
+    const maxDynamicHeight = this.props.maxDynamicHeight;
+    console.log(
+      "DynamicHeightContainer",
+      currentHeightInRows,
+      (this.contentRef.current?.scrollHeight || 0) /
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      maxDynamicHeight,
+    );
+    return (
+      <DynamicHeightContainer
+        isOverflow={maxDynamicHeight < expectedHeightInRows}
+      >
+        {content}
+      </DynamicHeightContainer>
+    );
+  };
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
@@ -534,7 +563,10 @@ abstract class BaseWidget<
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {
-    const content = this.getPageView();
+    let content = this.getPageView();
+    if (this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+      content = this.addDynamicHeightContainer(content);
+    }
     return this.addErrorBoundary(content);
   }
 
