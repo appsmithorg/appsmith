@@ -9,10 +9,9 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
@@ -62,6 +61,11 @@ public class MustacheHelper {
 
     private static final String laxMustacheBindingRegex = "\\{\\{([\\s\\S]*?)}}";
     private static final Pattern laxMustacheBindingPattern = Pattern.compile(laxMustacheBindingRegex);
+
+    // Possible types of entity references that we want to be filtering
+    // from the global identifiers found in a dynamic binding
+    public static final int ACTION_ENTITY_REFERENCES = 0b01;
+    public static final int WIDGET_ENTITY_REFERENCES = 0b10;
 
 
     /**
@@ -293,8 +297,7 @@ public class MustacheHelper {
         } else if (object instanceof Map) {
             Map renderedMap = new HashMap<>();
             for (Object entry : ((Map) object).entrySet()) {
-                renderedMap.put(
-                        ((Map.Entry) entry).getKey(), // key
+                renderedMap.put(((Map.Entry) entry).getKey(), // key
                         renderFieldValues(((Map.Entry) entry).getValue(), context) // value
                 );
             }
@@ -327,32 +330,37 @@ public class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
-    public static Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Set<String> mustacheBindings, int types) {
+    public static Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Flux<Tuple2<String, List<String>>> bindingAndPossibleReferencesFlux, int types) {
 
-        return Flux.fromStream(mustacheBindings.stream())
-                .flatMap(bindingString -> {
-                    return WebClient.create("http://localhost:8091/rts-api/v1/ast/single-script-identifiers")
-                            .post()
-                            .body(BodyInserters.fromValue(Map.of("script", bindingString, "evalVersion", 2)))
-                            .retrieve()
-                            .bodyToMono(Map.class)
-                            .map(response -> (List<String>) response.get("data"))
-                            .zipWith(Mono.just(bindingString));
-                }).collect(HashMap::new, (map, tuple) -> {
-                    String bindingValue = tuple.getT2();
-                    HashSet<EntityDependencyNode> totalParents = new HashSet<>();
-                    tuple.getT1().forEach(reference -> {
-                        if ((types & 0b1) == 1) {
-                            totalParents.addAll(MustacheHelper.getPossibleActions(reference));
-                        }
-                        if ((types & 0b10) == 2) {
-                            totalParents.addAll(MustacheHelper.getPossibleWidgets(reference));
-                        }
-                    });
-                    map.put(bindingValue, totalParents);
-                });
+        return bindingAndPossibleReferencesFlux.collect(HashMap::new, (map, tuple) -> {
+            String bindingValue = tuple.getT1();
+            HashSet<EntityDependencyNode> totalParents = new HashSet<>();
+            tuple.getT2().forEach(reference -> {
+                if ((types & ACTION_ENTITY_REFERENCES) == ACTION_ENTITY_REFERENCES) {
+                    totalParents.addAll(MustacheHelper.getPossibleActions(reference));
+                }
+                if ((types & WIDGET_ENTITY_REFERENCES) == WIDGET_ENTITY_REFERENCES) {
+                    totalParents.addAll(MustacheHelper.getPossibleWidgets(reference));
+                }
+            });
+            map.put(bindingValue, totalParents);
+        });
     }
 
+    /**
+     * Given a global reference, this method returns any possible combinations of widgets
+     * that could be derived out of the reference string. The rules for this are as follows:
+     * 1) Irrespective of whether the reference string has a dot notation reference, as long as it is not empty,
+     * pick the first word in the string as a possible widget reference.
+     * Eg: Text1 which could be derived from {{ Text1 }}
+     * Eg: Text1 which could be derived from {{ Text1.text }}
+     * <p>
+     * Please note that we do not filter out any invalid references at this point,
+     * because we do not have context of the global namespace here.
+     *
+     * @param reference The string reference computed by AST logic.
+     * @return A set of all possible widget dependencies that could exist in the given reference
+     */
     public static Set<EntityDependencyNode> getPossibleWidgets(String reference) {
         Set<EntityDependencyNode> dependencyNodes = new HashSet<>();
         String key = reference.trim();
@@ -362,21 +370,31 @@ public class MustacheHelper {
         if (subStrings.length < 1) {
             return dependencyNodes;
         } else {
-            EntityDependencyNode entityDependencyNode =
-                    new EntityDependencyNode(
-                            EntityReferenceType.WIDGET,
-                            subStrings[0],
-                            reference,
-                            null,
-                            null,
-                            null
-                    );
+            EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.WIDGET, subStrings[0], reference, null, null, null);
             dependencyNodes.add(entityDependencyNode);
         }
 
         return dependencyNodes;
     }
 
+    /**
+     * Given a global reference, this method returns any possible combinations of actions or JS actions
+     * that could be derived out of the reference string. The rules for this are as follows:
+     * 1) If the reference string has exactly one dot notation reference in its path, it could be a sync JS function call
+     * Eg: JsObject1.syncJsFunc which could be derived from {{ JsObject1.syncJsFunc() }}
+     * If the reference string has more than one dot notation reference in its path, it could either be -
+     * 2) An action reference where the data from the actions is consumed using the .data reference
+     * Eg: Action1.data.users which could be derived from {{ Action1.data.users }}
+     * 3) An asynchronous JS function that is being made to run on page load using its fully qualified name followed by
+     * the .data reference
+     * Eg: JsObject2.asyncJsFunc.data which could be derived from {{ JsObject2.asyncFunc.data }}
+     * <p>
+     * Please note that we do not filter out any invalid references at this point,
+     * because we do not have context of the global namespace here.
+     *
+     * @param reference The string reference computed by AST logic
+     * @return A set of all possible action or JS function dependencies that could exist in the given reference
+     */
     public static Set<EntityDependencyNode> getPossibleActions(String reference) {
         Set<EntityDependencyNode> dependencyNodes = new HashSet<>();
         String key = reference.trim();
@@ -390,45 +408,21 @@ public class MustacheHelper {
         if (subStrings.length == 2 && !"data".equals(subStrings[1])) {
             // This could only qualify if it is a sync JS function call
             // For sync JS actions, the entire reference could be a function call
-            EntityDependencyNode entityDependencyNode =
-                    new EntityDependencyNode(
-                            EntityReferenceType.JSACTION,
-                            key,
-                            reference,
-                            false,
-                            true,
-                            null
-                    );
+            EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, key, reference, false, true, null);
             dependencyNodes.add(entityDependencyNode);
         }
 
         if (subStrings.length >= 2) {
             if ("data".equals(subStrings[1])) {
                 // For queries and APIs, the first word is the action name
-                EntityDependencyNode entityDependencyNode =
-                        new EntityDependencyNode(
-                                EntityReferenceType.ACTION,
-                                subStrings[0],
-                                reference,
-                                false,
-                                false,
-                                null
-                        );
+                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
                 dependencyNodes.add(entityDependencyNode);
             } else if (subStrings.length > 2 && "data".equals(subStrings[2])) {
                 // For JS actions, the first two words are the action name since action name consists of
                 // the collection name and the individual action name
                 // We don't know if this is a run for sync or async JS action at this point,
                 // since both would be valid
-                EntityDependencyNode entityDependencyNode =
-                        new EntityDependencyNode(
-                                EntityReferenceType.JSACTION,
-                                subStrings[0] + "." + subStrings[1],
-                                reference,
-                                null,
-                                false,
-                                null
-                        );
+                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, subStrings[0] + "." + subStrings[1], reference, null, false, null);
                 dependencyNodes.add(entityDependencyNode);
             }
         }
@@ -465,26 +459,21 @@ public class MustacheHelper {
     }
 
     public static String replaceMustacheWithPlaceholder(String query, List<String> mustacheBindings) {
-        return replaceMustacheUsingPatterns(query, APPSMITH_SUBSTITUTION_PLACEHOLDER, mustacheBindings,
-                placeholderTrimmingPattern, APPSMITH_SUBSTITUTION_PLACEHOLDER);
+        return replaceMustacheUsingPatterns(query, APPSMITH_SUBSTITUTION_PLACEHOLDER, mustacheBindings, placeholderTrimmingPattern, APPSMITH_SUBSTITUTION_PLACEHOLDER);
     }
 
     public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
 
-        return replaceMustacheUsingPatterns(query, "?", mustacheBindings,
-                quoteQuestionPattern, postQuoteTrimmingQuestionMark);
+        return replaceMustacheUsingPatterns(query, "?", mustacheBindings, quoteQuestionPattern, postQuoteTrimmingQuestionMark);
     }
 
-    private static String replaceMustacheUsingPatterns(String query, String placeholder, List<String> mustacheBindings,
-                                                       Pattern sanitizePattern, String replacement) {
+    private static String replaceMustacheUsingPatterns(String query, String placeholder, List<String> mustacheBindings, Pattern sanitizePattern, String replacement) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
 
         Set<String> mustacheSet = new HashSet<>(mustacheBindings);
 
-        Map<String, String> replaceParamsMap = mustacheSet
-                .stream()
-                .collect(Collectors.toMap(Function.identity(), v -> placeholder));
+        Map<String, String> replaceParamsMap = mustacheSet.stream().collect(Collectors.toMap(Function.identity(), v -> placeholder));
 
         // Replace the mustaches with the values mapped to each mustache in replaceParamsMap
         ActionConfiguration updatedActionConfiguration = renderFieldValues(actionConfiguration, replaceParamsMap);
