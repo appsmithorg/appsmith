@@ -100,6 +100,7 @@ import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { LogObject, UserLogObject } from "workers/UserLog";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
+import { dynamicallyUpdateContainersSaga } from "./dynamicHeightSagas";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -133,6 +134,8 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  if (appMode === APP_MODE.PUBLISHED) shouldReplay = false;
 
   // @ts-expect-error: Worker Response is unknown
   const workerResponse = yield call(
@@ -204,7 +207,6 @@ function* evaluateTreeSaga(
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
-  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
@@ -216,6 +218,8 @@ function* evaluateTreeSaga(
     );
 
     yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+  } else {
+    yield call(dynamicallyUpdateContainersSaga);
   }
 
   yield put(setDependencyMap(dependencies));

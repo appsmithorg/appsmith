@@ -50,6 +50,8 @@ import {
   isDynamicHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
 import { getWidgets } from "./selectors";
+import { getAppMode } from "selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
 
 /**
  * Saga to update a widget's dynamic height
@@ -87,6 +89,8 @@ export function* updateWidgetDynamicHeightSaga() {
     parentId?: string;
   }> = [];
 
+  const appMode: APP_MODE = yield select(getAppMode);
+
   // For each widget which have new heights to update.
   for (const widgetId in updates) {
     // Get the widget from the reducer.
@@ -94,9 +98,15 @@ export function* updateWidgetDynamicHeightSaga() {
     // If this widget exists (not sure why this needs to be here)
     if (widget && !widget.detachFromLayout) {
       // Get the boundaries for possible min and max dynamic height.
-      const minDynamicHeightInPixels =
+      let minDynamicHeightInPixels =
         getWidgetMinDynamicHeight(widget) *
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+      // In case of a widget going invisible in view mode
+      if (updates[widgetId] === 0 && appMode === APP_MODE.PUBLISHED) {
+        minDynamicHeightInPixels = 0;
+      }
+
       const maxDynamicHeightInPixels =
         getWidgetMaxDynamicHeight(widget) *
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -556,7 +566,7 @@ function* generateTreeForDynamicHeightComputations(
   );
 }
 
-function* dynamicallyUpdateContainersSaga() {
+export function* dynamicallyUpdateContainersSaga() {
   const start = performance.now();
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(

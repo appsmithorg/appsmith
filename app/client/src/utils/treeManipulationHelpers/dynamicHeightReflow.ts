@@ -128,36 +128,71 @@ export function computeChangeInPositionBasedOnDelta(
 
   for (const effectedBoxId of sortedEffectedBoxIds) {
     const aboves = tree[effectedBoxId].aboves;
+    // We're trying to find the neared boxes above this box
     const bottomMostAboves: string[] = aboves.reduce(
       (prev: string[], next: string) => {
         if (!prev[0]) return [next];
+        // Get the bottomRow of the above box
         let nextBottomRow = tree[next].bottomRow;
         let prevBottomRow = tree[prev[0]].bottomRow;
+        // If we've already repositioned this, use the new bottomRow of the box
         if (repositionedBoxes[next]) {
           nextBottomRow = repositionedBoxes[next].bottomRow;
         }
         if (repositionedBoxes[prev[0]]) {
           prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
         }
+        // If the current box's (next) bottomRow is larger than the previous
+        // This (next) box is the bottom most above so far
         if (nextBottomRow > prevBottomRow) return [next];
-        else if (nextBottomRow === prevBottomRow) return [...prev, next];
+        // If this (next) box's bottom row is the same as the previous
+        // We have two bottom most boxes
+        else if (nextBottomRow === prevBottomRow) {
+          if (
+            repositionedBoxes[prev[0]].bottomRow ===
+            repositionedBoxes[prev[0]].topRow
+          ) {
+            return prev;
+          }
+          if (
+            repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
+          ) {
+            return [next];
+          }
+          return [...prev, next];
+        }
+        // This (next) box's bottom row is lower than the boxes selected so far
+        // so, we ignore it.
         else return prev;
       },
       [],
     );
     let _offset;
 
+    // for each of the bottom most above boxes.
     for (const aboveId of bottomMostAboves) {
+      // If the above box has been effected by another box change height
+      // Or, if this above box itself has changed height
       if (Array.isArray(effectedBoxMap[aboveId]) || delta[aboveId]) {
+        // In case the above box has changed heights
         const _aboveOffset =
           repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow;
+        // If so far, we haven't got any _offset updates
+        // This can happen if this is the first aboveId we're checking
         if (_offset === undefined) _offset = _aboveOffset;
+        // Otherwise, we see which change is larger, a previously computed aboveId
+        // or this one. we use the larger, because, this is the delta
+        // Larger delta means smaller change if the value is negative, moves up less
+        // Larger delta means larger change if the value is positive, moves down more
+        // The above is so that the widget doesn't accidentally collide with the above widget.
         _offset = Math.max(_aboveOffset, _offset);
       } else {
         // Stick to the widget above.
         _offset = 0;
       }
     }
+
+    // If _offset is not defined, this means that this box is the topmost box
     if (_offset === undefined) {
       // TODO(abhinav): If this is the topmost widget, why does it need the reduce?
       _offset = effectedBoxMap[effectedBoxId].reduce(

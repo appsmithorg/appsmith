@@ -2,10 +2,7 @@ import equal from "fast-deep-equal/es6";
 import React from "react";
 
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   getWidgetEvalValues,
   getIsWidgetLoading,
@@ -111,9 +108,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }
 
     // We don't render invisible widgets in view mode
-    if (renderMode === RenderModes.PAGE && !widgetProps.isVisible) {
-      return null;
-    }
+    // True, but we need this information to re-arrange widgets in view mode.
+    // We may create an HOC for dynamicheight updates, such that, this info
+    // doesn't need to go all the way to the BaseWidget.
 
     return <WrappedWidget {...widgetProps} />;
   }

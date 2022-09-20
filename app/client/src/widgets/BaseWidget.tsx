@@ -181,9 +181,17 @@ abstract class BaseWidget<
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
-      log.debug("updateDynamicHeight", height, shouldUpdate);
-      shouldUpdate &&
-        updateWidgetDynamicHeight(widgetId, height + WIDGET_PADDING * 2);
+      log.debug(
+        "updateDynamicHeight",
+        this.props.widgetId,
+        height,
+        shouldUpdate,
+      );
+      let paddedHeight = height + WIDGET_PADDING * 2;
+      if (this.props.renderMode === RenderModes.PAGE && height === 0) {
+        paddedHeight = 0;
+      }
+      shouldUpdate && updateWidgetDynamicHeight(widgetId, paddedHeight);
     }
   }
 
@@ -210,19 +218,22 @@ abstract class BaseWidget<
         ? this.props.maxDynamicHeight
         : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
 
-    const minDynamicHeightInRows =
+    let minDynamicHeightInRows =
       this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
       this.props.minDynamicHeight > 0
         ? this.props.minDynamicHeight
         : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
 
+    if (this.props.renderMode === RenderModes.PAGE && expectedHeight === 0) {
+      minDynamicHeightInRows = 0;
+    }
     // If current height is less than the expected height
     // We're trying to see if we can increase the height
     if (currentHeightInRows < expectedHeightInRows) {
       // If we're not already at the max height, we can increase height
       if (
         maxDynamicHeightInRows >= currentHeightInRows &&
-        Math.abs(maxDynamicHeightInRows - expectedHeightInRows) >= 1
+        Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
       ) {
         return true;
       }
@@ -235,7 +246,7 @@ abstract class BaseWidget<
       // We can safely reduce the height
       if (
         minDynamicHeightInRows <= expectedHeightInRows &&
-        Math.abs(minDynamicHeightInRows - expectedHeightInRows) >= 1
+        Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
       ) {
         return true;
       }
@@ -511,6 +522,11 @@ abstract class BaseWidget<
             content = this.makePositioned(content);
           }
           return content;
+        } else {
+          // When widgets are invisible in view mode, they should not take up space.
+          // We're sending an update that sets the widget to have zero height,
+          // this should make sure that widgets below this invisible widget move up
+          this.updateDynamicHeight(0);
         }
         return null;
       default:
