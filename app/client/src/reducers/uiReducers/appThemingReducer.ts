@@ -104,6 +104,13 @@ const themeReducer = createImmerReducer(initialState, {
     state.isChanging = false;
     state.selectedTheme = action.payload;
   },
+  [ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_SUCCESS]: (
+    state: AppThemingState,
+    action: ReduxAction<AppTheme>,
+  ) => {
+    state.themesLoading = false;
+    state.selectedTheme = action.payload;
+  },
   [ReduxActionTypes.DELETE_APP_THEME_SUCCESS]: (
     state: AppThemingState,
     action: ReduxAction<{ themeId: string }>,

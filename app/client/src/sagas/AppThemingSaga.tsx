@@ -41,6 +41,8 @@ import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
 import { ApiResponse } from "api/ApiResponses";
 import { AppTheme } from "entities/AppTheming";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { find } from "lodash";
 
 /**
  * init app theming
@@ -105,10 +107,17 @@ export function* fetchAppSelectedTheme(
       mode,
     );
 
-    yield put({
-      type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      payload: response.data,
-    });
+    if (response?.data) {
+      yield put({
+        type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      // If the response.data is undefined then we set selectedTheme to default Theme
+      yield put({
+        type: ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_INIT,
+      });
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
@@ -292,6 +301,39 @@ function* resetTheme() {
   } catch (error) {}
 }
 
+/**
+ * sets the selectedTheme to default theme when Selected Theme API fails
+ */
+function* setDefaultSelectedThemeOnError() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  try {
+    // Fetch all system themes
+    const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchThemes(
+      applicationId,
+    );
+
+    // Gets default theme
+    const theme = find(response.data, { name: "Default" });
+
+    if (theme) {
+      // Update API call to set current theme to default
+      yield ThemingApi.changeTheme(applicationId, theme);
+      yield put({
+        type: ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_SUCCESS,
+        payload: theme,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SET_DEFAULT_SELECTED_THEME_ERROR,
+      payload: { error },
+    });
+  }
+}
 export default function* appThemingSaga() {
   yield all([takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initAppTheming)]);
   yield all([
@@ -312,5 +354,9 @@ export default function* appThemingSaga() {
     takeLatest(ReduxActionTypes.SAVE_APP_THEME_INIT, saveSelectedTheme),
     takeLatest(ReduxActionTypes.DELETE_APP_THEME_INIT, deleteTheme),
     takeLatest(ReduxActionTypes.CLOSE_BETA_CARD_SHOWN, closeisBetaCardShown),
+    takeLatest(
+      ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_INIT,
+      setDefaultSelectedThemeOnError,
+    ),
   ]);
 }
