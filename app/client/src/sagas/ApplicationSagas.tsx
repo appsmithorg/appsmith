@@ -630,12 +630,10 @@ function* showReconnectDatasourcesModalSaga(
     unConfiguredDatasourceList: Array<Datasource>;
     workspaceId: string;
     pageId?: string;
-    inEditor?: boolean;
   }>,
 ) {
   const {
     application,
-    inEditor,
     pageId,
     unConfiguredDatasourceList,
     workspaceId,
@@ -648,7 +646,7 @@ function* showReconnectDatasourcesModalSaga(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
 
-  yield put(setWorkspaceIdForImport({ workspaceId, inEditor }));
+  yield put(setWorkspaceIdForImport(workspaceId));
   yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }

@@ -75,7 +75,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport({ workspaceId: "" }));
+    dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const setActiveTabIndex = useCallback(

@@ -466,7 +466,7 @@ export const handlers = {
   }),
   [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ workspaceId: string; inEditor: boolean }>,
+    action: ReduxAction<{ workspaceId: string }>,
   ) => {
     return {
       ...state,

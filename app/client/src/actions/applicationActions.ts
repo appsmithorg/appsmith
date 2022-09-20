@@ -133,12 +133,9 @@ export const setIsReconnectingDatasourcesModalOpen = (payload: {
   payload,
 });
 
-export const setWorkspaceIdForImport = (payload: {
-  workspaceId?: string;
-  inEditor?: boolean;
-}) => ({
+export const setWorkspaceIdForImport = (workspaceId?: string) => ({
   type: ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT,
-  payload,
+  payload: workspaceId,
 });
 
 export const setPageIdForImport = (pageId?: string) => ({
@@ -151,7 +148,6 @@ export const showReconnectDatasourceModal = (payload: {
   application: ApplicationResponsePayload;
   unConfiguredDatasourceList: Datasource[];
   workspaceId: string;
-  inEditor?: boolean;
   pageId?: string;
 }) => ({
   type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,

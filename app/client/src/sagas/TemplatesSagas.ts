@@ -271,7 +271,6 @@ function* forkTemplateToApplicationSaga(
               response.data.unConfiguredDatasourceList,
             workspaceId,
             pageId: newPages[0].pageId,
-            inEditor: true,
           }),
         );
       }
