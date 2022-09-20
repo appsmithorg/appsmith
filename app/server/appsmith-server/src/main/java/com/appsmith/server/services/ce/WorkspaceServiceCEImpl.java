@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -52,16 +53,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.EMAIL;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WEBSITE;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
+import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
+import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -398,6 +404,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> update(String id, Workspace resource) {
+        this.validateIncomingWorkspace(resource);
         Mono<Workspace> findWorkspaceMono = repository.findById(id, MANAGE_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
@@ -578,6 +585,16 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
         });
+    }
+
+    @Override
+    public void validateIncomingWorkspace(Workspace workspace){
+        if (StringUtils.hasLength(workspace.getEmail()) && ! Pattern.matches(EMAIL_PATTERN, workspace.getEmail())) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL);
+        }
+        if (StringUtils.hasLength(workspace.getWebsite()) && ! Pattern.matches(WEBSITE_PATTERN, workspace.getWebsite())) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE);
+        }
     }
 
     @Override
