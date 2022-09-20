@@ -16,7 +16,7 @@ import {
   WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import React, { Component, ReactNode, useRef, useState } from "react";
+import React, { Component, ReactNode } from "react";
 import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -49,7 +49,7 @@ import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
-import styled from "styled-components";
+import DynamicHeightContainer from "./DynamicHeightContainer";
 
 /***
  * BaseWidget
@@ -63,54 +63,6 @@ import styled from "styled-components";
  * 3) Call actions in widgets or connect the widgets to the entity reducers
  *
  */
-
-const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
-  overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
-`;
-
-function DynamicHeightContainer({
-  children,
-  maxDynamicHeight,
-}: {
-  children: ReactNode;
-  maxDynamicHeight: number;
-}) {
-  const [expectedHeight, setExpectedHeight] = useState(0);
-
-  const ref = useRef<HTMLDivElement>(null);
-
-  const observer = React.useRef(
-    new ResizeObserver((entries) => {
-      setExpectedHeight(entries[0].contentRect.height);
-    }),
-  );
-
-  React.useEffect(() => {
-    if (ref.current) {
-      observer.current.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.current.unobserve(ref.current);
-      }
-    };
-  }, [observer]);
-
-  const expectedHeightInRows = Math.ceil(
-    expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
-
-  return (
-    <StyledDynamicHeightContainer
-      isOverflow={maxDynamicHeight < expectedHeightInRows}
-    >
-      <div ref={ref} style={{ height: "auto" }}>
-        {children}
-      </div>
-    </StyledDynamicHeightContainer>
-  );
-}
 
 abstract class BaseWidget<
   T extends WidgetProps,
