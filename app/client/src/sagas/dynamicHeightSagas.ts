@@ -592,7 +592,10 @@ export function* dynamicallyUpdateContainersSaga() {
     for (const canvasWidget of canvasWidgetsAtThisLevel) {
       if (canvasWidget.parentId) {
         const parentContainerWidget = stateWidgets[canvasWidget.parentId];
-        if (isDynamicHeightEnabledForWidget(parentContainerWidget)) {
+        if (
+          isDynamicHeightEnabledForWidget(parentContainerWidget) ||
+          parentContainerWidget.bottomRow === parentContainerWidget.topRow
+        ) {
           let maxBottomRow =
             parentContainerWidget.bottomRow - parentContainerWidget.topRow;
           if (

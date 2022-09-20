@@ -207,7 +207,10 @@ abstract class BaseWidget<
     // then we need to compute.
     // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
     // Does this widget have dynamic height enabled
-    const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
+    const isDynamicHeightEnabled =
+      isDynamicHeightEnabledForWidget(this.props) ||
+      expectedHeight === 0 ||
+      currentHeightInRows === 0;
 
     // Run the following pieces of code only if dynamic height is enabled
     if (!isDynamicHeightEnabled) return false;
