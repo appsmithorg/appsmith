@@ -561,7 +561,7 @@ public class MssqlPlugin extends BasePlugin {
             urlBuilder
                     .append(endpoint.getHost())
                     .append(":")
-                    .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                    .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 1433L))
                     .append(";");
         }
 
