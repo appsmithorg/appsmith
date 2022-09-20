@@ -380,6 +380,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {
@@ -783,6 +792,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {
@@ -1181,6 +1199,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {
@@ -1575,6 +1602,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {
@@ -1969,6 +2005,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {
@@ -2363,6 +2408,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {
@@ -2757,6 +2811,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {
@@ -3151,6 +3214,15 @@
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none"
+      },
+      "CATEGORY_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "NUMBER_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
+      },
+      "RANGE_SLIDER_WIDGET": {
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}"
       }
     },
     "properties": {

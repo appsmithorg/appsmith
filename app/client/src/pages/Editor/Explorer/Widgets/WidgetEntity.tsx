@@ -7,7 +7,7 @@ import { AppState } from "@appsmith/reducers";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -26,7 +26,7 @@ const useWidget = (
   parentModalId?: string,
 ) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const lastSelectedWidget = useSelector(getSelectedWidget);
+  const lastSelectedWidget = useSelector(getLastSelectedWidget);
   const isWidgetSelected = selectedWidgets.includes(widgetId);
   const multipleWidgetsSelected = selectedWidgets.length > 1;
 

@@ -15,10 +15,7 @@ describe("Name uniqueness test", function() {
     cy.CreationOfUniqueAPIcheck("download");
   });
 
-  it("Validate window object property apiname check", () => {
-    cy.CreationOfUniqueAPIcheck("localStorage");
-  });
-  it("Validate window object method apiname check", () => {
-    cy.CreationOfUniqueAPIcheck("resizeTo");
+  it("Validate dedicated worker scope object property(Blob)apiname check", () => {
+    cy.CreationOfUniqueAPIcheck("Blob");
   });
 });

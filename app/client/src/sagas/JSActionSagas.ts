@@ -55,6 +55,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -77,18 +78,23 @@ export function* fetchJSCollectionsSaga(
 }
 
 export function* createJSCollectionSaga(
-  actionPayload: ReduxAction<CreateJSCollectionRequest>,
+  actionPayload: ReduxAction<{
+    request: CreateJSCollectionRequest;
+    from: EventLocation;
+  }>,
 ) {
   try {
-    const payload = actionPayload.payload;
+    const payload = actionPayload.payload.request;
     const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.createJSCollection(
       payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const actionName = actionPayload.payload.name
-        ? actionPayload.payload.name
-        : "";
+      const actionName = payload.name ? payload.name : "";
+      AnalyticsUtil.logEvent("JS_OBJECT_CREATED", {
+        name: actionName,
+        from: actionPayload.payload.from,
+      });
       Toaster.show({
         text: createMessage(JS_ACTION_CREATED_SUCCESS, actionName),
         variant: Variant.success,
