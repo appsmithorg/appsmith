@@ -14,7 +14,8 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { BaseStyle, WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
@@ -36,7 +37,6 @@ const OverlayDisplay = styled.div<OverlayDisplayProps>`
   left: 0;
   width: 100%;
   height: ${(props) => props.maxY}px;
-  border-bottom: 1px solid ${OVERLAY_COLOR};
   background-color: rgba(243, 43, 139, 0.1);
 `;
 
@@ -161,7 +161,7 @@ const MinHeightOverlayHandleDot = styled(OverlayHandleDot)<{
   transform: scale(${(props) => (props.isDragging ? "1.67" : "1")});
   border: 1px solid ${OVERLAY_COLOR};
   background-color: ${OVERLAY_COLOR};
-  box-shadow: 0px 0px 0px 1px white;
+  box-shadow: 0px 0px 0px 2px white;
 `;
 
 const MaxHeightOverlayHandle = styled(OverlayHandle)<OverlayHandleProps>`
@@ -206,7 +206,7 @@ interface OverlayHandlesProps {
   minHoverFns: UseHoverStateFunctions;
 }
 
-const Border = styled.div`
+const Border = styled.div<{ isActive: boolean }>`
   background-image: linear-gradient(
     to right,
     ${OVERLAY_COLOR} 50%,
@@ -219,7 +219,58 @@ const Border = styled.div`
   right: 0;
   height: 1px;
   top: 0px;
+  cursor: ns-resize;
+
+  ${(props) => (props.isActive ? `background-color: ${OVERLAY_COLOR}` : "")}
 `;
+
+const DraggableBorder: React.FC<DragFunctions & { isActive: boolean }> = ({
+  isActive,
+  onStart,
+  onStop,
+  onUpdate,
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const bind = useDrag(
+    (state) => {
+      if (state.first) {
+        onStart();
+        return;
+      }
+
+      if (state.last) {
+        onStop();
+        return;
+      }
+      const [mx, my] = state.movement;
+
+      onUpdate(mx, my);
+    },
+    { axis: "y" },
+  );
+  const bindings = bind();
+  return (
+    <Border
+      isActive={isActive}
+      ref={ref}
+      {...bindings}
+      onDragStart={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        bindings?.onMouseDown && bindings.onMouseDown(e);
+      }}
+      onMouseUp={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    />
+  );
+};
 
 const OverlayHandles: React.FC<OverlayHandlesProps> = ({
   isMaxDotActive,
@@ -240,13 +291,12 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
 
   return (
     <StyledOverlayHandles>
-      <MinHeightOverlayHandle y={minY}>
-        <Border style={{ display: isMinDotActive ? "none" : "block" }} />
+      <MinHeightOverlayHandle y={minY} {...minHoverFns}>
+        <DraggableBorder isActive={isMinDotActive} {...minDragFunctions} />
         <DraggableOverlayHandleDot {...minDragFunctions}>
           <MinHeightOverlayHandleDot
             isActive={isMinDotActive}
             isDragging={isMinDotDragging}
-            {...minHoverFns}
           />
         </DraggableOverlayHandleDot>
         {!isColliding ? (
@@ -257,8 +307,8 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
           </OverlayHandleLabel>
         ) : null}
       </MinHeightOverlayHandle>
-      <MaxHeightOverlayHandle y={maxY}>
-        <Border style={{ display: isMaxDotActive ? "none" : "block" }} />
+      <MaxHeightOverlayHandle y={maxY} {...maxHoverFns}>
+        <DraggableBorder isActive={isMaxDotActive} {...maxDragFunctions} />
         <DraggableOverlayHandleDot {...maxDragFunctions}>
           <MinHeightOverlayHandleDot
             isActive={isMaxDotActive}
@@ -276,11 +326,18 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
   );
 };
 
+export interface DynamicHeightOverlayStyle {
+  width: string | number;
+  height: string | number;
+  top: number;
+  left: number;
+}
+
 interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
   batchUpdate: (height: number) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
-  style: BaseStyle;
+  style: DynamicHeightOverlayStyle;
 }
 
 const getSnappedValues = (
@@ -381,6 +438,14 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }
 
     function onMaxUpdate(dx: number, dy: number) {
+      if (
+        maxY + dy <=
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
+        return;
+      }
+
       const snapped = getSnappedValues(dx, dy, snapGrid);
 
       if (maxY + snapped.y <= minY) {
@@ -423,7 +488,11 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }, [minDynamicHeight]);
 
     function onMinUpdate(dx: number, dy: number) {
-      if (minY + dy <= 10) {
+      if (
+        minY + dy <=
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
         return;
       }
 
@@ -533,10 +602,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       <StyledDynamicHeightOverlay
         style={{
           position: "absolute",
-          height: style.componentHeight,
-          width: style.componentWidth,
-          left: style.xPosition,
-          top: style.yPosition,
+          height: style.height,
+          width: style.width,
+          left: style.left,
+          top: style.top,
           zIndex: 3,
           pointerEvents: "none",
         }}
