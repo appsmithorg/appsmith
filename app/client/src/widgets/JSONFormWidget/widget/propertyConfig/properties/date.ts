@@ -1,5 +1,3 @@
-import moment from "moment";
-
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import {
