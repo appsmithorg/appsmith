@@ -84,7 +84,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private Mono<Void> performRtsHealthCheck() {
         return WebClientUtils
-                .create(commonConfig.getRtsBaseDomain() + "rts-api/v1/health-check")
+                .create(commonConfig.getRtsBaseDomain() + "/rts-api/v1/health-check")
                 .get()
                 .retrieve()
                 .toBodilessEntity()

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -32,7 +33,7 @@ public class LayoutControllerCE {
 
     @Autowired
     public LayoutControllerCE(LayoutService layoutService,
-                            LayoutActionService layoutActionService) {
+                              LayoutActionService layoutActionService) {
         this.service = layoutService;
         this.layoutActionService = layoutActionService;
     }
@@ -55,7 +56,7 @@ public class LayoutControllerCE {
 
     @PutMapping("/{layoutId}/pages/{pageId}")
     public Mono<ResponseDTO<LayoutDTO>> updateLayout(@PathVariable String pageId,
-                                                     @PathVariable String applicationId,
+                                                     @RequestParam String applicationId,
                                                      @PathVariable String layoutId,
                                                      @RequestBody Layout layout,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

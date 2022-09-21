@@ -36,12 +36,12 @@ public class AstServiceCEImpl implements AstServiceCE {
         }
 
         // TODO: change this access path after AST restructure. DO NOT attempt to merge PR till this is done
-        return WebClientUtils.create(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/single-script-identifiers")
+        return WebClientUtils.create(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/single-script-data")
                 .post()
                 .body(BodyInserters.fromValue(Map.of("script", bindingValue, "evalVersion", evalVersion)))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(response -> (List<String>) response.get("data"));
+                .map(response -> (List<String>) ((Map) response.get("data")).get("references"));
         // TODO: add error handling scenario for when RTS is not accessible in fat container
     }
 }
