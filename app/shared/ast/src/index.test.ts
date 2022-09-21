@@ -278,6 +278,8 @@ describe('getAllIdentifiers', () => {
       },
     ];
 
+
+    // commenting to trigger test shared workflow action
     cases.forEach((perCase) => {
       const { references } = extractInfoFromCode(perCase.script, 2);
       expect(references).toStrictEqual(perCase.expectedResults);
