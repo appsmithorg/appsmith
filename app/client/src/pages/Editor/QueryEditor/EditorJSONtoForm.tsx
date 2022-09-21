@@ -98,7 +98,6 @@ import {
   responseTabComponent,
   InlineButton,
   TableCellHeight,
-  SectionDivider,
   CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
@@ -1027,7 +1026,6 @@ export function EditorJSONtoForm(props: Props) {
                 }
                 snapToHeight={ActionExecutionResizerHeight}
               />
-              <SectionDivider />
               {isRunning && (
                 <>
                   <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
