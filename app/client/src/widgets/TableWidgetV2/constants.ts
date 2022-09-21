@@ -116,6 +116,7 @@ export enum ReadOnlyColumnTypes {
   DATE = "date",
   CHECKBOX = "checkbox",
   SWITCH = "switch",
+  SELECT = "select",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";

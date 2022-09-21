@@ -1416,7 +1416,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             filterText={
               this.props.selectColumnFilterText?.[
-                this.props.editableCell.column
+                this.props.editableCell?.column || column.alias
               ]
             }
             fontStyle={cellProperties.fontStyle}
@@ -1640,7 +1640,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               this.props.updatedRowIndices.length &&
               this.props.updatedRowIndices.indexOf(originalIndex) === -1
             }
-            hasUnSavedChanges={cellProperties.hasUnsavedChanged}
+            hasUnSavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellEditable={
               (isColumnEditable && cellProperties.isCellEditable) ?? false
@@ -1737,10 +1737,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       inputValue,
     });
 
-    this.props.updateWidgetMetaProperty("columnEditableCellValue", {
-      ...this.props.columnEditableCellValue,
-      [this.props.editableCell?.column || ""]: value,
-    });
+    if (this.props.editableCell?.column) {
+      this.props.updateWidgetMetaProperty("columnEditableCellValue", {
+        ...this.props.columnEditableCellValue,
+        [this.props.editableCell?.column]: value,
+      });
+    }
   };
 
   toggleCellEditMode = (
@@ -1792,7 +1794,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           [alias]: this.props.editableCell?.value,
         });
 
-        if (onSubmit) {
+        if (onSubmit && this.props.editableCell?.column) {
           this.onColumnEvent({
             rowIndex: rowIndex,
             action: onSubmit,
@@ -1800,8 +1802,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             eventType: EventType.ON_SUBMIT,
             row: {
               ...this.props.filteredTableData[rowIndex],
-              [this.props.editableCell?.column || ""]: this.props.editableCell
-                ?.value,
+              [this.props.editableCell.column]: this.props.editableCell.value,
             },
           });
         }
@@ -1853,7 +1854,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
 
-    if (action) {
+    if (action && this.props.editableCell?.column) {
       this.onColumnEvent({
         rowIndex,
         action: action,

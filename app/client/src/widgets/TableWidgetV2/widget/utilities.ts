@@ -431,6 +431,7 @@ export const getCellProperties = (
       placeholderText: getPropertyValue(
         columnProperties.placeholderText,
         rowIndex,
+        true,
       ),
       resetFilterTextOnClose: getBooleanPropertyValue(
         columnProperties.resetFilterTextOnClose,
