@@ -8,6 +8,7 @@ import { initializeSockets } from "./sockets";
 
 // routes
 import ast_routes from "./routes/ast_routes";
+import health_check_routes from "./routes/health_check_routes";
 
 const RTS_BASE_PATH = "/rts";
 const RTS_BASE_API_PATH = "/rts-api/v1";
@@ -59,6 +60,7 @@ function main() {
   });
 
   app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
+  app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
 
   // Run the server
   server.listen(PORT, () => {
