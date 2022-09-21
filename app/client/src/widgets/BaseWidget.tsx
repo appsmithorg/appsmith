@@ -174,7 +174,7 @@ abstract class BaseWidget<
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
 
-  getComponentDimensions() {
+  getComponentDimensions = () => {
     return this.calculateWidgetBounds(
       this.props.rightColumn,
       this.props.leftColumn,
@@ -183,7 +183,7 @@ abstract class BaseWidget<
       this.props.parentColumnSpace,
       this.props.parentRowSpace,
     );
-  }
+  };
 
   calculateWidgetBounds(
     rightColumn: number,

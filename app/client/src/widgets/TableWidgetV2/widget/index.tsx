@@ -162,7 +162,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
 
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.getPaddingAdjustedDimensions();
     let totalColumnWidth = 0;
 
     if (isArray(orderedTableColumns)) {
@@ -792,11 +792,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.disableDrag(disable);
   };
 
-  getComponentDimensions = () => {
-    const dimensions = super.getComponentDimensions();
+  getPaddingAdjustedDimensions = () => {
+    // eslint-disable-next-line prefer-const
+    let { componentHeight, componentWidth } = this.getComponentDimensions();
     // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
-    dimensions.componentWidth = dimensions.componentWidth - 2 * WIDGET_PADDING;
-    return dimensions;
+    componentWidth = componentWidth - 2 * WIDGET_PADDING;
+    return { componentHeight, componentWidth };
   };
 
   getPageView() {
@@ -818,7 +819,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisiblePagination ||
       isVisibleSearch;
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const {
+      componentHeight,
+      componentWidth,
+    } = this.getPaddingAdjustedDimensions();
 
     return (
       <Suspense fallback={<Skeleton />}>
