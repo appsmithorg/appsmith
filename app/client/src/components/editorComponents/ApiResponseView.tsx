@@ -53,7 +53,7 @@ export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
-  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
+  height: ${(props) => props.theme.apiBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -609,7 +609,7 @@ function ApiResponseView(props: Props) {
         <EntityBottomTabs
           containerRef={panelRef}
           defaultIndex={0}
-          expandedHeight={theme.actionsBottomTabInitialHeight}
+          expandedHeight={theme.apiBottomTabInitialHeight}
           tabs={tabs}
         />
       </TabbedViewWrapper>
