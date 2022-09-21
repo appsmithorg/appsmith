@@ -1,6 +1,7 @@
 import React, { PropsWithChildren, useRef, useState } from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import styled from "styled-components";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
@@ -8,12 +9,13 @@ const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
 
 interface DynamicHeightContainerProps {
   maxDynamicHeight: number;
+  dynamicHeight: string;
 }
 
-export default function DynamicHeightContainer({
+function WithLimitsContainer({
   children,
   maxDynamicHeight,
-}: PropsWithChildren<DynamicHeightContainerProps>) {
+}: PropsWithChildren<{ maxDynamicHeight: number }>) {
   const [expectedHeight, setExpectedHeight] = useState(0);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -49,4 +51,23 @@ export default function DynamicHeightContainer({
       </div>
     </StyledDynamicHeightContainer>
   );
+}
+
+export default function DynamicHeightContainer({
+  children,
+  dynamicHeight,
+  maxDynamicHeight,
+}: PropsWithChildren<DynamicHeightContainerProps>) {
+  const isAutoHeightWithLimits =
+    dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+
+  if (isAutoHeightWithLimits) {
+    return (
+      <WithLimitsContainer maxDynamicHeight={maxDynamicHeight}>
+        {children}
+      </WithLimitsContainer>
+    );
+  }
+
+  return <div style={{ height: "auto" }}>{children}</div>;
 }
