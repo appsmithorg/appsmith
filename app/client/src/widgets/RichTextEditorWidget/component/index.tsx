@@ -133,6 +133,10 @@ const StyledRTEditor = styled.div<{
       var(--wds-color-border) 1px,
       transparent 1px
     );
+    background-color: ${(props) =>
+      props.isDisabled
+        ? "var(--wds-color-bg-disabled)"
+        : "var(--wds-color-bg)"};
     background-size: auto 39px;
   }
 
@@ -183,12 +187,22 @@ const StyledRTEditor = styled.div<{
     .tox-tbtn__icon-wrap svg,
     #tox-icon-highlight-bg-color__color,
     #tox-icon-text-color__color {
-      fill: var(--wds-color-text);
+      fill: ${(props) =>
+        props.isDisabled
+          ? "var(--wds-color-icon-disabled)"
+          : "var(--wds-color-text)"};
     }
   }
 
   .tox .tox-toolbar__group {
     height: 39px;
+  }
+
+  .tox .tox-tbtn--disabled svg,
+  .tox .tox-tbtn--disabled:hover svg,
+  .tox .tox-tbtn:disabled svg,
+  .tox .tox-tbtn:disabled:hover svg {
+    fill: var(--wds-color-icon-disabled);
   }
 
   ${labelLayoutStyles}
