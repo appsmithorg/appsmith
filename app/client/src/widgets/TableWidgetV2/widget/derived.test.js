@@ -1,6 +1,199 @@
 import derivedProperty from "./derived";
 import moment from "moment";
 import _ from "lodash";
+
+const samplePrimaryColumns = {
+  step: {
+    index: 0,
+    width: 150,
+    id: "step",
+    originalId: "step",
+    alias: "step",
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: "text",
+    textSize: "0.875rem",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    isCellVisible: true,
+    isCellEditable: false,
+    isDerived: false,
+    label: "step",
+    computedValue: ["#1", "#2", "#3"],
+    labelColor: "#FFFFFF",
+    cellBackground: "",
+    textColor: "",
+    fontStyle: "",
+  },
+  task: {
+    index: 1,
+    width: 150,
+    id: "task",
+    originalId: "task",
+    alias: "task",
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: "text",
+    textSize: "0.875rem",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    isCellVisible: true,
+    isCellEditable: false,
+    isDerived: false,
+    label: "task",
+    computedValue: [
+      "Drop a table",
+      "Create a query fetch_users with the Mock DB",
+      "Bind the query using => fetch_users.data",
+    ],
+    labelColor: "#FFFFFF",
+    cellBackground: "",
+    textColor: "",
+    fontStyle: "",
+  },
+  status: {
+    index: 2,
+    width: 150,
+    id: "status",
+    originalId: "status",
+    alias: "status",
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: "text",
+    textSize: "0.875rem",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    isCellVisible: true,
+    isCellEditable: false,
+    isDerived: false,
+    label: "status",
+    computedValue: ["✅", "--", "--"],
+    labelColor: "#FFFFFF",
+    cellBackground: "",
+    textColor: "",
+    fontStyle: "",
+  },
+  action: {
+    index: 3,
+    width: 150,
+    id: "action",
+    originalId: "action",
+    alias: "action",
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: "button",
+    textSize: "0.875rem",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    isCellVisible: true,
+    isCellEditable: false,
+    isDisabled: false,
+    isDerived: false,
+    label: "action",
+    onClick:
+      "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+    computedValue: ["", "", ""],
+    labelColor: "#FFFFFF",
+    buttonColor: ["#553DE9", "#553DE9", "#553DE9"],
+    borderRadius: ["0.375rem", "0.375rem", "0.375rem"],
+    boxShadow: ["none", "none", "none"],
+    buttonLabel: ["Action", "Action", "Action"],
+    buttonVariant: "PRIMARY",
+  },
+  customColumn1: {
+    allowCellWrapping: false,
+    index: 4,
+    width: 150,
+    originalId: "customColumn1",
+    id: "customColumn1",
+    alias: "customColumn1",
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: "menuButton",
+    textSize: "0.875rem",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    isDisabled: false,
+    isCellEditable: false,
+    isEditable: false,
+    isCellVisible: true,
+    isDerived: true,
+    label: "menu",
+    isSaveVisible: true,
+    isDiscardVisible: true,
+    computedValue: "",
+    buttonStyle: "rgb(3, 179, 101)",
+    labelColor: "#FFFFFF",
+    menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+    borderRadius: ["0.375rem", "0.375rem", "0.375rem"],
+    boxShadow: ["none", "none", "none"],
+    customAlias: "",
+    menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+    menuVariant: "PRIMARY",
+    menuButtoniconName: "",
+  },
+  customColumn2: {
+    allowCellWrapping: false,
+    index: 5,
+    width: 150,
+    originalId: "customColumn2",
+    id: "customColumn2",
+    alias: "customColumn2",
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: "iconButton",
+    textSize: "0.875rem",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: true,
+    isDisabled: false,
+    isCellEditable: false,
+    isEditable: false,
+    isCellVisible: true,
+    isDerived: true,
+    label: "icon",
+    isSaveVisible: true,
+    isDiscardVisible: true,
+    computedValue: "",
+    buttonStyle: "rgb(3, 179, 101)",
+    labelColor: "#FFFFFF",
+    buttonColor: ["#553DE9", "#553DE9", "#553DE9"],
+    borderRadius: ["0.375rem", "0.375rem", "0.375rem"],
+    boxShadow: ["none", "none", "none"],
+    customAlias: "",
+    buttonVariant: "PRIMARY",
+    iconName: "add",
+  },
+};
+const sampleProcessedTableData = [
+  {
+    step: "#1",
+    task: "Drop a table",
+    status: "✅",
+    action: "",
+    __originalIndex__: 0,
+  },
+  {
+    step: "#2",
+    task: "Create a query fetch_users with the Mock DB",
+    status: "--",
+    action: "",
+    __originalIndex__: 1,
+  },
+  {
+    step: "#3",
+    task: "Bind the query using => fetch_users.data",
+    status: "--",
+    action: "",
+    __originalIndex__: 2,
+  },
+];
+
 describe("Validates getFilteredTableData Properties", () => {
   it("validates generate filtered table data", () => {
     const { getFilteredTableData } = derivedProperty;
@@ -131,9 +324,11 @@ describe("Validates getFilteredTableData Properties", () => {
       ],
     };
 
-    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
-      return input.columnOrder[a.id] < input.columnOrder[b.id];
-    });
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
 
     const expected = [
       {
@@ -299,9 +494,11 @@ describe("Validates getFilteredTableData Properties", () => {
       ],
     };
 
-    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
-      return input.columnOrder[a.id] < input.columnOrder[b.id];
-    });
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
 
     const expected = [
       {
@@ -456,9 +653,11 @@ describe("Validates getFilteredTableData Properties", () => {
       ],
     };
 
-    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
-      return input.columnOrder[a.id] < input.columnOrder[b.id];
-    });
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
 
     const expected = [
       {
@@ -618,9 +817,11 @@ describe("Validates getFilteredTableData Properties", () => {
       ],
     };
 
-    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
-      return input.columnOrder[a.id] < input.columnOrder[b.id];
-    });
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
 
     const expected = [
       {
@@ -787,9 +988,11 @@ describe("Validates getFilteredTableData Properties", () => {
       ],
     };
 
-    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
-      return input.columnOrder[a.id] < input.columnOrder[b.id];
-    });
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
 
     const expected = [];
 
@@ -853,8 +1056,8 @@ describe("Validates getFilteredTableData Properties", () => {
         "@user": "user 1",
         "@name": "name 1",
         ÜserÑame: "john",
-        "__originalIndex__": 0,
-        "__primaryKey__": undefined,
+        __originalIndex__: 0,
+        __primaryKey__: undefined,
       },
       {
         "1": "asd",
@@ -871,13 +1074,13 @@ describe("Validates getFilteredTableData Properties", () => {
         "@user": "user 2",
         "@name": "name 2",
         ÜserÑame: "mike",
-        "__originalIndex__": 1,
-        "__primaryKey__": undefined,
+        __originalIndex__: 1,
+        __primaryKey__: undefined,
       },
     ];
 
     let result = getProcessedTableData(input, moment, _);
-  
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -1093,6 +1296,23 @@ describe("Validate getSelectedRow function", () => {
       extra: "",
     });
   });
+
+  it("Single row selection should not have non data columns", () => {
+    const { getSelectedRow } = derivedProperty;
+    const input = {
+      multiRowSelection: false,
+      selectedRowIndices: [],
+      selectedRowIndex: 1,
+      processedTableData: sampleProcessedTableData,
+      primaryColumns: samplePrimaryColumns,
+    };
+
+    expect(getSelectedRow(input, moment, _)).toStrictEqual({
+      step: "#2",
+      task: "Create a query fetch_users with the Mock DB",
+      status: "--",
+    });
+  });
 });
 
 describe("Validate getTriggeredRow function", () => {
@@ -1183,6 +1403,21 @@ describe("Validate getTriggeredRow function", () => {
       extra: "",
     });
   });
+
+  it("for removal of non data columns", () => {
+    const { getTriggeredRow } = derivedProperty;
+    const input = {
+      triggeredRowIndex: 1,
+      processedTableData: sampleProcessedTableData,
+      primaryColumns: samplePrimaryColumns,
+    };
+
+    expect(getTriggeredRow(input, moment, _)).toStrictEqual({
+      step: "#2",
+      task: "Create a query fetch_users with the Mock DB",
+      status: "--",
+    });
+  });
 });
 
 describe("Validate getSelectedRows function", () => {
@@ -1255,6 +1490,24 @@ describe("Validate getSelectedRows function", () => {
       ],
     };
     expect(getSelectedRows(input, moment, _)).toStrictEqual([]);
+  });
+
+  it("for removal of non data columns", () => {
+    const { getSelectedRows } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: [1],
+      processedTableData: sampleProcessedTableData,
+      primaryColumns: samplePrimaryColumns,
+    };
+
+    expect(getSelectedRows(input, moment, _)).toStrictEqual([
+      {
+        step: "#2",
+        task: "Create a query fetch_users with the Mock DB",
+        status: "--",
+      },
+    ]);
   });
 });
 
@@ -1631,6 +1884,35 @@ describe("getUpdatedRows -", () => {
     ];
 
     expect(getUpdatedRows(input, null, _)).toEqual(expected);
+  });
+
+  it("Verify for removal of non data columns", () => {
+    const { getUpdatedRows } = derivedProperty;
+    const input = {
+      transientTableData: {
+        0: {
+          task: "Drop a table first",
+        },
+      },
+      primaryColumnId: "step",
+      processedTableData: sampleProcessedTableData,
+      primaryColumns: samplePrimaryColumns,
+    };
+
+    expect(getUpdatedRows(input, moment, _)).toStrictEqual([
+      {
+        index: 0,
+        step: "#1",
+        updatedFields: {
+          task: "Drop a table first",
+        },
+        allFields: {
+          step: "#1",
+          task: "Drop a table",
+          status: "✅",
+        },
+      },
+    ]);
   });
 });
 
