@@ -18,8 +18,4 @@ export default class AstService {
       }
     });
   }
-
-  static testErrorFn() {
-    console.log(extractIdentifiersFromCode("", 1));
-  }
 }
