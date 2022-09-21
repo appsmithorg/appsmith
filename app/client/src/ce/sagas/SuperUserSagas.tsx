@@ -40,7 +40,6 @@ export function* FetchAdminSettingsSaga() {
         appVersion.id,
         cloudHosting,
       ),
-      APPSMITH_ALLOWED_FRAME_ANCESTORS: "'self'",
     };
     yield put({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
