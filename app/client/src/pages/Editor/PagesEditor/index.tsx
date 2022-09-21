@@ -13,6 +13,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPageList,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableList } from "design-system";
@@ -20,12 +21,10 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { builderURL } from "RouteBuilder";
-import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -80,12 +79,10 @@ function PagesEditor() {
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const pageId = useSelector(getCurrentPageId);
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
+  const pagePermissions = useSelector(getPagePermissions);
 
   const canCreatePages = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.CREATE_PAGE,
   );
 

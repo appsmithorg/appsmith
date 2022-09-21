@@ -30,7 +30,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();

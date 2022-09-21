@@ -12,6 +12,13 @@ import { DatasourceTable } from "entities/Datasource";
 import { Colors } from "constants/Colors";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { useSelector } from "react-redux";
+import { AppState } from "@appsmith/reducers";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -51,7 +58,16 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   const [active, setActive] = useState(false);
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
 
-  const lightningMenu = (
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canManageDatasources = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCE,
+  );
+
+  const lightningMenu = canManageDatasources ? (
     <Wrapper
       className={`t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
       onClick={() => setActive(!active)}
@@ -61,7 +77,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
       </IconWrapper>
       <span>Add</span>
     </Wrapper>
-  );
+  ) : null;
 
   if (dbStructure.templates) templateMenu = lightningMenu;
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);

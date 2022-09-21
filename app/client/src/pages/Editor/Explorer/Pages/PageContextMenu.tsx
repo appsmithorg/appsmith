@@ -29,7 +29,8 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -99,17 +100,15 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
+  const pagePermissions = useSelector(getPagePermissions);
 
   const canManagePages = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.MANAGE_PAGE,
   );
 
   const canDeletePages = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.DELETE_PAGE,
   );
 

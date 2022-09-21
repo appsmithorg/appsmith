@@ -32,7 +32,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const SubMenuContainer = styled.div`
   width: 250px;

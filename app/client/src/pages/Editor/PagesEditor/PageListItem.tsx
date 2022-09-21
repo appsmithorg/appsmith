@@ -31,6 +31,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 import {
   getCurrentApplicationId,
+  getPagePermissions,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
@@ -39,7 +40,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 export const Container = styled.div`
   display: flex;
@@ -151,17 +151,15 @@ function PageListItem(props: PageListItemProps) {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
   }, [dispatch, item]);
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
+  const pagePermissions = useSelector(getPagePermissions);
 
   const canManagePages = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.MANAGE_PAGE,
   );
 
   const canDeletePages = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.DELETE_PAGE,
   );
 

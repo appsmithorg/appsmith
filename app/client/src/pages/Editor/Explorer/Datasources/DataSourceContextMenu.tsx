@@ -21,7 +21,8 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { TreeDropdownOption } from "design-system";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -51,21 +52,23 @@ export function DataSourceContextMenu(props: {
     PERMISSION_TYPE.DELETE_DATASOURCE,
   );
 
+  const canManageDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCE,
+  );
+
   const treeOptions = [
-    {
-      value: "rename",
-      onSelect: editDatasourceName,
-      label: createMessage(CONTEXT_EDIT_NAME),
-    },
     {
       value: "refresh",
       onSelect: dispatchRefresh,
       label: createMessage(CONTEXT_REFRESH),
     },
-  ];
-
-  const deleteOption = [
-    {
+    canManageDatasource && {
+      value: "rename",
+      onSelect: editDatasourceName,
+      label: createMessage(CONTEXT_EDIT_NAME),
+    },
+    canDeleteDatasource && {
       confirmDelete: confirmDelete,
       className: "t--apiFormDeleteBtn single-select",
       value: "delete",
@@ -77,7 +80,7 @@ export function DataSourceContextMenu(props: {
         : createMessage(CONTEXT_DELETE),
       intent: "danger",
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <TreeDropdown
@@ -85,10 +88,7 @@ export function DataSourceContextMenu(props: {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={[
-        ...treeOptions,
-        ...(canDeleteDatasource ? deleteOption : []),
-      ].filter(Boolean)}
+      optionTree={treeOptions && (treeOptions as TreeDropdownOption[])}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
@@ -40,6 +41,10 @@ import useResize, {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -170,6 +175,13 @@ function Pages() {
     [applicationId],
   );
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreatePages = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.CREATE_PAGE,
+  );
+
   const pageElements = useMemo(
     () =>
       pages.map((page) => {
@@ -202,6 +214,7 @@ function Pages() {
             preRightIcon={isCurrentPage ? currentPageIcon : ""}
             rightIcon={rightIcon}
             searchKeyword={""}
+            showAddButton={canCreatePages}
             step={1}
             updateEntityName={(id, name) =>
               updatePage(id, name, !!page.isHidden)
@@ -231,6 +244,7 @@ function Pages() {
         pagesSize={ENTITY_HEIGHT * pages.length}
         rightIcon={settingsIconWithTooltip}
         searchKeyword={""}
+        showAddButton={canCreatePages}
         step={0}
       >
         {pageElements}

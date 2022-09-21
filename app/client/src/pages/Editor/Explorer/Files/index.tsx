@@ -25,7 +25,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -65,6 +65,11 @@ function Files() {
     PERMISSION_TYPE.CREATE_ACTION,
   );
 
+  const canManageActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_ACTION,
+  );
+
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 
   const fileEntities = useMemo(
@@ -82,6 +87,7 @@ function Files() {
         } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
+              canManageActions={canManageActions}
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
@@ -93,6 +99,7 @@ function Files() {
         } else {
           return (
             <ExplorerActionEntity
+              canManageActions={canManageActions}
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
@@ -127,6 +134,7 @@ function Files() {
       onCreate={onCreate}
       onToggle={onFilesToggle}
       searchKeyword={""}
+      showAddButton={canCreateActions}
       step={0}
     >
       {fileEntities.length ? (

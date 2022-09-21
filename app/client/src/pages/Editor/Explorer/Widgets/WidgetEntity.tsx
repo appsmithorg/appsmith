@@ -13,6 +13,11 @@ import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -88,6 +93,18 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const shouldExpand = widgetsToExpand.includes(props.widgetId);
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreatePages = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.CREATE_PAGE,
+  );
+
+  const canManagePages = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.MANAGE_PAGE,
+  );
+
   const {
     isWidgetSelected,
     lastSelectedWidget,
@@ -146,6 +163,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     <Entity
       action={switchWidget}
       active={isWidgetSelected}
+      canEditEntityName={canManagePages}
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
@@ -158,6 +176,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       }
       name={props.widgetName}
       searchKeyword={props.searchKeyword}
+      showAddButton={!canCreatePages}
       step={props.step}
       updateEntityName={updateWidgetName}
     >

@@ -25,6 +25,7 @@ type ExplorerActionEntityProps = {
   id: string;
   type: PluginType;
   isActive: boolean;
+  canManageActions?: boolean;
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
@@ -68,6 +69,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     <Entity
       action={switchToAction}
       active={props.isActive}
+      canEditEntityName={props.canManageActions}
       className="action"
       contextMenu={contextMenu}
       entityId={action.id}

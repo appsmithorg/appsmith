@@ -33,7 +33,8 @@ import {
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+
 import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
@@ -71,6 +72,11 @@ const Datasources = React.memo(() => {
     PERMISSION_TYPE.CREATE_DATASOURCE,
   );
 
+  const canManageDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCE,
+  );
+
   const addDatasource = useCallback(() => {
     history.push(
       integrationEditorURL({
@@ -96,6 +102,7 @@ const Datasources = React.memo(() => {
       appWideDS.concat(datasourceSuggestions).map((datasource: Datasource) => {
         return (
           <ExplorerDatasourceEntity
+            canManageDatasource={canManageDatasource}
             datasource={datasource}
             isActive={datasource.id === activeDatasourceId}
             key={datasource.id}

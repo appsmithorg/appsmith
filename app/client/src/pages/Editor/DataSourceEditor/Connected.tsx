@@ -9,7 +9,8 @@ import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+
 import {
   isPermitted,
   PERMISSION_TYPE,

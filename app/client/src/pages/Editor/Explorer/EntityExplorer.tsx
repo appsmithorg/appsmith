@@ -31,7 +31,7 @@ import history from "utils/history";
 import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "actions/workspaceActions";
-import { getCurrentWorkspaceId } from "selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   height: 100%;

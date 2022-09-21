@@ -26,12 +26,6 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { AppState } from "@appsmith/reducers";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -195,6 +189,7 @@ export type EntityProps = {
   entityId: string;
   showAddButton?: boolean;
   className?: string;
+  canEditEntityName?: boolean;
   name: string;
   children?: ReactNode;
   highlight?: boolean;
@@ -225,21 +220,12 @@ export type EntityProps = {
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
-    const { showAddButton = true } = props;
+    const { canEditEntityName, showAddButton = true } = props;
     const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
     const dispatch = useDispatch();
     const guidedTourEnabled = useSelector(inGuidedTour);
-
-    const userWorkspacePermissions = useSelector(
-      (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-    );
-
-    const canCreatePages = isPermitted(
-      userWorkspacePermissions,
-      PERMISSION_TYPE.CREATE_PAGE,
-    );
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
@@ -288,6 +274,7 @@ export const Entity = forwardRef(
     }, [dispatch]);
 
     const enterEditMode = useCallback(() => {
+      if (!canEditEntityName) return;
       if (guidedTourEnabled) {
         dispatch(toggleShowDeviationDialog(true));
         return;
@@ -382,7 +369,7 @@ export const Entity = forwardRef(
                 {props.rightIcon}
               </IconWrapper>
             )}
-            {showAddButton && canCreatePages && addButton}
+            {showAddButton && addButton}
             {props.contextMenu && (
               <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
             )}

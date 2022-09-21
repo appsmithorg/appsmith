@@ -24,7 +24,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { ButtonVariantTypes } from "components/constants";
 import { AppState } from "@appsmith/reducers";
 import {
   AuthType,
@@ -43,7 +42,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+
 import {
   isPermitted,
   PERMISSION_TYPE,

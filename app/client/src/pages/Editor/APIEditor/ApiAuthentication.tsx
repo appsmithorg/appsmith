@@ -2,7 +2,7 @@ import React from "react";
 import { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Text, TextType } from "design-system";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
@@ -17,6 +17,11 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -48,6 +53,7 @@ const OAuthText = styled.span<ErrorProps>`
 
 const DescriptionText = styled(Text)`
   margin: 12px auto;
+  ${(props) => props.disabled && "cursor: not-allowed;opacity:0.5"}
 `;
 
 function OAuthLabel(props: ErrorProps) {
@@ -77,6 +83,23 @@ function ApiAuthentication(props: Props): JSX.Element {
 
   const datasourceId = get(datasource, "id");
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_DATASOURCE,
+  );
+
+  const canManageDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCE,
+  );
+
+  const isEnabled =
+    (shouldSave && canCreateDatasource) || (!shouldSave && canManageDatasource);
+
   return (
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
@@ -87,7 +110,7 @@ function ApiAuthentication(props: Props): JSX.Element {
       </DescriptionText>
       <StoreAsDatasource
         datasourceId={datasourceId}
-        enable
+        enable={isEnabled}
         shouldSave={shouldSave}
       />
     </AuthContainer>

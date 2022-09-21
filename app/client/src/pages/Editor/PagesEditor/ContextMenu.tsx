@@ -13,17 +13,18 @@ import { Action } from "./PageListItem";
 import EditName from "./EditName";
 import { useSelector } from "react-redux";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system";
 import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 // render over popover portals
 const Container = styled.div`
@@ -133,17 +134,15 @@ function ContextMenu(props: Props) {
     setIsOpen(isOpen);
   }, []);
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
+  const pagePermissions = useSelector(getPagePermissions);
 
   const canManagePages = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.MANAGE_PAGE,
   );
 
   const canDeletePages = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.DELETE_PAGE,
   );
 
