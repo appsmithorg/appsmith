@@ -121,7 +121,7 @@ describe("Validate basic Promises", () => {
   });
 
   it("5. Verify .then & .catch via JS Objects in Promises", () => {
-    // deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
