@@ -94,13 +94,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
      */
-    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId,
-                                                              Integer evaluatedVersion,
-                                                              Set<String> widgetNames,
-                                                              Set<ActionDependencyEdge> edges,
-                                                              Map<String, Set<String>> widgetDynamicBindingsMap,
-                                                              List<ActionDTO> flatPageLoadActions,
-                                                              Set<String> actionsUsedInDSL) {
+    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId, Integer evaluatedVersion, Set<String> widgetNames, Set<ActionDependencyEdge> edges, Map<String, Set<String>> widgetDynamicBindingsMap, List<ActionDTO> flatPageLoadActions, Set<String> actionsUsedInDSL) {
 
         Set<String> onPageLoadActionSet = new HashSet<>();
         Set<String> explicitUserSetOnLoadActions = new HashSet<>();
@@ -266,62 +260,101 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 });
     }
 
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                        Set<String> bindings,
-                                                                        int evalVersion) {
+    /**
+     * This method is used to find all possible global entity references in the given set of bindings.
+     * We'll be able to find valid action references only at this point. For widgets, we just assume that all
+     * references are possible candidates
+     *
+     * @param actionNameToActionMapMono : This map is used to filter only valid action references in bindings
+     * @param bindings                  : The set of bindings to find references from
+     * @param evalVersion               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @return A set of any possible reference found in the binding that qualifies as a global entity reference
+     */
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, int evalVersion) {
         return getPossibleEntityReferences(actionNameToActionMapMono, bindings, evalVersion, null);
     }
 
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                        Set<String> bindings,
-                                                                        int evalVersion,
-                                                                        Set<EntityDependencyNode> bindingsInDsl) {
+    /**
+     * Similar to the overridden method, this method is used to find all possible global entity references in the given set of bindings.
+     * However, here we are assuming that the call came from when we were trying to analyze the DSL.
+     * For such cases, we also want to capture entity references that would be qualified to run on page load first.
+     *
+     * @param actionNameToActionMapMono : This map is used to filter only valid action references in bindings
+     * @param bindings                  : The set of bindings to find references from
+     * @param evalVersion               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @param bindingsInDsl             : All references are also added to this set if they should be qualified to run on page load first.
+     * @return A set of any possible reference found in the binding that qualifies as a global entity reference
+     */
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, int evalVersion, Set<EntityDependencyNode> bindingsInDsl) {
+        // We want to be finding both type of references
         final int entityTypes = ACTION_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
-        return actionNameToActionMapMono
-                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
-                .map(tuple -> {
-                    Map<String, ActionDTO> actionMap = tuple.getT1();
-                    Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
 
-                    Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+        return actionNameToActionMapMono.zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion)).map(tuple -> {
+            Map<String, ActionDTO> actionMap = tuple.getT1();
+            // For each binding, here we receive a set of possible references to global entities
+            // At this point we're guaranteed that these references are made to possible variables,
+            // but we do not know if those entities exist in the global namespace yet
+            Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
 
-                    bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
-                        Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
-                        entry.getValue().stream().forEach(binding -> {
-                            ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
-                            if (actionDTO != null) {
-                                if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION).contains(binding.getEntityReferenceType())) {
-                                    binding.setIsAsync(actionDTO.getActionConfiguration().getIsAsync());
-                                    binding.setActionDTO(actionDTO);
-                                    bindingsWithActionReference.add(binding);
-                                    if (!(TRUE.equals(binding.getIsAsync()) && TRUE.equals(binding.getIsFunctionCall()))) {
-                                        possibleEntitiesReferences.add(binding);
-                                    }
-                                }
-                            } else {
-                                if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
-                                    possibleEntitiesReferences.add(binding);
-                                }
+            Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+
+            // From these references, we will try to validate action references at this point
+            // Each identified node is already annotated with the expected type of entity we need to search for
+            bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
+                Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
+                entry.getValue().stream().forEach(binding -> {
+                    // For each possible reference node, check if the reference was to an action
+                    ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
+
+                    if (actionDTO != null) {
+                        // If it was, and had been identified as such,
+                        if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION).contains(binding.getEntityReferenceType())) {
+                            // Copy over some data from the identified action, this ensures that we do not have to query the DB again later
+                            binding.setIsAsync(actionDTO.getActionConfiguration().getIsAsync());
+                            binding.setActionDTO(actionDTO);
+                            bindingsWithActionReference.add(binding);
+                            // Only if this is not an async JS function action and is not a direct JS function call,
+                            // add it to a possible on page load action call.
+                            // This discards the following type:
+                            // {{ JSObject1.asyncFunc() }}
+                            if (!(TRUE.equals(binding.getIsAsync()) && TRUE.equals(binding.getIsFunctionCall()))) {
+                                possibleEntitiesReferences.add(binding);
                             }
-                        });
-
-                        // if the binding is referring to the action, ensure that for ASYNC JS functions, it
-                        // shouldn't be a function call since that is not supported in dynamic bindings.
-                        if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
-                            bindingsInDsl.addAll(bindingsWithActionReference);
+                            // We're ignoring any reference that was identified as a widget but actually matched an action
+                            // We wouldn't have discarded JS collection names here, but this is just an optimization, so it's fine
                         }
-                    });
-
-                    return possibleEntitiesReferences;
+                    } else {
+                        // If the reference node was identified as a widget, directly add it as a possible reference
+                        // Because we are not doing any validations for widget references at this point
+                        if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
+                            possibleEntitiesReferences.add(binding);
+                        }
+                    }
                 });
+
+                if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
+                    bindingsInDsl.addAll(bindingsWithActionReference);
+                }
+            });
+
+            return possibleEntitiesReferences;
+        });
     }
 
+    /**
+     * This method is an abstraction that queries the ast service for possible global references as string values,
+     * and then uses the mustache helper utility to classify these global references into possible types of EntityDependencyNodes
+     *
+     * @param bindings    : A set of binding values as string to analyze
+     * @param types       : The types of EntityDependencyNode references to look for
+     * @param evalVersion : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
+     */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Set<String> bindings, int types, int evalVersion) {
-        Flux<Tuple2<String, List<String>>> findingToReferencesFlux = Flux.fromIterable(bindings)
-                .flatMap(bindingValue -> {
-                    Mono<List<String>> possibleReferencesFromDynamicBinding = astService.getPossibleReferencesFromDynamicBinding(bindingValue, evalVersion);
-                    return Mono.zip(Mono.just(bindingValue), possibleReferencesFromDynamicBinding);
-                });
+        Flux<Tuple2<String, List<String>>> findingToReferencesFlux = Flux.fromIterable(bindings).flatMap(bindingValue -> {
+            Mono<List<String>> possibleReferencesFromDynamicBinding = astService.getPossibleReferencesFromDynamicBinding(bindingValue, evalVersion);
+            return Mono.zip(Mono.just(bindingValue), possibleReferencesFromDynamicBinding);
+        });
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
     }
 
@@ -695,11 +728,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      *
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(Set<ActionDependencyEdge> edges,
-                                                                                                       Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-                                                                                                       Set<String> dynamicBindings,
-                                                                                                       Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                                                       int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(Set<ActionDependencyEdge> edges, Map<String, EntityDependencyNode> actionsFoundDuringWalk, Set<String> dynamicBindings, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, int evalVersion) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
             return Mono.just(edges);
         }
@@ -748,14 +777,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsFromActions
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId,
-                                                                                   Set<ActionDependencyEdge> edges,
-                                                                                   Set<String> explicitUserSetOnLoadActions,
-                                                                                   Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-                                                                                   Set<String> bindingsFromActions,
-                                                                                   Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                                   Set<EntityDependencyNode> actionBindingsInDsl,
-                                                                                   int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId, Set<ActionDependencyEdge> edges, Set<String> explicitUserSetOnLoadActions, Map<String, EntityDependencyNode> actionsFoundDuringWalk, Set<String> bindingsFromActions, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<EntityDependencyNode> actionBindingsInDsl, int evalVersion) {
 
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId).flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false)).flatMap(newActionService::fillSelfReferencingDataPaths)
@@ -793,13 +815,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsFromActions
      * @param actionsFoundDuringWalk
      */
-    private Mono<Void> extractAndSetActionBindingsInGraphEdges(EntityDependencyNode entityDependencyNode,
-                                                               Set<ActionDependencyEdge> edges,
-                                                               Set<String> bindingsFromActions,
-                                                               Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                               Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-                                                               Set<EntityDependencyNode> bindingsInDsl,
-                                                               int evalVersion) {
+    private Mono<Void> extractAndSetActionBindingsInGraphEdges(EntityDependencyNode entityDependencyNode, Set<ActionDependencyEdge> edges, Set<String> bindingsFromActions, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Map<String, EntityDependencyNode> actionsFoundDuringWalk, Set<EntityDependencyNode> bindingsInDsl, int evalVersion) {
 
         ActionDTO action = entityDependencyNode.getActionDTO();
 
@@ -857,9 +873,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param widgetBindingMap
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
-                                                                         Map<String, Set<String>> widgetBindingMap,
-                                                                         int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges, Map<String, Set<String>> widgetBindingMap, int evalVersion) {
         final int entityTypes = WIDGET_ENTITY_REFERENCES;
         // This part will ensure that we are discovering widget to widget relationships.
         return Flux.fromIterable(widgetBindingMap.entrySet())
