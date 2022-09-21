@@ -330,6 +330,14 @@ public class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
+    /**
+     * Depending on the entity types that the caller has asked for, this method analyzed the global references found in each binding
+     * and creates entity dependency nodes out of the references that would qualify as a reference of a specific entity type
+     *
+     * @param bindingAndPossibleReferencesFlux
+     * @param types
+     * @return
+     */
     public static Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Flux<Tuple2<String, List<String>>> bindingAndPossibleReferencesFlux, int types) {
 
         return bindingAndPossibleReferencesFlux.collect(HashMap::new, (map, tuple) -> {
@@ -429,6 +437,14 @@ public class MustacheHelper {
         return dependencyNodes;
     }
 
+    /**
+     * This method is used as a fallback for setups where the RTS server is not accessible.
+     * It counts all words as possible entity references. This is obviously going to
+     * continue to give inaccurate results, but is required to maintain backward compatibility
+     *
+     * @param mustacheKey The mustache binding to find references from
+     * @return A set of identified references from the mustache binding value
+     */
     public static Set<String> getPossibleParentsOld(String mustacheKey) {
         Set<String> bindingNames = new HashSet<>();
         String key = mustacheKey.trim();
