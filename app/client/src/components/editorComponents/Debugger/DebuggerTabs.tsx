@@ -17,6 +17,7 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
+import { theme } from "constants/DefaultTheme";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -24,7 +25,7 @@ const Container = styled.div`
   ${ResizerCSS}
   position: absolute;
   bottom: 0;
-  height: 25%;
+  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   min-height: ${TABS_HEADER_HEIGHT}px;
   background-color: ${(props) => props.theme.colors.debugger.background};
   border-top: 1px solid ${Colors.ALTO};
@@ -76,6 +77,7 @@ function DebuggerTabs(props: DebuggerTabsProps) {
       <Resizer panelRef={panelRef} />
       <EntityBottomTabs
         defaultIndex={props.defaultIndex}
+        expandedHeight={theme.actionsBottomTabInitialHeight}
         tabs={DEBUGGER_TABS}
       />
       <Icon
