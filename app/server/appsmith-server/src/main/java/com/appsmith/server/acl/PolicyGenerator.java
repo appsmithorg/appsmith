@@ -15,6 +15,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ADD_USER_TO_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_DELETE_PERMISSION_GROUPS;
@@ -23,6 +24,7 @@ import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_PERMISSION_GRO
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 
@@ -51,6 +53,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(CREATE_USER_GROUPS, TENANT_READ_USER_GROUPS);
         lateralGraph.addEdge(CREATE_USER_GROUPS, TENANT_DELETE_USER_GROUPS);
         lateralGraph.addEdge(CREATE_USER_GROUPS, TENANT_ADD_USER_TO_ALL_USER_GROUPS);
+        lateralGraph.addEdge(CREATE_USER_GROUPS, TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS);
 
         // Given edit, we must give view
         lateralGraph.addEdge(TENANT_MANAGE_PERMISSION_GROUPS, TENANT_READ_PERMISSION_GROUPS);
@@ -72,9 +75,12 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(TENANT_READ_USER_GROUPS, READ_USER_GROUPS);
         hierarchyGraph.addEdge(TENANT_DELETE_USER_GROUPS, DELETE_USER_GROUPS);
         hierarchyGraph.addEdge(TENANT_ADD_USER_TO_ALL_USER_GROUPS, ADD_USERS_TO_USER_GROUPS);
+        hierarchyGraph.addEdge(TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS, REMOVE_USERS_FROM_USER_GROUPS);
 
         lateralGraph.addEdge(MANAGE_USER_GROUPS, ADD_USERS_TO_USER_GROUPS);
+        lateralGraph.addEdge(MANAGE_USER_GROUPS, REMOVE_USERS_FROM_USER_GROUPS);
         lateralGraph.addEdge(MANAGE_USER_GROUPS, READ_USER_GROUPS);
         lateralGraph.addEdge(ADD_USERS_TO_USER_GROUPS, READ_USER_GROUPS);
+        lateralGraph.addEdge(REMOVE_USERS_FROM_USER_GROUPS, READ_USER_GROUPS);
     }
 }
