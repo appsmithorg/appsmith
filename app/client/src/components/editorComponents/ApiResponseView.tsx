@@ -79,8 +79,8 @@ const ResponseMetaWrapper = styled.div`
   align-items: center;
   display: flex;
   position: absolute;
-  right: ${(props) => props.theme.spaces[12]}px;
-  top: ${(props) => props.theme.spaces[4]}px;
+  right: ${(props) => props.theme.spaces[17] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 1}px;
 `;
 
 const ResponseTabWrapper = styled.div`

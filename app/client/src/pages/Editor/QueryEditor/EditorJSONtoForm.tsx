@@ -173,8 +173,8 @@ const SettingsWrapper = styled.div`
 
 const ResultsCount = styled.div`
   position: absolute;
-  right: 13px;
-  top: 8px;
+  right: ${(props) => props.theme.spaces[17] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 1}px;
   color: #716e6e;
 `;
 
@@ -1055,7 +1055,7 @@ export function EditorJSONtoForm(props: Props) {
               {output && !!output.length && (
                 <ResultsCount>
                   <Text type={TextType.P3}>
-                    Result:
+                    Result:&nbsp;
                     <Text type={TextType.H5}>{`${output.length} Record${
                       output.length > 1 ? "s" : ""
                     }`}</Text>
