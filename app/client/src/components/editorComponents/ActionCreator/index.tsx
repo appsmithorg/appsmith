@@ -58,70 +58,69 @@ import FeatureFlags from "entities/FeatureFlags";
 import { connect } from "react-redux";
 import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
-import { NAVIGATE_TO_TAB_OPTIONS, ActionType, FieldType } from "./constants";
+import { NAVIGATE_TO_TAB_OPTIONS, Actions, FieldType } from "./constants";
+import { Switch, ActionCreatorProps, GenericFunction } from "./types";
 
-/* eslint-disable @typescript-eslint/ban-types */
-/* TODO: Function and object types need to be updated to enable the lint rule */
 const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(NO_ACTION),
-    value: ActionType.none,
+    value: Actions.none,
   },
   {
     label: createMessage(EXECUTE_A_QUERY),
-    value: ActionType.integration,
+    value: Actions.integration,
   },
   {
     label: createMessage(NAVIGATE_TO),
-    value: ActionType.navigateTo,
+    value: Actions.navigateTo,
   },
   {
     label: createMessage(SHOW_MESSAGE),
-    value: ActionType.showAlert,
+    value: Actions.showAlert,
   },
   {
     label: createMessage(OPEN_MODAL),
-    value: ActionType.showModal,
+    value: Actions.showModal,
   },
   {
     label: createMessage(CLOSE_MODAL),
-    value: ActionType.closeModal,
+    value: Actions.closeModal,
   },
   {
     label: createMessage(STORE_VALUE),
-    value: ActionType.storeValue,
+    value: Actions.storeValue,
   },
   {
     label: createMessage(DOWNLOAD),
-    value: ActionType.download,
+    value: Actions.download,
   },
   {
     label: createMessage(COPY_TO_CLIPBOARD),
-    value: ActionType.copyToClipboard,
+    value: Actions.copyToClipboard,
   },
   {
     label: createMessage(RESET_WIDGET),
-    value: ActionType.resetWidget,
+    value: Actions.resetWidget,
   },
   {
     label: createMessage(SET_INTERVAL),
-    value: ActionType.setInterval,
+    value: Actions.setInterval,
   },
   {
     label: createMessage(CLEAR_INTERVAL),
-    value: ActionType.clearInterval,
+    value: Actions.clearInterval,
   },
   {
     label: createMessage(GET_GEO_LOCATION),
-    value: ActionType.getGeolocation,
+    value: Actions.getGeolocation,
   },
   {
     label: createMessage(WATCH_GEO_LOCATION),
-    value: ActionType.watchGeolocation,
+    value: Actions.watchGeolocation,
   },
   {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
-    value: ActionType.stopWatchGeolocation,
+    value: Actions.stopWatchGeolocation,
   },
 ];
 
@@ -129,28 +128,22 @@ const getBaseOptions = (featureFlags: FeatureFlags) => {
   const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   if (isJSEditorEnabled) {
     const jsOption = baseOptions.find(
-      (option: any) => option.value === ActionType.jsFunction,
+      (option: any) => option.value === Actions.jsFunction,
     );
     if (!jsOption) {
       baseOptions.splice(2, 0, {
         label: createMessage(EXECUTE_JS_FUNCTION),
-        value: ActionType.jsFunction,
+        value: Actions.jsFunction,
       });
     }
   }
   return baseOptions;
 };
 
-type Switch = {
-  id: string;
-  text: string;
-  action: () => void;
-};
-
 function getFieldFromValue(
   value: string | undefined,
   activeTabNavigateTo: Switch,
-  getParentValue?: Function,
+  getParentValue?: (changeValue: string) => string,
   dataTree?: DataTree,
 ): any[] {
   const fields: any[] = [];
@@ -405,7 +398,7 @@ function useModalDropdownList() {
       id: "create",
       icon: "plus",
       className: "t--create-modal-btn",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
+      onSelect: (option: TreeDropdownOption, setter?: GenericFunction) => {
         const modalName = nextModalName;
         if (setter) {
           setter({
@@ -455,12 +448,10 @@ function getIntegrationOptionsWithChildren(
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE,
   );
-  const option = options.find(
-    (option) => option.value === ActionType.integration,
-  );
+  const option = options.find((option) => option.value === Actions.integration);
 
   const jsOption = options.find(
-    (option) => option.value === ActionType.jsFunction,
+    (option) => option.value === Actions.jsFunction,
   );
 
   if (option) {
@@ -582,13 +573,6 @@ function useIntegrationsOptionTree() {
     featureFlags,
   );
 }
-
-type ActionCreatorProps = {
-  value: string;
-  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  pageDropdownOptions: TreeDropdownOption[];
-};
 
 const isValueValidURL = (value: string) => {
   if (value) {

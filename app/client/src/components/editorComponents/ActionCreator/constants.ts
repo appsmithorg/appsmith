@@ -19,7 +19,7 @@ export const APPSMITH_NAMESPACED_FUNCTIONS = {
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
 };
 
-export const ActionType = {
+export const Actions = {
   none: "none",
   integration: "integration",
   jsFunction: "jsFunction",

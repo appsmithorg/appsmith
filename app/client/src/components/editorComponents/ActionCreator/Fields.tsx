@@ -4,7 +4,6 @@ import {
   Setter,
   TreeDropdownOption,
   Switcher,
-  SwitcherProps,
 } from "design-system";
 import {
   ControlWrapper,
@@ -30,7 +29,7 @@ import {
   FILE_TYPE_OPTIONS,
   NAVIGATION_TARGET_FIELD_OPTIONS,
   ViewTypes,
-  ActionType,
+  Actions,
   FieldType,
 } from "./constants";
 import { PopoverPosition } from "@blueprintjs/core";
@@ -39,6 +38,15 @@ import {
   ACTION_TRIGGER_REGEX,
   IS_URL_OR_MODAL,
 } from "./regex";
+import {
+  Switch,
+  ActionType,
+  SelectorViewProps,
+  KeyValueViewProps,
+  TextViewProps,
+  TabViewProps,
+  FieldConfigs,
+} from "./types";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -62,12 +70,6 @@ import {
  * 1. Add the new action entry and its text in the baseOptions array
  * 2. Attach fields to the new action in the getFieldFromValue function
  **/
-
-type Switch = {
-  id: string;
-  text: string;
-  action: () => void;
-};
 
 const modalSetter = (changeValue: any, currentValue: string) => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
@@ -206,35 +208,6 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-type ActionType = typeof ActionType[keyof typeof ActionType];
-
-type ViewTypes = typeof ViewTypes[keyof typeof ViewTypes];
-
-type ViewProps = {
-  label: string;
-  get: Function;
-  set: Function;
-  value: string;
-};
-type SelectorViewProps = ViewProps & {
-  options: TreeDropdownOption[];
-  defaultText: string;
-  getDefaults?: (value?: any) => any;
-  displayValue?: string;
-  selectedLabelModifier?: (
-    option: TreeDropdownOption,
-    displayValue?: string,
-  ) => React.ReactNode;
-  index?: number;
-};
-
-type KeyValueViewProps = ViewProps;
-type TextViewProps = ViewProps & {
-  index?: number;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
-};
-type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
-
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
     return (
@@ -310,14 +283,6 @@ const views = {
   },
 };
 
-type FieldConfig = {
-  getter: Function;
-  setter: Function;
-  view: ViewTypes;
-};
-
-type FieldConfigs = Partial<Record<FieldType, FieldConfig>>;
-
 const fieldConfigs: FieldConfigs = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
     getter: (storedValue: string) => {
@@ -327,9 +292,9 @@ const fieldConfigs: FieldConfigs = {
           ? [...storedValue.matchAll(ACTION_TRIGGER_REGEX)]
           : [];
       }
-      let mainFuncSelectedValue = ActionType.none;
+      let mainFuncSelectedValue = Actions.none;
       if (matches.length) {
-        mainFuncSelectedValue = matches[0][1] || ActionType.none;
+        mainFuncSelectedValue = matches[0][1] || Actions.none;
       }
       const mainFuncSelectedValueSplit = mainFuncSelectedValue.split(".");
       if (mainFuncSelectedValueSplit[1] === "run") {
@@ -343,22 +308,22 @@ const fieldConfigs: FieldConfigs = {
       let defaultParams = "";
       let defaultArgs: Array<any> = [];
       switch (type) {
-        case ActionType.integration:
+        case Actions.integration:
           value = `${value}.run`;
           break;
-        case ActionType.navigateTo:
+        case Actions.navigateTo:
           defaultParams = `'', {}, 'SAME_WINDOW'`;
           break;
-        case ActionType.jsFunction:
+        case Actions.jsFunction:
           defaultArgs = option.args ? option.args : [];
           break;
-        case ActionType.setInterval:
+        case Actions.setInterval:
           defaultParams = "() => { \n\t // add code here \n}, 5000";
           break;
-        case ActionType.getGeolocation:
+        case Actions.getGeolocation:
           defaultParams = "(location) => { \n\t // add code here \n  }";
           break;
-        case ActionType.resetWidget:
+        case Actions.resetWidget:
           defaultParams = `"",true`;
           break;
         default:
@@ -660,7 +625,7 @@ function renderField(props: {
           option: TreeDropdownOption,
           displayValue?: string,
         ) {
-          if (option.type === ActionType.integration) {
+          if (option.type === Actions.integration) {
             return (
               <HightlightedCode
                 codeText={`{{${option.label}.run()}}`}
@@ -676,7 +641,7 @@ function renderField(props: {
         };
         getDefaults = (value: string) => {
           return {
-            [ActionType.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
+            [Actions.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
           }[value];
         };
       }
