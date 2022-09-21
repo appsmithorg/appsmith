@@ -44,6 +44,7 @@ import {
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
 import { theme } from "constants/DefaultTheme";
+import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -96,13 +97,13 @@ const TabbedViewWrapper = styled.div`
   &&& {
     ul.react-tabs__tab-list {
       margin: 0px ${(props) => props.theme.spaces[11]}px;
-      height: 36px;
+      height: ${TAB_MIN_HEIGHT};
     }
   }
 
   & {
     .react-tabs__tab-panel {
-      height: calc(100% - 36px);
+      height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
 `;
