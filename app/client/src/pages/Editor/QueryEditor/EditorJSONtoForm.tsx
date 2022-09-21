@@ -23,7 +23,7 @@ import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { Text, TextType } from "design-system";
-import styled from "constants/DefaultTheme";
+import styled, { theme } from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import { Icon as AdsIcon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
@@ -1063,7 +1063,12 @@ export function EditorJSONtoForm(props: Props) {
                 </ResultsCount>
               )}
 
-              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
+              <EntityBottomTabs
+                containerRef={panelRef}
+                defaultIndex={0}
+                expandedHeight={theme.actionsBottomTabInitialHeight}
+                tabs={responseTabs}
+              />
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper

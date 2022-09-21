@@ -43,6 +43,7 @@ import {
 } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
+import { theme } from "constants/DefaultTheme";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -52,7 +53,7 @@ export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
-  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
+  height: ${(props) => props.theme.apiBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -95,6 +96,7 @@ const TabbedViewWrapper = styled.div`
   &&& {
     ul.react-tabs__tab-list {
       margin: 0px ${(props) => props.theme.spaces[11]}px;
+      height: 36px;
     }
   }
 
@@ -604,7 +606,12 @@ function ApiResponseView(props: Props) {
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
+        <EntityBottomTabs
+          containerRef={panelRef}
+          defaultIndex={0}
+          expandedHeight={theme.apiBottomTabInitialHeight}
+          tabs={tabs}
+        />
       </TabbedViewWrapper>
     </ResponseContainer>
   );
