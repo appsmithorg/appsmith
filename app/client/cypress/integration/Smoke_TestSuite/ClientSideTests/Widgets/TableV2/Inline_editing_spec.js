@@ -257,6 +257,9 @@ describe("Table widget inline editing functionality", () => {
       "contain.value",
       "Save / Discard",
     );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
+    );
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
 
@@ -267,6 +270,9 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
       "Save / Discard",
+    );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
     );
     cy.get(
       `.t--property-control-columns .t--uber-editable-checkbox input+span`,
@@ -280,6 +286,9 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
       "Save / Discard",
+    );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
     );
     cy.editColumn("step");
     cy.get(".t--property-control-editable .bp3-switch span").click();
