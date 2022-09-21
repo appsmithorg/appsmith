@@ -4,7 +4,7 @@ jest.mock("sagas/ActionExecution/NavigateActionSaga", () => ({
   NavigationTargetType: { SAME_WINDOW: "" },
 }));
 
-import { argsStringToArray } from "./Fields";
+import { argsStringToArray } from "./utils";
 
 describe("Test argStringToArray", () => {
   const cases = [

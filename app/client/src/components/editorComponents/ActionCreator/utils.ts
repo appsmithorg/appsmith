@@ -8,7 +8,7 @@ import {
   isDynamicValue,
 } from "../../../utils/DynamicBindingUtils";
 
-const stringToJS = (string: string): string => {
+export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
@@ -22,7 +22,7 @@ const stringToJS = (string: string): string => {
   return js;
 };
 
-const JSToString = (js: string): string => {
+export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
     .map((segment) => {
@@ -33,7 +33,7 @@ const JSToString = (js: string): string => {
     .join("");
 };
 
-const argsStringToArray = (funcArgs: string): string[] => {
+export const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;
