@@ -319,12 +319,8 @@ function* setDefaultSelectedThemeOnError() {
       // Update API call to set current theme to default
       yield ThemingApi.changeTheme(applicationId, theme);
       yield put({
-        type: ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_SUCCESS,
-        payload: theme,
-      });
-      yield put({
         type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-        payload: response.data,
+        payload: theme,
       });
     }
   } catch (error) {
