@@ -58,9 +58,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             defaultValue: OverflowTypes.NONE,
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: WidgetProps) =>
-              isDynamicHeightEnabledForWidget(props),
-            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "isVisible",
@@ -356,6 +353,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             defaultValue: OverflowTypes.NONE,
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "isVisible",
