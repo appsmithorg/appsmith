@@ -118,7 +118,64 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logStringChild);
   });
 
-  it("8. Console log on text widget with normal moustache binding", function() {
+  it("8. Console log grouping on button click", function() {
+    agHelper.GetNClick(locator._debuggerClearLogs);
+    // Testing with normal log in iifee
+    ee.SelectEntityByName("Button1");
+    propPane.EnterJSContext(
+      "onClick",
+      `{{ function () {
+          console.log('${logString}');
+          console.log('${logString}');
+          console.log('${logString}');
+          console.log('${logString}');
+          console.log('${logString}');
+        } () }}`,
+    );
+    agHelper.ClickButton("Submit");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
+    agHelper.GetNAssertContains(locator._debuggerLogMessageOccurence, "5");
+  });
+
+  it("9. Console log grouping on button click with different log in between", function() {
+    agHelper.GetNClick(locator._debuggerClearLogs);
+    // Testing with normal log in iifee
+    ee.SelectEntityByName("Button1");
+    propPane.EnterJSContext(
+      "onClick",
+      `{{ function () {
+          console.log('${logString}');
+          console.log('${logString}');
+          console.log('Different ${logString}');
+          console.log('${logString}');
+        } () }}`,
+    );
+    agHelper.ClickButton("Submit");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
+    agHelper.GetNAssertContains(
+      locator._debuggerLogMessage,
+      `Different ${logString}`,
+    );
+    agHelper.GetNAssertContains(locator._debuggerLogMessageOccurence, "2");
+  });
+
+  it("10. Console log grouping on button click from different source", function() {
+    agHelper.GetNClick(locator._debuggerClearLogs);
+    // Testing with normal log in iifee
+    ee.SelectEntityByName("Button1");
+    propPane.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
+    // Add another button
+    ee.DragDropWidgetNVerify("buttonwidget", 400, 200);
+    propPane.UpdatePropertyFieldValue("Label", "Submit2");
+    propPane.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
+    agHelper.Sleep(2000);
+    agHelper.ClickButton("Submit");
+    agHelper.ClickButton("Submit2");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
+    agHelper.AssertElementAbsence(locator._debuggerLogMessageOccurence);
+  });
+
+  it("11. Console log on text widget with normal moustache binding", function() {
     ee.DragDropWidgetNVerify("textwidget", 400, 400);
     propPane.UpdatePropertyFieldValue(
       "Text",
@@ -136,7 +193,7 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
-  it("9. Console log in sync function", function() {
+  it("12. Console log in sync function", function() {
     ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
@@ -160,7 +217,7 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
-  it("10. Console log in async function", function() {
+  it("13. Console log in async function", function() {
     ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
@@ -186,7 +243,7 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
-  it("11. Console log after API succedes", function() {
+  it("14. Console log after API succedes", function() {
     ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "Api1");
     const returnText = "success";
@@ -239,7 +296,7 @@ describe("Debugger logs", function() {
     });
   });
 
-  it("12. Console log after API execution fails", function() {
+  it("15. Console log after API execution fails", function() {
     ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods + "xyz", "Api2");
     jsEditor.CreateJSObject(
@@ -278,7 +335,7 @@ describe("Debugger logs", function() {
     );
   });
 
-  it("13. Console log source inside nested function", function() {
+  it("16. Console log source inside nested function", function() {
     jsEditor.CreateJSObject(
       `export default {
         myFun1: async () => {
@@ -307,6 +364,34 @@ describe("Debugger logs", function() {
       locator._debuggerLogMessage,
       `Child ${logString}`,
     );
+  });
+
+  it("17. Console log grouping", function() {
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: async () => {
+          console.log("${logString}");
+          console.log("${logString}");
+          console.log("${logString}");
+          console.log("${logString}");
+          console.log("${logString}");
+        },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, `${logString}`);
+    agHelper.GetNAssertContains(locator._debuggerLogMessageOccurence, "5");
   });
 
   // it("Api headers need to be shown as headers in logs", function() {

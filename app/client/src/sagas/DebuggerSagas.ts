@@ -9,7 +9,12 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE, Log, LogActionPayload } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  Log,
+  LogActionPayload,
+  LOG_CATEGORY,
+} from "entities/AppsmithConsole";
 import {
   all,
   call,
@@ -490,9 +495,9 @@ export function* storeLogs(
   entityType: ENTITY_TYPE,
   entityId: string,
 ) {
-  logs.forEach((log: LogObject) => {
-    AppsmithConsole.addLog(
-      {
+  AppsmithConsole.addLogs(
+    logs.reduce((acc: Log[], log: LogObject) => {
+      acc.push({
         text: createLogTitleString(log.data),
         logData: log.data,
         source: {
@@ -500,11 +505,13 @@ export function* storeLogs(
           name: entityName,
           id: entityId,
         },
-      },
-      log.severity,
-      log.timestamp,
-    );
-  });
+        severity: log.severity,
+        timestamp: log.timestamp,
+        category: LOG_CATEGORY.USER_GENERATED,
+      });
+      return acc;
+    }, []),
+  );
 }
 
 export function* updateTriggerMeta(
