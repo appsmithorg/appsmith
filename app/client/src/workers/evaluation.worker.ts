@@ -191,6 +191,8 @@ ctx.addEventListener(
             userLogs = dataTreeEvaluator.userLogs;
             if (replayMap[CANVAS]?.logs)
               logs = logs.concat(replayMap[CANVAS]?.logs);
+            //Investigate why we need this
+            logs = JSON.parse(JSON.stringify(logs));
             replayMap[CANVAS]?.clearLogs();
             dataTreeEvaluator.clearLogs();
           } catch (error) {
