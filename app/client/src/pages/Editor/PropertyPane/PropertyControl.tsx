@@ -57,6 +57,7 @@ import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
+import PropertyPaneHelperText from "./PropertyPaneHelperText";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -466,6 +467,10 @@ const PropertyControl = memo((props: Props) => {
       ? props.label(widgetProperties, propertyName)
       : props.label;
 
+    const helperText = isFunction(props.helperText)
+      ? props.helperText(widgetProperties)
+      : props.helperText;
+
     dataTreePath =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
 
@@ -675,6 +680,7 @@ const PropertyControl = memo((props: Props) => {
             additionAutocomplete,
             hideEvaluatedValue(),
           )}
+          <PropertyPaneHelperText helperText={helperText} />
         </ControlWrapper>
       );
     } catch (e) {
