@@ -53,8 +53,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
     private final NewActionService newActionService;
 
     private final AstService astService;
-
-    private final ApplicationService applicationService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -94,7 +92,13 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
      */
-    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId, Integer evaluatedVersion, Set<String> widgetNames, Set<ActionDependencyEdge> edges, Map<String, Set<String>> widgetDynamicBindingsMap, List<ActionDTO> flatPageLoadActions, Set<String> actionsUsedInDSL) {
+    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId,
+                                                              Integer evaluatedVersion,
+                                                              Set<String> widgetNames,
+                                                              Set<ActionDependencyEdge> edges,
+                                                              Map<String, Set<String>> widgetDynamicBindingsMap,
+                                                              List<ActionDTO> flatPageLoadActions,
+                                                              Set<String> actionsUsedInDSL) {
 
         Set<String> onPageLoadActionSet = new HashSet<>();
         Set<String> explicitUserSetOnLoadActions = new HashSet<>();
@@ -205,7 +209,9 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param computeOnPageLoadScheduleNamesMono
      * @return
      */
-    private Mono<List<Set<DslActionDTO>>> filterAndTransformSchedulingOrderToDTO(Set<String> onPageLoadActionSet, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
+    private Mono<List<Set<DslActionDTO>>> filterAndTransformSchedulingOrderToDTO(Set<String> onPageLoadActionSet,
+                                                                                 Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                                 Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
 
         return Mono.zip(computeOnPageLoadScheduleNamesMono, actionNameToActionMapMono).map(tuple -> {
             List<Set<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
@@ -242,7 +248,9 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param evalVersion               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, int evalVersion) {
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                        Set<String> bindings,
+                                                                        int evalVersion) {
         return getPossibleEntityReferences(actionNameToActionMapMono, bindings, evalVersion, null);
     }
 
@@ -257,7 +265,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsInDsl             : All references are also added to this set if they should be qualified to run on page load first.
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, int evalVersion, Set<EntityDependencyNode> bindingsInDsl) {
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                        Set<String> bindings,
+                                                                        int evalVersion,
+                                                                        Set<EntityDependencyNode> bindingsInDsl) {
         // We want to be finding both type of references
         final int entityTypes = ACTION_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
@@ -348,7 +359,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param evalVersion
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(Set<ActionDependencyEdge> edges, Set<String> actionsUsedInDSL, Set<String> bindingsFromActions, Map<String, EntityDependencyNode> actionsFoundDuringWalk, Map<String, Set<String>> widgetDynamicBindingsMap, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<EntityDependencyNode> actionBindingsInDsl, int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(Set<ActionDependencyEdge> edges,
+                                                                                Set<String> actionsUsedInDSL,
+                                                                                Set<String> bindingsFromActions,
+                                                                                Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+                                                                                Map<String, Set<String>> widgetDynamicBindingsMap,
+                                                                                Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                                Set<EntityDependencyNode> actionBindingsInDsl,
+                                                                                int evalVersion) {
         return Flux.fromIterable(widgetDynamicBindingsMap.entrySet()).flatMap(entry -> {
             String widgetName = entry.getKey();
             // For each widget in the DSL that has a dynamic binding, we define an entity dependency node beforehand
@@ -397,7 +415,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param actionBindingsInDsl
      * @return
      */
-    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames, Set<String> widgetNames, Set<ActionDependencyEdge> edges, Set<EntityDependencyNode> actionBindingsInDsl) {
+    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
+                                                                   Set<String> widgetNames,
+                                                                   Set<ActionDependencyEdge> edges,
+                                                                   Set<EntityDependencyNode> actionBindingsInDsl) {
 
         DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
 
@@ -527,7 +548,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param actionNames         : All the action names for the page
      * @return
      */
-    private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag, Set<String> onPageLoadActionSet, Set<String> actionNames, Set<String> explicitUserSetOnLoadActions) {
+    private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
+                                                                      Set<String> onPageLoadActionSet,
+                                                                      Set<String> actionNames,
+                                                                      Set<String> explicitUserSetOnLoadActions) {
         Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
 
@@ -568,7 +592,11 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      *
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(Set<ActionDependencyEdge> edges, Map<String, EntityDependencyNode> actionsFoundDuringWalk, Set<String> dynamicBindings, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(Set<ActionDependencyEdge> edges,
+                                                                                                       Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+                                                                                                       Set<String> dynamicBindings,
+                                                                                                       Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                                                       int evalVersion) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
             return Mono.just(edges);
         }
@@ -617,7 +645,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsFromActions
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId, Set<ActionDependencyEdge> edges, Set<String> explicitUserSetOnLoadActions, Map<String, EntityDependencyNode> actionsFoundDuringWalk, Set<String> bindingsFromActions, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<EntityDependencyNode> actionBindingsInDsl, int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId,
+                                                                                   Set<ActionDependencyEdge> edges,
+                                                                                   Set<String> explicitUserSetOnLoadActions,
+                                                                                   Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+                                                                                   Set<String> bindingsFromActions,
+                                                                                   Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                                   Set<EntityDependencyNode> actionBindingsInDsl,
+                                                                                   int evalVersion) {
 
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId).flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false)).flatMap(newActionService::fillSelfReferencingDataPaths)
@@ -645,7 +680,13 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsFromActions
      * @param actionsFoundDuringWalk
      */
-    private Mono<Void> extractAndSetActionBindingsInGraphEdges(EntityDependencyNode entityDependencyNode, Set<ActionDependencyEdge> edges, Set<String> bindingsFromActions, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Map<String, EntityDependencyNode> actionsFoundDuringWalk, Set<EntityDependencyNode> bindingsInDsl, int evalVersion) {
+    private Mono<Void> extractAndSetActionBindingsInGraphEdges(EntityDependencyNode entityDependencyNode,
+                                                               Set<ActionDependencyEdge> edges,
+                                                               Set<String> bindingsFromActions,
+                                                               Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                               Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+                                                               Set<EntityDependencyNode> bindingsInDsl,
+                                                               int evalVersion) {
 
         ActionDTO action = entityDependencyNode.getActionDTO();
 
@@ -698,7 +739,9 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param widgetBindingMap
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges, Map<String, Set<String>> widgetBindingMap, int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
+                                                                         Map<String, Set<String>> widgetBindingMap,
+                                                                         int evalVersion) {
         final int entityTypes = WIDGET_ENTITY_REFERENCES;
         // This part will ensure that we are discovering widget to widget relationships.
         return Flux.fromIterable(widgetBindingMap.entrySet()).doOnNext(widgetBindingEntries -> getPossibleEntityParentsMap(widgetBindingEntries.getValue(), entityTypes, evalVersion).doOnNext(possibleParentsMap -> {
@@ -876,7 +919,11 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param existingPageLoadActions
      * @return
      */
-    private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames, String vertex, Map<String, Integer> pageLoadActionsLevelMap, List<Set<String>> existingPageLoadActions, Set<String> explicitUserSetOnLoadActions) {
+    private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
+                                                               String vertex,
+                                                               Map<String, Integer> pageLoadActionsLevelMap,
+                                                               List<Set<String>> existingPageLoadActions,
+                                                               Set<String> explicitUserSetOnLoadActions) {
 
         Set<String> onPageLoadCandidates = new HashSet<>();
 
