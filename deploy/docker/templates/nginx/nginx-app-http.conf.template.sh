@@ -14,7 +14,7 @@ map \$http_x_forwarded_proto \$origin_scheme {
   '' \$scheme;
 }
 
-map \$http_x_forwarded_proto \$origin_host {
+map \$http_x_forwarded_host \$origin_host {
   default \$http_x_forwarded_host;
   '' \$host;
 }
@@ -53,11 +53,11 @@ server {
     proxy_max_temp_file_size 0;
     proxy_redirect     off;
 
-    proxy_set_header  Host             	\$http_host/supervisor/;
-    proxy_set_header  X-Forwarded-For  	\$proxy_add_x_forwarded_for;
-    proxy_set_header 	X-Forwarded-Proto \$origin_scheme;
-    proxy_set_header 	X-Forwarded-Host 	\$origin_host;
-    proxy_set_header  Connection       "";
+    proxy_set_header  Host              \$http_host/supervisor/;
+    proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header  X-Forwarded-Proto \$origin_scheme;
+    proxy_set_header  X-Forwarded-Host  \$origin_host;
+    proxy_set_header  Connection        "";
 
     proxy_pass http://localhost:9001/;
 
@@ -66,7 +66,7 @@ server {
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
-  proxy_set_header X-Forwarded-Host \$origin_host;
+  proxy_set_header X-Forwarded-Host  \$origin_host;
 
   location / {
     try_files \$uri /index.html =404;
