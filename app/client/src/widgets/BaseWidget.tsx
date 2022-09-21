@@ -479,7 +479,10 @@ abstract class BaseWidget<
 
   addDynamicHeightContainer = (content: ReactNode) => {
     return (
-      <DynamicHeightContainer maxDynamicHeight={this.props.maxDynamicHeight}>
+      <DynamicHeightContainer
+        dynamicHeight={this.props.dynamicHeight}
+        maxDynamicHeight={this.props.maxDynamicHeight}
+      >
         {content}
       </DynamicHeightContainer>
     );
@@ -532,7 +535,7 @@ abstract class BaseWidget<
 
   getCanvasView(): ReactNode {
     let content = this.getPageView();
-    if (this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    if (isDynamicHeightEnabledForWidget(this.props)) {
       content = this.addDynamicHeightContainer(content);
     }
     return this.addErrorBoundary(content);
