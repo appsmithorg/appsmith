@@ -27,32 +27,39 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
   localUnEvalTree: DataTree,
 ) => {
-  if (!isEmpty(jsUpdates)) {
-    Object.keys(jsUpdates).forEach((jsEntity) => {
-      const entity = localUnEvalTree[jsEntity];
-      const parsedBody = jsUpdates[jsEntity].parsedBody;
-      if (isJSAction(entity)) {
-        if (!!parsedBody) {
-          //add/delete/update functions from dataTree
-          localUnEvalTree = updateJSCollectionInUnEvalTree(
-            parsedBody,
-            entity,
-            localUnEvalTree,
-          );
-        } else {
-          //if parse error remove functions and variables from dataTree
-          localUnEvalTree = removeFunctionsAndVariableJSCollection(
-            localUnEvalTree,
-            entity,
-          );
-        }
-      }
-    });
+  if (isEmpty(jsUpdates)) return localUnEvalTree;
+
+  for (const jsEntity of Object.keys(jsUpdates)) {
+    const entity = localUnEvalTree[jsEntity];
+    const parsedBody = jsUpdates[jsEntity].parsedBody;
+    if (!isJSAction(entity)) continue;
+    if (!!parsedBody) {
+      //add/delete/update functions from dataTree
+      localUnEvalTree = updateJSCollectionInUnEvalTree(
+        parsedBody,
+        entity,
+        localUnEvalTree,
+      );
+    } else {
+      //if parse error remove functions and variables from dataTree
+      localUnEvalTree = removeFunctionsAndVariableJSCollection(
+        localUnEvalTree,
+        entity,
+      );
+    }
   }
+
   return localUnEvalTree;
 };
 
-const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+class InvalidSyntaxError extends Error {}
+
+function assertJSObjectSyntax(objectString: string) {
+  const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+  if (!regex.test(objectString))
+    throw new InvalidSyntaxError("JSObject should start with export default");
+  return true;
+}
 
 /**
  * Here we parse the JSObject and then determine
@@ -74,109 +81,107 @@ export function saveResolvedFunctionsAndJSUpdates(
   unEvalDataTree: DataTree,
   entityName: string,
 ) {
-  const correctFormat = regex.test(entity.body);
-  if (correctFormat) {
+  try {
+    assertJSObjectSyntax(entity.body);
     const body = entity.body.replace(/export default/g, "");
-    try {
-      delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
-      delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
-      const parseStartTime = performance.now();
-      const parsedObject = parseJSObjectWithAST(body);
-      const parseEndTime = performance.now();
-      const JSObjectASTParseTime = parseEndTime - parseStartTime;
-      dataTreeEvalRef.logs.push({
-        JSObjectName: entityName,
-        JSObjectASTParseTime,
-      });
-      const actions: any = [];
-      const variables: any = [];
-      if (!!parsedObject) {
-        parsedObject.forEach((parsedElement) => {
-          if (isTypeOfFunction(parsedElement.type)) {
-            try {
-              const { result } = evaluateSync(
-                parsedElement.value,
-                unEvalDataTree,
-                {},
-                true,
-                undefined,
-                undefined,
-                true,
-              );
-              if (!!result) {
-                let params: Array<{ key: string; value: unknown }> = [];
-
-                if (parsedElement.arguments) {
-                  params = parsedElement.arguments.map(
-                    ({ defaultValue, paramName }) => ({
-                      key: paramName,
-                      value: defaultValue,
-                    }),
-                  );
-                }
-
-                const functionString = parsedElement.value;
-                set(
-                  dataTreeEvalRef.resolvedFunctions,
-                  `${entityName}.${parsedElement.key}`,
-                  result,
-                );
-                set(
-                  dataTreeEvalRef.currentJSCollectionState,
-                  `${entityName}.${parsedElement.key}`,
-                  functionString,
-                );
-                actions.push({
-                  name: parsedElement.key,
-                  body: functionString,
-                  arguments: params,
-                  parsedFunction: result,
-                  isAsync: false,
-                });
-              }
-            } catch {
-              // in case we need to handle error state
-            }
-          } else if (parsedElement.type !== "literal") {
-            variables.push({
-              name: parsedElement.key,
-              value: parsedElement.value,
-            });
-            set(
-              dataTreeEvalRef.currentJSCollectionState,
-              `${entityName}.${parsedElement.key}`,
+    delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
+    delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
+    const parseStartTime = performance.now();
+    const parsedObject = parseJSObjectWithAST(body);
+    const parseEndTime = performance.now();
+    const JSObjectASTParseTime = parseEndTime - parseStartTime;
+    dataTreeEvalRef.logs.push({
+      JSObjectName: entityName,
+      JSObjectASTParseTime,
+    });
+    const actions: any = [];
+    const variables: any = [];
+    if (!!parsedObject) {
+      parsedObject.forEach((parsedElement) => {
+        if (isTypeOfFunction(parsedElement.type)) {
+          try {
+            const { result } = evaluateSync(
               parsedElement.value,
+              unEvalDataTree,
+              {},
+              true,
+              undefined,
+              undefined,
+              true,
             );
+            if (!!result) {
+              let params: Array<{ key: string; value: unknown }> = [];
+
+              if (parsedElement.arguments) {
+                params = parsedElement.arguments.map(
+                  ({ defaultValue, paramName }) => ({
+                    key: paramName,
+                    value: defaultValue,
+                  }),
+                );
+              }
+
+              const functionString = parsedElement.value;
+              set(
+                dataTreeEvalRef.resolvedFunctions,
+                `${entityName}.${parsedElement.key}`,
+                result,
+              );
+              set(
+                dataTreeEvalRef.currentJSCollectionState,
+                `${entityName}.${parsedElement.key}`,
+                functionString,
+              );
+              actions.push({
+                name: parsedElement.key,
+                body: functionString,
+                arguments: params,
+                parsedFunction: result,
+                isAsync: false,
+              });
+            }
+          } catch {
+            // in case we need to handle error state
           }
-        });
-        const parsedBody = {
-          body: entity.body,
-          actions: actions,
-          variables,
-        };
-        set(jsUpdates, `${entityName}`, {
-          parsedBody,
-          id: entity.actionId,
-        });
-      } else {
-        set(jsUpdates, `${entityName}`, {
-          parsedBody: undefined,
-          id: entity.actionId,
-        });
-      }
-    } catch (e) {
-      //if we need to push error as popup in case
+        } else if (parsedElement.type !== "literal") {
+          variables.push({
+            name: parsedElement.key,
+            value: parsedElement.value,
+          });
+          set(
+            dataTreeEvalRef.currentJSCollectionState,
+            `${entityName}.${parsedElement.key}`,
+            parsedElement.value,
+          );
+        }
+      });
+      const parsedBody = {
+        body: entity.body,
+        actions: actions,
+        variables,
+      };
+      set(jsUpdates, `${entityName}`, {
+        parsedBody,
+        id: entity.actionId,
+      });
+    } else {
+      set(jsUpdates, `${entityName}`, {
+        parsedBody: undefined,
+        id: entity.actionId,
+      });
     }
-  } else {
-    const errors = {
-      type: EvalErrorTypes.PARSE_JS_ERROR,
-      context: {
-        entity: entity,
-        propertyPath: entity.name + ".body",
-      },
-      message: "Start object with export default",
-    };
-    dataTreeEvalRef.errors.push(errors);
+  } catch (e) {
+    if (e instanceof InvalidSyntaxError) {
+      const errors = {
+        type: EvalErrorTypes.PARSE_JS_ERROR,
+        context: {
+          entity: entity,
+          propertyPath: entity.name + ".body",
+        },
+        message: "Start object with export default",
+      };
+      dataTreeEvalRef.errors.push(errors);
+    }
   }
   return jsUpdates;
 }

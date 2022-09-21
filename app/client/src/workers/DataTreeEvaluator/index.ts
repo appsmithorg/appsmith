@@ -255,7 +255,7 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     evalMetaUpdates: EvalMetaUpdates;
   }> {
-    let localUnEvalTree = klona(unEvalTree);
+    let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
     let jsUpdates: Record<string, JSUpdate> = {};
     // Calculate diff

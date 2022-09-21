@@ -22,11 +22,8 @@ export const updateJSCollectionInUnEvalTree = (
 ) => {
   // jsCollection here means unEvalTree JSObject
   const modifiedUnEvalTree = unEvalTree;
-  const functionsList: Array<string> = [];
   const varList: Array<string> = jsCollection.variables;
-  Object.keys(jsCollection.meta).forEach((action) => {
-    functionsList.push(action);
-  });
+  const functionsList: Array<string> = Object.keys(jsCollection.meta);
 
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
@@ -234,15 +231,11 @@ export const removeFunctionsAndVariableJSCollection = (
   entity: DataTreeJSAction,
 ) => {
   const modifiedDataTree: DataTree = unEvalTree;
-  const functionsList: Array<string> = [];
-  Object.keys(entity.meta).forEach((action) => {
-    functionsList.push(action);
-  });
+  const functionsList: Array<string> = Object.keys(entity.meta);
   //removed variables
   const varList: Array<string> = entity.variables;
   set(modifiedDataTree, `${entity.name}.variables`, []);
-  for (let i = 0; i < varList.length; i++) {
-    const varName = varList[i];
+  for (const varName of varList) {
     unset(modifiedDataTree[entity.name], varName);
   }
   //remove functions
