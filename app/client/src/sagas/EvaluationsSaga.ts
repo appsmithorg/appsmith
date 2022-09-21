@@ -135,7 +135,6 @@ function* evaluateTreeSaga(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const appMode: APP_MODE | undefined = yield select(getAppMode);
-  if (appMode === APP_MODE.PUBLISHED) shouldReplay = false;
 
   // @ts-expect-error: Worker Response is unknown
   const workerResponse = yield call(
