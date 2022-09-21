@@ -5,6 +5,9 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 
+// @ts-expect-error: loader types not available
+import cssVariables from "!!raw-loader!theme/wds.css";
+
 import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 import { isMacOs } from "utils/AppsmithUtils";
 
@@ -154,10 +157,17 @@ const StyledRTEditor = styled.div<{
     &:focus {
       background: var(--wds-color-bg-focus);
     }
+    &:active {
+      background: var(--wds-color-bg-focus);
+    }
   }
 
   .tox .tox-tbtn:focus:not(.tox-tbtn--disabled) {
-    color: var(--wds-color-bg-selected);
+    background: var(--wds-color-bg-selected);
+  }
+
+  .tox .tox-tbtn:active:not(.tox-tbtn--disabled) {
+    background: var(--wds-color-bg-focus);
   }
 
   .tox .tox-split-button__chevron {
@@ -307,6 +317,14 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             branding: false,
             resize: false,
             browser_spellcheck: true,
+            content_style: `${cssVariables}
+            * {
+              color: ${
+                props.isDisabled
+                  ? "var(--wds-color-text-disabled)"
+                  : "var(--wds-color-text)"
+              };
+            }`,
             plugins: [
               "advlist autolink lists link image charmap print preview anchor",
               "searchreplace visualblocks code fullscreen",
