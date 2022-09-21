@@ -80,9 +80,9 @@ function DebuggerTabs(props: DebuggerTabsProps) {
       />
       <Icon
         className="close-debugger t--close-debugger"
-        name="cross"
+        name="expand-more"
         onClick={onClose}
-        size={IconSize.SMALL}
+        size={IconSize.XXXXL}
       />
     </Container>
   );
