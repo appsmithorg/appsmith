@@ -572,9 +572,13 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
-  const isChangeRestricted = !isPermitted(
+  const isChangePermitted = isPermitted(
     currentActionConfig?.userPermissions || [""],
     PERMISSION_TYPE.MANAGE_ACTIONS,
+  );
+  const isExecutePermitted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.EXECUTE_ACTIONS,
   );
 
   const plugin = useSelector((state: AppState) =>
@@ -598,7 +602,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor disabled={isChangeRestricted} page="API_PANE" />
+              <ActionNameEditor disabled={!isChangePermitted} page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreActionsMenu
@@ -613,6 +617,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
+                disabled={!isExecutePermitted}
                 isLoading={isRunning}
                 onClick={() => {
                   onRunClick();

@@ -59,6 +59,10 @@ import {
   TabbedViewContainer,
 } from "./styledComponents";
 import { EventLocation } from "utils/AnalyticsUtil";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -213,6 +217,15 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 
+  const isChangePermitted = isPermitted(
+    currentJSCollection?.userPermissions || [""],
+    PERMISSION_TYPE.MANAGE_ACTIONS,
+  );
+  const isExecutePermitted = isPermitted(
+    currentJSCollection?.userPermissions || [""],
+    PERMISSION_TYPE.EXECUTE_ACTIONS,
+  );
+
   return (
     <FormWrapper>
       <JSObjectHotKeys
@@ -226,7 +239,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         <Form>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
-              <JSObjectNameEditor page="JS_PANE" />
+              <JSObjectNameEditor
+                disabled={!isChangePermitted}
+                page="JS_PANE"
+              />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreJSCollectionsMenu
@@ -240,7 +256,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 entityType={ENTITY_TYPE.JSACTION}
               />
               <JSFunctionRun
-                disabled={disableRunFunctionality}
+                disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
                 jsCollection={currentJSCollection}
                 onButtonClick={(
@@ -272,6 +288,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                         className={"js-editor"}
                         customGutter={JSGutters}
                         dataTreePath={`${currentJSCollection.name}.body`}
+                        disabled={!isChangePermitted}
                         folding
                         height={"100%"}
                         hideEvaluatedValue
@@ -294,7 +311,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     key: "settings",
                     title: "Settings",
                     panelComponent: (
-                      <JSFunctionSettingsView actions={jsActions} />
+                      <JSFunctionSettingsView
+                        actions={jsActions}
+                        disabled={!isChangePermitted}
+                      />
                     ),
                   },
                 ]}

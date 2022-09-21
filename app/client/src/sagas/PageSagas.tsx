@@ -538,7 +538,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const currentPage: Page = yield select(getPageById(currentPageId));
 
     if (
-      isPermitted(
+      !isPermitted(
         currentPage?.userPermissions || [""],
         PERMISSION_TYPE.MANAGE_PAGES,
       )
@@ -559,10 +559,6 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       payload: {
         error,
       },
-    });
-    // if no permissions remove above
-    yield put({
-      type: ReduxActionErrorTypes.ENTITY_UPDATE_ERROR,
     });
   }
 }
