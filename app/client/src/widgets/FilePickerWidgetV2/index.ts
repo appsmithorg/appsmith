@@ -18,6 +18,7 @@ export const CONFIG = {
     maxNumFiles: 1,
     maxFileSize: 5,
     fileDataType: FileDataTypes.Base64,
+    dynamicTyping: true,
     widgetName: "FilePicker",
     isDefaultClickDisabled: true,
     version: 1,
