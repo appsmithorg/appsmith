@@ -67,6 +67,7 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
     backgroundColor || FOOTER_DEFAULT_BG_COLOR};
   bottom: 0;
   display: flex;
+  gap: ${FOOTER_BUTTON_GAP}px;
   justify-content: flex-end;
   padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
   padding-top: ${FOOTER_PADDING_TOP}px;
@@ -81,15 +82,6 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
   && > button,
   && > div {
     width: ${BUTTON_WIDTH}px;
-  }
-
-  && > button,
-  && > div {
-    margin-right: ${FOOTER_BUTTON_GAP}px;
-  }
-
-  & > button:last-of-type {
-    margin-right: 0;
   }
 `;
 
