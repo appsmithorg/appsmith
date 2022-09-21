@@ -499,7 +499,11 @@ public class MustacheHelper {
         return replaceMustacheUsingPatterns(query, "?", mustacheBindings, quoteQuestionPattern, postQuoteTrimmingQuestionMark);
     }
 
-    private static String replaceMustacheUsingPatterns(String query, String placeholder, List<String> mustacheBindings, Pattern sanitizePattern, String replacement) {
+    private static String replaceMustacheUsingPatterns(String query,
+                                                       String placeholder,
+                                                       List<String> mustacheBindings,
+                                                       Pattern sanitizePattern,
+                                                       String replacement) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
 
