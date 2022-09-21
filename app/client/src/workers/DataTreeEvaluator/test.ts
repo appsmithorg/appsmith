@@ -205,8 +205,11 @@ describe("DataTreeEvaluator", () => {
     beforeEach(() => {
       dataTreeEvaluator.createFirstTree({});
     });
-    it("set's isAsync tag for cross JsObject references", () => {
-      const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
+    it("set's isAsync tag for cross JsObject references", async () => {
+      const result = await parseJSActions(
+        dataTreeEvaluator,
+        asyncTagUnevalTree,
+      );
       expect(
         result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
       ).toBe(true);

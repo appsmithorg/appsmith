@@ -17,7 +17,6 @@ import {
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, {
-  evaluateAsync,
   evaluateJSString,
   setupEvaluationEnvironment,
 } from "workers/evaluate";
@@ -88,7 +87,6 @@ ctx.addEventListener(
     async (
       method,
       requestData: any,
-      requestId,
     ): Promise<EvalTreePayload | boolean | any> => {
       switch (method) {
         case EVAL_WORKER_ACTIONS.SETUP: {
@@ -331,9 +329,7 @@ ctx.addEventListener(
           const evalTree = dataTreeEvaluator?.evalTree;
           if (!evalTree) return {};
           // TODO find a way to do this for snippets
-          return isTrigger
-            ? evaluateAsync(expression, evalTree, "SNIPPET", {})
-            : evaluate(expression, evalTree, {}, false);
+          return evaluateJSString(expression, evalTree, {}, isTrigger);
         case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
           const { entity, entityId, entityType } = requestData;
           const replayObject = replayMap[entityId];

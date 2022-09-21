@@ -56,7 +56,6 @@ import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import {
   EvalResult,
   EvaluateContext,
-  evaluateAsync,
   evaluateJSString,
 } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
@@ -143,7 +142,7 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parsedCollections = await parseJSActions(this, localUnEvalTree);
     jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
@@ -275,7 +274,7 @@ export default class DataTreeEvaluator {
       ),
     );
     //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActions(
+    const parsedCollections = await parseJSActions(
       this,
       localUnEvalTree,
       jsTranslatedDiffs,
@@ -914,7 +913,6 @@ export default class DataTreeEvaluator {
     }
     try {
       // else return a combined value according to the evaluation type
-      debugger;
       return substituteDynamicBindingWithValues(
         dynamicBinding,
         stringSegments,

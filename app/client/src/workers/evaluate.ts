@@ -13,6 +13,7 @@ import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs, { LogObject } from "./UserLog";
+import { klona } from "klona/full";
 
 export type EvalResult = {
   result: any;
@@ -419,13 +420,14 @@ export function isFunctionAsync(
   logs: unknown[] = [],
 ) {
   return (function() {
+    const dataTreeClone = klona(dataTree);
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
       ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };
     //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTreeClone);
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
