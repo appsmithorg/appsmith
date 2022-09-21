@@ -40,7 +40,8 @@ public enum AclPermission {
     TENANT_MANAGE_USER_GROUPS("tenantManageUserGroups:tenant", Tenant.class),
     TENANT_READ_USER_GROUPS("tenantReadUserGroups:tenant", Tenant.class),
     TENANT_DELETE_USER_GROUPS("tenantDeleteUserGroups:tenant", Tenant.class),
-    TENANT_ADD_USER_TO_ALL_USER_GROUPS("tenantAssignUserGroups:tenant", Tenant.class),
+    TENANT_ADD_USER_TO_ALL_USER_GROUPS("tenantAddUsersToGroups:tenant", Tenant.class),
+    TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS("tenantRemoveUserFromGroups:tenant", Tenant.class),
 
     CREATE_USER_GROUPS("createUserGroups:tenant", Tenant.class),
     CREATE_WORKSPACES("createWorkspaces:tenant", Tenant.class),
@@ -143,6 +144,8 @@ public enum AclPermission {
     READ_USER_GROUPS("read:userGroups", UserGroup.class),
     DELETE_USER_GROUPS("delete:userGroups", UserGroup.class),
     ADD_USERS_TO_USER_GROUPS("addUsers:userGroups", UserGroup.class),
+    REMOVE_USERS_FROM_USER_GROUPS("removeUsers:userGroups", UserGroup.class),
+
     ;
 
 
