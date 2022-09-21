@@ -51,9 +51,6 @@ import {
   enumTypeGetter,
 } from "./utils";
 
-/* eslint-disable @typescript-eslint/ban-types */
-/* TODO: Function and object types need to be updated to enable the lint rule */
-
 /**
  ******** Steps to add a new function *******
  * In this file:
@@ -439,7 +436,7 @@ const fieldConfigs: FieldConfigs = {
 };
 
 function renderField(props: {
-  onValueChange: Function;
+  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   value: string;
   field: { field: FieldType; value: string; label: string; index: number };
   label?: string;
@@ -590,7 +587,7 @@ function renderField(props: {
             props.value,
             props.field.index,
           );
-          props.onValueChange(finalValueToSet);
+          props.onValueChange(finalValueToSet, false);
         },
         index: props.field.index,
         value: props.value || "",
@@ -603,7 +600,7 @@ function renderField(props: {
         get: fieldConfig.getter,
         set: (value: string | DropdownOption) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
-          props.onValueChange(finalValueToSet);
+          props.onValueChange(finalValueToSet, false);
         },
         value: props.value,
         defaultText: "Select Action",
@@ -670,7 +667,7 @@ function renderField(props: {
 }
 
 function Fields(props: {
-  onValueChange: Function;
+  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   value: string;
   fields: any;
   label?: string;

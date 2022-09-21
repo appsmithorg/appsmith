@@ -2,7 +2,7 @@ import { SwitcherProps, TreeDropdownOption } from "design-system";
 import React from "react";
 import { FieldType, ViewTypes, Actions } from "./constants";
 
-export type GenericFunction = (...args: any[]) => unknown;
+export type GenericFunction = (...args: any[]) => any;
 
 export type Switch = {
   id: string;
