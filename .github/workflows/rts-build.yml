@@ -128,7 +128,9 @@ jobs:
       # Set status = failure
       - name: Set result as failed if there are build failures
         if: failure()
-        run: echo "::set-output name=run_result::failed" > ~/run_result
+        run: |
+          echo "::set-output name=run_result::failed" > ~/run_result
+          exit 1;
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
