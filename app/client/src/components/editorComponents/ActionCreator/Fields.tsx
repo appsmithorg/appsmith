@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   TreeDropdown,
   Setter,
@@ -26,10 +25,20 @@ import DividerComponent from "widgets/DividerWidget/component";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
 import {
-  APPSMITH_GLOBAL_FUNCTIONS,
-  APPSMITH_NAMESPACED_FUNCTIONS,
+  ALERT_STYLE_OPTIONS,
+  RESET_CHILDREN_OPTIONS,
+  FILE_TYPE_OPTIONS,
+  NAVIGATION_TARGET_FIELD_OPTIONS,
+  ViewTypes,
+  ActionType,
+  FieldType,
 } from "./constants";
 import { PopoverPosition } from "@blueprintjs/core";
+import {
+  FUNC_ARGS_REGEX,
+  ACTION_TRIGGER_REGEX,
+  IS_URL_OR_MODAL,
+} from "./regex";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -60,47 +69,6 @@ type Switch = {
   action: () => void;
 };
 
-const ALERT_STYLE_OPTIONS = [
-  { label: "Info", value: "'info'", id: "info" },
-  { label: "Success", value: "'success'", id: "success" },
-  { label: "Error", value: "'error'", id: "error" },
-  { label: "Warning", value: "'warning'", id: "warning" },
-];
-
-const RESET_CHILDREN_OPTIONS = [
-  { label: "true", value: "true", id: "true" },
-  { label: "false", value: "false", id: "false" },
-];
-
-const FILE_TYPE_OPTIONS = [
-  { label: "Select file type (optional)", value: "", id: "" },
-  { label: "Plain text", value: "'text/plain'", id: "text/plain" },
-  { label: "HTML", value: "'text/html'", id: "text/html" },
-  { label: "CSV", value: "'text/csv'", id: "text/csv" },
-  { label: "JSON", value: "'application/json'", id: "application/json" },
-  { label: "JPEG", value: "'image/jpeg'", id: "image/jpeg" },
-  { label: "PNG", value: "'image/png'", id: "image/png" },
-  { label: "SVG", value: "'image/svg+xml'", id: "image/svg+xml" },
-];
-
-const NAVIGATION_TARGET_FIELD_OPTIONS = [
-  {
-    label: "Same window",
-    value: `'${NavigationTargetType.SAME_WINDOW}'`,
-    id: NavigationTargetType.SAME_WINDOW,
-  },
-  {
-    label: "New window",
-    value: `'${NavigationTargetType.NEW_WINDOW}'`,
-    id: NavigationTargetType.NEW_WINDOW,
-  },
-];
-
-export const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[][\s\S]*[\]])|([\{][\s\S]*[\}])|(['][^']*['])|([\(][\s\S]*[\)][ ]*=>[ ]*[{][\s\S]*[}])|([^'",][^,"+]*[^'",]*))*/gi;
-export const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
-//Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
-export const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
-export const IS_URL_OR_MODAL = /^'.*'$/;
 const modalSetter = (changeValue: any, currentValue: string) => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   let args: string[] = [];
@@ -238,23 +206,8 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-export const ActionType = {
-  none: "none",
-  integration: "integration",
-  jsFunction: "jsFunction",
-  ...APPSMITH_GLOBAL_FUNCTIONS,
-  ...APPSMITH_NAMESPACED_FUNCTIONS,
-};
-
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
-const ViewTypes = {
-  SELECTOR_VIEW: "SELECTOR_VIEW",
-  KEY_VALUE_VIEW: "KEY_VALUE_VIEW",
-  TEXT_VIEW: "TEXT_VIEW",
-  BOOL_VIEW: "BOOL_VIEW",
-  TAB_VIEW: "TAB_VIEW",
-};
 type ViewTypes = typeof ViewTypes[keyof typeof ViewTypes];
 
 type ViewProps = {
@@ -356,38 +309,6 @@ const views = {
     );
   },
 };
-
-export enum FieldType {
-  ACTION_SELECTOR_FIELD = "ACTION_SELECTOR_FIELD",
-  JS_ACTION_SELECTOR_FIELD = "JS_ACTION_SELECTOR_FIELD",
-  ON_SUCCESS_FIELD = "ON_SUCCESS_FIELD",
-  ON_ERROR_FIELD = "ON_ERROR_FIELD",
-  SHOW_MODAL_FIELD = "SHOW_MODAL_FIELD",
-  CLOSE_MODAL_FIELD = "CLOSE_MODAL_FIELD",
-  PAGE_SELECTOR_FIELD = "PAGE_SELECTOR_FIELD",
-  KEY_VALUE_FIELD = "KEY_VALUE_FIELD",
-  URL_FIELD = "URL_FIELD",
-  ALERT_TEXT_FIELD = "ALERT_TEXT_FIELD",
-  ALERT_TYPE_SELECTOR_FIELD = "ALERT_TYPE_SELECTOR_FIELD",
-  KEY_TEXT_FIELD = "KEY_TEXT_FIELD",
-  VALUE_TEXT_FIELD = "VALUE_TEXT_FIELD",
-  QUERY_PARAMS_FIELD = "QUERY_PARAMS_FIELD",
-  DOWNLOAD_DATA_FIELD = "DOWNLOAD_DATA_FIELD",
-  DOWNLOAD_FILE_NAME_FIELD = "DOWNLOAD_FILE_NAME_FIELD",
-  DOWNLOAD_FILE_TYPE_FIELD = "DOWNLOAD_FILE_TYPE_FIELD",
-  COPY_TEXT_FIELD = "COPY_TEXT_FIELD",
-  NAVIGATION_TARGET_FIELD = "NAVIGATION_TARGET_FIELD",
-  WIDGET_NAME_FIELD = "WIDGET_NAME_FIELD",
-  RESET_CHILDREN_FIELD = "RESET_CHILDREN_FIELD",
-  ARGUMENT_KEY_VALUE_FIELD = "ARGUMENT_KEY_VALUE_FIELD",
-  CALLBACK_FUNCTION_FIELD = "CALLBACK_FUNCTION_FIELD",
-  DELAY_FIELD = "DELAY_FIELD",
-  ID_FIELD = "ID_FIELD",
-  CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
-  MESSAGE_FIELD = "MESSAGE_FIELD",
-  TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
-  PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD = "PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD",
-}
 
 type FieldConfig = {
   getter: Function;

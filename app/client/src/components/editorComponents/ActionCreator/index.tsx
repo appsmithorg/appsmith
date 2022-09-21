@@ -24,12 +24,7 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import Fields, {
-  ACTION_ANONYMOUS_FUNC_REGEX,
-  ACTION_TRIGGER_REGEX,
-  ActionType,
-  FieldType,
-} from "./Fields";
+import Fields from "./Fields";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
@@ -62,6 +57,8 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { connect } from "react-redux";
 import { isValidURL } from "utils/URLUtils";
+import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
+import { NAVIGATE_TO_TAB_OPTIONS, ActionType, FieldType } from "./constants";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -591,11 +588,6 @@ type ActionCreatorProps = {
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
   pageDropdownOptions: TreeDropdownOption[];
-};
-
-const NAVIGATE_TO_TAB_OPTIONS = {
-  PAGE_NAME: "page-name",
-  URL: "url",
 };
 
 const isValueValidURL = (value: string) => {
