@@ -14,7 +14,6 @@ import {
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
@@ -33,11 +32,7 @@ import {
   FieldType,
 } from "./constants";
 import { PopoverPosition } from "@blueprintjs/core";
-import {
-  FUNC_ARGS_REGEX,
-  ACTION_TRIGGER_REGEX,
-  IS_URL_OR_MODAL,
-} from "./regex";
+import { ACTION_TRIGGER_REGEX } from "./regex";
 import {
   Switch,
   ActionType,
@@ -47,6 +42,14 @@ import {
   TabViewProps,
   FieldConfigs,
 } from "./types";
+import {
+  modalSetter,
+  modalGetter,
+  textSetter,
+  textGetter,
+  enumTypeSetter,
+  enumTypeGetter,
+} from "./utils";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -70,143 +73,6 @@ import {
  * 1. Add the new action entry and its text in the baseOptions array
  * 2. Attach fields to the new action in the getFieldFromValue function
  **/
-
-const modalSetter = (changeValue: any, currentValue: string) => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = matches[0][2].split(",");
-    if (isDynamicValue(changeValue)) {
-      args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
-    } else {
-      args[0] = `'${changeValue}'`;
-    }
-  }
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-};
-
-export const modalGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  let name = "none";
-  if (matches.length) {
-    const modalName = matches[0][2].split(",")[0];
-    if (IS_URL_OR_MODAL.test(modalName) || modalName === "") {
-      name = modalName.substring(1, modalName.length - 1);
-    } else {
-      name = `{{${modalName}}}`;
-    }
-  }
-  return name;
-};
-
-export const stringToJS = (string: string): string => {
-  const { jsSnippets, stringSegments } = getDynamicBindings(string);
-  const js = stringSegments
-    .map((segment, index) => {
-      if (jsSnippets[index] && jsSnippets[index].length > 0) {
-        return jsSnippets[index];
-      } else {
-        return `'${segment}'`;
-      }
-    })
-    .join(" + ");
-  return js;
-};
-
-export const JSToString = (js: string): string => {
-  const segments = js.split(" + ");
-  return segments
-    .map((segment) => {
-      if (segment.charAt(0) === "'") {
-        return segment.substring(1, segment.length - 1);
-      } else return "{{" + segment + "}}";
-    })
-    .join("");
-};
-
-export const argsStringToArray = (funcArgs: string): string[] => {
-  const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
-  const arr: string[] = [];
-  let isPrevUndefined = true;
-  argsplitMatches.forEach((match) => {
-    const matchVal = match[0];
-    if (!matchVal || matchVal === "") {
-      if (isPrevUndefined) {
-        arr.push(matchVal);
-      }
-      isPrevUndefined = true;
-    } else {
-      isPrevUndefined = false;
-      arr.push(matchVal);
-    }
-  });
-  return arr;
-};
-
-const textSetter = (
-  changeValue: any,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    const jsVal = stringToJS(changeValue);
-    args[argNum] = jsVal;
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const textGetter = (value: string, argNum: number) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    const stringFromJS = arg ? JSToString(arg.trim()) : arg;
-    return stringFromJS;
-  }
-  return "";
-};
-
-const enumTypeSetter = (
-  changeValue: any,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = changeValue as string;
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const enumTypeGetter = (
-  value: string,
-  argNum: number,
-  defaultValue = "",
-): string => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    return arg ? arg.trim() : defaultValue;
-  }
-  return defaultValue;
-};
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
