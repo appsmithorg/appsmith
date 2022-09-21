@@ -31,6 +31,7 @@ async function main() {
           (err, stdout, stderr) => {
             if (err) {
               console.error(err);
+              process.exit(1);
               return;
             }
 
