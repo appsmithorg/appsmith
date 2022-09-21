@@ -34,7 +34,7 @@ import {
 import { PopoverPosition } from "@blueprintjs/core";
 import { ACTION_TRIGGER_REGEX } from "./regex";
 import {
-  Switch,
+  SwitchType,
   ActionType,
   SelectorViewProps,
   KeyValueViewProps,
@@ -447,8 +447,8 @@ function renderField(props: {
   depth: number;
   maxDepth: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  activeNavigateToTab: Switch;
-  navigateToSwitches: Array<Switch>;
+  activeNavigateToTab: SwitchType;
+  navigateToSwitches: Array<SwitchType>;
 }) {
   const { field } = props;
   const fieldType = field.field;
@@ -678,8 +678,8 @@ function Fields(props: {
   depth: number;
   maxDepth: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  navigateToSwitches: Array<Switch>;
-  activeNavigateToTab: Switch;
+  navigateToSwitches: Array<SwitchType>;
+  activeNavigateToTab: SwitchType;
 }) {
   const { fields, ...otherProps } = props;
 

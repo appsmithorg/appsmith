@@ -4,7 +4,7 @@ import { FieldType, ViewTypes, Actions } from "./constants";
 
 export type GenericFunction = (...args: any[]) => any;
 
-export type Switch = {
+export type SwitchType = {
   id: string;
   text: string;
   action: () => void;

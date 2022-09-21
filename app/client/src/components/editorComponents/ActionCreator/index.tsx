@@ -59,7 +59,7 @@ import { connect } from "react-redux";
 import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
 import { NAVIGATE_TO_TAB_OPTIONS, Actions, FieldType } from "./constants";
-import { Switch, ActionCreatorProps, GenericFunction } from "./types";
+import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 
 const baseOptions: { label: string; value: string }[] = [
   {
@@ -142,7 +142,7 @@ const getBaseOptions = (featureFlags: FeatureFlags) => {
 
 function getFieldFromValue(
   value: string | undefined,
-  activeTabNavigateTo: Switch,
+  activeTabNavigateTo: SwitchType,
   getParentValue?: (changeValue: string) => string,
   dataTree?: DataTree,
 ): any[] {
@@ -589,7 +589,7 @@ const isValueValidURL = (value: string) => {
 
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
-    const NAVIGATE_TO_TAB_SWITCHER: Array<Switch> = [
+    const NAVIGATE_TO_TAB_SWITCHER: Array<SwitchType> = [
       {
         id: "page-name",
         text: "Page Name",
