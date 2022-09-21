@@ -130,7 +130,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     } else {
       return {
         value: "LIMIT_EMBEDDING",
-        additionalData: value ? value.replace(" ", ",") : "",
+        additionalData: value ? value.replaceAll(" ", ",") : "",
       };
     }
   },
@@ -140,7 +140,9 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     } else if (value.value === "DISABLE_EMBEDDING_EVERYWHERE") {
       return "'none'";
     } else {
-      return value.additionalData ? value.additionalData.replace(",", " ") : "";
+      return value.additionalData
+        ? value.additionalData.replaceAll(",", " ")
+        : "";
     }
   },
 };
