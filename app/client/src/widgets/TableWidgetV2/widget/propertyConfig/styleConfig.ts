@@ -82,8 +82,10 @@ export default [
             value: "ITALIC",
           },
         ],
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "horizontalAlignment",
@@ -106,8 +108,18 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            },
+          },
+        },
       },
       {
         propertyName: "verticalAlignment",
@@ -129,9 +141,19 @@ export default [
             value: "BOTTOM",
           },
         ],
-        defaultValue: "LEFT",
+        defaultValue: "CENTER",
+        isJSConvertible: true,
         isBindProperty: false,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            },
+          },
+        },
       },
     ],
   },
