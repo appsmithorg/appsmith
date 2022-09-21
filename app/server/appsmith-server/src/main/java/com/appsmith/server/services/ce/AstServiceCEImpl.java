@@ -4,8 +4,13 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.util.WebClientUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -35,13 +40,39 @@ public class AstServiceCEImpl implements AstServiceCE {
             return Mono.just(new ArrayList<>(MustacheHelper.getPossibleParentsOld(bindingValue)));
         }
 
-        // TODO: change this access path after AST restructure. DO NOT attempt to merge PR till this is done
         return WebClientUtils.create(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/single-script-data")
                 .post()
-                .body(BodyInserters.fromValue(Map.of("script", bindingValue, "evalVersion", evalVersion)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(new GetIdentifiersRequest(bindingValue, evalVersion)))
                 .retrieve()
-                .bodyToMono(Map.class)
-                .map(response -> (List<String>) ((Map) response.get("data")).get("references"));
+                .bodyToMono(GetIdentifiersResponse.class)
+                .map(response -> response.data.references);
         // TODO: add error handling scenario for when RTS is not accessible in fat container
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    static class GetIdentifiersRequest {
+        String script;
+        int evalVersion;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    static class GetIdentifiersResponse {
+        GetIdentifiersResponseDetails data;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    static class GetIdentifiersResponseDetails {
+        List<String> references;
+        List<String> functionalParams;
+        List<String> variables;
     }
 }
