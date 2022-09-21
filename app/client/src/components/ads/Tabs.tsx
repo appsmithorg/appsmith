@@ -119,13 +119,6 @@ const TabsWrapper = styled.div<{
         font-weight: normal;
       `}
   }
-
-  ${(props) =>
-    props.responseViewer &&
-    `
-      padding: 0px;
-      margin-top: 10px;
-  `}
 `;
 
 export const TabTitle = styled.span<{ responseViewer?: boolean }>`

@@ -63,10 +63,6 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
-
-  .react-tabs__tab-panel > * {
-    padding-bottom: 10px;
-  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -171,7 +167,6 @@ const HelpSection = styled.div`
 `;
 
 const ResponseBodyContainer = styled.div`
-  padding-top: 10px;
   overflow-y: auto;
   height: 100%;
   display: grid;
