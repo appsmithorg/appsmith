@@ -554,7 +554,13 @@ abstract class BaseWidget<
 
   getCanvasView(): ReactNode {
     let content = this.getPageView();
-    if (isDynamicHeightEnabledForWidget(this.props)) {
+    if (
+      isDynamicHeightEnabledForWidget(this.props) &&
+      this.props.type !== "CONTAINER_WIDGET" &&
+      this.props.type !== "MODAL_WIDGET" &&
+      this.props.type !== "TABS_WIDGET" &&
+      this.props.type !== "FORM_WIDGET"
+    ) {
       content = this.addDynamicHeightContainer(content);
     }
     return this.addErrorBoundary(content);
