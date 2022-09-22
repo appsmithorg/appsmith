@@ -44,7 +44,6 @@ import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
 
 import { klona } from "klona/lite";
-import { PaginationProps } from "rc-pagination";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
