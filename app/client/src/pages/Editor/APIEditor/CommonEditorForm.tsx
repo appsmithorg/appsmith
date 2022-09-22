@@ -759,6 +759,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </TabbedViewContainer>
             <ApiResponseView
               apiName={actionName}
+              disabled={!isExecutePermitted}
               onRunClick={onRunClick}
               responseDataTypes={responseDataTypes}
               responseDisplayFormat={responseDisplayFormat}

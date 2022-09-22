@@ -322,7 +322,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
             </TabbedViewContainer>
             <JSResponseView
               currentFunction={activeResponse}
-              disabled={disableRunFunctionality}
+              disabled={disableRunFunctionality || !isExecutePermitted}
               errors={parseErrors}
               isLoading={isExecutingCurrentJSAction}
               jsObject={currentJSCollection}

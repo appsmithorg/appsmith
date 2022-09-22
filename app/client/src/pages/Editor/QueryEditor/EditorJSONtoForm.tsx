@@ -835,6 +835,7 @@ export function EditorJSONtoForm(props: Props) {
               <Text type={TextType.P1}>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
                 <InlineButton
+                  disabled={!isExecutePermitted}
                   isLoading={isRunning}
                   onClick={responeTabOnRunClick}
                   size={Size.medium}
