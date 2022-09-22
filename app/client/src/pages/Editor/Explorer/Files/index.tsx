@@ -99,7 +99,6 @@ function Files() {
         } else {
           return (
             <ExplorerActionEntity
-              canManageActions={canManageActions}
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}

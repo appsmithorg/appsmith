@@ -14,6 +14,10 @@ import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -25,7 +29,6 @@ type ExplorerActionEntityProps = {
   id: string;
   type: PluginType;
   isActive: boolean;
-  canManageActions?: boolean;
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
@@ -57,8 +60,22 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     });
   }, [url, location.pathname, action.name]);
 
+  const actionPermissions = action.userPermissions || [];
+
+  const canDeleteAction = isPermitted(
+    actionPermissions,
+    PERMISSION_TYPE.DELETE_ACTION,
+  );
+
+  const canManageAction = isPermitted(
+    actionPermissions,
+    PERMISSION_TYPE.MANAGE_ACTION,
+  );
+
   const contextMenu = (
     <ActionEntityContextMenu
+      canDeleteAction={canDeleteAction}
+      canManageAction={canManageAction}
       className={EntityClassNames.CONTEXT_MENU}
       id={action.id}
       name={action.name}
@@ -69,7 +86,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     <Entity
       action={switchToAction}
       active={props.isActive}
-      canEditEntityName={props.canManageActions}
+      canEditEntityName={canManageAction}
       className="action"
       contextMenu={contextMenu}
       entityId={action.id}

@@ -29,18 +29,14 @@ import {
 } from "@appsmith/constants/messages";
 import { builderURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { AppState } from "@appsmith/reducers";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 type EntityContextMenuProps = {
   id: string;
   name: string;
   className?: string;
   pageId: string;
+  canManageAction?: boolean;
+  canDeleteAction?: boolean;
 };
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
@@ -105,20 +101,6 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         },
       }),
     [],
-  );
-
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
-
-  const canEditActions = isPermitted(
-    userWorkspacePermissions,
-    PERMISSION_TYPE.MANAGE_ACTION,
-  );
-
-  const canDeleteActions = isPermitted(
-    userWorkspacePermissions,
-    PERMISSION_TYPE.DELETE_ACTION,
   );
 
   const manageOptions = [
@@ -188,13 +170,13 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
       optionTree={[
-        ...(canEditActions ? manageOptions : []),
+        ...(props.canManageAction ? manageOptions : []),
         {
           value: "showBinding",
           onSelect: () => showBinding(props.id, props.name),
           label: createMessage(CONTEXT_SHOW_BINDING),
         },
-        ...(canDeleteActions ? [{ ...deleteOption }] : []),
+        ...(props.canDeleteAction ? [{ ...deleteOption }] : []),
       ].filter(Boolean)}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
