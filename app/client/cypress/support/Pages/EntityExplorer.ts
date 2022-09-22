@@ -86,6 +86,7 @@ export class EntityExplorer {
     cy.get(this.locator._newPage)
       .first()
       .click();
+    cy.get("[data-cy='add-page']").click();
     this.agHelper.ValidateNetworkStatus("@createPage", 201);
   }
 
