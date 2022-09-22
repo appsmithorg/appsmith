@@ -50,6 +50,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    protected final static int NO_RECORD_LIMIT = -1;
+
     @Autowired
     public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
                                       MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
@@ -266,25 +268,34 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort) {
+        return queryAll(criterias, includeFields, aclPermission, sort, NO_RECORD_LIMIT);
+    }
+
+    public Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission aclPermission, Sort sort, int limit) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
-                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criteriaList, includeFields, aclPermission, sort, permissionGroups));
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criteriaList, includeFields, aclPermission, sort, permissionGroups, limit));
     }
 
     public Flux<T> queryAllWithPermissionGroups(List<Criteria> criterias,
-                                         List<String> includeFields,
-                                         AclPermission aclPermission,
-                                         Sort sort,
-                                         Set<String> permissionGroups) {
+                                                List<String> includeFields,
+                                                AclPermission aclPermission,
+                                                Sort sort,
+                                                Set<String> permissionGroups,
+                                                int limit) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
         if (!CollectionUtils.isEmpty(includeFields)) {
             for (String includeField : includeFields) {
                 query.fields().include(includeField);
             }
+        }
+
+        if (limit != NO_RECORD_LIMIT) {
+            query.limit(limit);
         }
         Criteria andCriteria = new Criteria();
 

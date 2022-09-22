@@ -275,8 +275,6 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
 
-  cy.get(generatePage.buildFromScratchActionCard).click();
-
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -298,7 +296,6 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
-  cy.get(generatePage.buildFromScratchActionCard).should("be.visible");
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
@@ -309,19 +306,6 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   // Remove tooltip on the Application Name element
   cy.get(homePage.applicationName).realHover();
   cy.get("body").realHover({ position: "topLeft" });
-
-  cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
-    errorMsg: "Build app from scratch not visible even aft 20 secs",
-    timeout: 20000,
-    interval: 1000,
-  }).then(($ele) =>
-    cy
-      .wrap($ele)
-      .should("be.visible")
-      .click(),
-  );
-
-  //cy.get(generatePage.buildFromScratchActionCard).click();
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one

@@ -45,6 +45,7 @@ import {
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_PLUGIN_ACTION_EXECUTE,
   ACTION_EXECUTION_CANCELLED,
+  ACTION_EXECUTION_FAILED,
 } from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import {
@@ -700,7 +701,9 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
       getJSCollection,
       collectionId,
     );
-    const jsAction = collection.actions.find((d) => d.id === pageAction.id);
+    const jsAction = collection.actions.find(
+      (action) => action.id === pageAction.id,
+    );
     if (!!jsAction) {
       if (jsAction.confirmBeforeExecute) {
         const modalPayload = {
@@ -718,7 +721,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          throw new UserCancelledActionExecutionError();
+          Toaster.show({
+            text: createMessage(
+              ACTION_EXECUTION_CANCELLED,
+              `${collection.name}.${jsAction.name}`,
+            ),
+            variant: Variant.danger,
+          });
+          // Don't proceed to executing the js function
+          return;
         }
       }
       const data = {
@@ -752,7 +763,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     let payload = EMPTY_RESPONSE;
     let isError = true;
-    const error = `The action "${pageAction.name}" has failed.`;
+    const error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,

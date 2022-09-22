@@ -75,14 +75,14 @@ describe("Custom column alias functionality", () => {
     cy.wait(1000);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
-      `{  "普通话 [普通話] ": "",  "français": "",  "español": "",  "日本語": "",  "हिन्दी": "",  "columnAlias": "",  "customColumn2": ""}`,
+      `{  "普通话 [普通話] ": "",  "français": "",  "español": "",  "日本語": "",  "हिन्दी": "",  "columnAlias": ""}`,
     );
     cy.get(`[data-colindex="6"][data-rowindex="0"] button`).trigger("click", {
       force: true,
     });
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
-      `{  "普通话 [普通話] ": "mandarin",  "français": "french",  "español": "spanish",  "日本語": "japnese",  "हिन्दी": "hindi",  "columnAlias": "",  "customColumn2": ""}`,
+      `{  "普通话 [普通話] ": "mandarin",  "français": "french",  "español": "spanish",  "日本語": "japnese",  "हिन्दी": "hindi",  "columnAlias": ""}`,
     );
   });
 });
