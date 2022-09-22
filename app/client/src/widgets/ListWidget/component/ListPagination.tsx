@@ -2,6 +2,8 @@ import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
 
+import { Icon, IconSize } from "design-system";
+
 const locale = {
   // Options.jsx
   items_per_page: "/ page",
@@ -48,7 +50,7 @@ const paginatorCss = css`
     min-width: 28px;
     height: 28px;
     margin-right: 8px;
-    font-family: Arial;
+    font-family: inherit;
     line-height: 26px;
     text-align: center;
     vertical-align: middle;
@@ -59,6 +61,9 @@ const paginatorCss = css`
     outline: 0;
     cursor: pointer;
     user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .rc-pagination-item a {
     display: block;
@@ -123,7 +128,7 @@ const paginatorCss = css`
     min-width: 28px;
     height: 28px;
     color: rgba(0, 0, 0, 0.85);
-    font-family: Arial;
+    font-family: inherit;
     line-height: 28px;
     text-align: center;
     vertical-align: middle;
@@ -148,7 +153,6 @@ const paginatorCss = css`
   }
   .rc-pagination-prev .rc-pagination-item-link,
   .rc-pagination-next .rc-pagination-item-link {
-    display: block;
     width: 100%;
     height: 100%;
     font-size: 12px;
@@ -158,6 +162,14 @@ const paginatorCss = css`
     border-radius: 2px;
     outline: none;
     transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::after,
+    &::before {
+      display: none;
+    }
   }
   .rc-pagination-prev:focus .rc-pagination-item-link,
   .rc-pagination-next:focus .rc-pagination-item-link,
@@ -311,7 +323,7 @@ const StyledPagination = styled(Pagination)<{
   .rc-pagination-item {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    color:  ${({ accentColor }) => accentColor} !important;
+    color:  var(--wds-color-text) !important;
     border-color:  transparent !important;
 
   }
@@ -320,13 +332,22 @@ const StyledPagination = styled(Pagination)<{
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     border-color:  transparent !important;
-    color:  ${({ accentColor }) => accentColor} !important;
+    color:  var(--wds-color-text) !important;
+
+    &:hover {
+      background-color: var(--wds-color-bg-hover) !important;
+
+      a {
+        color: var(--wds-color-text);
+      }
+    }
   }
 
   .rc-pagination-item:hover {
-    background-color: ${({ accentColor }) => accentColor} !important;
+    background-color: var(--wds-color-bg-hover) !important;
+
     a {
-      color: white;
+      color: var(--wds-color-text);
     }
   }
 
@@ -336,8 +357,12 @@ const StyledPagination = styled(Pagination)<{
       color: white;
     }
 
-    .rc-pagination-item-active:hover a {
-      color: white !important;
+    &:hover {
+      background-color: ${({ accentColor }) => accentColor} !important;
+
+      a {
+        color: white !important;
+      }
     }
 `;
 
@@ -361,8 +386,18 @@ function ListPagination(props: ListPaginationProps) {
       current={props.current}
       disabled={props.disabled}
       locale={locale}
+      nextIcon={() => (
+        <button aria-label="next page" className="rc-pagination-item-link">
+          <Icon name="right-arrow-2" size={IconSize.XXL} />
+        </button>
+      )}
       onChange={props.onChange}
       pageSize={props.perPage}
+      prevIcon={() => (
+        <button aria-label="prev page" className="rc-pagination-item-link">
+          <Icon name="left-arrow-2" size={IconSize.XXL} />
+        </button>
+      )}
       total={props.total}
     />
   );
