@@ -2,8 +2,11 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
 import { Listing } from "./Listing";
-import { allUsers, columns } from "./mocks/UserListingMock";
+import { allUsers } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
+import { UserListing } from "./UserListing";
+import configureStore from "redux-mock-store";
+import { Provider } from "react-redux";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -18,7 +21,7 @@ const props = {
 
 const userListingProps = {
   data: allUsers,
-  columns: columns,
+  columns: [],
   listMenuItems: [
     {
       className: "edit-menu-item",
@@ -31,7 +34,7 @@ const userListingProps = {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: onSelectFn,
-      text: "Delete User",
+      text: "Delete",
       label: "delete",
     },
   ],
@@ -41,6 +44,27 @@ const userListingProps = {
 
 function renderComponent() {
   render(<Listing {...props} />);
+}
+
+function renderUserListing() {
+  /* Mock store to bypass the error of react-redux */
+  const store = configureStore()({
+    acl: {
+      roles: [],
+      users: allUsers,
+      groups: [],
+      isLoading: false,
+      isSaving: false,
+      selectedGroup: null,
+      selectedUser: null,
+      selectedRole: null,
+    },
+  });
+  return render(
+    <Provider store={store}>
+      <UserListing />
+    </Provider>,
+  );
 }
 
 describe("<Listing />", () => {
@@ -59,7 +83,7 @@ describe("<Listing />", () => {
     expect(emptyState).toHaveLength(1);
   });
   it("should render table with given data", () => {
-    const { getAllByTestId } = render(<Listing {...userListingProps} />);
+    const { getAllByTestId } = renderUserListing();
     const actual = getAllByTestId("user-listing-userCell").map(
       (cell: any) => cell.textContent,
     );
@@ -95,22 +119,20 @@ describe("<Listing />", () => {
     expect(userListingProps.listMenuItems[1].onSelect).toHaveBeenCalled();
   });
   it("should ask for confirmation when deleting", async () => {
-    const { getAllByTestId, queryByText } = render(
-      <Listing {...userListingProps} />,
-    );
+    const { getAllByTestId, queryByText } = renderUserListing();
     const user = queryByText(userListingProps.data[0].username);
     expect(user).toBeInTheDocument();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete User");
+    expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     expect(() => userEvent.click(deleteOption[0])).toThrow();
-    // const confirmText = document.getElementsByClassName("delete-menu-item");
-    // expect(confirmText[0]).toHaveTextContent("Are you sure?");
-    // await userEvent.dblClick(deleteOption[0]);
-    // user = queryByText(userListingProps.data[0].username);
-    // expect(user).not.toBeInTheDocument();
+    /* const confirmText = document.getElementsByClassName("delete-menu-item");
+      expect(confirmText[0]).toHaveTextContent("Are you sure?");
+      await userEvent.dblClick(deleteOption[0]);
+      user = queryByText(userListingProps.data[0].username);
+      expect(user).not.toBeInTheDocument();*/
     waitFor(() => {
       expect(userListingProps.listMenuItems[1].onSelect).toHaveBeenCalledTimes(
         1,

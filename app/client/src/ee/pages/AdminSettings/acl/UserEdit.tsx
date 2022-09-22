@@ -29,7 +29,8 @@ import {
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
-import { UserEditProps } from "./types";
+import { BaseAclProps, UserEditProps } from "./types";
+import { getFilteredData } from "./utils/getFilteredData";
 
 const Header = styled.div`
   display: flex;
@@ -96,11 +97,11 @@ export function UserEdit(props: UserEditProps) {
   const [showConfirmationText, setShowConfirmationText] = useState(false);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const history = useHistory();
-  const [userGroups, setUserGroups] = useState<string[]>([]);
-  const [permissionGroups, setPermissionGroups] = useState<string[]>([]);
+  const [userGroups, setUserGroups] = useState<BaseAclProps[]>([]);
+  const [permissionGroups, setPermissionGroups] = useState<BaseAclProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [removedActiveUserGroups, setRemovedActiveUserGroups] = useState<
-    Array<any>
+    BaseAclProps[]
   >([]);
   const [
     removedActivePermissionGroups,
@@ -110,8 +111,8 @@ export function UserEdit(props: UserEditProps) {
   const { isLoading, searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
-    setUserGroups(selectedUser.allGroups);
-    setPermissionGroups(selectedUser.allRoles);
+    setUserGroups(selectedUser.groups);
+    setPermissionGroups(selectedUser.roles);
   }, [selectedUser]);
 
   useEffect(() => {
@@ -123,27 +124,32 @@ export function UserEdit(props: UserEditProps) {
 
   const onRemoveGroup = (group: any) => {
     if (selectedTabIndex === 0) {
-      const updateUserGroups = removedActiveUserGroups.includes(group)
-        ? removedActiveUserGroups.filter((grp) => grp !== group)
-        : [...removedActiveUserGroups, group];
+      const updateUserGroups =
+        getFilteredData(removedActiveUserGroups, group, true).length > 0
+          ? getFilteredData(removedActiveUserGroups, group, false)
+          : [...removedActiveUserGroups, group];
       setRemovedActiveUserGroups(updateUserGroups);
     } else if (selectedTabIndex === 1) {
-      const updatePermissionGroups = removedActivePermissionGroups.includes(
-        group,
-      )
-        ? removedActivePermissionGroups.filter((grp) => grp !== group)
-        : [...removedActivePermissionGroups, group];
+      const updatePermissionGroups =
+        getFilteredData(removedActivePermissionGroups, group, true).length > 0
+          ? getFilteredData(removedActivePermissionGroups, group, false)
+          : [...removedActivePermissionGroups, group];
       setRemovedActivePermissionGroups(updatePermissionGroups);
     }
   };
 
   const onSaveChanges = () => {
-    const updatedUserGroups = selectedUser.allGroups.filter(
-      (group) => !removedActiveUserGroups.includes(group),
+    const updatedUserGroups = selectedUser.groups.filter(
+      (group) =>
+        !(getFilteredData(removedActiveUserGroups, group, true).length > 0),
     );
     setUserGroups(updatedUserGroups);
-    const updatedPermissionGroups = selectedUser.allRoles.filter(
-      (permission) => !removedActivePermissionGroups.includes(permission),
+    const updatedPermissionGroups = selectedUser.roles.filter(
+      (permission) =>
+        !(
+          getFilteredData(removedActivePermissionGroups, permission, true)
+            .length > 0
+        ),
     );
     setPermissionGroups(updatedPermissionGroups);
     setRemovedActiveUserGroups([]);
@@ -158,6 +164,42 @@ export function UserEdit(props: UserEditProps) {
     setRemovedActiveUserGroups([]);
     setRemovedActivePermissionGroups([]);
   };
+
+  const onDeleteHandler = () => {
+    if (showConfirmationText) {
+      props.onDelete(selectedUser.userId);
+      history.push(`/settings/users`);
+    } else {
+      setShowOptions(true);
+      setShowConfirmationText(true);
+    }
+  };
+
+  const handleSearch = debounce((search: string) => {
+    let groupResults: BaseAclProps[] = [];
+    let permissionResults: BaseAclProps[];
+    if (search && search.trim().length > 0) {
+      setSearchValue(search);
+      groupResults =
+        selectedUser.groups &&
+        selectedUser.groups.filter((group) =>
+          group.name?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
+        );
+      setUserGroups(groupResults);
+      permissionResults =
+        selectedUser.roles &&
+        selectedUser.roles.filter((permission) =>
+          permission.name
+            ?.toLocaleUpperCase()
+            .includes(search.toLocaleUpperCase()),
+        );
+      setPermissionGroups(permissionResults);
+    } else {
+      setSearchValue("");
+      setUserGroups(selectedUser.groups);
+      setPermissionGroups(selectedUser.roles);
+    }
+  }, 300);
 
   const tabs: TabProp[] = [
     {
@@ -191,16 +233,6 @@ export function UserEdit(props: UserEditProps) {
     },
   ];
 
-  const onDeleteHandler = () => {
-    if (showConfirmationText) {
-      props.onDelete(selectedUser.userId);
-      history.push(`/settings/users`);
-    } else {
-      setShowOptions(true);
-      setShowConfirmationText(true);
-    }
-  };
-
   const menuItems: MenuItemProps[] = [
     {
       className: "delete-menu-item",
@@ -211,30 +243,6 @@ export function UserEdit(props: UserEditProps) {
       text: createMessage(DELETE_USER),
     },
   ];
-
-  const handleSearch = debounce((search: string) => {
-    let groupResults: string[] = [];
-    let permissionResults: string[];
-    if (search && search.trim().length > 0) {
-      setSearchValue(search);
-      groupResults =
-        selectedUser.allGroups &&
-        selectedUser.allGroups.filter((group) =>
-          group?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
-        );
-      setUserGroups(groupResults);
-      permissionResults =
-        selectedUser.allRoles &&
-        selectedUser.allRoles.filter((permission) =>
-          permission?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
-        );
-      setPermissionGroups(permissionResults);
-    } else {
-      setSearchValue("");
-      setUserGroups(selectedUser.allGroups);
-      setPermissionGroups(selectedUser.allRoles);
-    }
-  }, 300);
 
   return isLoading ? (
     <LoaderContainer>

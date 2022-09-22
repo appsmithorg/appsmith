@@ -15,18 +15,15 @@ import { RoleAddEdit } from "./RoleAddEdit";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
-  cloneRole,
   createRole,
   deleteRole,
   getRoleById,
 } from "@appsmith/actions/aclActions";
 import {
   ADD_ROLE,
-  CLONE_ROLE,
   createMessage,
   DELETE_ROLE,
   EDIT_ROLE,
-  GROUP_CLONED,
   GROUP_DELETED,
   SEARCH_ROLES_PLACEHOLDER,
 } from "@appsmith/constants/messages";
@@ -67,34 +64,12 @@ export function RolesListing() {
   }, [selectedRoleProps]);
 
   useEffect(() => {
-    if (selectedRoleId) {
+    if (selectedRoleId && selectedRoleProps?.id !== selectedRoleId) {
       dispatch(getRoleById({ id: selectedRoleId }));
-    } else {
+    } else if (!selectedRoleId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLES });
     }
   }, [selectedRoleId]);
-
-  const onDeleteHandler = (id: string) => {
-    dispatch(deleteRole(id));
-    /* for jest tests */
-    const updatedData = data.filter((role) => {
-      return role.id !== id;
-    });
-    setData(updatedData);
-    /* for jest tests */
-    Toaster.show({
-      text: createMessage(GROUP_DELETED),
-      variant: Variant.success,
-    });
-  };
-
-  const onCloneHandler = (role: RoleProps) => {
-    dispatch(cloneRole(role));
-    Toaster.show({
-      text: createMessage(GROUP_CLONED),
-      variant: Variant.success,
-    });
-  };
 
   const columns = [
     {
@@ -125,16 +100,6 @@ export function RolesListing() {
   ];
 
   const listMenuItems: MenuItemProps[] = [
-    {
-      className: "clone-menu-item",
-      icon: "duplicate",
-      onSelect: (e: React.MouseEvent, id: string) => {
-        const selectedPermission = data.find((role) => role.id === id);
-        selectedPermission && onCloneHandler({ ...selectedPermission });
-      },
-      text: createMessage(CLONE_ROLE),
-      label: "clone",
-    },
     {
       className: "edit-menu-item",
       icon: "edit-underline",
@@ -187,12 +152,25 @@ export function RolesListing() {
     }
   }, 300);
 
+  const onDeleteHandler = (id: string) => {
+    dispatch(deleteRole(id));
+    /* for jest tests */
+    const updatedData = data.filter((role) => {
+      return role.id !== id;
+    });
+    setData(updatedData);
+    /* for jest tests */
+    Toaster.show({
+      text: createMessage(GROUP_DELETED),
+      variant: Variant.success,
+    });
+  };
+
   return (
     <AclWrapper data-testid="t--roles-listing-wrapper">
       {selectedRoleId && selectedRole ? (
         <RoleAddEdit
           isLoading={isLoading}
-          onClone={onCloneHandler}
           onDelete={onDeleteHandler}
           selected={selectedRole}
         />

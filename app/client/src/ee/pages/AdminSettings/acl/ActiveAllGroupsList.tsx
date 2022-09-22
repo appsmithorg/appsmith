@@ -11,6 +11,7 @@ import {
   NO_ROLES_MESSAGE,
 } from "@appsmith/constants/messages";
 import { ActiveAllGroupsProps } from "./types";
+import { getFilteredData } from "./utils/getFilteredData";
 
 const ActiveGroups = styled.div``;
 
@@ -120,18 +121,19 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
         </TitleWrapper>
         {activeGroups && activeGroups.length > 0 ? (
           activeGroups.map((group: any) => {
-            const removedGroup = removedActiveGroups.includes(group);
+            const removedGroup =
+              getFilteredData(removedActiveGroups, group, true).length > 0;
             return (
               <EachGroup
                 className={removedGroup ? "removed" : ""}
                 data-testid="t--active-group-row"
-                key={group}
+                key={`group-${group.id}`}
                 onClick={() => {
                   onRemoveGroup(group);
                 }}
               >
-                <Icon fillColor={"#E32525"} name="minus" />
-                <HighlightText highlight={searchValue} text={group} />
+                <Icon fillColor={Colors.ERROR_600} name="minus" />
+                <HighlightText highlight={searchValue} text={group.name} />
               </EachGroup>
             );
           })
@@ -152,18 +154,20 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             <Title>{createMessage(ALL_ROLES)}</Title>
           </TitleWrapper>
           {allGroups?.map((group: any) => {
-            const addedGroup = addedAllGroups?.includes(group);
+            const addedGroup = addedAllGroups
+              ? getFilteredData(addedAllGroups, group, true).length > 0
+              : false;
             return (
               <EachGroup
                 className={addedGroup ? "added" : ""}
                 data-testid="t--all-group-row"
-                key={group}
+                key={`group-${group.id}`}
                 onClick={() => {
                   onAddGroup?.(group);
                 }}
               >
-                <Icon fillColor={"#03B365"} name="plus" />
-                <HighlightText highlight={searchValue} text={group} />
+                <Icon fillColor={Colors.GREEN} name="plus" />
+                <HighlightText highlight={searchValue} text={group.name} />
               </EachGroup>
             );
           })}

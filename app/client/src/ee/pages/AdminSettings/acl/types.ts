@@ -1,19 +1,18 @@
 import { MenuItemProps } from "design-system";
 import { DebouncedFunc } from "lodash";
 
-export type RoleProps = {
-  // isEditing: boolean;
-  // isDeleting: boolean;
-  id: string;
-  name: string;
+export type BaseAclProps = { id: string; name: string };
+
+export type RoleProps = BaseAclProps & {
+  /* isEditing: boolean;
+     isDeleting: boolean;
+     isAppsmithProvided: boolean; */
   description?: string;
-  // isAppsmithProvided: boolean;
   new?: boolean;
 };
 
 export type RoleEditProps = {
   selected: RoleProps;
-  onClone: any;
   onDelete: any;
   isLoading: boolean;
 };
@@ -24,14 +23,12 @@ export type RoleTableResponse = {
   name: string;
 };
 
-export interface RoleTable {
-  id: string;
-  name: string;
+export type RoleTable = BaseAclProps & {
   permission: number[];
   subRows?: RoleTable[];
   treeOpen?: boolean;
   type?: string;
-}
+};
 
 export type RoleTreeProps = {
   tabData: any;
@@ -52,28 +49,25 @@ export type ActiveAllGroupsProps = {
   onRemoveGroup: (group: any) => void;
 };
 
-export type GroupProps = {
+export type GroupProps = BaseAclProps & {
   isEditing: boolean;
   isDeleting: boolean;
-  name: string;
-  id: string;
-  allRoles: string[];
-  activePermissions: string[];
   users: UserProps[];
   new?: boolean;
+  roles: BaseAclProps[];
+  allRoles: BaseAclProps[];
 };
 
 export type GroupEditProps = {
   selected: GroupProps;
   onDelete: any;
-  // onClone: any;
   isLoading: boolean;
   isSaving: boolean;
 };
 
 export type Permissions = {
-  activePermissions: string[];
-  allRoles: string[];
+  roles: BaseAclProps[];
+  allRoles: BaseAclProps[];
 };
 
 export type ListingProps = {
@@ -100,8 +94,8 @@ export type UserProps = {
   isChangingRole: boolean;
   isDeleting: boolean;
   name: string;
-  allGroups: Array<string>;
-  allRoles: Array<string>;
+  groups: BaseAclProps[];
+  roles: BaseAclProps[];
   username: string;
   userId: string;
   roleName?: string;

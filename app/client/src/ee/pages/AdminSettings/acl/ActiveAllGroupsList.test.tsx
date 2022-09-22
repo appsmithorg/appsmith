@@ -11,8 +11,34 @@ import { ActiveAllGroupsProps } from "./types";
 let container: any = null;
 
 const props: ActiveAllGroupsProps = {
-  activeGroups: ["devops_eng_nov", "marketing_nov"],
-  allGroups: ["HR_Appsmith", "devops_design", "Administrator", "App Viewer"],
+  activeGroups: [
+    {
+      id: "1",
+      name: "devops_eng_nov",
+    },
+    {
+      id: "2",
+      name: "marketing_nov",
+    },
+  ],
+  allGroups: [
+    {
+      id: "3",
+      name: "HR_Appsmith",
+    },
+    {
+      id: "4",
+      name: "devops_design",
+    },
+    {
+      id: "5",
+      name: "Administrator",
+    },
+    {
+      id: "6",
+      name: "App Viewer",
+    },
+  ],
   removedActiveGroups: [],
   addedAllGroups: [],
   onRemoveGroup: jest.fn(),
@@ -50,13 +76,13 @@ describe("<ActiveAllGroupsList />", () => {
       <ActiveAllGroupsList {...props} title="Roles assigned to Design" />,
     );
     const activeGroups = getAllByTestId("t--active-group-row");
-    props.activeGroups.map((group: any, index: any) => {
-      expect(activeGroups[index]).toHaveTextContent(group);
+    props.activeGroups.forEach((group: any, index: any) => {
+      expect(activeGroups[index]).toHaveTextContent(group.name);
     });
 
     const allGroups = getAllByTestId("t--all-group-row");
-    props?.allGroups?.map((group: any, index: any) => {
-      expect(allGroups[index]).toHaveTextContent(group);
+    props?.allGroups?.forEach((group: any, index: any) => {
+      expect(allGroups[index]).toHaveTextContent(group.name);
     });
   });
   it("should highlight search value", async () => {
@@ -70,7 +96,7 @@ describe("<ActiveAllGroupsList />", () => {
 
     await waitFor(() => {
       const searchedActive = getAllByTestId("t--highlighted-text");
-      searchedActive.map((searched: any) => {
+      searchedActive.forEach((searched: any) => {
         expect(searched).toHaveTextContent("devops");
       });
     });
@@ -97,7 +123,7 @@ describe("<ActiveAllGroupsList />", () => {
       expect(activeGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
       expect(searchedActive[0]).toHaveTextContent("devops");
-      activeGroups.map((group: any) => {
+      activeGroups.forEach((group: any) => {
         expect(group).not.toHaveTextContent("marketing_nov");
         expect(group).toHaveTextContent("devops");
       });
@@ -108,7 +134,7 @@ describe("<ActiveAllGroupsList />", () => {
       expect(allGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
       expect(searchedActive[0]).toHaveTextContent("devops");
-      allGroups.map((group: any) => {
+      allGroups.forEach((group: any) => {
         expect(group).not.toHaveTextContent("Administrator");
         expect(group).toHaveTextContent("devops");
       });

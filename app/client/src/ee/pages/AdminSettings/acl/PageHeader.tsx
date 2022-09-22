@@ -10,6 +10,7 @@ import {
   Icon,
   Menu,
   SearchVariant,
+  TooltipComponent,
 } from "design-system";
 import {
   HeaderWrapper,
@@ -28,6 +29,7 @@ import {
   ENTER_GROUP_NAME,
 } from "@appsmith/constants/messages";
 import { PageHeaderProps } from "./types";
+import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   display: flex;
@@ -51,6 +53,17 @@ const StyledButton = styled(Button)`
   flex: 1 0 auto;
   margin: 0 12px 0 0;
   min-width: 88px;
+`;
+
+const StyledSettingsHeader = styled(SettingsHeader)<{ isEditing?: boolean }>`
+  width: 480px;
+  white-space: nowrap;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+
+  ${({ isEditing }) => isEditing && `background: ${Colors.GREY_2}`}
 `;
 
 function getSettingLabel(name = "") {
@@ -104,8 +117,8 @@ export function PageHeader(props: PageHeaderProps) {
   return (
     <Container>
       <HeaderWrapper margin={`0px`}>
-        {isTitleEditable ? (
-          <SettingsHeader data-testid="t--editatble-title">
+        {isTitleEditable && isEditing ? (
+          <StyledSettingsHeader data-testid="t--page-title" isEditing>
             <EditableText
               className="t--editable-title"
               defaultValue={title ?? pageTitle}
@@ -117,9 +130,21 @@ export function PageHeader(props: PageHeaderProps) {
               placeholder={createMessage(ENTER_GROUP_NAME)}
               type="text"
             />
-          </SettingsHeader>
+          </StyledSettingsHeader>
         ) : (
-          <SettingsHeader>{title ?? pageTitle}</SettingsHeader>
+          <TooltipComponent
+            boundary="viewport"
+            content={title ?? pageTitle}
+            maxWidth="400px"
+            position="bottom"
+          >
+            <StyledSettingsHeader
+              data-testid="t--page-title"
+              onDoubleClick={() => isTitleEditable && setIsEditing(true)}
+            >
+              {title ?? pageTitle}
+            </StyledSettingsHeader>
+          </TooltipComponent>
         )}
         {details?.subText && (
           <SettingsSubHeader>{details.subText}</SettingsSubHeader>

@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
-// import { OrgUser } from "constants/orgConstants";
-// import { getAllUsers } from "selectors/organizationSelectors";
-// import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions";
+/* import { OrgUser } from "constants/orgConstants";
+   import { getAllUsers } from "selectors/organizationSelectors";
+   import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions"; */
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
 import { Toaster, Variant } from "components/ads";
@@ -31,7 +31,7 @@ import {
   getAllAclUsers,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
-import { UserProps } from "./types";
+import { BaseAclProps, UserProps } from "./types";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -113,18 +113,6 @@ export function UserListing() {
     }
   }, [selectedUserId]);
 
-  const onDeleteHandler = (userId: string) => {
-    dispatch(deleteAclUser(userId));
-    const updatedData = data.filter((user) => {
-      return user.userId !== userId;
-    });
-    setData(updatedData);
-    Toaster.show({
-      text: "User deleted successfully",
-      variant: Variant.success,
-    });
-  };
-
   const columns = [
     {
       Header: `User (${data.length})`,
@@ -156,7 +144,7 @@ export function UserListing() {
     },
     {
       Header: "Roles",
-      accessor: "allRoles",
+      accessor: "roles",
       Cell: function RoleCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
 
@@ -164,8 +152,8 @@ export function UserListing() {
           <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.allRoles.map((group: any) => (
-                  <div key={group}>{group}</div>
+                {cellProps.cell.row.values.roles.map((group: BaseAclProps) => (
+                  <div key={group.id}>{group.name}</div>
                 ))}
                 <ShowLess
                   data-testid="t--show-less"
@@ -176,31 +164,31 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.allRoles[0]}
-                {cellProps.cell.row.values.allRoles[0].length < 40 ? (
+                {cellProps.cell.row.values.roles[0].name}
+                {cellProps.cell.row.values.roles[0].name.length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.allRoles[1]}
-                    {cellProps.cell.row.values.allRoles.length > 2 && (
+                    , {cellProps.cell.row.values.roles[1].name}
+                    {cellProps.cell.row.values.roles.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.allRoles.length - 2,
+                          cellProps.cell.row.values.roles.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.allRoles.length > 1 && (
+                  cellProps.cell.row.values.roles.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.allRoles.length - 1,
+                        cellProps.cell.row.values.roles.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -213,7 +201,7 @@ export function UserListing() {
     },
     {
       Header: "Groups",
-      accessor: "allGroups",
+      accessor: "groups",
       Cell: function GroupCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
 
@@ -221,8 +209,8 @@ export function UserListing() {
           <CellContainer data-testid="user-listing-groupCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.allGroups.map((group: any) => (
-                  <div key={group}>{group}</div>
+                {cellProps.cell.row.values.groups.map((group: BaseAclProps) => (
+                  <div key={group.id}>{group.name}</div>
                 ))}
                 <ShowLess
                   data-testid="t--show-less"
@@ -233,31 +221,31 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.allGroups[0]}
-                {cellProps.cell.row.values.allGroups[0].length < 40 ? (
+                {cellProps.cell.row.values.groups[0].name}
+                {cellProps.cell.row.values.groups[0].name.length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.allGroups[1]}
-                    {cellProps.cell.row.values.allGroups.length > 2 && (
+                    , {cellProps.cell.row.values.groups[1].name}
+                    {cellProps.cell.row.values.groups.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.allGroups.length - 2,
+                          cellProps.cell.row.values.groups.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.allGroups.length > 1 && (
+                  cellProps.cell.row.values.groups.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.allGroups.length - 1,
+                        cellProps.cell.row.values.groups.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -322,6 +310,18 @@ export function UserListing() {
       setData(aclUsers);
     }
   }, 300);
+
+  const onDeleteHandler = (userId: string) => {
+    dispatch(deleteAclUser(userId));
+    const updatedData = data.filter((user) => {
+      return user.userId !== userId;
+    });
+    setData(updatedData);
+    Toaster.show({
+      text: "User deleted successfully",
+      variant: Variant.success,
+    });
+  };
 
   return (
     <AclWrapper data-testid="user-listing-wrapper">
