@@ -120,10 +120,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
-import {
-  checkIfNoCyclicDependencyErrors,
-  logCyclicDependecyErrors,
-} from "./helper";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -457,17 +454,10 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
       );
-      if (
-        !checkIfNoCyclicDependencyErrors(
-          (savePageResponse.data as SavePageResponseData)
-            .layoutOnLoadActionErrors,
-        )
-      ) {
-        logCyclicDependecyErrors(
-          (savePageResponse.data as SavePageResponseData)
-            .layoutOnLoadActionErrors,
-        );
-      }
+      checkAndLogErrorsIfCyclicDependency(
+        (savePageResponse.data as SavePageResponseData)
+          .layoutOnLoadActionErrors,
+      );
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -868,15 +858,9 @@ export function* updateWidgetNameSaga(
               dsl: response.data.dsl,
             },
           });
-          if (
-            !checkIfNoCyclicDependencyErrors(
-              (response.data as PageLayout).layoutOnLoadActionErrors,
-            )
-          ) {
-            logCyclicDependecyErrors(
-              (response.data as PageLayout).layoutOnLoadActionErrors,
-            );
-          }
+          checkAndLogErrorsIfCyclicDependency(
+            (response.data as PageLayout).layoutOnLoadActionErrors,
+          );
         }
       } else {
         yield put({

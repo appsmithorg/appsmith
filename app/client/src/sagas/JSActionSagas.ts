@@ -56,10 +56,7 @@ import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
-import {
-  checkIfNoCyclicDependencyErrors,
-  logCyclicDependecyErrors,
-} from "./helper";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -376,15 +373,9 @@ export function* refactorJSObjectName(
       } else {
         yield put(fetchJSCollectionsForPage(pageId));
       }
-      if (
-        !checkIfNoCyclicDependencyErrors(
-          (refactorResponse.data as PageLayout).layoutOnLoadActionErrors,
-        )
-      ) {
-        logCyclicDependecyErrors(
-          (refactorResponse.data as PageLayout).layoutOnLoadActionErrors,
-        );
-      }
+      checkAndLogErrorsIfCyclicDependency(
+        (refactorResponse.data as PageLayout).layoutOnLoadActionErrors,
+      );
     }
   }
 }

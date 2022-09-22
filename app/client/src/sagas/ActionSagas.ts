@@ -111,10 +111,7 @@ import {
   saasEditorApiIdURL,
 } from "RouteBuilder";
 import { PLUGIN_PACKAGE_MONGO } from "constants/QueryEditorConstants";
-import {
-  checkIfNoCyclicDependencyErrors,
-  logCyclicDependecyErrors,
-} from "./helper";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -361,11 +358,9 @@ export function* updateActionSaga(
       );
 
       yield put(updateActionSuccess({ data: response.data }));
-      if (
-        !checkIfNoCyclicDependencyErrors((response.data as Action).errorReports)
-      ) {
-        logCyclicDependecyErrors((response.data as Action).errorReports);
-      }
+      checkAndLogErrorsIfCyclicDependency(
+        (response.data as Action).errorReports,
+      );
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
