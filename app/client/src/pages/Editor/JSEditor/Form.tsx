@@ -225,6 +225,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     currentJSCollection?.userPermissions || [""],
     PERMISSION_TYPE.EXECUTE_ACTIONS,
   );
+  const isDeletePermitted = isPermitted(
+    currentJSCollection?.userPermissions || [""],
+    PERMISSION_TYPE.DELETE_ACTIONS,
+  );
 
   return (
     <FormWrapper>
@@ -248,6 +252,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               <MoreJSCollectionsMenu
                 className="t--more-action-menu"
                 id={currentJSCollection.id}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
                 name={currentJSCollection.name}
                 pageId={pageId}
               />

@@ -580,6 +580,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     currentActionConfig?.userPermissions || [""],
     PERMISSION_TYPE.EXECUTE_ACTIONS,
   );
+  const isDeletePermitted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.DELETE_ACTIONS,
+  );
 
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, pluginId ?? ""),
@@ -608,6 +612,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               <MoreActionsMenu
                 className="t--more-action-menu"
                 id={currentActionConfig ? currentActionConfig.id : ""}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
                 name={currentActionConfig ? currentActionConfig.name : ""}
                 pageId={pageId}
               />

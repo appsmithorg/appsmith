@@ -13,6 +13,7 @@ export enum PERMISSION_TYPE {
   EXECUTE_ACTIONS = "execute:actions",
   EXECUTE_DATASOURCES = "execute:datasources",
   EXECUTE_WORKSPACE_DATASOURCES = "execute:workspaceDatasources",
+  DELETE_ACTIONS = "delete:actions",
 }
 
 export const isPermitted = (permissions: string[], type: string) => {

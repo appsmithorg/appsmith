@@ -508,6 +508,10 @@ export function EditorJSONtoForm(props: Props) {
     currentActionConfig?.userPermissions || [""],
     PERMISSION_TYPE.EXECUTE_ACTIONS,
   );
+  const isDeletePermitted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.DELETE_ACTIONS,
+  );
 
   // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
@@ -913,6 +917,8 @@ export function EditorJSONtoForm(props: Props) {
             <MoreActionsMenu
               className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
+              isChangePermitted={isChangePermitted}
+              isDeletePermitted={isDeletePermitted}
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
