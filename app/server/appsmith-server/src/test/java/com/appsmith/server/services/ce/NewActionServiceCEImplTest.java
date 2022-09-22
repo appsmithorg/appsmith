@@ -64,7 +64,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 
 @RunWith(SpringRunner.class)
@@ -283,26 +287,102 @@ public class NewActionServiceCEImplTest {
     }
 
     @Test
-    public void testExecuteAction_withParameterMapAndParamProperties_failsValidation() {
+    public void testExecuteAPIWithUsualOrderingOfTheParts() {
+        String usualOrderOfParts = "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"executeActionDTO\"\r\n" +
+                "\r\n" +
+                "{\"actionId\":\"63285a3388e48972c7519b18\",\"viewMode\":false,\"paramProperties\":{\"k0\":\"string\"}}\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"parameterMap\"\r\n" +
+                "\r\n" +
+                "{\"Input1.text\":\"k0\"}\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"k0\"; filename=\"blob\"\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "\r\n" +
+                "xyz\r\n" +
+                "--boundary--";
+
         MockServerHttpRequest mock = MockServerHttpRequest
                 .method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
-                .body("--boundary\r\n" +
-                        "Content-Disposition: form-data; name=\"executeActionDTO\"\r\n" + "\r\n" + "{\"viewMode\":false,\"paramProperties\":{\"k1\":\"String\",\"k2\":\"String\",\"k3\":\"Number\",\"k4\":\"Array\",\"k5\":\"File\"}}\r\n" +
-                        "--boundary\r\n"+
-                        "--boundary\r\n" +
-                        "Content-Disposition: form-data; name=\"parameterMap\"\r\n" + "\r\n" + "{\"k1\":\"DatePicker1.formattedDate\", \"k4\": \"%5BStringInput.text%2C%20NumberInput.text%2C%20DatePicker1.formattedDate%2C%20true%5D\", \"k2\":\"StringInput.text\", \"k5\":\"FilePicker1.files%5B1%5D\", \"k3\":\"NumberInput.text\"}\r\n" +
-                        "--boundary--\r\n");
+                .body(usualOrderOfParts);
 
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null);
+        NewActionServiceCE newActionServiceSpy = spy(newActionService);
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("test body");
+        mockResult.setTitle("test title");
+
+        NewAction newAction = new NewAction();
+        newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
+
 
         StepVerifier
                 .create(actionExecutionResultMono)
-                .expectErrorMatches(e-> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ACTION_ID)))
-                .verify();
+                .assertNext(response -> {
+                    assertTrue(response.getIsExecutionSuccess());
+                    assertTrue(response instanceof ActionExecutionResult);
+                    assertEquals(mockResult.getBody().toString(), response.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteAPIWithParameterMapAsLastPart() {
+        String parameterMapAtLast = "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"executeActionDTO\"\r\n" +
+                "\r\n" +
+                "{\"actionId\":\"63285a3388e48972c7519b18\",\"viewMode\":false,\"paramProperties\":{\"k0\":\"string\"}}\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"k0\"; filename=\"blob\"\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "\r\n" +
+                "xyz\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"parameterMap\"\r\n" +
+                "\r\n" +
+                "{\"Input1.text\":\"k0\"}\r\n" +
+                "--boundary--";
+
+        MockServerHttpRequest mock = MockServerHttpRequest
+                .method(HttpMethod.POST, URI.create("https://example.com"))
+                .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
+                .body(parameterMapAtLast);
+
+        final Flux<Part> partsFlux = BodyExtractors.toParts()
+                .extract(mock, this.context);
+
+        NewActionServiceCE newActionServiceSpy = spy(newActionService);
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("test body");
+        mockResult.setTitle("test title");
+
+        NewAction newAction = new NewAction();
+        newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
+
+
+        StepVerifier
+                .create(actionExecutionResultMono)
+                .assertNext(response -> {
+                    assertTrue(response.getIsExecutionSuccess());
+                    assertTrue(response instanceof ActionExecutionResult);
+                    assertEquals(mockResult.getBody().toString(), response.getBody().toString());
+                })
+                .verifyComplete();
     }
 }
