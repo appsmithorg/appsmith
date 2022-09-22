@@ -237,6 +237,8 @@ class ListWidget extends BaseWidget<
     this.syncMetaContainerNames();
 
     if (!isEmpty(metaWidgets) || removedMetaWidgetIds.length) {
+      console.log({ removedMetaWidgetIds, metaWidgets });
+
       this.modifyMetaWidgets({
         addOrUpdate: metaWidgets,
         delete: removedMetaWidgetIds,
