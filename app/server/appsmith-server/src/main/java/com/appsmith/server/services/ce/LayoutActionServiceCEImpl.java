@@ -896,21 +896,22 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .findById(applicationId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                         FieldName.APPLICATION_ID, applicationId)))
-                .map(Application::getEvaluationVersion);
+                .map(application -> {
+                    Integer evaluationVersion = application.getEvaluationVersion();
+                    if (evaluationVersion == null) {
+                        evaluationVersion = EVALUATION_VERSION;
+                    }
+                    return evaluationVersion;
+                });
 
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = evaluatedVersionMono
-                .flatMap(evaluatedVersion -> {
-                    if (evaluatedVersion == null) {
-                        evaluatedVersion = EVALUATION_VERSION;
-                    }
-                    return pageLoadActionsUtil
-                            .findAllOnLoadActions(pageId, evaluatedVersion, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
-                            .onErrorResume(AppsmithException.class, error -> {
-                                log.info(error.getMessage());
-                                validOnPageLoadActions.set(FALSE);
-                                return Mono.just(new ArrayList<>());
-                            });
-                });
+                .flatMap(evaluatedVersion -> pageLoadActionsUtil
+                        .findAllOnLoadActions(pageId, evaluatedVersion, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
+                        .onErrorResume(AppsmithException.class, error -> {
+                            log.info(error.getMessage());
+                            validOnPageLoadActions.set(FALSE);
+                            return Mono.just(new ArrayList<>());
+                        }));
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
