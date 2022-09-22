@@ -385,6 +385,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const editorConfigs:
     | {
+        applicationId: string;
         pageId: string;
         layoutId: string;
       }
