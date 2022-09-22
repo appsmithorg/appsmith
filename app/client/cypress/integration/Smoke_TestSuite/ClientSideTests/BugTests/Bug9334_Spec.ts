@@ -1,8 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { Table } from "../../../../support/Pages/Table";
-import { TableV2 } from "../../../../support/Pages/TableV2";
 
-let dsName: any, query: string;
+let dsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
