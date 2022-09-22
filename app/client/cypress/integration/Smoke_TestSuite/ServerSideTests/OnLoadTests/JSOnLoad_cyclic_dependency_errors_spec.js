@@ -110,12 +110,21 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   it("5. Add JSObject and update its name, content and check for errors", () => {
     // Case 3: When updating JS Object name
-    cy.createJSObject('return "Success";');
-    cy.get(jsActions.name).click({ force: true });
-    cy.get(jsActions.nameInput)
-      .type("{selectall}ChildJsActionCylic", { force: true })
-      .should("have.value", "ChildJsActionCylic")
-      .blur();
+    jsEditor.CreateJSObject(
+      `export default {
+      fun: async () => {
+        showAlert("New Js Object");
+      }
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: true,
+        shouldCreateNewJSObj: true,
+      },
+    )
+    jsEditor.RenameJSObjFromPane("newName")
+
     cy.wait("@renameJsAction").should(
       "have.nested.property",
       "response.body.data.layoutOnLoadActionErrors.length",
