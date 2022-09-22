@@ -2849,4 +2849,83 @@ public class MongoPluginTest {
         assertEquals(1, strings.size());
         assertTrue(strings.contains("Missing default database name."));
     }
+
+    @Test
+    public void testRegexStringQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"users\", \n " +
+                "filter: {\"name\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO= new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "[a-zA-Z]{0,3}.*Ci.*")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                        executeActionDTO,
+                                                                                                        dsConfig,
+                                                                                                        actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+
+
+
+
+    }
+
+
+    @Test
+    public void testRegexNumberQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+        String rawFind = "{ find: \"users\", \n " +
+                "filter: {\"name\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO= new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "20")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                executeActionDTO,
+                dsConfig,
+                actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(0, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+
+
+
+
+    }
 }
