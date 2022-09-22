@@ -5,7 +5,7 @@ set -o nounset
 CUSTOM_DOMAIN="$1"
 
 if [[ -z $CUSTOM_DOMAIN ]]; then
-	CUSTOM_DOMAIN=_
+  CUSTOM_DOMAIN=_
 fi
 
 cat <<EOF

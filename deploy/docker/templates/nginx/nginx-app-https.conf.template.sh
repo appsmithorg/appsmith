@@ -10,8 +10,8 @@ SSL_KEY_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem"
 
 # In case of existing custom certificate, container will use them to configure SSL
 if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-	SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
-	SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
+  SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
+  SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
 fi
 
 cat <<EOF
@@ -53,19 +53,19 @@ server {
   }
 
   location /supervisor/ {
-		proxy_http_version 1.1;
-		proxy_buffering    off;
-		proxy_max_temp_file_size 0;
-		proxy_redirect    off;
-		proxy_set_header  Host              \$http_host/supervisor/;
-		proxy_set_header  X-Real-IP         \$remote_addr;
-		proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
-		proxy_set_header  X-Forwarded-Proto \$origin_scheme;
-		proxy_set_header  X-Forwarded-Host  \$origin_host;
-		proxy_set_header  Connection        "";
-		proxy_pass http://localhost:9001/;
-		auth_basic "Protected";
-		auth_basic_user_file /etc/nginx/passwords;
+    proxy_http_version 1.1;
+    proxy_buffering    off;
+    proxy_max_temp_file_size 0;
+    proxy_redirect    off;
+    proxy_set_header  Host              \$http_host/supervisor/;
+    proxy_set_header  X-Real-IP         \$remote_addr;
+    proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header  X-Forwarded-Proto \$origin_scheme;
+    proxy_set_header  X-Forwarded-Host  \$origin_host;
+    proxy_set_header  Connection        "";
+    proxy_pass http://localhost:9001/;
+    auth_basic "Protected";
+    auth_basic_user_file /etc/nginx/passwords;
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
