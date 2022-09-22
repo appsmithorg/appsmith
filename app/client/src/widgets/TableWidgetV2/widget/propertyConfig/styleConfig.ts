@@ -112,12 +112,9 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
-          type: ValidationTypes.TABLE_PROPERTY,
+          type: ValidationTypes.TEXT,
           params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              allowedValues: ["LEFT", "CENTER", "RIGHT"],
-            },
+            allowedValues: ["LEFT", "CENTER", "RIGHT"],
           },
         },
       },
@@ -146,12 +143,9 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         validation: {
-          type: ValidationTypes.TABLE_PROPERTY,
+          type: ValidationTypes.TEXT,
           params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              allowedValues: ["TOP", "CENTER", "BOTTOM"],
-            },
+            allowedValues: ["TOP", "CENTER", "BOTTOM"],
           },
         },
       },
