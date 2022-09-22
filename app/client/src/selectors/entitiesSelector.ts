@@ -834,3 +834,14 @@ export const getJSCollectionParseErrors = (
     return error.errorType === PropertyEvaluationErrorType.PARSE;
   });
 };
+
+export const getNumberOfEntitiesInCurrentPage = createSelector(
+  getCanvasWidgets,
+  getActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
+  (widgets, actions, jsCollections) => {
+    return (
+      Object.keys(widgets).length - 1 + actions.length + jsCollections.length
+    );
+  },
+);
