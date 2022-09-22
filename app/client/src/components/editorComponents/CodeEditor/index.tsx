@@ -179,6 +179,7 @@ export type EditorProps = EditorStyleProps &
     isReadOnly?: boolean;
     isRawView?: boolean;
     isJSObject?: boolean;
+    containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
   };
@@ -370,6 +371,15 @@ class CodeEditor extends Component<Props, State> {
       } else if (previousInputValue !== inputValue) {
         // handles case when inputValue changes from a truthy to a falsy value
         this.editor.setValue("");
+      }
+
+      if (
+        prevProps.containerHeight &&
+        this.props.containerHeight &&
+        prevProps.containerHeight < this.props.containerHeight
+      ) {
+        //Refresh editor when the container height is increased.
+        this.editor.refresh();
       }
       CodeEditor.updateMarkings(this.editor, this.props.marking);
     });
