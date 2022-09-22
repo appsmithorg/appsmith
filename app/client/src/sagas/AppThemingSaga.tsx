@@ -22,6 +22,7 @@ import {
   createMessage,
   DELETE_APP_THEME,
   SAVE_APP_THEME,
+  SET_DEFAULT_SELECTED_THEME,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { undoAction, updateReplayEntity } from "actions/pageActions";
@@ -321,6 +322,11 @@ function* setDefaultSelectedThemeOnError() {
       yield put({
         type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
         payload: theme,
+      });
+      // shows toast
+      Toaster.show({
+        text: createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName),
+        variant: Variant.success,
       });
     }
   } catch (error) {
