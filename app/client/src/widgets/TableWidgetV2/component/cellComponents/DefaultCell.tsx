@@ -159,6 +159,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       textColor={textColor}
       textSize={textSize}
       toggleCellEditMode={toggleCellEditMode}
+      url={columnType === ColumnTypes.URL ? value : null}
       validationErrorMessage={validationErrorMessage}
       value={getCellText(value, columnType, displayText)}
       verticalAlignment={verticalAlignment}
