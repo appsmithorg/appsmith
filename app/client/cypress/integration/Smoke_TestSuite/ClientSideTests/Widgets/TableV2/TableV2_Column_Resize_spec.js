@@ -18,7 +18,7 @@ describe("Table Widget V2 Functionality with Hidden and Resized Columns", functi
         cy.get(".t--widget-tablewidgetv2 .thead .tr")
           .invoke("outerWidth")
           .then((columnHeaderWidth) => {
-            expect(columnHeaderWidth).to.be.at.least(tableWidth);
+            expect(columnHeaderWidth).to.be.at.least(tableWidth - 8);
           });
       });
   });
