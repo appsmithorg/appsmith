@@ -204,6 +204,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
+        url={columnType === ColumnTypes.URL ? props.value : null}
         value={value}
         verticalAlignment={verticalAlignment}
       />

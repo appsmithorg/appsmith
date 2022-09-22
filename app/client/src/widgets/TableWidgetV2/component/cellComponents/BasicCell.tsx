@@ -79,6 +79,7 @@ type PropType = BaseCellComponentProps & {
   displayText?: string;
   disabledEditIcon: boolean;
   onEdit?: () => void;
+  url?: string;
 };
 
 export const BasicCell = React.forwardRef(
@@ -101,6 +102,7 @@ export const BasicCell = React.forwardRef(
       tableWidth,
       textColor,
       textSize,
+      url,
       value,
       verticalAlignment,
     }: PropType,
