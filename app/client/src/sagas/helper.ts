@@ -8,7 +8,13 @@ import {
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  Log,
+  LOG_CATEGORY,
+  PLATFORM_ERROR,
+  Severity,
+} from "entities/AppsmithConsole";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -45,7 +51,7 @@ export const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
  * @param layoutErrors - array of cyclical dependency issues
  * @returns boolean
  */
-export const checkIfNoCyclicDependencyErrors = (
+const checkIfNoCyclicDependencyErrors = (
   layoutErrors?: Array<LayoutOnLoadActionErrors>,
 ): boolean => {
   return !layoutErrors || (!!layoutErrors && layoutErrors.length === 0);
@@ -56,7 +62,7 @@ export const checkIfNoCyclicDependencyErrors = (
  *
  * @param layoutErrors - array of cyclical dependency issues
  */
-export const logCyclicDependecyErrors = (
+const logCyclicDependecyErrors = (
   layoutErrors?: Array<LayoutOnLoadActionErrors>,
 ) => {
   if (!!layoutErrors) {
@@ -67,18 +73,43 @@ export const logCyclicDependecyErrors = (
         }),
         variant: Variant.danger,
       });
-      AppsmithConsole.addError({
-        id: layoutErrors[index]?.code?.toString(),
-        logType: LOG_TYPE.JS_ACTION_UPDATE,
-        text: !!layoutErrors[index].message
-          ? layoutErrors[index].message
-          : layoutErrors[index].errorType,
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: layoutErrors[index]?.code?.toString(),
-          id: layoutErrors[index]?.code?.toString(),
-        },
-      });
     }
+    AppsmithConsole.addLogs(
+      layoutErrors.reduce((acc: Log[], error: LayoutOnLoadActionErrors) => {
+        acc.push({
+          severity: Severity.ERROR,
+          category: LOG_CATEGORY.PLATFORM_GENERATED,
+          timestamp: Date.now().toString(),
+          id: error?.code?.toString(),
+          logType: LOG_TYPE.CYCLIC_DEPENDENCY_ERROR,
+          text: !!error.message ? error.message : error.errorType,
+          messages: [
+            {
+              message: !!error.message ? error.message : error.errorType,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            },
+          ],
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: error?.code?.toString(),
+            id: error?.code?.toString(),
+          },
+        });
+        return acc;
+      }, []),
+    );
+  }
+};
+
+/**
+ * // Function checks and logs cyclic depedency errors
+ *
+ * @param layoutErrors - array of cyclical dependency issues
+ */
+export const checkAndLogErrorsIfCyclicDependency = (
+  layoutErrors?: Array<LayoutOnLoadActionErrors>,
+) => {
+  if (!checkIfNoCyclicDependencyErrors(layoutErrors)) {
+    logCyclicDependecyErrors(layoutErrors);
   }
 };

@@ -31,7 +31,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isArray, isString, set } from "lodash";
+import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -111,10 +111,7 @@ import { isTrueObject, findDatatype } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
-import {
-  checkIfNoCyclicDependencyErrors,
-  logCyclicDependecyErrors,
-} from "sagas/helper";
+import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -124,12 +121,9 @@ export const getActionTimeout = (
   state: AppState,
   actionId: string,
 ): number | undefined => {
-  const action = _.find(
-    state.entities.actions,
-    (a) => a.config.id === actionId,
-  );
+  const action = find(state.entities.actions, (a) => a.config.id === actionId);
   if (action) {
-    const timeout = _.get(
+    const timeout = get(
       action,
       "config.actionConfiguration.timeoutInMillisecond",
       DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
@@ -275,7 +269,7 @@ function* evaluateActionParams(
   executeActionRequest: ExecuteActionRequest,
   executionParams?: Record<string, any> | string,
 ) {
-  if (_.isNil(bindings) || bindings.length === 0) {
+  if (isNil(bindings) || bindings.length === 0) {
     formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
     return [];
   }
@@ -829,28 +823,28 @@ function* executePageLoadActionsSaga() {
     const layoutOnLoadActionErrors: LayoutOnLoadActionErrors[] = yield select(
       getLayoutOnLoadIssues,
     );
-    const actionCount = _.flatten(pageActions).length;
-    if (checkIfNoCyclicDependencyErrors(layoutOnLoadActionErrors)) {
-      PerformanceTracker.startAsyncTracking(
-        PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-        { numActions: actionCount },
+    const actionCount = flatten(pageActions).length;
+
+    // when cyclical depedency issue is there,
+    // none of the page load actions would be executed
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+      { numActions: actionCount },
+    );
+    for (const actionSet of pageActions) {
+      // Load all sets in parallel
+      // @ts-expect-error: no idea how to type this
+      yield* yield all(
+        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
       );
-      for (const actionSet of pageActions) {
-        // Load all sets in parallel
-        // @ts-expect-error: no idea how to type this
-        yield* yield all(
-          actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
-        );
-      }
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-      );
-      // We show errors in the debugger once onPageLoad actions
-      // are executed
-      yield put(hideDebuggerErrors(false));
-    } else {
-      logCyclicDependecyErrors(layoutOnLoadActionErrors);
     }
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+    );
+    // We show errors in the debugger once onPageLoad actions
+    // are executed
+    yield put(hideDebuggerErrors(false));
+    checkAndLogErrorsIfCyclicDependency(layoutOnLoadActionErrors);
   } catch (e) {
     log.error(e);
 
