@@ -32,7 +32,7 @@ import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { DEFAULT_COLUMN_WIDTH, EditableCell } from "../constants";
-import { Row } from "./Row";
+import { TableBody } from "./TableBody";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 interface TableProps {
@@ -227,23 +227,20 @@ export function Table(props: TableProps) {
     [props.width],
   );
 
-  const totalColumnWidth = useMemo(() => {
-    let offset = 2 * WIDGET_PADDING;
+  let totalColumnWidth = 2 * WIDGET_PADDING;
 
-    if (props.multiRowSelection) {
-      offset += MULTISELECT_CHECKBOX_WIDTH;
-    }
+  if (props.multiRowSelection) {
+    totalColumnWidth += MULTISELECT_CHECKBOX_WIDTH;
+  }
 
-    return props.columns.reduce((prev, curr) => {
-      return prev + (curr.width || DEFAULT_COLUMN_WIDTH);
-    }, offset);
-  }, [columnString, props.multiRowSelection]);
+  totalColumnWidth = props.columns.reduce((prev, curr) => {
+    return prev + (curr.width || DEFAULT_COLUMN_WIDTH);
+  }, totalColumnWidth);
 
-  const isCellWrappingAllowed = useMemo(() => {
-    return props.columns.some(
+  const ShouldUseVirtual =
+    !props.columns.some(
       (column) => column.columnProperties.allowCellWrapping,
-    );
-  }, [columnString]);
+    ) && props.serverSidePaginationEnabled;
 
   return (
     <TableWrapper
@@ -377,7 +374,7 @@ export function Table(props: TableProps) {
                   props.borderRadius,
                 )}
             </div>
-            <Row
+            <TableBody
               accentColor={props.accentColor}
               borderRadius={props.borderRadius}
               columns={props.columns}
@@ -393,7 +390,7 @@ export function Table(props: TableProps) {
               selectedRowIndices={props.selectedRowIndices}
               tableSizes={tableSizes}
               totalColumnWidth={totalColumnWidth}
-              useVirtual={!isCellWrappingAllowed}
+              useVirtual={ShouldUseVirtual}
               width={props.width}
             />
           </div>

@@ -39,6 +39,7 @@ describe("Table Widget Virtualized Row", function() {
     cy.wait(500);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("not.exist");
+    cy.get(".t--virtual-row").should("exist");
   });
 
   it("3. should check that virtual rows feature is turned off when cell wrapping is enabled", () => {
@@ -56,5 +57,17 @@ describe("Table Widget Virtualized Row", function() {
     cy.wait(500);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
+    cy.get(".t--virtual-row").should("not.exist");
+  });
+
+  it("4. should check that virtual rows feature is turned off when server side pagination is disabled", () => {
+    PropertyPane.ToggleOnOrOff("Cell Wrapping", "Off");
+    PropertyPane.NavigateBackToPropertyPane();
+    cy.wait(500);
+    PropertyPane.ToggleOnOrOff("Show Pagination", "On");
+    cy.wait(500);
+    PropertyPane.ToggleOnOrOff("Server Side Pagination", "Off");
+    cy.get(".tr[data-rowindex]").should("have.length", 5);
+    cy.get(".t--virtual-row").should("not.exist");
   });
 });
