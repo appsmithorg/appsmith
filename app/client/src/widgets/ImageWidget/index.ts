@@ -11,7 +11,7 @@ export const CONFIG = {
     maxZoomLevel: 1,
     enableRotation: false,
     enableDownload: false,
-    objectFit: "contain",
+    objectFit: "cover",
     image: "",
     rows: 12,
     columns: 12,
