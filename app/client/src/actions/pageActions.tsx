@@ -19,6 +19,7 @@ import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -172,10 +173,14 @@ export const createPage = (
   };
 };
 
-export const deleteMetaWidgets = (widgetIds: string[] = []) => {
+export const deleteMetaWidgets = (
+  widgetIds: string[] = [],
+): ReduxAction<ModifyMetaWidgetPayload> => {
   return {
-    type: ReduxActionTypes.DELETE_CHILD_META_WIDGETS,
-    payload: { widgetIds },
+    type: ReduxActionTypes.MODIFY_META_WIDGETS,
+    payload: {
+      delete: widgetIds,
+    },
   };
 };
 
