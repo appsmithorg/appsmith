@@ -60,6 +60,7 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete" | "label"> {
   propertyValue?: any;
+  defaultValue?: any;
   errorMessage?: string;
   expected?: CodeEditorExpected;
   evaluatedValue: any;
