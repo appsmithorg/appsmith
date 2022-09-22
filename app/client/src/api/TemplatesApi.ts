@@ -2,7 +2,10 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
-import { ApplicationResponsePayload } from "./ApplicationApi";
+import {
+  ApplicationResponsePayload,
+  ApplicationPagePayload,
+} from "./ApplicationApi";
 import { Datasource } from "entities/Datasource";
 
 export interface Template {
@@ -17,6 +20,7 @@ export interface Template {
   functions: string[];
   useCases: string[];
   datasources: string[];
+  pages: ApplicationPagePayload[];
 }
 
 export type FetchTemplatesResponse = ApiResponse<Template[]>;
@@ -29,6 +33,12 @@ export type ImportTemplateResponse = ApiResponse<{
   unConfiguredDatasourceList: Datasource[];
   application: ApplicationResponsePayload;
 }>;
+
+export interface TemplateFiltersResponse extends ApiResponse {
+  data: {
+    functions: string[];
+  };
+}
 
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
@@ -56,6 +66,21 @@ class TemplatesAPI extends Api {
       TemplatesAPI.baseUrl +
         `/app-templates/${templateId}/import/${workspaceId}`,
     );
+  }
+  static importTemplateToApplication(
+    templateId: string,
+    applicationId: string,
+    organizationId: string,
+    body?: string[],
+  ): AxiosPromise<ImportTemplateResponse> {
+    return Api.post(
+      TemplatesAPI.baseUrl +
+        `/app-templates/${templateId}/merge/${applicationId}/${organizationId}`,
+      body,
+    );
+  }
+  static getTemplateFilters(): AxiosPromise<TemplateFiltersResponse> {
+    return Api.get(TemplatesAPI.baseUrl + `/app-templates/filters`);
   }
 }
 
