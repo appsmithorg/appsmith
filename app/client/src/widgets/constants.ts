@@ -59,6 +59,7 @@ export enum FileDataTypes {
   Base64 = "Base64",
   Text = "Text",
   Binary = "Binary",
+  Array = "Array",
 }
 
 export type AlignWidget = "LEFT" | "RIGHT";
