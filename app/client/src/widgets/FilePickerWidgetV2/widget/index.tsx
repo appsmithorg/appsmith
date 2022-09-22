@@ -21,6 +21,16 @@ import { createGlobalStyle } from "styled-components";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { Colors } from "constants/Colors";
+import Papa from "papaparse";
+
+const CSV_ARRAY_LABEL = "Array (CSVs only)";
+const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
+
+const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
+
+const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
+
+type Result = string | Buffer | ArrayBuffer | null;
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -317,6 +327,10 @@ class FilePickerWidget extends BaseWidget<
                 label: FileDataTypes.Text,
                 value: FileDataTypes.Text,
               },
+              {
+                label: CSV_ARRAY_LABEL,
+                value: FileDataTypes.Array,
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -487,6 +501,11 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "fileDataType",
             label: "Data Format",
             controlType: "DROP_DOWN",
+            helperText: (props: FilePickerWidgetProps) => {
+              return props.fileDataType === FileDataTypes.Array
+                ? ARRAY_CSV_HELPER_TEXT
+                : "";
+            },
             options: [
               {
                 label: FileDataTypes.Base64,
@@ -500,9 +519,28 @@ class FilePickerWidget extends BaseWidget<
                 label: FileDataTypes.Text,
                 value: FileDataTypes.Text,
               },
+              {
+                label: CSV_ARRAY_LABEL,
+                value: FileDataTypes.Array,
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
+          },
+          {
+            propertyName: "dynamicTyping",
+            label: "Infer data-types from CSV",
+            helpText:
+              "Controls if the arrays should try to infer the best possible data type based on the values in csv files",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            hidden: (props: FilePickerWidgetProps) => {
+              return props.fileDataType !== FileDataTypes.Array;
+            },
+            dependencies: ["fileDataType"],
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "maxNumFiles",
@@ -831,7 +869,11 @@ class FilePickerWidget extends BaseWidget<
               const newFile = {
                 type: file.type,
                 id: file.id,
-                data: reader.result,
+                data: this.parseUploadResult(
+                  reader.result,
+                  file.type,
+                  this.props.fileDataType,
+                ),
                 name: file.meta ? file.meta.name : `File-${index + fileCount}`,
                 size: file.size,
                 dataFormat: this.props.fileDataType,
@@ -959,6 +1001,57 @@ class FilePickerWidget extends BaseWidget<
     );
   }
 
+  parseUploadResult(
+    result: Result,
+    fileType: string,
+    dataFormat: FileDataTypes,
+  ) {
+    if (
+      dataFormat !== FileDataTypes.Array ||
+      !isCSVFileType(fileType) ||
+      !result
+    ) {
+      return result;
+    }
+
+    const data: Record<string, string>[] = [];
+    const errors: Papa.ParseError[] = [];
+
+    function chunk(results: Papa.ParseStepResult<any>) {
+      if (results?.errors?.length) {
+        errors.push(...results.errors);
+      }
+      data.push(...results.data);
+    }
+
+    if (typeof result === "string") {
+      const config = {
+        header: true,
+        dynamicTyping: this.props.dynamicTyping,
+        chunk,
+      };
+      try {
+        const startParsing = performance.now();
+
+        Papa.parse(result, config);
+
+        const endParsing = performance.now();
+
+        log.debug(
+          `### FILE_PICKER_WIDGET_V2 - ${this.props.widgetName} - CSV PARSING  `,
+          `${endParsing - startParsing} ms`,
+        );
+
+        return data;
+      } catch (error) {
+        log.error(errors);
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
   static getWidgetType(): WidgetType {
     return "FILE_PICKER_WIDGET_V2";
   }
@@ -981,6 +1074,7 @@ interface FilePickerWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  dynamicTyping?: boolean;
 }
 
 export type FilePickerWidgetV2Props = FilePickerWidgetProps;
