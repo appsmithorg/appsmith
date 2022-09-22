@@ -57,6 +57,7 @@ type StyledFooterProps = {
 
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;
+const TITLE_FONT_SIZE = "1.25rem";
 const FOOTER_DEFAULT_BG_COLOR = "#fff";
 const FOOTER_PADDING_TOP = FORM_PADDING_Y;
 const TITLE_MARGIN_BOTTOM = 16;
@@ -95,7 +96,7 @@ const StyledForm = styled.form<StyledFormProps>`
 
 const StyledTitle = styled(Text)`
   font-weight: bold;
-  font-size: ${TEXT_SIZES.HEADING1};
+  font-size: ${TITLE_FONT_SIZE};
   word-break: break-word;
   margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
 `;
