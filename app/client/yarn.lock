@@ -6211,12 +6211,13 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.24-alpha.10":
-  version "1.0.24-alpha.10"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.24-alpha.10.tgz#78beb0583b99aafb89f1fa6c228d195df1b44535"
-  integrity sha512-qCckOfYV+oqqyqrAJdTDzKi1fi28YPdGEZGrVif/z5wQpm58QPD0ptzarGBPkASg8p1j1I19iE18tpUazLNcUw==
+"design-system@npm:@appsmithorg/design-system@1.0.24-alpha.11":
+  version "1.0.24-alpha.11"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.24-alpha.11.tgz#86f1e4d8ae3ccfd2b9b8aef5bd5eba8136513aba"
+  integrity sha512-NWMMEuy+Mzdd0zdCyc7Qk7OfjGzymhuDYCjBrsKHz309z1NNFd70JsUIt4LGX9s4die8+XFL0OS6QPNhc3fqfw==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
+    babel-plugin-styled-components "^2.0.7"
     copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
     react-redux "^7.2.4"
