@@ -143,6 +143,10 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(analyticsService.sendArchiveEvent(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
+                .when(newPageService.findById(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.empty());
     }
 
     <T> DefaultResources setDefaultResources(T collection) {
