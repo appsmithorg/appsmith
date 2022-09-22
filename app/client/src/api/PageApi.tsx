@@ -24,6 +24,7 @@ export type SavePageRequest = {
   dsl: DSLWidget;
   layoutId: string;
   pageId: string;
+  applicationId: string;
 };
 
 export type PageLayout = {
