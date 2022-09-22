@@ -189,19 +189,25 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return line;
                     }
                     remainingChangedNames.remove(name);
-                    String safeValue = changes.get(name);
-                    if (safeValue.contains(" ") || safeValue.contains("?") || safeValue.contains("*") || safeValue.contains("#")) {
-                        safeValue = "'" + safeValue.replace("'", "'\"'\"'") + "'";
-                    }
-                    return String.format("%s=%s", name, safeValue);
+                    return String.format("%s=%s", name, escapeForShell(changes.get(name)));
                 })
                 .collect(Collectors.toList());
 
         for (final String name : remainingChangedNames) {
-            outLines.add(name + "=" + changes.get(name));
+            outLines.add(name + "=" + escapeForShell(changes.get(name)));
         }
 
         return outLines;
+    }
+
+    private String escapeForShell(String input) {
+        if (org.apache.commons.lang3.StringUtils.containsAny(input, " ?*#'")) {
+            return ("'" + input.replace("'", "'\"'\"'") + "'")
+                    .replaceAll("^''", "")
+                    .replaceAll("''$", "");
+        }
+
+        return input;
     }
 
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {

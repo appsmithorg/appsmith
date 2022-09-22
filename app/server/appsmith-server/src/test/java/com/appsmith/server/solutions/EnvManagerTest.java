@@ -287,6 +287,25 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void setValueWithQuotes() {
+        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
+
+        assertThat(envManager.transformEnvContent(
+                content,
+                Map.of(
+                        "APPSMITH_MONGODB_URI", "'just quotes'",
+                        "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it"
+                )
+        )).containsExactly(
+                "APPSMITH_MONGODB_URI=\"'\"'just quotes'\"'\"",
+                "APPSMITH_REDIS_URL='quoted value'",
+                "",
+                "APPSMITH_INSTANCE_NAME='third value'",
+                "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'"
+        );
+    }
+
+    @Test
     public void download_UserIsNotSuperUser_ThrowsAccessDenied() {
         User user = new User();
         user.setEmail("sample-super-user");
