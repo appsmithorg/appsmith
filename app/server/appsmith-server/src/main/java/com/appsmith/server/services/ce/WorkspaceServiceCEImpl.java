@@ -586,8 +586,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         });
     }
 
-    @Override
-    public void validateIncomingWorkspace(Workspace workspace){
+    private void validateIncomingWorkspace(Workspace workspace){
         if (StringUtils.hasLength(workspace.getEmail()) && ! Pattern.matches(EMAIL_PATTERN, workspace.getEmail())) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL);
         }

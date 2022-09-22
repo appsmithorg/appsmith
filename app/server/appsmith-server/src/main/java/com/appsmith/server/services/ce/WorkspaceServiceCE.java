@@ -42,6 +42,4 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
     Flux<Workspace> getAll();
 
     Mono<Workspace> archiveById(String s);
-
-    void validateIncomingWorkspace(Workspace workspace) throws BaseException;
 }

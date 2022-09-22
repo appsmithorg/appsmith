@@ -13,8 +13,7 @@ public class PatternConstants {
      *  - valid-website.com
      *  - valid.12345.com
      *  - 12345.com
-     *  - empty string
-     *  - null string
+
      * Invalid Website Patterns:
      *  - htp://www.invalid.website.com
      *  - htp://invalid.website.com
