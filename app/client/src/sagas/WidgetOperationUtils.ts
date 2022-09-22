@@ -53,6 +53,7 @@ import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
+import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -294,6 +295,45 @@ export function getWidgetChildrenIds(
         const grandChildren = getWidgetChildrenIds(canvasWidgets, child);
         if (grandChildren.length) {
           childrenIds.push(...grandChildren);
+        }
+      }
+    }
+  }
+  return childrenIds;
+}
+
+export function getMetaWidgetChildrenIds(
+  metaWidgets: MetaCanvasWidgetsReduxState,
+  parentId: string,
+): string[] {
+  const childrenIds = getMetaWidgetChildrenIdsRecursively(
+    metaWidgets,
+    parentId,
+  );
+
+  return [parentId, ...childrenIds];
+}
+
+export function getMetaWidgetChildrenIdsRecursively(
+  metaWidgets: MetaCanvasWidgetsReduxState,
+  widgetId: string,
+): string[] {
+  const childrenIds: string[] = [];
+  const widget = _.get(metaWidgets, widgetId);
+  if (widget === undefined) {
+    return [];
+  }
+  const { children = [] } = widget;
+  if (children && children.length) {
+    childrenIds.push(...children);
+    for (const metaWidgetId of children) {
+      if (metaWidgets[metaWidgetId]) {
+        const grandChildrenId = getMetaWidgetChildrenIdsRecursively(
+          metaWidgets,
+          metaWidgetId,
+        );
+        if (grandChildrenId && grandChildrenId.length) {
+          childrenIds.push(...grandChildrenId);
         }
       }
     }

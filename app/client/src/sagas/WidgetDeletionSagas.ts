@@ -1,4 +1,5 @@
 import {
+  deleteMetaWidgets,
   MultipleWidgetDeletePayload,
   updateAndSaveLayout,
   WidgetDelete,
@@ -27,9 +28,15 @@ import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
+import {
+  getSelectedWidget,
+  getWidget,
+  getWidgets,
+  getMetaCanvasWidgets,
+} from "./selectors";
 import {
   getAllWidgetsInTree,
+  getMetaWidgetChildrenIds,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
@@ -43,6 +50,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -217,6 +225,20 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
+      let childIds: string[] = [];
+      if (widget.type === "LIST_WIDGET_V2") {
+        const canvasMetaWidgetId: string = stateWidget.children[0];
+        const metaWidgets: MetaCanvasWidgetsReduxState = yield select(
+          getMetaCanvasWidgets,
+        );
+
+        const canvasChildMetaWidgetId: string[] = yield call(
+          getMetaWidgetChildrenIds,
+          metaWidgets,
+          canvasMetaWidgetId,
+        );
+        childIds = [...canvasChildMetaWidgetId];
+      }
       const updatedObj: UpdatedDSLPostDelete = yield call(
         getUpdatedDslAfterDeletingWidget,
         widgetId,
@@ -224,6 +246,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       );
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
+        yield put(deleteMetaWidgets(childIds));
         yield put(updateAndSaveLayout(finalWidgets));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"

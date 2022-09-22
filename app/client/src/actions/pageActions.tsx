@@ -172,6 +172,13 @@ export const createPage = (
   };
 };
 
+export const deleteMetaWidgets = (widgetIds: string[] = []) => {
+  return {
+    type: ReduxActionTypes.DELETE_CHILD_META_WIDGETS,
+    payload: { widgetIds },
+  };
+};
+
 /**
  * action to clone page
  *
