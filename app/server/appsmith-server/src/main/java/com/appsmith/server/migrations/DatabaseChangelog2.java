@@ -62,6 +62,7 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -2592,5 +2593,110 @@ public class DatabaseChangelog2 {
         Plugin graphQLPlugin = mongoTemplate
                 .findOne(query(where("packageName").is("graphql-plugin")), Plugin.class);
         installPluginToAllWorkspaces(mongoTemplate, graphQLPlugin.getId());
+    }
+
+    public void softDeletePlugin(MongockTemplate mongockTemplate, Plugin plugin) {
+        softDeleteAllPluginActions(plugin, mongockTemplate);
+        softDeleteAllPluginDatasources(plugin, mongockTemplate);
+        softDeletePluginFromAllWorkspaces(plugin, mongockTemplate);
+        softDeleteInPluginCollection(plugin, mongockTemplate);
+    }
+
+    @ChangeSet(order = "038", id = "delete-rapid-api-plugin-related-items", author = "")
+    public void deleteRapidApiPluginRelatedItems(MongockTemplate mongockTemplate) {
+        Plugin rapidApiPlugin = mongockTemplate.findOne(query(where("packageName").is("rapidapi-plugin")),
+                Plugin.class);
+
+        if (rapidApiPlugin == null) {
+            return;
+        }
+
+        softDeletePlugin(mongockTemplate, rapidApiPlugin);
+    }
+
+    private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
+        Query queryToGetNonDeletedWorkspaces = new Query();
+        queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
+        List<Workspace> workspaces = mongockTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
+        workspaces.stream()
+                .map(Workspace::getId)
+                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, QWorkspace.workspace.id, Workspace.class))
+                .forEachOrdered(workspace -> {
+                    workspace.getPlugins().stream()
+                            .filter(workspacePlugin -> workspacePlugin != null && workspacePlugin.getPluginId() != null)
+                            .filter(workspacePlugin -> workspacePlugin.getPluginId().equals(plugin.getId()))
+                            .forEach(workspacePlugin -> {
+                                workspacePlugin.setDeleted(true);
+                                workspacePlugin.setDeletedAt(Instant.now());
+                            });
+                    mongockTemplate.save(workspace);
+                });
+    }
+
+    private void softDeleteInPluginCollection(Plugin plugin, MongockTemplate mongockTemplate) {
+        plugin.setDeleted(true);
+        plugin.setDeletedAt(Instant.now());
+        mongockTemplate.save(plugin);
+    }
+
+    private void softDeleteAllPluginDatasources(Plugin plugin, MongockTemplate mongockTemplate) {
+        /* Query to get all plugin datasources which are not deleted */
+        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(plugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetDatasources.fields().include(fieldName(QDatasource.datasource.id));
+
+        /* Fetch plugin datasources using the previous query */
+        List<Datasource> datasources = mongockTemplate.find(queryToGetDatasources, Datasource.class);
+
+        /* Mark each selected datasource as deleted */
+        updateDeleteAndDeletedAtFieldsForEachDomainObject(datasources, mongockTemplate,
+                QDatasource.datasource.id, Datasource.class);
+    }
+
+    private void softDeleteAllPluginActions(Plugin plugin, MongockTemplate mongockTemplate) {
+        /* Query to get all plugin actions which are not deleted */
+        Query queryToGetActions = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(plugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
+
+        /* Fetch plugin actions using the previous query */
+        List<NewAction> actions = mongockTemplate.find(queryToGetActions, NewAction.class);
+
+        /* Mark each selected action as deleted */
+        updateDeleteAndDeletedAtFieldsForEachDomainObject(actions, mongockTemplate, QNewAction.newAction.id,
+                NewAction.class);
+    }
+
+    private Query getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(Plugin plugin) {
+        Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
+        Criteria isNotDeleted = where("deleted").ne(true);
+        return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));
+    }
+
+    private <T extends BaseDomain> void updateDeleteAndDeletedAtFieldsForEachDomainObject(List<? extends BaseDomain> domainObjects,
+                                                                                          MongockTemplate mongockTemplate, Path path,
+                                                                                          Class<T> type) {
+        domainObjects.stream()
+                .map(BaseDomain::getId) // iterate over id one by one
+                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, path, type)) // find object using id
+                .forEachOrdered(domainObject -> {
+                    domainObject.setDeleted(true);
+                    domainObject.setDeletedAt(Instant.now());
+                    mongockTemplate.save(domainObject);
+                });
+    }
+
+    /**
+     * Here 'id' refers to the ObjectId which is used to uniquely identify each Mongo document. 'path' refers to the
+     * path in the Query DSL object that indicates which field in a document should be matched against the `id`.
+     * `type` is a POJO class type that indicates which collection we are interested in. eg. path=QNewAction
+     * .newAction.id, type=NewAction.class
+     */
+    private <T extends BaseDomain> T fetchDomainObjectUsingId(String id, MongockTemplate mongockTemplate, Path path,
+                                                              Class<T> type) {
+        final T domainObject = mongockTemplate.findOne(query(where(fieldName(path)).is(id)), type);
+        return domainObject;
     }
 }

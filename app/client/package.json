@@ -46,7 +46,7 @@
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@1.0.21",
+    "design-system": "npm:@appsmithorg/design-system@1.0.24",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "emoji-mart": "^3.0.1",
