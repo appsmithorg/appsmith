@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -62,10 +64,9 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         log.debug("In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
 
         // All public access is via a single permission group. Fetch the same and set the cache with it.
-        return mongoOperations.findOne(Query.query(Criteria.where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP)), PermissionGroup.class)
-                .map(permissionGroup -> Set.of(permissionGroup.getId()))
+        return mongoOperations.findOne(Query.query(Criteria.where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP)), Config.class)
+                .map(publicPermissionGroupConfig -> Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
                 .doOnSuccess(permissionGroupIds -> anonymousUserPermissionGroupIds = permissionGroupIds);
-
     }
 
     @CacheEvict(cacheName = "permissionGroupsForUser", key = "{#email + #tenantId}")
