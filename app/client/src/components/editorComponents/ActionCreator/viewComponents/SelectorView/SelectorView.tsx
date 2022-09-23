@@ -1,8 +1,8 @@
-import { SelectorViewProps } from "../types";
+import { SelectorViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,
-} from "../../../propertyControls/StyledControls";
+} from "../../../../propertyControls/StyledControls";
 import { Setter, TreeDropdown } from "design-system";
 import { PopoverPosition } from "@blueprintjs/core";
 import React from "react";
@@ -11,7 +11,9 @@ export function SelectorView(props: SelectorViewProps) {
   return (
     <FieldWrapper>
       <ControlWrapper isAction key={props.label}>
-        {props.label && <label>{props.label}</label>}
+        {props.label && (
+          <label data-testid="selector-view-label">{props.label}</label>
+        )}
         <TreeDropdown
           defaultText={props.defaultText}
           displayValue={props.displayValue}

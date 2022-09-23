@@ -39,7 +39,7 @@ import {
   enumTypeGetter,
 } from "./utils";
 import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
-import { SelectorView } from "./viewComponents/SelectorView";
+import { SelectorView } from "./viewComponents/SelectorView/SelectorView";
 import { KeyValueView } from "./viewComponents/KeyValueView";
 import { TextView } from "./viewComponents/TextView/TextView";
 import { TabView } from "./viewComponents/TabView/TabView";
