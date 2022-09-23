@@ -407,8 +407,6 @@ export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying ${actionName}`;
 export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
   `${actionName} deleted successfully`;
-export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} created successfully`;
 export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} moved to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
