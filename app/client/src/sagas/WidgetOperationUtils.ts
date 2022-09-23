@@ -304,41 +304,30 @@ export function getWidgetChildrenIds(
 
 export function getMetaWidgetChildrenIds(
   metaWidgets: MetaCanvasWidgetsReduxState,
-  parentId: string,
-): string[] {
-  const childrenIds = getMetaWidgetChildrenIdsRecursively(
-    metaWidgets,
-    parentId,
-  );
-
-  return [parentId, ...childrenIds];
-}
-
-export function getMetaWidgetChildrenIdsRecursively(
-  metaWidgets: MetaCanvasWidgetsReduxState,
-  widgetId: string,
+  parentIds: string[],
 ): string[] {
   const childrenIds: string[] = [];
-  const widget = _.get(metaWidgets, widgetId);
-  if (widget === undefined) {
-    return [];
-  }
-  const { children = [] } = widget;
-  if (children && children.length) {
-    childrenIds.push(...children);
-    for (const metaWidgetId of children) {
-      if (metaWidgets[metaWidgetId]) {
-        const grandChildrenId = getMetaWidgetChildrenIdsRecursively(
-          metaWidgets,
-          metaWidgetId,
-        );
-        if (grandChildrenId && grandChildrenId.length) {
-          childrenIds.push(...grandChildrenId);
-        }
-      }
-    }
-  }
+
+  parentIds.forEach((parentId) => {
+    const metaIds = getMetaWidgetByCreatorId(metaWidgets, parentId);
+    childrenIds.push(...metaIds);
+  });
+
   return childrenIds;
+}
+
+function getMetaWidgetByCreatorId(
+  metaWidgets: MetaCanvasWidgetsReduxState,
+  parentId: string,
+): string[] {
+  const metaWidgetIds: string[] = [];
+
+  Object.keys(metaWidgets).forEach((metaWidgetId) => {
+    if (metaWidgets[metaWidgetId].creatorId === parentId) {
+      metaWidgetIds.push(metaWidgetId);
+    }
+  });
+  return metaWidgetIds;
 }
 
 export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };

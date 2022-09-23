@@ -1,5 +1,4 @@
 import {
-  deleteMetaWidgets,
   MultipleWidgetDeletePayload,
   updateAndSaveLayout,
   WidgetDelete,
@@ -51,6 +50,7 @@ import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { deleteMetaWidgets } from "actions/metaWidgetActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -225,19 +225,18 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
-      let childIds: string[] = [];
+      let childMetaWidgetIds: string[] = [];
       if (widget.type === "LIST_WIDGET_V2") {
-        const canvasMetaWidgetId: string = stateWidget.children[0];
         const metaWidgets: MetaCanvasWidgetsReduxState = yield select(
           getMetaCanvasWidgets,
         );
 
-        const canvasChildMetaWidgetId: string[] = yield call(
+        const canvasChildMetaWidgetIds: string[] = yield call(
           getMetaWidgetChildrenIds,
           metaWidgets,
-          canvasMetaWidgetId,
+          [widget.widgetId],
         );
-        childIds = [...canvasChildMetaWidgetId];
+        childMetaWidgetIds = [...canvasChildMetaWidgetIds];
       }
       const updatedObj: UpdatedDSLPostDelete = yield call(
         getUpdatedDslAfterDeletingWidget,
@@ -246,7 +245,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       );
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        yield put(deleteMetaWidgets(childIds));
+        yield put(deleteMetaWidgets(childMetaWidgetIds));
         yield put(updateAndSaveLayout(finalWidgets));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"

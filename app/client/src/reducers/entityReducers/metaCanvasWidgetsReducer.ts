@@ -16,8 +16,12 @@ export type FlattenedWidgetProps<orType = never> =
   | orType;
 
 export type ModifyMetaWidgetPayload = {
-  addOrUpdate?: Record<string, FlattenedWidgetProps>;
+  addOrUpdate: Record<string, FlattenedWidgetProps>;
   delete: string[];
+  creatorId?: string;
+};
+export type BulkDeleteMetaWidgetPayload = {
+  metaWidgetIds: string[];
 };
 
 const initialState: MetaCanvasWidgetsReduxState = {};
@@ -32,11 +36,24 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
         ([metaWidgetId, widgetProps]) => {
           state[metaWidgetId] = widgetProps;
           state[metaWidgetId].isMetaWidget = true;
+          state[metaWidgetId].creatorId = action.payload.creatorId;
         },
       );
     }
     action.payload.delete.forEach((deleteId) => {
-      delete state[deleteId];
+      if (state[deleteId].creatorId === action.payload.creatorId) {
+        delete state[deleteId];
+      }
+    });
+
+    return state;
+  },
+  [ReduxActionTypes.BULK_DELETE_META_WIDGETS]: (
+    state: MetaCanvasWidgetsReduxState,
+    action: ReduxAction<BulkDeleteMetaWidgetPayload>,
+  ) => {
+    action.payload.metaWidgetIds.forEach((metaWidgetId) => {
+      delete state[metaWidgetId];
     });
 
     return state;

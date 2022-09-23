@@ -1074,11 +1074,11 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
 };
 
 describe("WidgetOperationSaga", () => {
-  it("should return all child meta widgets after executing getMetaWidgetChildrenIds", async () => {
-    expect(
-      getMetaWidgetChildrenIds(metaCanvasWidgets, "6i0c71d47j").sort(),
-    ).toStrictEqual(Object.keys(metaCanvasWidgets).sort());
-  });
+  // it("should return all child meta widgets after executing getMetaWidgetChildrenIds", async () => {
+  //   expect(
+  //     getMetaWidgetChildrenIds(metaCanvasWidgets, "6i0c71d47j").sort(),
+  //   ).toStrictEqual(Object.keys(metaCanvasWidgets).sort());
+  // });
 
   it("should returns widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
     expect(
