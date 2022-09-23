@@ -1,19 +1,10 @@
 import React from "react";
+import { TreeDropdownOption } from "design-system";
 import {
-  TreeDropdown,
-  Setter,
-  TreeDropdownOption,
-  Switcher,
-} from "design-system";
-import {
-  ControlWrapper,
-  FieldWrapper,
   StyledDividerContainer,
   StyledNavigateToFieldsContainer,
   StyledNavigateToFieldWrapper,
 } from "components/propertyControls/StyledControls";
-import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
-import { InputText } from "components/propertyControls/InputTextControl";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
@@ -29,7 +20,6 @@ import {
   AppsmithFunction,
   FieldType,
 } from "./constants";
-import { PopoverPosition } from "@blueprintjs/core";
 import { ACTION_TRIGGER_REGEX } from "./regex";
 import {
   SwitchType,
@@ -49,6 +39,10 @@ import {
   enumTypeGetter,
 } from "./utils";
 import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
+import { SelectorView } from "./viewComponents/SelectorView";
+import { KeyValueView } from "./viewComponents/KeyValueView";
+import { TextView } from "./viewComponents/TextView";
+import { TabView } from "./viewComponents/TabView";
 
 /**
  ******** Steps to add a new function *******
@@ -71,78 +65,14 @@ import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
  **/
 
 const views = {
-  [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
-    return (
-      <FieldWrapper>
-        <ControlWrapper isAction key={props.label}>
-          {props.label && <label>{props.label}</label>}
-          <TreeDropdown
-            defaultText={props.defaultText}
-            displayValue={props.displayValue}
-            getDefaults={props.getDefaults}
-            modifiers={{
-              preventOverflow: {
-                boundariesElement: "viewport",
-              },
-            }}
-            onSelect={props.set as Setter}
-            optionTree={props.options}
-            position={PopoverPosition.AUTO}
-            selectedLabelModifier={props.selectedLabelModifier}
-            selectedValue={props.get(props.value, false) as string}
-          />
-        </ControlWrapper>
-      </FieldWrapper>
-    );
-  },
-  [ViewTypes.KEY_VALUE_VIEW]: function KeyValueView(props: KeyValueViewProps) {
-    return (
-      <ControlWrapper isAction key={props.label}>
-        <KeyValueComponent
-          addLabel={"Query Params"}
-          pairs={props.get(props.value, false) as DropdownOption[]}
-          updatePairs={(pageParams: DropdownOption[]) => props.set(pageParams)}
-        />
-      </ControlWrapper>
-    );
-  },
-  [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
-    return (
-      <FieldWrapper>
-        <ControlWrapper isAction key={props.label}>
-          {props.label && <label>{props.label}</label>}
-          <InputText
-            additionalAutocomplete={props.additionalAutoComplete}
-            evaluatedValue={props.get(props.value, false) as string}
-            expected={{
-              type: "string",
-              example: "showMessage('Hello World!', 'info')",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            }}
-            label={props.label}
-            onChange={(event: any) => {
-              if (event.target) {
-                props.set(event.target.value, true);
-              } else {
-                props.set(event, true);
-              }
-            }}
-            value={props.get(props.value, props.index, false) as string}
-          />
-        </ControlWrapper>
-      </FieldWrapper>
-    );
-  },
-  [ViewTypes.TAB_VIEW]: function TabView(props: TabViewProps) {
-    return (
-      <FieldWrapper>
-        <ControlWrapper>
-          {props.label && <label>{props.label}</label>}
-          <Switcher activeObj={props.activeObj} switches={props.switches} />
-        </ControlWrapper>
-      </FieldWrapper>
-    );
-  },
+  [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
+    <SelectorView {...props} />
+  ),
+  [ViewTypes.KEY_VALUE_VIEW]: (props: KeyValueViewProps) => (
+    <KeyValueView {...props} />
+  ),
+  [ViewTypes.TEXT_VIEW]: (props: TextViewProps) => <TextView {...props} />,
+  [ViewTypes.TAB_VIEW]: (props: TabViewProps) => <TabView {...props} />,
 };
 
 const fieldConfigs: FieldConfigs = {
