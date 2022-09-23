@@ -423,4 +423,129 @@ public class ElasticSearchPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void itShouldRejectGetToMetadataAws() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://169.254.169.254");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setPath("/");
+
+        final Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals("Error performing request: Host 169.254.169.254 is not allowed", result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldRejectGetToMetadataAwsWithDnsResolution() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://169.254.169.254.nip.io");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setPath("/");
+
+        final Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals("Error performing request: Host 169.254.169.254.nit.io is not allowed", result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldRejectGetToMetadataAwsWithDnsResolutionAndRedirect() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://postman-echo.com/redirect-to?url=http://169.254.169.254.nip.io");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setPath("/");
+
+        final Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldRejectGetToMetadataGcp() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://metadata.google.internal");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setPath("/");
+
+        final Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldRejectGetToMetadataGcpAndRedirect() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://postman-echo.com/redirect-to?url=http://metadata.google.internal");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setPath("/");
+
+        final Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getBody());
+                })
+                .verifyComplete();
+    }
+
 }
