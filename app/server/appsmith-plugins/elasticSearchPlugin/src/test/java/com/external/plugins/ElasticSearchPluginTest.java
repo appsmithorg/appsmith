@@ -437,7 +437,7 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setPath("/");
 
         final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(dsConfig)
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -462,13 +462,13 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setPath("/");
 
         final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(dsConfig)
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host 169.254.169.254.nit.io is not allowed", result.getBody());
+                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getBody());
                 })
                 .verifyComplete();
     }
@@ -487,7 +487,7 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setPath("/");
 
         final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(dsConfig)
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -512,7 +512,7 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setPath("/");
 
         final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(dsConfig)
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -537,7 +537,7 @@ public class ElasticSearchPluginTest {
         actionConfiguration.setPath("/");
 
         final Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .datasourceCreate(dsConfig)
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
