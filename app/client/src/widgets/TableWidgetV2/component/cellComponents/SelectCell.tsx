@@ -27,7 +27,7 @@ type SelectProps = {
   borderRadius: string;
   options: string[];
   isCellVisible: boolean;
-  onItemSelect: (value: string) => void;
+  onItemSelect: (value: string | number) => void;
   value: string;
   width: number;
   isHidden: boolean;

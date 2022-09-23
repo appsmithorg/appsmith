@@ -383,7 +383,7 @@ class SelectComponent extends React.Component<
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
-              value={this.props.value}
+              value={this.props.value?.toString()}
             />
           </StyledSingleDropDown>
         </StyledControlGroup>
@@ -416,8 +416,8 @@ export interface SelectComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
-  value?: string;
-  label?: string;
+  value?: string | number;
+  label?: string | number;
   filterText?: string;
   borderRadius: string;
   boxShadow?: string;
