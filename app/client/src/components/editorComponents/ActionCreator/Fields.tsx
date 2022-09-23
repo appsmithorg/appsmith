@@ -37,7 +37,11 @@ import {
   enumTypeSetter,
   enumTypeGetter,
 } from "./utils";
+<<<<<<< HEAD
 import { ALERT_STYLE_OPTIONS } from "@appsmith/constants/messages";
+=======
+import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
+>>>>>>> 75f9846091 (Extract views into their components)
 import { SelectorView } from "./viewComponents/SelectorView";
 import { KeyValueView } from "./viewComponents/KeyValueView";
 import { TextView } from "./viewComponents/TextView";
