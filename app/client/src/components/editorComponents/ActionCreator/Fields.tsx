@@ -42,7 +42,7 @@ import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
 import { SelectorView } from "./viewComponents/SelectorView";
 import { KeyValueView } from "./viewComponents/KeyValueView";
 import { TextView } from "./viewComponents/TextView";
-import { TabView } from "./viewComponents/TabView";
+import { TabView } from "./viewComponents/TabView/TabView";
 
 /**
  ******** Steps to add a new function *******
