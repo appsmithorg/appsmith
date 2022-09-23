@@ -18,6 +18,7 @@ const FormRow = styled.div`
 const ActionSettingsWrapper = styled.div`
   width: 100%;
   max-width: 600px;
+  padding-bottom: 1px;
   .form-config-top {
     flex-grow: 1;
   }
