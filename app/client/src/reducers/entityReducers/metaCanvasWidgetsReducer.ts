@@ -58,6 +58,9 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
 
     return state;
   },
+  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
+    return {};
+  },
 });
 
 export default metaCanvasWidgetsReducer;
