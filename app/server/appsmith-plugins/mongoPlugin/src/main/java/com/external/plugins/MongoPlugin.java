@@ -162,7 +162,7 @@ public class MongoPlugin extends BasePlugin {
      * capturing the value group for regex.
      * e.g {"code" : {$regex: 8777}}, this whole substring will be matched and 8777 is captured for further processing.
      */
-    private static final String mongo$regexWithNumberIdentifier = ".*\\{[\\s\\n]*\\$regex[\\s\\n]*:([\\s\\n]*(?:(?:\\\"[/]*)|(?:/[\\\"]*)|)[\\d]*(?:(?:[/]*\\\")|(?:[\\\"]*/)|)[\\s\\n]*)(?:,|\\})";
+    private static final String mongo$regexWithNumberIdentifier = ".*\\{[\\s\\n]*\\$regex[\\s\\n]*:([\\s\\n]*(?:(?:\\\"[/]*)|(?:/[\\\"]*)|)[-]?[\\d]*\\.?[\\d]*(?:(?:[/]*\\\")|(?:[\\\"]*/)|)[\\s\\n]*)(?:,|\\})";
 
     /**
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
@@ -582,7 +582,7 @@ public class MongoPlugin extends BasePlugin {
                     params,
                     parameters);
 
-            updatedQuery = mongoRegexSmartSubstitutionHelper (updatedQuery);
+            updatedQuery = makeMongoRegexSubstitutionValid (updatedQuery);
 
             return updatedQuery;
         }
@@ -590,8 +590,7 @@ public class MongoPlugin extends BasePlugin {
 
         private static StringBuilder makeValidForRegex(String value) {
 
-            // equivalent to new StringBuilder(value.trim()); but takes lesser memory
-            StringBuilder valueSB = trimAndBuildStringBuilderFromString(value);
+            StringBuilder valueSB = new StringBuilder(value.trim());
 
             char quote = '\"';
             char forwardSlash = '/';
@@ -604,37 +603,13 @@ public class MongoPlugin extends BasePlugin {
             return valueSB;
         }
 
-        private static StringBuilder trimAndBuildStringBuilderFromString(String input) {
-
-            int startIndex = 0;
-            int endIndex = input.length() -1;
-            for (int i = 0; i < input.length(); i++) {
-                if (!Character.isWhitespace(input.charAt(i))) {
-                    startIndex = i;
-                    break;
-                }
-            }
-
-            for  (int i = input.length()-1; i>= 0 ; i--) {
-                if (!Character.isWhitespace(input.charAt(i))) {
-                    endIndex = i;
-                    break;
-                }
-            }
-
-            return  endIndex >= startIndex ? new StringBuilder( input.substring(startIndex, endIndex+1)) : new StringBuilder("");
-        }
-
-
         /**
          * Smart Substitution Helper for mongo regex: Regex takes pattern as "<pattern>" or /<pattern>/,
          * Rest are not illegal arguments to the $regex attribute in mongo.
          * @Param: Smart substituted query string.
          * @Returns: Updated query string.
          */
-        private static String mongoRegexSmartSubstitutionHelper(String inputQuery) {
-
-
+        private static String makeMongoRegexSubstitutionValid(String inputQuery) {
 
             int startIndex = 0;
             StringBuilder inputQuerySB = new StringBuilder();
