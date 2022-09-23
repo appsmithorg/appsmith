@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
@@ -60,8 +61,10 @@ function Files() {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
+  const pagePermissions = useSelector(getPagePermissions);
+
   const canCreateActions = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.CREATE_ACTION,
   );
 

@@ -15,12 +15,13 @@ export enum PERMISSION_TYPE {
   CREATE_PAGE = "create:pages",
   MANAGE_PAGE = "manage:pages",
   DELETE_PAGE = "delete:pages",
-  CREATE_ACTION = "create:actions",
+  CREATE_ACTION = "create:pageActions",
   MANAGE_ACTION = "manage:actions",
   DELETE_ACTION = "delete:actions",
   EXECUTE_ACTION = "execute:actions",
   MANAGE_ACTIONS = "manage:actions",
   MANAGE_PAGES = "manage:pages",
+  CREATE_WORKSPACES = "create:workspaces",
 }
 
 export enum LOGIC_FILTER {

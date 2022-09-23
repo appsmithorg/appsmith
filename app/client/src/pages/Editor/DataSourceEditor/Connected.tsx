@@ -15,6 +15,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};
@@ -46,11 +47,12 @@ function Connected() {
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
+  const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateDatasourceActions = isPermitted(userWorkspacePermissions, [
-    PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-    PERMISSION_TYPE.CREATE_ACTION,
-  ]);
+  const canCreateDatasourceActions = isPermitted(
+    [...userWorkspacePermissions, ...pagePermissions],
+    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTION],
+  );
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),

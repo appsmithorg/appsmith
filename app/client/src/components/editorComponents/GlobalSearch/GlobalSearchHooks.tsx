@@ -4,7 +4,7 @@ import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
-import { getPageList } from "selectors/editorSelectors";
+import { getPageList, getPagePermissions } from "selectors/editorSelectors";
 import {
   getActions,
   getAllPageWidgets,
@@ -53,21 +53,30 @@ export const useFilteredFileOperations = (query = "") => {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.CREATE_ACTION,
+  );
+
   const canCreateDatasource = isPermitted(
     userWorkspacePermissions,
     PERMISSION_TYPE.CREATE_DATASOURCE,
   );
 
-  const canCreateDatasourceActions = isPermitted(userWorkspacePermissions, [
-    PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-    PERMISSION_TYPE.CREATE_ACTION,
-  ]);
+  const canCreateDatasourceActions = isPermitted(
+    [...userWorkspacePermissions, ...pagePermissions],
+    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTION],
+  );
 
   return useMemo(() => {
     let fileOperations: any =
-      actionOperations.filter((op) =>
-        op.title.toLowerCase().includes(query.toLowerCase()),
-      ) || [];
+      (canCreateActions &&
+        actionOperations.filter((op) =>
+          op.title.toLowerCase().includes(query.toLowerCase()),
+        )) ||
+      [];
     const filteredAppWideDS = appWideDS.filter((ds: Datasource) =>
       ds.name.toLowerCase().includes(query.toLowerCase()),
     );
@@ -77,7 +86,7 @@ export const useFilteredFileOperations = (query = "") => {
     if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        {
+        canCreateDatasourceActions && {
           title: "CREATE A QUERY",
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },

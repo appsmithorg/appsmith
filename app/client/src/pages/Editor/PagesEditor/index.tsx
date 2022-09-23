@@ -13,7 +13,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPageList,
-  getPagePermissions,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableList } from "design-system";
@@ -79,10 +78,10 @@ function PagesEditor() {
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const pageId = useSelector(getCurrentPageId);
 
-  const pagePermissions = useSelector(getPagePermissions);
+  const userAppPermissions = currentApp?.userPermissions || [];
 
   const canCreatePages = isPermitted(
-    pagePermissions,
+    userAppPermissions,
     PERMISSION_TYPE.CREATE_PAGE,
   );
 

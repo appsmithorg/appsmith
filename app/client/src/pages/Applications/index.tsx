@@ -107,6 +107,7 @@ import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -393,6 +394,16 @@ function LeftPane() {
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateWorkspaces = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_WORKSPACES,
+  );
+
   let userWorkspaces;
   if (!isFetchingApplications) {
     userWorkspaces = fetchedUserWorkspaces;
@@ -412,24 +423,28 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {!isFetchingApplications && fetchedUserWorkspaces && (
-            <MenuItem
-              cypressSelector="t--workspace-new-workspace-auto-create"
-              icon="plus"
-              onSelect={() =>
-                submitCreateWorkspaceForm(
-                  {
-                    name: getNextEntityName(
-                      "Untitled workspace ",
-                      fetchedUserWorkspaces.map((el: any) => el.workspace.name),
-                    ),
-                  },
-                  dispatch,
-                )
-              }
-              text={CREATE_WORKSPACE_FORM_NAME}
-            />
-          )}
+          {!isFetchingApplications &&
+            fetchedUserWorkspaces &&
+            canCreateWorkspaces && (
+              <MenuItem
+                cypressSelector="t--workspace-new-workspace-auto-create"
+                icon="plus"
+                onSelect={() =>
+                  submitCreateWorkspaceForm(
+                    {
+                      name: getNextEntityName(
+                        "Untitled workspace ",
+                        fetchedUserWorkspaces.map(
+                          (el: any) => el.workspace.name,
+                        ),
+                      ),
+                    },
+                    dispatch,
+                  )
+                }
+                text={CREATE_WORKSPACE_FORM_NAME}
+              />
+            )}
           {userWorkspaces &&
             userWorkspaces.map((workspace: any) => (
               <WorkspaceMenuItem

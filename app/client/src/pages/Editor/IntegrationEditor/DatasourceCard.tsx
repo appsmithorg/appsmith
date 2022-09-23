@@ -44,7 +44,10 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -209,10 +212,12 @@ function DatasourceCard(props: DatasourceCardProps) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasourceActions = isPermitted(userWorkspacePermissions, [
-    PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-    PERMISSION_TYPE.CREATE_ACTION,
-  ]);
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateDatasourceActions = isPermitted(
+    [...userWorkspacePermissions, ...pagePermissions],
+    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTION],
+  );
 
   const isDeletingDatasource = useSelector(getIsDeletingDatasource);
 

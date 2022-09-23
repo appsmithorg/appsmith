@@ -8,7 +8,10 @@ import {
 import styled from "constants/DefaultTheme";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
@@ -32,7 +35,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -84,12 +86,10 @@ export default function ExplorerSubMenu({
   useEffect(() => setShow(openMenu), [openMenu]);
   useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
+  const pagePermissions = useSelector(getPagePermissions);
 
   const canCreateActions = isPermitted(
-    userWorkspacePermissions,
+    pagePermissions,
     PERMISSION_TYPE.CREATE_ACTION,
   );
 
