@@ -1016,11 +1016,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return result;
     }
-
-    /**
-     * Overridable method to handle system events in Enterprise Edition
-     * @return
-     */
+    
     public Boolean isSendExecuteAnalyticsEvent() {
         return analyticsService.isActive();
     }
