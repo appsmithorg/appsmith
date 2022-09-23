@@ -240,7 +240,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push client image latest
-        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
+        if: needs.prelude.outputs.is_beta == 'false'
         uses: depot/build-push-action@v1
         with:
           context: app/client
@@ -261,7 +261,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push fat image latest
-        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
+        if: needs.prelude.outputs.is_beta == 'false'
         uses: depot/build-push-action@v1
         with:
           context: .
@@ -284,7 +284,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push server image latest
-        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
+        if: needs.prelude.outputs.is_beta == 'false'
         uses: depot/build-push-action@v1
         with:
           context: app/server
@@ -305,7 +305,7 @@ jobs:
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push RTS image latest
-        if: contains(needs.prelude.outputs.tag, 'beta') == 'false'
+        if: needs.prelude.outputs.is_beta == 'false'
         uses: depot/build-push-action@v1
         with:
           context: app/rts
