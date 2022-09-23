@@ -7,6 +7,10 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
   theme: Theme;
 }>`
+   .CodeMirror-hints-wrapper {
+    padding: 10px 0px;
+   }
+ 
   .CodeMirror-hints {
     position: absolute;
     z-index: 20;

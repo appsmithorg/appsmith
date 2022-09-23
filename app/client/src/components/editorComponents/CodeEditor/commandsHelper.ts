@@ -73,6 +73,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
           shortcut: "",
         };
         const cursor = editor.getCursor();
+        // Uncomment to debug: when the execution stops, execute next functions until command hint is visible
+        // debugger;
         editor.showHint({
           hint: () => {
             const hints = {

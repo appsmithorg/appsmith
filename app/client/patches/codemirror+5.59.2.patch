@@ -1,0 +1,95 @@
+diff --git a/node_modules/codemirror/addon/hint/show-hint.js b/node_modules/codemirror/addon/hint/show-hint.js
+index a9f2ded..1da0cf9 100644
+--- a/node_modules/codemirror/addon/hint/show-hint.js
++++ b/node_modules/codemirror/addon/hint/show-hint.js
+@@ -12,7 +12,7 @@
+     mod(CodeMirror);
+ })(function(CodeMirror) {
+   "use strict";
+-
++  var HINTS_WRAPPER_CLASS = "CodeMirror-hints-wrapper"
+   var HINT_ELEMENT_CLASS        = "CodeMirror-hint";
+   var ACTIVE_HINT_ELEMENT_CLASS = "CodeMirror-hint-active";
+ 
+@@ -231,7 +231,11 @@
+     var ownerDocument = cm.getInputField().ownerDocument;
+     var parentWindow = ownerDocument.defaultView || ownerDocument.parentWindow;
+ 
++    let parentDiv = ownerDocument.createElement("div");
++    parentDiv.className = HINTS_WRAPPER_CLASS
++    
+     var hints = this.hints = ownerDocument.createElement("ul");
++    parentDiv.appendChild(hints)
+     var theme = completion.cm.options.theme;
+     hints.className = "CodeMirror-hints " + theme;
+     this.selectedHint = data.selectedHint || 0;
+@@ -260,16 +264,16 @@
+       offsetLeft = (offsetParentPosition.left - bodyPosition.left - offsetParent.scrollLeft);
+       offsetTop = (offsetParentPosition.top - bodyPosition.top - offsetParent.scrollTop);
+     }
+-    hints.style.left = (left - offsetLeft) + "px";
+-    hints.style.top = (top - offsetTop) + "px";
++    parentDiv.style.left = (left - offsetLeft) + "px";
++    parentDiv.style.top = (top - offsetTop) + "px";
+ 
+     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
+     var winW = parentWindow.innerWidth || Math.max(ownerDocument.body.offsetWidth, ownerDocument.documentElement.offsetWidth);
+     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
+-    container.appendChild(hints);
++    container.appendChild(parentDiv);
+ 
+-    var box = completion.options.moveOnOverlap ? hints.getBoundingClientRect() : new DOMRect();
+-    var scrolls = completion.options.paddingForScrollbar ? hints.scrollHeight > hints.clientHeight + 1 : false;
++    var box = completion.options.moveOnOverlap ? parentDiv.getBoundingClientRect() : new DOMRect();
++    var scrolls = completion.options.paddingForScrollbar ? parentDiv.scrollHeight > parentDiv.clientHeight + 1 : false;
+ 
+     // Compute in the timeout to avoid reflow on init
+     var startScroll;
+@@ -279,26 +283,26 @@
+     if (overlapY > 0) {
+       var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
+       if (curTop - height > 0) { // Fits above cursor
+-        hints.style.top = (top = pos.top - height - offsetTop) + "px";
++        parentDiv.style.top = (top = pos.top - height - offsetTop) + "px";
+         below = false;
+       } else if (height > winH) {
+-        hints.style.height = (winH - 5) + "px";
+-        hints.style.top = (top = pos.bottom - box.top - offsetTop) + "px";
++        parentDiv.style.height = (winH - 5) + "px";
++        parentDiv.style.top = (top = pos.bottom - box.top - offsetTop) + "px";
+         var cursor = cm.getCursor();
+         if (data.from.ch != cursor.ch) {
+           pos = cm.cursorCoords(cursor);
+-          hints.style.left = (left = pos.left - offsetLeft) + "px";
+-          box = hints.getBoundingClientRect();
++          parentDiv.style.left = (left = pos.left - offsetLeft) + "px";
++          box = parentDiv.getBoundingClientRect();
+         }
+       }
+     }
+     var overlapX = box.right - winW;
+     if (overlapX > 0) {
+       if (box.right - box.left > winW) {
+-        hints.style.width = (winW - 5) + "px";
++        parentDiv.style.width = (winW - 5) + "px";
+         overlapX -= (box.right - box.left) - winW;
+       }
+-      hints.style.left = (left = pos.left - overlapX - offsetLeft) + "px";
++      parentDiv.style.left = (left = pos.left - overlapX - offsetLeft) + "px";
+     }
+     if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
+       node.style.paddingRight = cm.display.nativeBarWidth + "px"
+@@ -323,10 +327,10 @@
+       var curScroll = cm.getScrollInfo(), editor = cm.getWrapperElement().getBoundingClientRect();
+       var newTop = top + startScroll.top - curScroll.top;
+       var point = newTop - (parentWindow.pageYOffset || (ownerDocument.documentElement || ownerDocument.body).scrollTop);
+-      if (!below) point += hints.offsetHeight;
++      if (!below) point += parentDiv.offsetHeight;
+       if (point <= editor.top || point >= editor.bottom) return completion.close();
+-      hints.style.top = newTop + "px";
+-      hints.style.left = (left + startScroll.left - curScroll.left) + "px";
++      parentDiv.style.top = newTop + "px";
++      parentDiv.style.left = (left + startScroll.left - curScroll.left) + "px";
+     });
+ 
+     CodeMirror.on(hints, "dblclick", function(e) {
