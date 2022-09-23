@@ -29,6 +29,7 @@ import {
   APPSMITH_GLOBAL_FUNCTIONS,
   APPSMITH_NAMESPACED_FUNCTIONS,
 } from "./constants";
+import { PopoverPosition } from "@blueprintjs/core";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -291,8 +292,14 @@ const views = {
             defaultText={props.defaultText}
             displayValue={props.displayValue}
             getDefaults={props.getDefaults}
+            modifiers={{
+              preventOverflow: {
+                boundariesElement: "viewport",
+              },
+            }}
             onSelect={props.set as Setter}
             optionTree={props.options}
+            position={PopoverPosition.AUTO}
             selectedLabelModifier={props.selectedLabelModifier}
             selectedValue={props.get(props.value, false) as string}
           />
