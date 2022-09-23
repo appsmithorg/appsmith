@@ -1,17 +1,19 @@
-import { TextViewProps } from "../types";
+import { TextViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,
-} from "../../../propertyControls/StyledControls";
-import { InputText } from "../../../propertyControls/InputTextControl";
-import { AutocompleteDataType } from "../../../../utils/autocomplete/TernServer";
+} from "../../../../propertyControls/StyledControls";
+import { InputText } from "../../../../propertyControls/InputTextControl";
+import { AutocompleteDataType } from "../../../../../utils/autocomplete/TernServer";
 import React from "react";
 
 export function TextView(props: TextViewProps) {
   return (
     <FieldWrapper>
       <ControlWrapper isAction key={props.label}>
-        {props.label && <label>{props.label}</label>}
+        {props.label && (
+          <label data-testid="text-view-label">{props.label}</label>
+        )}
         <InputText
           additionalAutocomplete={props.additionalAutoComplete}
           evaluatedValue={props.get(props.value, false) as string}
