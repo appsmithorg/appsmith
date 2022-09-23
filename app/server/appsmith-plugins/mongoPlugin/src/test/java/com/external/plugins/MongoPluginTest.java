@@ -2895,9 +2895,9 @@ public class MongoPluginTest {
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "[a-zA-Z]{0,3}.*Ci.*")));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                executeActionDTO,
-                dsConfig,
-                actionConfiguration));
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
@@ -2930,9 +2930,9 @@ public class MongoPluginTest {
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "35")));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                executeActionDTO,
-                dsConfig,
-                actionConfiguration));
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
@@ -2966,9 +2966,9 @@ public class MongoPluginTest {
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "5-.*")));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                executeActionDTO,
-                dsConfig,
-                actionConfiguration));
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
@@ -3002,9 +3002,9 @@ public class MongoPluginTest {
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-7")));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                executeActionDTO,
-                dsConfig,
-                actionConfiguration));
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
@@ -3039,9 +3039,9 @@ public class MongoPluginTest {
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-2.5")));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                executeActionDTO,
-                dsConfig,
-                actionConfiguration));
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
