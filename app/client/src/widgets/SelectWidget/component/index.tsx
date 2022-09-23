@@ -86,7 +86,10 @@ class SelectComponent extends React.Component<
 
     const filter = items.filter(
       (item) =>
-        item.label?.toLowerCase().includes(query.toLowerCase()) ||
+        item.label
+          ?.toString()
+          .toLowerCase()
+          .includes(query.toLowerCase()) ||
         String(item.value)
           .toLowerCase()
           .includes(query.toLowerCase()),
@@ -284,7 +287,7 @@ class SelectComponent extends React.Component<
         this.spanRef.current.parentElement.scrollHeight ||
         this.spanRef.current.parentElement.offsetWidth <
           this.spanRef.current.parentElement.scrollWidth)
-        ? value
+        ? value.toString()
         : "";
 
     return (
@@ -375,7 +378,7 @@ class SelectComponent extends React.Component<
           >
             <SelectButton
               disabled={disabled}
-              displayText={value}
+              displayText={value.toString()}
               handleCancelClick={this.handleCancelClick}
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
