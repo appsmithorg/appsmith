@@ -12,17 +12,19 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
  * This class represents a scheduled task that pings a data point indicating that this server installation is live.
- * This ping is only invoked if the Appsmith server is NOT running in Appsmith Clouud & the user has given Appsmith
- * permissions to collect anonymized data
+ * This ping is only invoked if the Appsmith server is NOT running in Appsmith Cloud
  */
 @ConditionalOnExpression("!${is.cloud-hosted:false}")
 @Slf4j
 @Component
 public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements PingScheduledTask {
+
+    private final LicenseValidator licenseValidator;
 
     public PingScheduledTaskImpl(
             ConfigService configService,
@@ -33,8 +35,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             NewPageRepository newPageRepository,
             NewActionRepository newActionRepository,
             DatasourceRepository datasourceRepository,
-            UserRepository userRepository
-    ) {
+            UserRepository userRepository,
+            LicenseValidator licenseValidator) {
 
         super(
                 configService,
@@ -47,5 +49,11 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 datasourceRepository,
                 userRepository
         );
+        this.licenseValidator = licenseValidator;
+    }
+
+    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 12 * 60 * 60 * 1000 /* twelve hours */)
+    public void licenseCheck() {
+        licenseValidator.check();
     }
 }

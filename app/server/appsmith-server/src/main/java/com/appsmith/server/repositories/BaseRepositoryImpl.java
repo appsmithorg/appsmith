@@ -86,6 +86,17 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
+    public Mono<T> retrieveById(ID id) {
+        Query query = new Query(getIdCriteria(id));
+        query.addCriteria(notDeleted());
+
+        return mongoOperations.query(entityInformation.getJavaType())
+                .inCollection(entityInformation.getCollectionName())
+                .matching(query)
+                .one();
+    }
+
+    @Override
     public Mono<T> findByIdAndBranchName(ID id, String branchName) {
         // branchName will be ignored and this method is overridden for the services which are shared across branches
         return this.findById(id);

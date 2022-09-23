@@ -1,0 +1,375 @@
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory, useParams } from "react-router-dom";
+import styled from "styled-components";
+import debounce from "lodash/debounce";
+/* import { OrgUser } from "constants/orgConstants";
+   import { getAllUsers } from "selectors/organizationSelectors";
+   import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions"; */
+import { Listing } from "./Listing";
+import ProfileImage from "pages/common/ProfileImage";
+import { Toaster, Variant } from "components/ads";
+import { HighlightText, MenuItemProps } from "design-system";
+import { PageHeader } from "./PageHeader";
+import { BottomSpace } from "pages/Settings/components";
+import { UserEdit } from "./UserEdit";
+import { AclWrapper } from "./components";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import { deleteAclUser, getUserById } from "@appsmith/actions/aclActions";
+import {
+  createMessage,
+  DELETE_USER,
+  SHOW_LESS_GROUPS,
+  SHOW_MORE_GROUPS,
+} from "@appsmith/constants/messages";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  getAclIsLoading,
+  getAllAclUsers,
+  getSelectedUser,
+} from "@appsmith/selectors/aclSelectors";
+import { BaseAclProps, UserProps } from "./types";
+
+export const CellContainer = styled.div`
+  display: flex;
+  align-items: baseline;
+
+  .user-icons {
+    margin-right 8px;
+    cursor: initial;
+
+    span {
+      color: var(--appsmith-color-black-0);
+    }
+  }
+`;
+
+export const GroupWrapper = styled.div``;
+
+export const MoreGroups = styled.div`
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--appsmith-color-black-700);
+  margin-top: 8px;
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
+export const AllGroups = styled.div`
+  display: flex;
+  flex-direction: column;
+  > div {
+    margin: 8px 0;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+`;
+
+export const ShowLess = styled.div`
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--appsmith-color-black-700);
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
+export function UserListing() {
+  const history = useHistory();
+  const params = useParams() as any;
+  const dispatch = useDispatch();
+
+  const aclUsers = useSelector(getAllAclUsers);
+  const selectedUser = useSelector(getSelectedUser);
+  const isLoading = useSelector(getAclIsLoading);
+
+  const [data, setData] = useState<UserProps[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
+  const selectedUserId = params?.selected;
+
+  useEffect(() => {
+    setData(aclUsers);
+  }, [aclUsers]);
+
+  useEffect(() => {
+    if (selectedUserId) {
+      dispatch(getUserById({ id: selectedUserId }));
+    } else {
+      dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
+    }
+  }, [selectedUserId]);
+
+  const columns = [
+    {
+      Header: `User (${data.length})`,
+      accessor: "username",
+      Cell: function UserCell(cellProps: any) {
+        return (
+          <Link
+            data-testid="acl-user-listing-link"
+            to={adminSettingsCategoryUrl({
+              category: SettingCategories.USER_LISTING,
+              selected: cellProps.cell.row.original.userId,
+            })}
+          >
+            <CellContainer data-testid="user-listing-userCell">
+              <ProfileImage
+                className="user-icons"
+                size={20}
+                source={`/api/v1/users/photo/${cellProps.cell.row.values.username}`}
+                userName={cellProps.cell.row.values.username}
+              />
+              <HighlightText
+                highlight={searchValue}
+                text={cellProps.cell.row.values.username}
+              />
+            </CellContainer>
+          </Link>
+        );
+      },
+    },
+    {
+      Header: "Roles",
+      accessor: "roles",
+      Cell: function RoleCell(cellProps: any) {
+        const [showAllGroups, setShowAllGroups] = useState(false);
+
+        return (
+          <CellContainer data-testid="user-listing-rolesCell">
+            {showAllGroups ? (
+              <AllGroups>
+                {cellProps.cell.row.values.roles.map((group: BaseAclProps) => (
+                  <div key={group.id}>{group.name}</div>
+                ))}
+                <ShowLess
+                  data-testid="t--show-less"
+                  onClick={() => setShowAllGroups(false)}
+                >
+                  {createMessage(SHOW_LESS_GROUPS)}
+                </ShowLess>
+              </AllGroups>
+            ) : (
+              <GroupWrapper>
+                {cellProps.cell.row.values.roles[0].name}
+                {cellProps.cell.row.values.roles[0].name.length < 40 ? (
+                  <>
+                    , {cellProps.cell.row.values.roles[1].name}
+                    {cellProps.cell.row.values.roles.length > 2 && (
+                      <MoreGroups
+                        data-testid="t--show-more"
+                        onClick={() => setShowAllGroups(true)}
+                      >
+                        {createMessage(
+                          SHOW_MORE_GROUPS,
+                          cellProps.cell.row.values.roles.length - 2,
+                        )}
+                      </MoreGroups>
+                    )}
+                  </>
+                ) : (
+                  cellProps.cell.row.values.roles.length > 1 && (
+                    <MoreGroups
+                      data-testid="t--show-more"
+                      onClick={() => setShowAllGroups(true)}
+                    >
+                      {createMessage(
+                        SHOW_MORE_GROUPS,
+                        cellProps.cell.row.values.roles.length - 1,
+                      )}
+                    </MoreGroups>
+                  )
+                )}
+              </GroupWrapper>
+            )}
+          </CellContainer>
+        );
+      },
+    },
+    {
+      Header: "Groups",
+      accessor: "groups",
+      Cell: function GroupCell(cellProps: any) {
+        const [showAllGroups, setShowAllGroups] = useState(false);
+
+        return (
+          <CellContainer data-testid="user-listing-groupCell">
+            {showAllGroups ? (
+              <AllGroups>
+                {cellProps.cell.row.values.groups.map((group: BaseAclProps) => (
+                  <div key={group.id}>{group.name}</div>
+                ))}
+                <ShowLess
+                  data-testid="t--show-less"
+                  onClick={() => setShowAllGroups(false)}
+                >
+                  {createMessage(SHOW_LESS_GROUPS)}
+                </ShowLess>
+              </AllGroups>
+            ) : (
+              <GroupWrapper>
+                {cellProps.cell.row.values.groups[0].name}
+                {cellProps.cell.row.values.groups[0].name.length < 40 ? (
+                  <>
+                    , {cellProps.cell.row.values.groups[1].name}
+                    {cellProps.cell.row.values.groups.length > 2 && (
+                      <MoreGroups
+                        data-testid="t--show-more"
+                        onClick={() => setShowAllGroups(true)}
+                      >
+                        {createMessage(
+                          SHOW_MORE_GROUPS,
+                          cellProps.cell.row.values.groups.length - 2,
+                        )}
+                      </MoreGroups>
+                    )}
+                  </>
+                ) : (
+                  cellProps.cell.row.values.groups.length > 1 && (
+                    <MoreGroups
+                      data-testid="t--show-more"
+                      onClick={() => setShowAllGroups(true)}
+                    >
+                      {createMessage(
+                        SHOW_MORE_GROUPS,
+                        cellProps.cell.row.values.groups.length - 1,
+                      )}
+                    </MoreGroups>
+                  )
+                )}
+              </GroupWrapper>
+            )}
+          </CellContainer>
+        );
+      },
+    },
+  ];
+
+  const listMenuItems: MenuItemProps[] = [
+    {
+      label: "edit",
+      className: "edit-menu-item",
+      icon: "edit-underline",
+      onSelect: (e: React.MouseEvent, userId: string) => {
+        if (userId) {
+          history.push(`/settings/users/${userId}`);
+        }
+      },
+      text: "Edit",
+    },
+    {
+      label: "delete",
+      className: "delete-menu-item",
+      icon: "delete-blank",
+      onSelect: (e: React.MouseEvent, key: string) => {
+        onDeleteHandler(key);
+      },
+      text: createMessage(DELETE_USER),
+    },
+  ];
+
+  const pageMenuItems: MenuItemProps[] = [
+    {
+      icon: "book-line",
+      className: "documentation-page-menu-item",
+      onSelect: () => {
+        /*console.log("hello onSelect")*/
+      },
+      text: "Documentation",
+    },
+  ];
+
+  const onButtonClick = () => {
+    setShowModal(true);
+  };
+
+  const onSearch = debounce((search: string) => {
+    if (search && search.trim().length > 0) {
+      setSearchValue(search);
+      const results =
+        aclUsers &&
+        aclUsers.filter((user: any) =>
+          user.username?.toLocaleUpperCase().includes(search),
+        );
+      setData(results);
+    } else {
+      setSearchValue("");
+      setData(aclUsers);
+    }
+  }, 300);
+
+  const onDeleteHandler = (userId: string) => {
+    dispatch(deleteAclUser(userId));
+    const updatedData = data.filter((user) => {
+      return user.userId !== userId;
+    });
+    setData(updatedData);
+    Toaster.show({
+      text: "User deleted successfully",
+      variant: Variant.success,
+    });
+  };
+
+  return (
+    <AclWrapper data-testid="user-listing-wrapper">
+      {selectedUserId && selectedUser ? (
+        <UserEdit
+          data-testid="acl-user-edit"
+          isLoading={isLoading}
+          onDelete={onDeleteHandler}
+          searchPlaceholder="Search"
+          selectedUser={selectedUser}
+        />
+      ) : (
+        <>
+          <PageHeader
+            buttonText="Add Users"
+            data-testid="acl-user-listing-pageheader"
+            onButtonClick={onButtonClick}
+            onSearch={onSearch}
+            pageMenuItems={pageMenuItems}
+            searchPlaceholder="Search Users"
+          />
+          <Listing
+            columns={columns}
+            data={data}
+            data-testid="acl-user-listing"
+            isLoading={isLoading}
+            keyAccessor="userId"
+            listMenuItems={listMenuItems}
+          />
+          <FormDialogComponent
+            Form={WorkspaceInviteUsersForm}
+            canOutsideClickClose
+            customProps={{
+              isAclFlow: true,
+              disableEmailSetup: true,
+              disableManageUsers: true,
+              disableUserList: true,
+              isMultiSelectDropdown: true,
+            }}
+            data-testid="acl-user-listing-form"
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            title={`Invite Users`}
+            trigger
+          />
+        </>
+      )}
+      <BottomSpace />
+    </AclWrapper>
+  );
+}

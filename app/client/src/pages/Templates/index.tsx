@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { Classes, ControlGroup } from "@blueprintjs/core";
-import { debounce, noop } from "lodash";
+import { ControlGroup } from "@blueprintjs/core";
+import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import { SearchInput, SearchVariant } from "design-system";
 import TemplateList from "./TemplateList";
@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
 import {
   getAllTemplates,
+  getTemplateFilters,
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
@@ -31,6 +32,9 @@ import { getAllApplications } from "actions/applicationActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import { Template } from "api/TemplatesApi";
+import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -39,6 +43,22 @@ const PageWrapper = styled.div`
   display: flex;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   padding-left: 8vw;
+`;
+
+const SidebarWrapper = styled.div`
+  width: ${(props) => props.theme.homePage.sidebar}px;
+  height: 100%;
+  display: flex;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
+  padding-top: ${(props) => props.theme.spaces[11]}px;
+  flex-direction: column;
+`;
+
+const SecondaryWrapper = styled.div`
+  height: calc(
+    100vh - ${(props) => props.theme.homePage.header + props.theme.spaces[11]}px
+  );
+  position: relative;
 `;
 
 export const TemplateListWrapper = styled.div`
@@ -57,24 +77,15 @@ export const ResultsCount = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
-const Loader = styled(TemplateListWrapper)`
-  height: 100vh;
-  .results-count {
-    height: 20px;
-    width: 100px;
-  }
-`;
-
-const LoadingTemplateList = styled.div`
-  margin-top: ${(props) => props.theme.spaces[11]}px;
-  // 200 is to have some space at the bottom
-  height: calc(100% - 200px);
-  margin-right: ${(props) => props.theme.spaces[9]}px;
-  margin-left: ${(props) => props.theme.spaces[12] + 2}px;
-`;
-
-const SearchWrapper = styled.div`
+const SearchWrapper = styled.div<{ sticky?: boolean }>`
   margin-left: ${(props) => props.theme.spaces[11]}px;
+  ${(props) =>
+    props.sticky &&
+    `position: sticky;
+  top: 0;
+  position: -webkit-sticky;
+  z-index: 1;
+  background-color: white;`}
 `;
 
 function TemplateRoutes() {
@@ -88,6 +99,9 @@ function TemplateRoutes() {
   );
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
+  );
+  const filters = useSelector(
+    (state: AppState) => state.ui.templates.allFilters,
   );
 
   useEffect(() => {
@@ -114,6 +128,12 @@ function TemplateRoutes() {
     }
   }, [pluginListLength]);
 
+  useEffect(() => {
+    if (isEmpty(filters.functions)) {
+      dispatch(getTemplateFilters());
+    }
+  }, [filters]);
+
   return (
     <Switch>
       <SentryRoute component={TemplateView} path={`${path}/:templateId`} />
@@ -122,22 +142,25 @@ function TemplateRoutes() {
   );
 }
 
-function TemplateListLoader() {
-  return (
-    <Loader>
-      <ResultsCount className={`results-count ${Classes.SKELETON}`} />
-      <LoadingTemplateList className={Classes.SKELETON} />
-    </Loader>
-  );
-}
+type TemplatesContentProps = {
+  onTemplateClick?: (id: string) => void;
+  onForkTemplateClick?: (template: Template) => void;
+  stickySearchBar?: boolean;
+};
 
-function Templates() {
-  const templates = useSelector(getSearchedTemplateList);
+export function TemplatesContent(props: TemplatesContentProps) {
   const templateSearchQuery = useSelector(getTemplateSearchQuery);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
-  const filterCount = useSelector(getTemplateFiltersLength);
+  const isLoading = isFetchingApplications || isFetchingTemplates;
   const dispatch = useDispatch();
+  const onChange = (query: string) => {
+    dispatch(setTemplateSearchQuery(query));
+  };
+  const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
+  const templates = useSelector(getSearchedTemplateList);
+  const filterCount = useSelector(getTemplateFiltersLength);
+
   let resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
@@ -154,38 +177,46 @@ function Templates() {
         : "";
   }
 
-  const isLoading = isFetchingApplications || isFetchingTemplates;
-
-  const onChange = (query: string) => {
-    dispatch(setTemplateSearchQuery(query));
-  };
-  const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
+  if (isLoading) {
+    return <LoadingScreen text="Loading templates" />;
+  }
 
   return (
+    <>
+      <SearchWrapper sticky={props.stickySearchBar}>
+        <ControlGroup>
+          <SearchInput
+            cypressSelector={"t--application-search-input"}
+            defaultValue={templateSearchQuery}
+            disabled={isLoading}
+            onChange={debouncedOnChange || noop}
+            placeholder={createMessage(SEARCH_TEMPLATES)}
+            variant={SearchVariant.BACKGROUND}
+          />
+        </ControlGroup>
+      </SearchWrapper>
+      <ResultsCount>{resultsText}</ResultsCount>
+      <TemplateList
+        onForkTemplateClick={props.onForkTemplateClick}
+        onTemplateClick={props.onTemplateClick}
+        templates={templates}
+      />
+    </>
+  );
+}
+
+function Templates() {
+  return (
     <PageWrapper>
-      <ReconnectDatasourceModal />
-      <Filters />
+      <SidebarWrapper>
+        <SecondaryWrapper>
+          <ReconnectDatasourceModal />
+          <Filters />
+          <LeftPaneBottomSection />
+        </SecondaryWrapper>
+      </SidebarWrapper>
       <TemplateListWrapper>
-        {isLoading ? (
-          <TemplateListLoader />
-        ) : (
-          <>
-            <SearchWrapper>
-              <ControlGroup>
-                <SearchInput
-                  cypressSelector={"t--application-search-input"}
-                  defaultValue={templateSearchQuery}
-                  disabled={isLoading}
-                  onChange={debouncedOnChange || noop}
-                  placeholder={createMessage(SEARCH_TEMPLATES)}
-                  variant={SearchVariant.BACKGROUND}
-                />
-              </ControlGroup>
-            </SearchWrapper>
-            <ResultsCount>{resultsText}</ResultsCount>
-            <TemplateList templates={templates} />
-          </>
-        )}
+        <TemplatesContent />
       </TemplateListWrapper>
     </PageWrapper>
   );

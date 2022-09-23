@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum LoginSource {
-    GOOGLE, FORM, GITHUB, OIDC;
+    GOOGLE, FORM, GITHUB, KEYCLOAK, OIDC;
 
     public static LoginSource fromString(String name) {
         return EnumUtils.getEnumFromString(LoginSource.class, name);

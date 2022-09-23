@@ -127,8 +127,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return bulkAssignToUsers(permissionGroup, List.of(user));
     }
 
-    private void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
+    protected void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
         if (permissionGroup.getAssignedToUserIds() == null) {
+            permissionGroup.setAssignedToUserIds(new HashSet<>());
+        }
+    }
+
+    protected void ensureAssignedToUserGroups(PermissionGroup permissionGroup) {
+        if (permissionGroup.getAssignedToGroupIds() == null) {
             permissionGroup.setAssignedToUserIds(new HashSet<>());
         }
     }
