@@ -317,7 +317,6 @@ jobs:
         with:
           context: app/server
           push: true
-          platforms: linux/arm64,linux/amd64
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
@@ -338,7 +337,6 @@ jobs:
         with:
           context: app/rts
           push: true
-          platforms: linux/arm64,linux/amd64
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
