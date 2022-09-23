@@ -1016,7 +1016,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return result;
     }
-    
+
+    /**
+     * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
+     * active before making the call to DB.
+     * @return
+     */
     public Boolean isSendExecuteAnalyticsEvent() {
         return analyticsService.isActive();
     }
@@ -1030,8 +1035,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             Long timeElapsed
     ) {
 
-        // Since we're loading the application from DB *only* for analytics, we check if analytics is
-        // active before making the call to DB.
         if (!isSendExecuteAnalyticsEvent()) {
             return Mono.empty();
         }
