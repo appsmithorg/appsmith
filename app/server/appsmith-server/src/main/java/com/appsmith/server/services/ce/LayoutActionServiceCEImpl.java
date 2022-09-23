@@ -99,7 +99,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
-    private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and appsmith documentation for more information";
+    private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
 
 
     /**
