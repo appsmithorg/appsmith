@@ -240,6 +240,7 @@ class ListWidget extends BaseWidget<
       this.modifyMetaWidgets({
         addOrUpdate: metaWidgets,
         delete: removedMetaWidgetIds,
+        creatorId: this.props.widgetId,
       });
     }
   };
