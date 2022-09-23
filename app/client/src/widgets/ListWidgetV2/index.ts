@@ -114,6 +114,8 @@ export const CONFIG = {
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
+    requiresFlatWidgetChildren: true,
+    hasMetaWidgets: true,
     rows: 40,
     columns: 24,
     animateLoading: true,

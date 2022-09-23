@@ -1,3 +1,5 @@
+import { set, split } from "lodash";
+
 import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
@@ -15,11 +17,16 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
-export type ModifyMetaWidgetPayload = {
-  addOrUpdate: Record<string, FlattenedWidgetProps>;
-  delete: string[];
+type MetaWidgetPropertyUpdate = {
+  path: string;
+  value: unknown;
 };
 
+export type ModifyMetaWidgetPayload = {
+  addOrUpdate: Record<string, FlattenedWidgetProps>;
+  deleteIds: string[];
+  propertyUpdates?: MetaWidgetPropertyUpdate[];
+};
 const initialState: MetaCanvasWidgetsReduxState = {};
 
 const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
@@ -27,15 +34,21 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<ModifyMetaWidgetPayload>,
   ) => {
-    Object.entries(action.payload.addOrUpdate).forEach(
-      ([metaWidgetId, widgetProps]) => {
-        state[metaWidgetId] = widgetProps;
-        state[metaWidgetId].isMetaWidget = true;
-      },
-    );
+    const { addOrUpdate, deleteIds, propertyUpdates } = action.payload;
 
-    action.payload.delete.forEach((deleteId) => {
+    Object.entries(addOrUpdate).forEach(([metaWidgetId, widgetProps]) => {
+      state[metaWidgetId] = widgetProps;
+      state[metaWidgetId].isMetaWidget = true;
+    });
+
+    deleteIds.forEach((deleteId) => {
       delete state[deleteId];
+    });
+
+    (propertyUpdates || []).forEach(({ path, value }) => {
+      const [widgetId, ...propertyPathChunks] = split(path, ".");
+      const propertyPath = propertyPathChunks.join(".");
+      set(state[widgetId], propertyPath, value);
     });
 
     return state;

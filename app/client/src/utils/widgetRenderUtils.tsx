@@ -121,7 +121,7 @@ export function buildFlattenedChildCanvasWidgets(
   flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
 ) {
   const parentWidget = canvasWidgets[parentWidgetId];
-  parentWidget.children?.forEach((childId) => {
+  parentWidget?.children?.forEach((childId) => {
     flattenedChildCanvasWidgets[childId] = canvasWidgets[childId];
 
     buildFlattenedChildCanvasWidgets(

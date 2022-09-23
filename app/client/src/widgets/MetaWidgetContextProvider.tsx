@@ -8,7 +8,9 @@ import {
 type MetaWidgetContextProviderProps = React.PropsWithChildren<
   EditorContextType
 >;
-
+// TODO (Ashit) - Add test for this provider
+// test to always returning the exact number of functions defined in the EditorContextProvider
+// so that when a new function is introduced there, one does not misses adding it here as well.
 function MetaWidgetContextProvider({
   children,
   ...metaEditorContextProps
@@ -49,6 +51,12 @@ function MetaWidgetContextProvider({
     metaEditorContextProps.modifyMetaWidgets ??
     editorContextProps.modifyMetaWidgets;
 
+  const setWidgetCache =
+    metaEditorContextProps.setWidgetCache ?? editorContextProps.setWidgetCache;
+
+  const getWidgetCache =
+    metaEditorContextProps.getWidgetCache ?? editorContextProps.getWidgetCache;
+
   const contextValue = useMemo(
     () => ({
       executeAction,
@@ -61,6 +69,8 @@ function MetaWidgetContextProvider({
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
       modifyMetaWidgets,
+      setWidgetCache,
+      getWidgetCache,
     }),
     [
       executeAction,
@@ -73,6 +83,8 @@ function MetaWidgetContextProvider({
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
       modifyMetaWidgets,
+      setWidgetCache,
+      getWidgetCache,
     ],
   );
 

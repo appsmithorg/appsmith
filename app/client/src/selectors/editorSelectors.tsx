@@ -209,10 +209,10 @@ export const getMetaCanvasWidget = (metaWidgetId: string) =>
 
 export const getMetaWidgetChildrenStructure = (
   parentWidgetId: string,
-  isMetaWidget: boolean,
+  hasMetaWidgets = false,
 ) =>
   createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
-    if (isMetaWidget) return [];
+    if (!hasMetaWidgets) return [];
 
     const structure: CanvasWidgetStructure[] = [];
 

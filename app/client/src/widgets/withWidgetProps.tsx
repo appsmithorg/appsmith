@@ -33,7 +33,15 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
     props: WidgetProps & { skipWidgetPropsHydration?: boolean },
   ) {
-    const { children, skipWidgetPropsHydration, type, widgetId } = props;
+    const {
+      children,
+      hasMetaWidgets,
+      referencedWidgetId,
+      requiresFlatWidgetChildren,
+      skipWidgetPropsHydration,
+      type,
+      widgetId,
+    } = props;
 
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
@@ -52,9 +60,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, widgetName),
     );
-    const isMetaCanvasWidget = Boolean(metaCanvasWidget);
+
     const metaWidgetChildrenStructure = useSelector(
-      getMetaWidgetChildrenStructure(widgetId, isMetaCanvasWidget),
+      getMetaWidgetChildrenStructure(widgetId, hasMetaWidgets),
       equal,
     );
 
@@ -64,8 +72,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     const flattenedChildCanvasWidgets = useSelector((state: AppState) => {
-      if (type === "LIST_WIDGET_V2") {
-        return getFlattenedChildCanvasWidgets(state, widgetId);
+      if (requiresFlatWidgetChildren) {
+        return getFlattenedChildCanvasWidgets(
+          state,
+          referencedWidgetId || widgetId,
+        );
       }
     }, equal);
 

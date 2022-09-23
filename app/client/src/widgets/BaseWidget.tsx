@@ -177,7 +177,29 @@ abstract class BaseWidget<
   /* eslint-enable @typescript-eslint/no-empty-function */
 
   modifyMetaWidgets = (modifications: ModifyMetaWidgetPayload) => {
-    this.context.modifyMetaWidgets?.(modifications);
+    const { widgetId } = this.props;
+    const { propertyUpdates } = modifications;
+    const updatedPropertyUpdates: ModifyMetaWidgetPayload["propertyUpdates"] = [];
+
+    (propertyUpdates || []).forEach(({ path, value }) => {
+      updatedPropertyUpdates.push({
+        path: `${widgetId}.${path}`,
+        value,
+      });
+    });
+
+    this.context.modifyMetaWidgets?.({
+      ...modifications,
+      propertyUpdates: updatedPropertyUpdates,
+    });
+  };
+
+  setWidgetCache = (data: unknown) => {
+    this.context?.setWidgetCache?.(this.props.widgetId, data);
+  };
+
+  getWidgetCache = () => {
+    return this.context?.getWidgetCache?.(this.props.widgetId);
   };
 
   getComponentDimensions = () => {
@@ -443,6 +465,9 @@ export interface WidgetBaseProps {
   childWidgets?: DataTreeWidget[];
   flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
+  referencedWidgetId?: string;
+  requiresFlatWidgetChildren?: boolean;
+  hasMetaWidgets?: boolean;
 }
 
 export type WidgetRowCols = {
