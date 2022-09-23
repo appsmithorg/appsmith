@@ -7,6 +7,7 @@ jest.mock("sagas/ActionExecution/NavigateActionSaga", () => ({
 import {
   argsStringToArray,
   enumTypeSetter,
+  enumTypeGetter,
   JSToString,
   modalGetter,
   modalSetter,
@@ -291,6 +292,42 @@ describe("Test enumTypeSetter", () => {
       value as string,
       input as string,
       argNum as number,
+    );
+    expect(result).toStrictEqual(expected);
+  });
+});
+
+describe("Test enumTypeGetter", () => {
+  const cases = [
+    {
+      index: 0,
+      value: "success",
+      input: "{{showAlert('hi','info')}}",
+      expected: "{{showAlert('hi','info')}}",
+      argNum: 1,
+    },
+    {
+      index: 1,
+      value: "info",
+      input: "{{showAlert(,'error')}}",
+      expected: "{{showAlert(,'error')}}",
+      argNum: 1,
+    },
+    {
+      index: 2,
+      value: "info",
+      input: "{{showAlert()}}",
+      expected: "{{showAlert()}}",
+      argNum: 1,
+    },
+  ];
+  test.each(
+    cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
+  )("test case %d", (index, input, expected, value, argNum) => {
+    const result = enumTypeGetter(
+      value as string,
+      argNum as number,
+      input as string,
     );
     expect(result).toStrictEqual(expected);
   });

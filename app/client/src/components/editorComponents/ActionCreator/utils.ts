@@ -70,7 +70,6 @@ export const modalSetter = (changeValue: any, currentValue: string) => {
 };
 
 export const modalGetter = (value: string) => {
-  console.log("111", value);
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   let name = "none";
   if (matches.length) {
