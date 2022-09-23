@@ -4,6 +4,7 @@ import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QUser;
@@ -38,7 +39,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         anonymousUserPermissionGroupIds = null;
     }
 
-    @Cache(cacheName = "permissionGroupsForUser", key="{#user.email + #user.tenantId}")
+    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
         Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
@@ -59,22 +60,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         }
 
         log.debug("In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
-        return getAnonymousUser()
-                .flatMap(user -> {
-                    Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
 
-                    Query query = new Query();
-                    query.addCriteria(assignedToUserIdsCriteria);
-
-                    return mongoOperations.find(query, PermissionGroup.class)
-                            .map(permissionGroup -> permissionGroup.getId())
-                            .collect(Collectors.toSet());
-                })
-                .doOnNext(anonymousUserPermissionGroupIds -> this.anonymousUserPermissionGroupIds = anonymousUserPermissionGroupIds);
+        // All public access is via a single permission group. Fetch the same and set the cache with it.
+        return mongoOperations.findOne(Query.query(Criteria.where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP)), PermissionGroup.class)
+                .map(permissionGroup -> Set.of(permissionGroup.getId()))
+                .doOnSuccess(permissionGroupIds -> anonymousUserPermissionGroupIds = permissionGroupIds);
 
     }
 
-    @CacheEvict(cacheName = "permissionGroupsForUser", key="{#email + #tenantId}")
+    @CacheEvict(cacheName = "permissionGroupsForUser", key = "{#email + #tenantId}")
     @Override
     public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
         return Mono.empty();
