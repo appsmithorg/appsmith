@@ -537,7 +537,7 @@ public class ElasticSearchPluginTest {
         MockWebServer mockWebServer = new MockWebServer();
         MockResponse mockRedirectResponse = new MockResponse()
                 .setResponseCode(301)
-                .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
+                .addHeader("Location", "http://metadata.google.internal");
         mockWebServer.enqueue(mockRedirectResponse);
         mockWebServer.start();
 
