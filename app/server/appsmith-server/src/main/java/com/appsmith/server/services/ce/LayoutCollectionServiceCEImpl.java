@@ -588,13 +588,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
-                .zipWith(newPageService.findById(pageId, MANAGE_PAGES).defaultIfEmpty(new NewPage()),
+                .zipWith(newPageService.findById(pageId, MANAGE_PAGES),
                         (branchedActionCollection, newPage) -> {
-                    // if a page with given pageId is not found, it will default to a raw object of NewPage
-                    // new NewPage() will not have an application ID, hence won't ship any ErrorDTO along with the actionCllectionDTO
-                    if (newPage.getApplicationId() == null) {
-                        return branchedActionCollection;
-                    }
+                        //redundant check
                     if (newPage.getUnpublishedPage().getLayouts().size() > 0 ) {
                         // redundant check as the collection lies inside a layout. Maybe required for testcases
                         branchedActionCollection.setErrorReports(newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActionErrors());

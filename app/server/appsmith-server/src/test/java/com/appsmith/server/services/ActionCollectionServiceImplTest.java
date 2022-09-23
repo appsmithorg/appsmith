@@ -144,9 +144,6 @@ public class ActionCollectionServiceImplTest {
                 .when(analyticsService.sendArchiveEvent(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
 
-        Mockito
-                .when(newPageService.findById(Mockito.any(), Mockito.any()))
-                .thenAnswer(invocationOnMock -> Mono.empty());
     }
 
     <T> DefaultResources setDefaultResources(T collection) {
@@ -385,6 +382,12 @@ public class ActionCollectionServiceImplTest {
                         .findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
 
+
+        Mockito
+                .when(newPageService
+                        .findById(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 layoutCollectionService.updateUnpublishedActionCollection("testId", actionCollectionDTO, null);
 
@@ -459,6 +462,12 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(newPageService.findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
+
+        Mockito
+                .when(newPageService
+                        .findById(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
+
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 layoutCollectionService.updateUnpublishedActionCollection("testCollectionId", modifiedActionCollectionDTO, null);

@@ -766,13 +766,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
-                .zipWith(newPageService.findPageById(pageId, MANAGE_PAGES, false).defaultIfEmpty(new PageDTO()), (actionDTO, pageDTO) ->
-                {   // if a page with given pageId is not found, it will default to a raw object of PageDTO
-                    // new page will not have an ID, hence won't ship any ErrorDTO along with the actionCllectionDTO
-                    if (pageDTO.getId() == null) {
-                        return actionDTO;
-                    }
-                    // Required in case of some
+                .zipWith(newPageService.findPageById(pageId, MANAGE_PAGES, false), (actionDTO, pageDTO) -> {
+                    // redundant check
                     if (pageDTO.getLayouts().size() > 0) {
                         actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
                     }
