@@ -243,7 +243,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                                                                    List<String> pagesToImport) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> importExportApplicationService.mergeApplicationJsonWithApplication(
-                        organizationId, applicationId, null, applicationJson, pagesToImport)
+                        organizationId, applicationId, branchName, applicationJson, pagesToImport)
                 )
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application)
