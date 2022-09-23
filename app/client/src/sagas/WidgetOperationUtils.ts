@@ -302,6 +302,18 @@ export function getWidgetChildrenIds(
   return childrenIds;
 }
 
+export function getAllListWidgetIds(widgets: FlattenedWidgetProps[]): string[] {
+  const listWidgetIds: string[] = [];
+
+  widgets.forEach((widget) => {
+    if (widget.type === "LIST_WIDGET_V2") {
+      listWidgetIds.push(widget.widgetId);
+    }
+  });
+
+  return listWidgetIds;
+}
+
 export function getMetaWidgetChildrenIds(
   metaWidgets: MetaCanvasWidgetsReduxState,
   parentIds: string[],
