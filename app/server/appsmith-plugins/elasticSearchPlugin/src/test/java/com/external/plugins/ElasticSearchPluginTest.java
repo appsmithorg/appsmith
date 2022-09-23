@@ -1,7 +1,6 @@
 package com.external.plugins;
 
 import com.appsmith.external.constants.Authentication;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -385,7 +384,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
                 .assertNext(result -> {
                     assertFalse(result.getInvalids().isEmpty());
-                    assertTrue(result.getInvalids().contains("Host(s) not allowed."));
+                    assertTrue(result.getInvalids().contains("Error running HEAD request: Host 169.254.169.254 is not allowed"));
                 })
                 .verifyComplete();
     }
@@ -402,7 +401,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
                 .assertNext(result -> {
                     assertFalse(result.getInvalids().isEmpty());
-                    assertTrue(result.getInvalids().contains("Host(s) not allowed."));
+                    assertTrue(result.getInvalids().contains("Error running HEAD request: Host 169.254.169.254.nip.io is not allowed"));
                 })
                 .verifyComplete();
     }
@@ -419,64 +418,9 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
                 .assertNext(result -> {
                     assertFalse(result.getInvalids().isEmpty());
-                    assertTrue(result.getInvalids().contains("Invalid host provided."));
+                    assertTrue(result.getInvalids().contains("Error running HEAD request: Host metadata.google.internal is not allowed"));
                 })
                 .verifyComplete();
     }
 
-    @Test
-    public void itShouldDenyCreateDatasourceWithInstanceMetadataAws() {
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost("http://169.254.169.254");
-        endpoint.setPort(Long.valueOf(port));
-        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertEquals("Invalid host provided.", e.getMessage());
-                });
-    }
-
-    @Test
-    public void itShouldDenyCreateDatasourceWithInstanceMetadataGcp() {
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost("https://metadata.google.internal");
-        endpoint.setPort(Long.valueOf(port));
-        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertEquals("Invalid host provided.", e.getMessage());
-                });
-    }
-
-    @Test
-    public void itShouldValidateDatasourceWithInstanceMetadataAws() {
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost("http://169.254.169.254");
-        endpoint.setPort(Long.valueOf(port));
-        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        Assert.assertEquals(Set.of("Invalid host provided."), pluginExecutor.validateDatasource(datasourceConfiguration));
-    }
-
-    @Test
-    public void itShouldValidateDatasourceWithInstanceMetadataGcp() {
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost("https://metadata.google.internal");
-        endpoint.setPort(Long.valueOf(port));
-        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        Assert.assertEquals(Set.of("Invalid host provided."), pluginExecutor.validateDatasource(datasourceConfiguration));
-    }
 }

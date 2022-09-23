@@ -661,6 +661,9 @@ public class HttpAsyncClientBuilder {
         // This `dnsResolver` is the only thing different from the original class.
         // In the original class, it is set to SystemDefaultDnsResolver.INSTANCE, inlined.
         final DnsResolver dnsResolver = host -> {
+            if (WebClientUtils.isDisallowedAndFail(host, null)) {
+                throw new UnknownHostException("Host " + host + " is not allowed");
+            }
             final InetAddress[] addresses = InetAddress.getAllByName(host);
             for (InetAddress address : addresses) {
                 if (WebClientUtils.isDisallowedAndFail(address.getHostAddress(), null)) {
