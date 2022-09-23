@@ -74,7 +74,6 @@ public class CurlImporterServiceTest {
     String workspaceId;
 
     @Before
-    @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
@@ -840,7 +839,6 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
 
