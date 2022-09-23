@@ -8,6 +8,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -474,12 +476,19 @@ public class ElasticSearchPluginTest {
     }
 
     @Test
-    public void itShouldRejectGetToMetadataAwsWithDnsResolutionAndRedirect() {
+    public void itShouldRejectGetToMetadataAwsWithDnsResolutionAndRedirect() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(301)
+                .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
         Endpoint endpoint = new Endpoint();
-        endpoint.setHost("http://postman-echo.com/redirect-to?url=http://169.254.169.254.nip.io");
-        endpoint.setPort(Long.valueOf(port));
+        endpoint.setHost("http://" + mockWebServer.getHostName());
+        endpoint.setPort((long) mockWebServer.getPort());
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -524,12 +533,19 @@ public class ElasticSearchPluginTest {
     }
 
     @Test
-    public void itShouldRejectGetToMetadataGcpAndRedirect() {
+    public void itShouldRejectGetToMetadataGcpAndRedirect() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(301)
+                .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
         Endpoint endpoint = new Endpoint();
-        endpoint.setHost("http://postman-echo.com/redirect-to?url=http://metadata.google.internal");
-        endpoint.setPort(Long.valueOf(port));
+        endpoint.setHost("http://" + mockWebServer.getHostName());
+        endpoint.setPort((long) mockWebServer.getPort());
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
