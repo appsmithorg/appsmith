@@ -9,6 +9,7 @@ import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,9 +22,12 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
+@Slf4j
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
     private final Map<String, User> tenantAnonymousUserMap;
+
+    private Set<String> anonymousUserPermissionGroupIds;
 
     private String defaultTenantId;
 
@@ -31,6 +35,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         this.mongoOperations = mongoOperations;
         this.defaultTenantId = null;
         this.tenantAnonymousUserMap = new HashMap<>();
+        anonymousUserPermissionGroupIds = null;
     }
 
     @Cache(cacheName = "permissionGroupsForUser", key="{#user.email + #user.tenantId}")
@@ -44,6 +49,29 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         return mongoOperations.find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Mono<Set<String>> getPermissionGroupsOfAnonymousUser() {
+
+        if (anonymousUserPermissionGroupIds != null) {
+            return Mono.just(anonymousUserPermissionGroupIds);
+        }
+
+        log.debug("In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
+        return getAnonymousUser()
+                .flatMap(user -> {
+                    Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
+
+                    Query query = new Query();
+                    query.addCriteria(assignedToUserIdsCriteria);
+
+                    return mongoOperations.find(query, PermissionGroup.class)
+                            .map(permissionGroup -> permissionGroup.getId())
+                            .collect(Collectors.toSet());
+                })
+                .doOnNext(anonymousUserPermissionGroupIds -> this.anonymousUserPermissionGroupIds = anonymousUserPermissionGroupIds);
+
     }
 
     @CacheEvict(cacheName = "permissionGroupsForUser", key="{#email + #tenantId}")
