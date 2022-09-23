@@ -120,7 +120,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             placeholderText: "5",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
               params: { min: 0, default: 0 },

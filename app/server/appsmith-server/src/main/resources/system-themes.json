@@ -242,7 +242,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -654,7 +655,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -1061,7 +1063,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -1464,7 +1467,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -1867,7 +1871,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -2270,7 +2275,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -2673,7 +2679,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
@@ -3076,7 +3083,8 @@
       },
       "MAP_CHART_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+        "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "MENU_BUTTON_WIDGET": {
         "menuColor": "{{appsmith.theme.colors.primaryColor}}",
