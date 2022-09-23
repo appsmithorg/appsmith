@@ -203,7 +203,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates() {
         return userDataService.getForCurrentUser().flatMap(userData -> {
             List<String> templateIds = userData.getRecentlyUsedTemplateIds();
-            if(!CollectionUtils.isEmpty(templateIds)) {
+            if (!CollectionUtils.isEmpty(templateIds)) {
                 return getActiveTemplates(templateIds);
             }
             return Mono.empty();
@@ -236,7 +236,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<ApplicationImportDTO> mergeTemplateWithApplication(String templateId, String applicationId, String organizationId, String branchName, List<String> pagesToImport) {
+    public Mono<ApplicationImportDTO> mergeTemplateWithApplication(String templateId,
+                                                                   String applicationId,
+                                                                   String organizationId,
+                                                                   String branchName,
+                                                                   List<String> pagesToImport) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> importExportApplicationService.mergeApplicationJsonWithApplication(
                         organizationId, applicationId, null, applicationJson, pagesToImport)
