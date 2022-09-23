@@ -4,7 +4,16 @@ jest.mock("sagas/ActionExecution/NavigateActionSaga", () => ({
   NavigationTargetType: { SAME_WINDOW: "" },
 }));
 
-import { argsStringToArray, JSToString, stringToJS } from "./utils";
+import {
+  argsStringToArray,
+  enumTypeSetter,
+  JSToString,
+  modalGetter,
+  modalSetter,
+  stringToJS,
+  textGetter,
+  textSetter,
+} from "./utils";
 
 describe("Test argStringToArray", () => {
   const cases = [
@@ -208,4 +217,81 @@ describe("Test JSToString", () => {
       expect(result).toStrictEqual(expected);
     },
   );
+});
+
+describe("Test modalSetter", () => {
+  const result = modalSetter("Modal1", "{{closeModal()}}");
+  expect(result).toStrictEqual("{{closeModal('Modal1')}}");
+});
+
+describe("Test modalGetter", () => {
+  const result = modalGetter("{{showModal('Modal1')}}");
+  expect(result).toStrictEqual("Modal1");
+});
+
+describe("Test textSetter", () => {
+  const result = textSetter(
+    "google.com",
+    "{{navigateTo('', {},NEW_WINDOW)}}",
+    0,
+  );
+  expect(result).toStrictEqual("{{navigateTo('google.com', {},NEW_WINDOW)}}");
+});
+
+describe("Test textGetter", () => {
+  const cases = [
+    {
+      index: 0,
+      input: "{{navigateTo('google.com', {}, NEW_WINDOW)}}",
+      expected: "google.com",
+    },
+    {
+      index: 1,
+      input: "{{navigateTo('google.com', {}, NEW_WINDOW)}}",
+      expected: "{{{}}}",
+    },
+  ];
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+    "test case %d",
+    (index, input, expected) => {
+      const result = textGetter(input as string, index as number);
+      expect(result).toStrictEqual(expected);
+    },
+  );
+});
+
+describe("Test enumTypeSetter", () => {
+  const cases = [
+    {
+      index: 0,
+      value: "info",
+      input: "{{showAlert('hi')}}",
+      expected: "{{showAlert('hi',info)}}",
+      argNum: 1,
+    },
+    {
+      index: 1,
+      value: "info",
+      input: "{{showAlert('hi','error')}}",
+      expected: "{{showAlert('hi',info)}}",
+      argNum: 1,
+    },
+    {
+      index: 2,
+      value: "info",
+      input: "{{showAlert(,'')}}",
+      expected: "{{showAlert(,info)}}",
+      argNum: 1,
+    },
+  ];
+  test.each(
+    cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
+  )("test case %d", (index, input, expected, value, argNum) => {
+    const result = enumTypeSetter(
+      value as string,
+      input as string,
+      argNum as number,
+    );
+    expect(result).toStrictEqual(expected);
+  });
 });
