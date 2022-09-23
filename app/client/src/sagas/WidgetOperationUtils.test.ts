@@ -110,6 +110,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     currentIndex: 0,
     children: [],
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
@@ -208,6 +209,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     currentIndex: 0,
     children: [],
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
@@ -306,6 +308,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     currentIndex: 0,
     children: [],
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
@@ -383,6 +386,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     currentRow: "{{{}}}",
     currentIndex: 0,
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
   },
   cxad6gvwmi: {
     isVisible: true,
@@ -472,6 +476,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
       "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        \n      }\n    }}",
     currentIndex: 0,
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
@@ -549,6 +554,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
       dynamicBindingPathList: true,
     },
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
   },
   gfrkjdcdp0: {
     isVisible: true,
@@ -650,6 +656,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     currentIndex: 1,
     children: [],
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
@@ -763,6 +770,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     currentIndex: 1,
     children: [],
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
@@ -876,6 +884,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     currentIndex: 1,
     children: [],
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
@@ -967,6 +976,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     ],
     currentIndex: 1,
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
   },
   kjww7c2zl1: {
     isVisible: true,
@@ -1068,17 +1078,18 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
     ],
     currentIndex: 1,
     isMetaWidget: true,
+    creatorId: "dam7gf64so",
     parentColumnSpace: 12,
     parentRowSpace: 12,
   },
 };
 
 describe("WidgetOperationSaga", () => {
-  // it("should return all child meta widgets after executing getMetaWidgetChildrenIds", async () => {
-  //   expect(
-  //     getMetaWidgetChildrenIds(metaCanvasWidgets, "6i0c71d47j").sort(),
-  //   ).toStrictEqual(Object.keys(metaCanvasWidgets).sort());
-  // });
+  it("should return all child meta widgets after executing getMetaWidgetChildrenIds", async () => {
+    expect(
+      getMetaWidgetChildrenIds(metaCanvasWidgets, ["dam7gf64so"]).sort(),
+    ).toStrictEqual(Object.keys(metaCanvasWidgets).sort());
+  });
 
   it("should returns widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
     expect(
