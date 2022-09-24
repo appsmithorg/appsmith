@@ -83,6 +83,7 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -481,6 +482,9 @@ function* handleUpdateJSCollectionBody(
       if (isValidResponse) {
         // @ts-expect-error: response is of type unknown
         yield put(updateJSCollectionBodySuccess({ data: response?.data }));
+        checkAndLogErrorsIfCyclicDependency(
+          (response.data as JSCollection).errorReports,
+        );
       }
     }
   } catch (error) {
