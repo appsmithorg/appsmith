@@ -27,7 +27,10 @@ describe("Invalid page routing", () => {
       const urlWithoutQueryParams = url.split("?")[0];
       const invalidURL = urlWithoutQueryParams + "invalid";
       cy.visit(invalidURL);
-      agHelper.AssertContains(`The page you’re looking for either does not exist`, "exist");
+      agHelper.AssertContains(
+        `The page you’re looking for either does not exist`,
+        "exist",
+      );
     });
   });
 });
