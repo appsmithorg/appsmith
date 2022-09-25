@@ -20,14 +20,15 @@ class PaneHeader extends React.Component<{
 }> {
   render() {
     return (
-      <StyledHeader className="flex justify-between items-center">
-        <StyledText>Settings</StyledText>
+      <StyledHeader className="flex justify-start items-center">
         <Icon
+          className="pr-2"
           fillColor="#090707"
-          name="close-x"
+          name="double-arrow-right"
           onClick={this.props.closePane}
-          size={IconSize.XXXXL}
+          size={IconSize.SMALL}
         />
+        <StyledText>Settings</StyledText>
       </StyledHeader>
     );
   }

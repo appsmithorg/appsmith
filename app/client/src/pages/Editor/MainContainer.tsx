@@ -17,7 +17,6 @@ import {
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
-import AppSettingsPane from "./AppSettingsPane";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -82,7 +81,6 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        <AppSettingsPane />
       </Container>
       <BottomBar
         className={classNames({

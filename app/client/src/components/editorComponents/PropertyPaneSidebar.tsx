@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
-import React, { memo, useEffect, useRef, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import React, { memo, useEffect, useRef, useMemo, useState } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -17,6 +17,14 @@ import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
+import AppSettingsPane from "pages/Editor/AppSettingsPane";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 
 type Props = {
   width: number;
@@ -25,8 +33,11 @@ type Props = {
 };
 
 export const PropertyPaneSidebar = memo((props: Props) => {
+  const dispatch = useDispatch();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
+  const [previousPaneWidth, storePreviousPaneWidth] = useState(props.width);
+  const [wasExplorerPinned, storeWasExplorerPinned] = useState<boolean>();
 
   const {
     onMouseDown,
@@ -44,6 +55,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   // const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
+  const isExplorerPinned = useSelector(getExplorerPinned);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget Id,
@@ -69,6 +82,26 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
 
+  const overridePaneWidth = (width: number) => {
+    props.onWidthChange(width);
+    props.onDragEnd && props.onDragEnd();
+  };
+
+  useEffect(() => {
+    if (isAppSettingsPaneOpen) {
+      storePreviousPaneWidth(props.width);
+      storeWasExplorerPinned(isExplorerPinned);
+      if (isExplorerPinned) {
+        dispatch(setExplorerActiveAction(false));
+        dispatch(setExplorerPinnedAction(false));
+      }
+      overridePaneWidth(APP_SETTINGS_PANE_WIDTH);
+    } else {
+      wasExplorerPinned && dispatch(setExplorerPinnedAction(true));
+      overridePaneWidth(previousPaneWidth);
+    }
+  }, [isAppSettingsPaneOpen]);
+
   /**
    * renders the property pane:
    * 1. if no widget is selected -> CanvasPropertyPane
@@ -78,6 +111,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
+      case isAppSettingsPaneOpen:
+        return <AppSettingsPane />;
       case selectedWidgets.length > 1:
         return <MultiSelectPropertyPane />;
       case selectedWidgets.length === 1:
@@ -89,6 +124,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         return <CanvasPropertyPane />;
     }
   }, [
+    isAppSettingsPaneOpen,
     selectedWidgets.length,
     isDraggingForSelection,
     shouldNotRenderPane,
@@ -107,21 +143,26 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         ref={sidebarRef}
       >
         {/* RESIZOR */}
-        <div
-          className={`absolute top-0 left-0 w-2 h-full -ml-1 group  cursor-ew-resize ${tailwindLayers.resizer}`}
-          onMouseDown={onMouseDown}
-          onTouchEnd={onMouseUp}
-          onTouchStart={onTouchStart}
-        >
+        {!isAppSettingsPaneOpen && (
           <div
-            className={classNames({
-              "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
-              "bg-gray-300": resizing,
-            })}
-          />
-        </div>
+            className={`absolute top-0 left-0 w-2 h-full -ml-1 group  cursor-ew-resize ${tailwindLayers.resizer}`}
+            onMouseDown={onMouseDown}
+            onTouchEnd={onMouseUp}
+            onTouchStart={onTouchStart}
+          >
+            <div
+              className={classNames({
+                "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
+                "bg-gray-300": resizing,
+              })}
+            />
+          </div>
+        )}
         <div
-          className="h-full p-0 overflow-y-auto min-w-72 max-w-104"
+          className={classNames({
+            "h-full p-0 overflow-y-auto min-w-72": true,
+            "max-w-104": !isAppSettingsPaneOpen,
+          })}
           style={{ width: props.width }}
         >
           {propertyPane}
