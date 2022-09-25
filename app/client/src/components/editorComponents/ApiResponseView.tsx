@@ -208,6 +208,7 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams> & {
     theme?: EditorTheme;
     apiName: string;
+    disabled?: boolean;
     onRunClick: () => void;
     responseDataTypes: { key: string; title: string }[];
     responseDisplayFormat: { title: string; value: string };
@@ -296,6 +297,7 @@ export const handleCancelActionExecution = () => {
 
 function ApiResponseView(props: Props) {
   const {
+    disabled,
     match: {
       params: { apiId },
     },
@@ -418,6 +420,7 @@ function ApiResponseView(props: Props) {
                 <Text type={TextType.P1}>
                   {EMPTY_RESPONSE_FIRST_HALF()}
                   <InlineButton
+                    disabled={disabled}
                     isLoading={isRunning}
                     onClick={onRunClick}
                     size={Size.medium}

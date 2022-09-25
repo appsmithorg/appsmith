@@ -256,10 +256,6 @@ function* formValueChangeSaga(
         error,
       },
     });
-    // OR
-    yield put({
-      type: ReduxActionErrorTypes.ENTITY_UPDATE_ERROR,
-    });
     yield put(reset(QUERY_EDITOR_FORM_NAME));
   }
 }

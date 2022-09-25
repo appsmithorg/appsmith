@@ -500,9 +500,17 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
-  const isChangeRestricted = !isPermitted(
+  const isChangePermitted = isPermitted(
     currentActionConfig?.userPermissions || [""],
     PERMISSION_TYPE.MANAGE_ACTIONS,
+  );
+  const isExecutePermitted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.EXECUTE_ACTIONS,
+  );
+  const isDeletePermitted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.DELETE_ACTIONS,
   );
 
   // Query is executed even once during the session, show the response data.
@@ -831,6 +839,7 @@ export function EditorJSONtoForm(props: Props) {
               <Text type={TextType.P1}>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
                 <InlineButton
+                  disabled={!isExecutePermitted}
                   isLoading={isRunning}
                   onClick={responeTabOnRunClick}
                   size={Size.medium}
@@ -902,12 +911,14 @@ export function EditorJSONtoForm(props: Props) {
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>
-            <ActionNameEditor disabled={isChangeRestricted} />
+            <ActionNameEditor disabled={!isChangePermitted} />
           </NameWrapper>
           <ActionsWrapper>
             <MoreActionsMenu
               className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
+              isChangePermitted={isChangePermitted}
+              isDeletePermitted={isDeletePermitted}
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
@@ -920,6 +931,7 @@ export function EditorJSONtoForm(props: Props) {
               <DropdownField
                 className={"t--switch-datasource"}
                 components={{ MenuList, Option: CustomOption, SingleValue }}
+                isDisabled={!isChangePermitted}
                 maxMenuHeight={200}
                 name="datasource.id"
                 options={DATASOURCES_OPTIONS}
@@ -930,6 +942,7 @@ export function EditorJSONtoForm(props: Props) {
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
+              disabled={!isExecutePermitted}
               isLoading={isRunning}
               onClick={onRunClick}
               size={Size.medium}
