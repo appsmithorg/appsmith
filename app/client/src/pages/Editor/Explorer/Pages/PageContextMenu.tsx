@@ -26,6 +26,7 @@ import {
   CONTEXT_SETTINGS,
 } from "@appsmith/constants/messages";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -95,7 +96,13 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
-  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
+  const openAppSettingsPane = () =>
+    dispatch(
+      openAppSettingsPaneAction({
+        type: AppSettingsTabs.Page,
+        pageId: props.pageId,
+      }),
+    );
 
   const optionTree: TreeDropdownOption[] = [
     {

@@ -8,15 +8,16 @@ import GeneralSettings from "./GeneralSettings";
 import SectionHeader, { SectionHeaderProps } from "./SectionHeader";
 import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
+import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 
-enum Tabs {
+export enum AppSettingsTabs {
   General,
   Theme,
   Page,
 }
 
-interface SelectedTab {
-  type: Tabs;
+export interface SelectedTab {
+  type: AppSettingsTabs;
   page?: Page;
 }
 
@@ -38,11 +39,18 @@ const ThemeTabContentWrapper = styled.div`
 `;
 
 function AppSettings() {
-  const [selectedTab, setSelectedTab] = useState<SelectedTab>();
+  const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
 
+  const [selectedTab, setSelectedTab] = useState<SelectedTab>({
+    type: context?.type || AppSettingsTabs.General,
+    page: context?.pageId
+      ? pages.find((page) => page.pageId === context.pageId)
+      : undefined,
+  });
+
   useEffect(() => {
-    if (selectedTab?.page?.pageId) {
+    if (selectedTab.page?.pageId) {
       setSelectedTab({
         ...selectedTab,
         page: pages.find((page) => page.pageId === selectedTab.page?.pageId),
@@ -53,19 +61,19 @@ function AppSettings() {
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {
       icon: "settings-2-line",
-      isSelected: selectedTab?.type === Tabs.General,
+      isSelected: selectedTab.type === AppSettingsTabs.General,
       name: "General",
       onClick: () => {
-        setSelectedTab({ type: Tabs.General });
+        setSelectedTab({ type: AppSettingsTabs.General });
       },
       subText: "App name, icon , share",
     },
     {
       icon: "edit-line",
-      isSelected: selectedTab?.type === Tabs.Theme,
+      isSelected: selectedTab.type === AppSettingsTabs.Theme,
       name: "Theme",
       onClick: () => {
-        setSelectedTab({ type: Tabs.Theme });
+        setSelectedTab({ type: AppSettingsTabs.Theme });
       },
       subText: "Set theme, color and font",
     },
@@ -84,21 +92,18 @@ function AppSettings() {
         <DraggablePageList
           onPageSelect={(pageId: string) =>
             setSelectedTab({
-              type: Tabs.Page,
+              type: AppSettingsTabs.Page,
               page: pages.find((page) => page.pageId === pageId),
             })
           }
           pages={pages}
-          selectedPage={selectedTab?.page?.pageId}
+          selectedPage={selectedTab.page?.pageId}
         />
       </div>
       <SectionContent className="w-1/2">
         {(() => {
-          switch (selectedTab?.type) {
-            default:
-              setSelectedTab({ type: Tabs.General });
-              break;
-            case Tabs.General:
+          switch (selectedTab.type) {
+            case AppSettingsTabs.General:
               return (
                 <div className="px-4">
                   <TabHeaderText className="leading-[3rem] font-medium">
@@ -107,7 +112,7 @@ function AppSettings() {
                   <GeneralSettings />
                 </div>
               );
-            case Tabs.Theme:
+            case AppSettingsTabs.Theme:
               return (
                 <>
                   <div className="px-4">
@@ -120,7 +125,7 @@ function AppSettings() {
                   </ThemeTabContentWrapper>
                 </>
               );
-            case Tabs.Page:
+            case AppSettingsTabs.Page:
               return selectedTab.page ? (
                 <div className="px-4">
                   <TabHeaderText className="leading-[3rem] font-medium">
