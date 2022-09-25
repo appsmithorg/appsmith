@@ -23,6 +23,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -98,6 +99,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
+    private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
 
 
     /**
@@ -758,11 +760,20 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> updateSingleActionWithBranchName(String defaultActionId, ActionDTO action, String branchName) {
 
+        String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
         return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
-                .map(responseUtils::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources)
+                .zipWith(newPageService.findPageById(pageId, MANAGE_PAGES, false), (actionDTO, pageDTO) -> {
+                    // redundant check
+                    if (pageDTO.getLayouts().size() > 0) {
+                        actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
+                    }
+                    return actionDTO;
+                });
+
     }
 
     @Override
@@ -891,11 +902,18 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
 
+        // setting the layoutOnLoadActionActionErrors to null to remove the existing errors before new DAG calculation.
+        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
+
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
                 .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
+                    layout.setLayoutOnLoadActionErrors(List.of(
+                            new ErrorDTO(error.getAppErrorCode(),
+                                    layoutOnLoadActionErrorToastMessage,
+                                    error.getMessage())));
                     return Mono.just(new ArrayList<>());
                 });
 
@@ -986,6 +1004,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         layoutDTO.setDsl(layout.getDsl());
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
+        layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
         layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;
