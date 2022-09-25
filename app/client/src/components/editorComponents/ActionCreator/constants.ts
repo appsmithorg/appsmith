@@ -17,20 +17,13 @@ export const APPSMITH_NAMESPACED_FUNCTIONS = {
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
 };
 
-export const Actions = {
+export const AppsmithFunction = {
   none: "none",
   integration: "integration",
   jsFunction: "jsFunction",
   ...APPSMITH_GLOBAL_FUNCTIONS,
   ...APPSMITH_NAMESPACED_FUNCTIONS,
 };
-
-export const ALERT_STYLE_OPTIONS = [
-  { label: "Info", value: "'info'", id: "info" },
-  { label: "Success", value: "'success'", id: "success" },
-  { label: "Error", value: "'error'", id: "error" },
-  { label: "Warning", value: "'warning'", id: "warning" },
-];
 
 export const RESET_CHILDREN_OPTIONS = [
   { label: "true", value: "true", id: "true" },

@@ -23,12 +23,11 @@ import DividerComponent from "widgets/DividerWidget/component";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
 import {
-  ALERT_STYLE_OPTIONS,
   RESET_CHILDREN_OPTIONS,
   FILE_TYPE_OPTIONS,
   NAVIGATION_TARGET_FIELD_OPTIONS,
   ViewTypes,
-  Actions,
+  AppsmithFunction,
   FieldType,
 } from "./constants";
 import { PopoverPosition } from "@blueprintjs/core";
@@ -50,6 +49,7 @@ import {
   enumTypeSetter,
   enumTypeGetter,
 } from "./utils";
+import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
 
 /**
  ******** Steps to add a new function *******
@@ -155,9 +155,9 @@ const fieldConfigs: FieldConfigs = {
           ? [...storedValue.matchAll(ACTION_TRIGGER_REGEX)]
           : [];
       }
-      let mainFuncSelectedValue = Actions.none;
+      let mainFuncSelectedValue = AppsmithFunction.none;
       if (matches.length) {
-        mainFuncSelectedValue = matches[0][1] || Actions.none;
+        mainFuncSelectedValue = matches[0][1] || AppsmithFunction.none;
       }
       const mainFuncSelectedValueSplit = mainFuncSelectedValue.split(".");
       if (mainFuncSelectedValueSplit[1] === "run") {
@@ -171,22 +171,22 @@ const fieldConfigs: FieldConfigs = {
       let defaultParams = "";
       let defaultArgs: Array<any> = [];
       switch (type) {
-        case Actions.integration:
+        case AppsmithFunction.integration:
           value = `${value}.run`;
           break;
-        case Actions.navigateTo:
+        case AppsmithFunction.navigateTo:
           defaultParams = `'', {}, 'SAME_WINDOW'`;
           break;
-        case Actions.jsFunction:
+        case AppsmithFunction.jsFunction:
           defaultArgs = option.args ? option.args : [];
           break;
-        case Actions.setInterval:
+        case AppsmithFunction.setInterval:
           defaultParams = "() => { \n\t // add code here \n}, 5000";
           break;
-        case Actions.getGeolocation:
+        case AppsmithFunction.getGeolocation:
           defaultParams = "(location) => { \n\t // add code here \n  }";
           break;
-        case Actions.resetWidget:
+        case AppsmithFunction.resetWidget:
           defaultParams = `"",true`;
           break;
         default:
@@ -488,7 +488,7 @@ function renderField(props: {
           option: TreeDropdownOption,
           displayValue?: string,
         ) {
-          if (option.type === Actions.integration) {
+          if (option.type === AppsmithFunction.integration) {
             return (
               <HightlightedCode
                 codeText={`{{${option.label}.run()}}`}
@@ -504,7 +504,7 @@ function renderField(props: {
         };
         getDefaults = (value: string) => {
           return {
-            [Actions.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
+            [AppsmithFunction.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
           }[value];
         };
       }

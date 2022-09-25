@@ -10,7 +10,7 @@ import {
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
-  const js = stringSegments
+  return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
@@ -19,7 +19,6 @@ export const stringToJS = (string: string): string => {
       }
     })
     .join(" + ");
-  return js;
 };
 
 export const JSToString = (js: string): string => {
@@ -37,7 +36,7 @@ export const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;
-  argsplitMatches.forEach((match) => {
+  for (const match of argsplitMatches) {
     const matchVal = match[0];
     if (!matchVal || matchVal === "") {
       if (isPrevUndefined) {
@@ -48,7 +47,7 @@ export const argsStringToArray = (funcArgs: string): string[] => {
       isPrevUndefined = false;
       arr.push(matchVal);
     }
-  });
+  }
   return arr;
 };
 
@@ -72,15 +71,17 @@ export const modalSetter = (changeValue: any, currentValue: string) => {
 export const modalGetter = (value: string) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   let name = "none";
-  if (matches.length) {
+  if (!matches.length) {
+    return name;
+  } else {
     const modalName = matches[0][2].split(",")[0];
     if (IS_URL_OR_MODAL.test(modalName) || modalName === "") {
       name = modalName.substring(1, modalName.length - 1);
     } else {
       name = `{{${modalName}}}`;
     }
+    return name;
   }
-  return name;
 };
 
 export const textSetter = (
@@ -92,25 +93,23 @@ export const textSetter = (
   let args: string[] = [];
   if (matches.length) {
     args = argsStringToArray(matches[0][2]);
-    const jsVal = stringToJS(changeValue);
-    args[argNum] = jsVal;
+    args[argNum] = stringToJS(changeValue);
   }
-  const result = currentValue.replace(
+  return currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
   );
-  return result;
 };
 
 export const textGetter = (value: string, argNum: number) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
+  if (!matches.length) {
+    return "";
+  } else {
     const args = argsStringToArray(matches[0][2]);
     const arg = args[argNum];
-    const stringFromJS = arg ? JSToString(arg.trim()) : arg;
-    return stringFromJS;
+    return arg ? JSToString(arg.trim()) : arg;
   }
-  return "";
 };
 
 export const enumTypeSetter = (
@@ -124,11 +123,10 @@ export const enumTypeSetter = (
     args = argsStringToArray(matches[0][2]);
     args[argNum] = changeValue as string;
   }
-  const result = currentValue.replace(
+  return currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
   );
-  return result;
 };
 
 export const enumTypeGetter = (
@@ -137,10 +135,11 @@ export const enumTypeGetter = (
   defaultValue = "",
 ): string => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
+  if (!matches.length) {
+    return defaultValue;
+  } else {
     const args = argsStringToArray(matches[0][2]);
     const arg = args[argNum];
     return arg ? arg.trim() : defaultValue;
   }
-  return defaultValue;
 };

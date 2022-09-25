@@ -58,69 +58,73 @@ import FeatureFlags from "entities/FeatureFlags";
 import { connect } from "react-redux";
 import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
-import { NAVIGATE_TO_TAB_OPTIONS, Actions, FieldType } from "./constants";
+import {
+  NAVIGATE_TO_TAB_OPTIONS,
+  AppsmithFunction,
+  FieldType,
+} from "./constants";
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 
 const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(NO_ACTION),
-    value: Actions.none,
+    value: AppsmithFunction.none,
   },
   {
     label: createMessage(EXECUTE_A_QUERY),
-    value: Actions.integration,
+    value: AppsmithFunction.integration,
   },
   {
     label: createMessage(NAVIGATE_TO),
-    value: Actions.navigateTo,
+    value: AppsmithFunction.navigateTo,
   },
   {
     label: createMessage(SHOW_MESSAGE),
-    value: Actions.showAlert,
+    value: AppsmithFunction.showAlert,
   },
   {
     label: createMessage(OPEN_MODAL),
-    value: Actions.showModal,
+    value: AppsmithFunction.showModal,
   },
   {
     label: createMessage(CLOSE_MODAL),
-    value: Actions.closeModal,
+    value: AppsmithFunction.closeModal,
   },
   {
     label: createMessage(STORE_VALUE),
-    value: Actions.storeValue,
+    value: AppsmithFunction.storeValue,
   },
   {
     label: createMessage(DOWNLOAD),
-    value: Actions.download,
+    value: AppsmithFunction.download,
   },
   {
     label: createMessage(COPY_TO_CLIPBOARD),
-    value: Actions.copyToClipboard,
+    value: AppsmithFunction.copyToClipboard,
   },
   {
     label: createMessage(RESET_WIDGET),
-    value: Actions.resetWidget,
+    value: AppsmithFunction.resetWidget,
   },
   {
     label: createMessage(SET_INTERVAL),
-    value: Actions.setInterval,
+    value: AppsmithFunction.setInterval,
   },
   {
     label: createMessage(CLEAR_INTERVAL),
-    value: Actions.clearInterval,
+    value: AppsmithFunction.clearInterval,
   },
   {
     label: createMessage(GET_GEO_LOCATION),
-    value: Actions.getGeolocation,
+    value: AppsmithFunction.getGeolocation,
   },
   {
     label: createMessage(WATCH_GEO_LOCATION),
-    value: Actions.watchGeolocation,
+    value: AppsmithFunction.watchGeolocation,
   },
   {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
-    value: Actions.stopWatchGeolocation,
+    value: AppsmithFunction.stopWatchGeolocation,
   },
 ];
 
@@ -128,12 +132,12 @@ const getBaseOptions = (featureFlags: FeatureFlags) => {
   const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   if (isJSEditorEnabled) {
     const jsOption = baseOptions.find(
-      (option: any) => option.value === Actions.jsFunction,
+      (option: any) => option.value === AppsmithFunction.jsFunction,
     );
     if (!jsOption) {
       baseOptions.splice(2, 0, {
         label: createMessage(EXECUTE_JS_FUNCTION),
-        value: Actions.jsFunction,
+        value: AppsmithFunction.jsFunction,
       });
     }
   }
@@ -448,10 +452,12 @@ function getIntegrationOptionsWithChildren(
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE,
   );
-  const option = options.find((option) => option.value === Actions.integration);
+  const option = options.find(
+    (option) => option.value === AppsmithFunction.integration,
+  );
 
   const jsOption = options.find(
-    (option) => option.value === Actions.jsFunction,
+    (option) => option.value === AppsmithFunction.jsFunction,
   );
 
   if (option) {

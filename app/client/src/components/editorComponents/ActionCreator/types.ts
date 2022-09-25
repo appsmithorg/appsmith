@@ -1,6 +1,6 @@
 import { SwitcherProps, TreeDropdownOption } from "design-system";
 import React from "react";
-import { FieldType, ViewTypes, Actions } from "./constants";
+import { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 
 export type GenericFunction = (...args: any[]) => any;
 
@@ -10,7 +10,7 @@ export type SwitchType = {
   action: () => void;
 };
 
-export type ActionType = typeof Actions[keyof typeof Actions];
+export type ActionType = typeof AppsmithFunction[keyof typeof AppsmithFunction];
 
 export type ViewType = typeof ViewTypes[keyof typeof ViewTypes];
 
