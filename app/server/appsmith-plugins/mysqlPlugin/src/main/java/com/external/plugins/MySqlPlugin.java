@@ -1,6 +1,7 @@
 package com.external.plugins;
 
-import com.appsmith.external.datatypes.*;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -22,9 +23,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
-import com.external.plugins.datatypes.MySQLBooleanType;
-import com.external.plugins.datatypes.MySQLDateTimeType;
-import com.external.plugins.datatypes.MySQLDateType;
+import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.utils.QueryUtils;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
@@ -136,31 +135,6 @@ public class MySqlPlugin extends BasePlugin {
             // "  and i.enforced = 'YES'\n" +  // Looks like this is not available on all versions of MySQL.
             "  and i.constraint_type in ('FOREIGN KEY', 'PRIMARY KEY')\n" +
             "order by i.table_name, i.constraint_name, k.position_in_unique_constraint;";
-
-    private static Map<ClientDataType, List<AppsmithType>> pluginSpecificTypes;
-
-    static {
-        pluginSpecificTypes = new HashMap<>();
-        pluginSpecificTypes.put(ClientDataType.NULL, List.of(new NullType()));
-
-        pluginSpecificTypes.put(ClientDataType.BOOLEAN, List.of(new MySQLBooleanType()));
-
-        pluginSpecificTypes.put(ClientDataType.NUMBER, List.of(
-                new IntegerType(),
-                new LongType(),
-                new DoubleType(),
-                new BigDecimalType()
-        ));
-
-        pluginSpecificTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType()));
-
-        pluginSpecificTypes.put(ClientDataType.STRING, List.of(
-                new TimeType(),
-                new MySQLDateType(),
-                new MySQLDateTimeType(),
-                new StringType()
-        ));
-    }
 
     public MySqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -423,7 +397,7 @@ public class MySqlPlugin extends BasePlugin {
 
             Statement connectionStatement = (Statement) input;
             ClientDataType clientDataType = (ClientDataType) args[0];
-            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, value, pluginSpecificTypes);
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, value, MySQLSpecificDataTypes.pluginSpecificTypes);
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, appsmithType.type().toString());
             insertedParams.add(parameter);
