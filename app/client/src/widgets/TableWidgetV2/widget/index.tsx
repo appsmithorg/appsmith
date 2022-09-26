@@ -62,9 +62,8 @@ import {
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { IconName } from "@blueprintjs/icons";
+import { IconName, IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
-import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";

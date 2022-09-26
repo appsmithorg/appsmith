@@ -1,8 +1,3 @@
-/*
- * Select column type is not avialbe for user to choose
- * we're keeping this file for future usage
- */
-
 import React from "react";
 import SelectComponent from "widgets/SelectWidget/component";
 import { DropdownOption } from "widgets/SelectWidget/constants";

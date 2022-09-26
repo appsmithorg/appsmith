@@ -7,7 +7,7 @@ import {
   ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "widgets/SelectWidget/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;

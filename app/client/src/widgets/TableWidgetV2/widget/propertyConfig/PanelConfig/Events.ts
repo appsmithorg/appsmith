@@ -95,6 +95,7 @@ export default {
       isTriggerProperty: true,
     },
     {
+      propertyName: "onFilterUpdate",
       helpText: "Trigger an action on change of filterText",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -112,7 +113,6 @@ export default {
         );
       },
       dependencies: ["primaryColumns"],
-      propertyName: "onFilterUpdate",
       label: "onFilterUpdate",
       controlType: "ACTION_SELECTOR",
       isJSConvertible: true,

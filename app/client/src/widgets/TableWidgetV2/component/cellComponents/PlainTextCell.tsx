@@ -150,6 +150,10 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
   let editor;
 
   if (isCellEditMode) {
+    /*
+     * TODO(Balaji): remove synchronously accessing offsetHeight, which leads
+     * to layout thrashing
+     */
     const isMultiline =
       !!contentRef.current?.offsetHeight &&
       contentRef.current?.offsetHeight / CELL_WRAPPER_LINE_HEIGHT > 1;

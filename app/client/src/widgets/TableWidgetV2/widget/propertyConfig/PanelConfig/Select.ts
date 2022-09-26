@@ -52,8 +52,8 @@ export default {
       },
     },
     {
-      helpText: "Sets a Placeholder Text",
       propertyName: "placeholderText",
+      helpText: "Sets a Placeholder Text",
       label: "Placeholder",
       controlType: "INPUT_TEXT",
       placeholderText: "Enter placeholder text",
@@ -82,8 +82,8 @@ export default {
       validation: { type: ValidationTypes.BOOLEAN },
     },
     {
-      helpText: "Enables server side filtering of the data",
       propertyName: "serverSideFiltering",
+      helpText: "Enables server side filtering of the data",
       label: "Server Side Filtering",
       controlType: "SWITCH",
       isJSConvertible: true,
