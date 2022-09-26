@@ -13,6 +13,11 @@ const multipleScripts = {
   ],
 };
 
+afterAll((done) => {
+  app.close();
+  done();
+});
+
 describe("AST", () => {
   it("Testing to see if Jest works", async () => {
     const expectedResponse = {
