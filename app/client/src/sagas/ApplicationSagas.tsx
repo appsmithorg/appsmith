@@ -41,7 +41,6 @@ import {
   resetCurrentApplication,
   setDefaultApplicationPageSuccess,
   setIsReconnectingDatasourcesModalOpen,
-  setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
 } from "actions/applicationActions";
@@ -87,7 +86,7 @@ import {
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
@@ -551,6 +550,7 @@ export function* createApplicationSaga(
         const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
+        let pageURL;
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
@@ -560,12 +560,15 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-        }
-        history.push(
-          builderURL({
+          pageURL = builderURL({
             pageId: application.defaultPageId as string,
-          }),
-        );
+          });
+        } else {
+          pageURL = generateTemplateURL({
+            pageId: application.defaultPageId as string,
+          });
+        }
+        history.push(pageURL);
 
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting
@@ -630,12 +633,10 @@ function* showReconnectDatasourcesModalSaga(
     application: ApplicationResponsePayload;
     unConfiguredDatasourceList: Array<Datasource>;
     workspaceId: string;
-    pageId?: string;
   }>,
 ) {
   const {
     application,
-    pageId,
     unConfiguredDatasourceList,
     workspaceId,
   } = action.payload;
@@ -648,7 +649,6 @@ function* showReconnectDatasourcesModalSaga(
   );
 
   yield put(setWorkspaceIdForImport(workspaceId));
-  yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 

@@ -25,10 +25,12 @@ type SettingsHeadingProps = {
 
 type SettingsItemProps = {
   action: JSAction;
+  disabled?: boolean;
 };
 
 type JSFunctionSettingsProps = {
   actions: JSAction[];
+  disabled?: boolean;
 };
 
 const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
@@ -119,7 +121,7 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
   );
 }
 
-function SettingsItem({ action }: SettingsItemProps) {
+function SettingsItem({ action, disabled = false }: SettingsItemProps) {
   const dispatch = useDispatch();
   const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
     String(!!action.executeOnLoad),
@@ -158,6 +160,7 @@ function SettingsItem({ action }: SettingsItemProps) {
         <RadioComponent
           backgroundColor="#191919"
           defaultValue={executeOnPageLoad}
+          disabled={disabled}
           name={`execute-on-page-load-${action.id}`}
           onSelect={onChangeExecuteOnPageLoad}
           options={RADIO_OPTIONS}
@@ -167,6 +170,7 @@ function SettingsItem({ action }: SettingsItemProps) {
         <RadioComponent
           backgroundColor="#191919"
           defaultValue={confirmBeforeExecute}
+          disabled={disabled}
           name={`confirm-before-execute-${action.id}`}
           onSelect={onChangeConfirmBeforeExecute}
           options={RADIO_OPTIONS}
@@ -176,7 +180,10 @@ function SettingsItem({ action }: SettingsItemProps) {
   );
 }
 
-function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
+function JSFunctionSettingsView({
+  actions,
+  disabled = false,
+}: JSFunctionSettingsProps) {
   const asyncActions = actions.filter(
     (action) => action.actionConfiguration.isAsync,
   );
@@ -197,7 +204,7 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
         </SettingRow>
         {asyncActions && asyncActions.length ? (
           asyncActions.map((action) => (
-            <SettingsItem action={action} key={action.id} />
+            <SettingsItem action={action} disabled={disabled} key={action.id} />
           ))
         ) : (
           <SettingRow noBorder>

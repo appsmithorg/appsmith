@@ -21,6 +21,10 @@ export enum PERMISSION_TYPE {
   EXECUTE_ACTION = "execute:actions",
   MANAGE_ACTIONS = "manage:actions",
   MANAGE_PAGES = "manage:pages",
+  EXECUTE_ACTIONS = "execute:actions",
+  EXECUTE_DATASOURCES = "execute:datasources",
+  EXECUTE_WORKSPACE_DATASOURCES = "execute:workspaceDatasources",
+  DELETE_ACTIONS = "delete:actions",
   CREATE_WORKSPACES = "create:workspaces",
 }
 

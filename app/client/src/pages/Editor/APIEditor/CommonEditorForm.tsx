@@ -67,7 +67,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
+import { executeCommandAction } from "actions/apiPaneActions";
 
 const Form = styled.form`
   position: relative;
@@ -578,9 +578,17 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
-  const isChangeRestricted = !isPermitted(
+  const isChangePermitted = isPermitted(
     currentActionConfig?.userPermissions || [""],
     PERMISSION_TYPE.MANAGE_ACTIONS,
+  );
+  const isExecutePermitted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.EXECUTE_ACTIONS,
+  );
+  const isDeletePermitted = isPermitted(
+    currentActionConfig?.userPermissions || [""],
+    PERMISSION_TYPE.DELETE_ACTIONS,
   );
 
   const plugin = useSelector((state: AppState) =>
@@ -616,12 +624,14 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor disabled={isChangeRestricted} page="API_PANE" />
+              <ActionNameEditor disabled={!isChangePermitted} page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreActionsMenu
                 className="t--more-action-menu"
                 id={currentActionConfig ? currentActionConfig.id : ""}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
                 name={currentActionConfig ? currentActionConfig.name : ""}
                 pageId={pageId}
               />
@@ -632,6 +642,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
+                disabled={!isExecutePermitted}
                 isLoading={isRunning}
                 onClick={() => {
                   onRunClick();
@@ -773,6 +784,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </TabbedViewContainer>
             <ApiResponseView
               apiName={actionName}
+              disabled={!isExecutePermitted}
               onRunClick={onRunClick}
               responseDataTypes={responseDataTypes}
               responseDisplayFormat={responseDisplayFormat}

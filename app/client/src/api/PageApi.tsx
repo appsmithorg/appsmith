@@ -45,8 +45,8 @@ export type FetchPageResponseData = {
   layouts: Array<PageLayout>;
   lastUpdatedTime: number;
   customSlug?: string;
-  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
   userPermissions?: string[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
 export type FetchPublishedPageResponseData = FetchPageResponseData;

@@ -214,13 +214,6 @@ const editorReducer = createReducer(initialState, {
       savingEntity: false,
     },
   }),
-  [ReduxActionTypes.ENTITY_UPDATE_ERROR]: (state: EditorReduxState) => ({
-    ...state,
-    loadingStates: {
-      ...state.loadingStates,
-      savingEntity: false,
-    },
-  }),
 });
 
 export interface EditorReduxState {
