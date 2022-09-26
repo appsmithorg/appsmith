@@ -889,13 +889,13 @@ public class MySqlPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertTrue(structure.getTables().size() > 0);
+                    assertEquals(2, structure.getTables().size());
 
-                    final DatasourceStructure.Table possessionsTable =
-                            structure.getTables().
-                                    stream().
-                                    filter(table -> table.getName().equalsIgnoreCase("possessions")).findFirst().get();
-                    assertEquals("possessions", possessionsTable.getName());
+                    final DatasourceStructure.Table possessionsTable = structure.getTables()
+                            .stream()
+                            .filter(table -> table.getName().equalsIgnoreCase("possessions"))
+                            .findFirst()
+                            .get();
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
@@ -938,10 +938,11 @@ public class MySqlPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables().
-                            stream().
-                            filter(table -> table.getName().equalsIgnoreCase("users")).findFirst().get();
-                    assertEquals("users", usersTable.getName());
+                    final DatasourceStructure.Table usersTable = structure.getTables()
+                            .stream()
+                            .filter(table -> table.getName().equalsIgnoreCase("users"))
+                            .findFirst()
+                            .get();
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
