@@ -28,8 +28,6 @@ const Wrapper = styled.div`
 
 interface TemplateListProps {
   templates: TemplateInterface[];
-  onTemplateClick?: (id: string) => void;
-  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 function TemplateList(props: TemplateListProps) {
@@ -41,13 +39,7 @@ function TemplateList(props: TemplateListProps) {
         columnClassName="grid_column"
       >
         {props.templates.map((template) => (
-          <Template
-            key={template.id}
-            onClick={props.onTemplateClick}
-            onForkTemplateClick={props.onForkTemplateClick}
-            size="large"
-            template={template}
-          />
+          <Template key={template.id} size="large" template={template} />
         ))}
         <RequestTemplate />
       </Masonry>
