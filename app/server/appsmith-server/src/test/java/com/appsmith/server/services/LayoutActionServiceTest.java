@@ -1551,4 +1551,104 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void introduceCyclicDependencyAndRemoveLater(){
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // creating new action based on which we will introduce cyclic dependency
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setName("actionName");
+        actionDTO.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionDTO.setActionConfiguration(actionConfiguration);
+        actionDTO.setDatasource(datasource);
+        actionDTO.setExecuteOnLoad(true);
+
+        ActionDTO createdAction = layoutActionService.createSingleAction(actionDTO).block();
+
+        // retrieving layout from test page;
+        Layout layout = testPage.getLayouts().get(0);
+
+        JSONObject mainDsl = layout.getDsl();
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "inputWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "defaultText" ))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("defaultText", "{{ \tactionName.data[0].inputWidget}}");
+
+        final JSONObject innerObjectReference = new JSONObject();
+        innerObjectReference.put("k", "{{\tactionName.data[0].inputWidget}}");
+
+        final JSONArray innerArrayReference = new JSONArray();
+        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tactionName.data[0].inputWidget}}")));
+
+        dsl.put("innerArrayReference", innerArrayReference);
+        dsl.put("innerObjectReference", innerObjectReference);
+
+        final ArrayList<Object> objects = new ArrayList<>();
+        objects.add(dsl);
+
+        mainDsl.put("children", objects);
+        layout.setDsl(mainDsl);
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports will be null
+        if (createdAction.getErrorReports() != null) {
+            assert(createdAction.getErrorReports() instanceof List || createdAction.getErrorReports() == null);
+            assert(createdAction.getErrorReports() == null);
+        }
+
+        // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated layoutOnLoadActionErrors
+        assert(firstLayout.getLayoutOnLoadActionErrors() instanceof List);
+        assert (firstLayout.getLayoutOnLoadActionErrors().size() ==1 );
+
+        // refactoring action to carry the existing error in DSL
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setOldName("actionName");
+        refactorActionNameDTO.setNewName("newActionName");
+        refactorActionNameDTO.setLayoutId(layout.getId());
+        refactorActionNameDTO.setPageId(testPage.getId());
+        refactorActionNameDTO.setActionId(createdAction.getId());
+
+        Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
+        StepVerifier.create(layoutDTOMono
+                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
+                .expectNext(1).verifyComplete();
+
+
+        // updateAction to see if the error persists
+        actionDTO.setName("finalActionName");
+        Mono<ActionDTO> actionDTOMono = layoutActionService.updateSingleActionWithBranchName(createdAction.getId(), actionDTO, null);
+
+        StepVerifier.create(actionDTOMono.map(
+
+                actionDTO1 -> actionDTO1.getErrorReports().size()
+                        ))
+                .expectNext(1).verifyComplete();
+
+
+
+        JSONObject newDsl =  new JSONObject();
+        newDsl.put("widgetName", "newInputWidget");
+        newDsl.put("innerArrayReference", innerArrayReference);
+        newDsl.put("innerObjectReference", innerObjectReference);
+
+        objects.remove(0);
+        objects.add(newDsl);
+        mainDsl.put("children", objects);
+
+        layout.setDsl(mainDsl);
+
+        LayoutDTO changedLayoutDTO = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        assert(changedLayoutDTO.getLayoutOnLoadActionErrors() instanceof List);
+        assert (changedLayoutDTO.getLayoutOnLoadActionErrors().size() == 0);
+
+    }
+
 }

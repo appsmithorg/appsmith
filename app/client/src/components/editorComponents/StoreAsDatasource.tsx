@@ -32,7 +32,7 @@ export const StoreDatasourceWrapper = styled.div<{ enable?: boolean }>`
   .${Classes.ICON} {
     margin-right: 5px;
     path {
-      fill: ${Colors.GRAY};
+      fill: ${Colors.GRAY_700};
     }
   }
   ${(props) => (props.enable ? "" : disabled)}
