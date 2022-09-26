@@ -20,7 +20,7 @@ describe("Visual regression tests", () => {
   });
 
   it("Layout validation for Quick page wizard", () => {
-    cy.get("[data-cy='generate-app']").click();
+    cy.get(".t--GenerateCRUDPage").click();
     cy.wait(2000);
     // taking screenshot of generate crud page
     cy.get("#root").matchImageSnapshot("quickPageWizard");
@@ -28,6 +28,7 @@ describe("Visual regression tests", () => {
 
   it("Layout Validation for App builder Page", () => {
     cy.get(".bp3-icon-chevron-left").click();
+    cy.get(".t--BuildFromScratch").click();
     cy.wait(2000);
     // taking screenshot of app builder page
     cy.get("#root").matchImageSnapshot("emptyAppBuilder");

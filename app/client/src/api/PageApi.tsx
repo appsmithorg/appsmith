@@ -1,7 +1,10 @@
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { DSLWidget } from "widgets/constants";
 import {
   ClonePageActionPayload,
@@ -31,6 +34,7 @@ export type PageLayout = {
   dsl: Partial<DSLWidget>;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
 export type FetchPageResponseData = {
@@ -42,6 +46,7 @@ export type FetchPageResponseData = {
   lastUpdatedTime: number;
   customSlug?: string;
   userPermissions?: string[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
 export type FetchPublishedPageResponseData = FetchPageResponseData;
@@ -57,6 +62,7 @@ export type SavePageResponseData = {
     name: string;
     collectionId?: string;
   }>;
+  layoutOnLoadActionErrors?: Array<LayoutOnLoadActionErrors>;
 };
 
 export type CreatePageRequest = Omit<

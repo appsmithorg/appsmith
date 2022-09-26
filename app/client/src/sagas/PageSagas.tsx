@@ -37,6 +37,7 @@ import PageApi, {
   FetchPublishedPageRequest,
   PageLayout,
   SavePageResponse,
+  SavePageResponseData,
   SetPageOrderRequest,
   UpdatePageRequest,
   UpdateWidgetNameRequest,
@@ -103,7 +104,11 @@ import { GenerateTemplatePageRequest } from "api/PageApi";
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
-import { inGuidedTour } from "selectors/onboardingSelectors";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
+} from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageSuccess,
@@ -113,13 +118,14 @@ import {
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { builderURL } from "RouteBuilder";
+import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -205,6 +211,8 @@ export const getCanvasWidgetsPayload = (
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
     pageActions: pageResponse.data.layouts[0].layoutOnLoadActions || [],
+    layoutOnLoadActionErrors:
+      pageResponse.data.layouts[0].layoutOnLoadActionErrors || [],
   };
 };
 
@@ -453,6 +461,10 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
       );
+      checkAndLogErrorsIfCyclicDependency(
+        (savePageResponse.data as SavePageResponseData)
+          .layoutOnLoadActionErrors,
+      );
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -595,11 +607,29 @@ export function* createPageSaga(
       // TODO: Update URL params here
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        history.push(
-          builderURL({
-            pageId: response.data.id,
-          }),
+        const firstTimeUserOnboardingApplicationId: string = yield select(
+          getFirstTimeUserOnboardingApplicationId,
         );
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
+          getIsFirstTimeUserOnboardingEnabled,
+        );
+        if (
+          firstTimeUserOnboardingApplicationId ==
+            createPageAction.payload.applicationId &&
+          isFirstTimeUserOnboardingEnabled
+        ) {
+          history.push(
+            builderURL({
+              pageId: response.data.id,
+            }),
+          );
+        } else {
+          history.push(
+            generateTemplateURL({
+              pageId: response.data.id,
+            }),
+          );
+        }
       }
     }
   } catch (error) {
@@ -851,6 +881,9 @@ export function* updateWidgetNameSaga(
               dsl: response.data.dsl,
             },
           });
+          checkAndLogErrorsIfCyclicDependency(
+            (response.data as PageLayout).layoutOnLoadActionErrors,
+          );
         }
       } else {
         yield put({

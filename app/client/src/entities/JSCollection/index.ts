@@ -1,5 +1,6 @@
 import { BaseAction } from "../Action";
 import { PluginType } from "entities/Action";
+import { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 
 export type Variable = {
   name: string;
@@ -17,6 +18,7 @@ export interface JSCollection {
   body: string;
   variables: Array<Variable>;
   userPermissions?: string[];
+  errorReports?: Array<LayoutOnLoadActionErrors>;
 }
 
 export interface JSActionConfig {
