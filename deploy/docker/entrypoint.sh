@@ -128,7 +128,7 @@ init_mongodb() {
     if [[ ! -f "$MONGO_DB_KEY" ]]; then
       openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
-    chmod-mongodb-key "$MONGO_DB_KEY"
+    use-mongodb-key "$MONGO_DB_KEY"
   fi
 }
 
@@ -157,7 +157,7 @@ init_replica_set() {
     mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
+    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
     mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
@@ -180,8 +180,12 @@ init_replica_set() {
   fi
 }
 
-chmod-mongodb-key() {
-  chmod 600 "$1"
+use-mongodb-key() {
+	# This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
+	# What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
+	# So the key file should be somewhere inside the container, and not in a volume.
+	cp -v "$1" /mongodb-key
+  chmod 600 /mongodb-key
 }
 
 # Keep Let's Encrypt directory persistent
