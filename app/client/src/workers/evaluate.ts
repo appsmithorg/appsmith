@@ -233,9 +233,10 @@ export function evaluateJSString(
 
     const executionScript = `new Promise((resolve, reject) => {
       try {
-        resolve(${code})
+        const result = ${code};
+        resolve(result);
       } catch(e) {
-        reject(e)
+        reject(e);
       }
     })`;
 

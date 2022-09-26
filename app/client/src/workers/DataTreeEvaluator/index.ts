@@ -688,8 +688,9 @@ export default class DataTreeEvaluator {
               parsedValue = overwriteObj.newValue;
             }
             _.set(currentTree, fullPropertyPath, parsedValue);
+          } else {
+            _.set(currentTree, fullPropertyPath, evalPropertyValue);
           }
-          _.set(currentTree, fullPropertyPath, evalPropertyValue);
         } else if (isATriggerPath) {
           continue;
         } else if (isAction(entity)) {
@@ -840,30 +841,39 @@ export default class DataTreeEvaluator {
     );
     if (stringSegments.length === 0) return undefined;
     // Get the Data Tree value of those "binding "paths
-    const evaluatedValues = await Promise.all(
-      jsSnippets.map(async (jsSnippet, index) => {
-        const toBeSentForEval =
-          entity && isJSAction(entity) && propertyPath === "body"
-            ? jsSnippet.replace(/export default/g, "")
-            : jsSnippet;
-        if (!jsSnippet) return Promise.resolve(stringSegments[index]);
+    let evaluatedValues: any = [];
+    try {
+      evaluatedValues = await Promise.all(
+        jsSnippets.map(async (jsSnippet, index) => {
+          const toBeSentForEval =
+            entity && isJSAction(entity) && propertyPath === "body"
+              ? jsSnippet.replace(/export default/g, "")
+              : jsSnippet;
+          if (!jsSnippet) return Promise.resolve(stringSegments[index]);
 
-        return this.evaluateDynamicBoundValue(
-          toBeSentForEval,
-          data,
-          resolvedFunctions,
-          !!entity && isJSAction(entity),
-          contextData,
-          callBackData,
-          fullPropertyPath?.includes("body") ||
-            !toBeSentForEval.includes("console."),
-        );
-      }),
-    );
+          return this.evaluateDynamicBoundValue(
+            toBeSentForEval,
+            data,
+            resolvedFunctions,
+            !!entity && isJSAction(entity),
+            contextData,
+            callBackData,
+            fullPropertyPath?.includes("body") ||
+              !toBeSentForEval.includes("console."),
+          );
+        }),
+      );
+    } catch (e) {
+      debugger;
+      console.log(e);
+    }
 
     const values = [];
     for (const result of evaluatedValues) {
-      if (typeof result === "string") continue;
+      if (typeof result === "string") {
+        values.push(result);
+        continue;
+      }
       if (fullPropertyPath && result.errors.length) {
         addErrorToEntityProperty(result.errors, data, fullPropertyPath);
       }
