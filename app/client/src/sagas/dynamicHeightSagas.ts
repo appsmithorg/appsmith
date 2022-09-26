@@ -715,7 +715,7 @@ export default function* widgetOperationSagas() {
       batchCallsToUpdateWidgetDynamicHeightSaga,
     ),
     debounce(
-      500,
+      200,
       ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
       updateWidgetDynamicHeightSaga,
     ),
