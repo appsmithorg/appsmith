@@ -15,7 +15,11 @@ import _, {
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
@@ -158,7 +162,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
 
-    const { componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.getPaddingAdjustedDimensions();
     let totalColumnWidth = 0;
 
     if (isArray(orderedTableColumns)) {
@@ -208,19 +212,45 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       });
     }
 
+    const lastColumnIndex = columns.length - 1;
     if (totalColumnWidth < componentWidth) {
-      const lastColumnIndex = columns.length - 1;
-
+      /*
+        This "if" block is responsible for upsizing the last column width
+        if there is space left in the table container towards the right
+      */
       if (columns[lastColumnIndex]) {
         const lastColumnWidth =
           columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
         const remainingWidth = componentWidth - totalColumnWidth;
-
+        // Adding the remaining width i.e. space left towards the right, to the last column width
+        columns[lastColumnIndex].width = lastColumnWidth + remainingWidth;
+      }
+    } else if (totalColumnWidth > componentWidth) {
+      /*
+        This "else-if" block is responsible for downsizing the last column width
+        if the last column spills over resulting in horizontal scroll
+      */
+      const extraWidth = totalColumnWidth - componentWidth;
+      const lastColWidth =
+        columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
+      /*
+        Below if condition explanation:
+        Condition 1: (lastColWidth > COLUMN_MIN_WIDTH)
+          We will downsize the last column only if its greater than COLUMN_MIN_WIDTH
+        Condition 2: (extraWidth < lastColWidth)
+          This condition checks whether the last column is the only column that is spilling over.
+          If more than one columns are spilling over we won't downsize the last column
+      */
+      if (lastColWidth > COLUMN_MIN_WIDTH && extraWidth < lastColWidth) {
+        const availableWidthForLastColumn = lastColWidth - extraWidth;
+        /*
+          Below we are making sure last column width doesn't go lower than COLUMN_MIN_WIDTH again
+          as availableWidthForLastColumn might go lower than COLUMN_MIN_WIDTH in some cases
+        */
         columns[lastColumnIndex].width =
-          lastColumnWidth +
-          (remainingWidth < DEFAULT_COLUMN_WIDTH
-            ? DEFAULT_COLUMN_WIDTH
-            : remainingWidth);
+          availableWidthForLastColumn < COLUMN_MIN_WIDTH
+            ? COLUMN_MIN_WIDTH
+            : availableWidthForLastColumn;
       }
     }
 
@@ -762,6 +792,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.disableDrag(disable);
   };
 
+  getPaddingAdjustedDimensions = () => {
+    // eslint-disable-next-line prefer-const
+    let { componentHeight, componentWidth } = this.getComponentDimensions();
+    // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
+    componentWidth = componentWidth - 2 * WIDGET_PADDING;
+    return { componentHeight, componentWidth };
+  };
+
   getPageView() {
     const {
       totalRecordsCount,
@@ -781,7 +819,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisiblePagination ||
       isVisibleSearch;
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const {
+      componentHeight,
+      componentWidth,
+    } = this.getPaddingAdjustedDimensions();
 
     return (
       <Suspense fallback={<Skeleton />}>
