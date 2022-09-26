@@ -33,8 +33,6 @@ describe("AST", () => {
       .send(singleScript)
       .expect(200)
       .then((response) => {
-        console.log(response.body);
-        // Check type and length
         expect(response.body.success).toEqual(true);
         expect(response.body.data).toEqual(expectedResponse);
       });
@@ -61,8 +59,6 @@ describe("AST", () => {
       .send(multipleScripts)
       .expect(200)
       .then((response) => {
-        console.log(response.body);
-        // Check type and length
         expect(response.body.success).toEqual(true);
         expect(response.body.data.length).toBeGreaterThan(1);
         expect(response.body.data).toEqual(expectedResponse);
