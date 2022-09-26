@@ -7,7 +7,6 @@ import {
   fork,
   put,
   select,
-  spawn,
   take,
 } from "redux-saga/effects";
 
@@ -55,7 +54,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isEmpty, isUndefined } from "lodash";
+import { get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -80,10 +79,6 @@ import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import {
-  logActionExecutionError,
-  UncaughtPromiseError,
-} from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
@@ -285,55 +280,6 @@ export function* evaluateAndExecuteDynamicTrigger(
   //     throw new UncaughtPromiseError(errors[0].errorMessage);
   //   }
   // }
-}
-
-interface ResponsePayload {
-  data: {
-    subRequestId: string;
-    reason?: string;
-    resolve?: unknown;
-  };
-  success: boolean;
-}
-
-/*
- * It is necessary to respond back as the worker is waiting with a pending promise and wanting to know if it should
- * resolve or reject it with the data the execution has provided
- */
-function* executeTriggerRequestSaga(
-  requestData: { trigger: ActionDescription; subRequestId: string },
-  eventType: EventType,
-  responseChannel: Channel<unknown>,
-  triggerMeta: TriggerMeta,
-) {
-  const responsePayload: ResponsePayload = {
-    data: {
-      resolve: undefined,
-      reason: undefined,
-      subRequestId: requestData.subRequestId,
-    },
-    success: false,
-  };
-  try {
-    responsePayload.data.resolve = yield call(
-      executeActionTriggers,
-      requestData.trigger,
-      eventType,
-      triggerMeta,
-    );
-    responsePayload.success = true;
-  } catch (error) {
-    // When error occurs in execution of triggers,
-    // a success: false is sent to reject the promise
-
-    // @ts-expect-error: reason is of type string
-    responsePayload.data.reason = { message: error.message };
-    responsePayload.success = false;
-  }
-  responseChannel.put({
-    method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-    ...responsePayload,
-  });
 }
 
 export function* clearEvalCache() {

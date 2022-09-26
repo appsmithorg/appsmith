@@ -1,5 +1,6 @@
 import { createGlobalData } from "workers/evaluate";
 import _ from "lodash";
+import { RequestOrigin } from "utils/WorkerUtil";
 jest.mock("./evaluation.worker.ts", () => {
   return {
     dataTreeEvaluator: {
@@ -37,10 +38,9 @@ describe("promise execution", () => {
   it("sends an event from the worker", () => {
     dataTreeWithFunctions.showAlert("test alert", "info");
     expect(postMessageMock).toBeCalledWith({
-      requestId,
-      type: "PROCESS_TRIGGER",
-      responseData: expect.objectContaining({
-        subRequestId: expect.stringContaining(`${requestId}_`),
+      requestId: expect.stringContaining(`SHOW_ALERT_`),
+      requestOrigin: RequestOrigin.Worker,
+      data: expect.objectContaining({
         trigger: {
           type: "SHOW_ALERT",
           payload: {
@@ -48,6 +48,7 @@ describe("promise execution", () => {
             style: "info",
           },
         },
+        errors: [],
       }),
     });
   });
@@ -58,15 +59,17 @@ describe("promise execution", () => {
       "info",
     );
     const requestArgs = postMessageMock.mock.calls[0][0];
-    const subRequestId = requestArgs.responseData.subRequestId;
+    const requestId = requestArgs.requestId;
 
     self.dispatchEvent(
       new MessageEvent("message", {
         data: {
-          data: { resolve: ["123"], subRequestId },
-          method: "PROCESS_TRIGGER",
+          requestData: {
+            data: { resolve: "123" },
+            success: true,
+          },
           requestId,
-          success: true,
+          method: "PROCESS_TRIGGER",
         },
       }),
     );
@@ -81,14 +84,16 @@ describe("promise execution", () => {
       "info",
     );
     const requestArgs = postMessageMock.mock.calls[0][0];
-    const subRequestId = requestArgs.responseData.subRequestId;
+    const requestId = requestArgs.requestId;
     self.dispatchEvent(
       new MessageEvent("message", {
         data: {
-          data: { reason: "testing", subRequestId },
-          method: "PROCESS_TRIGGER",
+          requestData: {
+            data: { reason: "testing" },
+            success: false,
+          },
           requestId,
-          success: false,
+          method: "PROCESS_TRIGGER",
         },
       }),
     );
@@ -103,19 +108,20 @@ describe("promise execution", () => {
     );
 
     const requestArgs = postMessageMock.mock.calls[0][0];
-    const correctSubRequestId = requestArgs.responseData.subRequestId;
-    const differentSubRequestId = "wrongRequestId";
+    const correctRequestId = requestArgs.requestId;
+    const differentRequestId = "wrongRequestId";
 
     self.dispatchEvent(
       new MessageEvent("message", {
         data: {
-          data: {
-            resolve: ["wrongRequest"],
-            subRequestId: differentSubRequestId,
+          requestData: {
+            data: {
+              resolve: { reason: "wrongRequest" },
+              success: false,
+            },
           },
           method: "PROCESS_TRIGGER",
-          requestId,
-          success: true,
+          requestId: differentRequestId,
         },
       }),
     );
@@ -123,10 +129,12 @@ describe("promise execution", () => {
     self.dispatchEvent(
       new MessageEvent("message", {
         data: {
-          data: { resolve: ["testing"], subRequestId: correctSubRequestId },
+          requestData: {
+            data: { resolve: "testing" },
+            success: true,
+          },
           method: "PROCESS_TRIGGER",
-          requestId,
-          success: true,
+          requestId: correctRequestId,
         },
       }),
     );
@@ -141,18 +149,17 @@ describe("promise execution", () => {
     );
 
     const requestArgs = postMessageMock.mock.calls[0][0];
-    const subRequestId = requestArgs.responseData.subRequestId;
+    const requestId = requestArgs.requestId;
 
     self.dispatchEvent(
       new MessageEvent("message", {
         data: {
-          data: {
-            resolve: ["testing"],
-            subRequestId,
+          requestData: {
+            data: { resolve: "testing" },
+            success: true,
           },
           method: "PROCESS_TRIGGER",
           requestId,
-          success: true,
         },
       }),
     );
@@ -160,10 +167,12 @@ describe("promise execution", () => {
     self.dispatchEvent(
       new MessageEvent("message", {
         data: {
-          data: { resolve: ["wrongRequest"], subRequestId },
+          requestData: {
+            data: { resolve: ["wrongRequest"] },
+            success: false,
+          },
           method: "PROCESS_TRIGGER",
           requestId,
-          success: false,
         },
       }),
     );

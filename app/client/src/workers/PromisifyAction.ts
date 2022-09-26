@@ -18,6 +18,15 @@ import { dataTreeEvaluator } from "workers/evaluation.worker";
 import { RequestOrigin } from "utils/WorkerUtil";
 
 export const talkToMainThread = (actionDescription: ActionDescription) => {
+  if (!self.ALLOW_ASYNC) {
+    /**
+     * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
+     * is using an async action. We set an IS_ASYNC flag to later indicate that a promise was called.
+     * @link isFunctionAsync
+     * */
+    self.IS_ASYNC = true;
+    throw new Error("Async function called in a sync field");
+  }
   const requestId = _.uniqueId(`${actionDescription.type}_`);
   return new Promise((resolve, reject) => {
     const handler = handleResponseFromMainThread(requestId, resolve, reject);
