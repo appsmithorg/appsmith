@@ -16,5 +16,7 @@ public enum DataType {
     ARRAY,
     JSON_OBJECT,
     TIMESTAMP,
-    BSON
+    BSON,
+    BSON_SPECIAL_DATA_TYPES,
+    BIGDECIMAL
 }

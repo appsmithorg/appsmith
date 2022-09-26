@@ -51,8 +51,15 @@ import java.util.List;
         repositoryBaseClass = BaseRepositoryImpl.class
 )
 public class MongoConfig {
+
+    /*
+        Changing this froom ApplicationRunner to InitializingBeanRunner
+        We are doing so because when one migration failed to run because API call executed before migration on old data
+        and made inconsistent for migration, having API calls run on unmigrated data is also a issue.
+        Link to documentation: https://docs.mongock.io/v5/runner/springboot/index.html
+    */
     @Bean
-    public MongockSpring5.MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+    public MongockSpring5.MongockInitializingBeanRunner  mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
         SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
         springDataMongoV3Driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
         springDataMongoV3Driver.setReadConcern(ReadConcern.LOCAL);
@@ -62,7 +69,7 @@ public class MongoConfig {
                 .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
                 .setSpringContext(springContext)
                 // any extra configuration you need
-                .buildApplicationRunner();
+                .buildInitializingBeanRunner();
     }
 
     @Bean

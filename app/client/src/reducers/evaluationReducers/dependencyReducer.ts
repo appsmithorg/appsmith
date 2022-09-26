@@ -1,6 +1,9 @@
-import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { DependencyMap } from "../../utils/DynamicBindingUtils";
+import { createReducer } from "utils/ReducerUtils";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export type EvaluationDependencyState = {
   inverseDependencyMap: DependencyMap;

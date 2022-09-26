@@ -12,9 +12,6 @@ import BaseControl, {
   ControlProps,
 } from "components/propertyControls/BaseControl";
 import CodeEditorControl from "components/propertyControls/CodeEditorControl";
-import MultiSelectControl, {
-  MultiSelectControlProps,
-} from "components/propertyControls/MultiSelectControl";
 import DatePickerControl, {
   DatePickerControlProps,
 } from "components/propertyControls/DatePickerControl";
@@ -33,6 +30,9 @@ import PrimaryColumnDropdownControl, {
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
+import PrimaryColumnColorPickerControl, {
+  PrimaryColumnColorPickerControlProps,
+} from "components/propertyControls/PrimaryColumnColorPickerControl";
 import ComputeTablePropertyControl, {
   ComputeTablePropertyControlProps,
 } from "components/propertyControls/ComputeTablePropertyControl";
@@ -51,6 +51,26 @@ import IconSelectControl from "./IconSelectControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
+import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
+import JSONFormComputeControl from "./JSONFormComputeControl";
+import ButtonControl from "./ButtonControl";
+import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
+import NumericInputControl, {
+  NumericInputControlProps,
+} from "./NumericInputControl";
+import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
+import SelectDefaultValueControl, {
+  SelectDefaultValueControlProps,
+} from "./SelectDefaultValueControl";
+import ComputeTablePropertyControlV2, {
+  ComputeTablePropertyControlPropsV2,
+} from "components/propertyControls/TableComputeValue";
+import PrimaryColumnColorPickerControlV2, {
+  PrimaryColumnColorPickerControlPropsV2,
+} from "components/propertyControls/PrimaryColumnColorPickerControlV2";
+import TableInlineEditValidationControlProperty, {
+  TableInlineEditValidationControlProps,
+} from "./TableInlineEditValidation";
 
 export const PropertyControls = {
   InputTextControl,
@@ -58,7 +78,6 @@ export const PropertyControls = {
   SwitchControl,
   OptionControl,
   CodeEditorControl,
-  MultiSelectControl,
   DatePickerControl,
   ActionSelectorControl,
   ColumnActionSelectorControl,
@@ -69,16 +88,27 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
+  PrimaryColumnsControlV2,
   PrimaryColumnDropdownControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
+  ComputeTablePropertyControlV2,
   MenuItemsControl,
   ButtonListControl,
   IconSelectControl,
   BoxShadowOptionsControl,
   BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
+  FieldConfigurationControl,
+  JSONFormComputeControl,
+  ButtonControl,
+  LabelAlignmentOptionsControl,
+  NumericInputControl,
+  PrimaryColumnColorPickerControl,
+  PrimaryColumnColorPickerControlV2,
+  SelectDefaultValueControl,
+  TableInlineEditValidationControlProperty,
 };
 
 export type PropertyControlPropsType =
@@ -86,7 +116,6 @@ export type PropertyControlPropsType =
   | InputControlProps
   | DropDownControlProps
   | SwitchControlProps
-  | MultiSelectControlProps
   | DatePickerControlProps
   | MultiSwitchControlProps
   | IconTabControlProps
@@ -94,7 +123,14 @@ export type PropertyControlPropsType =
   | StepControlProps
   | ColorPickerControlProps
   | ComputeTablePropertyControlProps
-  | PrimaryColumnDropdownControlProps;
+  | PrimaryColumnDropdownControlProps
+  | NumericInputControlProps
+  | PrimaryColumnColorPickerControlProps
+  | ComputeTablePropertyControlPropsV2
+  | PrimaryColumnDropdownControlProps
+  | PrimaryColumnColorPickerControlPropsV2
+  | SelectDefaultValueControlProps
+  | TableInlineEditValidationControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

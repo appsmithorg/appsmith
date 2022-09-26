@@ -10,7 +10,7 @@ import java.nio.file.Path;
 public interface FileInterface {
     /**
      * This method is use to store the serialised application to git repo, directory path structure we are going to follow :
-     * ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
+     * ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a repo path
      * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @return Path to where the application is stored
@@ -58,7 +58,7 @@ public interface FileInterface {
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
-    Mono<Path> initializeGitRepo(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException;
+    Mono<Path> initializeReadme(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException;
 
     /**
      * When the user clicks on detach remote, we need to remove the repo from the file system
@@ -66,7 +66,7 @@ public interface FileInterface {
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
-    Mono<Boolean> detachRemote(Path baseRepoSuffix);
+    Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix);
 
     /**
      * This will check if the cloned repo is empty. The check excludes files like Readme files

@@ -1,4 +1,7 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { SlashCommandPayload } from "entities/Action";
 
@@ -50,9 +53,10 @@ export const setLastSelectedPage = (
 export const createNewApiAction = (
   pageId: string,
   from: EventLocation,
-): ReduxAction<{ pageId: string; from: EventLocation }> => ({
+  apiType?: string,
+): ReduxAction<{ pageId: string; from: EventLocation; apiType?: string }> => ({
   type: ReduxActionTypes.CREATE_NEW_API_ACTION,
-  payload: { pageId, from },
+  payload: { pageId, from, apiType },
 });
 
 export const createNewQueryAction = (
@@ -77,16 +81,14 @@ export const updateBodyContentType = (
 });
 
 export const redirectToNewIntegrations = (
-  applicationId: string,
   pageId: string,
   params?: any,
 ): ReduxAction<{
-  applicationId: string;
   pageId: string;
   params: any;
 }> => ({
   type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
-  payload: { applicationId, pageId, params },
+  payload: { pageId, params },
 });
 
 export const executeCommandAction = (payload: SlashCommandPayload) => ({

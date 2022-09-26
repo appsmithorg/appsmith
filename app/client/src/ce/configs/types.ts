@@ -46,6 +46,7 @@ export interface AppsmithUIConfigs {
   enableGithubOAuth: boolean;
   disableLoginForm: boolean;
   disableSignup: boolean;
+  disableTelemetry: boolean;
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 
@@ -55,10 +56,10 @@ export interface AppsmithUIConfigs {
   appVersion: {
     id: string;
     releaseDate: string;
+    edition: string;
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  commentsTestModeEnabled: boolean;
 
   cloudServicesBaseUrl: string;
 
@@ -67,4 +68,5 @@ export interface AppsmithUIConfigs {
     apiKey: string;
   };
   appsmithSupportEmail: string;
+  hideWatermark: boolean;
 }

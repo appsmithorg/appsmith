@@ -2,14 +2,16 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 
-const STORAGE_KEYS: { [id: string]: string } = {
+export const STORAGE_KEYS: {
+  [id: string]: string;
+} = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
-  COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
+  TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
   ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
   FIRST_TIME_USER_ONBOARDING_APPLICATION_ID:
@@ -17,8 +19,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
-  REFLOW_BETA_FLAG: "REFLOW_BETA_FLAG",
-  REFLOW_ONBOARDED_FLAG: "REFLOW_ONBOARDED_FLAG",
+  APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
 };
 
 const store = localforage.createInstance({
@@ -63,30 +64,19 @@ const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
   return store.setItem(email, userBetaFlagsObj);
 };
 
-export const setReflowBetaFlag = async (email: any, enable: boolean) => {
+export const setBetaFlag = async (email: any, key: string, value: any) => {
   const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
   const updatedObj = {
     ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_BETA_FLAG]: enable,
+    [key]: value,
   };
   setStoredUsersBetaFlags(email, updatedObj);
 };
 
-export const getReflowBetaFlag = async (email: any) => {
+export const getBetaFlag = async (email: any, key: string) => {
   const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  return userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_BETA_FLAG];
-};
 
-export const setReflowOnBoardingFlag = async (
-  email: any,
-  onBoardingState: boolean,
-) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  const updatedObj = {
-    ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]: onBoardingState,
-  };
-  setStoredUsersBetaFlags(email, updatedObj);
+  return userBetaFlagsObj && userBetaFlagsObj[key];
 };
 
 export const getReflowOnBoardingFlag = async (email: any) => {
@@ -212,7 +202,7 @@ export const setEnableFirstTimeUserOnboarding = async (flag: boolean) => {
 
 export const getEnableFirstTimeUserOnboarding = async () => {
   try {
-    const enableFirstTimeUserOnboarding: any = await store.getItem(
+    const enableFirstTimeUserOnboarding: string | null = await store.getItem(
       STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
     );
     return enableFirstTimeUserOnboarding;
@@ -272,7 +262,7 @@ export const setFirstTimeUserOnboardingIntroModalVisibility = async (
 
 export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
   try {
-    const flag = await store.getItem(
+    const flag: string | null = await store.getItem(
       STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
     );
     return flag;
@@ -310,5 +300,33 @@ export const getIsConcurrentEditorWarningToastHidden = async () => {
       "An error occurred while fetching HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
     );
     log.error(error);
+  }
+};
+
+export const getTemplateNotificationSeen = async () => {
+  try {
+    const seenTemplateNotifications = await store.getItem(
+      STORAGE_KEYS.TEMPLATES_NOTIFICATION_SEEN,
+    );
+    return seenTemplateNotifications;
+  } catch (error) {
+    log.error(
+      "An error occurred while getting TEMPLATES_NOTIFICATION_SEEN flag: ",
+      error,
+    );
+    return false;
+  }
+};
+
+export const setTemplateNotificationSeen = async (flag: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.TEMPLATES_NOTIFICATION_SEEN, flag);
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting TEMPLATES_NOTIFICATION_SEEN flag: ",
+      error,
+    );
+    return false;
   }
 };

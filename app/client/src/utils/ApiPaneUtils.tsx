@@ -1,3 +1,5 @@
+import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
+
 /**
  * This function updates the header at a given index.
  * If headerIndexToUpdate is -1, i.e the header we are looking for is not present, then
@@ -26,7 +28,7 @@ export function parseUrlForQueryParams(url: string) {
   const matchGroup = url.match(queryParamsRegEx) || [];
   const parsedUrlWithQueryParams = matchGroup[2] || "";
   if (parsedUrlWithQueryParams.indexOf("?") > -1) {
-    const paramsString = parsedUrlWithQueryParams.substr(
+    const paramsString = parsedUrlWithQueryParams.slice(
       parsedUrlWithQueryParams.indexOf("?") + 1,
     );
     params = paramsString.split("&").map((p) => {
@@ -39,4 +41,20 @@ export function parseUrlForQueryParams(url: string) {
     });
   }
   return params;
+}
+
+/**
+ *
+ * @param headers Array of key value pairs
+ * @returns string body type of API request
+ */
+export function getContentTypeHeaderValue(
+  headers: Array<{ key: string; value: string }>,
+): string {
+  return (
+    headers.find(
+      (h: { key: string; value: string }) =>
+        h.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    )?.value || ""
+  );
 }

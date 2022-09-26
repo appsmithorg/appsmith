@@ -1,31 +1,21 @@
-import React from "react";
+import React, { MutableRefObject } from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
-import { ComponentProps } from "widgets/BaseComponent";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
 import {
   Alignment,
   Intent,
   NumericInput,
   IconName,
   InputGroup,
-  Label,
   Classes,
   ControlGroup,
   TextArea,
   Tag,
-  Position,
+  IRef,
 } from "@blueprintjs/core";
-import Tooltip from "components/ads/Tooltip";
-import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
-import { IconWrapper } from "constants/IconConstants";
-
-import { Colors } from "constants/Colors";
 import _, { isNil } from "lodash";
+
+import { ComponentProps } from "widgets/BaseComponent";
+import { Colors } from "constants/Colors";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
@@ -34,8 +24,16 @@ import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import Icon from "components/ads/Icon";
+import {
+  Icon,
+  LabelWithTooltip,
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "design-system";
 import { InputType } from "widgets/InputWidget/constants";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
+import { LabelPosition } from "components/constants";
+import { lightenColor } from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -52,11 +50,15 @@ const InputComponentWrapper = styled((props) => (
       "labelTextColor",
       "allowCurrencyChange",
       "compactMode",
+      "labelPosition",
       "labelStyle",
       "labelTextSize",
       "multiline",
       "numeric",
       "inputType",
+      "borderRadius",
+      "boxShadow",
+      "accentColor",
     ])}
   />
 ))<{
@@ -66,113 +68,209 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   disabled?: boolean;
   inputType: InputType;
+  compactMode: boolean;
+  labelPosition: LabelPosition;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
 }>`
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  ${labelLayoutStyles}
+
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
+  .${Classes.INPUT_GROUP} {
+    display: flex;
+    pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
+    background: ${(props) =>
+      props.disabled ? "var(--wds-color-bg-disabled)" : "white"};
+
+    span, input, textarea {
+      background: ${(props) =>
+        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        color: ${(props) =>
+          props.disabled
+            ? "var(--wds-color-text-disabled)"
+            : "var(--wds-color-text)"};
+    }
+
+    > {
+      input:not(:first-child) {
+        padding-left: 0rem;
+        z-index: 16;
+        line-height: 16px;
+      }
+    }
+  }
+
   &&&& {
+    ${({ inputType, labelPosition }) => {
+      if (!labelPosition && inputType !== InputTypes.TEXT) {
+        return "flex-direction: row";
+      }
+    }};
+    & .${LABEL_CONTAINER_CLASS} {
+      flex-grow: 0;
+      ${({ inputType, labelPosition }) => {
+        if (!labelPosition && inputType !== InputTypes.TEXT) {
+          return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
+        }
+      }}
+      align-items: centert;
+      ${({ compactMode, labelPosition }) => {
+        if (!labelPosition && !compactMode) {
+          return "max-height: 20px; .bp3-popover-wrapper {max-height: 20px}";
+        }
+      }};
+    }
     .currency-type-filter,
     .country-type-filter {
       width: fit-content;
-      height: 36px;
+      height: 100%;
+      position: static;
       display: inline-block;
       left: 0;
       z-index: 16;
-      &:hover {
-        border: 1px solid ${Colors.GREY_5} !important;
+      svg {
+        path {
+          fill: ${(props) => props.theme.colors.icon?.hover};
+        }
+      }
+      .${Classes.INPUT} {
+        padding-left: 0.5rem;
+        min-height: 36px;
+        box-shadow: none;
+        border: 1px solid;
+        border-radius: 0;
+        height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
+        width: 100%;
+        border-color: ${({ hasError }) => {
+          return hasError
+            ? `${Colors.DANGER_SOLID} !important;`
+            : `${Colors.GREY_3};`;
+        }}
+
+        ${(props) =>
+          props.numeric &&
+          `
+          border-top-right-radius: 0px;
+          border-bottom-right-radius: 0px;
+          ${props.hasError ? "" : "border-right-width: 0px;"}
+        `}
+        &:active {
+          border-color: ${({ hasError }) =>
+            hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
+        }
       }
     }
+
+    .currency-type-filter .bp3-popover-open > div,
+    .country-type-filter .bp3-popover-open > div {
+      border: 0px solid !important;
+      box-shadow: none !important;
+    }
+
+    .currency-type-filter .bp3-popover-open button
+    .country-type-filter .bp3-popover-open button {
+      border: 0px solid !important;
+      box-shadow: none !important;
+      background: ${Colors.GREY_3};
+    }
+
+    textarea {
+      background: ${(props) =>
+        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        color: ${(props) =>
+          props.disabled
+            ? "var(--wds-color-text-disabled)"
+            : "var(--wds-color-text)"};
+    }
+
     .${Classes.INPUT} {
-      min-height: 36px;
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        props.allowCurrencyChange &&
-        `
-      padding-left: 45px;`};
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        !props.allowCurrencyChange &&
-        `
-      padding-left: 35px;`};
-      ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        `padding-left: 85px;
-        `};
       box-shadow: none;
-      border: 1px solid;
-      border-color: ${({ hasError }) =>
-        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
-      ${(props) =>
-        props.numeric &&
-        `
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-        ${props.hasError ? "" : "border-right-width: 0px;"}
-      `}
+
+      ::placeholder {
+        color: ${({ disabled }) => {
+          if (disabled) {
+            return "var(--wds-color-text-disabled-light) !important";
+          }
+
+          return "var(--wds-color-text-light)";
+        }};
+      }
+
       ${(props) =>
         props.inputType === "PASSWORD" &&
         `
-        & + .bp3-input-action {
-          height: 36px;
-          width: 36px;
-          cursor: pointer;
-          padding: 1px;
-          .password-input {
-            color: ${Colors.GREY_6};
-            justify-content: center;
-            height: 100%;
-            svg {
-              width: 20px;
-              height: 20px;
-            }
-            &:hover {
-              background-color: ${Colors.GREY_2};
-              color: ${Colors.GREY_10};
-            }
+      & + .bp3-input-action {
+        height: 100%;
+        width: 36px;
+        cursor: pointer;
+
+        .password-input {
+          color:
+            ${
+              props.disabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"
+            };
+          justify-content: center;
+          height: 100%;
+          svg {
+            width: 20px;
+            height: 20px;
+          }
+          &:hover {
+            background-color: var(--wds-color-bg-hover);
           }
         }
-      `}
-      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-      &:active {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
       }
-      &:hover {
-        border-left: 1px solid ${Colors.GREY_5};
-        border-right: 1px solid ${Colors.GREY_5};
-        border-color: ${Colors.GREY_5};
-      }
-      &:focus {
-        border-color: ${({ hasError }) =>
-          hasError ? Colors.DANGER_SOLID : Colors.MYSTIC};
-
-        &:focus {
-          outline: 0;
-          border: 1px solid ${Colors.GREEN_1};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2} !important;
-        }
-      }
-      &:disabled {
-        background-color: ${Colors.GREY_1};
-        border: 1.2px solid ${Colors.GREY_3};
-        & + .bp3-input-action {
-          pointer-events: none;
-        }
-      }
+    `}
     }
-    .${Classes.INPUT_GROUP} {
-      display: block;
+
+    & .${Classes.INPUT_GROUP} {
+      display: flex;
       margin: 0;
       .bp3-tag {
         background-color: transparent;
-        color: #5c7080;
-        margin-top: 8px;
+        color: var(--wds-color-text-danger);
       }
+
+      .${Classes.INPUT_ACTION} {
+        height: 100%;
+
+        .${Classes.TAG} {
+          height: 100%;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          align-items: center;
+        }
+      }
+
+      .${Classes.ICON} {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        position: relative;
+        color: ${({ disabled }) =>
+          disabled
+            ? "var(--wds-color-icon-disabled)"
+            : "var(--wds-color-icon)"};
+
+        svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
-        pointer-events: none;
         button {
-          background: ${Colors.GREY_1};
+          background: var(--wds-color-bg-disabled);
+          color: var(--wds-color-icon-disabled) !important;
         }
       }
     }
@@ -180,75 +278,29 @@ const InputComponentWrapper = styled((props) => (
       justify-content: flex-start;
     }
     height: 100%;
-    align-items: center;
-    label {
-      ${labelStyle}
-      margin-right: 5px;
-      text-align: right;
-      align-self: flex-start;
-      color: ${(props) => props.labelTextColor || "inherit"};
-      font-size: ${(props) => props.labelTextSize};
-      font-weight: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-      font-style: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-      text-decoration: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.UNDERLINE)
-          ? "underline"
-          : ""};
-    }
-  }
-  &&&& .bp3-input-group {
-    display: flex;
-    > {
-      &.bp3-icon:first-child {
-        top: 3px;
+    align-items: ${({ compactMode, inputType, labelPosition }) => {
+      if (!labelPosition && inputType !== InputTypes.TEXT) {
+        return "center";
       }
-      input:not(:first-child) {
-        line-height: 16px;
-
-        &:hover:not(:focus) {
-          border-left: 1px solid ${Colors.GREY_5};
+      if (labelPosition === LabelPosition.Top) {
+        return "flex-start";
+      }
+      if (compactMode) {
+        return "center";
+      }
+      if (labelPosition === LabelPosition.Left) {
+        if (inputType === InputTypes.TEXT) {
+          return "stretch";
         }
+        return "center";
       }
-    }
-
-    ${(props) => {
-      if (props.inputType === InputTypes.PHONE_NUMBER) {
-        return `
-          > {
-            input:not(:first-child) {
-              padding-left: 10px;
-            }
-            .currency-type-filter,
-            .currency-type-trigger,
-            .country-type-filter,
-            .country-type-trigger {
-              position: static;
-              background: rgb(255, 255, 255);
-              border-width: 1.2px 0px 1.2px 1.2px;
-              border-top-style: solid;
-              border-bottom-style: solid;
-              border-left-style: solid;
-              border-top-color: rgb(235, 235, 235);
-              border-bottom-color: rgb(235, 235, 235);
-              border-left-color: rgb(235, 235, 235);
-              border-image: initial;
-              color: rgb(9, 7, 7);
-              border-right-style: initial;
-              border-right-color: initial;
-            }
-          }
-        `;
-      }
-    }}
+      return "flex-start";
+    }};
   }
 `;
 
 const StyledNumericInput = styled(NumericInput)`
   &&&& .bp3-button-group.bp3-vertical {
-    border: 1.2px solid ${Colors.GREY_3};
-    border-left: none;
     button {
       background: ${Colors.WHITE};
       box-shadow: none;
@@ -261,48 +313,78 @@ const StyledNumericInput = styled(NumericInput)`
           color: ${Colors.GREY_10};
         }
       }
-      &:focus {
-        border: 1px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
-      }
       span {
-        color: ${Colors.GREY_6};
+        color: var(--wds-color-icon);
         svg {
-          width: 14px;
+          width: 12px;
         }
       }
     }
   }
 `;
 
-const ToolTipIcon = styled(IconWrapper)`
-  cursor: help;
-  margin-top: 1.5px;
-  &&&:hover {
-    svg {
-      path {
-        fill: #716e6e;
-      }
-    }
-  }
-`;
-
-const TextLableWrapper = styled.div<{
-  compactMode: boolean;
+const TextInputWrapper = styled.div<{
+  inputHtmlType?: InputHTMLType;
+  compact: boolean;
+  labelPosition?: LabelPosition;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
+  hasError?: boolean;
+  disabled?: boolean;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-  max-height: 20px;
-`;
-
-const TextInputWrapper = styled.div`
   width: 100%;
   display: flex;
   flex: 1;
+  height: 100%;
+  border: 1px solid;
+  overflow: hidden;
+  border-color: ${({ disabled, hasError }) => {
+    if (disabled) {
+      return "var(--wds-color-border-disabled)";
+    }
+
+    if (hasError) {
+      return "var(--wds-color-border-danger)";
+    }
+
+    return "var(--wds-color-border)";
+  }};
+  border-radius: ${({ borderRadius }) => borderRadius} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  min-height: 32px;
+
+  &:hover {
+    border-color: ${({ disabled, hasError }) => {
+      if (disabled) {
+        return "var(--wds-color-border-disabled)";
+      }
+
+      if (hasError) {
+        return "var(--wds-color-border-danger-hover)";
+      }
+
+      return "var(--wds-color-border-hover)";
+    }};
+  }
+
+  &:focus-within {
+    outline: 0;
+    border-color: ${({ accentColor, hasError }) =>
+      hasError ? "var(--wds-color-border-danger-focus)" : accentColor};
+    box-shadow: ${({ accentColor, hasError }) =>
+      `0px 0px 0px 2px ${
+        hasError
+          ? "var(--wds-color-border-danger-focus-light)"
+          : lightenColor(accentColor)
+      } !important;`};
+  }
+
+  ${({ inputHtmlType }) =>
+    inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
 `;
 
-type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
+export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
 
 export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
@@ -315,6 +397,44 @@ class BaseInputComponent extends React.Component<
   constructor(props: BaseInputComponentProps) {
     super(props);
     this.state = { showPassword: false };
+  }
+
+  componentDidMount() {
+    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
+      const element = document.querySelector<HTMLDivElement>(
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
+      );
+
+      if (element !== null && element.childNodes) {
+        element.childNodes[0].addEventListener(
+          "mousedown",
+          this.onStepIncrement,
+        );
+        element.childNodes[1].addEventListener(
+          "mousedown",
+          this.onStepDecrement,
+        );
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
+      const element = document.querySelector<HTMLDivElement>(
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
+      );
+
+      if (element !== null && element.childNodes) {
+        element.childNodes[0].removeEventListener(
+          "click",
+          this.onStepIncrement,
+        );
+        element.childNodes[1].removeEventListener(
+          "click",
+          this.onStepDecrement,
+        );
+      }
+    }
   }
 
   setFocusState = (isFocused: boolean) => {
@@ -370,6 +490,14 @@ class BaseInputComponent extends React.Component<
     }
   };
 
+  onKeyUp = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    this.props.onKeyUp?.(e);
+  };
+
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
@@ -388,6 +516,11 @@ class BaseInputComponent extends React.Component<
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
+        inputRef={(el) => {
+          if (this.props.inputRef && el) {
+            this.props.inputRef.current = el;
+          }
+        }}
         intent={this.props.intent}
         leftIcon={leftIcon}
         majorStepSize={null}
@@ -395,6 +528,7 @@ class BaseInputComponent extends React.Component<
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
         stepSize={this.props.stepSize}
@@ -410,12 +544,14 @@ class BaseInputComponent extends React.Component<
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
       growVertically={false}
+      inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
       intent={this.props.intent}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
+      onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
       style={{ resize: "none" }}
       value={this.props.value}
@@ -430,6 +566,7 @@ class BaseInputComponent extends React.Component<
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
+        inputRef={this.props.inputRef as IRef<HTMLInputElement>}
         intent={this.props.intent}
         leftIcon={
           this.props.iconName && this.props.iconAlign === "left"
@@ -441,6 +578,7 @@ class BaseInputComponent extends React.Component<
         onChange={this.onTextChange}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
@@ -470,126 +608,92 @@ class BaseInputComponent extends React.Component<
       ? this.numericInputComponent()
       : this.textInputComponent(isTextArea);
 
-  onStepIncrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  onStepIncrement = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
     this.props.onStep && this.props.onStep(1);
   };
 
-  onStepDecrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  onStepDecrement = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
     this.props.onStep && this.props.onStep(-1);
   };
 
-  componentDidMount() {
-    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
-      const element: any = document.querySelector(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
-      );
-
-      if (element !== null && element.childNodes) {
-        element.childNodes[0].addEventListener(
-          "mousedown",
-          this.onStepIncrement,
-        );
-        element.childNodes[1].addEventListener(
-          "mousedown",
-          this.onStepDecrement,
-        );
-      }
-    }
-  }
-
-  componentWillUnmount() {
-    if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
-      const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
-      );
-
-      if (element !== null && element.childNodes) {
-        element.childNodes[0].removeEventListener(
-          "click",
-          this.onStepIncrement,
-        );
-        element.childNodes[1].removeEventListener(
-          "click",
-          this.onStepDecrement,
-        );
-      }
-    }
-  }
-
   render() {
     const {
+      compactMode,
+      disabled,
+      errorMessage,
+      inputHTMLType,
+      inputType,
+      isInvalid,
+      isLoading,
       label,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelTextColor,
       labelTextSize,
+      labelWidth,
+      multiline,
+      showError,
       tooltip,
     } = this.props;
     const showLabelHeader = label || tooltip;
 
     return (
       <InputComponentWrapper
-        compactMode={this.props.compactMode}
-        disabled={this.props.disabled}
+        compactMode={compactMode}
+        data-testid="input-container"
+        disabled={disabled}
         fill
-        hasError={this.props.isInvalid}
-        inputType={this.props.inputType}
+        hasError={isInvalid}
+        inputType={inputType}
+        labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
-        labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
-        multiline={(!!this.props.multiline).toString()}
-        numeric={isNumberInputType(this.props.inputHTMLType)}
+        labelTextSize={labelTextSize ?? "inherit"}
+        multiline={(!!multiline).toString()}
+        numeric={isNumberInputType(inputHTMLType)}
       >
         {showLabelHeader && (
-          <TextLableWrapper
-            className="t--input-label-wrapper"
-            compactMode={this.props.compactMode}
-          >
-            {this.props.label && (
-              <Label
-                className={`
-                  t--input-widget-label ${
-                    this.props.isLoading
-                      ? Classes.SKELETON
-                      : Classes.TEXT_OVERFLOW_ELLIPSIS
-                  }
-                `}
-              >
-                {this.props.label}
-              </Label>
-            )}
-            {this.props.tooltip && (
-              <Tooltip
-                content={this.props.tooltip}
-                hoverOpenDelay={200}
-                position={Position.TOP}
-              >
-                <ToolTipIcon
-                  color={Colors.SILVER_CHALICE}
-                  height={14}
-                  width={14}
-                >
-                  <HelpIcon className="t--input-widget-tooltip" />
-                </ToolTipIcon>
-              </Tooltip>
-            )}
-          </TextLableWrapper>
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className="t--input-widget-label"
+            color={labelTextColor}
+            compact={compactMode}
+            cyHelpTextClassName="t--input-widget-tooltip"
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            helpText={tooltip}
+            loading={isLoading}
+            position={labelPosition}
+            text={label}
+            width={labelWidth}
+          />
         )}
-        <TextInputWrapper>
+        <TextInputWrapper
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          className="text-input-wrapper"
+          compact={compactMode}
+          disabled={this.props.disabled}
+          hasError={this.props.isInvalid}
+          inputHtmlType={inputHTMLType}
+          labelPosition={labelPosition}
+        >
           <ErrorTooltip
-            isOpen={this.props.isInvalid && this.props.showError}
+            boundary={this.props.errorTooltipBoundary}
+            isOpen={isInvalid && showError}
             message={
-              this.props.errorMessage ||
+              errorMessage ||
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.renderInputComponent(
-              this.props.inputHTMLType,
-              !!this.props.multiline,
-            )}
+            {this.renderInputComponent(inputHTMLType, !!multiline)}
           </ErrorTooltip>
         </TextInputWrapper>
       </InputComponentWrapper>
@@ -609,8 +713,11 @@ export interface BaseInputComponentProps extends ComponentProps {
   intent?: Intent;
   defaultValue?: string | number;
   label: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
+  labelWidth?: number;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
   labelStyle?: string;
   tooltip?: string;
   leftIcon?: IconName | JSX.Element;
@@ -635,12 +742,24 @@ export interface BaseInputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
+  onKeyUp?: (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => void;
   maxChars?: number;
   widgetId: string;
   onStep?: (direction: number) => void;
   spellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+  inputRef?: MutableRefObject<
+    HTMLTextAreaElement | HTMLInputElement | undefined | null
+  >;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
+  errorTooltipBoundary?: string;
 }
 
 export default BaseInputComponent;

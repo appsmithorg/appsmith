@@ -8,6 +8,7 @@
 # testing
 /coverage
 
+/stacks
 
 # production
 /build
@@ -45,3 +46,5 @@ build-storybook.log
 .eslintcache
 .vscode
 TODO
+
+/nginx

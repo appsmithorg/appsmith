@@ -12,6 +12,7 @@
   --appsmith-color-orange-50 : #FAEAE8;
 
   /* black */
+  --appsmith-color-black: #000;
   --appsmith-color-black-900 : #191919;
   --appsmith-color-black-800 : #393939;
   --appsmith-color-black-700 : #575757;
@@ -19,6 +20,7 @@
   --appsmith-color-black-500 : #939393;
   --appsmith-color-black-400 : #B3B3B3;
   --appsmith-color-black-300 : #D7D7D7;
+  --appsmith-color-black-250 : #E0DEDE;
   --appsmith-color-black-200 : #E7E7E7;
   --appsmith-color-black-100 : #F1F1F1;
   --appsmith-color-black-50 : #F8F8F8;

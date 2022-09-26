@@ -9,23 +9,22 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import WidgetFactory from "utils/WidgetFactory";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import store from "store";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
-  const allWidgets = useSelector(getCurrentPageWidgets);
+
   const dispatch = useDispatch();
   const {
     selectWidget,
     shiftSelectWidgetEntityExplorer,
   } = useWidgetSelection();
-  const applicationId = useSelector(getCurrentApplicationId);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
-    navigateToCanvas({ pageId, widgetId, applicationId });
+    navigateToCanvas({ pageId, widgetId });
     flashElementsById(widgetId);
     selectWidget(widgetId, true);
   };
@@ -43,7 +42,7 @@ export const useNavigateToWidget = () => {
     if (parentModalId) dispatch(showModal(parentModalId));
     else dispatch(closeAllModals());
     selectWidget(widgetId, false);
-    navigateToCanvas({ pageId, widgetId, applicationId });
+    navigateToCanvas({ pageId, widgetId });
 
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
@@ -68,6 +67,7 @@ export const useNavigateToWidget = () => {
       isShiftSelect?: boolean,
       widgetsInStep?: string[],
     ) => {
+      const allWidgets = getCurrentPageWidgets(store.getState());
       // restrict multi-select across pages
       if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])
         return;
@@ -80,7 +80,7 @@ export const useNavigateToWidget = () => {
         selectSingleWidget(widgetId, widgetType, pageId, parentModalId);
       }
     },
-    [dispatch, params, selectWidget, allWidgets],
+    [dispatch, params, selectWidget],
   );
 
   return { navigateToWidget };

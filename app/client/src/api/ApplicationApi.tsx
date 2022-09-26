@@ -2,8 +2,11 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconName } from "design-system";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { APP_MODE } from "entities/App";
+import { ApplicationVersion } from "actions/applicationActions";
+import { Datasource } from "entities/Datasource";
 
 export type EvaluationVersion = number;
 
@@ -16,14 +19,15 @@ export interface ChangeAppViewAccessRequest {
   publicAccess: boolean;
 }
 
-export interface PublishApplicationResponse extends ApiResponse {
-  data: unknown;
-}
+export type PublishApplicationResponse = ApiResponse;
 
 export interface ApplicationPagePayload {
   id: string;
   name: string;
   isDefault: boolean;
+  slug: string;
+  isHidden?: boolean;
+  customSlug?: string;
 }
 
 export type GitApplicationMetadata =
@@ -42,30 +46,40 @@ export type GitApplicationMetadata =
 export interface ApplicationResponsePayload {
   id: string;
   name: string;
-  organizationId: string;
+  workspaceId: string;
   evaluationVersion?: EvaluationVersion;
-  pages?: ApplicationPagePayload[];
+  pages: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
-  unreadCommentThreads?: number;
   gitApplicationMetadata: GitApplicationMetadata;
+  slug: string;
+  applicationVersion: ApplicationVersion;
 }
 
-export interface FetchApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+export interface FetchApplicationPayload {
+  applicationId?: string;
+  pageId?: string;
+  mode: APP_MODE;
 }
 
-export interface FetchApplicationsResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
+export interface FetchApplicationResponseData {
+  application: Omit<ApplicationResponsePayload, "pages">;
+  pages: ApplicationPagePayload[];
+  workspaceId: string;
 }
 
-export interface CreateApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload;
-}
+export type FetchApplicationResponse = ApiResponse<
+  FetchApplicationResponseData
+>;
 
+export type FetchApplicationsResponse = ApiResponse<
+  FetchApplicationResponseData[]
+>;
+
+export type CreateApplicationResponse = ApiResponse<ApplicationResponsePayload>;
 export interface CreateApplicationRequest {
   name: string;
-  orgId: string;
+  workspaceId: string;
   color?: AppColorCode;
   icon?: AppIconName;
 }
@@ -84,12 +98,10 @@ export interface DuplicateApplicationRequest {
 }
 export interface ForkApplicationRequest {
   applicationId: string;
-  organizationId: string;
+  workspaceId: string;
 }
 
-export interface GetAllApplicationResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
-}
+export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
 
 export type UpdateApplicationPayload = {
   icon?: string;
@@ -97,10 +109,12 @@ export type UpdateApplicationPayload = {
   name?: string;
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
+  applicationVersion?: number;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
   id: string;
+  callback?: () => void;
 };
 
 export interface ApplicationObject {
@@ -108,36 +122,45 @@ export interface ApplicationObject {
   name: string;
   icon?: string;
   color?: string;
-  organizationId: string;
+  workspaceId: string;
   pages: ApplicationPagePayload[];
   userPermissions: string[];
 }
 
-export interface UserRoles {
-  name: string;
-  roleName: string;
-  username: string;
+export interface PermissionGroup {
+  permissionGroupId: string;
+  permissionGroupName: string;
 }
 
-export interface OrganizationApplicationObject {
+export interface UserRoles extends PermissionGroup {
+  name: string;
+  username: string;
+  userId: string;
+}
+
+export interface WorkspaceApplicationObject {
   applications: Array<ApplicationObject>;
-  organization: {
+  workspace: {
     id: string;
     name: string;
   };
-  userRoles: Array<UserRoles>;
+  users: Array<UserRoles>;
 }
-export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
+export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
   data: {
-    organizationApplications: Array<OrganizationApplicationObject>;
+    workspaceApplications: Array<WorkspaceApplicationObject>;
     user: string;
     newReleasesCount: string;
     releaseItems: Array<Record<string, any>>;
   };
 }
 
+export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
+  data: Array<Datasource>;
+}
+
 export interface ImportApplicationRequest {
-  orgId: string;
+  workspaceId: string;
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
@@ -147,7 +170,8 @@ class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
     `/publish/${applicationId}`;
-  static createApplicationPath = (orgId: string) => `?orgId=${orgId}`;
+  static createApplicationPath = (workspaceId: string) =>
+    `?workspaceId=${workspaceId}`;
   static changeAppViewAccessPath = (applicationId: string) =>
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
@@ -176,6 +200,15 @@ class ApplicationApi extends Api {
     return Api.get(ApplicationApi.baseURL + "/" + applicationId);
   }
 
+  static fetchUnconfiguredDatasourceList(payload: {
+    applicationId: string;
+    workspaceId: string;
+  }): AxiosPromise<FetchUnconfiguredDatasourceListResponse> {
+    return Api.get(
+      `${ApplicationApi.baseURL}/import/${payload.workspaceId}/datasources?defaultApplicationId=${payload.applicationId}`,
+    );
+  }
+
   static fetchApplicationForViewMode(
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
@@ -187,7 +220,7 @@ class ApplicationApi extends Api {
   ): AxiosPromise<PublishApplicationResponse> {
     return Api.post(
       ApplicationApi.baseURL +
-        ApplicationApi.createApplicationPath(request.orgId),
+        ApplicationApi.createApplicationPath(request.workspaceId),
       { name: request.name, color: request.color, icon: request.icon },
     );
   }
@@ -235,11 +268,11 @@ class ApplicationApi extends Api {
         "/" +
         request.applicationId +
         "/fork/" +
-        request.organizationId,
+        request.workspaceId,
     );
   }
 
-  static importApplicationToOrg(
+  static importApplicationToWorkspace(
     request: ImportApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     const formData = new FormData();
@@ -247,7 +280,7 @@ class ApplicationApi extends Api {
       formData.append("file", request.applicationFile);
     }
     return Api.post(
-      ApplicationApi.baseURL + "/import/" + request.orgId,
+      ApplicationApi.baseURL + "/import/" + request.workspaceId,
       formData,
       null,
       {
@@ -257,14 +290,6 @@ class ApplicationApi extends Api {
         onUploadProgress: request.progress,
       },
     );
-  }
-
-  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
-  }
-
-  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
   }
 }
 

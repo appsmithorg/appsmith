@@ -65,14 +65,15 @@ let errorChannel: Channel<any> | undefined;
 function* successCallbackHandler() {
   if (successChannel) {
     while (true) {
-      const payload = yield take(successChannel);
+      const payload: unknown = yield take(successChannel);
+      // @ts-expect-error: payload is unknown
       const { callback, eventType, location, triggerMeta } = payload;
       const currentLocation = extractGeoLocation(location);
       yield put(setUserCurrentGeoLocation(currentLocation));
       if (callback) {
         yield call(executeAppAction, {
           dynamicString: callback,
-          responseData: [currentLocation],
+          callbackData: [currentLocation],
           event: { type: eventType },
           triggerPropertyName: triggerMeta.triggerPropertyName,
           source: triggerMeta.source,
@@ -85,12 +86,13 @@ function* successCallbackHandler() {
 function* errorCallbackHandler() {
   if (errorChannel) {
     while (true) {
-      const payload = yield take(errorChannel);
+      const payload: unknown = yield take(errorChannel);
+      // @ts-expect-error: payload is unknown
       const { callback, error, eventType, triggerMeta } = payload;
       if (callback) {
         yield call(executeAppAction, {
           dynamicString: callback,
-          responseData: [error],
+          callbackData: [error],
           event: { type: eventType },
           triggerPropertyName: triggerMeta.triggerPropertyName,
           source: triggerMeta.source,
@@ -117,9 +119,9 @@ export function* getCurrentLocationSaga(
 
     yield put(setUserCurrentGeoLocation(currentLocation));
     return [currentLocation];
-  } catch (e) {
+  } catch (error) {
     logActionExecutionError(
-      e.message,
+      (error as Error).message,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );

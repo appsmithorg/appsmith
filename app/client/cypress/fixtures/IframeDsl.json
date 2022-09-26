@@ -1,0 +1,114 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 4896,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 1290,
+      "containerStyle": "none",
+      "snapRows": 125,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 59,
+      "minHeight": 1292,
+      "dynamicTriggerPathList": [],
+      "parentColumnSpace": 1,
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+          "widgetName": "Iframe1",
+          "srcDoc": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Document</title>\n</head>\n<body>\n    <button onclick=\"handleClick()\">Click me</button>\n</body>\n<script>\n    const handleClick = () => {\n        // console.log(\"handle click fired\");\n        // window.postMessage(\"Test message self\")\n        window.parent.postMessage(\"Test message test-app\", \"*\");\n    }\n</script>\n</html>",
+          "displayName": "Iframe",
+          "iconSVG": "/static/media/icon.34169b6acebc8ace125dd1f638974aae.svg",
+          "searchTags": [
+              "embed"
+          ],
+          "topRow": 4,
+          "bottomRow": 36,
+          "parentRowSpace": 10,
+          "source": "https://www.example.com",
+          "type": "IFRAME_WIDGET",
+          "hideCard": false,
+          "borderOpacity": 100,
+          "animateLoading": true,
+          "parentColumnSpace": 17.34375,
+          "dynamicTriggerPathList": [],
+          "leftColumn": 5,
+          "dynamicBindingPathList": [
+              {
+                  "key": "borderRadius"
+              },
+              {
+                  "key": "boxShadow"
+              }
+          ],
+          "borderWidth": 1,
+          "key": "whutp42h3u",
+          "isDeprecated": false,
+          "rightColumn": 29,
+          "widgetId": "sh7n1r7qnb",
+          "isVisible": true,
+          "version": 1,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        },
+        {
+          "widgetName": "Text1",
+          "displayName": "Text",
+          "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+          "searchTags": [
+              "typography",
+              "paragraph"
+          ],
+          "topRow": 4,
+          "bottomRow": 13,
+          "parentRowSpace": 10,
+          "type": "TEXT_WIDGET",
+          "hideCard": false,
+          "animateLoading": true,
+          "overflow": "NONE",
+          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+          "parentColumnSpace": 17.34375,
+          "dynamicTriggerPathList": [],
+          "leftColumn": 32,
+          "dynamicBindingPathList": [
+              {
+                  "key": "fontFamily"
+              },
+              {
+                  "key": "borderRadius"
+              },
+              {
+                  "key": "text"
+              }
+          ],
+          "shouldTruncate": false,
+          "truncateButtonColor": "#FFC13D",
+          "text": "{{JSON.stringify(Iframe1.messageMetadata)}}",
+          "key": "lal01fm2pe",
+          "isDeprecated": false,
+          "rightColumn": 54,
+          "textAlign": "LEFT",
+          "widgetId": "vmttmnt61v",
+          "isVisible": true,
+          "fontStyle": "BOLD",
+          "textColor": "#231F20",
+          "version": 1,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          "fontSize": "1rem"
+      }
+      ]
+    }
+  }
+  

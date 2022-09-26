@@ -1,5 +1,8 @@
-import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
 import { APP_MODE } from "entities/App";
 
@@ -32,7 +35,7 @@ export type AppDataState = {
   store: AppStoreState;
   geolocation: {
     canBeRequested: boolean;
-    currentPosition?: GeolocationPosition;
+    currentPosition?: Partial<GeolocationPosition>;
   };
 };
 
@@ -58,6 +61,7 @@ const initialState: AppDataState = {
   },
   geolocation: {
     canBeRequested: "geolocation" in navigator,
+    currentPosition: {},
   },
 };
 

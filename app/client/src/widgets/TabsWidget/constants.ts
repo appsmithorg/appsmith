@@ -31,6 +31,9 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   snapRows?: number;
   defaultTab: string;
   selectedTabWidgetId: string;
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor: string;
 }
 
 export const SCROLL_NAV_CONTROL_CONTAINER_WIDTH = 30;

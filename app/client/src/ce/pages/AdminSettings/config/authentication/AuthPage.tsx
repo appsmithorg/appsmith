@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
-import Button, { Category } from "components/ads/Button";
 import {
   ENABLE,
   ADMIN_AUTH_SETTINGS_SUBTITLE,
@@ -11,15 +10,14 @@ import {
   EDIT,
   UPGRADE,
   UPGRADE_TO_EE,
+  AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { getAdminSettingsCategoryUrl } from "constants/routes";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
-import { bootIntercom } from "utils/helpers";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
+import { Button, Category, Icon, TooltipComponent } from "design-system";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -122,7 +120,7 @@ const Label = styled.span<{ enterprise?: boolean }>`
     background: #fff;
   `
       : `
-    color: #03B365;
+    color: ${Colors.GREEN};
     background: #E5F6EC;
   `};
   padding: 0px 4px;
@@ -131,11 +129,6 @@ const Label = styled.span<{ enterprise?: boolean }>`
 
 export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const history = useHistory();
-  const user = useSelector(getCurrentUser);
-
-  useEffect(() => {
-    bootIntercom(user);
-  }, [user?.email]);
 
   const triggerIntercom = (authLabel: string) => {
     if (intercomAppID && window.Intercom) {
@@ -143,6 +136,30 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         "showNewMessage",
         createMessage(UPGRADE_TO_EE, authLabel),
       );
+    }
+  };
+
+  const onClickHandler = (method: AuthMethodType) => {
+    if (!method.needsUpgrade || method.isConnected) {
+      AnalyticsUtil.logEvent(
+        method.isConnected
+          ? "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
+          : "ADMIN_SETTINGS_ENABLE_AUTH_METHOD",
+        {
+          method: method.label,
+        },
+      );
+      history.push(
+        adminSettingsCategoryUrl({
+          category: SettingCategories.AUTHENTICATION,
+          selected: method.category,
+        }),
+      );
+    } else {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_UPGRADE_AUTH_METHOD", {
+        method: method.label,
+      });
+      triggerIntercom(method.label);
     }
   };
 
@@ -170,14 +187,30 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       </>
                     )}
                     {method.isConnected && (
-                      <Icon fillColor="#03B365" name="oval-check" />
+                      <TooltipComponent
+                        autoFocus={false}
+                        content={createMessage(
+                          AUTHENTICATION_METHOD_ENABLED,
+                          method.label,
+                        )}
+                        hoverOpenDelay={0}
+                        minWidth={"180px"}
+                        openOnTargetFocus={false}
+                        position="right"
+                      >
+                        <Icon
+                          className={`${method.category}-green-check`}
+                          fillColor={Colors.GREEN}
+                          name="oval-check"
+                        />
+                      </TooltipComponent>
                     )}
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>
                   {method.calloutBanner && (
                     <Callout
                       actionLabel={method.calloutBanner.actionLabel}
-                      title={method.calloutBanner.title}
+                      desc={method.calloutBanner.title}
                       type={method.calloutBanner.type}
                     />
                   )}
@@ -187,19 +220,12 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     method.isConnected ? Category.primary : Category.tertiary
                   }
                   className={`t--settings-sub-category-${
-                    method.needsUpgrade ? "upgrade" : method.category
+                    method.needsUpgrade
+                      ? `upgrade-${method.category}`
+                      : method.category
                   }`}
                   data-cy="btn-auth-account"
-                  onClick={() =>
-                    !method.needsUpgrade || method.isConnected
-                      ? history.push(
-                          getAdminSettingsCategoryUrl(
-                            SettingCategories.AUTHENTICATION,
-                            method.category,
-                          ),
-                        )
-                      : triggerIntercom(method.label)
-                  }
+                  onClick={() => onClickHandler(method)}
                   text={createMessage(
                     method.isConnected
                       ? EDIT

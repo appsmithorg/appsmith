@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
-const BrotliPlugin = require("brotli-webpack-plugin");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
 
@@ -15,7 +14,7 @@ plugins.push(
     swSrc: "./src/serviceWorker.js",
     mode: "development",
     swDest: "./pageService.js",
-    maximumFileSizeToCacheInBytes: 7 * 1024 * 1024,
+    maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
   }),
 );
 
@@ -43,8 +42,9 @@ if (env === "PRODUCTION" || env === "STAGING") {
 plugins.push(new CompressionPlugin());
 
 plugins.push(
-  new BrotliPlugin({
-    asset: "[path].br[query]",
+  new CompressionPlugin({
+    algorithm: "brotliCompress",
+    filename: "[path][base].br",
     test: /\.(js|css|html|svg)$/,
     threshold: 10240,
     minRatio: 0.8,

@@ -1,5 +1,6 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 
 export const enableGuidedTour = (payload: boolean) => {
@@ -17,7 +18,7 @@ export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
 };
 
 export const firstTimeUserOnboardingInit = (
-  applicationId: string,
+  applicationId: string | undefined,
   pageId: string,
 ) => {
   return {
@@ -136,5 +137,18 @@ export const focusWidgetProperty = (widgetName: string) => {
 export const onboardingCreateApplication = () => {
   return {
     type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
+  };
+};
+
+export const loadGuidedTourInit = () => {
+  return {
+    type: ReduxActionTypes.LOAD_GUIDED_TOUR_INIT,
+  };
+};
+
+export const loadGuidedTour = (guidedTourState: GuidedTourState) => {
+  return {
+    type: ReduxActionTypes.LOAD_GUIDED_TOUR,
+    payload: guidedTourState,
   };
 };

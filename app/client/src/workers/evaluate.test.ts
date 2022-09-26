@@ -11,6 +11,7 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluateSync", () => {
+  // @ts-expect-error: meta property not provided
   const widget: DataTreeWidget = {
     bottomRow: 0,
     isLoading: false,
@@ -27,6 +28,7 @@ describe("evaluateSync", () => {
     text: "value",
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
+    reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},
@@ -57,33 +59,15 @@ describe("evaluateSync", () => {
     expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     expect(() => evaluate(undefined, {})).toThrow(TypeError);
   });
   it("Returns for syntax errors", () => {
     const response1 = evaluate("wrongJS", {}, {}, false);
     expect(response1).toStrictEqual({
       result: undefined,
+      logs: [],
       errors: [
-        {
-          ch: 1,
-          code: "W117",
-          errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "    const result = wrongJS",
-          errorType: "LINT",
-          line: 0,
-          raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
-  }
-  closedFunction.call(THIS_CONTEXT)
-  `,
-          severity: "error",
-          originalBinding: "wrongJS",
-          variables: ["wrongJS", undefined, undefined, undefined],
-        },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
           errorType: "PARSE",
@@ -102,6 +86,7 @@ describe("evaluateSync", () => {
     const response2 = evaluate("{}.map()", {}, {}, false);
     expect(response2).toStrictEqual({
       result: undefined,
+      logs: [],
       errors: [
         {
           errorMessage: "TypeError: {}.map is not a function",
@@ -129,6 +114,7 @@ describe("evaluateSync", () => {
     const response = evaluate(js, dataTree, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
+      logs: [],
       errors: [
         {
           errorMessage: "TypeError: setTimeout is not a function",
@@ -211,7 +197,7 @@ describe("evaluateAsync", () => {
       requestId: "TEST_REQUEST",
       responseData: {
         finished: true,
-        result: { errors: [], result: 123, triggers: [] },
+        result: { errors: [], logs: [], result: 123, triggers: [] },
       },
       type: "PROCESS_TRIGGER",
     });
@@ -239,6 +225,7 @@ describe("evaluateAsync", () => {
           ],
           triggers: [],
           result: undefined,
+          logs: [],
         },
       },
       type: "PROCESS_TRIGGER",

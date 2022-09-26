@@ -5,7 +5,7 @@ import {
 } from "pages/Editor/SaaSEditor/constants";
 import ListView from "pages/Editor/SaaSEditor/ListView";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
-import ActionForm from "pages/Editor/SaaSEditor/ActionForm";
+import QueryEditor from "../QueryEditor";
 
 export const SaaSEditorRoutes = [
   {
@@ -18,6 +18,6 @@ export const SaaSEditorRoutes = [
   },
   {
     path: SAAS_EDITOR_API_ID_PATH,
-    component: ActionForm,
+    component: QueryEditor,
   },
 ];

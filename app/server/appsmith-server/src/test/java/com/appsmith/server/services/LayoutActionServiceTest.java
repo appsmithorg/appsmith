@@ -4,17 +4,16 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -29,8 +28,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -89,10 +88,10 @@ public class LayoutActionServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -131,7 +130,7 @@ public class LayoutActionServiceTest {
 
     Datasource datasource;
 
-    String orgId;
+    String workspaceId;
 
     String branchName;
 
@@ -144,14 +143,17 @@ public class LayoutActionServiceTest {
     public void setup() {
         newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
-        Organization organization = organizationService.getById(orgId).block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("LayoutActionServiceTest");
+
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        workspaceId = workspace.getId();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
 
             final String pageId = testApp.getPages().get(0).getId();
 
@@ -195,14 +197,14 @@ public class LayoutActionServiceTest {
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("actionServiceTest");
             newApp.setGitApplicationMetadata(gitData);
-            gitConnectedApp = applicationPageService.createApplication(newApp, orgId)
+            gitConnectedApp = applicationPageService.createApplication(newApp, workspaceId)
                     .flatMap(application -> {
                         application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                         return applicationService.save(application)
                                 .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
             gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
@@ -210,17 +212,16 @@ public class LayoutActionServiceTest {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        workspaceId = workspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
 
         jsDatasource = new Datasource();
         jsDatasource.setName("Default JS Database");
-        jsDatasource.setOrganizationId(orgId);
+        jsDatasource.setWorkspaceId(workspaceId);
         Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         jsDatasource.setPluginId(installedJsPlugin.getId());
@@ -309,7 +310,7 @@ public class LayoutActionServiceTest {
         actionConfiguration3.setIsValid(false);
         action3.setActionConfiguration(actionConfiguration3);
         Datasource d2 = new Datasource();
-        d2.setOrganizationId(datasource.getOrganizationId());
+        d2.setWorkspaceId(datasource.getWorkspaceId());
         d2.setPluginId(datasource.getPluginId());
         d2.setIsAutoGenerated(true);
         d2.setName("UNUSED_DATASOURCE");
@@ -703,7 +704,7 @@ public class LayoutActionServiceTest {
                     updates.setUserPermissions(null);
                     Datasource ds = new Datasource();
                     ds.setName("testName");
-                    ds.setOrganizationId(datasource.getOrganizationId());
+                    ds.setWorkspaceId(datasource.getWorkspaceId());
                     ds.setDatasourceConfiguration(new DatasourceConfiguration());
                     ds.getDatasourceConfiguration().setUrl("http://localhost");
                     ds.setPluginId(datasource.getPluginId());
@@ -800,7 +801,7 @@ public class LayoutActionServiceTest {
         duplicateNameCompleteAction.setUnpublishedAction(duplicateName);
         duplicateNameCompleteAction.setPublishedAction(new ActionDTO());
         duplicateNameCompleteAction.getPublishedAction().setDatasource(new Datasource());
-        duplicateNameCompleteAction.setOrganizationId(duplicateName.getOrganizationId());
+        duplicateNameCompleteAction.setWorkspaceId(duplicateName.getWorkspaceId());
         duplicateNameCompleteAction.setPluginType(duplicateName.getPluginType());
         duplicateNameCompleteAction.setPluginId(duplicateName.getPluginId());
         duplicateNameCompleteAction.setTemplateId(duplicateName.getTemplateId());
@@ -1011,7 +1012,7 @@ public class LayoutActionServiceTest {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(testPage.getId());
         actionCollectionDTO1.setApplicationId(testApp.getId());
-        actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
         actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
@@ -1163,16 +1164,29 @@ public class LayoutActionServiceTest {
         action1.setActionConfiguration(actionConfiguration1);
         action1.setDatasource(datasource);
 
-        // Gen action which does not get used anywhere but depends implicitly on first action
+        // Gen action which does not get used anywhere but depends implicitly on first action and has been set to run on load
         ActionDTO action2 = new ActionDTO();
         action2.setName("secondAction");
         action2.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration2 = new ActionConfiguration();
         actionConfiguration2.setHttpMethod(HttpMethod.GET);
-        actionConfiguration2.setBody("{{ firstWidget.data }}");
+        actionConfiguration2.setBody("{{ firstAction.data }}");
+        action2.setUserSetOnLoad(true);
         action2.setActionConfiguration(actionConfiguration2);
         action2.setDynamicBindingPathList(List.of(new Property("body", null)));
         action2.setDatasource(datasource);
+
+        // Gen action which does not get used anywhere but has been set to run on load
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("thirdAction");
+        action3.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration3 = new ActionConfiguration();
+        actionConfiguration3.setHttpMethod(HttpMethod.GET);
+        actionConfiguration3.setBody("irrelevantValue");
+        action3.setUserSetOnLoad(true);
+        action3.setActionConfiguration(actionConfiguration3);
+        action3.setDynamicBindingPathList(List.of(new Property("body", null)));
+        action3.setDatasource(datasource);
 
         JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
         }));
@@ -1193,18 +1207,39 @@ public class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
-        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+
+                    // Configure action to execute on page load.
+                    updates.setExecuteOnLoad(true);
+
+                    // Save updated configuration and re-compute on page load actions.
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                }).block();
+        ActionDTO createdAction3 = layoutActionService.createSingleAction(action3)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+
+                    // Configure action to execute on page load.
+                    updates.setExecuteOnLoad(true);
+
+                    // Save updated configuration and re-compute on page load actions.
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                }).block();
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
 
-                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
 
-                    // Assert that both the actions dont belong to the same set. They should be run iteratively.
-                    DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
-                    assertThat(actionDTO.getName()).isEqualTo("firstAction");
+                    // Assert that all three the actions dont belong to the same set
+                    final Set<DslActionDTO> firstSet = updatedLayout.getLayoutOnLoadActions().get(0);
+                    assertThat(firstSet).allMatch(actionDTO -> Set.of("firstAction", "thirdAction").contains(actionDTO.getName()));
+                    final DslActionDTO secondSetAction = updatedLayout.getLayoutOnLoadActions().get(1).iterator().next();
+                    assertThat(secondSetAction.getName()).isEqualTo("secondAction");
 
                 })
                 .verifyComplete();
@@ -1219,7 +1254,7 @@ public class LayoutActionServiceTest {
         ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
         originalActionCollectionDTO.setName("originalName");
         originalActionCollectionDTO.setApplicationId(testApp.getId());
-        originalActionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        originalActionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
         originalActionCollectionDTO.setPageId(testPage.getId());
         originalActionCollectionDTO.setPluginId(jsDatasource.getPluginId());
         originalActionCollectionDTO.setPluginType(PluginType.JS);
@@ -1516,4 +1551,104 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void introduceCyclicDependencyAndRemoveLater(){
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // creating new action based on which we will introduce cyclic dependency
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setName("actionName");
+        actionDTO.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionDTO.setActionConfiguration(actionConfiguration);
+        actionDTO.setDatasource(datasource);
+        actionDTO.setExecuteOnLoad(true);
+
+        ActionDTO createdAction = layoutActionService.createSingleAction(actionDTO).block();
+
+        // retrieving layout from test page;
+        Layout layout = testPage.getLayouts().get(0);
+
+        JSONObject mainDsl = layout.getDsl();
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "inputWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "defaultText" ))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("defaultText", "{{ \tactionName.data[0].inputWidget}}");
+
+        final JSONObject innerObjectReference = new JSONObject();
+        innerObjectReference.put("k", "{{\tactionName.data[0].inputWidget}}");
+
+        final JSONArray innerArrayReference = new JSONArray();
+        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tactionName.data[0].inputWidget}}")));
+
+        dsl.put("innerArrayReference", innerArrayReference);
+        dsl.put("innerObjectReference", innerObjectReference);
+
+        final ArrayList<Object> objects = new ArrayList<>();
+        objects.add(dsl);
+
+        mainDsl.put("children", objects);
+        layout.setDsl(mainDsl);
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports will be null
+        if (createdAction.getErrorReports() != null) {
+            assert(createdAction.getErrorReports() instanceof List || createdAction.getErrorReports() == null);
+            assert(createdAction.getErrorReports() == null);
+        }
+
+        // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated layoutOnLoadActionErrors
+        assert(firstLayout.getLayoutOnLoadActionErrors() instanceof List);
+        assert (firstLayout.getLayoutOnLoadActionErrors().size() ==1 );
+
+        // refactoring action to carry the existing error in DSL
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setOldName("actionName");
+        refactorActionNameDTO.setNewName("newActionName");
+        refactorActionNameDTO.setLayoutId(layout.getId());
+        refactorActionNameDTO.setPageId(testPage.getId());
+        refactorActionNameDTO.setActionId(createdAction.getId());
+
+        Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
+        StepVerifier.create(layoutDTOMono
+                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
+                .expectNext(1).verifyComplete();
+
+
+        // updateAction to see if the error persists
+        actionDTO.setName("finalActionName");
+        Mono<ActionDTO> actionDTOMono = layoutActionService.updateSingleActionWithBranchName(createdAction.getId(), actionDTO, null);
+
+        StepVerifier.create(actionDTOMono.map(
+
+                actionDTO1 -> actionDTO1.getErrorReports().size()
+                        ))
+                .expectNext(1).verifyComplete();
+
+
+
+        JSONObject newDsl =  new JSONObject();
+        newDsl.put("widgetName", "newInputWidget");
+        newDsl.put("innerArrayReference", innerArrayReference);
+        newDsl.put("innerObjectReference", innerObjectReference);
+
+        objects.remove(0);
+        objects.add(newDsl);
+        mainDsl.put("children", objects);
+
+        layout.setDsl(mainDsl);
+
+        LayoutDTO changedLayoutDTO = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        assert(changedLayoutDTO.getLayoutOnLoadActionErrors() instanceof List);
+        assert (changedLayoutDTO.getLayoutOnLoadActionErrors().size() == 0);
+
+    }
+
 }

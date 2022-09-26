@@ -1,17 +1,17 @@
 import React from "react";
 import { connect } from "react-redux";
 import { submit } from "redux-form";
-import ApiEditorForm from "./Form";
+import RestApiEditorForm from "./RestAPIForm";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import { PaginationField } from "api/ActionAPI";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { RouteComponentProps } from "react-router";
 import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
+import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -33,14 +33,15 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { CurrentApplicationData } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   getPageList,
   getPlugins,
   getPluginSettingConfigs,
 } from "selectors/entitiesSelector";
-import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
+import { saasEditorApiIdURL } from "RouteBuilder";
+import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -52,7 +53,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];
@@ -195,7 +196,7 @@ class ApiEditor extends React.Component<Props> {
     return (
       <div style={formStyles}>
         {formUiComponent === "ApiEditorForm" && (
-          <ApiEditorForm
+          <RestApiEditorForm
             apiName={this.props.apiName}
             appName={
               this.props.currentApplication
@@ -204,6 +205,24 @@ class ApiEditor extends React.Component<Props> {
             }
             isDeleting={isDeleting}
             isRunning={isRunning}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+            pluginId={pluginId}
+            settingsConfig={this.props.settingsConfig}
+          />
+        )}
+        {formUiComponent === "GraphQLEditorForm" && (
+          <GraphQLEditorForm
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            match={this.props.match}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             paginationType={paginationType}
@@ -230,15 +249,15 @@ class ApiEditor extends React.Component<Props> {
         )}
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
-            SAAS_EDITOR_API_ID_URL(
-              this.props.applicationId,
-              this.props.match.params.pageId,
-              getPackageNameFromPluginId(
-                this.props.pluginId,
-                this.props.plugins,
-              ) ?? "",
-              this.props.match.params.apiId,
-            ),
+            saasEditorApiIdURL({
+              pageId: this.props.match.params.pageId,
+              pluginPackageName:
+                getPackageNameFromPluginId(
+                  this.props.pluginId,
+                  this.props.plugins,
+                ) ?? "",
+              apiId: this.props.match.params.apiId,
+            }),
           )}
       </div>
     );

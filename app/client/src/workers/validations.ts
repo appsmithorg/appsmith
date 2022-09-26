@@ -4,7 +4,7 @@ import {
   ValidationTypes,
   ValidationResponse,
   Validator,
-} from "../constants/WidgetValidation";
+} from "constants/WidgetValidation";
 import _, {
   compact,
   get,
@@ -24,9 +24,11 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-import { findDuplicateIndex } from "./helpers";
+import { countOccurrences, findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
+const MAX_ALLOWED_LINE_BREAKS = 1000; // Rendering performance deteriorates beyond this number.
+const LINE_BREAKS_ERROR_MESSAGE = `Warning: New lines in the text exceed ${MAX_ALLOWED_LINE_BREAKS}. The text displayed will not contain any new lines.`;
 
 const flat = (array: Record<string, any>[], uniqueParam: string) => {
   let result: { value: string }[] = [];
@@ -56,6 +58,7 @@ function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
   if (config.params?.allowedKeys) {
     let _valid = true;
@@ -69,6 +72,7 @@ function validatePlainObject(
           entry,
           value[entryName],
           props,
+          propertyPath,
         );
         if (!isValid) {
           value[entryName] = parsed;
@@ -107,6 +111,7 @@ function validateArray(
   config: ValidationConfig,
   value: unknown[],
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
   let _isValid = true; // Let's first assume that this is valid
   const _messages: string[] = []; // Initialise messages array
@@ -217,6 +222,7 @@ function validateArray(
         childrenValidationConfig,
         entry,
         props,
+        `${propertyPath}[${index}]`,
       );
 
       // If invalid, append to messages
@@ -242,16 +248,61 @@ function validateArray(
     messages: _messages,
   };
 }
+
+function validateExcessLineBreaks(value: any): boolean {
+  /**
+   * Check if the value exceeds a threshold number of line breaks;
+   * beyond which the rendering performance starts deteriorating.
+   */
+  const str: string = isObject(value) ? JSON.stringify(value, null, 2) : value;
+  const lineBreakCount: number = countOccurrences(
+    str,
+    "\n",
+    false,
+    MAX_ALLOWED_LINE_BREAKS,
+  );
+  return lineBreakCount > MAX_ALLOWED_LINE_BREAKS;
+}
+
+function validateExcessLength(text: string, maxLength: number): boolean {
+  /**
+   * Check if text is too long and without any line breaks.
+   */
+  const lineBreakCount = countOccurrences(text, "\n", false, 0);
+  return lineBreakCount === 0 && text.length > maxLength;
+}
+
+/**
+ * Iterate through an object,
+ * Check for length of string values
+ * and trim them in case they are too long.
+ */
+function validateObjectValues(obj: any): any {
+  if (!obj) return;
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "string" && obj[key].length > 100000) {
+      obj[key] = obj[key].substring(0, 100000);
+    } else if (isObject(obj[key])) {
+      obj[key] = validateObjectValues(obj[key]);
+    } else if (isArray(obj[key])) {
+      obj[key] = obj[key].map((item: any) => validateObjectValues(item));
+    }
+  });
+  return obj;
+}
+
 //TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
+  propertyPath = "",
 ): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
     value,
     props,
+    propertyPath,
   );
 
   return _result;
@@ -283,30 +334,30 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
     case ValidationTypes.BOOLEAN:
       return "boolean";
     case ValidationTypes.NUMBER:
-      let type = "number";
+      let validationType = "number";
       if (config.params?.min) {
-        type = `${type} Min: ${config.params?.min}`;
+        validationType = `${validationType} Min: ${config.params?.min}`;
       }
       if (config.params?.max) {
-        type = `${type} Max: ${config.params?.max}`;
+        validationType = `${validationType} Max: ${config.params?.max}`;
       }
       if (config.params?.required) {
-        type = `${type} Required`;
+        validationType = `${validationType} Required`;
       }
 
-      return type;
+      return validationType;
     case ValidationTypes.OBJECT:
-      type = "Object";
+      let objectType = "Object";
       if (config.params?.allowedKeys) {
-        type = "{";
+        objectType = "{";
         config.params?.allowedKeys.forEach((allowedKeyConfig) => {
           const _expected = getExpectedType(allowedKeyConfig);
-          type = `${type} "${allowedKeyConfig.name}": "${_expected}",`;
+          objectType = `${objectType} "${allowedKeyConfig.name}": "${_expected}",`;
         });
-        type = `${type.substring(0, type.length - 1)} }`;
-        return type;
+        objectType = `${objectType.substring(0, objectType.length - 1)} }`;
+        return objectType;
       }
-      return type;
+      return objectType;
     case ValidationTypes.ARRAY:
     case ValidationTypes.NESTED_OBJECT_ARRAY:
       if (config.params?.allowedValues) {
@@ -352,9 +403,20 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     let parsed = value;
 
     if (isObject(value)) {
+      if (
+        config.params &&
+        config.params.limitLineBreaks &&
+        validateExcessLineBreaks(value)
+      ) {
+        return {
+          isValid: false,
+          parsed: JSON.stringify(validateObjectValues(value)), // Parse without line breaks
+          messages: [LINE_BREAKS_ERROR_MESSAGE],
+        };
+      }
       return {
         isValid: false,
-        parsed: JSON.stringify(value, null, 2),
+        parsed: JSON.stringify(validateObjectValues(value), null, 2),
         messages: [
           `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],
@@ -375,6 +437,17 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return stringValidationError;
       }
     }
+    if (
+      config.params &&
+      config.params.limitLineBreaks &&
+      validateExcessLineBreaks(value)
+    ) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value), // Parse without line breaks
+        messages: [LINE_BREAKS_ERROR_MESSAGE],
+      };
+    }
     if (config.params?.allowedValues) {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {
@@ -383,6 +456,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           isValid: false,
         };
       }
+    }
+
+    if (validateExcessLength(parsed as string, 200000)) {
+      return {
+        parsed: (parsed as string)?.substring(0, 200000),
+        isValid: false,
+        messages: [
+          "Excessive text length without a line break. Rendering a substring to avoid app crash.",
+        ],
+      };
     }
 
     if (
@@ -409,11 +492,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.TEXT](
       config,
       value,
       props,
+      propertyPath,
     );
 
     if (!isValid) {
@@ -566,6 +651,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     if (
       value === undefined ||
@@ -592,13 +678,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         config,
         value as Record<string, unknown>,
         props,
+        propertyPath,
       );
     }
 
     try {
       const result = { parsed: JSON.parse(value as string), isValid: true };
       if (isPlainObject(result.parsed)) {
-        return validatePlainObject(config, result.parsed, props);
+        return validatePlainObject(config, result.parsed, props, propertyPath);
       }
       return {
         isValid: false,
@@ -621,6 +708,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -661,7 +749,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       try {
         const _value = JSON.parse(value);
         if (Array.isArray(_value)) {
-          const result = validateArray(config, _value, props);
+          const result = validateArray(config, _value, props, propertyPath);
           return result;
         }
       } catch (e) {
@@ -670,7 +758,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (Array.isArray(value)) {
-      return validateArray(config, value, props);
+      return validateArray(config, value, props, propertyPath);
     }
 
     return invalidResponse;
@@ -740,13 +828,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     let response: ValidationResponse = {
       isValid: false,
       parsed: config.params?.default || [],
       messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
     };
-    response = VALIDATORS.ARRAY(config, value, props);
+    response = VALIDATORS.ARRAY(config, value, props, propertyPath);
 
     if (!response.isValid) {
       return response;
@@ -833,6 +922,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -847,7 +937,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           {},
           false,
           undefined,
-          [value, props, _, moment],
+          [value, props, _, moment, propertyPath],
         );
         return result;
       } catch (e) {
@@ -925,6 +1015,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     if (!config.params?.type)
       return {
@@ -938,6 +1029,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       config.params as ValidationConfig,
       value,
       props,
+      propertyPath,
     );
     if (result.isValid) return result;
 
@@ -949,6 +1041,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           config.params as ValidationConfig,
           item,
           props,
+          propertyPath,
         );
         if (!result.isValid) return result;
         resultValue.push(result.parsed);

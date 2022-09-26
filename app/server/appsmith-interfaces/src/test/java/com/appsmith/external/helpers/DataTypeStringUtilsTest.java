@@ -1,8 +1,19 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.models.ParsedDataType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -175,5 +186,50 @@ public class DataTypeStringUtilsTest {
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": 0}"));
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": \"\"}"));
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": []}"));
+    }
+
+    @Test
+    public void testGetDisplayDataTypes_withNestedObjectsInList_returnsWithTable() {
+
+        final List<Object> data = new ArrayList<>();
+        final Map<String, Object> objectMap = new HashMap<>();
+        final Map<String, Object> nestedObjectMap = new HashMap<>();
+        nestedObjectMap.put("k2", "v2");
+        objectMap.put("k", nestedObjectMap);
+
+        data.add(objectMap);
+        final List<ParsedDataType> displayDataTypes = getDisplayDataTypes(data);
+
+        assertThat(displayDataTypes).anyMatch(parsedDataType -> parsedDataType.getDataType().equals(DisplayDataType.TABLE));
+    }
+
+    @Test
+    public void testGetDisplayDataTypes_withNestedObjectsInArrayNode_returnsWithTable() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final ArrayNode data = objectMapper.createArrayNode();
+        final ObjectNode objectNode = objectMapper.createObjectNode();
+        final ObjectNode nestedObjectNode = objectMapper.createObjectNode();
+        nestedObjectNode.put("k2", "v2");
+        objectNode.set("k", nestedObjectNode);
+
+        data.add(objectNode);
+        final List<ParsedDataType> displayDataTypes = getDisplayDataTypes(data);
+
+        assertThat(displayDataTypes).anyMatch(parsedDataType -> parsedDataType.getDataType().equals(DisplayDataType.TABLE));
+    }
+
+    @Test
+    public void testGetDisplayDataTypes_withNestedObjectsInString_returnsWithTable() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final ArrayNode data = objectMapper.createArrayNode();
+        final ObjectNode objectNode = objectMapper.createObjectNode();
+        final ObjectNode nestedObjectNode = objectMapper.createObjectNode();
+        nestedObjectNode.put("k2", "v2");
+        objectNode.set("k", nestedObjectNode);
+
+        data.add(objectNode);
+        final List<ParsedDataType> displayDataTypes = getDisplayDataTypes(data.toString());
+
+        assertThat(displayDataTypes).anyMatch(parsedDataType -> parsedDataType.getDataType().equals(DisplayDataType.TABLE));
     }
 }

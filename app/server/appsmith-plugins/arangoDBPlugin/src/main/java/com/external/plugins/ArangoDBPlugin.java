@@ -90,7 +90,7 @@ public class ArangoDBPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                System.out.println(Thread.currentThread().getName() + ": In the ArangoDBPlugin, got action execution result");
+                log.debug("In the ArangoDBPlugin, got action execution result");
                 ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setIsExecutionSuccess(true);

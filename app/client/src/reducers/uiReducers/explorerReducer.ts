@@ -1,9 +1,9 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import get from "lodash/get";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 

@@ -1,5 +1,6 @@
 package com.appsmith.server.git;
 
+import com.appsmith.external.constants.Assets;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -71,13 +72,13 @@ public class GitExecutorTest {
     }
 
     private void commitToRepo() {
-        gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false).block();
+        gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false, false).block();
     }
 
     @Test
     public void commit_validChange_Success() throws IOException {
         createFileInThePath("TestFIle2");
-        String commitStatus = gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false).block();
+        String commitStatus = gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false, false).block();
         Mono<List<GitLogDTO>> commitList = gitExecutor.getCommitHistory(path);
 
         StepVerifier
@@ -138,7 +139,7 @@ public class GitExecutorTest {
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s.isMergeAble());
+                    assertThat(s.isMergeAble()).isTrue();
                 })
                 .verifyComplete();
 
@@ -163,7 +164,7 @@ public class GitExecutorTest {
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s.isMergeAble());
+                    assertThat(s.isMergeAble()).isTrue();
                 })
                 .verifyComplete();
 
@@ -280,7 +281,7 @@ public class GitExecutorTest {
                 .create(gitBranchDTOMono)
                 .assertNext(gitBranchDTOS -> {
                    assertThat(gitBranchDTOS.stream().count()).isEqualTo(3);
-                   
+
                 });
     }
 
@@ -513,6 +514,7 @@ public class GitExecutorTest {
                     assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.TRUE);
                     assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
                     assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
+                    assertThat(gitStatusDTO.getDiscardDocUrl()).isEqualTo(Assets.GIT_DISCARD_DOC_URL);
                 })
                 .verifyComplete();
     }

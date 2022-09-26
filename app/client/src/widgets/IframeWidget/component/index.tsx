@@ -4,15 +4,17 @@ import { hexToRgba } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
 import { useSelector } from "store";
-import { RenderMode } from "constants/WidgetConstants";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import { RenderMode } from "constants/WidgetConstants";
 
 interface IframeContainerProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export const IframeContainer = styled.div<IframeContainerProps>`
@@ -21,7 +23,6 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   align-items: center;
   justify-content: center;
   height: 100%;
-  background-color: #ffffff;
   font-weight: bold;
 
   iframe {
@@ -37,6 +38,8 @@ export const IframeContainer = styled.div<IframeContainerProps>`
       )};
     border-width: ${(props) =>
       props.borderWidth ? Number(props.borderWidth) : 0}px;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   }
 `;
 
@@ -59,6 +62,8 @@ export interface IframeComponentProps extends ComponentProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 function IframeComponent(props: IframeComponentProps) {
@@ -75,21 +80,31 @@ function IframeComponent(props: IframeComponentProps) {
     widgetId,
   } = props;
 
-  const isFirstRender = useRef(true);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+
+  const isFirstSrcURLRender = useRef(true);
+  const isFirstSrcDocRender = useRef(true);
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const iframeWindow =
+        frameRef.current?.contentWindow ||
+        frameRef.current?.contentDocument?.defaultView;
+      // Accept messages only from the current iframe
+      if (event.source !== iframeWindow) return;
+      onMessageReceived(event);
+    };
     // add a listener
-    window.addEventListener("message", onMessageReceived, false);
+    window.addEventListener("message", handler, false);
     // clean up
-    return () =>
-      window.removeEventListener("message", onMessageReceived, false);
+    return () => window.removeEventListener("message", handler, false);
   }, []);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstSrcURLRender.current) {
+      isFirstSrcURLRender.current = false;
       return;
     }
     onURLChanged(source);
@@ -101,8 +116,8 @@ function IframeComponent(props: IframeComponentProps) {
   }, [source]);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstSrcDocRender.current) {
+      isFirstSrcDocRender.current = false;
       return;
     }
     onSrcDocChanged(srcDoc);
@@ -120,7 +135,9 @@ function IframeComponent(props: IframeComponentProps) {
     <IframeContainer
       borderColor={borderColor}
       borderOpacity={borderOpacity}
+      borderRadius={props.borderRadius}
       borderWidth={borderWidth}
+      boxShadow={props.boxShadow}
     >
       {appMode === APP_MODE.EDIT && widgetId !== selectedWidget?.widgetId && (
         <OverlayDiv />
@@ -130,13 +147,20 @@ function IframeComponent(props: IframeComponentProps) {
         message
       ) : srcDoc ? (
         <iframe
+          allow="camera; microphone"
+          ref={frameRef}
           sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts allow-top-navigation-by-user-activation"
           src={source}
           srcDoc={srcDoc}
           title={title}
         />
       ) : (
-        <iframe src={source} title={title} />
+        <iframe
+          allow="camera; microphone"
+          ref={frameRef}
+          src={source}
+          title={title}
+        />
       )}
     </IframeContainer>
   );

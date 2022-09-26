@@ -8,7 +8,7 @@ You can use the applications for yourself following the simple steps below:
 2. On the top right-hand corner, you will see an option to `fork` the application
 4. Click on `fork` application 
 5. Log in to Appsmith, if not already
-6. Select the organization to which the application should be forked
+6. Select the workspace to which the application should be forked
 7. Change datasource credentials to connect to your backend
 8. You now have a fully functional app to use or build on top of
 

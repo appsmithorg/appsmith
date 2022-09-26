@@ -30,6 +30,10 @@
   "dropdownInput": ".bp3-tag-input-values",
   "mulitiselectInput": ".rc-select-selection-search-input",
   "treeSelectInput": ".rc-tree-select-selection-search-input",
+  "treeSelectClearAll":".rc-tree-select-clear",
+  "treeSelectPlaceholder":".rc-tree-select-single .rc-tree-select-selection-placeholder",
+  "treeSelectFilterInput": ".tree-select-dropdown .bp3-input",
+  "multiTreeSelectFilterInput": ".tree-multiselect-dropdown .bp3-input",
   "labelradio": ".t--draggable-radiogroupwidget label",
   "labelCheckboxGroup": ".t--draggable-checkboxgroupwidget label",
   "labelSwitchGroup": ".t--draggable-switchgroupwidget label",
@@ -41,11 +45,11 @@
   "radioInput": ".t--draggable-radiogroupwidget span.t--widget-name",
   "checkboxGroupInput": ".t--draggable-checkboxgroupwidget span.t--widget-name",
   "switchGroupInput": ".t--draggable-switchgroupwidget span.t--widget-name",
-  "radioAddButton": ".t--property-control-options button",
+  "radioAddButton": ".t--property-control-options button.t--property-control-options-add",
   "formD": "div[type='FORM_WIDGET']",
   "datepickerFooter": ".bp3-datepicker-footer span",
   "datepickerFooterPublish": ".bp3-datepicker-footer span",
-  "disableJs": ".t--property-control-disable input[type='checkbox']",
+  "disableJs": ".t--property-control-disabled input[type='checkbox']",
   "requiredJs": ".t--property-control-required input[type='checkbox']",
   "switchWidget": ".t--draggable-switchwidget",
   "toggleJsDefaultDate": ".t--property-control-defaultdate .t--js-toggle",
@@ -63,5 +67,6 @@
   "searchBoxDropdown":".select-popover-wrapper div.bp3-input-group",
   "NavHomePage": "[data-icon='home']",
   "apiCallToast": "div.t--toast-action span[type='p1']",
-  "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle"
+  "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle",
+  "toggleButtonVariant": ".t--property-control-buttonvariant .t--js-toggle"
 }

@@ -8,14 +8,13 @@ import useClick from "utils/hooks/useClick";
 import { updatePage } from "actions/pageActions";
 import { MenuIcons } from "icons/MenuIcons";
 import { resolveAsSpaceChar } from "utils/helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
+import { builderURL } from "RouteBuilder";
 
 const LinkIcon = MenuIcons.LINK_ICON;
 
@@ -80,7 +79,9 @@ function EditName(props: Props) {
   const switchPage = useCallback(() => {
     if (!!applicationId && !isEditing) {
       history.push(
-        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
+        builderURL({
+          pageId: props.page.pageId,
+        }),
       );
     }
   }, [props.page.pageId, applicationId]);
@@ -109,7 +110,7 @@ function EditName(props: Props) {
           <TooltipComponent
             content={createMessage(GO_TO_PAGE)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM}
+            position="bottom"
           >
             <LinkIcon
               color={get(theme, "colors.pagesEditor.iconColor")}

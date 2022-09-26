@@ -12,10 +12,8 @@ import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import TooltipComponent from "components/ads/Tooltip";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { TooltipComponent, Icon, IconName, IconSize } from "design-system";
 import { updateApplicationLayout } from "actions/applicationActions";
-import { ReflowBetaCard } from "./ReflowBetaCard";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -39,12 +37,12 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "desktop",
   },
   {
-    name: "Tablet(Large)",
+    name: "Tablet (Landscape)",
     type: "TABLET_LARGE",
-    icon: "tablet",
+    icon: "tabletLandscape",
   },
   {
-    name: "Tablet",
+    name: "Tablet (Portrait)",
     type: "TABLET",
     icon: "tablet",
   },
@@ -60,15 +58,19 @@ export function MainContainerLayoutControl() {
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
 
+  const buttonRefs: Array<HTMLButtonElement | null> = [];
+
   /**
-   * return selected layout. if there is no app
+   * return selected layout index. if there is no app
    * layout, use the default one ( fluid )
    */
-  const selectedLayout = useMemo(() => {
-    return AppsmithLayouts.find(
+  const selectedIndex = useMemo(() => {
+    return AppsmithLayouts.findIndex(
       (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
     );
   }, [appLayout]);
+
+  const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
 
   /**
    * updates the app layout
@@ -90,10 +92,31 @@ export function MainContainerLayoutControl() {
     [dispatch, appLayout],
   );
 
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (!buttonRefs.length) return;
+
+    switch (event.key) {
+      case "ArrowRight":
+      case "Right":
+        const rightIndex = index === buttonRefs.length - 1 ? 0 : index + 1;
+        buttonRefs[rightIndex]?.focus();
+        setFocusedIndex(rightIndex);
+        break;
+      case "ArrowLeft":
+      case "Left":
+        const leftIndex = index === 0 ? buttonRefs.length - 1 : index - 1;
+        buttonRefs[leftIndex]?.focus();
+        setFocusedIndex(leftIndex);
+        break;
+    }
+  };
+
   return (
-    <div className="px-3 space-y-2 t--layout-control-wrapper">
-      <p className="text-sm text-gray-700">Canvas Size</p>
-      <div className="flex justify-around">
+    <div className="space-y-2 t--layout-control-wrapper">
+      <div
+        className="flex justify-around"
+        onBlur={() => setFocusedIndex(selectedIndex)}
+      >
         {AppsmithLayouts.map((layoutOption: any, index: number) => {
           return (
             <TooltipComponent
@@ -106,13 +129,17 @@ export function MainContainerLayoutControl() {
             >
               <button
                 className={classNames({
-                  "border-transparent border flex items-center justify-center p-2 flex-grow": true,
-                  "bg-white border-gray-300":
-                    selectedLayout?.name === layoutOption.name,
-                  "bg-gray-100 hover:bg-gray-200":
-                    selectedLayout?.name !== layoutOption.name,
+                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
+                  "bg-white border-gray-300": selectedIndex === index,
+                  "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
                 })}
-                onClick={() => updateAppLayout(layoutOption)}
+                onClick={() => {
+                  updateAppLayout(layoutOption);
+                  setFocusedIndex(index);
+                }}
+                onKeyDown={(event) => handleKeyDown(event, index)}
+                ref={(input) => buttonRefs.push(input)}
+                tabIndex={index === focusedIndex ? 0 : -1}
               >
                 <Icon
                   fillColor={Colors.BLACK}
@@ -124,7 +151,6 @@ export function MainContainerLayoutControl() {
           );
         })}
       </div>
-      <ReflowBetaCard />
     </div>
   );
 }

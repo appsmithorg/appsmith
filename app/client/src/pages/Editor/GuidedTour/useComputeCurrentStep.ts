@@ -1,4 +1,3 @@
-import { setExplorerPinnedAction } from "actions/explorerActions";
 import {
   markStepComplete,
   tableWidgetWasSelected,
@@ -13,7 +12,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import {
   getHadReachedStep,
-  isQueryLimitUpdated,
   isQueryExecutionSuccessful,
   isTableWidgetSelected,
   tableWidgetHasBinding,
@@ -22,15 +20,19 @@ import {
   isNameInputBoundSelector,
   isCountryInputBound,
   isEmailInputBound,
-  isImageWidgetBound,
   isButtonWidgetPresent,
   buttonWidgetHasOnClickBinding,
   buttonWidgetHasOnSuccessBinding,
   countryInputSelector,
-  imageWidgetSelector,
 } from "selectors/onboardingSelectors";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { GUIDED_TOUR_STEPS, Steps } from "./constants";
-import { hideIndicator, highlightSection, showIndicator } from "./utils";
+import {
+  closeSidebar,
+  hideIndicator,
+  highlightSection,
+  showIndicator,
+} from "./utils";
 
 function useComputeCurrentStep(showInfoMessage: boolean) {
   let step = 1;
@@ -43,8 +45,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   };
   const dispatch = useDispatch();
   const hadReachedStep = useSelector(getHadReachedStep);
-  // Step 1(Update limit and run the query) selectors
-  const queryLimitUpdated = useSelector(isQueryLimitUpdated);
+  // Step 1(Run the query) selectors
   const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
   // 2 selectors
   const tableWidgetSelected = useSelector(isTableWidgetSelected);
@@ -57,9 +58,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   // 5
   const countryInputBound = useSelector(isCountryInputBound);
   const isCountryInputSelected = useSelector(countryInputSelector);
-  const isImageWidgetSelected = useSelector(imageWidgetSelector);
   const emailInputBound = useSelector(isEmailInputBound);
-  const imageWidgetBound = useSelector(isImageWidgetBound);
   // 6
   const buttonWidgetPresent = useSelector(isButtonWidgetPresent);
   // 7
@@ -73,22 +72,14 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
 
   // If we are on the first step
   if (step === GUIDED_TOUR_STEPS.RUN_QUERY) {
-    // If query limit is updated
-    if (queryLimitUpdated) {
-      // Step 1 shows two different contents
-      // 1) We tell the user to update the limit
-      // 2) To click on the run button.
-      // The hintCount is to which one of these to show the user
-      meta.hintCount += 1;
-      // If the query is executed successfully and if the user had gone to further steps before
-      // i.e probably the user is here after finishing step 5. This can happen if the query is updated
-      // to something unexpected.
-      // So we have `hadReachedStep` to keep track of the furthest the user had reached.
-      // Initially we don't automatically go to the next step, instead the user clicks on a button in the guide
-      // shown on top of the screen for the user clicking on which we update the current step
-      if (queryExecutedSuccessfully && hadReachedStep > 1) {
-        step = GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET;
-      }
+    // If the query is executed successfully and if the user had gone to further steps before
+    // i.e probably the user is here after finishing step 5. This can happen if the query is updated
+    // to something unexpected.
+    // So we have `hadReachedStep` to keep track of the furthest the user had reached.
+    // Initially we don't automatically go to the next step, instead the user clicks on a button in the guide
+    // shown on top of the screen for the user clicking on which we update the current step
+    if (queryExecutedSuccessfully && hadReachedStep > 1) {
+      step = GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET;
     }
   }
 
@@ -126,12 +117,9 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
     if (countryInputBound) {
       meta.completedSubSteps.push(1);
     }
-    if (imageWidgetBound) {
-      meta.completedSubSteps.push(2);
-    }
     // Once all three widgets are bound this step is complete
     if (
-      meta.completedSubSteps.length === 3 &&
+      meta.completedSubSteps.length === 2 &&
       hadReachedStep > GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS
     ) {
       step = GUIDED_TOUR_STEPS.ADD_BUTTON_WIDGET;
@@ -174,12 +162,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       step === GUIDED_TOUR_STEPS.RUN_QUERY &&
       hadReachedStep <= GUIDED_TOUR_STEPS.RUN_QUERY
     ) {
-      if (!queryLimitUpdated) {
-        showIndicator(`span[role="presentation"]`, "right", {
-          top: -4,
-          left: 18,
-        });
-      } else if (queryExecutedSuccessfully) {
+      if (queryExecutedSuccessfully) {
         dispatch(forceShowContent(GUIDED_TOUR_STEPS.RUN_QUERY));
         // Hide the indicator after the user has successfully run the query
         hideIndicator();
@@ -196,10 +179,11 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
           // Adding a slight delay to wait for the table to be visible
         }, 1000);
       } else {
+        dispatch(closeSidebar());
         showIndicator(`[data-guided-tour-iid='run-query']`, "top");
       }
     }
-  }, [queryExecutedSuccessfully, queryLimitUpdated, step, hadReachedStep]);
+  }, [queryExecutedSuccessfully, step, hadReachedStep]);
 
   // Step 3(table widget binding) side effects
   // Focus the tableData input in the property pane
@@ -225,7 +209,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       step === GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING &&
       hadReachedStep <= GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING
     ) {
-      dispatch(setExplorerPinnedAction(false));
+      dispatch(closeSidebar());
       hideIndicator();
       dispatch(markStepComplete());
     }
@@ -241,15 +225,16 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
     ) {
       if (!!nameInputWidgetId) {
         // Minor timeout to wait for the elements to exist
+        dispatch(closeSidebar());
         setTimeout(() => {
           // Highlight the selected row and the NameInput widget
           highlightSection(
             "selected-row",
-            `appsmith_widget_${isTableWidgetBound}`,
+            getBaseWidgetClassName(isTableWidgetBound),
             "class",
           );
           highlightSection(
-            `appsmith_widget_${nameInputWidgetId}`,
+            getBaseWidgetClassName(nameInputWidgetId),
             undefined,
             "class",
           );
@@ -288,24 +273,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       }
     }
   }, [step, hadReachedStep, countryInputBound, isCountryInputSelected]);
-  // Show indicator alongside the image property in property pane
-  useEffect(() => {
-    if (
-      step === GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS &&
-      hadReachedStep <= GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS
-    ) {
-      if (isImageWidgetSelected) {
-        if (!imageWidgetBound) {
-          showIndicator(`[data-guided-tour-iid='image']`, "top", {
-            top: 20,
-            left: 0,
-          });
-        } else {
-          hideIndicator();
-        }
-      }
-    }
-  }, [step, hadReachedStep, imageWidgetBound, isImageWidgetSelected]);
+
   // Show success message
   useEffect(() => {
     if (
@@ -315,7 +283,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       if (meta.completedSubSteps.length === 1) {
         hideIndicator();
       }
-      if (meta.completedSubSteps.length === 3) {
+      if (meta.completedSubSteps.length === 2) {
         dispatch(markStepComplete());
       }
     }

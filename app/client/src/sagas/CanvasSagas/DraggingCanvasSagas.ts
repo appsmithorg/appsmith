@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -13,14 +13,23 @@ import log from "loglevel";
 import { cloneDeep } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
+import {
+  getMainCanvasProps,
+  getOccupiedSpacesSelectorForContainer,
+} from "selectors/editorSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -44,11 +53,24 @@ export function* getCanvasSizeAfterWidgetMove(
   movedWidgetsBottomRow: number,
 ) {
   const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
+
+  //get mainCanvas's minHeight if the canvasWidget is mianCanvas
+  let mainCanvasMinHeight;
+  if (canvasWidgetId === MAIN_CONTAINER_WIDGET_ID) {
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
+    mainCanvasMinHeight = mainCanvasProps?.height;
+  }
+
   if (canvasWidget) {
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
       getOccupiedSpacesSelectorForContainer(canvasWidgetId),
     );
-    const canvasMinHeight = canvasWidget.minHeight || 0;
+    const canvasMinHeight =
+      mainCanvasMinHeight ||
+      canvasWidget.minHeight ||
+      CANVAS_DEFAULT_MIN_HEIGHT_PX;
     const newRows = calculateDropTargetRows(
       movedWidgetIds,
       movedWidgetsBottomRow,
@@ -117,6 +139,10 @@ function* addWidgetAndMoveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
+    yield put({
+      type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+      payload: [newWidget.newWidgetId],
+    });
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
@@ -202,6 +228,41 @@ function* moveAndUpdateWidgets(
   return updatedWidgets;
 }
 
+function getParentWidgetType(
+  allWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+) {
+  const widget = allWidgets[widgetId];
+
+  if (!widget.parentId) return "MAIN_CONTAINER";
+
+  const containerWidget = allWidgets[widget.parentId];
+
+  /**
+   * container widget can be of type FORM_WIDGET, STATBOX_WIDGET
+   */
+  if (containerWidget.type !== "CONTAINER_WIDGET") {
+    return containerWidget.type;
+  }
+
+  /**
+   * Handling the case for list widget where we have
+   * canvas2 -> container -> canvas1 -> listWidget
+   */
+  if (containerWidget.parentId) {
+    // Take the first parent that is canvas1
+    const containerParent = allWidgets[containerWidget.parentId];
+
+    // Now take the parent of canvas1 that is listWidget
+    if (containerParent.parentId) {
+      const mainParent = allWidgets[containerParent.parentId];
+      return mainParent.type;
+    }
+  }
+
+  return containerWidget.type;
+}
+
 function* moveWidgetsSaga(
   actionPayload: ReduxAction<{
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
@@ -220,6 +281,7 @@ function* moveWidgetsSaga(
       draggedBlocksToUpdate,
       canvasId,
     );
+
     if (
       !collisionCheckPostReflow(
         updatedWidgetsOnMove,
@@ -230,6 +292,27 @@ function* moveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+
+    const block = draggedBlocksToUpdate[0];
+    const oldParentId = block.updateWidgetParams.payload.parentId;
+    const newParentId = block.updateWidgetParams.payload.newParentId;
+
+    const oldParentWidgetType = getParentWidgetType(allWidgets, oldParentId);
+    const newParentWidgetType = getParentWidgetType(allWidgets, newParentId);
+
+    AnalyticsUtil.logEvent("WIDGET_DRAG", {
+      widgets: draggedBlocksToUpdate.map((block) => {
+        const widget = allWidgets[block.widgetId];
+        return {
+          widgetType: widget.type,
+          widgetName: widget.widgetName,
+        };
+      }),
+      multiple: draggedBlocksToUpdate.length > 1,
+      movedToNewWidget: oldParentId !== newParentId,
+      source: oldParentWidgetType,
+      destination: newParentWidgetType,
+    });
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
     yield put({

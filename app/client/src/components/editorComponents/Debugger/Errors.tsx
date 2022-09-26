@@ -6,7 +6,7 @@ import LogItem, { getLogItemProps } from "./LogItem";
 import { BlankState } from "./helpers";
 import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { thinScrollbar } from "constants/DefaultTheme";
 
 const ContainerWrapper = styled.div`
@@ -18,6 +18,7 @@ const ListWrapper = styled.div`
   overflow: auto;
   ${thinScrollbar};
   height: 100%;
+  padding-bottom: 25px;
 `;
 
 function Errors(props: { hasShortCut?: boolean }) {

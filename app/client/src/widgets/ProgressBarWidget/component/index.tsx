@@ -10,11 +10,17 @@ const ProgressBarWrapper = styled.div`
   align-items: center;
 `;
 
-const ProgressBar = styled.div<{ progress?: number; fillColor: string }>`
+const ProgressBar = styled.div<{
+  progress?: number;
+  fillColor: string;
+  borderRadius?: string;
+}>`
   flex: 1;
   height: 6px;
   background: #e8e8e8;
   position: relative;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
 
   &:after {
     background: ${({ fillColor }) => fillColor};
@@ -102,6 +108,7 @@ function ProgressBarComponent(props: ProgressBarComponentProps) {
         <StepProgressBar {...props} />
       ) : (
         <ProgressBar
+          borderRadius={props.borderRadius}
           data-cy={props.progress}
           fillColor={props.fillColor}
           progress={props.progress}
@@ -117,6 +124,7 @@ export interface ProgressBarComponentProps {
   fillColor: string;
   barType: BarType;
   steps: number;
+  borderRadius?: string;
 }
 
 export default ProgressBarComponent;

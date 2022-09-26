@@ -1,8 +1,7 @@
 import { noop } from "lodash";
 import React from "react";
 import styled from "styled-components";
-import Button, { Category, Size } from "components/ads/Button";
-import Toggle from "components/ads/Toggle";
+import { Button, Category, Toggle, Size } from "design-system";
 import {
   AllowToggle,
   AllowToggleLabel,
@@ -63,6 +62,7 @@ export default memo(function NewsletterForm() {
             size={Size.medium}
             tag="button"
             text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}
+            type="submit"
           />
         </ButtonWrapper>
       </FormBodyWrapper>

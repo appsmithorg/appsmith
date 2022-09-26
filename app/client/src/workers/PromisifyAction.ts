@@ -9,7 +9,10 @@ const ctx: Worker = self as any;
  * needs a REQUEST_ID to be passed in to know which request is going on right now
  */
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import {
+  ActionDescription,
+  ActionTriggerType,
+} from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
 
@@ -59,17 +62,16 @@ export const promisifyAction = (
         } else {
           self.ALLOW_ASYNC = true;
           // Reset the global data with the correct request id for this promise
-          const globalData = createGlobalData(
-            dataTreeEvaluator.evalTree,
-            dataTreeEvaluator.resolvedFunctions,
-            true,
-            {
+          const globalData = createGlobalData({
+            dataTree: dataTreeEvaluator.evalTree,
+            resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
+            isTriggerBased: true,
+            context: {
               requestId: workerRequestId,
             },
-          );
+          });
           for (const entity in globalData) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error: Types are not available
             self[entity] = globalData[entity];
           }
 
@@ -98,4 +100,19 @@ export const completePromise = (requestId: string, result: EvalResult) => {
     },
     requestId,
   });
+};
+
+export const confirmationPromise = function(
+  requestId: string,
+  func: any,
+  name: string,
+  ...args: any[]
+) {
+  const payload: ActionDescription = {
+    type: ActionTriggerType.CONFIRMATION_MODAL,
+    payload: {
+      funName: name,
+    },
+  };
+  return promisifyAction(requestId, payload).then(() => func(...args));
 };

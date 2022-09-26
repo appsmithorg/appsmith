@@ -1,17 +1,19 @@
 import React, { ReactNode } from "react";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
-import { WidgetType } from "constants/WidgetConstants";
-import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
-import { HTTP_METHOD, HTTP_METHODS_COLOR } from "constants/ApiEditorConstants";
+import {
+  HTTP_METHOD,
+  HTTP_METHODS_COLOR,
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
 import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
+import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -40,7 +42,7 @@ export const homePageIcon = (
 const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 export const defaultPageIcon = (
   <DefaultPageIcon
-    color={Colors.GREEN}
+    color={Colors.MINE_SHAFT_2}
     data-icon="home"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
@@ -149,13 +151,6 @@ export const datasourceColumnIcon = (
 export const DATASOURCE_FIELD_ICONS_MAP: Record<string, ReactNode> = {
   [PRIMARY_KEY]: primaryKeyIcon,
   [FOREIGN_KEY]: foreignKeyIcon,
-};
-
-export const getWidgetIcon = (type: WidgetType) => {
-  const WidgetIcon = WidgetIcons[type];
-  if (WidgetIcon)
-    return <WidgetIcon height={ENTITY_ICON_SIZE} width={ENTITY_ICON_SIZE} />;
-  return null;
 };
 
 const PluginIcon = styled.img`
@@ -320,3 +315,11 @@ export const JsFileIconV2 = (
     <EntityIcon.textIcon>JS</EntityIcon.textIcon>
   </EntityIcon>
 );
+
+export function GraphQLIconV2() {
+  return (
+    <EntityIcon>
+      <GraphqlIcon />
+    </EntityIcon>
+  );
+}

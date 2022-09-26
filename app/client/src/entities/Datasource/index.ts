@@ -59,8 +59,9 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
-  organizationId: string;
+  workspaceId: string;
   isValid: boolean;
+  isConfigured?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
@@ -81,16 +82,19 @@ export interface EmbeddedRestDatasource extends BaseDatasource {
   invalids: Array<string>;
   messages: Array<string>;
 }
+
+export interface DatasourceConfiguration {
+  url: string;
+  authentication?: DatasourceAuthentication;
+  properties?: Property[];
+  headers?: Property[];
+  queryParameters?: Property[];
+  databaseName?: string;
+}
+
 export interface Datasource extends BaseDatasource {
   id: string;
-  datasourceConfiguration: {
-    url: string;
-    authentication?: DatasourceAuthentication;
-    properties?: Property[];
-    headers?: Property[];
-    queryParameters?: Property[];
-    databaseName?: string;
-  };
+  datasourceConfiguration: DatasourceConfiguration;
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];
@@ -107,7 +111,7 @@ export interface MockDatasource {
 
 export const DEFAULT_DATASOURCE = (
   pluginId: string,
-  organizationId: string,
+  workspaceId: string,
 ): EmbeddedRestDatasource => ({
   name: "DEFAULT_REST_DATASOURCE",
   datasourceConfiguration: {
@@ -116,6 +120,6 @@ export const DEFAULT_DATASOURCE = (
   invalids: [],
   isValid: true,
   pluginId,
-  organizationId,
+  workspaceId,
   messages: [],
 });

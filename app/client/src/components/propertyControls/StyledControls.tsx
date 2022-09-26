@@ -1,15 +1,22 @@
+import React, { RefObject, useEffect, useRef } from "react";
 import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import styled, { Skin } from "constants/DefaultTheme";
-import { AnyStyledComponent } from "styled-components";
+import { AnyStyledComponent, css } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import Button from "components/ads/Button";
-import TextInput from "components/ads/TextInput";
-import Dropdown from "components/ads/Dropdown";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
+import {
+  Button,
+  Dropdown,
+  InputWrapper,
+  TextInput,
+  TextInputProps,
+} from "design-system";
+import { IconWrapper } from "constants/IconConstants";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import { Checkbox } from "design-system";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -23,7 +30,10 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   align-items: center;
   flex-direction: ${(props) =>
     props.orientation === "VERTICAL" ? "column" : "row"};
-  padding: ${(props) => (props.isAction ? "0" : "4px 0 ")};
+  padding-top: 4px;
+  &:not(:last-of-type) {
+    padding-bottom: 4px;
+  }
   & > label {
     color: ${(props) => props.theme.colors.propertyPane.label};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
@@ -35,13 +45,16 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   &&& > label {
     display: inline-block;
   }
+  &:focus-within .reset-button {
+    display: block;
+  }
 `;
 
 export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    color: ${Colors.GRAY_700};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
@@ -50,26 +63,37 @@ export const ControlPropertyLabelContainer = styled.div`
   }
 `;
 
-export const JSToggleButton = styled.span<{ active: boolean }>`
+export const JSToggleButton = styled.button<{ active: boolean }>`
   margin: 4px;
   margin-top: 0px;
-  cursor: pointer;
+
+  & ${IconWrapper} {
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  }
+
   height: auto;
   width: 28px;
   height: 16px;
-  border: 0.5px solid ${Colors.BLACK};
+  border: 0.5px solid
+    ${(props) => (props.disabled ? Colors.GRAY_400 : Colors.GRAY_700)};
   background-color: ${(props) =>
-    props.active ? Colors.GREY_10 : Colors.GREY_2};
+    props.active
+      ? props.disabled
+        ? Colors.GRAY_400
+        : Colors.GRAY_800
+      : props.disabled
+      ? Colors.GRAY_200
+      : Colors.WHITE};
 
   &:hover {
     background-color: ${(props) =>
-      props.active ? Colors.GREY_9 : Colors.GREY_3};
-
-    &&& svg {
-      path {
-        fill: ${(props) => (props.active ? Colors.GREY_2 : Colors.GREY_9)};
-      }
-    }
+      props.disabled
+        ? props.active
+          ? Colors.GRAY_400
+          : Colors.GRAY_200
+        : props.active
+        ? Colors.GRAY_900
+        : Colors.GRAY_200};
   }
 
   & > div {
@@ -89,8 +113,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
     }
 
     path {
-      fill: ${(props) =>
-        props.active ? props.theme.colors.GREY_2 : Colors.GREY_9};
+      fill: ${(props) => (props.active ? Colors.WHITE : Colors.GRAY_700)};
     }
   }
 `;
@@ -103,11 +126,6 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
-  height: 36px;
-`;
-
-export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
-  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -171,7 +189,7 @@ export const StyledDynamicInput = styled.div`
   }
 `;
 
-export const StyledInputGroup = styled(TextInput)`
+const InputGroup = styled(TextInput)`
   width: 100%;
   border-radius: 0;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
@@ -180,6 +198,68 @@ export const StyledInputGroup = styled(TextInput)`
     box-shadow: none;
   }
 `;
+
+const StyledInputWrapper = styled.div`
+  width: 100%;
+
+  &:focus ${InputWrapper} {
+    border: 1px solid var(--appsmith-input-focus-border-color);
+  }
+`;
+
+export const StyledInputGroup = React.forwardRef(
+  (props: TextInputProps, ref) => {
+    let inputRef = useRef<HTMLInputElement>(null);
+    const wrapperRef = useRef<HTMLInputElement>(null);
+    const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent<
+      HTMLInputElement
+    >(false, wrapperRef);
+
+    if (ref) inputRef = ref as RefObject<HTMLInputElement>;
+
+    useEffect(() => {
+      window.addEventListener("keydown", handleKeydown);
+      return () => {
+        window.removeEventListener("keydown", handleKeydown);
+      };
+    }, []);
+
+    const handleKeydown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "Enter":
+        case " ":
+          if (document.activeElement === wrapperRef?.current) {
+            dispatchInteractionAnalyticsEvent({ key: e.key });
+            inputRef?.current?.focus();
+            e.preventDefault();
+          }
+          break;
+        case "Escape":
+          if (document.activeElement === inputRef?.current) {
+            dispatchInteractionAnalyticsEvent({ key: e.key });
+            wrapperRef?.current?.focus();
+            e.preventDefault();
+          }
+          break;
+        case "Tab":
+          if (document.activeElement === wrapperRef?.current) {
+            dispatchInteractionAnalyticsEvent({
+              key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+            });
+          }
+          break;
+      }
+    };
+
+    return (
+      <StyledInputWrapper ref={wrapperRef} tabIndex={0}>
+        <InputGroup ref={inputRef} {...props} tabIndex={-1} width="auto" />
+      </StyledInputWrapper>
+    );
+  },
+);
+
+StyledInputGroup.displayName = "StyledInputGroup";
 
 export const StyledDateRangePicker = styled(DateRangeInput)`
   > input {
@@ -192,26 +272,6 @@ export const StyledDateRangePicker = styled(DateRangeInput)`
 export const FieldWrapper = styled.div`
   position: relative;
   width: 100%;
-`;
-
-export const StyledEditIcon = styled(
-  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 0;
-  cursor: pointer;
-  right: 40px;
-  display: flex;
-  align-items: center;
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
 `;
 
 export const StyledDragIcon = styled(
@@ -234,69 +294,8 @@ export const StyledDragIcon = styled(
   }
 `;
 
-export const StyledDeleteIcon = styled(
-  FormIcons.DELETE_ICON as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 15px;
-  cursor: pointer;
-  right: ${(props) => props.marginRight ?? 12}px;
-  display: flex;
-  align-items: center;
-
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
-`;
-
 export const FlexWrapper = styled.div`
   display: flex;
-`;
-
-export const StyledVisibleIcon = styled(
-  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  right: ${(props) => props.marginRight ?? 12}px;
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
-`;
-
-export const StyledHiddenIcon = styled(
-  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 15px;
-  cursor: pointer;
-  right: ${(props) => props.marginRight ?? 12}px;
-  display: flex;
-  align-items: center;
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
 `;
 
 export const StyledPropertyPaneButton = styled(Button)`
@@ -327,12 +326,20 @@ export const StyledPropertyPaneButton = styled(Button)`
       stroke: ${Colors.GREY_8};
     }
   }
+
+  &:disabled {
+    background-color: ${Colors.GREY_1};
+    color: var(--appsmith-color-black-400);
+    border-color: ${Colors.MERCURY};
+  }
 `;
 
-export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
+export const StyledOptionControlInputGroup = styled(StyledInputGroup)<{
+  rightPadding: number;
+}>`
   width: 100%;
   padding-left: 20px;
-  padding-right: 60px;
+  padding-right: ${(props) => props.rightPadding}px;
   padding-bottom: 4px;
   text-overflow: ellipsis;
   background: inherit;
@@ -347,4 +354,100 @@ export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
       }
     }
   }
+`;
+
+/* Used in Draggable List Card component in Property pane */
+export const StyledActionContainer = styled.div`
+  position: absolute;
+  right: 0px;
+  display: flex;
+`;
+
+const CommonIconStyles = css`
+  padding: 0;
+  margin-right: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+`;
+
+export const StyledEditIcon = styled(
+  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledVisibleIcon = styled(
+  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledHiddenIcon = styled(
+  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledDeleteIcon = styled(
+  FormIcons.DELETE_ICON as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`
+  cursor: ${(props) => (props.disabled ? "default" : "cursor")};
+  width: 18px;
+  ${CommonIconStyles}
+`;
+
+export const StyledNavigateToFieldWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: auto;
+`;
+
+export const StyledDividerContainer = styled.div`
+  width: 1%;
+  margin-top: 9px;
+`;
+
+export const StyledNavigateToFieldsContainer = styled.div`
+  width: 95%;
 `;

@@ -734,7 +734,7 @@
               {
                 "resetFormOnClick": true,
                 "widgetName": "FormButton1",
-                "onClick": "{{AddProduct.run()}}",
+                "onClick": "{{AddProduct.run(() => GetProduct.run(), () => {})}}",
                 "buttonColor": "#03B365",
                 "displayName": "FormButton",
                 "iconSVG": "/static/media/icon.c8f649ed.svg",

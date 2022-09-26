@@ -1,5 +1,5 @@
 import reducer from "./pageWidgetsReducer";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentRowBinding } from "widgets/TableWidget/constants";
 
 const pageWidgetUIInitialState = {

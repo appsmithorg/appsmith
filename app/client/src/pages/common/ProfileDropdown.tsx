@@ -1,21 +1,27 @@
 import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
-import Menu from "components/ads/Menu";
-import MenuDivider from "components/ads/MenuDivider";
-import MenuItem from "components/ads/MenuItem";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
-import { PROFILE, ADMIN_SETTINGS_CATEGORY_DEFAULT_URL } from "constants/routes";
+import {
+  PROFILE,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+} from "constants/routes";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
 import {
   ACCOUNT_TOOLTIP,
   createMessage,
@@ -95,10 +101,11 @@ export default function ProfileDropdown(props: TagProps) {
     <TooltipComponent
       content={createMessage(ACCOUNT_TOOLTIP)}
       hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      position={Position.BOTTOM_RIGHT}
+      position="bottom-right"
     >
       <ProfileImage
         className="t--profile-menu-icon"
+        size={34}
         source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
         userName={props.name || props.userName}
       />
@@ -109,7 +116,7 @@ export default function ProfileDropdown(props: TagProps) {
     <Menu
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
       target={Profile}
     >
       <UserInformation>
@@ -145,7 +152,7 @@ export default function ProfileDropdown(props: TagProps) {
           icon="setting"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
+              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
             });
           }}
           text={createMessage(ADMIN_SETTINGS)}

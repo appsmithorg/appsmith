@@ -7,11 +7,11 @@ import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";

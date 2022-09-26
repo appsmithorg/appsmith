@@ -2,19 +2,19 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
-import com.appsmith.server.dtos.PluginOrgDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -53,7 +53,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,7 @@ import java.util.stream.Collectors;
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
-    private final OrganizationService organizationService;
+    protected final WorkspaceService workspaceService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
@@ -79,6 +78,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     private static final String UQI_QUERY_EDITOR_BASE_FOLDER = "editor";
     private static final String UQI_QUERY_EDITOR_ROOT_FILE = "root.json";
+    private static final String BASE_UQI_URL = "https://raw.githubusercontent.com/appsmithorg/uqi-configurations/master/";
 
     private static final String KEY_EDITOR = "editor";
     private static final String KEY_CONFIG_PROPERTY = "configProperty";
@@ -88,11 +88,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private static final String DEFAULT_LABEL = "Query";
     public static final String KEY_CONTROL_TYPE = "controlType";
     public static final String KEY_COMMENT = "_comment";
-    public static final String KEY_COMMAND = "command";
-    public static final String KEY_OPTIONS = "options";
-    public static final String KEY_IDENTIFIER = "identifier";
-    public static final String KEY_VALUE = "value";
-    public static final String KEY_FILE_NAME = "fileName";
+    public static final String KEY_FILES = "files";
 
     @Autowired
     public PluginServiceCEImpl(Scheduler scheduler,
@@ -101,13 +97,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              AnalyticsService analyticsService,
-                             OrganizationService organizationService,
+                             WorkspaceService workspaceService,
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,
                              ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.organizationService = organizationService;
+        this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
@@ -119,15 +115,15 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        String organizationId = params.getFirst(FieldName.ORGANIZATION_ID);
-        if (organizationId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        String workspaceId = params.getFirst(FieldName.WORKSPACE_ID);
+        if (workspaceId == null) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Organization> organizationMono = organizationService.getById(organizationId);
+        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
 
-        return organizationMono
+        return workspaceMono
                 .flatMapMany(org -> {
                     log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
                     if (org.getPlugins() == null) {
@@ -137,7 +133,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                     List<String> pluginIds = org.getPlugins()
                             .stream()
-                            .map(OrganizationPlugin::getPluginId)
+                            .filter(plugin -> plugin.getDeleted() == false)
+                            .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
                     Query query = new Query();
                     query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
@@ -182,76 +179,76 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Organization> installPlugin(PluginOrgDTO pluginOrgDTO) {
+    public Mono<Workspace> installPlugin(PluginWorkspaceDTO pluginOrgDTO) {
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginOrgDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginOrgDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        return storeOrganizationPlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
+        return storeWorkspacePlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
-    public Flux<Organization> installDefaultPlugins(List<Plugin> plugins) {
-        final List<OrganizationPlugin> newOrganizationPlugins = plugins
+    public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
+        final List<WorkspacePlugin> newWorkspacePlugins = plugins
                 .stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
-                    return new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.ACTIVATED);
+                    return new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.ACTIVATED);
                 })
                 .collect(Collectors.toList());
-        return organizationService.getAll()
-                .flatMap(organization -> {
+        return workspaceService.getAll()
+                .flatMap(workspace -> {
                     // Only perform a DB op if plugins associated to this org have changed
-                    if (organization.getPlugins().containsAll(newOrganizationPlugins)) {
-                        return Mono.just(organization);
+                    if (workspace.getPlugins().containsAll(newWorkspacePlugins)) {
+                        return Mono.just(workspace);
                     } else {
-                        organization.getPlugins().addAll(newOrganizationPlugins);
-                        return organizationService.save(organization);
+                        workspace.getPlugins().addAll(newWorkspacePlugins);
+                        return workspaceService.save(workspace);
                     }
                 });
     }
 
     @Override
-    public Mono<Organization> uninstallPlugin(PluginOrgDTO pluginDTO) {
+    public Mono<Workspace> uninstallPlugin(PluginWorkspaceDTO pluginDTO) {
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+        //Find the workspace using id and plugin id -> This is to find if the workspace has the plugin installed
+        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(),
                 pluginDTO.getPluginId());
 
-        return organizationMono
+        return workspaceMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
-                //In case the plugin is not found for the organization, the organizationMono would not emit and the rest of the flow would stop
-                //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
+                //In case the plugin is not found for the workspace, the workspaceMono would not emit and the rest of the flow would stop
+                //i.e. the rest of the code flow would only happen when there is a plugin found for the workspace that can
                 //be uninstalled.
-                .flatMap(organization -> {
-                    Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
-                    organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
-                    organization.setPlugins(organizationPluginList);
-                    return organizationService.save(organization);
+                .flatMap(workspace -> {
+                    Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                    workspacePluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
+                    workspace.setPlugins(workspacePluginList);
+                    return workspaceService.save(workspace);
                 });
     }
 
-    private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
+    private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
 
-        Mono<Organization> pluginInOrganizationMono = organizationService
-                .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
+        Mono<Workspace> pluginInWorkspaceMono = workspaceService
+                .findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
 
 
-        //If plugin is already present for the organization, just return the organization, else install and return organization
-        return pluginInOrganizationMono
+        //If plugin is already present for the workspace, just return the workspace, else install and return workspace
+        return pluginInWorkspaceMono
                 .switchIfEmpty(Mono.defer(() -> {
                     log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
-                    //If the plugin is not found in the organization, its not installed already. Install now.
+                    //If the plugin is not found in the workspace, its not installed already. Install now.
                     return repository
                             .findById(pluginDTO.getPluginId())
                             .map(plugin -> {
@@ -259,8 +256,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 log.debug("Before publishing to the redis queue");
                                 //Publish the event to the pub/sub queue
                                 InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                                installPluginRedisDTO.setOrganizationId(pluginDTO.getOrganizationId());
-                                installPluginRedisDTO.setPluginOrgDTO(pluginDTO);
+                                installPluginRedisDTO.setWorkspaceId(pluginDTO.getWorkspaceId());
+                                installPluginRedisDTO.setPluginWorkspaceDTO(pluginDTO);
                                 String jsonString;
                                 try {
                                     jsonString = objectMapper.writeValueAsString(installPluginRedisDTO);
@@ -272,24 +269,24 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                         .convertAndSend(topic.getTopic(), jsonString)
                                         .subscribe();
                             })
-                            //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
-                            .then(organizationService.getById(pluginDTO.getOrganizationId()))
-                            .flatMap(organization -> {
+                            //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the workspace
+                            .then(workspaceService.getById(pluginDTO.getWorkspaceId()))
+                            .flatMap(workspace -> {
 
-                                Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
-                                if (organizationPluginList == null) {
-                                    organizationPluginList = new HashSet<>();
+                                Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                                if (workspacePluginList == null) {
+                                    workspacePluginList = new HashSet<>();
                                 }
 
-                                OrganizationPlugin organizationPlugin = new OrganizationPlugin();
-                                organizationPlugin.setPluginId(pluginDTO.getPluginId());
-                                organizationPlugin.setStatus(status);
-                                organizationPluginList.add(organizationPlugin);
-                                organization.setPlugins(organizationPluginList);
+                                WorkspacePlugin workspacePlugin = new WorkspacePlugin();
+                                workspacePlugin.setPluginId(pluginDTO.getPluginId());
+                                workspacePlugin.setStatus(status);
+                                workspacePluginList.add(workspacePlugin);
+                                workspace.setPlugins(workspacePluginList);
 
-                                log.debug("Going to save the organization with install plugin. This means that installation has been successful");
+                                log.debug("Going to save the workspace with install plugin. This means that installation has been successful");
 
-                                return organizationService.save(organization);
+                                return workspaceService.save(workspace);
                             });
                 }));
     }
@@ -317,16 +314,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
-                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getOrganizationId(), plugin))
+                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
                     return Mono.just(new Plugin());
                 })).block();
     }
 
-    private Mono<Plugin> downloadAndStartPlugin(String organizationId, Plugin plugin) {
+    private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
         if (plugin.getJarLocation() == null) {
             // Plugin jar location not set. Must be local
             /** TODO
@@ -337,7 +334,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         String baseUrl = "../dist/plugins/";
-        String pluginJar = plugin.getName() + "-" + organizationId + ".jar";
+        String pluginJar = plugin.getName() + "-" + workspaceId + ".jar";
         log.debug("Going to download plugin jar with name : {}", baseUrl + pluginJar);
 
         try {
@@ -549,108 +546,87 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return templates;
     }
 
+    InputStream getConfigInputStream(Plugin plugin, String fileName) throws IOException {
+        String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName;
+//        if (Set.of(
+//                "google-sheets-plugin",
+//                "mongo-plugin",
+//                "amazons3-plugin",
+//                "firestore-plugin"
+//        ).contains(plugin.getPackageName())) {
+//            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" + fileName).openStream();
+//        }
+        return pluginManager
+                .getPlugin(plugin.getPackageName())
+                .getPluginClassLoader()
+                .getResourceAsStream(resourcePath);
+    }
+
     /**
-     * This function reads from the folder editor/ starting with file root.json. root.json declares all the commands
-     * that would be present as well as the file from which the content should be loaded for the said command. For each
-     * command, the fileName parameter is then replaced with value parameter which is picked up from the command template
-     * map key IDENTIFIER.
+     * This function reads from the folder editor/ starting with file root.json. root.json declares all the combination
+     * of commands that would be present as well as the files from which the action types should be loaded.
+     *
      * @param plugin
      * @return Map of the editor in the format expected by the client for displaying all the UI fields with conditionals
      */
     @Override
     public Map loadEditorPluginResourceUqi(Plugin plugin) {
-
         String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + UQI_QUERY_EDITOR_ROOT_FILE;
 
-        InputStream resourceAsStream = pluginManager
-                .getPlugin(plugin.getPackageName())
-                .getPluginClassLoader()
-                .getResourceAsStream(resourcePath);
+        ObjectNode rootTree;
 
-        if (resourceAsStream == null) {
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
-        }
+        try (InputStream resourceAsStream = getConfigInputStream(plugin, UQI_QUERY_EDITOR_ROOT_FILE)) {
 
-        // Read the root.json content.
-        JsonNode rootTree;
-        try {
-            rootTree = objectMapper.readTree(resourceAsStream);
+            if (resourceAsStream == null) {
+                throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
+            }
+
+            // Read the root.json content.
+            rootTree = objectMapper.readValue(resourceAsStream, ObjectNode.class);
         } catch (IOException e) {
             log.error("Error loading resource JSON for plugin {} and resourcePath {}", plugin.getPackageName(), resourcePath, e);
             throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
         }
 
-        // Generate the top level section which would hold all the command templates read from files
+        /*
+         * Generate the top level section which would hold all the command templates read from files
+         * It has the following format:
+         * {
+         *   "controlType": "SECTION",
+         *   "_comment": "This section holds all the templates",
+         *   "children": []
+         * }
+         */
         ObjectNode uiSectionNode = objectMapper.createObjectNode();
         uiSectionNode.put(KEY_CONTROL_TYPE, "SECTION");
-        uiSectionNode.put(KEY_LABEL, "");
         uiSectionNode.put(KEY_COMMENT, "This section holds all the templates");
-        ArrayNode commandTemplates = uiSectionNode.putArray(KEY_CHILDREN);
+        final ArrayNode templateChildrenNode = objectMapper.createArrayNode();
+        uiSectionNode.set(KEY_CHILDREN, templateChildrenNode);
 
-        // From root tree, fetch the key "command" which contains the declaration for all the command templates
-        JsonNode commandsReadOnly = rootTree.get(KEY_COMMAND);
+        // From root tree, fetch the key "files" which contains the declaration for all the template files
+        ArrayNode filesArray = (ArrayNode) rootTree.get(KEY_FILES);
 
-        // Create an object node which would store the array of commands post manipulation
-        ObjectNode commandWriterNode = objectMapper.createObjectNode();
-        ArrayNode options = commandWriterNode.putArray(KEY_OPTIONS);
+        // Adding a section to hold all the template configurations
+        ArrayNode editorArray = (ArrayNode) rootTree.get(KEY_EDITOR);
+        editorArray.add(uiSectionNode);
 
-        if (commandsReadOnly != null) {
-            // Copy all fields from commandReadOnly to commandWriterNode
-            // Only options node needs to be manipulated by removing fileName and adding value field. The rest of the
-            // fields should be copied as is.
-            for (Iterator<String> it = commandsReadOnly.fieldNames(); it.hasNext(); ) {
-                String fieldName = it.next();
-                JsonNode field = commandsReadOnly.get(fieldName);
-                // If this is a value node, today no manipulations are required. Copy as is to the writer node.
-                if (field.isValueNode()) {
-                    commandWriterNode.put(fieldName, field);
-                } else if (field.isArray() && fieldName.equals(KEY_OPTIONS)) {
-                    // Only array field present is options which stores all the command labels and fileNames for each label
-                    try {
-                        // Read all the command declarations in an array node.
-                        ArrayNode commandTemplatesFromFile = (ArrayNode) objectMapper.readTree(String.valueOf(field));
+        if (filesArray != null) {
+            for (JsonNode fileName : filesArray) {
 
-                        for (JsonNode commandNode : commandTemplatesFromFile) {
-                            ObjectNode commandOption = objectMapper.createObjectNode();
-                            JsonNode fileName = commandNode.get(KEY_FILE_NAME);
-                            Map individualCommandMapReadOnly;
-
-                            // Only move forward if fileName is present. If not, this command declaration would be ignored
-                            if (fileName != null) {
-                                commandOption.set(KEY_LABEL, commandNode.get(KEY_LABEL));
-                                String path = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName.asText();
-                                try {
-                                    individualCommandMapReadOnly = loadPluginResourceGivenPlugin(plugin, path);
-                                } catch (AppsmithException e) {
-                                    // Either the file doesnt exist or malformed JSON was found. Ignore the command template
-                                    log.error("Error loading resource JSON for plugin {} and resourcePath {} : ", plugin.getPackageName(), resourcePath, e);
-                                    continue;
-                                }
-
-                                // Read the identified and if not present, again ignore the command template
-                                Object identifierObj = individualCommandMapReadOnly.get(KEY_IDENTIFIER);
-                                if (identifierObj != null) {
-                                    String identifier = (String) identifierObj;
-                                    commandOption.put(KEY_VALUE, identifier);
-
-                                    // Only add the command in the final output in case of success
-                                    options.add(commandOption);
-                                    commandTemplates.add(objectMapper.valueToTree(individualCommandMapReadOnly));
-                                }
-                            }
-                        }
-                    } catch (JsonProcessingException e) {
-                        throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(),
-                                "Error loading resource JSON for resourcePath " + resourcePath);
-                    }
+                String path = fileName.asText();
+                try {
+                    final JsonNode templateConfig = loadPluginResourceGivenPluginAsJsonNode(plugin, path);
+                    templateChildrenNode.add(templateConfig);
+                } catch (AppsmithException e) {
+                    // Either the file doesn't exist or malformed JSON was found. Ignore the command template
+                    log.error("Error loading resource JSON for plugin {} and resourcePath {} : ", plugin.getPackageName(), resourcePath, e);
                 }
+
             }
         }
 
         ObjectNode topLevel = objectMapper.createObjectNode();
-        ArrayNode editorOutput = topLevel.putArray("editor");
-        editorOutput.add(commandWriterNode);
-        editorOutput.add(uiSectionNode);
+        topLevel.set("editor", editorArray);
 
         return objectMapper.convertValue(topLevel, new TypeReference<Map<String, Object>>() {
         });
@@ -666,19 +642,32 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return repository.findByType(PluginType.REMOTE);
     }
 
-    private Map loadPluginResourceGivenPlugin(Plugin plugin, String resourcePath) {
-        InputStream resourceAsStream = pluginManager
+    private Map loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {
+        try (InputStream resourceAsStream = pluginManager
                 .getPlugin(plugin.getPackageName())
                 .getPluginClassLoader()
-                .getResourceAsStream(resourcePath);
+                .getResourceAsStream(resourcePath)) {
 
-        if (resourceAsStream == null) {
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
-        }
+            if (resourceAsStream == null) {
+                throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
+            }
 
-        try {
             Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
             return resourceMap;
+        } catch (IOException e) {
+            log.error("[{}] : Error loading resource JSON for resourcePath {}", plugin.getPackageName(), resourcePath, e);
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
+        }
+    }
+
+    private JsonNode loadPluginResourceGivenPluginAsJsonNode(Plugin plugin, String resourcePath) {
+        try (InputStream resourceAsStream = getConfigInputStream(plugin, resourcePath)) {
+
+            if (resourceAsStream == null) {
+                throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
+            }
+
+            return objectMapper.readTree(resourceAsStream);
         } catch (IOException e) {
             log.error("[{}] : Error loading resource JSON for resourcePath {}", plugin.getPackageName(), resourcePath, e);
             throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
@@ -705,7 +694,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                             return plugin.getDatasourceUiConfig();
                         }
                     }
-                    return loadPluginResourceGivenPlugin(plugin, resourcePath);
+                    return loadPluginResourceGivenPluginAsMap(plugin, resourcePath);
                 });
     }
 

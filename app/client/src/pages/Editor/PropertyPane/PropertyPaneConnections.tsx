@@ -1,16 +1,20 @@
-import React, { memo, useMemo, useCallback, useEffect } from "react";
+import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
-import Dropdown, {
-  DefaultDropDownValueNodeProps,
-  DropdownOption,
-} from "components/ads/Dropdown";
-import Tooltip from "components/ads/Tooltip";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Dropdown,
+  DefaultDropDownValueNodeProps,
+  DropdownOption,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent as Tooltip,
+  RenderDropdownOptionType,
+} from "design-system";
 import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
@@ -26,8 +30,16 @@ import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import {
+  interactionAnalyticsEvent,
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
+} from "utils/AppsmithUtils";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import equal from "fast-deep-equal";
+import { mapValues, pick } from "lodash";
+import { createSelector } from "reselect";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -35,6 +47,7 @@ const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
+  padding: 0 1rem;
 
   .connection-dropdown {
     box-shadow: none;
@@ -169,6 +182,7 @@ const OptionContentWrapper = styled.div<{
 
 type PropertyPaneConnectionsProps = {
   widgetName: string;
+  widgetType: string;
 };
 
 type TriggerNodeProps = DefaultDropDownValueNodeProps & {
@@ -177,7 +191,7 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
   justifyContent: string;
-  tooltipPosition?: Position;
+  tooltipPosition?: PopoverPosition;
 };
 
 const doConnectionsHaveErrors = (
@@ -189,9 +203,16 @@ const doConnectionsHaveErrors = (
   );
 };
 
+const getDataTreeWithOnlyIds = createSelector(getDataTree, (tree) =>
+  mapValues(tree, (x) => pick(x, ["ENTITY_TYPE", "widgetId", "actionId"])),
+);
+
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const dataTree = useSelector(getDataTreeWithOnlyIds, equal);
+  const inverseDependencyMap = useSelector(
+    (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
+    equal,
+  );
   const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback((name) => {
@@ -206,11 +227,8 @@ const useDependencyList = (name: string) => {
 
   const entityDependencies = useMemo(() => {
     if (guidedTour) return null;
-    return getDependenciesFromInverseDependencies(
-      deps.inverseDependencyMap,
-      name,
-    );
-  }, [name, deps.inverseDependencyMap, guidedTour]);
+    return getDependenciesFromInverseDependencies(inverseDependencyMap, name);
+  }, [name, inverseDependencyMap, guidedTour]);
 
   const dependencyOptions =
     entityDependencies?.directDependencies.map((e) => ({
@@ -345,6 +363,35 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
   const debuggerErrors = useSelector(getFilteredErrors);
+  const topLayerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    topLayerRef.current?.addEventListener(
+      INTERACTION_ANALYTICS_EVENT,
+      handleKbdEvent,
+    );
+    return () => {
+      topLayerRef.current?.removeEventListener(
+        INTERACTION_ANALYTICS_EVENT,
+        handleKbdEvent,
+      );
+    };
+  }, []);
+
+  const handleKbdEvent = (e: Event) => {
+    const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+    if (!event.detail?.propertyName) {
+      e.stopPropagation();
+      topLayerRef.current?.dispatchEvent(
+        interactionAnalyticsEvent({
+          key: event.detail.key,
+          propertyType: "PROPERTY_PANE_CONNECTION",
+          propertyName: "propertyPaneConnections",
+          widgetType: props.widgetType,
+        }),
+      );
+    }
+  };
 
   const errorIncomingConnections = useMemo(() => {
     return doConnectionsHaveErrors(
@@ -361,9 +408,11 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   }, [dependencies.inverseDependencyOptions, debuggerErrors]);
 
   return (
-    <TopLayer>
+    <TopLayer ref={topLayerRef}>
       <Dropdown
-        SelectedValueNode={(selectedValueProps) => (
+        SelectedValueNode={(
+          selectedValueProps: DefaultDropDownValueNodeProps,
+        ) => (
           <TriggerNode
             iconAlignment={"LEFT"}
             justifyContent={"flex-start"}
@@ -381,7 +430,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         headerLabel="Incoming connections"
         height={`${CONNECTION_HEIGHT}px`}
         options={dependencies.dependencyOptions}
-        renderOption={(optionProps) => {
+        renderOption={(optionProps: RenderDropdownOptionType) => {
           return (
             <OptionNode
               isSelectedNode={optionProps.isSelectedNode}
@@ -396,7 +445,9 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
-        SelectedValueNode={(selectedValueProps) => (
+        SelectedValueNode={(
+          selectedValueProps: DefaultDropDownValueNodeProps,
+        ) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
             justifyContent={"flex-end"}
@@ -415,8 +466,13 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         height={`${CONNECTION_HEIGHT}px`}
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
-        renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+        renderOption={(optionProps: RenderDropdownOptionType) => {
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}

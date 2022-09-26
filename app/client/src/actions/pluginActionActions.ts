@@ -6,10 +6,11 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -53,23 +54,25 @@ export const fetchActionsForView = ({
 
 export const fetchActionsForPage = (
   pageId: string,
-  postEvalActions: Array<AnyReduxAction> = [],
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
     payload: { pageId },
-    postEvalActions,
   };
 };
 
 export const fetchActionsForPageSuccess = (
   actions: Action[],
-  postEvalActions?: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
-    postEvalActions,
+  };
+};
+
+export const fetchActionsForPageError = () => {
+  return {
+    type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
   };
 };
 
@@ -89,22 +92,22 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
-export const showActionConfirmationModal = (show: boolean) => {
+export const showActionConfirmationModal = (payload: ModalInfo) => {
   return {
     type: ReduxActionTypes.SHOW_ACTION_MODAL,
-    payload: show,
+    payload,
   };
 };
 
-export const cancelActionConfirmationModal = () => {
+export const cancelActionConfirmationModal = (payload: string) => {
   return {
-    type: ReduxActionTypes.CANCEL_ACTION_MODAL,
+    type: ReduxActionTypes.CANCEL_ACTION_MODAL + `_FOR_${payload.trim()}`,
   };
 };
 
-export const acceptActionConfirmationModal = () => {
+export const acceptActionConfirmationModal = (payload: string) => {
   return {
-    type: ReduxActionTypes.CONFIRM_ACTION_MODAL,
+    type: ReduxActionTypes.CONFIRM_ACTION_MODAL + `_FOR_${payload.trim()}`,
   };
 };
 
@@ -220,6 +223,13 @@ export const executePluginActionSuccess = (payload: {
   payload: payload,
 });
 
+export const setActionResponseDisplayFormat = (
+  payload: UpdateActionPropertyActionPayload,
+) => ({
+  type: ReduxActionTypes.SET_ACTION_RESPONSE_DISPLAY_FORMAT,
+  payload: payload,
+});
+
 export const executePluginActionError = (
   executeErrorPayload: ExecuteErrorPayload,
 ): ReduxAction<ExecuteErrorPayload> => {
@@ -241,9 +251,13 @@ export type SetActionPropertyPayload = {
   skipSave?: boolean;
 };
 
-export const setActionProperty = (payload: SetActionPropertyPayload) => ({
+export const setActionProperty = (
+  payload: SetActionPropertyPayload,
+  postEvalActions?: Array<AnyReduxAction>,
+) => ({
   type: ReduxActionTypes.SET_ACTION_PROPERTY,
   payload,
+  postEvalActions,
 });
 
 export type UpdateActionPropertyActionPayload = {
@@ -254,10 +268,12 @@ export type UpdateActionPropertyActionPayload = {
 
 export const updateActionProperty = (
   payload: UpdateActionPropertyActionPayload,
+  postEvalActions?: Array<AnyReduxAction>,
 ) => {
   return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
     payload,
+    postEvalActions,
   });
 };
 
@@ -274,6 +290,20 @@ export const setActionsToExecuteOnPageLoad = (
 ) => {
   return {
     type: ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    payload: actions,
+  };
+};
+
+export const setJSActionsToExecuteOnPageLoad = (
+  actions: Array<{
+    executeOnLoad: boolean;
+    id: string;
+    name: string;
+    collectionId?: string;
+  }>,
+) => {
+  return {
+    type: ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD,
     payload: actions,
   };
 };

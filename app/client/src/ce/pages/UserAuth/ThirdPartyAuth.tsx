@@ -86,7 +86,7 @@ function SocialLoginButton(props: {
       }}
     >
       <ButtonLogo alt={` ${props.name} login`} src={props.logo} />
-      <div className="login-method">
+      <div className="login-method" data-testid={`login-with-${props.name}`}>
         {props.label ?? `continue with ${props.name}`}
       </div>
     </StyledSocialLoginButton>

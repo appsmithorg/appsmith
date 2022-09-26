@@ -1,0 +1,99 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 816,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 710,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 54,
+        "minHeight": 700,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+          {
+            "widgetName": "Input1",
+            "displayName": "Input",
+            "iconSVG": "/static/media/icon.9f505595.svg",
+            "topRow": 6,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "autoFocus": false,
+            "type": "INPUT_WIDGET_V2",
+            "hideCard": false,
+            "animateLoading": true,
+            "parentColumnSpace": 12.5625,
+            "dynamicTriggerPathList": [],
+            "resetOnSubmit": true,
+            "leftColumn": 41,
+            "dynamicBindingPathList": [],
+            "labelStyle": "",
+            "inputType": "NUMBER",
+            "isDisabled": false,
+            "key": "s0ahdwksl9",
+            "validation": "",
+            "isRequired": false,
+            "rightColumn": 61,
+            "widgetId": "st4fzocky5",
+            "isVisible": true,
+            "label": "",
+            "version": 2,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "iconAlign": "left",
+            "defaultText": "20"
+          },
+          {
+            "widgetName": "Chart1",
+            "allowScroll": false,
+            "displayName": "Chart",
+            "iconSVG": "/static/media/icon.6adbe31e.svg",
+            "topRow": 5,
+            "bottomRow": 42,
+            "parentRowSpace": 10,
+            "type": "CHART_WIDGET",
+            "hideCard": false,
+            "chartData": {
+              "0cv4k4ip4y": {
+                "seriesName": "Sales",
+                "data": [
+                  { "x": "Product1", "y": 20000 },
+                  { "x": "Product2", "y": 22000 },
+                  { "x": "Product3", "y": 32000 }
+                ]
+              }
+            },
+            "animateLoading": true,
+            "parentColumnSpace": 12.5625,
+            "dynamicTriggerPathList": [],
+            "leftColumn": 6,
+            "dynamicBindingPathList": [
+              { "key": "customFusionChartConfig" }
+            ],
+            "customFusionChartConfig": "{\n  \"type\": \"cylinder\",\n  \"dataSource\": {\n    \"chart\": {\n        \"subcaptionFontBold\": \"0\",\n                \"cylFillColor\":{{Input1.text>20?\"03B365\":\"DD4B34\"}},\n        \"lowerLimit\": \"0\",\n        \"upperLimit\": \"100\",\n        \"lowerLimitDisplay\": \"Empty\",\n        \"upperLimitDisplay\": \"Full\",\n        \"numberSuffix\": \" %\",\n        \"showhovereffect\": \"1\",\n        \"theme\": \"fusion\"\n    },\n    \"value\": {{Input1.text}}\n  }\n}",
+            "key": "inhiq5j36q",
+            "rightColumn": 37,
+            "widgetId": "4c10n4cwrw",
+            "isVisible": true,
+            "version": 1,
+            "parentId": "0",
+            "labelOrientation": "auto",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "yAxisName": "Revenue($)",
+            "chartName": "Sales Report",
+            "xAxisName": "Product Line",
+            "chartType": "LINE_CHART"
+          }
+        ]
+    }
+}

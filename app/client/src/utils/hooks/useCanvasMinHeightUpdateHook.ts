@@ -1,12 +1,12 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "store";
-import { updateWidgetMetaProperty } from "actions/metaActions";
+import { updateWidgetMetaPropAndEval } from "actions/metaActions";
 import WidgetFactory from "utils/WidgetFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -25,7 +25,7 @@ export const useCanvasMinHeightUpdateHook = (
     widget.type === WidgetTypes.CANVAS_WIDGET;
   useEffect(() => {
     if (canUpdateWidgetMinHeight && widget.minHeight !== minHeight) {
-      dispatch(updateWidgetMetaProperty(widgetId, "minHeight", minHeight));
+      dispatch(updateWidgetMetaPropAndEval(widgetId, "minHeight", minHeight));
     }
   }, [minHeight]);
 };

@@ -1,21 +1,59 @@
-import { last, isNumber } from "lodash";
+import { last, isNumber, isEmpty } from "lodash";
 import { Annotation, Position } from "codemirror";
 import {
   EvaluationError,
+  isDynamicValue,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
-import { LintTooltipDirection, WARNING_LINT_ERRORS } from "./constants";
-
+import {
+  CODE_EDITOR_START_POSITION,
+  CUSTOM_LINT_ERRORS,
+  IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
+  INVALID_JSOBJECT_START_STATEMENT,
+  JS_OBJECT_START_STATEMENT,
+  LintTooltipDirection,
+  REFINED_LINT_ERROR_MESSAGES,
+  VALID_JS_OBJECT_BINDING_POSITION,
+  WARNING_LINT_ERRORS,
+} from "./constants";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,
   start = 0,
 ): number => {
-  const pos = str.substr(start).search(regex);
+  const pos = str.slice(start).search(regex);
   return pos > -1 ? pos + start : pos;
 };
 
+interface LintAnnotationOptions {
+  isJSObject: boolean;
+  contextData: AdditionalDynamicDataTree;
+}
+
+/**
+ *
+ * @param error
+ * @param contextData
+ * @returns A boolean signifying the presence of an identifier which the linter records as been "not defined"
+ * but is passed to the editor as additional dynamic data
+ */
+const hasUndefinedIdentifierInContextData = (
+  error: EvaluationError,
+  contextData: LintAnnotationOptions["contextData"],
+) => {
+  /**
+   * W117: "'{a}' is not defined.",
+   * error has only one variable "a", which is the name of the variable which is not defined.
+   *  */
+  return (
+    error.code === IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE &&
+    error.variables &&
+    error.variables[0] &&
+    error.variables[0] in contextData
+  );
+};
 const buildBoundaryRegex = (key: string) => {
   return key
     .replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
@@ -44,7 +82,7 @@ export const getKeyPositionInString = (
   let positions: Position[] = [];
   if (str.includes("\n")) {
     for (const index of indices) {
-      const substr = str.substr(0, index);
+      const substr = str.slice(0, index);
       const substrLines = substr.split("\n");
       const ch = last(substrLines)?.length || 0;
       const line = substrLines.length - 1;
@@ -57,15 +95,57 @@ export const getKeyPositionInString = (
   return positions;
 };
 
+export const getFirstNonEmptyPosition = (lines: string[]): Position => {
+  const lineNumber = lines.findIndex((line) => !isEmpty(line));
+  return lineNumber > -1
+    ? {
+        line: lineNumber,
+        ch: lines[lineNumber].length,
+      }
+    : CODE_EDITOR_START_POSITION;
+};
+
+export const filterLintErrors = (
+  errors: EvaluationError[],
+  contextData?: AdditionalDynamicDataTree,
+) => {
+  return errors.filter(
+    (error) =>
+      error.errorType === PropertyEvaluationErrorType.LINT &&
+      // Remove all errors where additional dynamic data is reported as undefined
+      !(contextData && hasUndefinedIdentifierInContextData(error, contextData)),
+  );
+};
+
 export const getLintAnnotations = (
   value: string,
   errors: EvaluationError[],
+  options: Partial<LintAnnotationOptions>,
 ): Annotation[] => {
+  const { contextData, isJSObject } = options;
   const annotations: Annotation[] = [];
-  const lintErrors = errors.filter(
-    (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-  );
+  const lintErrors = filterLintErrors(errors, contextData);
   const lines = value.split("\n");
+
+  // The binding position of every valid JS Object is constant, so we need not
+  // waste time checking for position of binding.
+  // For JS Objects not starting with the expected "export default" statement, we return early
+  // with a "invalid start statement" lint error
+  if (
+    isJSObject &&
+    !isEmpty(lines) &&
+    !lines[0].startsWith(JS_OBJECT_START_STATEMENT)
+  ) {
+    return [
+      {
+        from: CODE_EDITOR_START_POSITION,
+        to: getFirstNonEmptyPosition(lines),
+        message: INVALID_JSOBJECT_START_STATEMENT,
+        severity: Severity.ERROR,
+      },
+    ];
+  }
+
   lintErrors.forEach((error) => {
     const {
       ch,
@@ -87,24 +167,40 @@ export const getLintAnnotations = (
         if (variable) {
           variableLength =
             variableLength === 1
-              ? variable.length
-              : Math.min(variable.length, variableLength);
+              ? String(variable).length
+              : Math.min(String(variable).length, variableLength);
         }
       }
     }
 
-    const bindingPositions = getKeyPositionInString(value, originalBinding);
+    const bindingPositions = isJSObject
+      ? [VALID_JS_OBJECT_BINDING_POSITION]
+      : getKeyPositionInString(value, originalBinding);
 
     if (isNumber(line) && isNumber(ch)) {
       for (const bindingLocation of bindingPositions) {
         const currentLine = bindingLocation.line + line;
         const lineContent = lines[currentLine] || "";
-        const currentCh =
-          bindingLocation.line !== currentLine ? ch : bindingLocation.ch + ch;
-        // Jshint counts \t as two characters and codemirror counts it as 1.
-        // So we need to subtract number of tabs to get accurate position
-        const tabs = lineContent.substr(0, currentCh).match(/\t/g)?.length || 0;
+        let currentCh: number;
 
+        // for case where "{{" is in the same line as the lint error
+        if (bindingLocation.line === currentLine) {
+          currentCh =
+            bindingLocation.ch +
+            ch +
+            // Add 2 to account for "{{", if binding is a dynamicValue (NB: JS Objects are dynamicValues without "{{}}")
+            (isDynamicValue(originalBinding) ? 2 : 0);
+        } else {
+          currentCh = ch;
+        }
+
+        // Jshint counts \t as two characters and codemirror counts it as 1.
+        // So we need to subtract number of tabs to get accurate position.
+        // This is not needed for custom lint errors, since they are not generated by JSHint
+        const tabs =
+          error.code && error.code in CUSTOM_LINT_ERRORS
+            ? 0
+            : lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
         const from = {
           line: currentLine,
           ch: currentCh - tabs - 1,
@@ -150,4 +246,10 @@ export const getLintTooltipDirection = (
   } else {
     return LintTooltipDirection.right;
   }
+};
+
+export const getLintErrorMessage = (reason: string): string => {
+  return reason in REFINED_LINT_ERROR_MESSAGES
+    ? REFINED_LINT_ERROR_MESSAGES[reason]
+    : reason;
 };

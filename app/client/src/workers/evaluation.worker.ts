@@ -24,6 +24,9 @@ import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
+import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { EvalTreePayload } from "../sagas/EvaluationsSaga";
+import { UserLogObject } from "./UserLog";
 
 const CANVAS = "canvas";
 
@@ -65,7 +68,7 @@ function messageEventListener(
               errors: [
                 {
                   type: EvalErrorTypes.CLONE_ERROR,
-                  message: e,
+                  message: (e as Error)?.message,
                   context: JSON.stringify(rest),
                 },
               ],
@@ -80,7 +83,10 @@ function messageEventListener(
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method, requestData: any, requestId) => {
+  messageEventListener((method, requestData: any, requestId):
+    | EvalTreePayload
+    | boolean
+    | any => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.SETUP: {
         setupEvaluationEnvironment();
@@ -90,6 +96,7 @@ ctx.addEventListener(
         const {
           allActionValidationConfig,
           shouldReplay = true,
+          theme,
           unevalTree,
           widgets,
           widgetTypeConfigMap,
@@ -98,14 +105,17 @@ ctx.addEventListener(
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
+        let userLogs: UserLogObject[] = [];
         let dependencies: DependencyMap = {};
         let evaluationOrder: string[] = [];
-        let unEvalUpdates: DataTreeDiff[] = [];
+        let unEvalUpdates: DataTreeDiff[] | null = null;
         let jsUpdates: Record<string, any> = {};
+        let evalMetaUpdates: EvalMetaUpdates = [];
+        let isCreateFirstTree = false;
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
-            replayMap[CANVAS] = new ReplayCanvas(widgets);
+            replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
             //allActionValidationConfigs maybe empty
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
@@ -114,6 +124,7 @@ ctx.addEventListener(
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
+            isCreateFirstTree = true;
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
@@ -128,7 +139,7 @@ ctx.addEventListener(
               );
             }
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
@@ -142,6 +153,7 @@ ctx.addEventListener(
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
+            isCreateFirstTree = true;
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
@@ -154,35 +166,43 @@ ctx.addEventListener(
             }
             dataTree = {};
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
             jsUpdates = updateResponse.jsUpdates;
+            // evalMetaUpdates can have moment object as value which will cause DataCloneError
+            // hence, stringify and parse to avoid such errors
+            evalMetaUpdates = JSON.parse(
+              JSON.stringify(updateResponse.evalMetaUpdates),
+            );
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
+          userLogs = dataTreeEvaluator.userLogs;
           if (replayMap[CANVAS]?.logs)
             logs = logs.concat(replayMap[CANVAS]?.logs);
           replayMap[CANVAS]?.clearLogs();
           dataTreeEvaluator.clearLogs();
-        } catch (e) {
+        } catch (error) {
           if (dataTreeEvaluator !== undefined) {
             errors = dataTreeEvaluator.errors;
             logs = dataTreeEvaluator.logs;
+            userLogs = dataTreeEvaluator.userLogs;
           }
-          if (!(e instanceof CrashingError)) {
+          if (!(error instanceof CrashingError)) {
             errors.push({
               type: EvalErrorTypes.UNKNOWN_ERROR,
-              message: e.message,
+              message: (error as Error).message,
             });
-            console.error(e);
+            console.error(error);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
+          unEvalUpdates = [];
         }
         return {
           dataTree,
@@ -191,7 +211,10 @@ ctx.addEventListener(
           evaluationOrder,
           logs,
           unEvalUpdates,
+          userLogs,
           jsUpdates,
+          evalMetaUpdates,
+          isCreateFirstTree,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -212,7 +235,12 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const {
+          callbackData,
+          dataTree,
+          dynamicTrigger,
+          globalContext,
+        } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -226,6 +254,9 @@ ctx.addEventListener(
           requestId,
           resolvedFunctions,
           callbackData,
+          {
+            globalContext,
+          },
         );
 
         break;
@@ -241,9 +272,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { props, validation, value } = requestData;
+        const { property, props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(validation, value, props),
+          validateWidgetProperty(validation, value, props, property),
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
@@ -268,14 +299,14 @@ ctx.addEventListener(
         }
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-        const { errors, result } = evaluate(
+        const { errors, logs, result } = evaluate(
           functionCall,
           evalTree,
           resolvedFunctions,
           false,
           undefined,
         );
-        return { errors, result };
+        return { errors, logs, result };
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
         const { expression, isTrigger } = requestData;

@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
@@ -25,10 +26,12 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -37,11 +40,14 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
@@ -163,7 +169,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasourceService::getById)
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-                    WebClient.Builder builder = WebClient.builder().baseUrl(oAuth2.getAccessTokenUrl());
+                    final HttpClient httpClient = HttpClient.create();
+
+                    if (oAuth2.isUseSelfSignedCert()) {
+                        httpClient.secure(SSLHelper.sslCheckForHttpClient(datasource.getDatasourceConfiguration()));
+                    }
+
+                    WebClient.Builder builder = WebClientUtils.builder(httpClient)
+                            .baseUrl(oAuth2.getAccessTokenUrl());
 
                     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
@@ -197,6 +210,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     }
                     return builder.build()
                             .method(HttpMethod.POST)
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                             .body(BodyInserters.fromFormData(map))
                             .exchange()
                             .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
@@ -228,10 +242,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
                                 Instant expiresAt = null;
                                 if (expiresAtResponse != null) {
-                                    expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
+                                    expiresAt = Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
                                 } else if (expiresInResponse != null) {
-                                    expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
-
+                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
                                 }
                                 authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead
@@ -285,7 +298,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 "&view_mode=true"));
     }
 
-    public Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request) {
+    public Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request, String importForGit) {
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
@@ -321,6 +334,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             integrationDTO.setPageId(defaultPageId);
                             integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
+                            integrationDTO.setImportForGit(importForGit);
                             final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());
@@ -331,9 +345,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return integrationDTO;
                         }))
                 .flatMap(integrationDTO -> {
-                    WebClient.Builder builder = WebClient.builder();
-                    builder.baseUrl(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith");
-                    return builder.build()
+                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith")
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
                             .exchange()
@@ -380,7 +392,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> {
-                    WebClient.Builder builder = WebClient.builder();
                     UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                     try {
                         uriBuilder.uri(new URI(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/token"))
@@ -388,7 +399,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     } catch (URISyntaxException e) {
                         log.debug("Error while parsing access token URL.", e);
                     }
-                    return builder.build()
+                    return WebClientUtils.create()
                             .method(HttpMethod.POST)
                             .uri(uriBuilder.build(true).toUri())
                             .exchange()
@@ -409,6 +420,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
+                                final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
+                                if (tokenResponse != null && tokenResponse.containsKey("scope")) {
+                                    if (!new HashSet<>(Arrays.asList(String.valueOf(tokenResponse.get("scope")).split(" "))).containsAll(
+                                            oAuth2.getScope())) {
+                                        return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
+                                                "Please provide access to all the requested scopes to use the integration correctly."));
+                                    }
+                                }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return Mono.just(datasource);
                             });
@@ -440,11 +459,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     integrationDTO.setPluginName(plugin.getPluginName());
                     integrationDTO.setPluginVersion(plugin.getVersion());
 
-                    WebClient.Builder builder = WebClient
-                            .builder()
-                            .baseUrl(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh");
-
-                    return builder.build()
+                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh")
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
                             .exchange()

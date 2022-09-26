@@ -4,22 +4,24 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,19 +33,16 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static java.util.stream.Collectors.toMap;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 
 
 @Slf4j
@@ -58,15 +57,35 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
-    private final OrganizationService organizationService;
+    private final WorkspaceService workspaceService;
     private final ApplicationRepository applicationRepository;
     private final ReleaseNotesService releaseNotesService;
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
+    private final UserWorkspaceService userWorkspaceService;
+
+    private <Domain extends BaseDomain> Flux<Domain> sortDomain(Flux<Domain> domainFlux, List<String> sortOrder) {
+        if (CollectionUtils.isEmpty(sortOrder)) {
+            return domainFlux;
+        }
+        return domainFlux.collect(Collectors.toMap(Domain::getId, Function.identity(), (key1, key2) -> key1, LinkedHashMap::new))
+        .map(domainMap -> {
+            List<Domain> sortedDomains = new ArrayList<>();
+            for (String id : sortOrder) {
+                if (domainMap.containsKey(id)) {
+                    sortedDomains.add(domainMap.get(id));
+                    domainMap.remove(id);
+                }
+            }
+            sortedDomains.addAll(domainMap.values());
+            return sortedDomains;
+        })
+        .flatMapMany(Flux::fromIterable);
+    }
 
     /**
-     * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
-     * the applications are fetched. These applications are then returned grouped by Organizations in a special DTO and returned
+     * For the current user, it first fetches all the workspaces user has read permission on. For each workspace, in turn all
+     * the readable applications are fetched. These applications are then returned grouped by Workspaces in a special DTO and returned
      *
      * @return List of UserHomepageDTO
      */
@@ -94,86 +113,76 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
                     userHomepageDTO.setUser(user);
 
-                    Set<String> orgIds = user.getOrganizationIds();
-                    if(CollectionUtils.isEmpty(orgIds)) {
-                        userHomepageDTO.setOrganizationApplications(new ArrayList<>());
-                        return Mono.just(userHomepageDTO);
-                    }
-
-                    // create a set of org id where recently used ones will be at the beginning
-                    List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
-                    Set<String> orgIdSortedSet = new LinkedHashSet<>();
-                    if(recentlyUsedOrgIds != null && recentlyUsedOrgIds.size() > 0) {
-                        // user has a recently used list, add them to the beginning
-                        orgIdSortedSet.addAll(recentlyUsedOrgIds);
-                    }
-                    orgIdSortedSet.addAll(orgIds); // add all other if not added already
-
-                    // Collect all the applications as a map with organization id as a key
+                    // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
-                            .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
+                            .findAllUserApps(READ_APPLICATIONS)
+                            //sort transformation
+                            .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedAppIds()))
+                            // Git connected apps will have gitApplicationMetadat
                             .filter(application -> application.getGitApplicationMetadata() == null
-                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId()))
+                                            // 1. When the ssh key is generated by user and then the connect app fails
+                                            || (StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultBranchName())
+                                                && StringUtils.isEmpty(application.getGitApplicationMetadata().getBranchName()))
+                                            // 2. When the DefaultBranchName is missing due to branch creation flow failures or corrupted scenarios
+                                            || (!StringUtils.isEmpty(application.getGitApplicationMetadata().getBranchName())
+                                                && application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())
+                                    )
                             )
                             .map(responseUtils::updateApplicationWithDefaultResources);
 
-                    // sort the list of applications if user has recent applications
-                    if(!CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())) {
-                        // creating a map of applicationId and corresponding index to reduce sorting time
-                        Map<String, Integer> idToIndexMap = IntStream.range(0, userData.getRecentlyUsedAppIds().size())
-                                .boxed()
-                                .collect(toMap(userData.getRecentlyUsedAppIds()::get, i -> i));
-
-                        applicationFlux = applicationFlux.sort((o1, o2) -> {
-                            String o1Id = o1.getId(), o2Id = o2.getId();
-                            Integer idx1 = idToIndexMap.get(o1Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o1Id);
-                            Integer idx2 = idToIndexMap.get(o2Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o2Id);
-                            return (idx1-idx2);
-                        });
-                    }
-
                     Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationFlux.collectMultimap(
-                            Application::getOrganizationId, Function.identity()
+                            Application::getWorkspaceId, Function.identity()
                     );
 
-                    return organizationService
-                            .findByIdsIn(orgIds, READ_ORGANIZATIONS)
-                            .collectMap(Organization::getId, v -> v)
-                            .zipWith(applicationsMapMono)
+                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(READ_WORKSPACES)
+                            .cache();
+
+                    Mono<List<Workspace>> workspaceListMono = workspacesFromRepoFlux
+                            //sort transformation
+                            .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedWorkspaceIds()))
+                            //collect to list to keep the order of the workspaces
+                            .collectList()
+                            .cache();
+
+                    Mono<Map<String, List<UserAndPermissionGroupDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
+                            .map(Workspace::getId)
+                            .collect(Collectors.toSet())
+                            .flatMap(workspaceIds -> userWorkspaceService.getWorkspaceMembers(workspaceIds));
+
+                    return Mono.zip(workspaceListMono, applicationsMapMono, userAndPermissionGroupMapDTO)
                             .map(tuple -> {
-                                Map<String, Organization> organizations = tuple.getT1();
+                                List<Workspace> workspaces = tuple.getT1();
 
-                                Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
+                                Map<String, Collection<Application>> applicationsCollectionByWorkspaceId = tuple.getT2();
 
-                                List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
+                                Map<String, List<UserAndPermissionGroupDTO>> userAndPermissionGroupMapDTOByWorkspaceId = tuple.getT3();
 
-                                for(String orgId : orgIdSortedSet) {
-                                    Organization organization = organizations.get(orgId);
-                                    if(organization != null) {
-                                        Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(organization.getId());
+                                List<WorkspaceApplicationsDTO> workspaceApplicationsDTOS = new ArrayList<>();
 
-                                        final List<Application> applicationList = new ArrayList<>();
-                                        if (!CollectionUtils.isEmpty(applicationCollection)) {
-                                            applicationList.addAll(applicationCollection);
-                                        }
+                                for(Workspace workspace : workspaces) {
+                                    Collection<Application> applicationCollection = applicationsCollectionByWorkspaceId.get(workspace.getId());
 
-                                        OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
-                                        organizationApplicationsDTO.setOrganization(organization);
-                                        organizationApplicationsDTO.setApplications(applicationList);
-                                        organizationApplicationsDTO.setUserRoles(organization.getUserRoles());
-
-                                        organizationApplicationsDTOS.add(organizationApplicationsDTO);
+                                    final List<Application> applicationList = new ArrayList<>();
+                                    if (!CollectionUtils.isEmpty(applicationCollection)) {
+                                        applicationList.addAll(applicationCollection);
                                     }
+
+                                    WorkspaceApplicationsDTO workspaceApplicationsDTO = new WorkspaceApplicationsDTO();
+                                    workspaceApplicationsDTO.setWorkspace(workspace);
+                                    workspaceApplicationsDTO.setApplications(applicationList);
+                                    workspaceApplicationsDTO.setUsers(userAndPermissionGroupMapDTOByWorkspaceId.get(workspace.getId()));
+
+                                    workspaceApplicationsDTOS.add(workspaceApplicationsDTO);
                                 }
 
-                                userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
+                                userHomepageDTO.setWorkspaceApplications(workspaceApplicationsDTOS);
                                 return userHomepageDTO;
                             });
                 })
                 .flatMap(userHomepageDTO -> {
-                    List<String> applicationIds = userHomepageDTO.getOrganizationApplications().stream()
-                            .map(organizationApplicationsDTO ->
-                                    organizationApplicationsDTO.getApplications().stream()
+                    List<String> applicationIds = userHomepageDTO.getWorkspaceApplications().stream()
+                            .map(workspaceApplicationsDTO ->
+                                    workspaceApplicationsDTO.getApplications().stream()
                                             .map(BaseDomain::getId).collect(Collectors.toList())
                             ).flatMap(Collection::stream).collect(Collectors.toList());
 
@@ -181,8 +190,8 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     return newPageService.findPageSlugsByApplicationIds(applicationIds, READ_PAGES)
                             .collectMultimap(NewPage::getApplicationId)
                             .map(applicationPageMap -> {
-                                for (OrganizationApplicationsDTO orgApps : userHomepageDTO.getOrganizationApplications()) {
-                                    for (Application application : orgApps.getApplications()) {
+                                for (WorkspaceApplicationsDTO workspaceApps : userHomepageDTO.getWorkspaceApplications()) {
+                                    for (Application application : workspaceApps.getApplications()) {
                                         setDefaultPageSlug(application, applicationPageMap, Application::getPages, NewPage::getUnpublishedPage);
                                         setDefaultPageSlug(application, applicationPageMap, Application::getPublishedPages, NewPage::getPublishedPage);
                                     }
@@ -236,7 +245,13 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     if(newPageDetails.isPresent()) {
                         NewPage newPage = newPageDetails.get();
-                        defaultPage.setSlug(getPage.apply(newPage).getSlug());
+                        PageDTO pageDTO = getPage.apply(newPage);
+                        if(pageDTO != null) {
+                            defaultPage.setSlug(pageDTO.getSlug());
+                            defaultPage.setCustomSlug(pageDTO.getCustomSlug());
+                        } else {
+                            log.error("page dto missing for application {} page {}", application.getId(), defaultPage.getId());
+                        }
                     } else {
                         log.error("page not found for application id {}, page id {}", application.getId(), defaultPage.getId());
                     }

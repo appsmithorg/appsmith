@@ -1,26 +1,25 @@
 import { get } from "lodash";
 import styled, { useTheme } from "styled-components";
-import { useParams, useHistory } from "react-router";
+import { useHistory } from "react-router";
 import React, { useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ControlIcons } from "icons/ControlIcons";
-import { IconWrapper } from "components/ads/Icon";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import Button, { Size } from "components/ads/Button";
+import { Button, IconWrapper, Size } from "design-system";
 import PageListItem, { Action } from "./PageListItem";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import DraggableList from "components/ads/DraggableList";
+import { DraggableList } from "design-system";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { builderURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -62,14 +61,18 @@ const NewPageButton = styled(Button)`
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
+type PageListPayloadWithId = Page[] & { id?: string };
+
 function PagesEditor() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const history = useHistory();
-  const pages = useSelector(getPageList);
-  const params = useParams<ExplorerURLParams>();
+  const pages: PageListPayloadWithId = useSelector(
+    getPageList,
+  )?.map((page) => ({ ...page, id: page.pageId }));
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
+  const pageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -113,8 +116,8 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(BUILDER_PAGE_URL({ applicationId, pageId: params.pageId }));
-  }, []);
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
 
   /**
    * Draggable List Render item
@@ -158,6 +161,7 @@ function PagesEditor() {
         ItemRenderer={draggableListRenderItem}
         itemHeight={70}
         items={pages}
+        keyAccessor={"pageId"}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
           setPageOrderCallback(pages[originalIndex].pageId, newIndex);
         }}

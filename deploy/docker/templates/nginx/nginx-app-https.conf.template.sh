@@ -19,6 +19,8 @@ map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
 }
+# redirect log to stdout for supervisor to capture
+access_log /dev/stdout;
 
 server {
   listen 80;
@@ -34,45 +36,57 @@ server {
   ssl_certificate $SSL_CERT_PATH;
   ssl_certificate_key $SSL_KEY_PATH;
 
-
   include /appsmith-stacks/data/certificate/conf/options-ssl-nginx.conf;
   ssl_dhparam /appsmith-stacks/data/certificate/conf/ssl-dhparams.pem;
 
-  client_max_body_size 100m;
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+  add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
 
-  gzip on;
+  location = /supervisor {
+    return 301 /supervisor/;
+  }
 
-  root /opt/appsmith/editor;
-  index index.html index.htm;
-
-  location /.well-known/acme-challenge/ {
-    root /appsmith-stacks/data/certificate/certbot;
+  location /supervisor/ {
+      proxy_http_version 1.1;
+      proxy_buffering    off;
+      proxy_max_temp_file_size 0;
+      proxy_redirect    off;
+      proxy_set_header  Host             \$http_host/supervisor/;
+      proxy_set_header  X-Real-IP        \$remote_addr;
+      proxy_set_header  X-Forwarded-For  \$proxy_add_x_forwarded_for;
+      proxy_set_header 	X-Forwarded-Proto \$origin_scheme;
+      proxy_set_header 	X-Forwarded-Host \$http_host;
+      proxy_set_header   Connection       "";
+      proxy_pass http://localhost:9001/;
+      auth_basic "Protected";
+      auth_basic_user_file /etc/nginx/passwords;
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$host;
 
+  client_max_body_size 100m;
+
+  gzip on;
+  gzip_types *;
+
+  server_tokens off;
+
+  root /opt/appsmith/editor;
+  index index.html;
+  error_page 404 /;
+
+  location /.well-known/acme-challenge/ {
+    root /appsmith-stacks/data/certificate/certbot;
+  }
+
   location / {
     try_files \$uri /index.html =404;
+  }
 
-    sub_filter __APPSMITH_SENTRY_DSN__ '\${APPSMITH_SENTRY_DSN}';
-    sub_filter __APPSMITH_SMART_LOOK_ID__ '\${APPSMITH_SMART_LOOK_ID}';
-    sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
-    sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
-    sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
-    sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
-    sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
-    sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
-    sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
-    sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '\${APPSMITH_CLIENT_LOG_LEVEL}';
-    sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '\${APPSMITH_GOOGLE_MAPS_API_KEY}';
-    sub_filter __APPSMITH_TNC_PP__ '\${APPSMITH_TNC_PP}';
-    sub_filter __APPSMITH_VERSION_ID__ '\${APPSMITH_VERSION_ID}';
-    sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '\${APPSMITH_VERSION_RELEASE_DATE}';
-    sub_filter __APPSMITH_INTERCOM_APP_ID__ '\${APPSMITH_INTERCOM_APP_ID}';
-    sub_filter __APPSMITH_MAIL_ENABLED__ '\${APPSMITH_MAIL_ENABLED}';
-    sub_filter __APPSMITH_DISABLE_TELEMETRY__ '\${APPSMITH_DISABLE_TELEMETRY}';
-    sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '\${APPSMITH_RECAPTCHA_SITE_KEY}';
+  # If the path has an extension at the end, then respond with 404 status if the file not found.
+  location ~ \.[a-z]+$ {
+    try_files \$uri =404;
   }
 
   location /api {

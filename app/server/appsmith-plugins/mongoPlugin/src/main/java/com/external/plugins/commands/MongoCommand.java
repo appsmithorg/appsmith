@@ -2,6 +2,7 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 
@@ -38,7 +40,7 @@ public abstract class MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, COLLECTION)) {
-            this.collection = (String) formData.get(COLLECTION);
+            this.collection = PluginUtils.getDataValueSafelyFromFormData(formData, COLLECTION, STRING_TYPE);
         }
     }
 
@@ -51,10 +53,17 @@ public abstract class MongoCommand {
     }
 
     public Document parseCommand() {
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo commands must implement parseCommand");
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
+                "commands must implement parseCommand");
     }
 
     public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo commands must implement generateTemplate");
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
+                "commands must implement generateTemplate");
+    }
+
+    public String getRawQuery() {
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
+                "commands must implement getRawQuery");
     }
 }

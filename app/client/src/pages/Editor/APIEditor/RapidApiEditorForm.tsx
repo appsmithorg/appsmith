@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
@@ -9,15 +9,18 @@ import { PaginationField, BodyFormData, Property } from "api/ActionAPI";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import { NameWrapper } from "./Form";
+import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import { getActionData } from "../../../selectors/entitiesSelector";
+import { AppState } from "@appsmith/reducers";
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -111,6 +114,8 @@ interface APIFormProps {
   apiName: string;
   apiId: string;
   dispatch: any;
+  responseDataTypes: { key: string; title: string }[];
+  responseDisplayFormat: { title: string; value: string };
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -128,6 +133,8 @@ function RapidApiEditorForm(props: Props) {
     providerCredentialSteps,
     providerImage,
     providerURL,
+    responseDataTypes,
+    responseDisplayFormat,
     templateId,
   } = props;
 
@@ -258,7 +265,12 @@ function RapidApiEditorForm(props: Props) {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView apiName={props.apiName} onRunClick={onRunClick} />
+        <ApiResponseView
+          apiName={props.apiName}
+          onRunClick={onRunClick}
+          responseDataTypes={responseDataTypes}
+          responseDisplayFormat={responseDisplayFormat}
+        />
       </SecondaryWrapper>
     </Form>
   );
@@ -266,7 +278,7 @@ function RapidApiEditorForm(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-export default connect((state) => {
+export default connect((state: AppState) => {
   const displayFormat = selector(state, "displayFormat");
   const providerImage = selector(state, "provider.imageUrl");
   const providerURL = selector(state, "provider.url");
@@ -291,6 +303,28 @@ export default connect((state) => {
       `${actionConfigurationBodyFormData}`,
     );
   }
+  const actionData = getActionData(state, actionConfiguration.id);
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+  if (!!actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
+      };
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
+    };
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = {
+      title: "JSON",
+      value: "JSON",
+    };
+  }
+
   return {
     displayFormat,
     actionConfiguration,
@@ -298,6 +332,8 @@ export default connect((state) => {
     actionConfigurationBodyFormData,
     providerImage,
     providerURL,
+    responseDataTypes,
+    responseDisplayFormat,
     templateId,
     providerCredentialSteps,
   };

@@ -1,16 +1,29 @@
-import { BUILDER_PAGE_URL, getApplicationViewerPageURL } from "./routes";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { builderURL, viewerURL } from "RouteBuilder";
 
-describe("BUILDER_PAGE_URL", () => {
+describe("builderURL", () => {
   let location: typeof window.location;
   beforeAll(() => {
     location = window.location;
     delete (window as any).location;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: ":applicationSlug",
+        applicationId: ":applicationId",
+        applicationVersion: 2,
+      },
+      [
+        {
+          pageId: ":pageId",
+          pageSlug: ":pageSlug",
+        },
+      ],
+    );
   });
 
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
-    const pageURL = BUILDER_PAGE_URL({
-      applicationId: ":applicationId",
+    const pageURL = builderURL({
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -19,8 +32,7 @@ describe("BUILDER_PAGE_URL", () => {
 
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
-    const pageURL = BUILDER_PAGE_URL({
-      applicationId: ":applicationId",
+    const pageURL = builderURL({
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -33,16 +45,28 @@ describe("BUILDER_PAGE_URL", () => {
   });
 });
 
-describe("getApplicationViewerPageURL", () => {
+describe("viewerURL", () => {
   let location: typeof window.location;
   beforeAll(() => {
     location = window.location;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: ":applicationSlug",
+        applicationId: ":applicationId",
+        applicationVersion: 2,
+      },
+      [
+        {
+          pageId: ":pageId",
+          pageSlug: ":pageSlug",
+        },
+      ],
+    );
   });
 
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
-    const pageURL = getApplicationViewerPageURL({
-      applicationId: ":applicationId",
+    const pageURL = viewerURL({
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -51,8 +75,7 @@ describe("getApplicationViewerPageURL", () => {
 
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
-    const pageURL = getApplicationViewerPageURL({
-      applicationId: ":applicationId",
+    const pageURL = viewerURL({
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);

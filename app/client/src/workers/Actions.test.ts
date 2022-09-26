@@ -1,6 +1,8 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/evaluate";
+import uniqueId from "lodash/uniqueId";
+jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
   const workerEventMock = jest.fn();
@@ -9,6 +11,7 @@ describe("Add functions", () => {
   const dataTree: DataTree = {
     action1: {
       actionId: "123",
+      pluginId: "",
       data: {},
       config: {},
       datasourceUrl: "",
@@ -16,6 +19,7 @@ describe("Add functions", () => {
       dynamicBindingPathList: [],
       name: "action1",
       bindingPaths: {},
+      reactivePaths: {},
       isLoading: false,
       run: {},
       clear: {},
@@ -26,8 +30,13 @@ describe("Add functions", () => {
     },
   };
   self.TRIGGER_COLLECTOR = [];
-  const dataTreeWithFunctions = createGlobalData(dataTree, {}, true, {
-    requestId: "EVAL_TRIGGER",
+  const dataTreeWithFunctions = createGlobalData({
+    dataTree,
+    resolvedFunctions: {},
+    isTriggerBased: true,
+    context: {
+      requestId: "EVAL_TRIGGER",
+    },
   });
 
   beforeEach(() => {
@@ -49,8 +58,8 @@ describe("Add functions", () => {
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
         actionId: "123",
-        onError: 'function () { return "failure"; }',
-        onSuccess: 'function () { return "success"; }',
+        onError: '() => "failure"',
+        onSuccess: '() => "success"',
         params: {
           param1: "value1",
         },
@@ -69,7 +78,7 @@ describe("Add functions", () => {
       payload: {
         actionId: "123",
         onError: undefined,
-        onSuccess: 'function () { return "success"; }',
+        onSuccess: '() => "success"',
         params: {
           param1: "value1",
         },
@@ -86,7 +95,7 @@ describe("Add functions", () => {
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
         actionId: "123",
-        onError: 'function () { return "failure"; }',
+        onError: '() => "failure"',
         onSuccess: undefined,
         params: {
           param1: "value1",
@@ -297,6 +306,10 @@ describe("Add functions", () => {
     const key = "some";
     const value = "thing";
     const persist = false;
+    const uniqueActionRequestId = "kjebd";
+
+    // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
+    uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
     expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
       {},
@@ -313,6 +326,7 @@ describe("Add functions", () => {
             key,
             value,
             persist,
+            uniqueActionRequestId,
           },
         },
       },
@@ -399,7 +413,7 @@ describe("Add functions", () => {
       expect.arrayContaining([
         expect.objectContaining({
           payload: {
-            callback: 'function () { return "test"; }',
+            callback: '() => "test"',
             id: "myInterval",
             interval: 5000,
           },

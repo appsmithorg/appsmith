@@ -1,6 +1,12 @@
 package com.external.constants;
 
 public class FieldName {
+
+    public static final String PATH = "path";
+    public static final String BODY = "body";
+    public static final String NEXT = "next";
+    public static final String PREV = "prev";
+
     public static final String COMMAND = "command";
     public static final String TIMESTAMP_VALUE_PATH = "timestampValuePath";
     public static final String DELETE_KEY_PATH = "deleteKeyPath";
@@ -10,6 +16,7 @@ public class FieldName {
     public static final String END_BEFORE = "endBefore";
     public static final String WHERE = "where";
     public static final String CHILDREN = "children";
+    public static final String SMART_SUBSTITUTION = "smartSubstitution";
 
     public static final String WHERE_CHILDREN = WHERE + "." + CHILDREN;
 }

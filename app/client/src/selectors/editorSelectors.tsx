@@ -1,8 +1,8 @@
 import { createSelector } from "reselect";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -18,21 +18,30 @@ import {
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import {
-  DataTree,
-  DataTreeWidget,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { find, pick, sortBy } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import { find, sortBy } from "lodash";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { ApplicationVersion } from "actions/applicationActions";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import {
+  buildChildWidgetTree,
+  createCanvasWidget,
+  createLoadingWidget,
+} from "utils/widgetRenderUtils";
 
-const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
+const getIsDraggingOrResizing = (state: AppState) =>
+  state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
+
+const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
+
+export const getWidgetConfigs = (state: AppState) =>
+  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -59,6 +68,7 @@ export const getIsPageSaving = (state: AppState) => {
 
   const savingApis = state.ui.apiPane.isSaving;
   const savingJSObjects = state.ui.jsPane.isSaving;
+  const isSavingAppTheme = state.ui.appTheming.isSaving;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
@@ -72,6 +82,7 @@ export const getIsPageSaving = (state: AppState) => {
     state.ui.editor.loadingStates.saving ||
     areApisSaving ||
     areJsObjectsSaving ||
+    isSavingAppTheme ||
     state.ui.editor.loadingStates.savingEntity
   );
 };
@@ -86,6 +97,10 @@ export const getPageSavingError = (state: AppState) => {
 export const getLayoutOnLoadActions = (state: AppState) =>
   state.ui.editor.pageActions || [];
 
+export const getLayoutOnLoadIssues = (state: AppState) => {
+  return state.ui.editor.layoutOnLoadActionErrors || [];
+};
+
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;
 
@@ -97,8 +112,28 @@ export const getCurrentLayoutId = (state: AppState) =>
 
 export const getPageList = (state: AppState) => state.entities.pageList.pages;
 
+export const getPageById = (pageId: string) =>
+  createSelector(getPageList, (pages: Page[]) =>
+    pages.find((page) => page.pageId === pageId),
+  );
+
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
+
+export const selectCurrentPageSlug = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) =>
+    pages.find((page) => page.pageId === pageId)?.slug || PLACEHOLDER_PAGE_SLUG,
+);
+
+export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
+  pages.reduce((acc, page: Page) => {
+    // Comeback
+    acc[page.pageId] = page.slug || "";
+    return acc;
+  }, {} as Record<string, string>),
+);
 
 export const getCurrentApplication = (state: AppState) =>
   state.ui.applications.currentApplication;
@@ -106,6 +141,32 @@ export const getCurrentApplication = (state: AppState) =>
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId ||
   ""; /** this is set during init can assume it to be defined */
+
+export const selectCurrentApplicationSlug = (state: AppState) =>
+  state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
+
+export const selectApplicationVersion = (state: AppState) =>
+  state.ui.applications.currentApplication?.applicationVersion ||
+  ApplicationVersion.DEFAULT;
+
+export const selectPageSlugById = (pageId: string) =>
+  createSelector(getPageList, (pages) => {
+    const page = pages.find((page) => page.pageId === pageId);
+    return page?.slug || PLACEHOLDER_PAGE_SLUG;
+  });
+
+export const selectURLSlugs = createSelector(
+  getCurrentApplication,
+  getPageList,
+  getCurrentPageId,
+  (application, pages, pageId) => {
+    const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
+    const currentPage = pages.find((page) => page.pageId === pageId);
+    const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
+    const customSlug = currentPage?.customSlug;
+    return { applicationSlug, pageSlug, customSlug };
+  },
+);
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT
@@ -135,8 +196,9 @@ export const getViewModePageList = createSelector(
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
-export const getCanvasWidth = (state: AppState) =>
-  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+
+export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getCurrentPageName = createSelector(
   getPageListState,
@@ -152,7 +214,7 @@ export const getWidgetCards = createSelector(
       (config) => !config.hideCard,
     );
 
-    const _cards = cards.map((config) => {
+    const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         columns,
         detachFromLayout = false,
@@ -160,6 +222,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         rows,
+        searchTags,
         type,
       } = config;
       return {
@@ -170,6 +233,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        searchTags,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -177,11 +241,26 @@ export const getWidgetCards = createSelector(
   },
 );
 
-const getMainContainer = (
+export const computeMainContainerWidget = (
+  widget: FlattenedWidgetProps,
+  mainCanvasProps: MainCanvasReduxState,
+) => ({
+  ...widget,
+  rightColumn: mainCanvasProps.width,
+  minHeight: mainCanvasProps.height,
+});
+
+export const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
+  mainCanvasProps: MainCanvasReduxState,
 ) => {
-  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+  const canvasWidget = computeMainContainerWidget(
+    canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+    mainCanvasProps,
+  );
+
+  //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as DataTreeWidget;
@@ -192,15 +271,18 @@ export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
   getLoadingEntities,
+  getMainCanvasProps,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
     loadingEntities,
+    mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
     const widgets: Record<string, DataTreeWidget> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
+        mainCanvasProps,
       ),
     };
     Object.keys(canvasWidgets)
@@ -227,6 +309,16 @@ export const getCanvasWidgetDsl = createSelector(
       canvasWidgets: widgets,
     });
   },
+);
+
+export const getChildWidgets = createSelector(
+  [
+    getCanvasWidgets,
+    getDataTree,
+    getLoadingEntities,
+    (_state: AppState, widgetId: string) => widgetId,
+  ],
+  buildChildWidgetTree,
 );
 
 const getOccupiedSpacesForContainer = (
@@ -264,101 +356,181 @@ const getWidgetSpacesForContainer = (
   });
 };
 
+/**
+ * Method to build occupied spaces
+ *
+ * @param widgets canvas Widgets
+ * @param fetchNow would return undefined if false
+ * @returns An array of occupied spaces
+ */
+const generateOccupiedSpacesMap = (
+  widgets: CanvasWidgetsReduxState,
+  fetchNow = true,
+): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+  const occupiedSpaces: {
+    [containerWidgetId: string]: OccupiedSpace[];
+  } = {};
+  if (!fetchNow) return;
+  // Get all widgets with type "CONTAINER_WIDGET" and has children
+  const containerWidgets: FlattenedWidgetProps[] = Object.values(
+    widgets,
+  ).filter((widget) => widget.children && widget.children.length > 0);
+
+  // If we have any container widgets
+  if (containerWidgets) {
+    containerWidgets.forEach((containerWidget: FlattenedWidgetProps) => {
+      const containerWidgetId = containerWidget.widgetId;
+      // Get child widgets for the container
+      const childWidgets = Object.keys(widgets).filter(
+        (widgetId) =>
+          containerWidget.children &&
+          containerWidget.children.indexOf(widgetId) > -1 &&
+          !widgets[widgetId].detachFromLayout,
+      );
+      // Get the occupied spaces in this container
+      // Assign it to the containerWidgetId key in occupiedSpaces
+      occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
+        containerWidgetId,
+        childWidgets.map((widgetId) => widgets[widgetId]),
+      );
+    });
+  }
+  // Return undefined if there are no occupiedSpaces.
+  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+};
+
+// returns occupied spaces
 export const getOccupiedSpaces = createSelector(
   getWidgets,
-  (
-    widgets: CanvasWidgetsReduxState,
-  ): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
-    const occupiedSpaces: {
-      [containerWidgetId: string]: OccupiedSpace[];
-    } = {};
-    // Get all widgets with type "CONTAINER_WIDGET" and has children
-    const containerWidgets: FlattenedWidgetProps[] = Object.values(
-      widgets,
-    ).filter((widget) => widget.children && widget.children.length > 0);
-
-    // If we have any container widgets
-    if (containerWidgets) {
-      containerWidgets.forEach((containerWidget: FlattenedWidgetProps) => {
-        const containerWidgetId = containerWidget.widgetId;
-        // Get child widgets for the container
-        const childWidgets = Object.keys(widgets).filter(
-          (widgetId) =>
-            containerWidget.children &&
-            containerWidget.children.indexOf(widgetId) > -1 &&
-            !widgets[widgetId].detachFromLayout,
-        );
-        // Get the occupied spaces in this container
-        // Assign it to the containerWidgetId key in occupiedSpaces
-        occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
-          containerWidgetId,
-          childWidgets.map((widgetId) => widgets[widgetId]),
-        );
-      });
-    }
-    // Return undefined if there are no occupiedSpaces.
-    return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
-  },
+  generateOccupiedSpacesMap,
 );
+
+// returns occupied spaces only while dragging or moving
+export const getOccupiedSpacesWhileMoving = createSelector(
+  getWidgets,
+  getIsDraggingOrResizing,
+  generateOccupiedSpacesMap,
+);
+
+/**
+ *
+ * @param widgets
+ * @param fetchNow returns undined if false
+ * @param containerId id of container whose occupied spaces we are fetching
+ * @returns
+ */
+const generateOccupiedSpacesForContainer = (
+  widgets: CanvasWidgetsReduxState,
+  fetchNow: boolean,
+  containerId: string | undefined,
+): OccupiedSpace[] | undefined => {
+  if (containerId === null || containerId === undefined || !fetchNow)
+    return undefined;
+
+  const containerWidget: FlattenedWidgetProps = widgets[containerId];
+
+  if (!containerWidget || !containerWidget.children) return undefined;
+
+  // Get child widgets for the container
+  const childWidgets = Object.keys(widgets).filter(
+    (widgetId) =>
+      containerWidget.children &&
+      containerWidget.children.indexOf(widgetId) > -1 &&
+      !widgets[widgetId].detachFromLayout,
+  );
+
+  const occupiedSpaces = getOccupiedSpacesForContainer(
+    containerId,
+    childWidgets.map((widgetId) => widgets[widgetId]),
+  );
+  return occupiedSpaces;
+};
 
 // same as getOccupiedSpaces but gets only the container specific ocupied Spaces
 export function getOccupiedSpacesSelectorForContainer(
   containerId: string | undefined,
 ) {
-  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
-    | OccupiedSpace[]
-    | undefined => {
-    if (containerId === null || containerId === undefined) return undefined;
-
-    const containerWidget: FlattenedWidgetProps = widgets[containerId];
-
-    if (!containerWidget || !containerWidget.children) return undefined;
-
-    // Get child widgets for the container
-    const childWidgets = Object.keys(widgets).filter(
-      (widgetId) =>
-        containerWidget.children &&
-        containerWidget.children.indexOf(widgetId) > -1 &&
-        !widgets[widgetId].detachFromLayout,
-    );
-
-    const occupiedSpaces = getOccupiedSpacesForContainer(
-      containerId,
-      childWidgets.map((widgetId) => widgets[widgetId]),
-    );
-    return occupiedSpaces;
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState) => {
+    return generateOccupiedSpacesForContainer(widgets, true, containerId);
   });
 }
 
-// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
-export function getWidgetSpacesSelectorForContainer(
+/**
+ *
+ * @param widgets
+ * @param fetchNow returns undined if false
+ * @param containerId id of container whose occupied spaces we are fetching
+ * @returns
+ */
+const generateWidgetSpacesForContainer = (
+  widgets: CanvasWidgetsReduxState,
+  fetchNow: boolean,
+  containerId: string | undefined,
+): WidgetSpace[] | undefined => {
+  if (containerId === null || containerId === undefined || !fetchNow)
+    return undefined;
+
+  const containerWidget: FlattenedWidgetProps = widgets[containerId];
+
+  if (!containerWidget || !containerWidget.children) return undefined;
+
+  // Get child widgets for the container
+  const childWidgets = Object.keys(widgets).filter(
+    (widgetId) =>
+      containerWidget.children &&
+      containerWidget.children.indexOf(widgetId) > -1 &&
+      !widgets[widgetId].detachFromLayout,
+  );
+
+  const occupiedSpaces = getWidgetSpacesForContainer(
+    containerId,
+    childWidgets.map((widgetId) => widgets[widgetId]),
+  );
+  return occupiedSpaces;
+};
+
+// same as getOccupiedSpaces but gets only the container specific ocupied Spaces only while resizing
+export function getContainerOccupiedSpacesSelectorWhileResizing(
   containerId: string | undefined,
 ) {
-  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
-    | WidgetSpace[]
-    | undefined => {
-    if (containerId === null || containerId === undefined) return undefined;
+  return createSelector(
+    getWidgets,
+    getIsResizing,
+    (widgets: CanvasWidgetsReduxState, isResizing: boolean) => {
+      return generateOccupiedSpacesForContainer(
+        widgets,
+        isResizing,
+        containerId,
+      );
+    },
+  );
+}
 
-    const containerWidget: FlattenedWidgetProps = widgets[containerId];
-
-    if (!containerWidget || !containerWidget.children) return undefined;
-
-    // Get child widgets for the container
-    const childWidgets = Object.keys(widgets).filter(
-      (widgetId) =>
-        containerWidget.children &&
-        containerWidget.children.indexOf(widgetId) > -1 &&
-        !widgets[widgetId].detachFromLayout,
-    );
-
-    const occupiedSpaces = getWidgetSpacesForContainer(
-      containerId,
-      childWidgets.map((widgetId) => widgets[widgetId]),
-    );
-    return occupiedSpaces;
+// same as getOccupiedSpaces but gets only the container specific occupied Spaces
+export function getContainerWidgetSpacesSelector(
+  containerId: string | undefined,
+) {
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState) => {
+    return generateWidgetSpacesForContainer(widgets, true, containerId);
   });
 }
 
+// same as getOccupiedSpaces but gets only the container specific occupied Spaces
+export function getContainerWidgetSpacesSelectorWhileMoving(
+  containerId: string | undefined,
+) {
+  return createSelector(
+    getWidgets,
+    getIsDraggingOrResizing,
+    (widgets: CanvasWidgetsReduxState, isDraggingOrResizing: boolean) => {
+      return generateWidgetSpacesForContainer(
+        widgets,
+        isDraggingOrResizing,
+        containerId,
+      );
+    },
+  );
+}
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {
@@ -370,43 +542,6 @@ export const getActionById = createSelector(
     }
   },
 );
-
-const createCanvasWidget = (
-  canvasWidget: FlattenedWidgetProps,
-  evaluatedWidget: DataTreeWidget,
-) => {
-  const widgetStaticProps = pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  );
-  return {
-    ...evaluatedWidget,
-    ...widgetStaticProps,
-  };
-};
-
-const WidgetTypes = WidgetFactory.widgetTypes;
-const createLoadingWidget = (
-  canvasWidget: FlattenedWidgetProps,
-): DataTreeWidget => {
-  const widgetStaticProps = pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  ) as WidgetProps;
-  return {
-    ...widgetStaticProps,
-    type: WidgetTypes.SKELETON_WIDGET,
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    bindingPaths: {},
-    triggerPaths: {},
-    validationPaths: {},
-    logBlackList: {},
-    isLoading: true,
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    privateWidgets: {},
-  };
-};
 
 export const getJSCollectionById = createSelector(
   [
@@ -454,3 +589,6 @@ export const getZoomLevel = (state: AppState) => {
  */
 export const getIsSavingEntity = (state: AppState) =>
   state.ui.editor.loadingStates.savingEntity;
+
+export const selectJSCollections = (state: AppState) =>
+  state.entities.jsActions;

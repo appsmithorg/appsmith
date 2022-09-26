@@ -2,7 +2,7 @@
   "identifier": "DELETE_FILE",
   "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'DELETE_FILE'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'DELETE_FILE'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Bucket Name",
-          "configProperty": "actionConfiguration.formData.bucket",
+          "configProperty": "actionConfiguration.formData.bucket.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "isRequired": true,
@@ -26,7 +26,7 @@
       "children": [
         {
           "label": "File Path",
-          "configProperty": "actionConfiguration.path",
+          "configProperty": "actionConfiguration.formData.path.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         }

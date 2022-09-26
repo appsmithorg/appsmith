@@ -3,8 +3,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import _, { noop } from "lodash";
-import SearchInput, { SearchVariant } from "components/ads/SearchInput";
-import Button, { Size } from "components/ads/Button";
+import { Button, SearchInput, SearchVariant, Size } from "design-system";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
@@ -16,13 +15,13 @@ const SubHeaderWrapper = styled.div<{
   width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
-  position: ${({ isMobile }) => (isMobile ? `relative` : `fixed`)};
+
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: 2px;
-  left: ${(props) =>
-    props.isMobile ? 0 : props.theme.homePage.sidebar + 24}px;
+  z-index: ${Indices.Layer9};
+  margin-left: ${(props) => props.theme.spaces[4]}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
-  ${({ isMobile }) => isMobile && `padding: 12px 16px;`}
+  ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;

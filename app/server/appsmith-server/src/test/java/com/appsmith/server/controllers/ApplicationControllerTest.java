@@ -2,10 +2,11 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -52,6 +53,9 @@ public class ApplicationControllerTest {
     @MockBean
     ThemeService themeService;
 
+    @MockBean
+    UserDataService userDataService;
+
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();
         for (int count = 0; count < length; count++) {
@@ -76,7 +80,7 @@ public class ApplicationControllerTest {
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
         Mockito.when(importExportApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(new Application()));
+                .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
         MultipartBodyBuilder bodyBuilder = createBodyBuilder(fileName);
@@ -106,7 +110,7 @@ public class ApplicationControllerTest {
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
         Mockito.when(importExportApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(new Application()));
+                .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);
         MultipartBodyBuilder bodyBuilder = createBodyBuilder(fileName);

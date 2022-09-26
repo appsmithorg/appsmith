@@ -1,10 +1,10 @@
-import { EMAIL_SETUP_DOC } from "../../../constants/ThirdPartyConstants";
-import { isEmail } from "../../../utils/formhelpers";
+import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { isEmail } from "utils/formhelpers";
 import { Dispatch } from "react";
 import {
   ReduxAction,
   ReduxActionTypes,
-} from "../../../constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
 import {
   AdminConfigType,
@@ -21,14 +21,14 @@ export const config: AdminConfigType = {
   settings: [
     {
       id: "APPSMITH_MAIL_READ_MORE",
-      category: "email",
+      category: SettingCategories.EMAIL,
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: EMAIL_SETUP_DOC,
     },
     {
       id: "APPSMITH_MAIL_HOST",
-      category: "email",
+      category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "SMTP Host",
@@ -36,7 +36,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_MAIL_PORT",
-      category: "email",
+      category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.NUMBER,
       placeholder: "25",
@@ -50,7 +50,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_MAIL_FROM",
-      category: "email",
+      category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "From Address",
@@ -64,14 +64,29 @@ export const config: AdminConfigType = {
         "You will need to verify your from email address to begin sending emails",
     },
     {
+      id: "APPSMITH_REPLY_TO",
+      category: SettingCategories.EMAIL,
+      controlType: SettingTypes.TEXTINPUT,
+      controlSubType: SettingSubtype.TEXT,
+      label: "Reply-To Address",
+      placeholder: "admin@appsmith.com",
+      validate: (value: string) => {
+        if (value && !isEmail(value)) {
+          return "Please enter a valid email id";
+        }
+      },
+      subText:
+        "You will need to verify your to email address to begin receiving emails",
+    },
+    {
       id: "APPSMITH_MAIL_SMTP_TLS_ENABLED",
-      category: "email",
+      category: SettingCategories.EMAIL,
       controlType: SettingTypes.TOGGLE,
       label: "TLS Protected Connection",
     },
     {
       id: "APPSMITH_MAIL_USERNAME",
-      category: "email",
+      category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "SMTP Username",
@@ -81,7 +96,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_MAIL_PASSWORD",
-      category: "email",
+      category: SettingCategories.EMAIL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.PASSWORD,
       label: "SMTP Password",
@@ -91,7 +106,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_MAIL_TEST_EMAIL",
-      category: "email",
+      category: SettingCategories.EMAIL,
       action: (dispatch: Dispatch<ReduxAction<any>>, settings: any = {}) => {
         dispatch &&
           dispatch({

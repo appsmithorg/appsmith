@@ -1,20 +1,26 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  DynamicValues,
+  FormEvaluationState,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 import { createSelector } from "reselect";
-import _ from "lodash";
+import { replace } from "lodash";
 import { getDataTree } from "./dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 import { EvaluationError } from "utils/DynamicBindingUtils";
+import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { extractConditionalOutput } from "components/formControls/utils";
 
-type GetFormData = (
-  state: AppState,
-  formName: string,
-) => { initialValues: any; values: any; valid: boolean };
+export type GetFormData = {
+  initialValues: Record<string, unknown>;
+  values: any;
+  valid: boolean;
+};
 
-export const getFormData: GetFormData = (state, formName) => {
+export const getFormData = (state: AppState, formName: string): GetFormData => {
   const initialValues = getFormInitialValues(formName)(state);
   const values = getFormValues(formName)(state);
   const valid = isValid(formName)(state);
@@ -29,6 +35,21 @@ export const getApiName = (state: AppState, id: string) => {
 
 export const getFormEvaluationState = (state: AppState): FormEvaluationState =>
   state.evaluations.formEvaluation;
+
+// Selector to return the fetched values of the form components, only called for components that
+// have the fetchOptionsDynamically option set to true
+export const getDynamicFetchedValues = (
+  state: AppState,
+  config: any,
+): DynamicValues => {
+  const conditionalOutput = extractConditionalOutput(
+    config,
+    state.evaluations.triggers[getActionIdFromURL() as string],
+  );
+  return !!conditionalOutput.fetchDynamicValues
+    ? conditionalOutput.fetchDynamicValues
+    : ({} as DynamicValues);
+};
 
 type ConfigErrorProps = { configProperty: string; formName: string };
 
@@ -53,7 +74,7 @@ export const getConfigErrors = createSelector(
         const actionError = action && action?.__evaluation__?.errors;
 
         // get the configProperty for this form control and format it to resemble the format used in the action details errors object.
-        const formattedConfig = _.replace(
+        const formattedConfig = replace(
           configProperty,
           "actionConfiguration",
           "config",

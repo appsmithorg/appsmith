@@ -3,7 +3,7 @@ const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 
-describe("Test Create Api and Bind to Table widget", function() {
+describe("Test Create Api and Bind to Button widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -62,15 +62,17 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("works in the published version", () => {
     cy.PublishtheApp();
-
-    cy.get(publishPage.buttonWidget).click();
-
+    cy.wait(3000);
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .click();
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(5000);
+    cy.wait(3000);
+
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -5,12 +5,8 @@ import { noop } from "lodash";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { ThemeProp } from "components/ads/common";
-import {
-  setCommentModeInUrl,
-  useHideComments,
-} from "pages/Editor/ToggleModeButton";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
@@ -23,7 +19,6 @@ import {
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
-import getFeatureFlags from "utils/featureFlags";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
@@ -36,6 +31,9 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
+import { pageListEditorURL } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -49,20 +47,23 @@ export const GetNavigationMenuData = ({
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
-
-  const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
 
   const isGitConnected = useSelector(getIsGitConnected);
 
-  const openGitConnectionPopup = () =>
+  const openGitConnectionPopup = () => {
+    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+      source: "Application name menu (top left)",
+    });
+
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
+  };
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -103,6 +104,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy",
     },
     {
       text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
@@ -110,16 +112,20 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy-current-version",
     },
   ];
 
-  if (getFeatureFlags().GIT && !isGitConnected) {
+  const featureFlags = useSelector(selectFeatureFlags);
+
+  if (featureFlags.GIT && !isGitConnected) {
     deployOptions.push({
       text: createMessage(CONNECT_TO_GIT_OPTION),
       onClick: () => openGitConnectionPopup(),
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: false,
+      className: "t--app-name-menu-deploy-connect-to-git",
     });
   }
 
@@ -154,37 +160,17 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
+        history.push(pageListEditorURL({ pageId: params.pageId }));
       },
       type: MenuTypes.MENU,
       isVisible: true,
-    },
-    {
-      text: "View Modes",
-      type: MenuTypes.PARENT,
-      isVisible: !isHideComments,
-      children: [
-        {
-          text: "Edit Mode",
-          label: "V",
-          onClick: () => setCommentModeInUrl(false),
-          type: MenuTypes.MENU,
-          isVisible: true,
-        },
-        {
-          text: "Comment Mode",
-          label: "C",
-          onClick: () => setCommentModeInUrl(true),
-          type: MenuTypes.MENU,
-          isVisible: true,
-        },
-      ],
     },
     {
       text: "Deploy",
       type: MenuTypes.PARENT,
       isVisible: true,
       children: deployOptions,
+      className: "t--app-name-menu-deploy-parent",
     },
     {
       text: "Help",

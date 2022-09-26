@@ -1,23 +1,28 @@
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
+const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 
 describe("Guided Tour", function() {
+  it("Guided tour should work when started from the editor", function() {
+    cy.generateUUID().then((uid) => {
+      cy.Signup(`${uid}@appsmith.com`, uid);
+    });
+    cy.get(onboardingLocators.introModalWelcomeTourBtn).should("be.visible");
+    cy.get(onboardingLocators.introModalWelcomeTourBtn).click();
+    cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
+  });
+
   it("Guided Tour", function() {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
-    // Step 1: Update limit in code and run query
-    cy.get(".CodeMirror")
-      .first()
-      .then((editor) => {
-        editor[0].CodeMirror.setValue("");
-      });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM user_data ORDER BY id LIMIT")
-      .type(" 10;", { delay: 600 });
+    cy.get(explorerLocators.entityExplorer).should("not.be.visible");
+    // Refresh the page to validate if the tour resumes
+    cy.reload();
+    cy.get(guidedTourLocators.banner).should("be.visible");
+    // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
@@ -30,23 +35,20 @@ describe("Guided Tour", function() {
     cy.wait("@updateWidgetName");
     // Step 4: Add binding to the defaulText property of NameInput
     cy.get(guidedTourLocators.hintButton).click();
-    cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.name}}");
+    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
     cy.get(guidedTourLocators.successButton).click();
     // Step 5: Add binding to the rest of the widgets in the container
     cy.get(commonlocators.editWidgetName).contains("EmailInput");
-    cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.email}}");
+    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.email}}");
     cy.get(".t--entity-name")
       .contains("CountryInput")
       .click({ force: true });
     cy.wait(1000);
     cy.get(commonlocators.editWidgetName).contains("CountryInput");
-    cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.country}}");
+    cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.country}}");
     cy.get(".t--entity-name")
-      .contains("ImageWidget")
+      .contains("DisplayImage")
       .click({ force: true });
-    // cy.SearchEntityandOpen("ImageWidget");
-    // cy.get(commonlocators.editWidgetName).contains("CountryInput");
-    cy.testJsontext("image", "{{CustomersTable.selectedRow.image}}");
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
@@ -73,9 +75,11 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();
+    cy.get(guidedTourLocators.rating).should("be.visible");
     cy.get(guidedTourLocators.rating)
       .eq(4)
       .click();
+    cy.get(guidedTourLocators.startBuilding).should("be.visible");
     cy.get(guidedTourLocators.startBuilding).click();
   });
 });

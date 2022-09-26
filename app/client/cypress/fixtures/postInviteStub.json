@@ -11,8 +11,8 @@
       "email": "viewerappsmith@mailinator.com",
       "source": "FORM",
       "isEnabled": true,
-      "currentOrganizationId": "5f16f6ea5536dc1f0549e42e",
-      "organizationIds": [
+      "currentWorkspaceId": "5f16f6ea5536dc1f0549e42e",
+      "workspaceIds": [
         "5f0d4e14d3f75e0ed39f20be",
         "5f0d4f38d3f75e0ed39f20c4",
         "5f0d557dd3f75e0ed39f20ce",
@@ -132,7 +132,7 @@
         "6057644469c2320b5c462471",
         "6057653869c2320b5c462478"
       ],
-      "examplesOrganizationId": "5f16f6ea5536dc1f0549e42e",
+      "examplesWorkspaceId": "5f16f6ea5536dc1f0549e42e",
       "groupIds": [],
       "permissions": [],
       "isAnonymous": false,

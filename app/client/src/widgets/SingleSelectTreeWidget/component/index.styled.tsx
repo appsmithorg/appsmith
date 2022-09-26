@@ -1,14 +1,16 @@
 import React from "react";
-import { Checkbox, Classes, Label } from "@blueprintjs/core";
+import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
-import Icon from "components/ads/Icon";
+  LabelPosition,
+  LABEL_MARGIN_OLD_SELECT,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
+import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
+import { Icon, labelLayoutStyles, LABEL_CONTAINER_CLASS } from "design-system";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -22,37 +24,6 @@ export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
 export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
 };
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-}>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
-
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-  disabled?: boolean;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -77,15 +48,15 @@ const rcSelectDropdownSlideUpOut = keyframes`
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
+  accentColor: string;
+  borderRadius: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .treeselect-popover-width-${id} {
-    min-width: ${
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
-    }px !important;
+    min-width: ${dropDownWidth}px !important;
+     width: ${dropDownWidth}px !important;
   }
 `}
 .rc-tree-select-dropdown-hidden {
@@ -99,7 +70,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
 .rc-tree-select-item-option {
 	position: relative;
 	display: flex;
-  
+
 	flex-direction: row-reverse;
 	.rc-tree-select-item-option-state {
 		pointer-events: all;
@@ -183,15 +154,15 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-leave.rc-tree-select-dropdown-slide-up-leave-active.rc-tree-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-enter.rc-tree-select-dropdown-slide-up-enter-active.rc-tree-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-appear.rc-tree-select-dropdown-slide-up-appear-active.rc-tree-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-leave.rc-tree-select-dropdown-slide-up-leave-active.rc-tree-select-dropdown-placement-topLeft {
@@ -221,10 +192,11 @@ ${({ dropDownWidth, id, parentWidth }) => `
     height: 14px;
     direction: ltr;
     background-color: transparent;
-    border: 1px solid ${Colors.GREY_3};
+    border: 1px solid var(--wds-color-border);
     border-radius: 100%;
     border-collapse: separate;
-    transition: all .3s;
+    transition: none;
+    flex-shrink: 0;
   }
 }
 
@@ -232,10 +204,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
   min-height: 100px;
   position: absolute;
   background: #fff;
-  width: 100%;
+  width: auto;
   border-radius: 0px;
   margin-top: 5px;
   background: white;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
+  overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
@@ -257,12 +232,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
     }
   }
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: rgb(3, 179, 101) !important;
+    background: ${({ accentColor }) => accentColor} !important;
     color: rgb(255, 255, 255);
-    border-color: rgb(3, 179, 101) !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none;
     outline: none !important;
   }
+  ${CommonSelectFilterStyle}
   .rc-tree-select-item {
     font-size: 16px;
     line-height: 1.5;
@@ -275,8 +251,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
       margin-bottom: 0;
     }
   }
-
-
+}
 
 .rc-tree-select-tree {
 	margin: 0;
@@ -350,7 +325,11 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	text-decoration: none;
 	vertical-align: top;
 	cursor: pointer;
-  flex: 1
+  overflow-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 0;
 }
 
 .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner:after {
@@ -385,15 +364,15 @@ ${({ dropDownWidth, id, parentWidth }) => `
 }
 
 .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner:after {
-    top: 50%;
-    left: 50%;
-    width: 8px;
-    height: 8px;
-    background-color: rgb(3, 179, 101) !important;
-    border: 0;
-    transform: translate(-50%,-50%) scale(1);
-    opacity: 1;
-    content: " ";
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: ${({ accentColor }) => accentColor} !important;
+  border: 0;
+  transform: translate(-50%,-50%) scale(1);
+  opacity: 1;
+  content: " ";
 }
 
 .rc-tree-select-tree-checkbox:hover:after, .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox:after {
@@ -425,12 +404,12 @@ ${({ dropDownWidth, id, parentWidth }) => `
 
 
 .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
- border-color: rgb(3, 179, 101) !important;
-}
-.rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
-  border-color: rgb(3, 179, 101) !important;
-  background: rgb(3, 179, 101) !important;
-}
+  border-color: var(--wds-color-border-hover) !important;
+ }
+ .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
+   border-color: ${({ accentColor }) => accentColor} !important;
+   background: ${({ accentColor }) => accentColor} !important;
+ }
 
 .rc-tree-select-tree-checkbox-inner {
     position: relative;
@@ -447,11 +426,11 @@ ${({ dropDownWidth, id, parentWidth }) => `
     transition: all .3s;
 }
   .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree.select-tree-checkbox-checked {
+  .rc-tree-select-tree-treenode
+  span.rc-tree.select-tree-checkbox-checked {
     .rc-tree-select-tree-checkbox-inner {
-      border-color: rgb(3, 179, 101) !important;
-      background: rgb(3, 179, 101) !important;
+      border-color: ${({ accentColor }) => accentColor} !important;
+      background: ${({ accentColor }) => accentColor} !important;
     }
   }
   .single-tree-select-dropdown
@@ -548,13 +527,30 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	color: #767676;
 	cursor: not-allowed;
 }
-.rc-tree-select-tree-treenode-active,
 .rc-tree-select-tree-treenode-selected
 {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
+
+  &:hover {
+    background: ${({ accentColor }) =>
+      lightenColor(accentColor, "0.90")} !important;
+  }
+
+
+}
+.rc-tree-select-tree-treenode-selected.rc-tree-select-tree-treenode-active {
+  background: ${({ accentColor }) =>
+    lightenColor(accentColor, "0.90")} !important;
+}
+.rc-tree-select-tree-treenode-active {
+  background: var(--wds-color-bg-focus) !important;
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: var(--wds-color-bg-hover);
+
+  .rc-tree-select-tree-iconEle {
+    border-color: var(--wds-color-border-hover) !important;
+  }
 }
 .rc-tree-select-tree-node-selected {
 	background-color: none;
@@ -562,12 +558,18 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	opacity: 1;
 
   .rc-tree-select-tree-title {
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
   }
 
   .rc-tree-select-tree-icon__customize {
     border: none !important;
-    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='10' height='10' rx='5' stroke='%2350AF6C' stroke-width='4'/%3E%3C/svg%3E%0A") !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='10' height='10' rx='5' stroke='${({
+      accentColor,
+    }) =>
+      accentColor?.replace(
+        "#",
+        "%23",
+      )}' stroke-width='4'/%3E%3C/svg%3E%0A") !important;
   }
 }
 .rc-tree-select-tree-icon__open {
@@ -593,7 +595,9 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	display: inline-block;
   margin-left: 10px;
   font-size: 14px !important;
-  color: ${Colors.GREY_8}
+  color: var(--wds-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rc-tree-select-tree-indent {
 	display: inline-block;
@@ -605,21 +609,28 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	display: inline-block;
 }
 
-  }
 `;
 
 export const TreeSelectContainer = styled.div<{
+  allowClear?: boolean;
   compactMode: boolean;
   isValid: boolean;
+  labelPosition?: LabelPosition;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }>`
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
-
-  label.tree-select-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
+        }
+      }};
+    }
   }
+
   .rc-tree-select {
     display: inline-block;
     font-size: 12px;
@@ -627,7 +638,7 @@ export const TreeSelectContainer = styled.div<{
     height: 100%;
     position: relative;
     cursor: pointer;
-    flex: 1 1;
+
     .rc-tree-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
@@ -638,7 +649,7 @@ export const TreeSelectContainer = styled.div<{
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: ${Colors.GREY_6};
+      color: var(--wds-color-text-light);
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -660,18 +671,28 @@ export const TreeSelectContainer = styled.div<{
     cursor: not-allowed;
     input {
       cursor: not-allowed;
-      background-color: ${Colors.GREY_1} !important;
+      background-color: var(--wds-color-bg-disabled) !important;
     }
     .rc-tree-select-selector {
-      border: 1.2px solid ${Colors.GREY_3} !important;
-      background-color: ${Colors.GREY_1} !important;
+      border: 1px solid var(--wds-color-border-disabled) !important;
+      background-color: var(--wds-color-bg-disabled) !important;
 
       .rc-tree-select-selection-search input {
-        background-color: ${Colors.GREY_1}; // color fix for mozilla
+        background-color: var(--wds-color-bg-disabled) // color fix for mozilla
       }
       .rc-tree-select-selection-item {
-        color: ${Colors.GREY_7};
-        background-color: ${Colors.GREY_1};
+        color: var(--wds-color-text-disabled);
+        background-color: var(--wds-color-bg-disabled) !important;
+      }
+    }
+
+    .rc-tree-select-selection-placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+
+    & .dropdown-icon {
+      svg path {
+        fill: var(--wds-color-icon-disabled) !important;
       }
     }
   }
@@ -695,7 +716,10 @@ export const TreeSelectContainer = styled.div<{
     &:hover {
       .rc-tree-select-selector {
         border: 1.2px solid
-          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border-hover)"
+            : "var(--wds-color-border-danger-hover)"};
       }
     }
   }
@@ -703,20 +727,25 @@ export const TreeSelectContainer = styled.div<{
     display: flex;
     flex-wrap: wrap;
     padding-right: 42px;
-    box-shadow: none;
-    border: 1.2px solid
-      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+    border: 1px solid
+      ${(props) =>
+        props.isValid
+          ? "var(--wds-color-border)"
+          : "var(--wds-color-border-danger)"};
     box-sizing: border-box;
-    border-radius: 0px;
+    background: var(--wds-color-bg);
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    overflow: hidden;
     width: 100%;
-    transition: border-color 0.15s ease-in-out 0s,
-      box-shadow 0.15s ease-in-out 0s;
-    background-color: white;
+    transition: none;
     height: 100%;
+
     .rc-tree-select-selection-search {
       width: 100%;
       height: 100%;
       input {
+        background: ${Colors.WHITE};
         width: 100%;
         appearance: none;
         &::-webkit-search-cancel-button {
@@ -726,11 +755,11 @@ export const TreeSelectContainer = styled.div<{
         font-family: system-ui;
 
         height: 100%;
+        min-height: 30px;
         border: none;
       }
     }
     .rc-tree-select-selection-item {
-      pointer-events: none;
       position: absolute;
       top: 50%;
       right: 11px;
@@ -742,8 +771,11 @@ export const TreeSelectContainer = styled.div<{
       color: #231f20;
       white-space: nowrap;
       text-overflow: ellipsis;
-      pointer-events: none;
       font-size: 14px;
+      ${(props) =>
+        props.allowClear
+          ? `width: calc(100% - 58px)`
+          : `width: calc(100% - 40px)`}
     }
   }
   .rc-tree-select-multiple {
@@ -754,15 +786,16 @@ export const TreeSelectContainer = styled.div<{
       padding: 1px;
       box-shadow: none;
       border: 1px solid rgb(231, 231, 231);
-      border-radius: 0px;
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       background-color: white;
       .rc-tree-select-selection-item {
         background: none;
         border: 1px solid rgb(208, 215, 221);
-        border-radius: 2px;
+        border-radius: ${({ borderRadius }) => borderRadius};
         margin: 3px 2px;
         max-width: 273.926px;
         height: 24px;
@@ -785,7 +818,6 @@ export const TreeSelectContainer = styled.div<{
       }
       .rc-tree-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-content: center;
       }
@@ -851,18 +883,13 @@ export const TreeSelectContainer = styled.div<{
       height: 100%;
       display: flex;
       align-items: center;
-      z-index: -1;
       .rc-tree-select-clear-icon {
         font-size: 18px;
         font-weight: bold;
       }
     }
   }
-  .rc-tree-select-allow-clear.rc-tree-select-focused {
-    .rc-tree-select-clear {
-      z-index: 1;
-    }
-  }
+
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
       padding-right: 20px;
@@ -871,8 +898,20 @@ export const TreeSelectContainer = styled.div<{
       border-radius: 0px;
       height: inherit;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
+    }
+  }
+  && .rc-tree-select-show-arrow.rc-tree-select-focused {
+    .rc-tree-select-selector {
+      outline: 0px;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1px solid ${props.accentColor};
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.isValid ? props.accentColor : Colors.DANGER_SOLID,
+          )} !important;`
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
   .rc-tree-select-show-arrow {
@@ -881,9 +920,17 @@ export const TreeSelectContainer = styled.div<{
 
       & .clear-icon {
         width: 16px;
+        margin-right: 8px;
+
         svg {
           width: 16px;
           height: 16px;
+
+          fill: var(--wds-color-icon);
+
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
       }
     }
@@ -902,8 +949,12 @@ export const TreeSelectContainer = styled.div<{
         svg {
           width: 20px;
           height: 20px;
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
-      fill: ${Colors.SLATE_GRAY};
+      fill: var(--wds-color-icon);
+      }
     }
     .rc-tree-select-arrow-icon {
       &::after {
@@ -916,16 +967,16 @@ export const TreeSelectContainer = styled.div<{
         transform: translateY(5px);
       }
     }
-  }
-  .rc-tree-select-show-arrow.rc-tree-select-focused {
-    .rc-tree-select-selector {
-      outline: 0px;
-      ${(props) =>
-        props.isValid
-          ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+    .rc-tree-select-show-arrow.rc-tree-select-focused {
+      .rc-tree-select-selector {
+        outline: 0px;
+        ${(props) =>
+          props.isValid
+            ? `
+            border: 1px solid ${props.accentColor};
+            box-shadow: 0px 0px 0px 2px ${props.accentColor};`
+            : `border: 1px solid ${Colors.DANGER_SOLID};`}
+      }
     }
   }
 `;
@@ -944,3 +995,17 @@ export const inputIcon = (): JSX.Element => (
     />
   </svg>
 );
+
+export const InputContainer = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  width: 100%;
+  height: 100%;
+
+  &,
+  & .rc-tree-select {
+    ${({ labelPosition }) =>
+      labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
+  }
+`;

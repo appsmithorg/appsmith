@@ -1,18 +1,30 @@
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   PropertyPaneConfig,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { get, isObject, isUndefined, omitBy } from "lodash";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { get, isObject, isUndefined, omitBy } from "lodash";
+import memoize from "micro-memoize";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { WidgetProps } from "widgets/BaseWidget";
 
 /**
  * @typedef {Object} Paths
  * @property {Object} configBindingPaths - The Binding Path
+ * @property {Object} configReactivePaths - The Dynamic Property Path
  * @property {Object} configTriggerPaths - The Trigger Path
  * @property {Object} configValidationPaths - The Validation Path
  */
+
+/**
+ * All widget's property or paths where user can write javaScript bindings using mustache syntax are called bindingPaths.
+ * Widget's meta and derived paths aren't binding paths as user can't add or remove binding for those value.
+ */
+type BindingPaths = Record<string, EvaluationSubstitutionType>;
+/**
+ * Binding paths and non-binding paths of widget/action together form reactivePaths.
+ */
+type ReactivePaths = Record<string, EvaluationSubstitutionType>;
 
 /**
  * This function gets the binding validation and trigger paths from a config
@@ -24,14 +36,14 @@ const checkPathsInConfig = (
   config: any,
   path: string,
 ): {
-  configBindingPaths: Record<string, EvaluationSubstitutionType>;
+  configBindingPaths: BindingPaths;
+  configReactivePaths: ReactivePaths;
   configTriggerPaths: Record<string, true>;
   configValidationPaths: Record<string, ValidationConfig>;
 } => {
-  const configBindingPaths: Record<string, EvaluationSubstitutionType> = {};
+  const configBindingPaths: BindingPaths = {};
   const configTriggerPaths: Record<string, true> = {};
   const configValidationPaths: Record<any, ValidationConfig> = {};
-
   // Purely a Binding Path
   if (config.isBindProperty && !config.isTriggerProperty) {
     configBindingPaths[path] =
@@ -42,51 +54,72 @@ const checkPathsInConfig = (
   } else if (config.isBindProperty && config.isTriggerProperty) {
     configTriggerPaths[path] = true;
   }
-  return { configBindingPaths, configTriggerPaths, configValidationPaths };
+  return {
+    configBindingPaths,
+    configReactivePaths: configBindingPaths, // All bindingPaths are reactivePaths.
+    configTriggerPaths,
+    configValidationPaths,
+  };
 };
 
+// "originalWidget" param here always contains the complete widget props
+// as this function's widget parameter tends to change in each iteration
 const childHasPanelConfig = (
   config: any,
   widget: WidgetProps,
   basePath: string,
+  originalWidget: WidgetProps,
 ) => {
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
-  let bindingPaths: Record<string, EvaluationSubstitutionType> = {};
+
+  let bindingPaths: BindingPaths = {};
+  let reactivePaths: ReactivePaths = {};
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, ValidationConfig> = {};
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
       (widgetPanelPropertyValue: any) => {
+        const { panelIdPropertyName } = config.panelConfig;
+        const propertyPath = `${basePath}.${widgetPanelPropertyValue[panelIdPropertyName]}`;
+
         config.panelConfig.children.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
           if ("hidden" in panelColumnConfig) {
             isSectionHidden = panelColumnConfig.hidden(
-              widget,
-              `${basePath}.${widgetPanelPropertyValue.id}`,
+              originalWidget,
+              propertyPath,
             );
           }
           if (!isSectionHidden) {
             panelColumnConfig.children.forEach(
               (panelColumnControlConfig: any) => {
-                const panelPropertyConfigPath = `${basePath}.${widgetPanelPropertyValue.id}.${panelColumnControlConfig.propertyName}`;
+                const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
                 let isControlHidden = false;
                 if ("hidden" in panelColumnControlConfig) {
                   isControlHidden = panelColumnControlConfig.hidden(
-                    widget,
+                    originalWidget,
                     panelPropertyConfigPath,
                   );
                 }
                 if (!isControlHidden) {
                   const {
                     configBindingPaths,
+                    configReactivePaths,
                     configTriggerPaths,
                     configValidationPaths,
                   } = checkPathsInConfig(
                     panelColumnControlConfig,
                     panelPropertyConfigPath,
                   );
-                  bindingPaths = { ...configBindingPaths, ...bindingPaths };
+                  bindingPaths = {
+                    ...configBindingPaths,
+                    ...bindingPaths,
+                  };
+                  reactivePaths = {
+                    ...configReactivePaths,
+                    ...reactivePaths,
+                  };
                   triggerPaths = { ...configTriggerPaths, ...triggerPaths };
                   validationPaths = {
                     ...configValidationPaths,
@@ -96,14 +129,23 @@ const childHasPanelConfig = (
                   if (panelColumnControlConfig.panelConfig) {
                     const {
                       bindingPaths: panelBindingPaths,
+                      reactivePaths: panelReactivePaths,
                       triggerPaths: panelTriggerPaths,
                       validationPaths: panelValidationPaths,
                     } = childHasPanelConfig(
                       panelColumnControlConfig,
                       widgetPanelPropertyValue,
                       panelPropertyConfigPath,
+                      originalWidget,
                     );
-                    bindingPaths = { ...panelBindingPaths, ...bindingPaths };
+                    bindingPaths = {
+                      ...panelBindingPaths,
+                      ...bindingPaths,
+                    };
+                    reactivePaths = {
+                      ...panelReactivePaths,
+                      ...reactivePaths,
+                    };
                     triggerPaths = { ...panelTriggerPaths, ...triggerPaths };
                     validationPaths = {
                       ...panelValidationPaths,
@@ -119,25 +161,27 @@ const childHasPanelConfig = (
     );
   }
 
-  return { bindingPaths, triggerPaths, validationPaths };
+  return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
 
-export const getAllPathsFromPropertyConfig = (
+const getAllPathsFromPropertyConfigWithoutMemo = (
   widget: WidgetProps,
   widgetConfig: readonly PropertyPaneConfig[],
   defaultProperties: Record<string, any>,
 ): {
-  bindingPaths: Record<string, EvaluationSubstitutionType>;
+  bindingPaths: BindingPaths;
+  reactivePaths: ReactivePaths;
   triggerPaths: Record<string, true>;
   validationPaths: Record<string, ValidationConfig>;
 } => {
-  let bindingPaths: Record<string, EvaluationSubstitutionType> = {};
-  Object.keys(defaultProperties).forEach(
-    (property) =>
-      (bindingPaths[property] = EvaluationSubstitutionType.TEMPLATE),
-  );
+  let bindingPaths: BindingPaths = {};
+  let reactivePaths: ReactivePaths = {};
+  Object.keys(defaultProperties).forEach((property) => {
+    reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
+  });
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, ValidationConfig> = {};
+
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -150,11 +194,19 @@ export const getAllPathsFromPropertyConfig = (
           const path = controlConfig.propertyName;
           const {
             configBindingPaths,
+            configReactivePaths,
             configTriggerPaths,
             configValidationPaths,
           } = checkPathsInConfig(controlConfig, path);
+          bindingPaths = {
+            ...bindingPaths,
+            ...configBindingPaths,
+          };
           // Update default path configs with the ones in the property config
-          bindingPaths = { ...bindingPaths, ...configBindingPaths };
+          reactivePaths = {
+            ...reactivePaths,
+            ...configReactivePaths,
+          };
           triggerPaths = { ...triggerPaths, ...configTriggerPaths };
           validationPaths = { ...validationPaths, ...configValidationPaths };
         }
@@ -164,8 +216,16 @@ export const getAllPathsFromPropertyConfig = (
             controlConfig,
             widget,
             basePath,
+            widget,
           );
-          bindingPaths = { ...bindingPaths, ...resultingPaths.bindingPaths };
+          bindingPaths = {
+            ...bindingPaths,
+            ...resultingPaths.bindingPaths,
+          };
+          reactivePaths = {
+            ...reactivePaths,
+            ...resultingPaths.reactivePaths,
+          };
           triggerPaths = { ...triggerPaths, ...resultingPaths.triggerPaths };
           validationPaths = {
             ...validationPaths,
@@ -186,13 +246,21 @@ export const getAllPathsFromPropertyConfig = (
                 const childArrayPropertyPath = `${objectIndexPropertyPath}.${childPropertyConfig.propertyName}`;
                 const {
                   configBindingPaths,
+                  configReactivePaths,
                   configTriggerPaths,
                   configValidationPaths,
                 } = checkPathsInConfig(
                   childPropertyConfig,
                   childArrayPropertyPath,
                 );
-                bindingPaths = { ...bindingPaths, ...configBindingPaths };
+                bindingPaths = {
+                  ...bindingPaths,
+                  ...configBindingPaths,
+                };
+                reactivePaths = {
+                  ...reactivePaths,
+                  ...configReactivePaths,
+                };
                 triggerPaths = { ...triggerPaths, ...configTriggerPaths };
                 validationPaths = {
                   ...validationPaths,
@@ -206,8 +274,13 @@ export const getAllPathsFromPropertyConfig = (
     }
   });
 
-  return { bindingPaths, triggerPaths, validationPaths };
+  return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
+
+export const getAllPathsFromPropertyConfig = memoize(
+  getAllPathsFromPropertyConfigWithoutMemo,
+  { maxSize: 1000 },
+);
 
 /**
  * this function gets the next available row for pasting widgets

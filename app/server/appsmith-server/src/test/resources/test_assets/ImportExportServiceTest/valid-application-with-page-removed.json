@@ -253,6 +253,9 @@
       "new": true
     }
   ],
+  "pageOrder": [
+    "importedPage"
+  ],
   "publishedDefaultPageName": "importedPage",
   "unpublishedDefaultPageName": "importedPage",
   "actionList": [],

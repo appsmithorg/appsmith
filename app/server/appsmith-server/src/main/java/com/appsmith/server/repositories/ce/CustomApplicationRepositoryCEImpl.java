@@ -6,7 +6,9 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,10 +34,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepositoryCE {
 
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
     @Autowired
     public CustomApplicationRepositoryCEImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                             @NonNull MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                             @NonNull MongoConverter mongoConverter,
+                                             CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
     }
 
     @Override
@@ -43,11 +49,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Application> findByIdAndOrganizationId(String id, String orgId, AclPermission permission) {
-        Criteria orgIdCriteria = where(fieldName(QApplication.application.organizationId)).is(orgId);
+    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         Criteria idCriteria = getIdCriteria(id);
 
-        return queryOne(List.of(idCriteria, orgIdCriteria), permission);
+        return queryOne(List.of(idCriteria, workspaceIdCriteria), permission);
     }
 
     @Override
@@ -57,15 +63,38 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> findByOrganizationId(String orgId, AclPermission permission) {
-        Criteria orgIdCriteria = where(fieldName(QApplication.application.organizationId)).is(orgId);
-        return queryAll(List.of(orgIdCriteria), permission);
+    public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        return queryAll(List.of(workspaceIdCriteria), permission);
     }
 
     @Override
-    public Flux<Application> findByMultipleOrganizationIds(Set<String> orgIds, AclPermission permission) {
-        Criteria orgIdsCriteria = where(fieldName(QApplication.application.organizationId)).in(orgIds);
-        return queryAll(List.of(orgIdsCriteria), permission);
+    public Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).in(workspaceIds);
+        return queryAll(List.of(workspaceIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<Application> findAllUserApps(AclPermission permission) {
+        Mono<User> currentUserWithTenantMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> (User) auth.getPrincipal())
+                .flatMap(user -> {
+                    if (user.getTenantId() == null) {
+                        return cacheableRepositoryHelper.getDefaultTenantId()
+                                .map(tenantId -> {
+                                    user.setTenantId(tenantId);
+                                    return user;
+                                });
+                    }
+                    return Mono.just(user);
+                });
+
+        return currentUserWithTenantMono
+                .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
+                        List.of(), null, permission, null, permissionGroups, NO_RECORD_LIMIT)
+                );
     }
 
     @Override
@@ -139,24 +168,24 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId) {
+    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
-        return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
+        return queryAll(List.of(applicationIdCriteria, deletionCriteria), permission);
     }
 
     /**
-     * Returns a list of application ids which are under the organization with provided organizationId
+     * Returns a list of application ids which are under the workspace with provided workspaceId
      *
-     * @param organizationId organization id
+     * @param workspaceId workspace id
      * @return list of String
      */
     @Override
-    public Mono<List<String>> getAllApplicationId(String organizationId) {
+    public Mono<List<String>> getAllApplicationId(String workspaceId) {
         Query query = new Query();
-        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.addCriteria(where(fieldName(QApplication.application.workspaceId)).is(workspaceId));
         query.fields().include(fieldName(QApplication.application.id));
         return mongoOperations.find(query, Application.class)
                 .map(BaseDomain::getId)
@@ -164,30 +193,43 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Long> countByOrganizationId(String organizationId) {
-        Criteria orgIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
-        return this.count(List.of(orgIdCriteria));
+    public Mono<Long> countByWorkspaceId(String workspaceId) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        return this.count(List.of(workspaceIdCriteria));
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String organizationId) {
+    public Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         Query query = new Query();
-        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.addCriteria(where(fieldName(QApplication.application.workspaceId)).is(workspaceId));
         query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
         query.addCriteria(notDeleted());
         return mongoOperations.count(query, Application.class);
     }
 
     @Override
-    public Flux<Application> getGitConnectedApplicationByOrganizationId(String organizationId) {
+    public Flux<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         // isRepoPrivate and gitAuth will be stored only with default application which ensures we will have only single
         // application per repo
         Criteria repoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).exists(Boolean.TRUE);
         Criteria gitAuthCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.gitAuth)).exists(Boolean.TRUE);
-        Criteria organizationIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
-        return queryAll(List.of(organizationIdCriteria, repoCriteria, gitAuthCriteria), AclPermission.MANAGE_APPLICATIONS);
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        return queryAll(List.of(workspaceIdCriteria, repoCriteria, gitAuthCriteria), AclPermission.MANAGE_APPLICATIONS);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Query query = new Query();
+        query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId));
+        query.addCriteria(where(fieldName(QApplication.application.deleted)).ne(true));
+        query.equals(where("this." + gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName))
+                .equals("this." +gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName)));
+
+        return mongoOperations.findOne(query,Application.class);
     }
 
     @Override

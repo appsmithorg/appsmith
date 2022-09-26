@@ -3,7 +3,7 @@ import Select from "react-select";
 
 import { WrappedFieldInputProps } from "redux-form";
 import { SelectComponentsConfig } from "react-select/src/components";
-import { LayersContext } from "../../../constants/Layers";
+import { LayersContext } from "constants/Layers";
 import { Colors } from "constants/Colors";
 
 export type DropdownProps = {

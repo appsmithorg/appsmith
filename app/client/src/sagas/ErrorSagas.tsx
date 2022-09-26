@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
@@ -11,6 +11,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
+import { User } from "constants/userConstants";
 import {
   ERROR_CODES,
   SERVER_ERROR_CODES,
@@ -28,7 +29,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "../api/ApiUtils";
+import { axiosConnectionAbortedCode } from "api/ApiUtils";
 
 /**
  * making with error message with action name
@@ -40,9 +41,10 @@ export const getDefaultActionError = (action: string) =>
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
-    return yield call(apiCall, requestPayload);
+    const response: ApiResponse = yield call(apiCall, requestPayload);
+    return response;
   } catch (error) {
-    return yield error;
+    return error;
   }
 }
 
@@ -66,7 +68,7 @@ export class IncorrectBindingError extends Error {}
 
 /**
  * validates if response does have any errors
- *
+ * @throws {Error}
  * @param response
  * @param show
  */
@@ -229,7 +231,7 @@ function* crashAppSaga(error: ErrorPayloadType) {
  * this saga do some logic before actually setting safeCrash to true
  */
 function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
-  const user = yield select(getCurrentUser);
+  const user: User | undefined = yield select(getCurrentUser);
   const code = get(action, "payload.code");
 
   // if user is not logged and the error is "PAGE_NOT_FOUND",
@@ -238,7 +240,9 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
+    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+      window.location.href,
+    )}`;
 
     return false;
   }
@@ -260,7 +264,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
 export function* flushErrorsAndRedirectSaga(
   action: ReduxAction<{ url?: string }>,
 ) {
-  const safeCrash = yield select(getSafeCrash);
+  const safeCrash: boolean = yield select(getSafeCrash);
 
   if (safeCrash) {
     yield put(flushErrors());

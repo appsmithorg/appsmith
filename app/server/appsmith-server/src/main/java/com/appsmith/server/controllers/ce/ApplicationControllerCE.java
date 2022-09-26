@@ -1,13 +1,15 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,12 +22,12 @@ import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -42,7 +44,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)
@@ -72,13 +74,13 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> create(@Valid @RequestBody Application resource,
-                                                 @RequestParam String orgId,
+                                                 @RequestParam String workspaceId,
                                                  ServerWebExchange exchange) {
-        if (orgId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organization id"));
+        if (workspaceId == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
         }
-        log.debug("Going to create application in org {}", orgId);
-        return applicationPageService.createApplication(resource, orgId)
+        log.debug("Going to create application in workspace {}", workspaceId);
+        return applicationPageService.createApplication(resource, workspaceId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -86,13 +88,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String defaultApplicationId,
                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationPageService.publish(defaultApplicationId, branchName, true)
-                .flatMap(application ->
-                        // This event should parallel a similar event sent from the client, so we want it to be sent by the
-                        // controller and not the service method.
-                        applicationPageService.sendApplicationPublishedEvent(application)
-                                // This will only be called when the publishing was successful, so we can always return `true` here.
-                                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null))
-                );
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
     @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/makeDefault")
@@ -124,7 +120,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
-        log.debug("Going to get all applications grouped by organization");
+        log.debug("Going to get all applications grouped by workspace");
         return applicationFetcher.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
@@ -152,52 +148,46 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
-    @PostMapping("/{defaultApplicationId}/fork/{organizationId}")
+    @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
     public Mono<ResponseDTO<Application>> forkApplication(
             @PathVariable String defaultApplicationId,
-            @PathVariable String organizationId,
+            @PathVariable String workspaceId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationForkingService.forkApplicationToOrganization(defaultApplicationId, organizationId, branchName)
+        return applicationForkingService.forkApplicationToWorkspace(defaultApplicationId, workspaceId, branchName)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @GetMapping("/export/{id}")
-    public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id,
-                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseEntity<Object>> getApplicationFile(@PathVariable String id,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
-        return importExportApplicationService.exportApplicationById(id, branchName)
+        return importExportApplicationService.getApplicationFile(id, branchName)
                 .map(fetchedResource -> {
-                    String applicationName = fetchedResource.getExportedApplication().getName();
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    ContentDisposition contentDisposition = ContentDisposition
-                            .builder("attachment")
-                            .filename(applicationName + ".json", StandardCharsets.UTF_8)
-                            .build();
-                    responseHeaders.setContentDisposition(contentDisposition);
-                    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-                    return new ResponseEntity(fetchedResource, responseHeaders, HttpStatus.OK);
+                    HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
+                    Object applicationResource = fetchedResource.getApplicationResource();
+                    return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
                 });
     }
 
-    @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<Application>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
-                                                                    @PathVariable String orgId) {
-        log.debug("Going to import application in organization with id: {}", orgId);
+    @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
+                                                                             @PathVariable String workspaceId) {
+        log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))
+                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(workspaceId, file))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
     @PostMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId) {
-        return service.createOrUpdateSshKeyPair(applicationId)
+    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId,
+                                                         @RequestParam(required = false) String keyType) {
+        return service.createOrUpdateSshKeyPair(applicationId, keyType)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @GetMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<GitAuth>> getSSHKey(@PathVariable String applicationId) {
+    public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
@@ -213,8 +203,24 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PatchMapping("{applicationId}/themes/{themeId}")
-    public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
-        return themeService.changeCurrentTheme(themeId, applicationId)
+    public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return themeService.changeCurrentTheme(themeId, applicationId, branchName)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
+    }
+
+    @GetMapping("/import/{workspaceId}/datasources")
+    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
+        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, workspaceId)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    // !! This API endpoint should not be exposed !!
+    @Override
+    @GetMapping("")
+    public Mono<ResponseDTO<List<Application>>> getAll(@RequestParam MultiValueMap<String, String> params,
+                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return Mono.just(
+                new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage())
+        );
     }
 }

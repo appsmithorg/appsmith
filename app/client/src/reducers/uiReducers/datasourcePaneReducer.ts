@@ -1,5 +1,8 @@
-import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { Datasource } from "entities/Datasource";
 import _ from "lodash";
 

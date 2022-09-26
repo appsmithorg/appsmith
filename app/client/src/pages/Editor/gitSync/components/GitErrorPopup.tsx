@@ -7,7 +7,7 @@ import {
   getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 import {
   createMessage,
@@ -18,6 +18,7 @@ import { Colors } from "constants/Colors";
 import { get } from "lodash";
 
 import ConflictInfo from "../components/ConflictInfo";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -28,6 +29,7 @@ const StyledGitErrorPopup = styled.div`
       right: 0;
       display: flex;
       justify-content: center;
+
       .${Classes.OVERLAY_CONTENT} {
         overflow: hidden;
         bottom: ${(props) =>
@@ -36,6 +38,7 @@ const StyledGitErrorPopup = styled.div`
         background-color: ${Colors.WHITE};
       }
     }
+
     .git-error-popup {
       width: 364px;
       padding: ${(props) => props.theme.spaces[7]}px;
@@ -79,6 +82,10 @@ function GitErrorPopup() {
   };
 
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const browserSupportedRemoteUrl =
+    gitMetaData?.browserSupportedRemoteUrl || "";
+  const isConflicting = true; // refactored
 
   return (
     <StyledGitErrorPopup>
@@ -93,10 +100,12 @@ function GitErrorPopup() {
           <div className="git-error-popup">
             <Header closePopup={hidePopup} />
             <Space size={2} />
-            <ConflictInfo
-              isConflicting
-              learnMoreLink={gitConflictDocumentUrl}
-            />
+            {isConflicting && (
+              <ConflictInfo
+                browserSupportedRemoteUrl={browserSupportedRemoteUrl}
+                learnMoreLink={gitConflictDocumentUrl}
+              />
+            )}
           </div>
         </div>
       </Overlay>

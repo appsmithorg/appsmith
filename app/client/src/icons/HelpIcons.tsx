@@ -7,6 +7,7 @@ import DocumentIcon from "remixicon-react/FileTextFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import DiscordIcon from "remixicon-react/DiscordFillIcon";
 import OpenLinkIcon from "remixicon-react/ShareBoxLineIcon";
+import FileCopyLineIcon from "remixicon-react/FileCopyLineIcon";
 
 /* eslint-disable react/display-name */
 
@@ -51,6 +52,11 @@ export const HelpIcons: {
   UPDATES: (props: IconProps) => (
     <IconWrapper {...props}>
       <UpdatesIcon />
+    </IconWrapper>
+  ),
+  COPY_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <FileCopyLineIcon />
     </IconWrapper>
   ),
 };

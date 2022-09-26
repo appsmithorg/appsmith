@@ -82,7 +82,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
     public Mono<ResponseDTO<T>> delete(@PathVariable ID id,
                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to delete resource from base controller with id: {}", id);
-        return service.deleteByIdAndBranchName(id, branchName)
+        return service.archiveByIdAndBranchName(id, branchName)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 

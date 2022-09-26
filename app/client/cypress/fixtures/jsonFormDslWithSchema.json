@@ -1,0 +1,393 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1168,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 680,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 47,
+    "minHeight": 870,
+    "parentColumnSpace": 1,
+    "dynamicTriggerPathList": [],
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+        {
+            "widgetName": "Text1",
+            "displayName": "Text",
+            "iconSVG": "/static/media/icon.97c59b52.svg",
+            "topRow": 54,
+            "bottomRow": 58,
+            "parentRowSpace": 10,
+            "type": "TEXT_WIDGET",
+            "hideCard": false,
+            "animateLoading": true,
+            "parentColumnSpace": 18.0625,
+            "leftColumn": 22,
+            "text": "Label",
+            "key": "zgsygilz5a",
+            "rightColumn": 38,
+            "textAlign": "LEFT",
+            "widgetId": "ums2hvawa0",
+            "isVisible": true,
+            "fontStyle": "BOLD",
+            "textColor": "#231F20",
+            "version": 1,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "fontSize": "PARAGRAPH"
+        },
+        {
+            "schema": {
+                "__root_schema__": {
+                    "children": {
+                        "name": {
+                            "children": {},
+                            "dataType": "string",
+                            "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.name))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                            "fieldType": "Text Input",
+                            "sourceData": "John",
+                            "isCustomField": false,
+                            "accessor": "name",
+                            "identifier": "name",
+                            "position": 0,
+                            "originalIdentifier": "name",
+                            "isDisabled": false,
+                            "isRequired": false,
+                            "isSpellCheck": false,
+                            "isVisible": true,
+                            "label": "Name"
+                        },
+                        "age": {
+                            "children": {},
+                            "dataType": "number",
+                            "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.age))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                            "fieldType": "Number Input",
+                            "sourceData": 30,
+                            "isCustomField": false,
+                            "accessor": "age",
+                            "identifier": "age",
+                            "position": 1,
+                            "originalIdentifier": "age",
+                            "isDisabled": false,
+                            "isRequired": false,
+                            "isSpellCheck": false,
+                            "isVisible": true,
+                            "label": "Age"
+                        },
+                        "dob": {
+                            "children": {},
+                            "dataType": "string",
+                            "defaultValue": "{{((sourceData, formData, fieldState) => (moment(sourceData.dob, \"MM/DD/YYYY\").format(\"YYYY-MM-DDTHH:mm:ss.sssZ\")))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                            "fieldType": "Datepicker",
+                            "sourceData": "10/12/1992",
+                            "isCustomField": false,
+                            "accessor": "dob",
+                            "identifier": "dob",
+                            "position": 2,
+                            "originalIdentifier": "dob",
+                            "closeOnSelection": false,
+                            "dateFormat": "MM/DD/YYYY",
+                            "isDisabled": false,
+                            "isRequired": false,
+                            "label": "Dob",
+                            "maxDate": "2121-12-31T18:29:00.000Z",
+                            "minDate": "1920-12-31T18:30:00.000Z",
+                            "convertToISO": false,
+                            "shortcuts": false,
+                            "isVisible": true
+                        },
+                        "migrant": {
+                            "children": {},
+                            "dataType": "boolean",
+                            "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.migrant))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                            "fieldType": "Switch",
+                            "sourceData": false,
+                            "isCustomField": false,
+                            "accessor": "migrant",
+                            "identifier": "migrant",
+                            "position": 3,
+                            "originalIdentifier": "migrant",
+                            "alignWidget": "LEFT",
+                            "isDisabled": false,
+                            "isRequired": false,
+                            "isVisible": true,
+                            "label": "Migrant"
+                        },
+                        "address": {
+                            "children": {
+                                "street": {
+                                    "children": {},
+                                    "dataType": "string",
+                                    "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.address.street))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                                    "fieldType": "Text Input",
+                                    "sourceData": "Koramangala",
+                                    "isCustomField": false,
+                                    "accessor": "street",
+                                    "identifier": "street",
+                                    "position": 0,
+                                    "originalIdentifier": "street",
+                                    "isDisabled": false,
+                                    "isRequired": false,
+                                    "isSpellCheck": false,
+                                    "isVisible": true,
+                                    "label": "Street"
+                                },
+                                "city": {
+                                    "children": {},
+                                    "dataType": "string",
+                                    "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                                    "fieldType": "Text Input",
+                                    "sourceData": "Bangalore",
+                                    "isCustomField": false,
+                                    "accessor": "city",
+                                    "identifier": "city",
+                                    "position": 1,
+                                    "originalIdentifier": "city",
+                                    "isDisabled": false,
+                                    "isRequired": false,
+                                    "isSpellCheck": false,
+                                    "isVisible": true,
+                                    "label": "City"
+                                }
+                            },
+                            "dataType": "object",
+                            "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.address))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                            "fieldType": "Object",
+                            "sourceData": {
+                                "street": "Koramangala",
+                                "city": "Bangalore"
+                            },
+                            "isCustomField": false,
+                            "accessor": "address",
+                            "identifier": "address",
+                            "position": 4,
+                            "originalIdentifier": "address",
+                            "isDisabled": false,
+                            "isRequired": false,
+                            "isVisible": true,
+                            "label": "Address"
+                        },
+                        "education": {
+                            "children": {
+                                "__array_item__": {
+                                    "children": {
+                                        "college": {
+                                            "children": {},
+                                            "dataType": "string",
+                                            "fieldType": "Text Input",
+                                            "sourceData": "MIT",
+                                            "isCustomField": false,
+                                            "accessor": "college",
+                                            "identifier": "college",
+                                            "position": 0,
+                                            "originalIdentifier": "college",
+                                            "isDisabled": false,
+                                            "isRequired": false,
+                                            "isSpellCheck": false,
+                                            "isVisible": true,
+                                            "label": "College"
+                                        },
+                                        "year": {
+                                            "children": {},
+                                            "dataType": "string",
+                                            "fieldType": "Datepicker",
+                                            "sourceData": "20/10/2014",
+                                            "isCustomField": false,
+                                            "accessor": "year",
+                                            "identifier": "year",
+                                            "position": 1,
+                                            "originalIdentifier": "year",
+                                            "closeOnSelection": false,
+                                            "dateFormat": "DD/MM/YYYY",
+                                            "isDisabled": false,
+                                            "isRequired": false,
+                                            "label": "Year",
+                                            "convertToISO": false,
+                                            "maxDate": "2121-12-31T18:29:00.000Z",
+                                            "minDate": "1920-12-31T18:30:00.000Z",
+                                            "shortcuts": false,
+                                            "isVisible": true
+                                        }
+                                    },
+                                    "dataType": "object",
+                                    "fieldType": "Object",
+                                    "sourceData": {
+                                        "college": "MIT",
+                                        "year": "20/10/2014"
+                                    },
+                                    "isCustomField": false,
+                                    "accessor": "__array_item__",
+                                    "identifier": "__array_item__",
+                                    "position": -1,
+                                    "originalIdentifier": "__array_item__",
+                                    "isDisabled": false,
+                                    "isRequired": false,
+                                    "isVisible": true,
+                                    "label": "Array Item"
+                                }
+                            },
+                            "dataType": "array",
+                            "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.education))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                            "fieldType": "Array",
+                            "sourceData": [
+                                {
+                                    "college": "MIT",
+                                    "year": "20/10/2014"
+                                }
+                            ],
+                            "isCustomField": false,
+                            "accessor": "education",
+                            "identifier": "education",
+                            "position": 5,
+                            "originalIdentifier": "education",
+                            "backgroundColor": "#FAFAFA",
+                            "isCollapsible": true,
+                            "isDisabled": false,
+                            "isRequired": false,
+                            "isVisible": true,
+                            "label": "Education"
+                        },
+                        "hobbies": {
+                            "children": {},
+                            "dataType": "array",
+                            "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData.hobbies))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                            "fieldType": "Multiselect",
+                            "sourceData": [
+                                "travelling",
+                                "swimming"
+                            ],
+                            "isCustomField": false,
+                            "accessor": "hobbies",
+                            "identifier": "hobbies",
+                            "position": 6,
+                            "originalIdentifier": "hobbies",
+                            "isDisabled": false,
+                            "isRequired": false,
+                            "isVisible": true,
+                            "label": "Hobbies",
+                            "serverSideFiltering": false,
+                            "options": [
+                                {
+                                    "label": "Blue",
+                                    "value": "BLUE"
+                                },
+                                {
+                                    "label": "Green",
+                                    "value": "GREEN"
+                                },
+                                {
+                                    "label": "Red",
+                                    "value": "RED"
+                                }
+                            ]
+                        }
+                    },
+                    "dataType": "object",
+                    "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                    "fieldType": "Object",
+                    "sourceData": {
+                        "name": "John",
+                        "age": 30,
+                        "dob": "10/12/1992",
+                        "migrant": false,
+                        "address": {
+                            "street": "Koramangala",
+                            "city": "Bangalore"
+                        },
+                        "education": [
+                            {
+                                "college": "MIT",
+                                "year": "20/10/2014"
+                            }
+                        ],
+                        "hobbies": [
+                            "travelling",
+                            "swimming"
+                        ]
+                    },
+                    "isCustomField": false,
+                    "name": "",
+                    "identifier": "",
+                    "position": -1,
+                    "originalIdentifier": "",
+                    "isDisabled": false,
+                    "isRequired": false,
+                    "isVisible": true,
+                    "label": ""
+                }
+            },
+            "widgetName": "JSONForm1",
+            "displayName": "JSON Form",
+            "iconSVG": "/static/media/icon.6bacf7df.svg",
+            "topRow": 5,
+            "bottomRow": 45,
+            "parentRowSpace": 10,
+            "title": "Form",
+            "type": "JSON_FORM_WIDGET",
+            "hideCard": false,
+            "parentColumnSpace": 18.0625,
+            "dynamicTriggerPathList": [],
+            "autoGenerateForm": true,
+            "leftColumn": 18,
+            "dynamicBindingPathList": [
+                {
+                    "key": "schema.__root_schema__.children.name.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.age.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.dob.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.migrant.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.address.children.street.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.address.children.city.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.address.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.education.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.children.hobbies.defaultValue"
+                },
+                {
+                    "key": "schema.__root_schema__.defaultValue"
+                }
+            ],
+            "sourceData": "{\n  \"name\": \"John\",\n  \"age\": 30,\n  \"dob\": \"10/12/1992\",\n  \"migrant\": false,\n  \"address\": {\n    \"street\": \"Koramangala\",\n    \"city\": \"Bangalore\"\n  },\n  \"education\": [\n    {\n      \"college\": \"MIT\",\n      \"year\": \"20/10/2014\"\n    }\n  ],\n  \"hobbies\": [\"travelling\", \"swimming\"]\n}",
+            "showReset": true,
+            "key": "4x3ilx80d3",
+            "backgroundColor": "#fff",
+            "rightColumn": 43,
+            "widgetId": "u77r23ogdl",
+            "isVisible": true,
+            "version": 1,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "scrollContents": true,
+            "fixedFooter": true,
+            "disabledWhenInvalid": true,
+            "submitButtonLabel": "Submit",
+            "resetButtonLabel": "Reset"
+        }
+    ]
+}
+}

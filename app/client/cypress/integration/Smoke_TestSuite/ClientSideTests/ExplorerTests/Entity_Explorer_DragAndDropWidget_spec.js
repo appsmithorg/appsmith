@@ -1,19 +1,14 @@
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 
-const pageid = "MyPage";
-
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
     cy.log("Login Successful");
-    //cy.reload(); // To remove the rename tooltip
-    cy.wait(40000);
-    cy.get(explorer.addWidget).click();
+    cy.reload(); // To remove the rename tooltip
+    cy.get(explorer.addWidget).click({ force: true });
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
       .clear()
@@ -33,16 +28,15 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     /**
      * @param{Text} Random Colour
      */
-    cy.get(widgetsPage.backgroundcolorPickerNew)
-      .first()
-      .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.moveToStyleTab();
+    cy.selectColor("backgroundcolor");
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(3, 179, 101)");
+      .and("eq", "rgb(126, 34, 206)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
+    cy.moveToContentTab();
     cy.togglebar(commonlocators.scrollView);
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
@@ -52,14 +46,15 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
+      expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+      expect($lis.eq(2)).to.contain("{{FormTest.hasChanges}}");
     });
   });
 });

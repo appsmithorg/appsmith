@@ -5,6 +5,8 @@ import FormControl from "pages/Editor/FormControl";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
+import { PaginationSubComponent } from "components/formControls/utils";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
@@ -17,7 +19,7 @@ export const StyledFormLabel = styled(FormLabel)`
 export const FormControlContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 20vw;
+  width: 280px;
   margin-right: 1rem;
 `;
 
@@ -26,6 +28,9 @@ const valueFieldConfig: any = {
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
+  customStyles: {
+    width: "280px",
+  },
 };
 
 const limitFieldConfig: any = {
@@ -42,7 +47,8 @@ export function Pagination(props: {
   label: string;
   isValid: boolean;
   validationMessage?: string;
-  placeholder?: string;
+  placeholder?: Record<string, string>;
+  tooltip?: Record<string, string>;
   isRequired?: boolean;
   name: string;
   disabled?: boolean;
@@ -51,7 +57,29 @@ export function Pagination(props: {
   formName: string;
   initialValue?: Record<string, string>;
 }) {
-  const { configProperty, customStyles, formName, initialValue, name } = props;
+  const {
+    configProperty,
+    customStyles,
+    formName,
+    initialValue,
+    name,
+    placeholder,
+    tooltip,
+  } = props;
+
+  const offsetPath = getBindingOrConfigPathsForPaginationControl(
+    PaginationSubComponent.Offset,
+    configProperty,
+  );
+  const limitPath = getBindingOrConfigPathsForPaginationControl(
+    PaginationSubComponent.Limit,
+    configProperty,
+  );
+
+  const defaultStyles = {
+    width: "280px",
+    ...customStyles,
+  };
 
   return (
     <div
@@ -65,9 +93,12 @@ export function Pagination(props: {
         <FormControl
           config={{
             ...limitFieldConfig,
-            label: "Limit",
-            customStyles,
-            configProperty: `${configProperty}.limit`,
+            label: "Pagination Limit",
+            defaultStyles,
+            configProperty: limitPath,
+            placeholderText:
+              typeof placeholder === "object" ? placeholder.limit : "",
+            tooltipText: typeof tooltip === "object" ? tooltip.limit : "",
             initialValue:
               typeof initialValue === "object" ? initialValue.limit : null,
           }}
@@ -81,16 +112,19 @@ export function Pagination(props: {
         <FormControl
           config={{
             ...offsetFieldConfig,
-            label: "Offset",
-            customStyles,
-            configProperty: `${configProperty}.offset`,
+            label: "Pagination Offset",
+            defaultStyles,
+            configProperty: offsetPath,
+            placeholderText:
+              typeof placeholder === "object" ? placeholder.offset : "",
+            tooltipText: typeof tooltip === "object" ? tooltip.offset : "",
             initialValue:
               typeof initialValue === "object" ? initialValue.offset : null,
           }}
           formName={formName}
         />
         <StyledFormLabel>
-          No of rows that are skipped before starting to count.
+          No. of rows to be skipped before querying
         </StyledFormLabel>
       </FormControlContainer>
     </div>
@@ -106,6 +140,7 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
       isValid,
       label,
       placeholderText,
+      tooltipText,
       validationMessage,
     } = this.props;
 
@@ -119,6 +154,7 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
         label={label}
         name={configProperty}
         placeholder={placeholderText}
+        tooltip={tooltipText}
         validationMessage={validationMessage}
       />
     );
@@ -130,7 +166,8 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
 }
 
 export interface PaginationControlProps extends ControlProps {
-  placeholderText: string;
+  placeholderText: Record<string, string>;
+  tooltipText: Record<string, string>;
   disabled?: boolean;
 }
 

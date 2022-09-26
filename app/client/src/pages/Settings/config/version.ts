@@ -1,5 +1,8 @@
 import { Dispatch } from "react";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   AdminConfigType,
   SettingCategories,
@@ -14,7 +17,7 @@ export const config: AdminConfigType = {
   settings: [
     {
       id: "APPSMITH_CURRENT_VERSION",
-      category: "version",
+      category: SettingCategories.VERSION,
       controlType: SettingTypes.TEXT,
       label: "Current version",
     },
@@ -27,7 +30,7 @@ export const config: AdminConfigType = {
             payload: true,
           });
       },
-      category: "version",
+      category: SettingCategories.VERSION,
       controlType: SettingTypes.LINK,
       label: "Release Notes",
     },

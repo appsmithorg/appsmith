@@ -1,0 +1,181 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1056,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 650,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 52,
+        "minHeight": 730,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "label": "Label",
+                "defaultSwitchState": true,
+                "widgetName": "Switch1",
+                "alignWidget": "LEFT",
+                "version": 1,
+                "isDisabled": false,
+                "animateLoading": true,
+                "type": "SWITCH_WIDGET",
+                "hideCard": false,
+                "displayName": "Switch",
+                "key": "jx5835myoq",
+                "iconSVG": "/static/media/icon.a3115bc1.svg",
+                "widgetId": "cj9lioq97p",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 3,
+                "rightColumn": 15,
+                "topRow": 13,
+                "bottomRow": 17,
+                "parentId": "0"
+            },
+            {
+                "isVisible": true,
+                "animateLoading": true,
+                "defaultSelectedRow": "0",
+                "label": "Data",
+                "widgetName": "Table1",
+                "searchKey": "",
+                "textSize": "PARAGRAPH",
+                "horizontalAlignment": "LEFT",
+                "verticalAlignment": "CENTER",
+                "totalRecordsCount": 0,
+                "defaultPageSize": 0,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "tableData"
+                    },
+                    {
+                        "key": "primaryColumns.name.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.age.computedValue"
+                    }
+                ],
+                "primaryColumns": {
+                    "name": {
+                        "index": 0,
+                        "width": 150,
+                        "id": "name",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "name",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.name))}}"
+                    },
+                    "age": {
+                        "index": 1,
+                        "width": 150,
+                        "id": "age",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "age",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.age))}}"
+                    }
+                },
+                "derivedColumns": {},
+                "tableData": "{{Switch1.isSwitchedOn ? [\n\t\t\t{\n\t\t\t\tname: \"balaji\",\n\t\t\t\tage: 29\n\t\t\t},\n\t    {\n\t\t\t\tname: \"yogesh\",\n\t\t\t\tage: 30\n\t\t\t}\n\t\t] : [\n\t\t\t{\n\t\t\t\temployee_name: \"Prapulla\",\n\t\t\t\texperience: 8\n\t\t\t},\n\t\t\t{\n\t\t\t\temployee_name: \"vivek\",\n\t\t\t\texperience: 9\n\t\t\t}\n\t\t]\n}}",
+                "columnSizeMap": {
+                    "task": 245,
+                    "step": 62,
+                    "status": 75
+                },
+                "columnOrder": [
+                    "name",
+                    "age"
+                ],
+                "enableClientSideSearch": true,
+                "isVisibleSearch": true,
+                "isVisibleFilters": true,
+                "isVisibleDownload": true,
+                "isVisiblePagination": true,
+                "isSortable": true,
+                "delimiter": ",",
+                "version": 3,
+                "type": "TABLE_WIDGET",
+                "hideCard": false,
+                "displayName": "Table",
+                "key": "w7wkbuaqfz",
+                "iconSVG": "/static/media/icon.db8a9cbd.svg",
+                "widgetId": "fa1h4xzjf0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 18,
+                "rightColumn": 52,
+                "topRow": 12,
+                "bottomRow": 40,
+                "parentId": "0",
+                "dynamicTriggerPathList": [],
+                "dynamicPropertyPathList": [],
+                "multiRowSelection": true
+            },
+            {
+                "isVisible": true,
+                "text": "{{Table1.selectedRow.age}}",
+                "fontSize": "PARAGRAPH",
+                "fontStyle": "BOLD",
+                "textAlign": "LEFT",
+                "textColor": "#231F20",
+                "truncateButtonColor": "#FFC13D",
+                "widgetName": "Text1",
+                "shouldScroll": false,
+                "shouldTruncate": false,
+                "version": 1,
+                "animateLoading": true,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "displayName": "Text",
+                "key": "bf8iighnap",
+                "iconSVG": "/static/media/icon.97c59b52.svg",
+                "widgetId": "yf97cq9bn0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 14,
+                "rightColumn": 30,
+                "topRow": 45,
+                "bottomRow": 49,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "text"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            }
+        ]
+    }
+}

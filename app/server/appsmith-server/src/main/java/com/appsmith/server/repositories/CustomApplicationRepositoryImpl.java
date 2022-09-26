@@ -15,8 +15,8 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
 
     @Autowired
     public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           @NonNull MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                           @NonNull MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

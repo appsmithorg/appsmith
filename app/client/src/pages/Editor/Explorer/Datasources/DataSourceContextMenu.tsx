@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   deleteDatasource,
@@ -9,6 +9,13 @@ import ContextMenuTrigger from "../ContextMenuTrigger";
 import { noop } from "lodash";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
+import {
+  CONTEXT_EDIT_NAME,
+  CONTEXT_REFRESH,
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -26,6 +33,9 @@ export function DataSourceContextMenu(props: {
   const dispatchRefresh = useCallback(() => {
     dispatch(refreshDatasourceStructure(props.datasourceId));
   }, [dispatch, props.datasourceId]);
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   return (
     <TreeDropdown
       className={props.className}
@@ -36,21 +46,28 @@ export function DataSourceContextMenu(props: {
         {
           value: "rename",
           onSelect: editDatasourceName,
-          label: "Edit Name",
+          label: createMessage(CONTEXT_EDIT_NAME),
         },
         {
           value: "refresh",
           onSelect: dispatchRefresh,
-          label: "Refresh",
+          label: createMessage(CONTEXT_REFRESH),
         },
         {
+          confirmDelete: confirmDelete,
+          className: "t--apiFormDeleteBtn single-select",
           value: "delete",
-          onSelect: dispatchDelete,
-          label: "Delete",
+          onSelect: () => {
+            confirmDelete ? dispatchDelete() : setConfirmDelete(true);
+          },
+          label: confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE),
           intent: "danger",
         },
       ]}
       selectedValue=""
+      setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );

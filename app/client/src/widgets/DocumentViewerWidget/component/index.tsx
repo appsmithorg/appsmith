@@ -23,7 +23,7 @@ const ErrorWrapper = styled.div`
 
 const checkUrlExtension = (docUrl: string) => {
   // Remove everything to the last slash in URL
-  let url = docUrl.substr(1 + docUrl.lastIndexOf("/"));
+  let url = docUrl.slice(1 + docUrl.lastIndexOf("/"));
   // Break URL at ? and take first part (file name, extension)
   url = url.split("?")[0];
   // Sometimes URL doesn't have ? but #, so we should aslo do the same for #

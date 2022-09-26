@@ -5,11 +5,11 @@ import { formValueSelector } from "redux-form";
 import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
-} from "constants/ApiEditorConstants";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+} from "constants/ApiEditorConstants/CommonApiConstants";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import {
   CodeEditorBorder,
@@ -18,7 +18,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import MultiSwitch from "components/ads/MultiSwitch";
+import { MultiSwitch } from "design-system";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -90,9 +90,7 @@ function PostBodyData(props: Props) {
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
             name="actionConfiguration.body"
-            placeholder={
-              '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
-            }
+            placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
             showLineNumbers
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
@@ -130,6 +128,7 @@ function PostBodyData(props: Props) {
             dataTreePath={`${dataTreePath}.body`}
             mode={EditorModes.TEXT_WITH_BINDING}
             name="actionConfiguration.body"
+            placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
             theme={theme}
@@ -142,6 +141,7 @@ function PostBodyData(props: Props) {
   return (
     <PostBodyContainer>
       <MultiSwitch
+        cypressSelector="t--api-body-tab-switch"
         onSelect={(title: string) => updateBodyContentType(title, apiId)}
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES.map((el) => {

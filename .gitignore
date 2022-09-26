@@ -5,6 +5,7 @@
 .vscode/*
 
 app/client/cypress.env.json
+stacks
 
 # to ignore the node_modeules folder
 node_modules
@@ -19,3 +20,4 @@ deploy/ansible/appsmith_playbook/inventory
 # performance tests
 app/client/perf/traces/*
 .history
+stacks

@@ -150,6 +150,8 @@ export const CONFIG = {
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",
+                                    boxShadow: "none",
+                                    objectFit: "cover",
                                     dynamicBindingPathList: [
                                       {
                                         key: "image",
@@ -172,6 +174,7 @@ export const CONFIG = {
                                     text: "{{currentItem.name}}",
                                     textStyle: "HEADING",
                                     textAlign: "LEFT",
+                                    boxShadow: "none",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",
@@ -194,6 +197,7 @@ export const CONFIG = {
                                     text: "{{currentItem.id}}",
                                     textStyle: "BODY",
                                     textAlign: "LEFT",
+                                    boxShadow: "none",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",
@@ -331,7 +335,6 @@ export const CONFIG = {
               "CHART_WIDGET",
               "CHECKBOX_WIDGET",
               "CHECKBOX_GROUP_WIDGET",
-              "CIRCULAR_PROGRESS_WIDGET",
               "DIVIDER_WIDGET",
               "ICON_BUTTON_WIDGET",
               "IFRAME_WIDGET",
@@ -340,7 +343,7 @@ export const CONFIG = {
               "MAP_CHART_WIDGET",
               "MAP_WIDGET",
               "MENU_BUTTON_WIDGET",
-              "PROGRESSBAR_WIDGET",
+              "PROGRESS_WIDGET",
               "STATBOX_WIDGET",
               "SWITCH_WIDGET",
               "SWITCH_GROUP_WIDGET",
@@ -397,6 +400,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

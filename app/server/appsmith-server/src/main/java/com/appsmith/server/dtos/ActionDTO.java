@@ -2,12 +2,13 @@ package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ActionProvider;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,10 +36,15 @@ public class ActionDTO {
     String applicationId;
 
     @Transient
-    String organizationId;
+    String workspaceId;
 
     @Transient
     PluginType pluginType;
+
+    // name of the plugin. used to log analytics events where pluginName is a required attribute
+    // It'll be null if not set
+    @Transient
+    String pluginName;
 
     @Transient
     String pluginId;
@@ -55,6 +61,11 @@ public class ActionDTO {
     String collectionId;
 
     ActionConfiguration actionConfiguration;
+
+    //this attribute carries error messages while processing the actionCollection
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Transient
+    List<ErrorDTO> errorReports;
 
     Boolean executeOnLoad;
 
@@ -105,6 +116,7 @@ public class ActionDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant deletedAt = null;
 
+    @Deprecated
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant archivedAt = null;
 
@@ -140,6 +152,19 @@ public class ActionDTO {
             return this.name;
         } else {
             return this.fullyQualifiedName;
+        }
+    }
+    public void sanitiseToExportDBObject() {
+        this.setDefaultResources(null);
+        this.setCacheResponse(null);
+        if (this.getDatasource() != null) {
+            this.getDatasource().setCreatedAt(null);
+        }
+        if (this.getUserPermissions() != null) {
+            this.getUserPermissions().clear();
+        }
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
         }
     }
 }

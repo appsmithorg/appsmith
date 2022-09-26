@@ -1,19 +1,16 @@
-import { createActionRequest } from "actions/pluginActionActions";
 import { createModalAction } from "actions/widgetActions";
-import { TreeDropdownOption } from "components/ads/TreeDropdown";
+import { TreeDropdownOption } from "design-system";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
-import { Datasource } from "entities/Datasource";
 import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  getPluginIcon,
   JsFileIconV2,
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getWidgetOptionsTree } from "sagas/selectors";
 import {
   getCurrentApplicationId,
@@ -21,27 +18,18 @@ import {
 } from "selectors/editorSelectors";
 import {
   getActionsForCurrentPage,
-  getDBDatasources,
   getJSCollectionsForCurrentPage,
-  getPageListAsOptions,
 } from "selectors/entitiesSelector";
 import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { createNewQueryName } from "utils/AppsmithUtils";
-import Fields, {
-  ACTION_ANONYMOUS_FUNC_REGEX,
-  ACTION_TRIGGER_REGEX,
-  ActionType,
-  FieldType,
-} from "./Fields";
+import Fields from "./Fields";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import getFeatureFlags from "utils/featureFlags";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
@@ -62,85 +50,94 @@ import {
   STORE_VALUE,
   WATCH_GEO_LOCATION,
 } from "@appsmith/constants/messages";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
+import { connect } from "react-redux";
+import { isValidURL } from "utils/URLUtils";
+import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
+import {
+  NAVIGATE_TO_TAB_OPTIONS,
+  AppsmithFunction,
+  FieldType,
+} from "./constants";
+import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 
-/* eslint-disable @typescript-eslint/ban-types */
-/* TODO: Function and object types need to be updated to enable the lint rule */
-const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(NO_ACTION),
-    value: ActionType.none,
+    value: AppsmithFunction.none,
   },
   {
     label: createMessage(EXECUTE_A_QUERY),
-    value: ActionType.integration,
+    value: AppsmithFunction.integration,
   },
   {
     label: createMessage(NAVIGATE_TO),
-    value: ActionType.navigateTo,
+    value: AppsmithFunction.navigateTo,
   },
   {
     label: createMessage(SHOW_MESSAGE),
-    value: ActionType.showAlert,
+    value: AppsmithFunction.showAlert,
   },
   {
     label: createMessage(OPEN_MODAL),
-    value: ActionType.showModal,
+    value: AppsmithFunction.showModal,
   },
   {
     label: createMessage(CLOSE_MODAL),
-    value: ActionType.closeModal,
+    value: AppsmithFunction.closeModal,
   },
   {
     label: createMessage(STORE_VALUE),
-    value: ActionType.storeValue,
+    value: AppsmithFunction.storeValue,
   },
   {
     label: createMessage(DOWNLOAD),
-    value: ActionType.download,
+    value: AppsmithFunction.download,
   },
   {
     label: createMessage(COPY_TO_CLIPBOARD),
-    value: ActionType.copyToClipboard,
+    value: AppsmithFunction.copyToClipboard,
   },
   {
     label: createMessage(RESET_WIDGET),
-    value: ActionType.resetWidget,
+    value: AppsmithFunction.resetWidget,
   },
   {
     label: createMessage(SET_INTERVAL),
-    value: ActionType.setInterval,
+    value: AppsmithFunction.setInterval,
   },
   {
     label: createMessage(CLEAR_INTERVAL),
-    value: ActionType.clearInterval,
+    value: AppsmithFunction.clearInterval,
   },
   {
     label: createMessage(GET_GEO_LOCATION),
-    value: ActionType.getGeolocation,
+    value: AppsmithFunction.getGeolocation,
   },
   {
     label: createMessage(WATCH_GEO_LOCATION),
-    value: ActionType.watchGeolocation,
+    value: AppsmithFunction.watchGeolocation,
   },
   {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
-    value: ActionType.stopWatchGeolocation,
+    value: AppsmithFunction.stopWatchGeolocation,
   },
 ];
 
-const getBaseOptions = () => {
+const getBaseOptions = (featureFlags: FeatureFlags) => {
+  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   if (isJSEditorEnabled) {
     const jsOption = baseOptions.find(
-      (option: any) => option.value === ActionType.jsFunction,
+      (option: any) => option.value === AppsmithFunction.jsFunction,
     );
     if (!jsOption) {
       baseOptions.splice(2, 0, {
         label: createMessage(EXECUTE_JS_FUNCTION),
-        value: ActionType.jsFunction,
+        value: AppsmithFunction.jsFunction,
       });
     }
   }
@@ -149,7 +146,8 @@ const getBaseOptions = () => {
 
 function getFieldFromValue(
   value: string | undefined,
-  getParentValue?: Function,
+  activeTabNavigateTo: SwitchType,
+  getParentValue?: (changeValue: string) => string,
   dataTree?: DataTree,
 ): any[] {
   const fields: any[] = [];
@@ -187,6 +185,7 @@ function getFieldFromValue(
         }
         const successFields = getFieldFromValue(
           successValue,
+          activeTabNavigateTo,
           (changeValue: string) => {
             const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
             const args = [
@@ -195,7 +194,7 @@ function getFieldFromValue(
             const errorArg = args[1] ? args[1][0] : "() => {}";
             const successArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
 
             return value.replace(
               ACTION_TRIGGER_REGEX,
@@ -213,6 +212,7 @@ function getFieldFromValue(
         }
         const errorFields = getFieldFromValue(
           errorValue,
+          activeTabNavigateTo,
           (changeValue: string) => {
             const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
             const args = [
@@ -221,7 +221,8 @@ function getFieldFromValue(
             const successArg = args[0] ? args[0][0] : "() => {}";
             const errorArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
+
             return value.replace(
               ACTION_TRIGGER_REGEX,
               `{{$1(${successArg}, ${errorArg})}}`,
@@ -283,8 +284,19 @@ function getFieldFromValue(
   });
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
-      field: FieldType.URL_FIELD,
+      field: FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD,
     });
+
+    if (activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.PAGE_NAME) {
+      fields.push({
+        field: FieldType.PAGE_SELECTOR_FIELD,
+      });
+    } else {
+      fields.push({
+        field: FieldType.URL_FIELD,
+      });
+    }
+
     fields.push({
       field: FieldType.QUERY_PARAMS_FIELD,
     });
@@ -390,7 +402,7 @@ function useModalDropdownList() {
       id: "create",
       icon: "plus",
       className: "t--create-modal-btn",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
+      onSelect: (option: TreeDropdownOption, setter?: GenericFunction) => {
         const modalName = nextModalName;
         if (setter) {
           setter({
@@ -416,11 +428,11 @@ function getIntegrationOptionsWithChildren(
   options: TreeDropdownOption[],
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
-  datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
+  featureFlags: FeatureFlags,
 ) {
-  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
     value: "JSObject",
@@ -428,7 +440,7 @@ function getIntegrationOptionsWithChildren(
     icon: "plus",
     className: "t--create-js-object-btn",
     onSelect: () => {
-      dispatch(createNewJSCollection(pageId));
+      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
     },
   };
   const queries = actions.filter(
@@ -441,11 +453,11 @@ function getIntegrationOptionsWithChildren(
       action.config.pluginType === PluginType.REMOTE,
   );
   const option = options.find(
-    (option) => option.value === ActionType.integration,
+    (option) => option.value === AppsmithFunction.integration,
   );
 
   const jsOption = options.find(
-    (option) => option.value === ActionType.jsFunction,
+    (option) => option.value === AppsmithFunction.jsFunction,
   );
 
   if (option) {
@@ -475,47 +487,19 @@ function getIntegrationOptionsWithChildren(
         ),
       } as TreeDropdownOption);
     });
-    datasources.forEach((dataSource: Datasource) => {
-      (option.children as TreeDropdownOption[]).push({
-        label: dataSource.name,
-        id: dataSource.id,
-        value: dataSource.name,
-        type: option.value,
-        icon: getPluginIcon(plugins[dataSource.pluginId]) as React.ReactNode,
-        onSelect: () => {
-          const newQueryName = createNewQueryName(actions, pageId);
-          dispatch(
-            createActionRequest({
-              name: newQueryName,
-              pageId,
-              datasource: {
-                id: dataSource.id,
-              },
-              eventData: {
-                actionType: "Query",
-                from: "home-screen",
-                dataSource: dataSource.name,
-              },
-              pluginId: dataSource.pluginId,
-              actionConfiguration: {},
-            }),
-          );
-        },
-      } as TreeDropdownOption);
-    });
   }
   if (isJSEditorEnabled && jsOption) {
     jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
-        const jsObject = {
+        const jsObject = ({
           label: jsAction.config.name,
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
           icon: JsFileIconV2,
-        } as TreeDropdownOption;
-        (jsOption.children as TreeDropdownOption[]).push(jsObject);
+        } as unknown) as TreeDropdownOption;
+        ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
           //don't remove this will be used soon
           // const createJSFunction: TreeDropdownOption = {
@@ -548,7 +532,7 @@ function getIntegrationOptionsWithChildren(
               args: argValue,
             };
             (jsObject.children as TreeDropdownOption[]).push(
-              jsFunction as TreeDropdownOption,
+              (jsFunction as unknown) as TreeDropdownOption,
             );
           });
         }
@@ -561,7 +545,7 @@ function getIntegrationOptionsWithChildren(
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId) as string;
-  const datasources: Datasource[] = useSelector(getDBDatasources);
+  const featureFlags = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -574,10 +558,9 @@ function useIntegrationsOptionTree() {
     pageId,
     applicationId,
     pluginGroups,
-    getBaseOptions(),
+    getBaseOptions(featureFlags),
     actions,
     jsActions,
-    datasources,
     {
       label: "New Query",
       value: "datasources",
@@ -586,43 +569,94 @@ function useIntegrationsOptionTree() {
       className: "t--create-datasources-query-btn",
       onSelect: () => {
         dispatch(
-          toggleShowGlobalSearchModal(
+          setGlobalSearchCategory(
             filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
           ),
         );
       },
     },
     dispatch,
+    featureFlags,
   );
 }
 
-type ActionCreatorProps = {
-  value: string;
-  onValueChange: (newValue: string) => void;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+const isValueValidURL = (value: string) => {
+  if (value) {
+    const indices = [];
+    for (let i = 0; i < value.length; i++) {
+      if (value[i] === "'") {
+        indices.push(i);
+      }
+    }
+    const str = value.substring(indices[0], indices[1] + 1);
+    return isValidURL(str);
+  }
 };
 
-export function ActionCreator(props: ActionCreatorProps) {
-  const dataTree = useSelector(getDataTree);
-  const integrationOptionTree = useIntegrationsOptionTree();
-  const widgetOptionTree = useSelector(getWidgetOptionsTree);
-  const modalDropdownList = useModalDropdownList();
-  const pageDropdownOptions = useSelector(getPageListAsOptions);
-  const fields = getFieldFromValue(props.value, undefined, dataTree);
-  return (
-    <TreeStructure>
-      <Fields
-        additionalAutoComplete={props.additionalAutoComplete}
-        depth={1}
-        fields={fields}
-        integrationOptionTree={integrationOptionTree}
-        maxDepth={1}
-        modalDropdownList={modalDropdownList}
-        onValueChange={props.onValueChange}
-        pageDropdownOptions={pageDropdownOptions}
-        value={props.value}
-        widgetOptionTree={widgetOptionTree}
-      />
-    </TreeStructure>
-  );
-}
+const ActionCreator = React.forwardRef(
+  (props: ActionCreatorProps, ref: any) => {
+    const NAVIGATE_TO_TAB_SWITCHER: Array<SwitchType> = [
+      {
+        id: "page-name",
+        text: "Page Name",
+        action: () => {
+          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[0]);
+        },
+      },
+      {
+        id: "url",
+        text: "URL",
+        action: () => {
+          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[1]);
+        },
+      },
+    ];
+
+    const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
+      NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
+    );
+    const dataTree = useSelector(getDataTree);
+    const integrationOptionTree = useIntegrationsOptionTree();
+    const widgetOptionTree = useSelector(getWidgetOptionsTree);
+    const modalDropdownList = useModalDropdownList();
+    const fields = getFieldFromValue(
+      props.value,
+      activeTabNavigateTo,
+      undefined,
+      dataTree,
+    );
+
+    return (
+      <TreeStructure ref={ref}>
+        <Fields
+          activeNavigateToTab={activeTabNavigateTo}
+          additionalAutoComplete={props.additionalAutoComplete}
+          depth={1}
+          fields={fields}
+          integrationOptionTree={integrationOptionTree}
+          maxDepth={1}
+          modalDropdownList={modalDropdownList}
+          navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
+          onValueChange={props.onValueChange}
+          pageDropdownOptions={props.pageDropdownOptions}
+          value={props.value}
+          widgetOptionTree={widgetOptionTree}
+        />
+      </TreeStructure>
+    );
+  },
+);
+
+const getPageListAsOptions = (state: AppState) => {
+  return state.entities.pageList.pages.map((page) => ({
+    label: page.pageName,
+    id: page.pageId,
+    value: `'${page.pageName}'`,
+  }));
+};
+
+const mapStateToProps = (state: AppState) => ({
+  pageDropdownOptions: getPageListAsOptions(state),
+});
+
+export default connect(mapStateToProps)(ActionCreator);

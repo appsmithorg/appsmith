@@ -107,7 +107,9 @@ function Command(props: { icon: any; name: string }) {
     <div className="command-container">
       <div className="command">
         {props.icon}
-        <span className="ml-1">{props.name}</span>
+        <span className="ml-1 overflow-hidden overflow-ellipsis whitespace-nowrap">
+          {props.name}
+        </span>
       </div>
     </div>
   );

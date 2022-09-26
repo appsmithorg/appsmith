@@ -1,4 +1,7 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 
 export const createQueryRequest = (payload: Partial<Action>) => {
@@ -22,7 +25,11 @@ export const changeQuery = (
   id: string,
   newQuery?: boolean,
   action?: Action,
-): ReduxAction<{ id: string; newQuery?: boolean; action?: any }> => {
+): ReduxAction<{
+  id: string;
+  newQuery?: boolean;
+  action?: any;
+}> => {
   return {
     type: ReduxActionTypes.QUERY_PANE_CHANGE,
     payload: { id, newQuery, action },

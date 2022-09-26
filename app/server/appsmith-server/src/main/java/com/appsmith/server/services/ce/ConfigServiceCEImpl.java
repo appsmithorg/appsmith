@@ -1,18 +1,18 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.services.ConfigService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +25,7 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
 
-    private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
+    private static final String TEMPLATE_WORKSPACE_CONFIG_NAME = "template-workspace";
 
     private final ApplicationRepository applicationRepository;
     private final DatasourceRepository datasourceRepository;
@@ -37,6 +37,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     public ConfigServiceCEImpl(ConfigRepository repository,
                                ApplicationRepository applicationRepository,
                                DatasourceRepository datasourceRepository) {
+
         this.applicationRepository = applicationRepository;
         this.datasourceRepository = datasourceRepository;
         this.repository = repository;
@@ -89,16 +90,16 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     }
 
     @Override
-    public Mono<String> getTemplateOrganizationId() {
-        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+    public Mono<String> getTemplateWorkspaceId() {
+        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
-                .flatMap(config -> Mono.justOrEmpty(config.getConfig().getAsString(FieldName.ORGANIZATION_ID)))
-                .doOnError(error -> log.warn("Error getting template organization ID", error));
+                .flatMap(config -> Mono.justOrEmpty(config.getConfig().getAsString(FieldName.WORKSPACE_ID)))
+                .doOnError(error -> log.warn("Error getting template workspace ID", error));
     }
 
     @Override
     public Flux<Application> getTemplateApplications() {
-        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
                 .map(config -> defaultIfNull(
                         config.getConfig().getOrDefault("applicationIds", null),
@@ -111,7 +112,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Flux<Datasource> getTemplateDatasources() {
-        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
                 .map(config -> defaultIfNull(
                         config.getConfig().getOrDefault("datasourceIds", null),
@@ -120,6 +121,23 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                 .cast(List.class)
                 .onErrorReturn(Collections.emptyList())
                 .flatMapMany(datasourceRepository::findByIdIn);
+    }
+
+    @Override
+    public Mono<Void> delete(String name) {
+        return repository.findByName(name)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
+                .flatMap(repository::delete);
+    }
+
+    @Override
+    public Mono<Config> getByName(String name, AclPermission permission) {
+        return repository.findByName(name, permission);
+    }
+
+    @Override
+    public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
+        return repository.findByNameAsUser(name, user, permission);
     }
 
 }

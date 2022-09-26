@@ -101,6 +101,7 @@ export default memo(function LandingPage(props: LandingPageProps) {
   }, []);
   return (
     <LandingPageWrapper
+      data-testid={"welcome-page"}
       hide={!fontsInjected}
       id={WELCOME_PAGE_ANIMATION_CONTAINER}
     >

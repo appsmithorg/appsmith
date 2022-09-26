@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -29,8 +30,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
+import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -64,16 +68,24 @@ public class CurlImporterServiceTest {
     @Autowired
     UserService userService;
 
-    String orgId;
+    @Autowired
+    WorkspaceService workspaceService;
 
-    @Before
-    @WithUserDetails(value = "api_user")
+    String workspaceId;
+
     public void setup() {
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+
+        Workspace toCreate = new Workspace();
+        toCreate.setName("CurlImporterServiceTest");
+
+        if (workspaceId == null) {
+            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            workspaceId = workspace.getId();
+        }
     }
 
     @Test
@@ -91,6 +103,42 @@ public class CurlImporterServiceTest {
                 .isEqualTo(List.of("curl", "-H", "X-Something: something \"quoted\" else", "http://httpbin.org/get"));
         assertThat(curlImporterService.lex("curl -H \"X-Something: something \\\\\\\"quoted\\\" else\" http://httpbin.org/get"))
                 .isEqualTo(List.of("curl", "-H", "X-Something: something \\\"quoted\" else", "http://httpbin.org/get"));
+        // The following tests are meant for cases when any of the components have nested quotes within them
+        // In this example, the header argument is surrounded by single quotes, the value for it is surrounded by double quotes,
+        // and the contents of the value has two single quotes
+        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''quoted with nesting'\\'' else\"' http://httpbin.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'quoted with nesting' else\"", "http://httpbin.org/get"));
+        // In this example, the header argument is surrounded by single quotes, the value for it is surrounded by double quotes,
+        // and the contents of the value has one single quote
+        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''ed with nesting else\"' http://httpbin.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'ed with nesting else\"", "http://httpbin.org/get"));
+
+        // In the following test, we're simulating a subshell. This subshell call is outside of quotes
+        try {
+            curlImporterService.lex("curl -H 'X-Something: \"something '$(echo test)' quoted with nesting else\"' http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
+        try {
+            curlImporterService.lex("curl -H 'X-Something: \"something '`echo test`' quoted with nesting else\"' http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
+        // In the following test, we're simulating a subshell. Subshells can be inside double-quoted strings as well
+        try {
+            curlImporterService.lex("curl -H \"X-Something: 'something $(echo test) quoted with nesting else'\" http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
+        try {
+            curlImporterService.lex("curl -H \"X-Something: 'something `echo test` quoted with nesting else'\" http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
     }
 
     @Test
@@ -114,16 +162,17 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportAction_EmptyLex() {
+        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
 
-        Application application = applicationPageService.createApplication(app, orgId).block();
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
         assert application != null;
         PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
 
         assert page != null;
-        Mono<ActionDTO> action = curlImporterService.importAction("'", page.getId(), "actionName", orgId, null);
+        Mono<ActionDTO> action = curlImporterService.importAction("'", page.getId(), "actionName", workspaceId, null);
 
         StepVerifier
                 .create(action)
@@ -135,6 +184,7 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
+        setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -143,7 +193,7 @@ public class CurlImporterServiceTest {
         Application app = new Application();
         app.setName("curlTest App");
 
-        Mono<Application> applicationMono = applicationPageService.createApplication(app, orgId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(app, workspaceId)
                 .flatMap(application1 -> {
                     String pageId = application1.getPages().get(0).getId();
                     return newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
@@ -161,7 +211,7 @@ public class CurlImporterServiceTest {
         String command = "curl -X GET http://localhost:8080/api/v1/actions?name=something -H 'Accept: */*' -H 'Accept-Encoding: gzip, deflate' -H 'Authorization: Basic YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw==' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/json' -H 'Cookie: SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5,SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5; SESSION=' -H 'Host: localhost:8080' -H 'Postman-Token: 16e4b6bc-2c7a-4ab1-a127-bca382dfc0f0,a6655daa-db07-4c5e-aca3-3fd505bd230d' -H 'User-Agent: PostmanRuntime/7.20.1' -H 'cache-control: no-cache' -d '{someJson}'";
 
         Mono<ActionDTO> resultMono = defaultPageMono
-                .flatMap(page -> curlImporterService.importAction(command, page.getId(), "actionName", orgId, "main"))
+                .flatMap(page -> curlImporterService.importAction(command, page.getId(), "actionName", workspaceId, "main"))
                 .cache();
 
         Mono<NewAction> savedActionMono = resultMono.flatMap(actionDTO -> newActionService.getById(actionDTO.getId()));
@@ -194,7 +244,7 @@ public class CurlImporterServiceTest {
 
         Application branchedApplication = new Application();
         branchedApplication.setName("branched curl test app");
-        branchedApplication.setOrganizationId(orgId);
+        branchedApplication.setWorkspaceId(workspaceId);
         branchedApplication = applicationPageService.createApplication(branchedApplication).block();
         String branchedPageId = branchedApplication.getPages().get(0).getId();
 
@@ -210,7 +260,7 @@ public class CurlImporterServiceTest {
                 .cache();
 
         Mono<ActionDTO> branchedResultMono = branchedPageMono
-                .flatMap(page -> curlImporterService.importAction(command, page.getDefaultResources().getPageId(), "actionName", orgId, "testBranch"))
+                .flatMap(page -> curlImporterService.importAction(command, page.getDefaultResources().getPageId(), "actionName", workspaceId, "testBranch"))
                 .cache();
 
         // As importAction updates the ids with the defaultIds before sending the response to client we have to again
@@ -264,6 +314,7 @@ public class CurlImporterServiceTest {
         assertThat(actionConfiguration.getHttpMethod()).isEqualTo(HttpMethod.POST);
         assertThat(actionConfiguration.getBody()).isNullOrEmpty();
     }
+
 
     @Test
     public void missingMethod() throws AppsmithException {
@@ -423,7 +474,7 @@ public class CurlImporterServiceTest {
                         "--header 'Authorization: Basic abcdefghijklmnop==' \\\n" +
                         "--header 'Content-Type: text/plain' \\\n" +
                         "--data-raw '{\n" +
-                        "\t\"organizationId\" : \"5d8c9e946599b93bd51a3400\"\n" +
+                        "\t\"workspaceId\" : \"5d8c9e946599b93bd51a3400\"\n" +
                         "}'"
         );
         assertMethod(action, HttpMethod.PUT);
@@ -435,7 +486,7 @@ public class CurlImporterServiceTest {
                 new Property("Content-Type", "text/plain")
         );
         assertBody(action, "{\n" +
-                "\t\"organizationId\" : \"5d8c9e946599b93bd51a3400\"\n" +
+                "\t\"workspaceId\" : \"5d8c9e946599b93bd51a3400\"\n" +
                 "}");
     }
 
@@ -714,7 +765,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/get");
-        assertHeaders(action, new Property("Accept", "application/json"));
+        assertHeaders(action,new Property("Accept", "application/json"));
         assertEmptyBody(action);
     }
 
@@ -789,17 +840,34 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
 
-        Mono<ActionDTO> actionMono = curlImporterService.importAction(command, "pageId", "actionName", orgId, null);
+        Mono<ActionDTO> actionMono = curlImporterService.importAction(command, "pageId", "actionName", workspaceId, null);
 
         StepVerifier
                 .create(actionMono)
                 .verifyError();
     }
 
+    @Test
+    public void checkActionConfigurationFormDataForApiContentKey() {
+        final String API_CONTENT_TYPE = "apiContentType";
+        String cURLCommand = "curl -X POST https://mockurl.com -H \"Content-Type: application/json\" -d '{\"productId\": 123456, \"quantity\": 100}'";
+        String contentType = "application/json";
+        String name = "actionName";
+
+        ActionDTO actionDTO = curlImporterService.curlToAction(cURLCommand, name);
+        assertThat(actionDTO).isNotNull();
+        assertThat(actionDTO.getActionConfiguration()).isNotNull();
+        Map<String, Object> map =  actionDTO.getActionConfiguration().getFormData();
+
+        assert(map != null);
+        assert(!map.isEmpty());
+        assert(map.containsKey(API_CONTENT_TYPE));
+        assert(map.get(API_CONTENT_TYPE).equals(contentType));
+
+    }
     // Assertion utilities for working with Action assertions.
     private static void assertMethod(ActionDTO action, HttpMethod method) {
         assertThat(action.getActionConfiguration().getHttpMethod()).isEqualByComparingTo(method);
@@ -826,7 +894,63 @@ public class CurlImporterServiceTest {
     }
 
     private static void assertHeaders(ActionDTO action, Property... headers) {
-        assertThat(action.getActionConfiguration().getHeaders()).containsExactlyInAnyOrder(headers);
+        // this implementation only works if Property has a subclass of object which works implements equal function.
+        // let's compare sizes of both first
+        if (action.getActionConfiguration().getHeaders().size() != headers.length) {
+            assert(false);
+        }
+        HashMap<String, List<Object>> headerStore = new HashMap<>();
+
+        // create a map of headers with header-property-key as keys and ArrayList of property-header-values as values.
+        for (Property property : action.getActionConfiguration().getHeaders()) {
+            String key = property.getKey().toLowerCase();
+
+            if (!headerStore.containsKey(key)) {
+                // using linkedList to achieve O(1) removal time
+                headerStore.put(key, new LinkedList<>());
+            }
+            headerStore.get(key).add(property.getValue());
+        }
+
+        // placeholder variable
+        List<Object> headerStorePropertyList;
+
+        // compare the hashMap headerStore with the varargs header
+        for ( int i = 0; i < headers.length; i++) {
+            String key = headers[i].getKey().toLowerCase();
+
+            if (!headerStore.containsKey(key)) {
+                assert(false);
+            }
+
+            boolean matchFound = false;
+            headerStorePropertyList = headerStore.get(key);
+            for (int listIndex = 0; listIndex < headerStorePropertyList.size(); listIndex++) {
+                if (!headerStorePropertyList.get(listIndex).equals(headers[i].getValue())) {
+                    continue;
+                }
+
+                // we keep removing the entries that have matched so that in the end we have zero entries in the headerStore.
+                headerStorePropertyList.remove(listIndex);
+                if (headerStorePropertyList.isEmpty()) {
+                    headerStore.remove(key);
+                }
+                matchFound = true;
+                break;
+            }
+
+            if (matchFound) {
+                continue;
+            }
+
+            assert(false);
+        }
+
+        // if headerStore has keys then it would mean that there are more headers than expected;
+        if (headerStore.size() != 0) {
+            assert(false);
+        }
+        // if all header matches then only it will reach here.
     }
 
     private static void assertEmptyBody(ActionDTO action) {

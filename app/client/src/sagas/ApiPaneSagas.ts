@@ -12,43 +12,47 @@ import {
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-} from "constants/ReduxActionConstants";
-import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
+} from "@appsmith/constants/ReduxActionConstants";
+import { GetFormData, getFormData } from "selectors/formSelectors";
 import {
-  DEFAULT_API_ACTION_CONFIG,
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "@appsmith/constants/forms";
+import {
   POST_BODY_FORMAT_OPTIONS_ARRAY,
   POST_BODY_FORMAT_OPTIONS,
-  REST_PLUGIN_PACKAGE_NAME,
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
-} from "constants/ApiEditorConstants";
+  HTTP_METHODS_DEFAULT_FORMAT_TYPES,
+} from "constants/ApiEditorConstants/CommonApiConstants";
+import {
+  REST_PLUGIN_PACKAGE_NAME,
+  DEFAULT_CREATE_API_CONFIG,
+} from "constants/ApiEditorConstants/ApiEditorConstants";
+import {
+  GRAPHQL_PLUGIN_PACKAGE_NAME,
+  DEFAULT_CREATE_GRAPHQL_CONFIG,
+} from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import history from "utils/history";
-import {
-  API_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
+import { createNewApiName } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { Action, ApiAction, PluginType } from "entities/Action";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -61,13 +65,21 @@ import {
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import {
+  getContentTypeHeaderValue,
   getIndextoUpdate,
   parseUrlForQueryParams,
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Plugin } from "api/PluginApi";
 import { getDisplayFormat } from "selectors/apiPaneSelectors";
+import {
+  apiEditorIdURL,
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+} from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -118,19 +130,19 @@ function* syncApiParamsSaga(
 
 function* redirectToNewIntegrations(
   action: ReduxAction<{
-    applicationId: string;
     pageId: string;
     params?: Record<string, string>;
   }>,
 ) {
   history.push(
-    INTEGRATION_EDITOR_URL(
-      action.payload.applicationId,
-      action.payload.pageId,
-      INTEGRATION_TABS.ACTIVE,
-      INTEGRATION_EDITOR_MODES.AUTO,
-      action.payload.params,
-    ),
+    integrationEditorURL({
+      pageId: action.payload.pageId,
+      selectedTab: INTEGRATION_TABS.ACTIVE,
+      params: {
+        ...action.payload.params,
+        mode: INTEGRATION_EDITOR_MODES.AUTO,
+      },
+    }),
   );
 }
 
@@ -158,10 +170,7 @@ function* handleUpdateBodyContentType(
   let formData = { ...values.actionConfiguration.formData };
   if (formData === undefined) formData = {};
   formData["apiContentType"] =
-    title === POST_BODY_FORMAT_OPTIONS.RAW ||
-    title === POST_BODY_FORMAT_OPTIONS.NONE
-      ? previousContentType
-      : title;
+    title === POST_BODY_FORMAT_OPTIONS.NONE ? previousContentType : title;
 
   yield put(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.formData", formData),
@@ -194,19 +203,21 @@ function* handleUpdateBodyContentType(
   );
   const indexToUpdate = getIndextoUpdate(headers, contentTypeHeaderIndex);
 
-  // If the user has selected "None" or "Raw" as the body type & there was a content-type
+  // If the user has selected "None" as the body type & there was a content-type
   // header present in the API configuration, keep the previous content type header
-  // this is done to ensure user input isn't cleared off if they switch to raw or none mode.
+  // this is done to ensure user input isn't cleared off if they switch to none mode.
   // however if the user types in a new value, we use the updated value (formValueChangeSaga - line 426).
   if (
-    (displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE ||
-      displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW) &&
+    displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE &&
     indexToUpdate !== -1
   ) {
-    headers[indexToUpdate] = {
-      key: previousContentType ? CONTENT_TYPE_HEADER_KEY : "",
-      value: previousContentType ? previousContentType : "",
-    };
+    //Checking if any type was seleccted before
+    if (contentTypeHeaderIndex !== -1) {
+      headers[indexToUpdate] = {
+        key: previousContentType ? CONTENT_TYPE_HEADER_KEY : "",
+        value: previousContentType ? previousContentType : "",
+      };
+    }
   } else {
     headers[indexToUpdate] = {
       key: CONTENT_TYPE_HEADER_KEY,
@@ -237,21 +248,59 @@ function* handleUpdateBodyContentType(
   }
 }
 
-function* initializeExtraFormDataSaga() {
-  const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
+function* updateExtraFormDataSaga() {
+  const formData: GetFormData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
 
   // when initializing, check if theres a display format present, if not use Json display format as default.
-  const extraFormData = yield select(getDisplayFormat, values.id);
+  const extraFormData: GetFormData = yield select(getDisplayFormat, values.id);
 
-  // as a fail safe, if no display format is present, use Raw mode
-  const rawApiContentType = extraFormData?.displayFormat?.value
-    ? extraFormData?.displayFormat?.value
-    : POST_BODY_FORMAT_OPTIONS.RAW;
+  const headers: Array<{ key: string; value: string }> =
+    get(values, "actionConfiguration.headers") || [];
+  const contentTypeValue: string = getContentTypeHeaderValue(headers);
+
+  let rawApiContentType;
 
   if (!extraFormData) {
-    yield call(setHeaderFormat, values.id, rawApiContentType);
+    /*
+     * Checking if the content-type header exists, if yes then set the body format type one of the three json, multipart or url encoded whichever matches else set raw as default
+     */
+    if (
+      [
+        POST_BODY_FORMAT_OPTIONS.JSON,
+        POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+        POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+      ].includes(contentTypeValue)
+    ) {
+      rawApiContentType = contentTypeValue;
+    } else if (
+      contentTypeValue === "" ||
+      contentTypeValue === POST_BODY_FORMAT_OPTIONS.NONE
+    ) {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.NONE;
+    } else {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
+    }
+  } else {
+    if (
+      [
+        POST_BODY_FORMAT_OPTIONS.JSON,
+        POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+        POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+      ].includes(contentTypeValue)
+    ) {
+      rawApiContentType = contentTypeValue;
+    } else if (
+      contentTypeValue === "" ||
+      contentTypeValue === POST_BODY_FORMAT_OPTIONS.NONE
+    ) {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.NONE;
+    } else {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
+    }
   }
+
+  yield call(setHeaderFormat, values.id, rawApiContentType);
 }
 
 function* changeApiSaga(
@@ -263,11 +312,11 @@ function* changeApiSaga(
   if (!action) action = yield select(getAction, id);
   if (!action) return;
   if (isSaas) {
-    yield put(initialize(SAAS_EDITOR_FORM, action));
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
   } else {
     yield put(initialize(API_EDITOR_FORM_NAME, action));
 
-    yield call(initializeExtraFormDataSaga);
+    yield call(updateExtraFormDataSaga);
 
     if (
       action.actionConfiguration &&
@@ -343,7 +392,12 @@ export function* updateFormFields(
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
 
   // get current content type of the action
-  let apiContentType = values.actionConfiguration.formData.apiContentType;
+  let apiContentType =
+    values?.actionConfiguration?.formData?.apiContentType ||
+    POST_BODY_FORMAT_OPTIONS.JSON;
+
+  let extraFormDataToBeChanged = false;
+
   if (field === "actionConfiguration.httpMethod") {
     const { actionConfiguration } = values;
     if (!actionConfiguration.headers) return;
@@ -354,27 +408,25 @@ export function* updateFormFields(
         header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
 
+    const indexToUpdate = getIndextoUpdate(
+      actionConfigurationHeaders,
+      contentTypeHeaderIndex,
+    );
+
+    //When user switches to GET method, content type remains same (empty or any type)
+    //This condition handles other HTTP methods
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
-      if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE)
-        apiContentType = POST_BODY_FORMAT_OPTIONS.JSON;
+      if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
+        apiContentType =
+          HTTP_METHODS_DEFAULT_FORMAT_TYPES[value as HTTP_METHOD];
+        extraFormDataToBeChanged = true;
+      }
 
-      const indexToUpdate = getIndextoUpdate(
-        actionConfigurationHeaders,
-        contentTypeHeaderIndex,
-      );
       actionConfigurationHeaders[indexToUpdate] = {
         key: CONTENT_TYPE_HEADER_KEY,
         value: apiContentType,
       };
-    } else {
-      // when user switches to GET method, do not clear off content type headers, instead leave them.
-      if (contentTypeHeaderIndex > -1) {
-        actionConfigurationHeaders[contentTypeHeaderIndex] = {
-          key: CONTENT_TYPE_HEADER_KEY,
-          value: apiContentType,
-        };
-      }
     }
 
     yield put(
@@ -384,6 +436,8 @@ export function* updateFormFields(
         actionConfigurationHeaders,
       ),
     );
+
+    if (extraFormDataToBeChanged) yield call(updateExtraFormDataSaga);
   }
 }
 
@@ -459,54 +513,68 @@ function* formValueChangeSaga(
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const data = { ...action };
+  const action: Action | undefined = yield select(getAction, id);
+  const data = action ? { ...action } : {};
+  const pageId: string = yield select(getCurrentPageId);
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const pageId: string = yield select(getCurrentPageId);
     history.push(
-      API_EDITOR_ID_URL(applicationId, pageId, id, {
-        editName: "true",
-        from: "datasources",
+      apiEditorIdURL({
+        pageId,
+        apiId: id,
+        params: {
+          editName: "true",
+          from: "datasources",
+        },
       }),
     );
   }
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  const plugin: Plugin | undefined = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
+  const pageId: string = yield select(getCurrentPageId);
   // Only look at API plugins
-  if (plugin.type !== PluginType.API) return;
-
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  if (plugin && plugin.type !== PluginType.API) return;
 
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
+    datasourcesEditorIdURL({
       pageId,
-      actionPayload.payload.id,
-      {
+      datasourceId: actionPayload.payload.id,
+      params: {
         from: "datasources",
         ...getQueryParams(),
       },
-    ),
+    }),
   );
 }
 
+/**
+ * Creates an API with datasource as DEFAULT_REST_DATASOURCE (No user created datasource)
+ * @param action
+ */
 function* handleCreateNewApiActionSaga(
-  action: ReduxAction<{ pageId: string; from: EventLocation }>,
+  action: ReduxAction<{
+    pageId: string;
+    from: EventLocation;
+    apiType?: string;
+  }>,
 ) {
-  const organizationId = yield select(getCurrentOrgId);
-  const pluginId = yield select(
-    getPluginIdOfPackageName,
-    REST_PLUGIN_PACKAGE_NAME,
-  );
-  const { pageId } = action.payload;
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const { pageId, apiType = REST_PLUGIN_PACKAGE_NAME } = action.payload;
+  const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
+  // Default Config is Rest Api Plugin Config
+  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
+  if (apiType === GRAPHQL_PLUGIN_PACKAGE_NAME) {
+    defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
+  }
+
   if (pageId && pluginId) {
-    const actions = yield select(getActions);
+    const actions: ActionDataState = yield select(getActions);
     const pageActions = actions.filter(
       (a: ActionData) => a.config.pageId === pageId,
     );
@@ -515,15 +583,15 @@ function* handleCreateNewApiActionSaga(
     // It breaks embedded rest datasource flow.
     yield put(
       createActionRequest({
-        actionConfiguration: DEFAULT_API_ACTION_CONFIG,
+        actionConfiguration: defaultConfig.config,
         name: newActionName,
         datasource: {
-          name: "DEFAULT_REST_DATASOURCE",
+          name: defaultConfig.datasource.name,
           pluginId,
-          organizationId,
+          workspaceId,
         },
         eventData: {
-          actionType: "API",
+          actionType: defaultConfig.eventData.actionType,
           from: action.payload.from,
         },
         pageId,
@@ -541,7 +609,7 @@ function* handleApiNameChangeSuccessSaga(
   action: ReduxAction<{ actionId: string }>,
 ) {
   const { actionId } = action.payload;
-  const actionObj = yield select(getAction, actionId);
+  const actionObj: Action | undefined = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
@@ -565,9 +633,13 @@ function* handleApiNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
+    history.push(
+      apiEditorIdURL({
+        pageId: actionObj.pageId,
+        apiId: actionId,
+        params,
+      }),
+    );
   }
 }
 

@@ -4,11 +4,8 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
-  CONTAINER_GRID_PADDING,
   CSSUnit,
-  CSSUnits,
   PositionType,
-  PositionTypes,
   RenderMode,
   RenderModes,
   WidgetType,
@@ -34,11 +31,12 @@ import {
 } from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
-import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import { CanvasWidgetStructure } from "./constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import Skeleton from "./Skeleton";
 
 /***
  * BaseWidget
@@ -58,6 +56,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
+  context!: React.ContextType<typeof EditorContext>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -73,6 +72,20 @@ abstract class BaseWidget<
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  /**
+   * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
+   * which can set the isLoading prop of the widget.
+   * When:
+   * 1. the path is bound to an action (API/Query)
+   * 2. the action is currently in-progress
+   *
+   * if undefined, all paths can set the isLoading state
+   * if empty array, no paths can set the isLoading state
+   */
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return;
   }
 
   /**
@@ -151,7 +164,7 @@ abstract class BaseWidget<
 
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
-    resetChildrenMetaProperty(widgetId);
+    if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
@@ -188,6 +201,10 @@ abstract class BaseWidget<
       componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
   }
+
+  getLabelWidth = () => {
+    return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
+  };
 
   getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
     return Object.values(evalErrors).reduce(
@@ -268,14 +285,21 @@ abstract class BaseWidget<
   }
 
   makePositioned(content: ReactNode) {
-    const style = this.getPositionStyle();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
       <PositionedContainer
+        componentHeight={componentHeight}
+        componentWidth={componentWidth}
         focused={this.props.focused}
+        leftColumn={this.props.leftColumn}
+        noContainerOffset={this.props.noContainerOffset}
+        parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
+        parentRowSpace={this.props.parentRowSpace}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
-        style={style}
+        topRow={this.props.topRow}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
@@ -288,32 +312,6 @@ abstract class BaseWidget<
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }
 
-  /**
-   * These comments are rendered using position: absolute over the widget borders,
-   * they are not aware of the component structure.
-   * For additional component specific contexts, for eg.
-   * a comment bound to the scroll position or a specific section
-   * we would pass comments as props to the components
-   */
-  addOverlayComments(content: ReactNode) {
-    return (
-      <OverlayCommentsWrapper
-        refId={this.props.widgetId}
-        widgetType={this.props.type}
-      >
-        {content}
-      </OverlayCommentsWrapper>
-    );
-  }
-
-  addPreventInteractionOverlay(content: ReactNode) {
-    return (
-      <PreventInteractionsOverlay widgetType={this.props.type}>
-        {content}
-      </PreventInteractionsOverlay>
-    );
-  }
-
   addPreviewModeWidget(content: ReactNode): React.ReactElement {
     return (
       <PreviewModeComponent isVisible={this.props.isVisible}>
@@ -322,14 +320,33 @@ abstract class BaseWidget<
     );
   }
 
+  getWidgetComponent = () => {
+    const { renderMode, type } = this.props;
+
+    /**
+     * The widget mount calls the withWidgetProps with the widgetId and type to fetch the
+     * widget props. During the computation of the props (in withWidgetProps) if the evaluated
+     * values are not present (which will not be during mount), the widget type is changed to
+     * SKELETON_WIDGET.
+     *
+     * Note: This is done to retain the old rendering flow without any breaking changes.
+     * This could be refactored into not changing the widget type but to have a boolean flag.
+     */
+    if (type === "SKELETON_WIDGET") {
+      return <Skeleton />;
+    }
+
+    return renderMode === RenderModes.CANVAS
+      ? this.getCanvasView()
+      : this.getPageView();
+  };
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
-        content = this.getCanvasView();
+        content = this.getWidgetComponent();
         content = this.addPreviewModeWidget(content);
-        content = this.addPreventInteractionOverlay(content);
-        content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
@@ -342,10 +359,8 @@ abstract class BaseWidget<
 
       // return this.getCanvasView();
       case RenderModes.PAGE:
-        content = this.getPageView();
+        content = this.getWidgetComponent();
         if (this.props.isVisible) {
-          content = this.addPreventInteractionOverlay(content);
-          content = this.addOverlayComments(content);
           content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
@@ -373,27 +388,6 @@ abstract class BaseWidget<
       !shallowequal(nextProps, this.props) ||
       !shallowequal(nextState, this.state)
     );
-  }
-
-  /**
-   * generates styles that positions the widget
-   */
-  private getPositionStyle(): BaseStyle {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    return {
-      positionType: PositionTypes.ABSOLUTE,
-      componentHeight,
-      componentWidth,
-      yPosition:
-        this.props.topRow * this.props.parentRowSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPosition:
-        this.props.leftColumn * this.props.parentColumnSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPositionUnit: CSSUnits.PIXEL,
-      yPositionUnit: CSSUnits.PIXEL,
-    };
   }
 
   // TODO(abhinav): These defaultProps seem unneccessary. Check it out.
@@ -426,7 +420,10 @@ export interface BaseStyle {
 
 export type WidgetState = Record<string, unknown>;
 
-export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
+export interface WidgetBuilder<
+  T extends CanvasWidgetStructure,
+  S extends WidgetState
+> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
@@ -437,6 +434,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
+  childWidgets?: DataTreeWidget[];
 }
 
 export type WidgetRowCols = {

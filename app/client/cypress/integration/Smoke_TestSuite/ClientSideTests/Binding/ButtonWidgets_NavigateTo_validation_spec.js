@@ -1,12 +1,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/buttondsl.json");
-const pages = require("../../../../locators/Pages.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function() {
   before(() => {
@@ -20,7 +16,13 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
       .children()
       .contains("Navigate to")
       .click();
-    cy.enterNavigatePageName(testdata.externalPage);
+    cy.get("#switcher--url").click();
+    cy.get("label")
+      .contains("Enter URL")
+      .siblings("div")
+      .within(() => {
+        cy.get(".t--code-editor-wrapper").type(testdata.externalPage);
+      });
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
@@ -28,14 +30,13 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
 
   it("Button click should take the control to page link validation", function() {
     cy.PublishtheApp();
+    cy.wait(2000);
     cy.get(publish.buttonWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(publish.buttonWidget).should("not.exist");
     cy.go("back");
-    cy.get(publish.backToEditor)
-      .first()
-      .click();
+    cy.get(publish.backToEditor).click();
     cy.wait("@getPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",

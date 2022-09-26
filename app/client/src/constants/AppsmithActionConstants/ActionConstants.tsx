@@ -6,6 +6,7 @@ import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfi
 import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";
 import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
+import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -19,15 +20,19 @@ export type ExecutionResult = {
 export type TriggerSource = {
   id: string;
   name: string;
+  collectionId?: string;
+  isJSAction?: boolean;
+  actionId?: string;
 };
 
 export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
-  responseData?: Array<any>;
+  callbackData?: Array<any>;
   triggerPropertyName?: string;
   source?: TriggerSource;
   widgetId?: string;
+  globalContext?: Record<string, unknown>;
 };
 
 export type ContentType =
@@ -98,6 +103,14 @@ export enum EventType {
   ON_CAMERA_VIDEO_RECORDING_START = "ON_CAMERA_VIDEO_RECORDING_START",
   ON_CAMERA_VIDEO_RECORDING_STOP = "ON_CAMERA_VIDEO_RECORDING_STOP",
   ON_CAMERA_VIDEO_RECORDING_SAVE = "ON_CAMERA_VIDEO_RECORDING_SAVE",
+  ON_ENTER_KEY_PRESS = "ON_ENTER_KEY_PRESS",
+  ON_BLUR = "ON_BLUR",
+  ON_FOCUS = "ON_FOCUS",
+  ON_BULK_SAVE = "ON_BULK_SAVE",
+  ON_BULK_DISCARD = "ON_BULK_DISCARD",
+  ON_ROW_SAVE = "ON_ROW_SAVE",
+  ON_ROW_DISCARD = "ON_ROW_DISCARD",
+  ON_CODE_DETECTED = "ON_CODE_DETECTED",
 }
 
 export interface PageAction {
@@ -106,12 +119,20 @@ export interface PageAction {
   name: string;
   jsonPathKeys: string[];
   timeoutInMillisecond: number;
+  clientSideExecution?: boolean;
+  collectionId?: string;
 }
 
 export interface ExecuteErrorPayload extends ErrorActionPayload {
   actionId: string;
   isPageLoad?: boolean;
   data: ActionResponse;
+}
+
+export interface LayoutOnLoadActionErrors {
+  errorType: string;
+  code: number;
+  message: string;
 }
 
 // Group 1 = datasource (https://www.domain.com)
@@ -156,4 +177,12 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.SAAS]: {},
   [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
+};
+
+export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
+  [PluginType.API]: apiActionDatasourceFormButtonConfig.API,
+  [PluginType.DB]: apiActionDatasourceFormButtonConfig.DB,
+  [PluginType.SAAS]: apiActionDatasourceFormButtonConfig.SAAS,
+  [PluginType.REMOTE]: apiActionDatasourceFormButtonConfig.REMOTE,
+  [PluginType.JS]: [],
 };

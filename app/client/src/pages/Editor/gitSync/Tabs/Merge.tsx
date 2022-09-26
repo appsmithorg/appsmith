@@ -1,45 +1,41 @@
-import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { Title, Caption, Space } from "../components/StyledComponents";
-import Dropdown from "components/ads/Dropdown";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Caption, Space, Title } from "../components/StyledComponents";
+import { Dropdown } from "design-system";
 
 import {
-  createMessage,
-  MERGE_CHANGES,
-  SELECT_BRANCH_TO_MERGE,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
-  FETCH_MERGE_STATUS,
+  createMessage,
   FETCH_GIT_STATUS,
+  FETCH_MERGE_STATUS,
   IS_MERGING,
+  MERGE_CHANGES,
   MERGED_SUCCESSFULLY,
+  SELECT_BRANCH_TO_MERGE,
 } from "@appsmith/constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
-import styled from "styled-components";
-import Button, { Size } from "components/ads/Button";
-import { useSelector, useDispatch } from "react-redux";
+import styled, { useTheme } from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
+  getFetchingBranches,
   getGitBranches,
   getGitStatus,
   getIsFetchingGitStatus,
+  getIsFetchingMergeStatus,
+  getIsMergeInProgress,
   getMergeError,
   getMergeStatus,
 } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
-  mergeBranchInit,
   fetchBranchesInit,
-  resetMergeStatus,
   fetchGitStatusInit,
+  fetchMergeStatusInit,
+  mergeBranchInit,
+  resetMergeStatus,
 } from "actions/gitSyncActions";
-import {
-  getIsFetchingMergeStatus,
-  getFetchingBranches,
-  getIsMergeInProgress,
-  // getPullFailed,
-} from "selectors/gitSyncSelectors";
-import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
 import ConflictInfo from "../components/ConflictInfo";
 import Statusbar, {
@@ -48,10 +44,8 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import Text, { Case, TextType } from "components/ads/Text";
+import { Button, Case, Size, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
-
-import { useTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -239,6 +233,8 @@ export default function Merge() {
       <Row>
         <Dropdown
           className={Classes.MERGE_DROPDOWN}
+          containerClassName={"t--merge-branch-dropdown-destination"}
+          disabled={isFetchingBranches || isFetchingMergeStatus || isMerging}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
@@ -270,15 +266,22 @@ export default function Merge() {
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
-      <ConflictInfo
-        isConflicting={isConflicting}
-        learnMoreLink={gitConflictDocumentUrl}
-      />
+      {isConflicting && (
+        <ConflictInfo
+          browserSupportedRemoteUrl={
+            gitMetaData?.browserSupportedRemoteUrl || ""
+          }
+          learnMoreLink={gitConflictDocumentUrl}
+        />
+      )}
+
       {showMergeSuccessIndicator ? (
         <MergeSuccessIndicator />
       ) : (
         showMergeButton && (
           <Button
+            className="t--git-merge-button"
+            data-testid="t--git-merge-button"
             disabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}

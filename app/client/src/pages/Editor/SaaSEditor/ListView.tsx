@@ -7,7 +7,7 @@ import {
   getPluginByPackageName,
 } from "selectors/entitiesSelector";
 import NotFound from "pages/common/NotFound";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/pluginActionActions";
@@ -23,8 +23,10 @@ import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
+import { integrationEditorURL } from "RouteBuilder";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -64,6 +66,8 @@ interface StateProps {
   isCreating: boolean;
   isEditorInitialized: boolean;
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 }
 
 interface DispatchFunctions {
@@ -162,7 +166,6 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
-      applicationId,
       history,
       match: {
         params: { pageId },
@@ -174,11 +177,10 @@ class ListView extends React.Component<Props> {
           buttonText="Go back to Datasources"
           onBackButton={() =>
             history.push(
-              INTEGRATION_EDITOR_URL(
-                applicationId,
+              integrationEditorURL({
                 pageId,
-                INTEGRATION_TABS.ACTIVE,
-              ),
+                selectedTab: INTEGRATION_TABS.ACTIVE,
+              }),
             )
           }
           title="Datasources/Queries Not found"
@@ -197,6 +199,7 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
   if (plugin) {
     datasources = getDatasourcesByPluginId(state, plugin.id);
   }
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     plugin,
     actions: state.entities.actions,
@@ -204,6 +207,8 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
     isEditorInitialized: getIsEditorInitialized(state),
     datasources: datasources,
     applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 

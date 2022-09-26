@@ -25,15 +25,16 @@ export default {
     }
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
+    const internalKeysToOmit = ["__originalIndex__", "__primaryKey__"];
     if (selectedRowIndex === -1) {
       const emptyRow = { ...filteredTableData[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
-      return emptyRow;
+      return _.omit(emptyRow, internalKeysToOmit);
     }
     const selectedRow = { ...filteredTableData[selectedRowIndex] };
-    return selectedRow;
+    return _.omit(selectedRow, internalKeysToOmit);
   },
   //
   getTriggeredRow: (props, moment, _) => {
@@ -43,15 +44,16 @@ export default {
         ? -1
         : parseInt(props.triggeredRowIndex);
     const tableData = props.sanitizedTableData || [];
+    const internalKeysToOmit = ["__originalIndex__", "__primaryKey__"];
     if (triggeredRowIndex === -1) {
       const emptyRow = { ...tableData[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
-      return emptyRow;
+      return _.omit(emptyRow, internalKeysToOmit);
     }
     const triggeredRow = { ...tableData[triggeredRowIndex] };
-    return triggeredRow;
+    return _.omit(triggeredRow, internalKeysToOmit);
   },
   //
   getSelectedRows: (props, moment, _) => {
@@ -61,8 +63,9 @@ export default {
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
-    const selectedRows = selectedRowIndices.map(
-      (ind) => filteredTableData[ind],
+    const internalKeysToOmit = ["__originalIndex__", "__primaryKey__"];
+    const selectedRows = selectedRowIndices.map((ind) =>
+      _.omit(filteredTableData[ind], internalKeysToOmit),
     );
     return selectedRows;
   },

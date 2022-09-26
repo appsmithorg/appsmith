@@ -1,10 +1,10 @@
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   setCurrentTab,
   showDebugger as showDebuggerAction,
@@ -18,7 +18,7 @@ import {
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 
 function Debugger() {
@@ -42,13 +42,12 @@ const TriggerContainer = styled.div<{
   overflow: visible;
   display: flex;
   align-items: center;
-  margin-right: ${(props) => props.theme.spaces[10]}px;
 
   .debugger-count {
     color: ${Colors.WHITE};
     ${(props) => getTypographyByKey(props, "btnSmall")}
-    height: 20px;
-    width: 20px;
+    height: 16px;
+    width: 16px;
     background-color: ${(props) =>
       props.errorCount + props.warningCount > 0
         ? props.errorCount === 0
@@ -59,8 +58,9 @@ const TriggerContainer = styled.div<{
     display: flex;
     align-items: center;
     justify-content: center;
-    top: 0;
+    top: -8px;
     left: 100%;
+    font-size: 10px;
     border-radius: 50%;
   }
 `;

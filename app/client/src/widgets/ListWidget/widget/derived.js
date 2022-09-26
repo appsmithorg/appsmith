@@ -113,26 +113,53 @@ export default {
 
     return updatedItems;
   },
-  //
+  // Patch #12438 - hard-coded DEFAULT_GRID_ROW_HEIGHT(parentRowSpace) for calculating template/component height. Ideally it should be dynamic based on props.
   getPageSize: (props, moment, _) => {
     const LIST_WIDGET_PAGINATION_HEIGHT = 36;
     const DEFAULT_GRID_ROW_HEIGHT = 10;
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;
+    const itemsCount = (props.listData || []).length;
+
+    let gridGap = 0;
+    try {
+      gridGap = parseInt(props.gridGap);
+
+      if (!_.isNumber(props.gridGap) || _.isNaN(props.gridGap)) {
+        gridGap = 0;
+      }
+    } catch {
+      gridGap = 0;
+    }
+
+    gridGap = gridGap >= -8 ? gridGap : 0;
+
+    const averageGridGap = itemsCount
+      ? gridGap * ((itemsCount - 1) / itemsCount)
+      : 0;
 
     const templateBottomRow = props.templateBottomRow;
-
     const templateHeight = templateBottomRow * DEFAULT_GRID_ROW_HEIGHT;
-
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace;
+      (props.bottomRow - props.topRow) * DEFAULT_GRID_ROW_HEIGHT;
 
-    const totalSpaceAvailable =
-      componentHeight - (LIST_WIDGET_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
-    const spaceTakenByOneContainer = templateHeight + (props.gridGap * 3) / 4;
+    const spaceAvailableWithoutPaginationControls =
+      componentHeight - WIDGET_PADDING * 2;
+    const spaceAvailableWithPaginationControls =
+      spaceAvailableWithoutPaginationControls - LIST_WIDGET_PAGINATION_HEIGHT;
 
-    const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
+    const spaceTakenByOneContainer = templateHeight + averageGridGap;
+    const spaceTakenByAllContainers = spaceTakenByOneContainer * itemsCount;
+    const paginationControlsEnabled =
+      spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls ||
+      props.serverSidePaginationEnabled;
 
-    return _.isNaN(perPage) ? 0 : _.floor(perPage);
+    const totalAvailableSpace = paginationControlsEnabled
+      ? spaceAvailableWithPaginationControls
+      : spaceAvailableWithoutPaginationControls;
+
+    const pageSize = totalAvailableSpace / spaceTakenByOneContainer;
+
+    return _.isNaN(pageSize) ? 0 : _.floor(pageSize);
   },
   //
   // this is just a patch for #7520

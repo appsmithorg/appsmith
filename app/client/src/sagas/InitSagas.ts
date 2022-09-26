@@ -6,82 +6,58 @@ import {
   race,
   select,
   take,
+  takeEvery,
   takeLatest,
 } from "redux-saga/effects";
 import {
-  InitializeEditorPayload,
+  ApplicationPayload,
+  Page,
   ReduxAction,
-  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-
-import {
-  fetchPage,
-  fetchPageList,
-  fetchPublishedPage,
-  setAppMode,
-  updateAppPersistentStore,
-} from "actions/pageActions";
-import {
-  fetchDatasources,
-  fetchMockDatasources,
-} from "actions/datasourceActions";
-import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import { fetchJSCollections } from "actions/jsActionActions";
-import {
-  executePageLoadActions,
-  fetchActions,
-  fetchActionsForView,
-} from "actions/pluginActionActions";
-import { fetchApplication } from "actions/applicationActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
-import { getPersistentAppStore } from "constants/AppConstants";
-import { getDefaultPageId } from "./selectors";
-import { populatePageDSLsSaga } from "./PageSagas";
+import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
+import { resetCurrentApplication } from "actions/applicationActions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import {
-  resetRecentEntities,
-  restoreRecentEntitiesRequest,
-} from "actions/globalSearchActions";
+import { resetRecentEntities } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
-import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
-import { fetchCommentThreadsInit } from "actions/commentActions";
-import { fetchJSCollectionsForView } from "actions/jsActionActions";
-import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
-import history from "utils/history";
 import {
-  fetchGitStatusInit,
-  remoteUrlInputValue,
-  resetPullMergeStatus,
-  updateBranchLocally,
-} from "actions/gitSyncActions";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+  getCurrentPageId,
+  getIsEditorInitialized,
+  selectCurrentApplicationSlug,
+} from "selectors/editorSelectors";
+import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import { enableGuidedTour } from "actions/onboardingActions";
+import { setPreviewModeAction } from "actions/editorActions";
+import AppEngine, {
+  AppEngineApiError,
+  AppEnginePayload,
+} from "entities/Engine";
+import AppEngineFactory from "entities/Engine/factory";
+import { ApplicationPagePayload } from "api/ApplicationApi";
+import { updateSlugNamesInURL } from "utils/helpers";
 
-function* failFastApiCalls(
+export const URL_CHANGE_ACTIONS = [
+  ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+  ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+  ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+];
+
+export type ReduxURLChangeAction = {
+  type: typeof URL_CHANGE_ACTIONS;
+  payload: ApplicationPagePayload | ApplicationPayload | Page;
+};
+
+export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
   failureActions: string[],
 ) {
-  const triggerEffects = [];
-  for (const triggerAction of triggerActions) {
-    triggerEffects.push(put(triggerAction));
-  }
-  const successEffects = [];
-  for (const successAction of successActions) {
-    successEffects.push(take(successAction));
-  }
-  yield all(triggerEffects);
-  const effectRaceResult = yield race({
-    success: all(successEffects),
+  yield all(triggerActions.map((triggerAction) => put(triggerAction)));
+  const effectRaceResult: { success: boolean; failure: boolean } = yield race({
+    success: all(successActions.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
   if (effectRaceResult.failure) {
@@ -100,170 +76,26 @@ function* failFastApiCalls(
   return true;
 }
 
-function* initializeEditorSaga(
-  initializeEditorAction: ReduxAction<InitializeEditorPayload>,
-) {
-  yield put(resetEditorSuccess());
-  const { applicationId, branch, pageId } = initializeEditorAction.payload;
+export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   try {
-    yield put(updateBranchLocally(branch || ""));
-
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.INIT_EDIT_APP,
+    const engine: AppEngine = AppEngineFactory.create(
+      action.payload.mode,
+      action.payload.mode,
     );
-    yield put(setAppMode(APP_MODE.EDIT));
-    yield put(
-      updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
+    engine.startPerformanceTracking();
+    yield call(engine.setupEngine, action.payload);
+    const { applicationId, toLoadPageId } = yield call(
+      engine.loadAppData,
+      action.payload,
     );
-    yield put({ type: ReduxActionTypes.START_EVALUATION });
-
-    const initCalls = [
-      fetchApplication({
-        payload: {
-          applicationId,
-          mode: APP_MODE.EDIT,
-        },
-      }),
-      fetchPageList({ applicationId }, APP_MODE.EDIT),
-    ];
-    const successEffects = [
-      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-    ];
-
-    const failureEffects = [
-      ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-      ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-    ];
-    if (pageId) {
-      initCalls.push(fetchPage(pageId, true) as any);
-      successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
-      failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
-    }
-
-    const applicationAndLayoutCalls = yield failFastApiCalls(
-      initCalls,
-      successEffects,
-      failureEffects,
-    );
-
-    if (!applicationAndLayoutCalls) return;
-
-    const initActionsCalls = [
-      fetchActions({ applicationId }, []),
-      fetchJSCollections({ applicationId }),
-    ];
-
-    const successActionEffects = [
-      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-    ];
-    const failureActionEffects = [
-      ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
-      ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-    ];
-    const allActionCalls = yield failFastApiCalls(
-      initActionsCalls,
-      successActionEffects,
-      failureActionEffects,
-    );
-
-    if (!allActionCalls) {
-      return;
-    } else {
-      yield put({
-        type: ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
-      });
-      yield put(executePageLoadActions());
-    }
-
-    let fetchPageCallResult;
-    const defaultPageId = yield select(getDefaultPageId);
-    const toLoadPageId = pageId || defaultPageId;
-
-    if (!pageId) {
-      if (!toLoadPageId) return;
-
-      fetchPageCallResult = yield failFastApiCalls(
-        [fetchPage(toLoadPageId, true)],
-        [ReduxActionTypes.FETCH_PAGE_SUCCESS],
-        [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
-      );
-      if (!fetchPageCallResult) return;
-    }
-
-    const pluginsAndDatasourcesCalls = yield failFastApiCalls(
-      [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
-      [
-        ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
-        ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-        ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
-      ],
-      [
-        ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
-        ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
-        ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
-      ],
-    );
-    if (!pluginsAndDatasourcesCalls) return;
-
-    const pluginFormCall = yield failFastApiCalls(
-      [fetchPluginFormConfigs()],
-      [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
-      [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
-    );
-    if (!pluginFormCall) return;
-
-    const currentApplication = yield select(getCurrentApplication);
-    const appName = currentApplication ? currentApplication.name : "";
-    const appId = currentApplication ? currentApplication.id : "";
-    const branchInStore = yield select(getCurrentGitBranch);
-
-    yield put(
-      restoreRecentEntitiesRequest({
-        applicationId: appId,
-        branch: branchInStore,
-      }),
-    );
-
-    yield put(fetchCommentThreadsInit());
-
-    AnalyticsUtil.logEvent("EDITOR_OPEN", {
-      appId: appId,
-      appName: appName,
-    });
-
-    // init of temporay remote url from old application
-    yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
-
-    yield put({
-      type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
-    });
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.INIT_EDIT_APP,
-    );
-
-    yield call(populatePageDSLsSaga);
-
-    // redirect to the /pages route
-    if (!pageId) {
-      const pathname = BUILDER_PAGE_URL({
-        applicationId,
-        pageId: toLoadPageId,
-      });
-
-      history.replace(pathname);
-    }
-
-    // add branch query to path and fetch status
-    if (branchInStore) {
-      history.replace(addBranchParam(branchInStore));
-      yield put(fetchGitStatusInit());
-    }
-
-    yield put(resetPullMergeStatus());
+    yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
+    yield call(engine.loadAppEntities, toLoadPageId, applicationId);
+    yield call(engine.loadGit, applicationId);
+    yield call(engine.completeChore);
+    engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
+    if (e instanceof AppEngineApiError) return;
     Sentry.captureException(e);
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
@@ -271,132 +103,27 @@ function* initializeEditorSaga(
         code: ERROR_CODES.SERVER_ERROR,
       },
     });
-    return;
-  }
-}
-
-export function* initializeAppViewerSaga(
-  action: ReduxAction<{
-    applicationId: string;
-    branch: string;
-    pageId: string;
-  }>,
-) {
-  const { applicationId, branch, pageId } = action.payload;
-
-  if (branch) yield put(updateBranchLocally(branch));
-
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.INIT_VIEW_APP,
-  );
-  yield put(setAppMode(APP_MODE.PUBLISHED));
-  yield put(
-    updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
-  );
-  yield put({ type: ReduxActionTypes.START_EVALUATION });
-  const jsActionsCall = yield failFastApiCalls(
-    [fetchJSCollectionsForView({ applicationId })],
-    [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
-  );
-  if (!jsActionsCall) return;
-  const initCalls = [
-    // TODO (hetu) Remove spl view call for fetch actions
-    put(fetchActionsForView({ applicationId })),
-    put(fetchPageList({ applicationId }, APP_MODE.PUBLISHED)),
-    put(
-      fetchApplication({
-        payload: {
-          applicationId,
-          mode: APP_MODE.PUBLISHED,
-        },
-      }),
-    ),
-  ];
-
-  const initSuccessEffects = [
-    take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
-    take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
-    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
-  ];
-  const initFailureEffects = [
-    ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
-    ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-    ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-  ];
-
-  yield all(initCalls);
-
-  const resultOfPrimaryCalls = yield race({
-    success: all(initSuccessEffects),
-    failure: take(initFailureEffects),
-  });
-
-  if (resultOfPrimaryCalls.failure) {
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: get(
-          resultOfPrimaryCalls,
-          "failure.payload.error.code",
-          ERROR_CODES.SERVER_ERROR,
-        ),
-      },
-    });
-    return;
-  }
-
-  const defaultPageId = yield select(getDefaultPageId);
-  const toLoadPageId = pageId || defaultPageId;
-
-  if (toLoadPageId) {
-    yield put(fetchPublishedPage(toLoadPageId, true));
-
-    const resultOfFetchPage = yield race({
-      success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
-      failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
-    });
-
-    if (resultOfFetchPage.failure) {
-      yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-        payload: {
-          code: get(
-            resultOfFetchPage,
-            "failure.payload.error.code",
-            ERROR_CODES.SERVER_ERROR,
-          ),
-        },
-      });
-      return;
-    }
-  }
-
-  yield put(setAppMode(APP_MODE.PUBLISHED));
-
-  yield put(fetchCommentThreadsInit());
-
-  yield put({
-    type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
-  });
-  PerformanceTracker.stopAsyncTracking(
-    PerformanceTransactionName.INIT_VIEW_APP,
-  );
-  if ("serviceWorker" in navigator) {
-    yield put({
-      type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
-    });
   }
 }
 
 function* resetEditorSaga() {
-  yield put(resetEditorSuccess());
+  yield put(resetCurrentApplication());
+  yield put(resetPageList());
+  yield put(resetApplicationWidgets());
   yield put(resetRecentEntities());
+  // End guided tour once user exits editor
+  yield put(enableGuidedTour(false));
+  // Reset to edit mode once user exits editor
+  // Without doing this if the user creates a new app they
+  // might end up in preview mode if they were in preview mode
+  // previously
+  yield put(setPreviewModeAction(false));
+  yield put(resetEditorSuccess());
 }
 
 export function* waitForInit() {
-  const isEditorInitialised = yield select(getIsEditorInitialized);
-  const isViewerInitialized = yield select(getIsViewerInitialized);
+  const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+  const isViewerInitialized: boolean = yield select(getIsViewerInitialized);
   if (!isEditorInitialised && !isViewerInitialized) {
     yield take([
       ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
@@ -405,13 +132,38 @@ export function* waitForInit() {
   }
 }
 
+function* updateURLSaga(action: ReduxURLChangeAction) {
+  yield call(waitForInit);
+  const currentPageId: string = yield select(getCurrentPageId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
+  const payload = action.payload;
+
+  if ("applicationVersion" in payload) {
+    updateSlugNamesInURL({ applicationSlug: payload.slug });
+    return;
+  }
+  if ("pageId" in payload) {
+    if (payload.pageId !== currentPageId) return;
+    updateSlugNamesInURL({
+      pageSlug: payload.slug,
+      customSlug: payload.customSlug || "",
+      applicationSlug,
+    });
+    return;
+  }
+  if (payload.id !== currentPageId) return;
+  updateSlugNamesInURL({
+    pageSlug: payload.slug,
+    customSlug: payload.customSlug || "",
+    applicationSlug,
+  });
+}
+
 export default function* watchInitSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initializeEditorSaga),
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      initializeAppViewerSaga,
-    ),
+    takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, startAppEngine),
+    takeLatest(ReduxActionTypes.INITIALIZE_PAGE_VIEWER, startAppEngine),
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
+    takeEvery(URL_CHANGE_ACTIONS, updateURLSaga),
   ]);
 }

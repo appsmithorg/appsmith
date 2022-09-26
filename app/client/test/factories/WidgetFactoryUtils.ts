@@ -1,7 +1,7 @@
 import { makeFactory } from "factory.ts";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
-import defaultTemplate from "../../src/templates/default";
+import defaultTemplate from "templates/default";
 import { WidgetTypeFactories } from "./Widgets/WidgetTypeFactories";
 const defaultMainContainer: DSLWidget = {
   ...(defaultTemplate as any),

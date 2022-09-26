@@ -1,5 +1,9 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
 export const Colors = {
+  EBONY_CLAY: "#2A2F3D",
+  EBONY_CLAY_2: "#22223B",
+  MOUNTAIN_MEADOW: "#27CA40",
+  PERSIMMON: "#FF6058",
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
@@ -13,6 +17,7 @@ export const Colors = {
   DARK_GRAY: "#A9A7A7",
   LIGHT_GREYISH_BLUE: "#B0BFCB",
   SUNGLOW: "#FFCB33",
+  SUNGLOW_2: "#FFC130",
   SOFT_ORANGE: "#f7c75b",
   BINDING_COLOR: "#ffcc99",
   BINDING_COLOR_LT: "#063289",
@@ -25,7 +30,7 @@ export const Colors = {
   DIESEL: "#0C0000",
   SHARK: "#21282C",
   SHARK2: "#232324",
-  MINE_SHAFT: "#262626",
+  _2: "#262626",
   DEEP_SPACE: "#272E32",
   OUTER_SPACE: "#363E44",
   TUNDORA: "#404040",
@@ -37,6 +42,7 @@ export const Colors = {
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
   MERCURY_1: "#E3E3E3",
+  MERCURY_2: "#E7E7E7",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
@@ -89,6 +95,7 @@ export const Colors = {
   GALLERY_2: "#EDEDED",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
+  ROYAL_BLUE_2: "#553DE9",
   ALTO2: "#E0DEDE",
   SEA_SHELL: "#F1F1F1",
   DANUBE: "#6A86CE",
@@ -104,6 +111,8 @@ export const Colors = {
 
   WARNING_SOLID: "#FEB811",
   WARNING_SOLID_HOVER: "#EFA903",
+  WARNING_DEBUGGER_GROUPING_BADGE: "#EAD592",
+  WARNING_ORANGE: "#FFF8E2",
   WARNING_OUTLINE_HOVER: "#FFFAE9",
   WARNING_GHOST_HOVER: "#FBEED0",
 
@@ -136,11 +145,12 @@ export const Colors = {
 
   INPUT_TEXT_DISABLED: "rgba(92, 112, 128, 0.6)",
   INPUT_DISABLED: "rgba(206, 217, 224, 0.5)",
+
   //  Following Design System colors
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
-  GREY_4: "#716E6E", // seems like incorrect as it is same as GREY_8
+  GREY_4: "#E8E8E8",
   GREY_5: "#E0DEDE",
   GREY_6: "#A9A7A7",
   GREY_7: "#858282",
@@ -148,11 +158,16 @@ export const Colors = {
   GREY_9: "#4B4848",
   GREY_10: "#090707",
   GREY_11: "#9F9F9F",
+  GREY_200: "#E7E7E7",
+  GREY_600: "#6B6B6B",
+  GREY_800: "#393939",
+  GREY_900: "#191919",
 
   PRIMARY_ORANGE: "#F86A2B",
 
   GREEN_SOLID: "#50AF6C",
   MIRAGE: "#182026",
+  MIRAGE_2: "#121826",
 
   GREEN_SOLID_HOVER: "#D5EFE3",
   GREEN_SOLID_LIGHT_HOVER: "#ECF9F3",
@@ -160,15 +175,54 @@ export const Colors = {
   GREEN_2: "#D5EFE3",
   GREEN_3: "#ECF9F3",
   MASALA: "#43403D",
+
   // error warning
   CRIMSON: "#D71010",
   ALTO_3: "#D6D6D6",
   YELLOW_LIGHT: "#F4AF0A",
   BROWN: "#864C17",
 
+  GRAY_50: "#F8F8F8",
+  GRAY_200: "#E7E7E7",
+  GRAY_400: "#B3B3B3",
+  GRAY_500: "#939393",
+  GRAY_700: "#575757",
+  GRAY_800: "#393939",
   GRAY_900: "#101828",
   SCORPION: "#575757",
 
   COD_GRAY: "#191919",
+
+  MINE_SHAFT_2: "#333333",
+
+  /* Primary Error */
+  ERROR_600: "#E32525",
+
+  /* Secondary Error */
+  ERROR_50: "#FFE9E9",
+
+  /* RED colors */
+  RED_50: "#FFEAEC",
+  RED_100: "#FFCACE",
+  RED_150: "#F1B6B6",
+  RED_200: "#F09493",
+  RED_300: "#E56A69",
+  RED_400: "#EE4643",
+  RED_500: "#F13125",
+  RED_600: "#E32525",
+  RED_700: "#D11820",
+  RED_800: "#C50B18",
+  RED_900: "#B60009",
+
+  WARNING_600: "#DFA211",
+
+  TRANSPARENT: "transparent",
+  FOCUS: "#6EB9F0",
+
+  ENTERPRISE_DARK: "#00407D",
+  ENTERPRISE_LIGHT: "#E8F5FA",
+
+  NOTIFICATION_BANNER_ERROR_TEXT: "#C91818",
 };
+
 export type Color = typeof Colors[keyof typeof Colors];

@@ -29,12 +29,12 @@ describe("axios api interceptors", () => {
       const response: AxiosResponse = {
         data: "Test data",
         headers: {
+          // @ts-expect-error: content-length should be string
           "content-length": 123,
         },
         config: {
           url: "https://app.appsmith.com/v1/api/actions/execute",
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error: type mismatch
           timer: 0,
         },
       };
@@ -54,8 +54,7 @@ describe("axios api interceptors", () => {
         data: "Test data",
         config: {
           url: "https://app.appsmith.com/v1/api/actions",
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          //@ts-expect-error: type mismatch
           timer: 0,
         },
       };

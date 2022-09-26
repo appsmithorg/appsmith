@@ -44,7 +44,7 @@ describe("Tab widget test", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.validateMessage(tabname);
-    cy.deleteEntity();
+    cy.deleteEntityWithoutConfirmation();
     cy.get(commonlocators.entityExplorersearch)
       .clear({ force: true })
       .type("Tab2", { force: true });
@@ -67,7 +67,7 @@ describe("Tab widget test", function() {
     });
 
     it("Tab Widget Functionality To Unchecked Visible Widget", function() {
-      cy.get(publish.backToEditor).click();
+      cy.get(publish.backToEditor).first().click();
       cy.openPropertyPane("tabswidget");
       cy.closePropertyPane();
       cy.get(Layoutpage.tabWidget)

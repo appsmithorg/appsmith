@@ -1,0 +1,52 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 996.3999999999999,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 650,
+      "containerStyle": "none",
+      "snapRows": 125,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 45,
+      "minHeight": 660,
+      "parentColumnSpace": 1,
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "isVisible": true,
+          "borderRadius": "CIRCLE",
+          "boxShadow": "NONE",
+          "buttonColor": "#03B365",
+          "buttonVariant": "PRIMARY",
+          "isDisabled": false,
+          "widgetName": "IconButton1",
+          "version": 1,
+          "type": "ICON_BUTTON_WIDGET",
+          "hideCard": false,
+          "displayName": "Icon Button",
+          "iconName": "plus",
+          "key": "igkr66w00x",
+          "iconSVG": "/static/media/icon.1a0c634a.svg",
+          "widgetId": "t2slp41yx4",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "parentColumnSpace": 15.381249999999998,
+          "parentRowSpace": 10,
+          "leftColumn": 27,
+          "rightColumn": 30,
+          "topRow": 11,
+          "bottomRow": 15,
+          "parentId": "0",
+          "dynamicBindingPathList": [],
+          "dynamicTriggerPathList": []
+        }
+      ]
+    }
+}

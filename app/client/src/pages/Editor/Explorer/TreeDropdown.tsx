@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
-import {
-  StyledDropDownContainer,
-  StyledMenuItem,
-  StyledMenu,
-} from "components/propertyControls/StyledControls";
+import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
+import { StyledMenu } from "design-system";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
@@ -13,17 +10,22 @@ import {
   IPopoverSharedProps,
   Popover,
   Classes,
+  Position,
+  MenuItem,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { entityTooltipCSS } from "./Entity";
+import { useCloseMenuOnScroll } from "./hooks";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
   children?: TreeDropdownOption[];
   className?: string;
   type?: string;
+  confirmDelete?: boolean;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -42,6 +44,12 @@ type TreeDropdownProps = {
   toggle?: React.ReactNode;
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
+  setConfirmDelete?: (val: boolean) => void;
+  onMenuToggle?: (isOpen: boolean) => void;
+  position?: Position;
+  icon?: React.ReactNode;
+  editorPage?: boolean;
+  menuWidth?: number;
 };
 
 export const StyledPopover = styled(Popover)`
@@ -108,10 +116,12 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     defaultText,
     displayValue,
     getDefaults,
+    menuWidth,
     onSelect,
     optionTree,
     selectedLabelModifier,
     selectedValue,
+    setConfirmDelete,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(
@@ -121,10 +131,16 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  useCloseMenuOnScroll(SIDEBAR_ID, isOpen, () => setIsOpen(false));
 
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, props.onSelect);
+      if (option.value === "delete" && !option.confirmDelete) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
       onSelect(option, defaultVal);
@@ -136,18 +152,18 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
     return (
-      <StyledMenuItem
+      <MenuItem
         active={isSelected}
         className={option.className || "single-select"}
-        icon={option.id === "create" ? "plus" : undefined}
+        icon={option.icon}
         intent={option.intent}
         key={option.value}
+        label={option.subText}
         onClick={
           option.children
             ? noop
             : (e: any) => {
                 handleSelect(option);
-                setIsOpen(false);
                 e.stopPropagation();
               }
         }
@@ -160,13 +176,15 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         text={option.label}
       >
         {option.children && option.children.map(renderTreeOption)}
-      </StyledMenuItem>
+      </MenuItem>
     );
   }
 
   const list = optionTree.map(renderTreeOption);
   const menuItems = (
-    <StyledMenu className="t--entity-context-menu">{list}</StyledMenu>
+    <StyledMenu className="t--entity-context-menu" width={menuWidth}>
+      {list}
+    </StyledMenu>
   );
   const defaultToggle = (
     <StyledDropDownContainer>
@@ -194,8 +212,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       modifiers={props.modifiers}
       onClose={() => {
         setIsOpen(false);
+        setConfirmDelete ? setConfirmDelete(false) : null;
       }}
-      position={PopoverPosition.RIGHT_TOP}
+      position={props.position || PopoverPosition.RIGHT_TOP}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

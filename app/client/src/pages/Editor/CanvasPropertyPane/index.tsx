@@ -1,16 +1,32 @@
-import * as Sentry from "@sentry/react";
 import React from "react";
+import * as Sentry from "@sentry/react";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
+import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
 
-export function CanvasPropertyPane() {
+const Title = styled.p`
+  color: ${Colors.GRAY_800};
+`;
+
+type Props = {
+  skipThemeEditor?: boolean;
+};
+
+export function CanvasPropertyPane(props: Props) {
   return (
-    <div className="relative space-y-3">
-      <div className="px-3 py-3">
-        <h3 className="text-sm font-medium uppercase">Properties</h3>
-      </div>
+    <div className="relative ">
+      <h3 className="px-4 py-3 text-sm font-medium uppercase">Properties</h3>
 
-      <MainContainerLayoutControl />
+      <div className="mt-3 space-y-6">
+        <div className="px-4 space-y-2">
+          <Title className="text-sm">Canvas Size</Title>
+          <MainContainerLayoutControl />
+        </div>
+
+        {!props.skipThemeEditor && <ThemeEditor />}
+      </div>
     </div>
   );
 }

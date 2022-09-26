@@ -9,7 +9,7 @@ describe("Derived property - ", () => {
       let isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
-          text: undefined,
+          inputText: undefined,
           isRequired: false,
         },
         null,
@@ -22,7 +22,46 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
-          text: "test",
+          inputText: "test",
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeFalsy();
+
+      //Number input with required true and invalid value `null`
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          inputText: null,
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeFalsy();
+
+      //Number input with required true and invalid value `undefined`
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          inputText: undefined,
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeFalsy();
+
+      //Number input with required true and invalid value `""`
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          inputText: "",
           isRequired: true,
         },
         null,
@@ -35,7 +74,20 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
-          text: 1,
+          inputText: 1,
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeTruthy();
+
+      //Number input with required true and valid value
+      isValid = derivedProperty.isValid(
+        {
+          inputType: InputTypes.NUMBER,
+          inputText: 1.1,
           isRequired: true,
         },
         null,
@@ -48,7 +100,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.TEXT,
-          text: "",
+          inputText: "",
           isRequired: false,
         },
         null,
@@ -61,7 +113,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.TEXT,
-          text: "",
+          inputText: "",
           isRequired: true,
         },
         null,
@@ -74,7 +126,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.TEXT,
-          text: "test",
+          inputText: "test",
           isRequired: true,
         },
         null,
@@ -87,7 +139,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "",
+          inputText: "",
           isRequired: false,
         },
         null,
@@ -100,7 +152,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "",
+          inputText: "",
           isRequired: true,
         },
         null,
@@ -113,7 +165,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "test@appsmith.com",
+          inputText: "test@appsmith.com",
           isRequired: true,
         },
         null,
@@ -126,7 +178,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.PASSWORD,
-          text: "",
+          inputText: "",
           isRequired: false,
         },
         null,
@@ -139,7 +191,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.PASSWORD,
-          text: "",
+          inputText: "",
           isRequired: true,
         },
         null,
@@ -152,7 +204,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.PASSWORD,
-          text: "admin",
+          inputText: "admin",
           isRequired: true,
         },
         null,
@@ -166,7 +218,7 @@ describe("Derived property - ", () => {
       let isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.TEXT,
-          text: "test",
+          inputText: "test",
           isRequired: true,
           validation: false,
         },
@@ -179,7 +231,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.TEXT,
-          text: "test",
+          inputText: "test",
           isRequired: true,
           validation: true,
         },
@@ -192,7 +244,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
-          text: 1,
+          inputText: 1,
           isRequired: true,
           validation: false,
         },
@@ -205,7 +257,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
-          text: 1,
+          inputText: 1,
           isRequired: true,
           validation: true,
         },
@@ -218,7 +270,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "test@appsmith.com",
+          inputText: "test@appsmith.com",
           isRequired: true,
           validation: false,
         },
@@ -231,7 +283,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "test@appsmith.com",
+          inputText: "test@appsmith.com",
           isRequired: true,
           validation: true,
         },
@@ -244,7 +296,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.PASSWORD,
-          text: "admin123",
+          inputText: "admin123",
           isRequired: true,
           validation: false,
         },
@@ -257,7 +309,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.PASSWORD,
-          text: "admin123",
+          inputText: "admin123",
           isRequired: true,
           validation: true,
         },
@@ -272,7 +324,7 @@ describe("Derived property - ", () => {
       let isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.TEXT,
-          text: "test",
+          inputText: "test",
           isRequired: true,
           regex: "^test$",
         },
@@ -285,7 +337,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.TEXT,
-          text: "test123",
+          inputText: "test123",
           isRequired: true,
           regex: "^test$",
         },
@@ -298,7 +350,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
-          text: 1,
+          inputText: 1,
           isRequired: true,
           regex: "^1$",
         },
@@ -311,7 +363,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.NUMBER,
-          text: 2,
+          inputText: 2,
           isRequired: true,
           regex: "^1$",
         },
@@ -324,7 +376,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "test@appsmith.com",
+          inputText: "test@appsmith.com",
           isRequired: true,
           regex: "^test@appsmith.com$",
         },
@@ -337,7 +389,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "test123@appsmith.com",
+          inputText: "test123@appsmith.com",
           isRequired: true,
           regex: "^test@appsmith.com$",
         },
@@ -350,7 +402,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.PASSWORD,
-          text: "admin123",
+          inputText: "admin123",
           isRequired: true,
           regex: "^admin123$",
         },
@@ -363,7 +415,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.PASSWORD,
-          text: "admin1234",
+          inputText: "admin1234",
           isRequired: true,
           regex: "^admin123$",
         },
@@ -378,7 +430,7 @@ describe("Derived property - ", () => {
       let isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "test@appsmith.com",
+          inputText: "test@appsmith.com",
           isRequired: true,
         },
         null,
@@ -390,7 +442,7 @@ describe("Derived property - ", () => {
       isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
-          text: "test",
+          inputText: "test",
           isRequired: true,
         },
         null,

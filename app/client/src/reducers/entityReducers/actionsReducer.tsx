@@ -1,9 +1,9 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { ActionResponse } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
@@ -193,6 +193,16 @@ const actionsReducer = createReducer(initialState, {
       return [...state, partialAction];
     }
   },
+  [ReduxActionTypes.SET_ACTION_RESPONSE_DISPLAY_FORMAT]: (
+    state: ActionDataState,
+    action: ReduxAction<UpdateActionPropertyActionPayload>,
+  ) =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return _.set(a, `data.${action.payload.field}`, action.payload.value);
+      }
+      return a;
+    }),
   [ReduxActionTypes.CLEAR_ACTION_RESPONSE]: (
     state: ActionDataState,
     action: ReduxAction<{ actionId: string }>,

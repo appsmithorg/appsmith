@@ -1,26 +1,40 @@
-import { act, fireEvent, render } from "test/testUtils";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import Canvas from "pages/Editor/Canvas";
+import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import React from "react";
+import { MemoryRouter } from "react-router-dom";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as utilities from "selectors/editorSelectors";
+import store from "store";
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
+import { sagasToRunForTests } from "test/sagas";
 import {
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetWidgetEvalValues,
   MockPageDSL,
   syntheticTestMouseEvent,
 } from "test/testCommon";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { UpdatedEditor } from "test/testMockedWidgets";
+import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
-import store from "store";
-import { sagasToRunForTests } from "test/sagas";
-import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
-import { UpdatedMainContainer } from "test/testMockedWidgets";
-import { MemoryRouter } from "react-router-dom";
-import * as utilities from "selectors/editorSelectors";
-import Canvas from "pages/Editor/Canvas";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 
 describe("Canvas selection test cases", () => {
+  jest
+    .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+    .mockImplementation(mockGetWidgetEvalValues);
+  jest
+    .spyOn(utilities, "computeMainContainerWidget")
+    .mockImplementation((widget) => widget as any);
+  jest
+    .spyOn(widgetRenderUtils, "createCanvasWidget")
+    .mockImplementation(mockCreateCanvasWidget);
+
   it("Should select using canvas draw", () => {
     const children: any = buildChildren([
       {
@@ -47,11 +61,11 @@ describe("Canvas selection test cases", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -105,11 +119,11 @@ describe("Canvas selection test cases", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -197,11 +211,11 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -263,7 +277,11 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
+        <Canvas
+          canvasWidth={dsl.rightColumn}
+          pageId="page_id"
+          widgetsStructure={dsl}
+        />
       </MockPageDSL>,
     );
     const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);
@@ -328,11 +346,11 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -416,11 +434,11 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,

@@ -1,19 +1,117 @@
 import React from "react";
-import { Checkbox, Classes, Label } from "@blueprintjs/core";
-import styled, { keyframes } from "styled-components";
+import { Checkbox, Classes } from "@blueprintjs/core";
+import styled, { css, keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+  LabelPosition,
+  LABEL_MARGIN_OLD_SELECT,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+  multiSelectInputContainerStyles,
+} from "design-system";
+import { lightenColor } from "widgets/WidgetUtils";
+import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
 
 const Input = styled.input`
   height: 0;
   width: 0;
   opacity: 0;
   z-index: -1;
+`;
+
+export const CommonSelectFilterStyle = css<{
+  accentColor?: string;
+  borderRadius?: string;
+}>`
+  &&&& .${Classes.ALIGN_LEFT} {
+    font-size: 14px;
+    padding-left: 42px;
+    margin-bottom: 0;
+    .${Classes.CONTROL_INDICATOR} {
+      margin-right: 10px;
+    }
+    &.all-options.selected {
+      color: ${Colors.GREY_10} !important;
+    }
+  }
+
+  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    background: transparent;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--wds-color-border);
+    border-radius: 0px;
+    &::before {
+      width: auto;
+      height: 100%;
+    }
+  }
+
+  & .${Classes.INPUT} {
+    height: 30px !important;
+    padding-left: 34px !important;
+    font-size: 14px;
+    color: var(--wds-color-text);
+    box-shadow: 0px 0px 0px 0px;
+    border: none;
+  }
+
+  & .${Classes.INPUT}::placeholder {
+    color: var(--wds-color-text-light);
+  }
+
+  & .${Classes.INPUT_GROUP} {
+    margin: 12px 12px 8px 12px;
+    position: relative;
+    border: 1px solid var(--wds-color-border);
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+    overflow: hidden;
+    &:focus-within {
+      border: 1px solid ${(props) => props.accentColor};
+      box-shadow: 0px 0px 0px 2px ${(props) => lightenColor(props.accentColor)};
+    }
+
+    & > .${Classes.ICON} {
+      &:first-child {
+        left: 0px;
+        top: 0px;
+        bottom: 0px;
+        margin: 8px 10px;
+        color: var(--wds-color-icon);
+
+        & > svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+    & > .${Classes.INPUT_ACTION} {
+      &:last-child {
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
+
+        .${Classes.BUTTON} {
+          min-height: 100%;
+          min-width: 35px;
+          margin: 0px;
+          color: ${Colors.GREY_6} !important;
+
+          &:hover {
+            color: ${Colors.GREY_10} !important;
+            background: ${Colors.GREY_2};
+            border-radius: 0;
+          }
+        }
+      }
+    }
+  }
 `;
 
 const Indicator = styled.div`
@@ -32,6 +130,10 @@ const Indicator = styled.div`
 
   &::disabled {
     cursor: not-allowed;
+  }
+
+  &::before {
+    height: 100% !important;
   }
 `;
 
@@ -69,19 +171,19 @@ const rcSelectDropdownSlideUpOut = keyframes`
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
+  accentColor?: string;
+  borderRadius: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
-    min-width: ${
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
-    }px !important;
+    width: ${dropDownWidth}px !important;
+    min-width: ${dropDownWidth}px !important;
   }
 `}
 .rc-select-dropdown-hidden {
-	display: none !important;
+	display: none;
 }
 .rc-select-item-group {
 	color: #999;
@@ -95,7 +197,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
 
 	.rc-select-item-option-state {
 		pointer-events: all;
-		margin-right: 10px;
+		margin-right: 0px;
 	}
 }
 .rc-select-item-option-grouped {
@@ -107,20 +209,31 @@ ${({ dropDownWidth, id, parentWidth }) => `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: ${Colors.GREY_8};
+  color: var(--wds-color-text);
   font-weight: 400;
 }
 .rc-select-item-option-active {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  background: var(--wds-color-bg-focus) !important;
+  color: var(--wds-color-text);
+
+  & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    border-color: var(--wds-color-border-hover) !important;
+  }
+}
+.rc-select-item-option:hover {
+	background: var(--wds-color-bg-hover);
+
+  & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    border-color: var(--wds-color-border-hover) !important;
+  }
+
   & .rc-select-item-option-content {
-    color: ${Colors.GREY_9};
+    color: var(--wds-color-text);
   }
 }
 .rc-select-item-option-selected {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-
   & .rc-select-item-option-content {
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
   }
 }
 .rc-select-item-option-disabled {
@@ -131,13 +244,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	color: #999;
 }
 .rc-select-item-empty {
-	text-align: left;
+	text-align: center;
+  padding: 10px;
   color: rgba(92, 112, 128, 0.6) !important
 }
 .multi-select-dropdown.rc-select-dropdown-empty {
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
-  border: 1px solid #E7E7E7;
-  border-color: rgba(0,0,0,0.2);
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+  border: 0px solid #E7E7E7;
   min-height: fit-content;
 }
 .rc-select-selection__choice-zoom {
@@ -188,22 +301,21 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-enter.rc-select-dropdown-slide-up-enter-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-appear.rc-select-dropdown-slide-up-appear-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-topLeft {
 	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
-
 .multi-select-dropdown {
   min-height: 100px;
   position: absolute;
@@ -212,21 +324,20 @@ ${({ dropDownWidth, id, parentWidth }) => `
   border-radius: 0px;
   margin-top: 5px;
   background: white;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+  overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-   overflow-x: scroll;
-  > div {
-      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
-    }
+   overflow-x: auto;
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
     padding-left: 42px;
     margin-bottom: 0;
     .${Classes.CONTROL_INDICATOR} {
-      margin-right: 20px;
+      margin-right: 0px;
     }
     &.all-options.selected {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-      color: ${Colors.GREY_10} !important;
+      color: var(--wds-color-text) !important;
     }
   }
   &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
@@ -235,69 +346,27 @@ ${({ dropDownWidth, id, parentWidth }) => `
     border-width: 1px;
     border-style: solid;
     border-color: ${Colors.GREY_3};
-    border-radius: 0px;
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
     &::before {
       width: auto;
       height: 1em;
     }
   }
+
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${Colors.GREEN_SOLID} !important;
+    background: ${({ accentColor }) => accentColor} !important;
     color: rgb(255, 255, 255);
-    border-color: ${Colors.GREEN_SOLID} !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none;
     outline: none !important;
-  }
 
-  & .${Classes.INPUT_GROUP} {
-      padding: 12px 12px 8px 12px;
-      min-width: 180px;
-
-      & > .${Classes.ICON} {
-        &:first-child {
-          left: 12px;
-          top: 14px;
-          margin: 9px;
-          color: ${Colors.GREY_7};
-
-          & > svg {
-            width: 14px;
-            height: 14px;
-          }
-        }
-      }
-      & > .${Classes.INPUT_ACTION} {
-        &:last-child {
-          right: 13px;
-          top: 13px;
-
-          .${Classes.BUTTON} {
-            min-height: 34px;
-            min-width: 35px;
-            margin: 0px;
-            color: ${Colors.GREY_6} !important;
-
-            &:hover {
-              color: ${Colors.GREY_10} !important;
-              background: ${Colors.GREY_2};
-              border-radius: 0;
-            }
-          }
-        }
-      }
-      .${Classes.INPUT} {
-        height: 36px;
-        padding-left: 29px !important;
-        font-size: 14px;
-        border: 1px solid ${Colors.GREY_3};
-        color: ${Colors.GREY_10};
-        box-shadow: 0px 0px 0px 0px;
-        &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
-        }
-      }
+    &::before {
+      background-image: url(${CheckIcon}) !important;
+      background-repeat: no-repeat !important;
+      background-position: center !important;
     }
+  }
+  ${CommonSelectFilterStyle}
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;
@@ -317,15 +386,22 @@ ${({ dropDownWidth, id, parentWidth }) => `
 export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
+  labelPosition?: LabelPosition;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor?: string;
 }>`
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
-
-  label.tree-multiselect-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
+        }
+      }};
+    }
   }
+
   .rc-select {
     display: inline-block;
     font-size: 12px;
@@ -333,17 +409,21 @@ export const MultiSelectContainer = styled.div<{
     height: 100%;
     position: relative;
     cursor: pointer;
+
+    ${({ compactMode, labelPosition }) =>
+      labelPosition !== LabelPosition.Top && compactMode && `height: 100%;`};
+
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
       top: 50%;
       right: 12px;
-      left: 19px;
+      left: 10px;
       transform: translateY(-50%);
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: ${Colors.GREY_6};
+      color: var(--wds-color-text-light);
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -356,6 +436,10 @@ export const MultiSelectContainer = styled.div<{
         appearance: none;
       }
     }
+    .rc-select-selection-overflow-item-suffix {
+      position: relative !important;
+      left: 0px !important;
+    }
   }
   && .rc-select-disabled {
     cursor: not-allowed;
@@ -363,13 +447,23 @@ export const MultiSelectContainer = styled.div<{
       cursor: not-allowed;
     }
     & .rc-select-selector {
-      background-color: ${Colors.GREY_1} !important;
-      border: 1.2px solid ${Colors.GREY_3};
+      background-color: var(--wds-color-bg-disabled) !important;
+      border: 1px solid var(--wds-color-border-disabled) !important;
+
+      .rc-select-selection-item {
+        border-color: var(--wds-color-border-disabled);
+      }
       .rc-select-selection-item-content {
-        color: ${Colors.GREY_7};
+        color: var(--wds-color-text-disabled) !important;
       }
     }
-    & .rc-select-arrow {
+
+    & .rc-select-selection-placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+
+    & .rc-select-arrow svg path {
+      fill: var(--wds-color-icon-disabled);
     }
   }
   .rc-select-show-arrow.rc-select-loading {
@@ -394,16 +488,17 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      box-shadow: none;
-      border-radius: 0px;
+      background: var(--wds-color-bg);
+      border-radius: ${({ borderRadius }) => borderRadius} !important;
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       background-color: white;
+
       .rc-select-selection-item {
         background: none;
         border: 1px solid ${Colors.GREY_3};
-        border-radius: 360px;
+        border-radius: ${({ borderRadius }) => borderRadius} !important;
         max-width: 273.926px;
         height: 20px;
         color: ${Colors.GREY_10};
@@ -426,7 +521,6 @@ export const MultiSelectContainer = styled.div<{
       }
       .rc-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
@@ -505,18 +599,24 @@ export const MultiSelectContainer = styled.div<{
   .rc-select-show-arrow.rc-select-multiple {
     .rc-select-selector {
       padding-right: 36px;
-      padding-left: 12px;
-      box-shadow: none;
-      border-radius: 0px;
+      padding-left: 10px;
+      background: var(--wds-color-bg);
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
-      border: 1.2px solid
-        ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+      transition: none;
+      border: 1px solid
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border)"
+            : "var(--wds-color-border-danger)"};
       &:hover {
-        border: 1.2px solid
-          ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+        border: 1px solid
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border-hover)"
+            : "var(--wds-color-border-danger-hover)"};
       }
     }
   }
@@ -531,39 +631,62 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       align-items: center;
       justify-content: center;
-      fill: ${Colors.SLATE_GRAY};
+      fill: var(--wds-color-icon);
 
       & svg {
         width: 20px;
         height: 20px;
+        fill: var(--wds-color-icon);
+
+        path {
+          fill: var(--wds-color-icon);
+        }
       }
     }
   }
   .rc-select-show-arrow.rc-select-multiple.rc-select-focused {
     .rc-select-selector {
       outline: 0;
+
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          border: 1px solid  ${props.accentColor};
+          box-shadow: 0px 0px 0px 2px ${lightenColor(
+            props.accentColor,
+          )} !important;`
+          : `border: 1px solid var(--wds-color-border-danger); box-shadow: 0px 0px 0px 2px var(--wds-color-border-danger-focus-light) !important;`}
     }
   }
 `;
-export const StyledCheckbox = styled(Checkbox)`
+export const StyledCheckbox = styled(Checkbox)<{
+  accentColor?: string;
+}>`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     height: 38px;
     padding-bottom: 0 !important;
-    color: ${Colors.GREY_8} !important;
+    color: var(--wds-color-text) !important;
     display: flex;
     align-items: center;
+    padding-left: 16px !important;
+    & .${Classes.CONTROL_INDICATOR} {
+      margin: 0;
+      margin-right: 10px;
+    }
     &:hover {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-      color: ${Colors.GREY_9} !important;
+      background: var(--wds-color-bg-hover);
+      color: var(--wds-color-text) !important;
+
+      & .${Classes.CONTROL_INDICATOR} {
+        border-color: var(--wds-color-border-hover) !important;
+      }
+    }
+
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      border-color: ${({ accentColor }) => accentColor} !important;
     }
   }
 `;
@@ -578,36 +701,10 @@ export const inputIcon = (): JSX.Element => (
   </svg>
 );
 
-export const TextLabelWrapper = styled.div<{
+export const InputContainer = styled.div<{
   compactMode: boolean;
+  labelPosition?: LabelPosition;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
-
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+  ${multiSelectInputContainerStyles}
+  ${({ labelPosition }) => labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
 `;

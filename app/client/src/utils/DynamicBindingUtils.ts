@@ -1,22 +1,26 @@
-import _, { VERSION as lodashVersion } from "lodash";
+import _, { get, isString, VERSION as lodashVersion } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "widgets/BaseWidget";
 import parser from "fast-xml-parser";
+
 import { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
+  isTrueObject,
 } from "workers/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
+import { ViewTypes } from "components/formControls/utils";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
+export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
@@ -178,25 +182,23 @@ export const extraLibraries: ExtraLibrary[] = [
     // We are removing some functionalities of node-forge because they wont
     // work in the worker thread
     lib: _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
-    version: "0.10.0",
+    version: "1.3.0",
     docsURL: "https://github.com/digitalbazaar/forge",
     displayName: "forge",
   },
 ];
-
 /**
  * creates dynamic list of constants based on
  * current list of extra libraries i.e lodash("_"), moment etc
  * to be used in widget and entity name validations
  */
 export const extraLibrariesNames = extraLibraries.reduce(
-  (prev: any, curr: any) => {
+  (prev: Record<string, string>, curr) => {
     prev[curr.accessor] = curr.accessor;
     return prev;
   },
   {},
 );
-
 export interface DynamicPath {
   key: string;
   value?: string;
@@ -237,6 +239,15 @@ export const isPathADynamicBinding = (
     return _.find(entity.dynamicBindingPathList, { key: path }) !== undefined;
   }
   return false;
+};
+/**
+ * Get property path from full property path
+ * Input: "Table1.meta.searchText" => Output: "meta.searchText"
+ * @param {string} fullPropertyPath
+ * @return {*}
+ */
+export const getPropertyPath = (fullPropertyPath: string) => {
+  return fullPropertyPath.substring(fullPropertyPath.indexOf(".") + 1);
 };
 
 export const getWidgetDynamicTriggerPathList = (
@@ -293,6 +304,15 @@ export const isPathADynamicProperty = (
   return false;
 };
 
+export const THEME_BINDING_REGEX = /{{.*appsmith\.theme\..*}}/;
+
+export const isThemeBoundProperty = (
+  widget: WidgetProps,
+  path: string,
+): boolean => {
+  return widget && widget[path] && THEME_BINDING_REGEX.test(widget[path]);
+};
+
 export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",
@@ -307,10 +327,13 @@ export const unsafeFunctionForEval = [
 export const isChildPropertyPath = (
   parentPropertyPath: string,
   childPropertyPath: string,
-): boolean =>
-  parentPropertyPath === childPropertyPath ||
-  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
-  childPropertyPath.startsWith(`${parentPropertyPath}[`);
+): boolean => {
+  return (
+    parentPropertyPath === childPropertyPath ||
+    childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+    childPropertyPath.startsWith(`${parentPropertyPath}[`)
+  );
+};
 
 /**
  * Paths set via evaluator on entities
@@ -328,27 +351,78 @@ export const EVALUATION_PATH = "__evaluation__";
 export const EVAL_ERROR_PATH = `${EVALUATION_PATH}.errors`;
 export const EVAL_VALUE_PATH = `${EVALUATION_PATH}.evaluatedValues`;
 
+/**
+ * non-populated object 
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: [...],
+       primaryColumns.status: {...},
+       primaryColumns.action: {...}
+     }
+   }
+ }
+
+ * Populated Object
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: {
+         status: [...],
+         action:[...]
+        }
+     }
+   }
+ }
+
+ */
 const getNestedEvalPath = (
   fullPropertyPath: string,
   pathType: string,
   fullPath = true,
+  isPopulated = false,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
   );
-  const nestedPath = `${pathType}.['${propertyPath}']`;
+  const nestedPath = isPopulated
+    ? `${pathType}.${propertyPath}`
+    : `${pathType}.['${propertyPath}']`;
+
   if (fullPath) {
     return `${entityName}.${nestedPath}`;
   }
   return nestedPath;
 };
 
-export const getEvalErrorPath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_ERROR_PATH, fullPath);
+export const getEvalErrorPath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_ERROR_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
-export const getEvalValuePath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_VALUE_PATH, fullPath);
+export const getEvalValuePath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_VALUE_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
 export enum PropertyEvaluationErrorType {
@@ -387,13 +461,41 @@ export const PropertyEvalErrorTypeDebugMessage: Record<
   [PropertyEvaluationErrorType.LINT]: () => `Errors found while evaluating`,
 };
 
+// this variable temporarily holds dynamic paths generated by the recursive function (getDynamicValuePaths - Line 468).
+let temporaryDynamicPathStore: DynamicPath[] = [];
+
+// recursive function to get full key path of any object that has dynamic bindings.
+const getDynamicValuePaths = (val: any, parentPath: string) => {
+  if (isString(val) && isDynamicValue(val)) {
+    return temporaryDynamicPathStore.push({ key: `${parentPath}` });
+  }
+
+  if (Array.isArray(val)) {
+    val.forEach((obj, index) => {
+      return getDynamicValuePaths(obj, `${parentPath}[${index}]`);
+    });
+  }
+
+  if (isTrueObject(val)) {
+    Object.entries(val).forEach(([key, value]) => {
+      getDynamicValuePaths(value, `${parentPath}.${key}`);
+    });
+  }
+};
+
 export function getDynamicBindingsChangesSaga(
   action: Action,
   value: unknown,
   field: string,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
+  // we listen to any viewType changes.
+  const viewType = field.endsWith(".viewType");
   let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
+
+  if (field.endsWith(".jsonData") || field.endsWith(".componentData")) {
+    return dynamicBindings;
+  }
 
   if (
     action.datasource &&
@@ -414,20 +516,19 @@ export function getDynamicBindingsChangesSaga(
   // Value is an Array representing the new fieldArray.
 
   if (Array.isArray(value)) {
+    // first we clear the dynamic bindings of any paths that is a child of the current path.
     dynamicBindings = dynamicBindings.filter(
       (binding) => !isChildPropertyPath(bindingField, binding.key),
     );
-    value.forEach((keyValueRow, index) => {
-      if (!keyValueRow) return;
 
-      const { key, value } = keyValueRow;
-      key &&
-        isDynamicValue(key) &&
-        dynamicBindings.push({ key: `${bindingField}[${index}].key` });
-      value &&
-        isDynamicValue(value) &&
-        dynamicBindings.push({ key: `${bindingField}[${index}].value` });
-    });
+    // then we recursively go through the value and find paths with dynamic bindings
+    temporaryDynamicPathStore = [];
+    if (!!value) {
+      getDynamicValuePaths(value, bindingField);
+    }
+    if (!!temporaryDynamicPathStore && temporaryDynamicPathStore.length > 0) {
+      dynamicBindings = [...dynamicBindings, ...temporaryDynamicPathStore];
+    }
   } else if (getType(value) === Types.OBJECT) {
     dynamicBindings = dynamicBindings.filter((dynamicPath) => {
       if (isChildPropertyPath(bindingField, dynamicPath.key)) {
@@ -445,6 +546,45 @@ export function getDynamicBindingsChangesSaga(
     }
     if (isDynamic && !fieldExists) {
       dynamicBindings.push({ key: bindingField });
+    }
+  }
+
+  // the reason this is done is to change the dynamicBindingsPathlist of a component when a user toggles the form control
+  // from component mode to json mode and vice versa.
+
+  // when in json mode, we want to get rid of all the existing componentData paths and replace it with a single path for the json mode
+  // for example: [{key: 'formData.sortBy.data[0].column'}, {key: 'formData.sortBy.data[1].column'}] will be replaced with just this [{key: 'formData.sortBy.data'}]
+
+  // when in component mode, we want to first remove all the paths for json mode and
+  //  get back all the paths in the componentData that have dynamic bindings and add them to the the dynamic bindings pathlist.
+  // for example: [{key: 'formData.sortBy.data'}] will be replaced with this [{key: 'formData.sortBy.data[0].column'}, {key: 'formData.sortBy.data[1].column'}]
+
+  // if the currently changing field is a component's view type
+  if (!!viewType) {
+    const dataBindingField = bindingField.replace(".viewType", ".data");
+    // then we filter the field of any paths that includes the binding fields
+    dynamicBindings = dynamicBindings.filter(
+      (dynamicPath) => !dynamicPath?.key?.includes(dataBindingField),
+    );
+
+    // if the value of the viewType is of json and, we push in the field
+    if (value === ViewTypes.JSON) {
+      const jsonFieldPath = field.replace(".viewType", ".jsonData");
+      const jsonFieldValue = get(action, jsonFieldPath);
+      if (isDynamicValue(jsonFieldValue)) {
+        dynamicBindings.push({ key: dataBindingField });
+      }
+    } else if (value === ViewTypes.COMPONENT) {
+      const componentFieldPath = field.replace(".viewType", ".componentData");
+      const componentFieldValue = get(action, componentFieldPath);
+      temporaryDynamicPathStore = [];
+
+      if (!!componentFieldValue) {
+        getDynamicValuePaths(componentFieldValue, dataBindingField);
+      }
+      if (!!temporaryDynamicPathStore && temporaryDynamicPathStore.length > 0) {
+        dynamicBindings = [...dynamicBindings, ...temporaryDynamicPathStore];
+      }
     }
   }
   return dynamicBindings;

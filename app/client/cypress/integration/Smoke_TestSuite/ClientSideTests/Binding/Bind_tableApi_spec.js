@@ -1,6 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
+import apiPage from "../../../../locators/ApiEditor";
 
 describe("Test Create Api and Bind to Table widget", function() {
   let apiData;
@@ -27,7 +27,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("2. Test_Validate the Api data is updated on Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     //cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", "{{Api1.data.users}}");
+    cy.testJsontext("tabledata", "{{ Api1.data.users }}");
 
     /**
      * readTabledata--> is to read the table contents
@@ -45,6 +45,9 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.togglebarDisable(
+      ".t--property-control-enableclientsidesearch input[type='checkbox']",
+    );
     cy.get(".t--widget-tablewidget .t--search-input")
       .first()
       .type("Currey");

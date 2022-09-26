@@ -1,40 +1,47 @@
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import React from "react";
-import DraggableList from "./DraggableList";
+import { DraggableList } from "design-system";
 
-type RenderComponentProps = {
+export type BaseItemProps = {
+  id: string;
+  isVisible?: boolean;
+  label: string;
+};
+
+export type RenderComponentProps<TItem extends BaseItemProps> = {
   focusedIndex: number | null | undefined;
   index: number;
-  item: {
-    label: string;
-    isDerived?: boolean;
-  };
-  isDragging: boolean;
+  item: TItem;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
+  toggleCheckbox?: (index: number, checked: boolean) => void;
   toggleVisibility?: (index: number) => void;
+  onEdit?: (index: number) => void;
+  updateFocus?: (index: number, isFocused: boolean) => void;
+  isDragging: boolean;
+  isDelete?: boolean;
+};
+
+type DroppableComponentProps<TItem extends BaseItemProps> = {
+  className?: string;
+  fixedHeight?: number | boolean;
+  focusedIndex: number | null | undefined;
+  items: TItem[];
+  itemHeight: number;
+  renderComponent: (props: RenderComponentProps<TItem>) => JSX.Element;
+  deleteOption: (index: number) => void;
+  updateOption: (index: number, value: string) => void;
+  toggleCheckbox?: (index: number, checked: boolean) => void;
+  toggleVisibility?: (index: number) => void;
+  updateItems: (items: TItem[]) => void;
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
 };
 
-interface DroppableComponentProps {
-  fixedHeight?: number | boolean;
-  focusedIndex?: number | null | undefined;
-  items: Array<Record<string, unknown>>;
-  itemHeight: number;
-  renderComponent: (props: RenderComponentProps) => JSX.Element;
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  updateItems: (items: Array<Record<string, unknown>>) => void;
-  onEdit?: (index: number) => void;
-  updateFocus?: (index: number, isFocused: boolean) => void;
-}
-
-export class DroppableComponent extends React.Component<
-  DroppableComponentProps
-> {
-  constructor(props: DroppableComponentProps) {
+export class DroppableComponent<
+  TItem extends BaseItemProps
+> extends React.Component<DroppableComponentProps<TItem>> {
+  constructor(props: DroppableComponentProps<TItem>) {
     super(props);
   }
 
@@ -42,11 +49,14 @@ export class DroppableComponent extends React.Component<
     isDragging: false,
   };
 
-  shouldComponentUpdate(prevProps: DroppableComponentProps, prevState: any) {
+  shouldComponentUpdate(
+    prevProps: DroppableComponentProps<TItem>,
+    prevState: any,
+  ) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
     return (
-      !isEqual(presentOrder, previousOrder) ||
+      !equal(presentOrder, previousOrder) ||
       this.props.focusedIndex !== prevProps.focusedIndex ||
       prevState.isDragging !== this.state.isDragging
     );
@@ -60,6 +70,7 @@ export class DroppableComponent extends React.Component<
       label: item.label,
       isVisible: item.isVisible,
       isDuplicateLabel: item.isDuplicateLabel,
+      isChecked: item.isChecked,
     };
   }
 
@@ -85,6 +96,7 @@ export class DroppableComponent extends React.Component<
       focusedIndex,
       onEdit,
       renderComponent,
+      toggleCheckbox,
       toggleVisibility,
       updateFocus,
       updateOption,
@@ -94,6 +106,7 @@ export class DroppableComponent extends React.Component<
       deleteOption,
       updateFocus,
       updateOption,
+      toggleCheckbox,
       toggleVisibility,
       onEdit,
       focusedIndex,
@@ -107,6 +120,7 @@ export class DroppableComponent extends React.Component<
     return (
       <DraggableList
         ItemRenderer={this.renderItem}
+        className={this.props.className}
         fixedHeight={this.props.fixedHeight}
         focusedIndex={this.props.focusedIndex}
         itemHeight={45}

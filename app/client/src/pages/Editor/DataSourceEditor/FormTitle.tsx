@@ -5,7 +5,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
@@ -109,6 +109,7 @@ function FormTitle(props: FormTitleProps) {
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         type="text"
+        underline
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}

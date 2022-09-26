@@ -20,6 +20,22 @@
     "leftColumn": 0,
     "children": [
       {
+        "isVisible": true,
+        "text": "Label",
+        "textAlign": "LEFT",
+        "widgetName": "Text1",
+        "type": "TEXT_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 14.015625,
+        "parentRowSpace": 10,
+        "leftColumn": 1,
+        "rightColumn": 7,
+        "topRow": 1,
+        "bottomRow": 4,
+        "parentId": "bxekwxgc1i",
+        "widgetId": "9xcfqahpw2"
+      },
+      {
         "isMirrored": true,
         "widgetName": "Camera1",
         "rightColumn": 33,

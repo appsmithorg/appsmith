@@ -39,7 +39,12 @@ class JSONOutput extends React.Component<Props> {
       style: {
         fontSize: "14px",
       },
-      collapsed: 1,
+      collapsed: 2,
+      collapseStringsAfterLength: 20,
+      shouldCollapse: (field: any) => {
+        const index = field.name * 1;
+        return index >= 2;
+      },
     };
 
     if (typeof src !== "object") {

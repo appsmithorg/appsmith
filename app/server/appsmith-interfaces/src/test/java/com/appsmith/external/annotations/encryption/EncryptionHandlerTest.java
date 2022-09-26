@@ -6,9 +6,11 @@ import lombok.Setter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class EncryptionHandlerTest {
 
@@ -63,7 +65,7 @@ public class EncryptionHandlerTest {
         // For encrypted list
         final Optional<CandidateField> testSubDomainListWithElements = candidateFieldsForType
                 .stream()
-                .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_LIST_KNOWN))
+                .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_COLLECTION_KNOWN))
                 .findFirst();
         Assert.assertTrue(testSubDomainListWithElements.isPresent());
         Assert.assertEquals("testSubDomainListWithElements", testSubDomainListWithElements.get().getField().getName());
@@ -71,7 +73,7 @@ public class EncryptionHandlerTest {
         // For encrypted list when the list is polymorphic and null
         final Optional<CandidateField> polymorphicSubDomainListWithoutElements = candidateFieldsForType
                 .stream()
-                .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_LIST_UNKNOWN))
+                .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_COLLECTION_UNKNOWN))
                 .findFirst();
         Assert.assertTrue(polymorphicSubDomainListWithoutElements.isPresent());
         Assert.assertEquals("polymorphicSubDomainListWithoutElements", polymorphicSubDomainListWithoutElements.get().getField().getName());
@@ -79,7 +81,7 @@ public class EncryptionHandlerTest {
         // For encrypted list when the list is polymorphic and null
         final Optional<CandidateField> polymorphicSubDomainListWithElements = candidateFieldsForType
                 .stream()
-                .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_LIST_POLYMORPHIC))
+                .filter(x -> x.getType().equals(CandidateField.Type.APPSMITH_COLLECTION_POLYMORPHIC))
                 .findFirst();
         Assert.assertTrue(polymorphicSubDomainListWithElements.isPresent());
         Assert.assertEquals("polymorphicSubDomainListWithElements", polymorphicSubDomainListWithElements.get().getField().getName());
@@ -164,6 +166,43 @@ public class EncryptionHandlerTest {
 
     }
 
+    @Test
+    public void testConvertEncryption_EmptySetFirstWithNonEncryptedFields() {
+        EncryptionHandler encryptionHandler = new EncryptionHandler();
+
+        TestDomainWithSet testDomain = new TestDomainWithSet();
+        
+        testDomain.setSet(new HashSet<>());
+
+        boolean b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
+        Assert.assertTrue(b); //First time field will be detected as APPSMITH_COLLECTION_UNKNOWN
+
+        AppsmithTestSubDomainWithoutEncryption testSubDomainWithoutEncryption = new AppsmithTestSubDomainWithoutEncryption();
+        testSubDomainWithoutEncryption.setNotEncryptedInSubDomain("String");
+        
+        testDomain.setSet(new HashSet<>());
+        testDomain.getSet().add(testSubDomainWithoutEncryption);
+
+        b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
+        Assert.assertFalse(b); //Second time field will be removed from cache but returns true
+    }
+
+    @Test
+    public void testConvertEncryption_FilledSetFirstWithNonEncryptedFields() {
+        EncryptionHandler encryptionHandler = new EncryptionHandler();
+        
+        TestDomainWithSet testDomain = new TestDomainWithSet();
+        
+        AppsmithTestSubDomainWithoutEncryption testSubDomainWithoutEncryption = new AppsmithTestSubDomainWithoutEncryption();
+        testSubDomainWithoutEncryption.setNotEncryptedInSubDomain("String");
+        
+        testDomain.setSet(new HashSet<>());
+        testDomain.getSet().add(testSubDomainWithoutEncryption);
+
+        boolean b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
+        Assert.assertFalse(b);
+    }
+
     @Getter
     @Setter
     static class TestDomain implements AppsmithDomain {
@@ -223,6 +262,13 @@ public class EncryptionHandlerTest {
         // TODO Map<Map<AppsmithTypeWithoutElements>>
         // TODO Map<Map<AppsmithPolymorphicTypeWithElements>>
         // TODO Just for kicks List<Map<AppsmithTypeWhichHasAListOfEncryptedAppsmithType>>>
+    }
+
+    @Getter
+    @Setter
+    static class TestDomainWithSet implements AppsmithDomain {
+        //this list will be created innitially empty
+        Set<AppsmithTestSubDomainWithoutEncryption> set;
     }
 
     @Getter

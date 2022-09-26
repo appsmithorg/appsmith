@@ -7,7 +7,7 @@ import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { SavingState } from "components/ads/EditableTextSubComponent";
 import { EditInteractionKind } from "components/ads/EditableText";
 import { CommonComponentProps, ThemeProp } from "components/ads/common";
@@ -194,7 +194,7 @@ export function EditorAppName(props: EditorAppNameProps) {
   });
 
   const NavigationMenuItems = (
-    <StyledMenu>
+    <StyledMenu className="t--application-edit-menu">
       <NavigationMenu
         menuItems={NavigationMenuData}
         setIsPopoverOpen={setIsPopoverOpen}

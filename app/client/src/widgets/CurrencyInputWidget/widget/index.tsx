@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import CurrencyInputComponent, {
   CurrencyInputComponentProps,
 } from "../component";
@@ -28,10 +28,11 @@ import log from "loglevel";
 import {
   formatCurrencyNumber,
   getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
   limitDecimalValue,
-  parseLocaleFormattedStringToNumber,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -113,12 +114,12 @@ class CurrencyInputWidget extends BaseInputWidget<
             },
             {
               helpText: "Changes the type of currency",
-              propertyName: "currencyCode",
+              propertyName: "defaultCurrencyCode",
               label: "Currency",
               enableSearch: true,
-              dropdownHeight: "195px",
+              dropdownHeight: "156px",
               controlType: "DROP_DOWN",
-              placeholderText: "Search by code or name",
+              searchPlaceholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
               isJSConvertible: true,
               isBindProperty: true,
@@ -178,6 +179,112 @@ class CurrencyInputWidget extends BaseInputWidget<
     );
   }
 
+  static getPropertyPaneContentConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "Data",
+          children: [
+            {
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "100",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `100`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
+              dependencies: ["decimals"],
+            },
+            {
+              helpText: "Changes the type of currency",
+              propertyName: "defaultCurrencyCode",
+              label: "Currency",
+              enableSearch: true,
+              dropdownHeight: "156px",
+              controlType: "DROP_DOWN",
+              searchPlaceholderText: "Search by code or name",
+              options: CurrencyDropdownOptions,
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.TEXT,
+              },
+            },
+            {
+              propertyName: "allowCurrencyChange",
+              label: "Allow Currency Change",
+              helpText: "Search by currency or country",
+              controlType: "SWITCH",
+              isJSConvertible: false,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+            {
+              helpText: "No. of decimals in currency input",
+              propertyName: "decimals",
+              label: "Decimals Allowed",
+              controlType: "DROP_DOWN",
+              options: [
+                {
+                  label: "0",
+                  value: 0,
+                },
+                {
+                  label: "1",
+                  value: 1,
+                },
+                {
+                  label: "2",
+                  value: 2,
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+            },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+          ],
+        },
+      ],
+      super.getPropertyPaneContentConfig(),
+    );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return super.getPropertyPaneStyleConfig();
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
@@ -188,6 +295,13 @@ class CurrencyInputWidget extends BaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       text: undefined,
+      currencyCode: undefined,
+    });
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return _.merge(super.getDefaultPropertiesMap(), {
+      currencyCode: "defaultCurrencyCode",
     });
   }
 
@@ -204,6 +318,20 @@ class CurrencyInputWidget extends BaseInputWidget<
     ) {
       this.formatText();
     }
+    // If defaultText property has changed, reset isDirty to false
+    if (
+      this.props.defaultText !== prevProps.defaultText &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+
+    if (
+      this.props.currencyCode === this.props.defaultCurrencyCode &&
+      prevProps.currencyCode !== this.props.currencyCode
+    ) {
+      this.onCurrencyTypeChange(this.props.currencyCode);
+    }
   }
 
   formatText() {
@@ -211,7 +339,7 @@ class CurrencyInputWidget extends BaseInputWidget<
       try {
         const formattedValue = formatCurrencyNumber(
           this.props.decimals,
-          String(this.props.value),
+          this.props.text,
         );
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
@@ -253,18 +381,17 @@ class CurrencyInputWidget extends BaseInputWidget<
   handleFocusChange = (isFocused?: boolean) => {
     try {
       if (isFocused) {
-        const deFormattedValue = parseLocaleFormattedStringToNumber(
-          this.props.text,
+        const text = this.props.text || "";
+        const deFormattedValue = text.replace(
+          new RegExp("\\" + getLocaleThousandSeparator(), "g"),
+          "",
         );
-        this.props.updateWidgetMetaProperty(
-          "text",
-          isNaN(deFormattedValue) ? "" : String(deFormattedValue),
-        );
+        this.props.updateWidgetMetaProperty("text", deFormattedValue);
       } else {
         if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
-            String(this.props.value),
+            this.props.text,
           );
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
@@ -282,12 +409,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     const countryCode = getCountryCodeFromCurrencyCode(currencyCode);
 
     this.props.updateWidgetMetaProperty("countryCode", countryCode);
-
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("currencyCode", currencyCode);
-    } else {
-      this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
-    }
+    this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
   };
 
   handleKeyDown = (
@@ -304,6 +426,10 @@ class CurrencyInputWidget extends BaseInputWidget<
       this.props.decimals,
       String(value),
     );
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("text", String(formattedValue), {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
@@ -326,9 +452,18 @@ class CurrencyInputWidget extends BaseInputWidget<
 
     return (
       <CurrencyInputComponent
+        accentColor={this.props.accentColor}
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
-        compactMode
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         currencyCode={currencyCode}
         decimals={this.props.decimals}
         defaultValue={this.props.defaultText}
@@ -340,9 +475,12 @@ class CurrencyInputWidget extends BaseInputWidget<
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}

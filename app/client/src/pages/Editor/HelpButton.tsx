@@ -3,16 +3,16 @@ import styled, { createGlobalStyle, withTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Theme } from "constants/DefaultTheme";
-import { getCurrentUser } from "../../selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,
@@ -54,7 +54,7 @@ const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
     content={createMessage(HELP_RESOURCE_TOOLTIP)}
     disabled={tooltipsDisabled}
     hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-    position={Position.BOTTOM}
+    position="bottom"
   >
     <StyledTrigger>
       <Icon

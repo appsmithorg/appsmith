@@ -30,7 +30,7 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 
@@ -78,6 +78,9 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const defaultColumn = {
@@ -213,7 +216,10 @@ export function Table(props: TableProps) {
 
   return (
     <TableWrapper
+      accentColor={props.accentColor}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}
@@ -245,7 +251,10 @@ export function Table(props: TableProps) {
               width={props.width}
             >
               <TableHeader
+                accentColor={props.accentColor}
                 applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
+                boxShadow={props.boxShadow}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
@@ -279,6 +288,7 @@ export function Table(props: TableProps) {
         ref={tableWrapperRef}
       >
         <Scrollbars
+          autoHide
           renderThumbHorizontal={ScrollbarHorizontalThumb}
           style={{
             width: props.width,
@@ -302,6 +312,8 @@ export function Table(props: TableProps) {
                       renderCheckBoxHeaderCell(
                         handleAllRowSelectClick,
                         rowSelectionState,
+                        props.accentColor,
+                        props.borderRadius,
                       )}
                     {headerGroup.headers.map(
                       (column: any, columnIndex: number) => {
@@ -317,6 +329,7 @@ export function Table(props: TableProps) {
                             isSortable={props.isSortable}
                             key={columnIndex}
                             sortTableColumn={props.sortTableColumn}
+                            width={props.width}
                           />
                         );
                       },
@@ -332,6 +345,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
             <div
@@ -362,7 +377,11 @@ export function Table(props: TableProps) {
                     }}
                   >
                     {props.multiRowSelection &&
-                      renderCheckBoxCell(isRowSelected)}
+                      renderCheckBoxCell(
+                        isRowSelected,
+                        props.accentColor,
+                        props.borderRadius,
+                      )}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div
@@ -387,6 +406,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
           </div>

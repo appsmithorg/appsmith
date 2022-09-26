@@ -121,6 +121,9 @@ import SkeletonWidget, {
 import StatboxWidget, {
   CONFIG as STATBOX_WIDGET_CONFIG,
 } from "widgets/StatboxWidget";
+import JSONFormWidget, {
+  CONFIG as JSON_FORM_WIDGET_CONFIG,
+} from "widgets/JSONFormWidget";
 import SwitchGroupWidget, {
   CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
 } from "widgets/SwitchGroupWidget";
@@ -138,7 +141,26 @@ import TextWidget, { CONFIG as TEXT_WIDGET_CONFIG } from "widgets/TextWidget";
 import VideoWidget, {
   CONFIG as VIDEO_WIDGET_CONFIG,
 } from "widgets/VideoWidget";
-import { registerWidget, WidgetConfiguration } from "./WidgetRegisterHelpers";
+import ProgressWidget, {
+  CONFIG as PROGRESS_WIDGET_CONFIG,
+} from "widgets/ProgressWidget";
+import { registerWidget } from "./WidgetRegisterHelpers";
+import { WidgetConfiguration } from "widgets/constants";
+import TableWidgetV2, {
+  CONFIG as TABLE_WIDGET_CONFIG_V2,
+} from "widgets/TableWidgetV2";
+import NumberSliderWidget, {
+  CONFIG as NUMBER_SLIDER_WIDGET_CONFIG,
+} from "widgets/NumberSliderWidget";
+import RangeSliderWidget, {
+  CONFIG as RANGE_SLIDER_WIDGET_CONFIG,
+} from "widgets/RangeSliderWidget";
+import CategorySliderWidget, {
+  CONFIG as CATEGORY_SLIDER_WIDGET_CONFIG,
+} from "widgets/CategorySliderWidget";
+import CodeScannerWidget, {
+  CONFIG as CODE_SCANNER_WIDGET_CONFIG,
+} from "widgets/CodeScannerWidget";
 
 export const ALL_WIDGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -149,29 +171,22 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [CheckboxWidget, CHECKBOX_WIDGET_CONFIG],
   [RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG],
   [ButtonWidget, BUTTON_WIDGET_CONFIG],
-  [DropdownWidget, DROPDOWN_WIDGET_CONFIG],
   [ImageWidget, IMAGE_WIDGET_CONFIG],
   [VideoWidget, VIDEO_WIDGET_CONFIG],
   [TabsWidget, TABS_WIDGET_CONFIG],
-  [InputWidget, INPUT_WIDGET_CONFIG],
   [ModalWidget, MODAL_WIDGET_CONFIG],
   [ChartWidget, CHART_WIDGET_CONFIG],
   [MapWidget, MAP_WIDGET_CONFIG],
-  [FilePickerWidget, FILEPICKER_WIDGET_CONFIG],
   [RichTextEditorWidget, RICH_TEXT_EDITOR_WIDGET_CONFIG],
-  [DatePickerWidget, DATE_PICKER_WIDGET_CONFIG],
   [DatePickerWidget2, DATE_PICKER_WIDGET_2_CONFIG],
   [SwitchWidget, SWITCH_WIDGET_CONFIG],
   [FormWidget, FORM_WIDGET_CONFIG],
-  [FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG],
-  [IconWidget, ICON_WIDGET_CONFIG],
   [ListWidget, LIST_WIDGET_CONFIG],
   [RateWidget, RATE_WIDGET_CONFIG],
   [IframeWidget, IFRAME_WIDGET_CONFIG],
   [TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG],
   [DividerWidget, DIVIDER_WIDGET_CONFIG],
   [MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG],
-  [MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG],
   [IconButtonWidget, ICON_BUTTON_WIDGET_CONFIG],
   [CheckboxGroupWidget, CHECKBOX_GROUP_WIDGET_CONFIG],
   [FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG],
@@ -188,10 +203,26 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [MapChartWidget, MAP_CHART_WIDGET_CONFIG],
   [SelectWidget, SELECT_WIDGET_CONFIG],
   [MultiSelectWidgetV2, MULTI_SELECT_WIDGET_V2_CONFIG],
-  [CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG],
   [InputWidgetV2, INPUT_WIDGET_V2_CONFIG],
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
+  [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
+  [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
+  [NumberSliderWidget, NUMBER_SLIDER_WIDGET_CONFIG],
+  [RangeSliderWidget, RANGE_SLIDER_WIDGET_CONFIG],
+  [CategorySliderWidget, CATEGORY_SLIDER_WIDGET_CONFIG],
+  [CodeScannerWidget, CODE_SCANNER_WIDGET_CONFIG],
+
+  //Deprecated Widgets
+  [InputWidget, INPUT_WIDGET_CONFIG],
+  [DropdownWidget, DROPDOWN_WIDGET_CONFIG],
+  [DatePickerWidget, DATE_PICKER_WIDGET_CONFIG],
+  [IconWidget, ICON_WIDGET_CONFIG],
+  [FilePickerWidget, FILEPICKER_WIDGET_CONFIG],
+  [MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG],
+  [FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG],
+  [ProgressWidget, PROGRESS_WIDGET_CONFIG],
+  [CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG],
   /*
    * If a newly added widget works well inside the list widget,
    * please add widget type in the List widget's allowed widget

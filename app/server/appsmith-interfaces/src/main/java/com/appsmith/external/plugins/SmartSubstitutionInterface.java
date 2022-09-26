@@ -1,5 +1,6 @@
 package com.appsmith.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Param;
@@ -64,9 +65,10 @@ public interface SmartSubstitutionInterface {
      * override this method to provide plugin specific implementation.
      *
      * @param replacementValue - value to be substituted
+     * @param dataType
      * @return - updated replacement value
      */
-    default String sanitizeReplacement(String replacementValue) {
+    default String sanitizeReplacement(String replacementValue, DataType dataType) {
         return replacementValue;
     }
 }

@@ -12,7 +12,6 @@ import { ThemeProp } from "components/ads/common";
 import _ from "lodash";
 import {
   ButtonStyleTypes,
-  ButtonBoxShadow,
   ButtonBoxShadowTypes,
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
@@ -279,8 +278,7 @@ type ButtonStyleProps = {
   buttonStyle?: ButtonStyleType;
   prevButtonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;
@@ -291,7 +289,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
   const {
     borderRadius,
     boxShadow,
-    boxShadowColor,
     buttonColor,
     buttonStyle,
     buttonVariant,
@@ -313,7 +310,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         buttonColor={buttonColor}
         buttonStyle={buttonStyle}
         buttonVariant={buttonVariant}
@@ -335,7 +331,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
       buttonColor={buttonColor}
       buttonStyle={buttonStyle}
       buttonVariant={buttonVariant}

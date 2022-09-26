@@ -31,10 +31,11 @@ public class SaasControllerCE {
     public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId,
                                                       @PathVariable String pageId,
                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                      @RequestParam(required = false) String importForGit,
                                                       ServerWebExchange serverWebExchange) {
 
         log.debug("Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
-        return authenticationService.getAppsmithToken(datasourceId, pageId, branchName, serverWebExchange.getRequest())
+        return authenticationService.getAppsmithToken(datasourceId, pageId, branchName, serverWebExchange.getRequest(), importForGit)
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 

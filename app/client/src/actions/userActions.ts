@@ -1,16 +1,14 @@
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
-import {
-  CommentsOnboardingState,
-  CurrentUserDetailsRequestPayload,
-} from "constants/userConstants";
+} from "@appsmith/constants/ReduxActionConstants";
+import { CurrentUserDetailsRequestPayload } from "constants/userConstants";
 import {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   VerifyTokenRequest,
-} from "api/UserApi";
+} from "@appsmith/api/UserApi";
+import FeatureFlags from "entities/FeatureFlags";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
@@ -70,13 +68,6 @@ export const updateUserDetails = (payload: UpdateUserRequest) => ({
   payload,
 });
 
-export const updateUsersCommentOnboardingState = (
-  payload: CommentsOnboardingState,
-) => ({
-  type: ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE,
-  payload,
-});
-
 export const updatePhoto = (payload: {
   file: File;
   callback?: (id: string) => void;
@@ -95,11 +86,11 @@ export const updatePhotoId = (payload: { photoId: string }) => ({
   payload,
 });
 
-export const leaveOrganization = (orgId: string) => {
+export const leaveWorkspace = (workspaceId: string) => {
   return {
-    type: ReduxActionTypes.LEAVE_ORG_INIT,
+    type: ReduxActionTypes.LEAVE_WORKSPACE_INIT,
     payload: {
-      orgId,
+      workspaceId,
     },
   };
 };
@@ -108,8 +99,9 @@ export const fetchFeatureFlagsInit = () => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
 });
 
-export const fetchFeatureFlagsSuccess = () => ({
+export const fetchFeatureFlagsSuccess = (payload: FeatureFlags) => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
+  payload,
 });
 
 export const fetchFeatureFlagsError = (error: any) => ({

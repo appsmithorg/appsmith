@@ -70,8 +70,6 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             label: "Mirrored",
             helpText: "Show camera preview and get the screenshot mirrored",
             controlType: "SWITCH",
-            hidden: (props: CameraWidgetProps) =>
-              props.mode === CameraModeTypes.VIDEO,
             dependencies: ["mode"],
             isJSConvertible: true,
             isBindProperty: true,
@@ -142,6 +140,192 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "mode",
+            label: "Mode",
+            controlType: "DROP_DOWN",
+            helpText: "Whether a picture is taken or a video is recorded",
+            options: [
+              {
+                label: "Image",
+                value: "CAMERA",
+              },
+              {
+                label: "Video",
+                value: "VIDEO",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CAMERA", "VIDEO"],
+              },
+            },
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables clicks to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isMirrored",
+            label: "Mirrored",
+            helpText: "Show camera preview and get the screenshot mirrored",
+            controlType: "SWITCH",
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the image is captured",
+            propertyName: "onImageCapture",
+            label: "OnImageCapture",
+            controlType: "ACTION_SELECTOR",
+            hidden: () => true,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the image is saved",
+            propertyName: "onImageSave",
+            label: "onImageCapture",
+            controlType: "ACTION_SELECTOR",
+            hidden: (props: CameraWidgetProps) =>
+              props.mode === CameraModeTypes.VIDEO,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video recording get started",
+            propertyName: "onRecordingStart",
+            label: "OnRecordingStart",
+            controlType: "ACTION_SELECTOR",
+            hidden: () => true,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video recording stops",
+            propertyName: "onRecordingStop",
+            label: "OnRecordingStop",
+            controlType: "ACTION_SELECTOR",
+            hidden: () => true,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video recording is saved",
+            propertyName: "onVideoSave",
+            label: "onVideoSave",
+            controlType: "ACTION_SELECTOR",
+            hidden: (props: CameraWidgetProps) =>
+              props.mode === CameraModeTypes.CAMERA,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Border and Shadow",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
 
@@ -160,10 +344,10 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       imageDataURL: undefined,
       imageRawBinary: undefined,
       mediaCaptureStatus: MediaCaptureStatusTypes.IMAGE_DEFAULT,
-      timer: undefined,
       videoBlobURL: undefined,
       videoDataURL: undefined,
       videoRawBinary: undefined,
+      isDirty: false,
     };
   }
 
@@ -191,6 +375,8 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
     return (
       <CameraComponent
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         disabled={isDisabled}
         height={height}
         mirrored={isMirrored}
@@ -215,6 +401,11 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
       return;
     }
+    // Set isDirty to true when an image is captured
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     const base64Data = image.split(",")[1];
     const imageBlob = base64ToBlob(base64Data, "image/webp");
     const blobURL = URL.createObjectURL(imageBlob);
@@ -251,6 +442,10 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   };
 
   handleRecordingStart = () => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     if (this.props.onRecordingStart) {
       super.executeAction({
         triggerPropertyName: "onRecordingStart",
@@ -319,6 +514,9 @@ export interface CameraWidgetProps extends WidgetProps {
   onRecordingStop?: string;
   onVideoSave?: string;
   videoBlobURL?: string;
+  borderRadius: string;
+  boxShadow: string;
+  isDirty: boolean;
 }
 
 export default CameraWidget;

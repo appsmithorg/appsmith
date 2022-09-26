@@ -1,5 +1,8 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { createReducer } from "utils/AppsmithUtils";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
 import { User } from "entities/AppCollab/CollabInterfaces";
 import { cloneDeep } from "lodash";
 

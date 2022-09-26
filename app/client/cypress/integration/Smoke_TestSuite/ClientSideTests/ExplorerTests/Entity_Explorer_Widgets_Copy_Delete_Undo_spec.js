@@ -1,9 +1,6 @@
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/formWidgetdsl.json");
 
 const pageid = "MyPage";
@@ -31,16 +28,17 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
   });
 
   it("Delete Widget from sidebar and Undo action validation", function() {
-    cy.GlobalSearchEntity("WIDGETS");
+    cy.GlobalSearchEntity("Widgets");
     cy.get(".t--entity-name")
       .contains("FormTest")
       .trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
+      expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+      expect($lis.eq(2)).to.contain("{{FormTest.hasChanges}}");
     });
     cy.get(".t--entity-name")
       .contains("FormTest")
@@ -71,9 +69,10 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
+      expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+      expect($lis.eq(2)).to.contain("{{FormTest.hasChanges}}");
     });
   });
 });

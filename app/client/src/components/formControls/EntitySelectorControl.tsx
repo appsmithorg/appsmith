@@ -1,81 +1,66 @@
 import React from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import FormLabel from "components/editorComponents/FormLabel";
-import { ControlProps } from "./BaseControl";
-import { Colors } from "constants/Colors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { ControlProps, FormConfigType } from "./BaseControl";
+import { allowedControlTypes } from "components/formControls/utils";
 
-const dropDownFieldConfig: any = {
+const dropDownFieldConfig: Partial<FormConfigType> = {
   label: "",
   controlType: "DROP_DOWN",
-  fetchOptionsCondtionally: true,
+  fetchOptionsConditionally: true,
   options: [],
+  customStyles: {
+    width: "280px",
+  },
 };
 
-const inputFieldConfig: any = {
+const inputFieldConfig: Partial<FormConfigType> = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+  customStyles: {
+    width: "280px",
+  },
 };
-
-const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
-
-// Component for the icons
-const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
-  margin: 13px;
-  align-self: end;
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
-  color: ${Colors.GREY_7};
-`;
 
 // main container for the entity selector component
 const EntitySelectorContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: min-content;
-  justify-content: space-between;
+  display: grid;
+  grid-gap: 16px;
+  grid-template-columns: repeat(auto-fill, 280px);
 `;
 
-export const StyledBottomLabel = styled(FormLabel)`
-  margin-top: 5px;
-  margin-left: 5px;
-  font-weight: 400;
-  font-size: 12px;
-  color: ${Colors.GREY_7};
-  line-height: 16px;
+const EntitySelectorWrapper = styled.div<{ marginRight: string }>`
+  margin-right: ${(props) => props.marginRight};
 `;
 
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
 
-  const maxWidthOfComponents = 45;
-  let width = 15;
-  if (schema.length > 0) {
-    width = maxWidthOfComponents / schema.length;
-  }
-  const customStyles = {
-    width: `${width}vw`,
-  };
+  const visibleSchemas = schema.filter(
+    (singleSchema: any) => !singleSchema.hidden,
+  );
 
   return (
-    <EntitySelectorContainer>
-      {schema &&
-        schema.length > 0 &&
-        schema.map(
-          (singleSchema: any, index: number) =>
-            allowedControlTypes.includes(singleSchema.controlType) && (
-              <>
+    <EntitySelectorContainer
+      className={`t--${configProperty}`}
+      key={`ES_${configProperty}`}
+    >
+      {visibleSchemas &&
+        visibleSchemas.length > 0 &&
+        visibleSchemas.map((singleSchema: any, index: number) => {
+          return (
+            allowedControlTypes.includes(singleSchema.controlType) &&
+            !singleSchema.hidden && (
+              <EntitySelectorWrapper
+                key={`ES_FRAG_${singleSchema.configProperty}`}
+                marginRight={index + 1 === visibleSchemas.length ? "" : "1rem"}
+              >
                 {singleSchema.controlType === "DROP_DOWN" ? (
                   <FormControl
                     config={{
                       ...dropDownFieldConfig,
                       ...singleSchema,
-                      customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
@@ -84,26 +69,21 @@ function EntitySelectorComponent(props: any) {
                     config={{
                       ...inputFieldConfig,
                       ...singleSchema,
-                      customStyles,
-                      configProperty: `${configProperty}.column_${index + 1}`,
-                      key: `${configProperty}.column_${index + 1}`,
+                      key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
                 )}
-                {index < schema.length - 1 && (
-                  <CenteredIcon
-                    name="double-arrow-right"
-                    size={IconSize.SMALL}
-                  />
-                )}
-              </>
-            ),
-        )}
+              </EntitySelectorWrapper>
+            )
+          );
+        })}
     </EntitySelectorContainer>
   );
 }
 
+// This is a wrapper component that just encapsulated the children dropdown and dynamic text
+// components & changes their appearance
 export default function EntitySelectorControl(
   props: EntitySelectorControlProps,
 ) {
@@ -117,7 +97,7 @@ export default function EntitySelectorControl(
     <EntitySelectorComponent
       configProperty={configProperty}
       formName={formName}
-      key={configProperty}
+      key={`ES_PARENT_${configProperty}`}
       name={configProperty}
       schema={schema}
     />

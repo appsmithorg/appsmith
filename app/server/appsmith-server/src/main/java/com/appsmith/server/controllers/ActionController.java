@@ -18,7 +18,7 @@ public class ActionController extends ActionControllerCE {
                             LayoutActionService layoutActionService,
                             NewActionService newActionService) {
 
-        super(actionCollectionService, layoutActionService, newActionService);
+        super(layoutActionService, newActionService);
 
     }
 

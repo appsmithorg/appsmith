@@ -5,12 +5,10 @@
 ## Widget docs template
 Copy paste this template 
 ```
----
-description: >-
-  Widget Description
----
 
 # WidgetName
+
+  <Add a description here>
 
 ## Image/gif of the widget on the canvas with the icon of the widget in the sidebar
 

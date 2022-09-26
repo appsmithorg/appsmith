@@ -1,17 +1,9 @@
-import Button, { Category, Size } from "components/ads/Button";
 import React, { useCallback } from "react";
-import { AppState } from "reducers";
+import { Button, Category, Size } from "design-system";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
   setGlobalSearchQuery,
@@ -20,6 +12,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
+import { integrationEditorURL } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -28,7 +22,7 @@ const StyledDiv = styled.div`
     props.theme.colors.propertyPane.ctaBackgroundColor};
   padding: ${(props) => props.theme.spaces[3]}px ${(props) =>
   props.theme.spaces[7]}px;
-  margin: ${(props) => props.theme.spaces[2]}px 0px;
+  margin: ${(props) => props.theme.spaces[2]}px 0.75rem;
 
   button:first-child {
     margin-top: ${(props) => props.theme.spaces[2]}px;
@@ -60,10 +54,8 @@ type ConnectDataCTAProps = {
 };
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
-
+  const pageId: string = useSelector(getCurrentPageId);
   const openHelpModal = useCallback(() => {
     dispatch(setGlobalSearchQuery("Connecting to Data Sources"));
     dispatch(toggleShowGlobalSearchModal());
@@ -75,12 +67,11 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationId,
+      integrationEditorURL({
         pageId,
-        INTEGRATION_TABS.NEW,
-        INTEGRATION_EDITOR_MODES.AUTO,
-      ),
+        selectedTab: INTEGRATION_TABS.NEW,
+        params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
+      }),
     );
     AnalyticsUtil.logEvent("CONNECT_DATA_CLICK", {
       widgetTitle,
@@ -111,4 +102,4 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   );
 }
 
-export default ConnectDataCTA;
+export default React.memo(ConnectDataCTA);

@@ -2,6 +2,8 @@ package com.appsmith.server.helpers;
 
 import org.junit.Test;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TextUtilsTest {
@@ -26,5 +28,25 @@ public class TextUtilsTest {
         assertThat(TextUtils.makeSlug("página de prueba")).isEqualTo("pagina-de-prueba");
         // text in chinese
         assertThat(TextUtils.makeSlug("测试页")).isEqualTo("");
+    }
+
+    private void checkFromCsv(String inputString, int expectedSize, String ... parts) {
+        Set<String> s1 = TextUtils.csvToSet(inputString);
+        assertThat(s1.size()).isEqualTo(expectedSize);
+        assertThat(s1).contains(parts);
+    }
+
+    @Test
+    public void csvToSet() {
+        checkFromCsv("a, b", 2, "a", "b");
+        checkFromCsv("a, b,", 2, "a", "b");
+        checkFromCsv("a, b, ", 2, "a", "b");
+        checkFromCsv("a, b, ,c", 3, "a", "b", "c");
+        checkFromCsv("a, b,,c", 3, "a", "b", "c");
+        checkFromCsv("a,  b,  ,c ", 3, "a", "b", "c");
+        checkFromCsv("a,b,,c ,d", 4, "a", "b", "c", "d");
+        checkFromCsv("a,b c,", 2, "a", "b c");
+        checkFromCsv("", 0);
+        checkFromCsv(null, 0);
     }
 }

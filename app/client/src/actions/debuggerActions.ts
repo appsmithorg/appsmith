@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
 import { EventName } from "utils/AnalyticsUtil";
 
@@ -20,7 +20,7 @@ export const debuggerLogInit = (payload: Log) => ({
   payload,
 });
 
-export const debuggerLog = (payload: Log) => ({
+export const debuggerLog = (payload: Log[]) => ({
   type: ReduxActionTypes.DEBUGGER_LOG,
   payload,
 });

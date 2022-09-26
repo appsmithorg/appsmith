@@ -8,12 +8,13 @@ export const CONFIG = {
   name: "Currency Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["amount", "total"],
   defaults: {
     ...BaseConfig.defaults,
     widgetName: "CurrencyInput",
     version: 1,
     allowCurrencyChange: false,
-    currencyCode: getDefaultCurrency().currency,
+    defaultCurrencyCode: getDefaultCurrency().currency,
     decimals: 0,
   },
   properties: {
@@ -21,6 +22,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

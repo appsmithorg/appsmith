@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
@@ -9,7 +9,7 @@ import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { Size, Category } from "components/ads/Button";
+import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -140,7 +140,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     const draggableComponentColumns = Object.values(reorderedColumns).map(
       (column: ColumnProperties) => {
         return {
-          label: column.label,
+          label: column.label || "",
           id: column.id,
           isVisible: column.isVisible,
           isDerived: column.isDerived,
@@ -209,14 +209,13 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     const columnProps: ColumnProperties = getDefaultColumnProperties(
       newColumnName,
       nextIndex,
-      this.props.widgetProperties.widgetName,
+      this.props.widgetProperties,
       true,
     );
     const tableStyles = getTableStyles(this.props.widgetProperties);
     const column = {
       ...columnProps,
       buttonStyle: "rgb(3, 179, 101)",
-      buttonLabelColor: "#FFFFFF",
       isDisabled: false,
       ...tableStyles,
     };

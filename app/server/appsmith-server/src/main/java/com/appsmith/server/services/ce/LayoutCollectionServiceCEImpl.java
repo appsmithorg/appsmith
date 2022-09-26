@@ -34,9 +34,9 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -112,7 +112,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     if (action.getId() == null) {
                         // Make sure that the proper values are used for the new action
                         // Scope the actions' fully qualified names by collection name
-                        action.getDatasource().setOrganizationId(collection.getOrganizationId());
+                        action.getDatasource().setWorkspaceId(collection.getWorkspaceId());
                         action.getDatasource().setPluginId(collection.getPluginId());
                         action.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
@@ -143,7 +143,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     ActionCollection actionCollection = new ActionCollection();
                     actionCollection.setApplicationId(collection.getApplicationId());
-                    actionCollection.setOrganizationId(collection.getOrganizationId());
+                    actionCollection.setWorkspaceId(collection.getWorkspaceId());
                     actionCollection.setUnpublishedCollection(collection);
                     actionCollection.setDefaultResources(collection.getDefaultResources());
                     actionCollectionService.generateAndSetPolicies(newPage, actionCollection);
@@ -354,7 +354,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     final String oldPageId = actionCollectionDTO.getPageId();
                     actionCollectionDTO.setPageId(destinationPageId);
-                    actionCollectionDTO.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
+                    DefaultResources defaultResources = new DefaultResources();
+                    defaultResources.setPageId(destinationPage.getDefaultResources().getPageId());
+                    actionCollectionDTO.setDefaultResources(defaultResources);
                     actionCollectionDTO.setName(actionCollectionMoveDTO.getName());
 
                     return actionUpdatesFlux
@@ -435,6 +437,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        final String pageId = actionCollectionDTO.getPageId();
+
         Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
                 .findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS)
                 .cache();
@@ -459,12 +463,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final Mono<Map<String, String>> newValidActionIdsMono = branchedActionCollectionMono
                 .flatMap(branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getActions())
                         .flatMap(actionDTO -> {
-                            actionDTO.setArchivedAt(null);
+                            actionDTO.setDeletedAt(null);
                             actionDTO.setPageId(branchedActionCollection.getUnpublishedCollection().getPageId());
                             actionDTO.setApplicationId(branchedActionCollection.getApplicationId());
                             if (actionDTO.getId() == null) {
                                 actionDTO.setCollectionId(branchedActionCollection.getId());
-                                actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                                actionDTO.getDatasource().setWorkspaceId(actionCollectionDTO.getWorkspaceId());
                                 actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                                 actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
@@ -496,10 +500,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .flatMap(branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getArchivedActions())
                         .flatMap(actionDTO -> {
                             actionDTO.setCollectionId(branchedActionCollection.getId());
-                            actionDTO.setArchivedAt(Instant.now());
+                            actionDTO.setDeletedAt(Instant.now());
                             actionDTO.setPageId(branchedActionCollection.getUnpublishedCollection().getPageId());
                             if (actionDTO.getId() == null) {
-                                actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                                actionDTO.getDatasource().setWorkspaceId(actionCollectionDTO.getWorkspaceId());
                                 actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                                 actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
@@ -529,6 +533,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         })
                         .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId))
                 );
+
 
         // First collect all valid action ids from before, and diff against incoming action ids
         return branchedActionCollectionMono
@@ -577,12 +582,22 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
-                .flatMap(analyticsService::sendUpdateEvent)
+                .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
-                .map(actionCollectionDTO1 -> responseUtils.updateCollectionDTOWithDefaultResources(actionCollectionDTO1));
+                .map(responseUtils::updateCollectionDTOWithDefaultResources)
+                .zipWith(newPageService.findById(pageId, MANAGE_PAGES),
+                        (branchedActionCollection, newPage) -> {
+                        //redundant check
+                    if (newPage.getUnpublishedPage().getLayouts().size() > 0 ) {
+                        // redundant check as the collection lies inside a layout. Maybe required for testcases
+                        branchedActionCollection.setErrorReports(newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActionErrors());
+                    }
+
+                    return branchedActionCollection;
+                });
     }
 
     @Override

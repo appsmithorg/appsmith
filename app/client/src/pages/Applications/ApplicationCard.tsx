@@ -1,9 +1,12 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useCallback,
+  useMemo,
+} from "react";
 import styled, { ThemeContext } from "styled-components";
-import {
-  getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
-} from "constants/routes";
 import {
   Card,
   Classes,
@@ -11,7 +14,7 @@ import {
   ICardProps,
   Position,
 } from "@blueprintjs/core";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -22,39 +25,50 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import Text, { TextType } from "components/ads/Text";
-import Button, { Category, Size, IconPositions } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
-import Menu from "components/ads/Menu";
-import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
-import AppIcon, { AppIconName } from "components/ads/AppIcon";
+import {
+  AppIcon,
+  AppIconName,
+  Button,
+  Category,
+  ColorSelector,
+  IconPositions,
+  Icon,
+  IconSelector,
+  IconSize,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  MenuItemProps,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
-import ColorSelector from "components/ads/ColorSelector";
-import MenuDivider from "components/ads/MenuDivider";
-import IconSelector from "components/ads/IconSelector";
 import { useSelector } from "react-redux";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  UpdateApplicationPayload,
+} from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
-import TooltipComponent from "components/ads/Tooltip";
-import {
-  isEllipsisActive,
-  truncateString,
-  howMuchTimeBeforeText,
-} from "utils/helpers";
+import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
+import { builderURL, viewerURL } from "RouteBuilder";
+import history from "utils/history";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -163,7 +177,11 @@ const Wrapper = styled(
       backgroundColor: string;
       isMobile?: boolean;
     },
-  ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
+  ) => (
+    <Card
+      {...omit(props, ["hasReadPermission", "backgroundColor", "isMobile"])}
+    />
+  ),
 )`
   display: flex;
   flex-direction: row-reverse;
@@ -310,6 +328,8 @@ const CircleAppIcon = styled(AppIcon)`
   border-radius: 50%;
 
   svg {
+    width: 100%;
+    height: 100%;
     path {
       fill: #000 !important;
     }
@@ -462,7 +482,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",
-        icon: "fork",
+        icon: "fork-2",
         cypressSelector: "t--fork-app",
       });
     }
@@ -523,9 +543,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     link.href = getExportAppAPIRoute(applicationId);
     link.id = id;
     document.body.appendChild(link);
-    // will fetch the file manually during cypress test run.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     if (!window.Cypress) {
       link.click();
     }
@@ -537,7 +555,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const forkApplicationInitiate = () => {
     // open fork application modal
-    // on click on an organisation, create app and take to app
+    // on click on an workspace, create app and take to app
     setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {
@@ -577,14 +595,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
-  const viewApplicationURL = getApplicationViewerPageURL({
-    applicationId: applicationId,
-    pageId: props.application.defaultPageId,
-  });
-  const editApplicationURL = BUILDER_PAGE_URL({
-    applicationId: applicationId,
-    pageId: props.application.defaultPageId,
-  });
+  // should show correct branch of application when edit mode
+  const params: any = {};
+  if (showGitBadge) {
+    params.branch = showGitBadge;
+  }
 
   const appNameText = (
     <Text cypressSelector="t--app-card-name" type={TextType.H3}>
@@ -595,6 +610,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
+        autoFocus={false}
         className="more"
         onClosing={() => {
           setIsMenuOpen(false);
@@ -713,14 +729,77 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
-  const LaunchAppInMobile = () => {
-    window.location.href = viewApplicationURL;
-  };
+  function setURLParams() {
+    const page:
+      | ApplicationPagePayload
+      | undefined = props.application.pages.find(
+      (page) => page.id === props.application.defaultPageId,
+    );
+    if (!page) return;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: props.application.slug,
+        applicationVersion: props.application.applicationVersion,
+        applicationId: props.application.id,
+      },
+      props.application.pages.map((page) => ({
+        pageSlug: page.slug,
+        customSlug: page.customSlug,
+        pageId: page.id,
+      })),
+    );
+  }
+
+  const editModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return builderURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
+  const viewModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return viewerURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
+  const launchApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        viewerURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
+
+  const editApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        builderURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
 
   return (
     <Container
       isMobile={props.isMobile}
-      onClick={props.isMobile ? LaunchAppInMobile : noop}
+      onClick={props.isMobile ? launchApp : noop}
     >
       <NameWrapper
         className="t--application-card"
@@ -753,16 +832,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             isFetching={isFetchingApplications}
             ref={appNameWrapperRef}
           >
-            {isEllipsisActive(appNameWrapperRef?.current) ? (
-              <TooltipComponent
-                content={props.application.name}
-                maxWidth="400px"
-              >
-                {appNameText}
-              </TooltipComponent>
-            ) : (
-              appNameText
-            )}
+            {appNameText}
           </AppNameWrapper>
           {showOverlay && !props.isMobile && (
             <div className="overlay">
@@ -773,9 +843,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
-                      href={editApplicationURL}
+                      href={editModeURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
+                      onClick={editApp}
                       size={Size.medium}
                       text="Edit"
                     />
@@ -785,9 +856,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
-                      href={viewApplicationURL}
+                      href={viewModeURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
+                      onClick={launchApp}
                       size={Size.medium}
                       text="Launch"
                     />

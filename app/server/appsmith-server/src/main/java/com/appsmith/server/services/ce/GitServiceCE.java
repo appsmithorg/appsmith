@@ -4,18 +4,19 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.GitImportDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,8 @@ public interface GitServiceCE {
     Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO, String origin);
 
     Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata);
+
+    Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend);
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName);
 
@@ -59,10 +62,19 @@ public interface GitServiceCE {
 
     Mono<String> createConflictedBranch(String defaultApplicationId, String branchName);
 
-    Mono<GitImportDTO> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO);
+    Mono<ApplicationImportDTO> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO);
 
-    Mono<GitAuth> generateSSHKey();
+    Mono<GitAuth> generateSSHKey(String keyType);
 
     Mono<Boolean> testConnection(String defaultApplicationId);
 
+    Mono<Application> deleteBranch(String defaultApplicationId, String branchName);
+
+    Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull);
+
+    Mono<List<GitDocsDTO>> getGitDocUrls();
+
+    Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId);
+
+    Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
 }

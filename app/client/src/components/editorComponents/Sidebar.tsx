@@ -7,44 +7,31 @@ import React, {
   useMemo,
 } from "react";
 import classNames from "classnames";
-import history from "utils/history";
 import * as Sentry from "@sentry/react";
-import { PanelStack } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { AppState } from "reducers";
-import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
-import Switcher from "components/ads/Switcher";
-import { trimQueryString } from "utils/helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import AppComments from "comments/AppComments/AppComments";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
   getExplorerActive,
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 import Pages from "pages/Editor/Explorer/Pages";
-import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 type Props = {
   width: number;
@@ -56,15 +43,10 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   let tooltipTimeout: number;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
-  const pageId = useSelector(getCurrentPageId);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
-  const applicationId = useSelector(getCurrentApplicationId);
   const enableFirstTimeUserOnboarding = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
   const resizer = useHorizontalResize(
@@ -72,42 +54,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     props.onWidthChange,
     props.onDragEnd,
   );
-  const switches = [
-    {
-      id: "explorer",
-      text: "Explorer",
-      action: () => dispatch(forceOpenWidgetPanel(false)),
-    },
-    {
-      id: "widgets",
-      text: "Widgets",
-      action: () => {
-        !(
-          trimQueryString(
-            BUILDER_PAGE_URL({
-              applicationId,
-              pageId,
-            }),
-          ) === window.location.pathname
-        ) &&
-          history.push(
-            BUILDER_PAGE_URL({
-              applicationId,
-              pageId,
-            }),
-          );
-        setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
-        if (isFirstTimeUserOnboardingEnabled) {
-          dispatch(toggleInOnboardingWidgetSelection(true));
-        }
-      },
-    },
-  ];
-  const [activeSwitch, setActiveSwitch] = useState(switches[0]);
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
-  const isForceOpenWidgetPanel = useSelector(
-    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
-  );
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
@@ -115,14 +62,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
-
-  useEffect(() => {
-    if (isForceOpenWidgetPanel) {
-      setActiveSwitch(switches[1]);
-    } else {
-      setActiveSwitch(switches[0]);
-    }
-  }, [isForceOpenWidgetPanel]);
 
   // registering event listeners
   useEffect(() => {
@@ -208,16 +147,17 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full  duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
-        "relative ": pinned && !isPreviewMode,
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        relative: pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
+      id={SIDEBAR_ID}
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 overflow-y-auto bg-white t--sidebar min-w-48 max-w-96 group"
+        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
@@ -227,20 +167,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <Pages />
         {/* Popover that contains the bindings info */}
         <EntityProperties />
-        {/* SWITCHER */}
-        <div
-          className={`px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}
-        >
-          <Switcher activeObj={activeSwitch} switches={switches} />
-        </div>
-        <PanelStack
-          className="flex-grow"
-          initialPanel={{
-            component: Explorer,
-          }}
-          showPanelHeader={false}
-        />
-        <AppComments />
+        {/* Contains entity explorer & widgets library along with a switcher*/}
+        <Explorer />
       </div>
       {/* RESIZER */}
       <div

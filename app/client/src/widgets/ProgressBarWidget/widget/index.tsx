@@ -45,7 +45,6 @@ class ProgressBarWidget extends BaseWidget<
             placeholderText: "Enter progress value",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             defaultValue: 50,
             validation: {
               type: ValidationTypes.NUMBER,
@@ -60,7 +59,6 @@ class ProgressBarWidget extends BaseWidget<
             placeholderText: "Enter number of steps",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
               params: { min: 1, max: 100, default: 1, natural: true },
@@ -111,6 +109,19 @@ class ProgressBarWidget extends BaseWidget<
               },
             },
           },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isBindProperty: true,
+            isJSConvertible: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
         ],
       },
     ];
@@ -132,6 +143,7 @@ class ProgressBarWidget extends BaseWidget<
     return (
       <ProgressBarComponent
         barType={this.props.barType}
+        borderRadius={this.props.borderRadius}
         fillColor={this.props.fillColor}
         progress={this.props.progress}
         showResult={this.props.showResult}
@@ -151,6 +163,7 @@ export interface ProgressBarWidgetProps extends WidgetProps {
   fillColor: string;
   barType: BarType;
   steps: number;
+  borderRadius?: string;
 }
 
 export default ProgressBarWidget;

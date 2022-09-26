@@ -1,5 +1,8 @@
-import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { TourType } from "entities/Tour";
 
 const initialState: TourReducerState = {

@@ -3,8 +3,18 @@ import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
-import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
+
+declare global {
+  interface Window {
+    // Zipy is added via script tags in index.html
+    zipy: {
+      identify: (uid: string, userInfo: Record<string, string>) => void;
+      anonymize: () => void;
+    };
+  }
+}
 
 export type EventLocation =
   | "LIGHTNING_MENU"
@@ -12,9 +22,18 @@ export type EventLocation =
   | "QUERY_PANE"
   | "QUERY_TEMPLATE"
   | "QUICK_COMMANDS"
-  | "OMNIBAR";
+  | "OMNIBAR"
+  | "SUBMENU"
+  | "ACTION_SELECTOR"
+  | "ENTITY_EXPLORER"
+  | "KEYBOARD_SHORTCUT"
+  | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
+  | "JS_OBJECT_MAIN_RUN_BUTTON"
+  | "JS_OBJECT_RESPONSE_RUN_BUTTON";
 
 export type EventName =
+  | "APP_CRASH"
+  | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
   | "PAGE_VIEW"
@@ -72,6 +91,7 @@ export type EventName =
   | "CREATE_DATA_SOURCE_CLICK"
   | "SAVE_DATA_SOURCE"
   | "SAVE_DATA_SOURCE_CLICK"
+  | "CONSOLE_LOG_CREATED"
   | "TEST_DATA_SOURCE_SUCCESS"
   | "TEST_DATA_SOURCE_CLICK"
   | "CREATE_QUERY_CLICK"
@@ -81,7 +101,6 @@ export type EventName =
   | "PROPERTY_PANE_OPEN"
   | "PROPERTY_PANE_CLOSE"
   | "PROPERTY_PANE_OPEN_CLICK"
-  | "PROPERTY_PANE_CLOSE_CLICK"
   | "WIDGET_DELETE_UNDO"
   | "WIDGET_COPY_VIA_SHORTCUT"
   | "WIDGET_COPY"
@@ -105,11 +124,13 @@ export type EventName =
   | "CORRECT_BAD_BINDING"
   | "OPEN_DEBUGGER"
   | "DEBUGGER_TAB_SWITCH"
+  | "DEBUGGER_FILTER_CHANGED"
   | "DEBUGGER_ENTITY_NAVIGATION"
   | "GSHEET_AUTH_INIT"
   | "GSHEET_AUTH_COMPLETE"
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
+  | "INTERCOM_CLICK"
   | "BINDING_SUCCESS"
   | "APP_MENU_OPTION_CLICK"
   | "SLASH_COMMAND"
@@ -119,13 +140,11 @@ export type EventName =
   | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
   | "DEBUGGER_CONTEXT_MENU_CLICK"
   | "ADD_MOCK_DATASOURCE_CLICK"
-  | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
   | "GEN_CRUD_PAGE_FORM_SUBMIT"
   | "GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG"
   | "GEN_CRUD_PAGE_SELECT_DATASOURCE"
   | "GEN_CRUD_PAGE_SELECT_TABLE"
-  | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
   | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
   | "BUILD_FROM_SCRATCH_ACTION_CARD_CLICK"
   | "GEN_CRUD_PAGE_ACTION_CARD_CLICK"
@@ -146,7 +165,6 @@ export type EventName =
   | "PAGES_LIST_LOAD"
   | "WIDGET_GROUP"
   | "CLOSE_GEN_PAGE_INFO_MODAL"
-  | "PAGES_LIST_LOAD"
   | "COMMENTS_TOGGLE_MODE"
   | "COMMENTS_ONBOARDING_SKIP_BUTTON_CLICK"
   | "COMMENTS_ONBOARDING_STEP_CHANGE"
@@ -155,6 +173,7 @@ export type EventName =
   | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
   | "REPLAY_UNDO"
   | "REPLAY_REDO"
+  | "URL_COPIED"
   | "SNIPPET_CUSTOMIZE"
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"
@@ -168,6 +187,10 @@ export type EventName =
   | "SIGNPOSTING_PUBLISH_CLICK"
   | "SIGNPOSTING_BUILD_APP_CLICK"
   | "SIGNPOSTING_WELCOME_TOUR_CLICK"
+  | "GS_BRANCH_MORE_MENU_OPEN"
+  | "GIT_DISCARD_WARNING"
+  | "GIT_DISCARD_CANCEL"
+  | "GIT_DISCARD"
   | "GS_OPEN_BRANCH_LIST_POPUP"
   | "GS_CREATE_NEW_BRANCH"
   | "GS_SYNC_BRANCHES"
@@ -190,11 +213,20 @@ export type EventName =
   | "GS_DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
   | "GS_DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
   | "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
-  | "GS_IMPORT_VIA_GIT_CLICK"
+  | "GS_IMPORT_VIA_GIT_CARD_CLICK"
   | "GS_CONTACT_SALES_CLICK"
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
+  | "GS_SWITCH_BRANCH"
+  | "ADMIN_SETTINGS_RESET"
+  | "ADMIN_SETTINGS_SAVE"
+  | "ADMIN_SETTINGS_ERROR"
+  | "ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD"
+  | "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD"
+  | "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
+  | "ADMIN_SETTINGS_ENABLE_AUTH_METHOD"
   | "REFLOW_BETA_FLAG"
+  | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
   | "REPO_URL_EDIT"
   | "GENERATE_KEY_BUTTON_CLICK"
@@ -204,7 +236,32 @@ export type EventName =
   | "DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
   | "DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
   | "CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
-  | "DATASOURCE_AUTH_COMPLETE";
+  | "DATASOURCE_AUTH_COMPLETE"
+  | "APP_THEMING_CHOOSE_THEME"
+  | "APP_THEMING_APPLY_THEME"
+  | "APP_THEMING_CUSTOMIZE_THEME"
+  | "APP_THEMING_SAVE_THEME_START"
+  | "APP_THEMING_SAVE_THEME_SUCCESS"
+  | "APP_THEMING_DELETE_THEME"
+  | "RECONNECTING_DATASOURCE_ITEM_CLICK"
+  | "ADD_MISSING_DATASOURCE_LINK_CLICK"
+  | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK"
+  | "TEMPLATE_FILTER_SELECTED"
+  | "MANUAL_UPGRADE_CLICK"
+  | "PAGE_NOT_FOUND"
+  | "SIMILAR_TEMPLATE_CLICK"
+  | "PROPERTY_PANE_KEYPRESS"
+  | "PAGE_NAME_CLICK"
+  | "BACK_BUTTON_CLICK"
+  | "WIDGET_TAB_CLICK"
+  | "ENTITY_EXPLORER_CLICK"
+  | "ADMIN_SETTINGS_UPGRADE_WATERMARK"
+  | "ADMIN_SETTINGS_UPGRADE"
+  | "PRETTIFY_CODE_MANUAL_TRIGGER"
+  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT"
+  | "JS_OBJECT_CREATED"
+  | "JS_OBJECT_FUNCTION_ADDED"
+  | "JS_OBJECT_FUNCTION_RUN";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -372,6 +429,14 @@ class AnalyticsUtil {
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
+
+    // If zipy was included, identify this user on the platform
+    if (window.zipy && userId) {
+      window.zipy.identify(userId, {
+        email: userData.email,
+        username: userData.username,
+      });
+    }
   }
 
   static reset() {
@@ -381,6 +446,7 @@ class AnalyticsUtil {
     }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
+    window.zipy && window.zipy.anonymize();
   }
 }
 

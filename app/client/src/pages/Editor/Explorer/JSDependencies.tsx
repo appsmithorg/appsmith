@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import TooltipComponent from "components/ads/Tooltip";
+import { AppIcon as Icon, Size, TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
-import { BindingText } from "pages/Editor/APIEditor/Form";
+import { BindingText } from "pages/Editor/APIEditor/CommonEditorForm";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import CollapseToggle from "./Entity/CollapseToggle";
 import Collapse from "./Entity/Collapse";
-import Icon from "components/ads/AppIcon";
-import { Size } from "components/ads/Button";
 
 const Wrapper = styled.div`
   font-size: 14px;
@@ -50,10 +48,11 @@ const Title = styled.div`
   display: grid;
   grid-template-columns: 20px auto 20px;
   cursor: pointer;
-  height: 36px;
+  height: 32px;
   align-items: center;
   padding-right: 4px;
   padding-left: 0.25rem;
+  font-size: 14px;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
   }
@@ -61,6 +60,9 @@ const Title = styled.div`
     svg {
       position: relative;
     }
+  }
+  span {
+    color: ${Colors.GREY_800};
   }
 `;
 
@@ -111,7 +113,7 @@ function JSDependencies() {
           isVisible={!!dependencyList}
           onClick={toggleDependencies}
         />
-        <span className="text-gray-900 ml-1 font-medium">DEPENDENCIES</span>
+        <span className="ml-1 font-medium">Dependencies</span>
         <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
           <Icon
             className="t--help-icon"

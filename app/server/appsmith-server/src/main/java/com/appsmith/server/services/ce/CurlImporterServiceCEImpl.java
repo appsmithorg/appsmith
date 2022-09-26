@@ -16,7 +16,6 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -51,6 +51,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private static final String ARG_COOKIE = "--cookie";
     private static final String ARG_USER = "--user";
     private static final String ARG_USER_AGENT = "--user-agent";
+    private static final String API_CONTENT_TYPE_KEY = "apiContentType";
 
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
@@ -73,7 +74,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action;
 
         try {
@@ -103,7 +104,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
-                    datasource.setOrganizationId(orgId);
+                    datasource.setWorkspaceId(workspaceId);
                     // Set git related resource IDs
                     action1.setDefaultResources(newPage.getDefaultResources());
                     action1.setPageId(newPage.getId());
@@ -151,9 +152,16 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         final StringBuilder currentToken = new StringBuilder();
         Character quote = null;
         boolean isEscaped = false;
+        boolean isDollarSubshellPossible = false;
 
         for (int i = 0; i < textLength; ++i) {
             char currentChar = trimmedText.charAt(i);
+
+            if (isDollarSubshellPossible) {
+                if (currentChar == '(') {
+                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
+                }
+            }
 
             if (quote != null) {
                 // We are inside quotes.
@@ -161,6 +169,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 if (isEscaped) {
                     currentToken.append(currentChar);
                     isEscaped = false;
+
+                } else if (currentChar == '$' && quote != '\'') {
+                    isDollarSubshellPossible = true;
+
+                } else if (currentChar == '`' && quote != '\'') {
+                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
 
                 } else if (currentChar == '\\' && quote != '\'') {
                     isEscaped = true;
@@ -182,6 +196,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                         currentToken.append(currentChar);
                     }
                     isEscaped = false;
+
+                } else if (currentChar == '$') {
+                    isDollarSubshellPossible = true;
+
+                } else if (currentChar == '`') {
+                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
 
                 } else if (currentChar == '\\') {
                     // This is a backslash that will escape the next character.
@@ -329,8 +349,14 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 }
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
+                    // part[0] is already set to content-type, however, it might not have consistent casing. hence resetting it to a HTTP standard.
+                    parts[0] = HttpHeaders.CONTENT_TYPE;
+                    //Setting the apiContentType to the content-type detected in the header with the key word content-type.
+                    // required for RestAPI calls with GET method having body.
+                    actionConfiguration.setFormData(Map.of(API_CONTENT_TYPE_KEY, contentType));
                 }
                 headers.add(new Property(parts[0], parts[1]));
+
 
             } else if (ARG_DATA.equals(state)) {
                 // The `token` is next to `--data`.
@@ -376,7 +402,6 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 } catch (MalformedURLException | URISyntaxException e) {
                     // Ignore this argument. May be there's a valid URL later down the arguments list.
                 }
-
             }
 
             if (isStateProcessed) {
@@ -389,6 +414,9 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             contentType = guessTheContentType(dataParts, formParts);
             if (contentType != null) {
                 headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
+                // Setting the apiContentType to the content type detected by guessing the elements from  -f/ --form flag or -d/ --data flag
+                // required for RestAPI calls with GET method having body.
+                actionConfiguration.setFormData(Map.of(API_CONTENT_TYPE_KEY, contentType));
             }
         }
 

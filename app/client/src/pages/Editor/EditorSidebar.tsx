@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { APIEditorRouteParams } from "constants/routes";
 import { Spinner, IIconProps } from "@blueprintjs/core";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
@@ -16,7 +16,7 @@ import {
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
-import { PageListPayload } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -176,7 +176,7 @@ const StyledAddButton = styled(Button)<IIconProps>`
 `;
 
 interface ReduxStateProps {
-  pages: PageListPayload;
+  pages: Page[];
 }
 
 type Item = { id: string; name: string; pageId: string };

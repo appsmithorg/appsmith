@@ -1,6 +1,7 @@
 import React from "react";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
+import { EventName } from "utils/AnalyticsUtil";
 
 export enum SettingTypes {
   TEXTINPUT = "TEXTINPUT",
@@ -10,6 +11,11 @@ export enum SettingTypes {
   GROUP = "GROUP",
   TEXT = "TEXT",
   PAGE = "PAGE",
+  UNEDITABLEFIELD = "UNEDITABLEFIELD",
+  ACCORDION = "ACCORDION",
+  TAGINPUT = "TAGINPUT",
+  DROPDOWN = "DROPDOWN",
+  CHECKBOX = "CHECKBOX",
 }
 
 export enum SettingSubtype {
@@ -34,6 +40,7 @@ export interface Setting {
   subCategory?: string;
   value?: string;
   text?: string;
+  textSuffix?: React.ReactElement;
   action?: (
     dispatch: Dispatch<ReduxAction<any>>,
     settings?: Record<string, any>,
@@ -44,12 +51,22 @@ export interface Setting {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
+  calloutType?: "Info" | "Warning" | "Notify";
+  advanced?: Setting[];
+  isRequired?: boolean;
+  formName?: string;
+  fieldName?: string;
+  dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
+  needsUpgrade?: boolean;
+  upgradeLogEventName?: EventName;
+  upgradeIntercomMessage?: string;
 }
 
 export interface Category {
   title: string;
   slug: string;
   subText?: string;
+  isConnected?: boolean;
   children?: Category[];
 }
 
@@ -65,6 +82,12 @@ export const SettingCategories = {
   GITHUB_AUTH: "github-auth",
 };
 
+export const SettingSubCategories = {
+  GOOGLE: "google signup",
+  GITHUB: "github signup",
+  FORMLOGIN: "form login",
+};
+
 export type AdminConfigType = {
   type: string;
   controlType: SettingTypes;
@@ -74,4 +97,5 @@ export type AdminConfigType = {
   component?: React.ElementType;
   children?: AdminConfigType[];
   canSave: boolean;
+  isConnected?: boolean;
 };

@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -18,17 +16,23 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../../Explorer/helpers";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  DATA_SOURCES_EDITOR_ID_URL,
-} from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
-import { convertToQueryParams } from "constants/routes";
-import { IconName, IconSize } from "components/ads/Icon";
+import { getQueryStringfromObject } from "RouteBuilder";
+import {
+  Button,
+  Category,
+  Dropdown,
+  DropdownOption,
+  IconName,
+  IconSize,
+  RenderDropdownOptionType,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -44,7 +48,7 @@ import {
   useS3BucketList,
 } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers/index";
+import { AppState } from "@appsmith/reducers";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,
@@ -54,17 +58,17 @@ import {
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
-import Tooltip from "components/ads/Tooltip";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import Icon from "components/ads/Icon";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { Icon } from "design-system";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
+import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 
 //  ---------- Styles ----------
 
@@ -468,7 +472,7 @@ function GeneratePageForm() {
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =
-          window.location.pathname + convertToQueryParams(queryParams);
+          window.location.pathname + getQueryStringfromObject(queryParams);
         history.replace(redirectURL);
       }
     }
@@ -477,13 +481,11 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationId,
-        currentPageId,
-        INTEGRATION_TABS.NEW,
-        "",
-        { isGeneratePageMode: "generate-page" },
-      ),
+      integrationEditorURL({
+        pageId: currentPageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+        params: { isGeneratePageMode: "generate-page" },
+      }),
     );
   };
 
@@ -538,12 +540,11 @@ function GeneratePageForm() {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG", {
       datasourceId: selectedDatasource.id,
     });
-    const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
-      currentPageId,
-      selectedDatasource.id,
-      { isGeneratePageMode: "generate-page" },
-    );
+    const redirectURL = datasourcesEditorIdURL({
+      pageId: currentPageId,
+      datasourceId: selectedDatasource.id as string,
+      params: { isGeneratePageMode: "generate-page" },
+    });
     history.push(redirectURL);
   };
 
@@ -620,7 +621,11 @@ function GeneratePageForm() {
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             options={dataSourceOptions}
-            renderOption={({ isSelectedNode, option, optionClickHandler }) => (
+            renderOption={({
+              isSelectedNode,
+              option,
+              optionClickHandler,
+            }: RenderDropdownOptionType) => (
               <DataSourceOption
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}

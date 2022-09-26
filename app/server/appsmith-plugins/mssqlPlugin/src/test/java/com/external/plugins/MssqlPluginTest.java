@@ -8,14 +8,14 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.extern.slf4j.Slf4j;
+import com.zaxxer.hikari.HikariDataSource;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -51,7 +51,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit tests for the PostgresPlugin
  */
-@Slf4j
 public class MssqlPluginTest {
 
     MssqlPlugin.MssqlPluginExecutor pluginExecutor = new MssqlPlugin.MssqlPluginExecutor();
@@ -153,7 +152,7 @@ public class MssqlPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(Assert::assertNotNull)
@@ -163,7 +162,7 @@ public class MssqlPluginTest {
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
@@ -190,7 +189,7 @@ public class MssqlPluginTest {
     @Test
     public void testExecute() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
@@ -247,7 +246,7 @@ public class MssqlPluginTest {
         auth.setUsername(new ObjectId().toString());
         auth.setPassword(new ObjectId().toString());
 
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithPluginException)
@@ -274,7 +273,7 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
@@ -338,7 +337,7 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
@@ -412,7 +411,7 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
@@ -473,7 +472,7 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
@@ -524,14 +523,13 @@ public class MssqlPluginTest {
         params.add(param);
         executeActionDTO.setParams(params);
 
-        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    System.out.printf("result : " + result);
                     assertTrue(result.getIsExecutionSuccess());
                 })
                 .verifyComplete();
@@ -555,7 +553,7 @@ public class MssqlPluginTest {
     @Test
     public void testDuplicateColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id, username as id, password, email as password FROM users WHERE id = 1");
@@ -607,7 +605,7 @@ public class MssqlPluginTest {
         List<Param> params = new ArrayList<>();
         executeActionDTO.setParams(params);
 
-        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));

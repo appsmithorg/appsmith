@@ -19,6 +19,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
+@Deprecated
 public class Organization extends BaseDomain {
 
     private String domain;
@@ -30,7 +31,7 @@ public class Organization extends BaseDomain {
 
     private String email;
 
-    private Set<OrganizationPlugin> plugins;
+    private Set<WorkspacePlugin> plugins;
 
     private String slug;
 
@@ -41,14 +42,6 @@ public class Organization extends BaseDomain {
 
     @JsonIgnore
     private String logoAssetId;
-
-    public String makeSlug() {
-        return toSlug(name);
-    }
-
-    public static String toSlug(String text) {
-        return text == null ? null : text.replaceAll("[^\\w\\d]+", "-").toLowerCase();
-    }
 
     public String getLogoUrl() {
         return Url.ASSET_URL + "/" + logoAssetId;

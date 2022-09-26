@@ -1,3 +1,8 @@
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
+import { Colors } from "constants/Colors";
 import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
@@ -26,6 +31,22 @@ export const migrateResizableModalWidgetProperties = (
       delete child.size;
     } else if (child.children && child.children.length > 0) {
       child = migrateResizableModalWidgetProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateModalIconButtonWidget = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "ICON_WIDGET") {
+      child.type = "ICON_BUTTON_WIDGET";
+      child.buttonColor = Colors.OXFORD_BLUE;
+      child.buttonVariant = ButtonVariantTypes.TERTIARY;
+      child.borderRadius = ButtonBorderRadiusTypes.SHARP;
+      child.color = undefined;
+    } else if (child.children && child.children.length > 0) {
+      child = migrateModalIconButtonWidget(child);
     }
     return child;
   });

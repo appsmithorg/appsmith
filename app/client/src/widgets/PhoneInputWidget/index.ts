@@ -8,11 +8,12 @@ export const CONFIG = {
   name: "Phone Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["call"],
   defaults: {
     ...BaseConfig.defaults,
     widgetName: "PhoneInput",
     version: 1,
-    dialCode: getDefaultISDCode().dial_code,
+    defaultDialCode: getDefaultISDCode().dial_code,
     allowDialCodeChange: false,
     allowFormatting: true,
   },
@@ -21,6 +22,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

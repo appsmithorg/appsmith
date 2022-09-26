@@ -18,27 +18,32 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -55,6 +60,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -66,6 +73,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -74,23 +82,37 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -108,7 +130,7 @@ public class ApplicationServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     DatasourceService datasourceService;
@@ -155,13 +177,28 @@ public class ApplicationServiceTest {
     @Autowired
     ThemeService themeService;
 
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
     @MockBean
     ReleaseNotesService releaseNotesService;
 
     @MockBean
     PluginExecutor pluginExecutor;
 
-    String orgId;
+    @Autowired
+    ReactiveMongoOperations mongoOperations;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
+    String workspaceId;
 
     static Plugin testPlugin = new Plugin();
 
@@ -172,13 +209,32 @@ public class ApplicationServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
+
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (!currentUser.getEmail().equals("api_user")) {
+            // Don't do any setups
+            return;
+        }
+
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
-        if (StringUtils.isEmpty(gitConnectedApp.getId())) {
-            gitConnectedApp.setOrganizationId(orgId);
+
+        Workspace toCreate = new Workspace();
+        toCreate.setName("ApplicationServiceTest");
+
+        if (workspaceId == null) {
+            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            workspaceId = workspace.getId();
+
+            if (StringUtils.hasLength(gitConnectedApp.getId())) {
+                applicationPageService.deleteApplication(gitConnectedApp.getId()).block();
+            }
+
+            gitConnectedApp = new Application();
+            gitConnectedApp.setWorkspaceId(workspaceId);
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("testBranch");
+            gitData.setDefaultBranchName("testBranch");
             gitData.setRepoName("testRepo");
             gitData.setRemoteUrl("git@test.com:user/testRepo.git");
             gitData.setRepoName("testRepo");
@@ -192,10 +248,10 @@ public class ApplicationServiceTest {
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
-            testPlugin = pluginService.findByName("Installed Plugin Name").block();
+            testPlugin = pluginService.findByPackageName("restapi-plugin").block();
 
             Datasource datasource = new Datasource();
             datasource.setName("Clone App with action Test");
@@ -203,9 +259,18 @@ public class ApplicationServiceTest {
             DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
             datasourceConfiguration.setUrl("http://test.com");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
-            datasource.setOrganizationId(orgId);
+            datasource.setWorkspaceId(workspaceId);
             testDatasource = datasourceService.create(datasource).block();
         }
+    }
+
+    private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
+        Query query = new Query(where("id").is(id));
+
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.applicationId)).exists(true))
+                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt)).exists(true));
+
+        return mongoOperations.findOne(query, domainClass);
     }
 
     @Test
@@ -213,7 +278,7 @@ public class ApplicationServiceTest {
     public void createApplicationWithNullName() {
         Application application = new Application();
         Mono<Application> applicationMono = Mono.just(application)
-                .flatMap(app -> applicationPageService.createApplication(app, orgId));
+                .flatMap(app -> applicationPageService.createApplication(app, workspaceId));
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -226,17 +291,19 @@ public class ApplicationServiceTest {
     public void createValidApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId);
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         StepVerifier
-                .create(applicationMono.zipWith(themeService.getDefaultThemeId()))
+                .create(Mono.zip(applicationMono, themeService.getDefaultThemeId(), defaultPermissionGroupsMono))
                 .assertNext(tuple2 -> {
                     Application application = tuple2.getT1();
                     String defaultThemeId = tuple2.getT2();
@@ -246,14 +313,49 @@ public class ApplicationServiceTest {
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
                     assertThat(application.getPolicies()).isNotEmpty();
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getOrganizationId()).isEqualTo(orgId);
+                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
+                    assertThat(application.getApplicationVersion()).isEqualTo(ApplicationVersion.LATEST_VERSION);
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
+
+                    List<PermissionGroup> permissionGroups = tuple2.getT3();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+                    Policy publishAppPolicy = Policy.builder().permission(PUBLISH_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy exportAppPolicy = Policy.builder().permission(EXPORT_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId()))
+                            .build();
+                    Policy deleteApplicationsPolicy = Policy.builder().permission(AclPermission.DELETE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy createPagesPolicy = Policy.builder().permission(AclPermission.APPLICATION_CREATE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy, publishAppPolicy,
+                            exportAppPolicy, deleteApplicationsPolicy, createPagesPolicy));
                 })
                 .verifyComplete();
     }
@@ -264,7 +366,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
         Flux<PageDTO> pagesFlux = applicationPageService
-                .createApplication(testApplication, orgId)
+                .createApplication(testApplication, workspaceId)
                 // Fetch the unpublished pages by applicationId
                 .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
 
@@ -282,7 +384,8 @@ public class ApplicationServiceTest {
                     assertThat(page.getName()).isEqualTo(FieldName.DEFAULT_PAGE_NAME);
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getPolicies()).isNotEmpty();
-                    assertThat(page.getPolicies().containsAll(Set.of(managePagePolicy, readPagePolicy)));
+                    assertThat(page.getPolicies().stream().map(Policy::getPermission).collect(Collectors.toSet()))
+                            .containsExactlyInAnyOrder(MANAGE_PAGES.getValue(), READ_PAGES.getValue(), PAGE_CREATE_PAGE_ACTIONS.getValue(), DELETE_PAGES.getValue());
                 })
                 .verifyComplete();
     }
@@ -314,7 +417,7 @@ public class ApplicationServiceTest {
     public void validGetApplicationById() {
         Application application = new Application();
         application.setName("validGetApplicationById-Test");
-        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
         Mono<Application> getApplication = createApplication.flatMap(t -> applicationService.getById(t.getId()));
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
@@ -334,7 +437,7 @@ public class ApplicationServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.set(FieldName.NAME, application.getName());
 
-        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
 
         Flux<Application> getApplication = createApplication.flatMapMany(t -> applicationService.get(params));
         StepVerifier.create(getApplication)
@@ -401,16 +504,39 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validGetApplications-Test");
 
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                 .build();
-        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+
+        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
         List<Application> applicationList = createApplication
                 .flatMapMany(t -> applicationService.get(new LinkedMultiValueMap<>()))
                 .collectList()
                 .block();
 
-        assertThat(applicationList.size() > 0);
+        assertThat(applicationList).isNotEmpty();
         applicationList
                 .stream()
                 .filter(t -> t.getName().equals("validGetApplications-Test"))
@@ -431,7 +557,7 @@ public class ApplicationServiceTest {
 
         Mono<Application> createApplication =
                 applicationPageService
-                        .createApplication(application, orgId);
+                        .createApplication(application, workspaceId);
         Mono<Application> updateApplication = createApplication
                 .map(t -> {
                     t.setName("NewValidUpdateApplication-Test");
@@ -460,8 +586,8 @@ public class ApplicationServiceTest {
         testApp2.setName("validApplication2");
 
         Mono<List<Application>> createMultipleApplications = Mono.zip(
-            applicationPageService.createApplication(testApp1, orgId),
-            applicationPageService.createApplication(testApp2, orgId))
+            applicationPageService.createApplication(testApp1, workspaceId),
+            applicationPageService.createApplication(testApp2, workspaceId))
             .map(tuple -> List.of(tuple.getT1(), tuple.getT2()));
 
             Mono<Application> updateInvalidApplication = createMultipleApplications
@@ -510,12 +636,12 @@ public class ApplicationServiceTest {
         secondApp.setName("Ghost app");
 
         Mono<Application> firstAppDeletion = applicationPageService
-                .createApplication(firstApp, orgId)
+                .createApplication(firstApp, workspaceId)
                 .flatMap(app -> applicationService.archive(app))
                 .cache();
 
         Mono<Application> secondAppCreation = firstAppDeletion.then(
-                applicationPageService.createApplication(secondApp, orgId));
+                applicationPageService.createApplication(secondApp, workspaceId));
 
         StepVerifier
                 .create(Mono.zip(firstAppDeletion, secondAppCreation))
@@ -543,19 +669,17 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplicationsDTOs.size()).isPositive();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getWorkspaceApplications();
+                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
-                    for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
-                        if (organizationApplicationDTO.getOrganization().getName().equals("Spring Test Organization")) {
-                            assertThat(organizationApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
+                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
+                        if (workspaceApplicationDTO.getWorkspace().getName().equals("Spring Test Workspace")) {
+                            assertThat(workspaceApplicationDTO.getWorkspace().getUserPermissions()).contains("read:workspaces");
 
-                            Application application = organizationApplicationDTO.getApplications().get(0);
+                            Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
-
-                            assertThat(organizationApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
-                            log.debug(organizationApplicationDTO.getUserRoles().toString());
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName()).startsWith(FieldName.ADMINISTRATOR);
                         }
                     }
 
@@ -577,12 +701,12 @@ public class ApplicationServiceTest {
         AppsmithBeanUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
         childBranchGitData.setBranchName("childBranch");
         branchedApplication.setGitApplicationMetadata(childBranchGitData);
-        branchedApplication.setOrganizationId(orgId);
+        branchedApplication.setWorkspaceId(workspaceId);
         branchedApplication.setName(gitConnectedApp.getName());
 
         Mono<Application> branchedApplicationMono = applicationPageService.createApplication(branchedApplication);
 
-        Mono<List<Application>> gitConnectedAppsMono = applicationService.findByOrganizationId(orgId, READ_APPLICATIONS)
+        Mono<List<Application>> gitConnectedAppsMono = applicationService.findByWorkspaceId(workspaceId, READ_APPLICATIONS)
                 .filter(application -> application.getGitApplicationMetadata() != null)
                 .collectList();
 
@@ -592,16 +716,17 @@ public class ApplicationServiceTest {
                 .assertNext(tuple -> {
                     UserHomepageDTO userHomepageDTO = tuple.getT1();
                     List<Application> gitConnectedApps = tuple.getT2();
+
                     assertThat(userHomepageDTO).isNotNull();
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplicationsDTOs.size()).isPositive();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getWorkspaceApplications();
+                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
-                    for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
-                        if (organizationApplicationDTO.getOrganization().getId().equals(orgId)) {
-                            List<Application> applications = organizationApplicationDTO
+                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
+                        if (workspaceApplicationDTO.getWorkspace().getId().equals(workspaceId)) {
+                            List<Application> applications = workspaceApplicationDTO
                                     .getApplications()
                                     .stream()
                                     .filter(application -> application.getGitApplicationMetadata() != null)
@@ -621,12 +746,12 @@ public class ApplicationServiceTest {
     public void getAllApplicationsForHomeWhenNoApplicationPresent() {
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
 
-        // Create an organization for this user first.
-        Organization organization = new Organization();
-        organization.setName("usertest's organization");
-        Mono<Organization> organizationMono = organizationService.create(organization);
+        // Create an workspace for this user first.
+        Workspace workspace = new Workspace();
+        workspace.setName("usertest's workspace");
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace);
 
-        Mono<UserHomepageDTO> allApplications = organizationMono
+        Mono<UserHomepageDTO> allApplications = workspaceMono
                 .then(applicationFetcher.getAllApplications());
 
         StepVerifier
@@ -636,11 +761,11 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
 
-                    // There should be atleast one organization present in the output.
-                    OrganizationApplicationsDTO orgAppDto = organizationApplications.get(0);
-                    assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
+                    // There should be atleast one workspace present in the output.
+                    WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
+                    assertThat(orgAppDto.getWorkspace().getUserPermissions()).contains("read:workspaces");
                 })
                 .verifyComplete();
 
@@ -652,21 +777,29 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validMakeApplicationPublic-Test");
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -681,17 +814,45 @@ public class ApplicationServiceTest {
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
+
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono))
+                .create(Mono.zip(publicAppMono, pageMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
+                    PermissionGroup permissionGroup = tuple.getT3();
+
+                    String permissionGroupId = permissionGroup.getId();
 
                     assertThat(publicApp.getIsPublic()).isTrue();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), permissionGroupId))
+                            .build();
+
+                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), permissionGroupId))
+                            .build();
+
                     assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     // Check the child page's policies
                     assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+
+                    // Finally assert that permission group has been assigned to anonymous user.
+                    assertThat(permissionGroup.getAssignedToUserIds()).hasSize(1);
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(anonymousUser.getId()));
                 })
                 .verifyComplete();
     }
@@ -702,21 +863,27 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validMakeApplicationPrivate-Test");
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
 
-        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
+        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         Mono<Application> privateAppMono = createApplication
@@ -742,7 +909,24 @@ public class ApplicationServiceTest {
                     Application app = tuple.getT1();
                     PageDTO page = tuple.getT2();
 
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
+                            .build();
+
+                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
+                            .build();
+
                     assertThat(app.getIsPublic()).isFalse();
+
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     // Check the child page's policies
@@ -755,22 +939,40 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void makeApplicationPublic_applicationWithGitMetadata_success() {
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
+
+        // Create a branch
+        Application testApplication = new Application();
+        testApplication.setName("branch1");
+        testApplication.setWorkspaceId(workspaceId);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
+        gitApplicationMetadata.setBranchName("test");
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication).block();
 
         Mono<Application> publicAppMono = applicationService
                 .changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
@@ -782,17 +984,66 @@ public class ApplicationServiceTest {
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
+
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup().cache();
+
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono))
+                .create(Mono.zip(publicAppMono, pageMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
+                    PermissionGroup permissionGroup = tuple.getT3();
+
+                    String permissionGroupId = permissionGroup.getId();
 
                     assertThat(publicApp.getIsPublic()).isTrue();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), permissionGroupId))
+                            .build();
+
+                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), permissionGroupId))
+                            .build();
+
                     assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     // Check the child page's policies
                     assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+
+                    // Finally assert that permission group has been assigned to anonymous user.
+                    assertThat(permissionGroup.getAssignedToUserIds()).hasSize(1);
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(anonymousUser.getId()));
+                })
+                .verifyComplete();
+
+        // Get branch application
+        Mono<Application> branchApplicationMono = applicationService.findById(application.getId()).cache();
+
+        StepVerifier
+                .create(Mono.zip(branchApplicationMono,publicPermissionGroupMono))
+                .assertNext(tuple -> {
+                    Application branchApplication = tuple.getT1();
+                    String permissionGroupId = tuple.getT2().getId();
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), permissionGroupId))
+                            .build();
+
+                    assertThat(branchApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                 })
                 .verifyComplete();
     }
@@ -800,38 +1051,76 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void makeApplicationPrivate_applicationWithGitMetadata_success() {
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
                 .build();
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
         Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
                 .build();
+
+        // Create a branch
+        Application testApplication = new Application();
+        testApplication.setName("branch2");
+        testApplication.setWorkspaceId(workspaceId);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
+        gitApplicationMetadata.setBranchName("test2");
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication).block();
 
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
-        Mono<Application> privateAppMono = applicationService.changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
+        Mono<Tuple2<Application, PageDTO>> privateAppAndPageTupleMono =
+                // First make the git connected app public
+                applicationService.changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
                 .flatMap(application1 -> {
                     applicationAccessDTO.setPublicAccess(false);
-                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                    // Then make the test branch private
+                    return applicationService.changeViewAccess(application1.getId(), "testBranch", applicationAccessDTO);
                 })
-                .cache();
-
-        Mono<PageDTO> pageMono = privateAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return newPageService.findPageById(pageId, READ_PAGES, false);
+                    return Mono.zip(
+                            Mono.just(app),
+                            newPageService.findPageById(pageId, READ_PAGES, false)
+                    );
                 });
 
         StepVerifier
-                .create(Mono.zip(privateAppMono, pageMono))
+                .create(privateAppAndPageTupleMono)
                 .assertNext(tuple -> {
                     Application app = tuple.getT1();
                     PageDTO page = tuple.getT2();
@@ -843,47 +1132,59 @@ public class ApplicationServiceTest {
                     assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                 })
                 .verifyComplete();
+
+        // Get branch application
+        Mono<Application> branchApplicationMono = applicationService.findById(application.getId());
+        StepVerifier
+                .create(branchApplicationMono)
+                .assertNext(branchApplication -> {
+                    assertThat(branchApplication.getIsPublic()).isFalse();
+                    assertThat(branchApplication.getPolicies()).containsAll(Set.of(readAppPolicy, manageAppPolicy));
+                })
+                .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void validMakeApplicationPublicWithActions() {
 
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
         Application application = new Application();
         application.setName("validMakeApplicationPublic-ExplicitDatasource-Test");
 
-        Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
-
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
-
-        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
         String pageId = createdApplication.getPages().get(0).getId();
 
-        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
         Datasource datasource = new Datasource();
         datasource.setName("Public App Test");
         datasource.setPluginId(plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -906,7 +1207,7 @@ public class ApplicationServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(createdApplication.getId());
-        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPageId(pageId);
         actionCollectionDTO.setPluginId(installedJsPlugin.getId());
         actionCollectionDTO.setPluginType(PluginType.JS);
@@ -916,6 +1217,10 @@ public class ApplicationServiceTest {
         Mono<Application> publicAppMono = applicationService
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
                 .cache();
+
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
+
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         Mono<Datasource> datasourceMono = publicAppMono
                 .then(datasourceService.findById(savedDatasource.getId()));
@@ -927,11 +1232,34 @@ public class ApplicationServiceTest {
                 .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
 
         StepVerifier
-                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono))
+                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasource1 = tuple.getT1();
                     NewAction action1 = tuple.getT2();
+                    PermissionGroup publicPermissionGroup = tuple.getT4();
                     final ActionCollection actionCollection1 = tuple.getT3();
+
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), publicPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), publicPermissionGroup.getId()))
+                            .build();
 
                     // Check that the datasource used in the app contains public execute permission
                     assertThat(datasource1.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
@@ -954,52 +1282,77 @@ public class ApplicationServiceTest {
         Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         Mono<List<PageDTO>> clonedPageListMono = clonedApplicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         Mono<List<PageDTO>> srcPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
                 .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         StepVerifier
-                .create(Mono.zip(clonedApplicationMono, clonedPageListMono, srcPageListMono))
+                .create(Mono.zip(clonedApplicationMono, clonedPageListMono, srcPageListMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     Application clonedApplication = tuple.getT1(); // cloned application
                     List<PageDTO> clonedPageList = tuple.getT2();
                     List<PageDTO> srcPageList = tuple.getT3();
 
+                    List<PermissionGroup> permissionGroups = tuple.getT4();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
                     assertThat(clonedApplication).isNotNull();
                     assertThat(clonedApplication.isAppIsExample()).isFalse();
                     assertThat(clonedApplication.getId()).isNotNull();
-                    assertThat(clonedApplication.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(clonedApplication.getName()).isEqualTo("gitConnectedApp Copy");
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getOrganizationId().equals(orgId));
+                    assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+                    assertThat(clonedApplication.getApplicationVersion()).isNotNull();
+                    assertThat(clonedApplication.getApplicationVersion()).isEqualTo(gitConnectedApp.getApplicationVersion());
 
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> clonedPageIdsFromDb = clonedPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
-                    assertThat(clonedPageIdsFromApplication.containsAll(clonedPageIdsFromDb));
+                    assertThat(clonedPageIdsFromApplication).containsAll(clonedPageIdsFromDb);
 
                     Set<String> srcPageIdsFromDb = srcPageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> defaultSrcPageIdsFromDb = srcPageList.stream().map(page -> page.getDefaultResources().getPageId()).collect(Collectors.toSet());
@@ -1007,7 +1360,7 @@ public class ApplicationServiceTest {
 
                     assertThat(clonedPageList).isNotEmpty();
                     for (PageDTO page : clonedPageList) {
-                        assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                        assertThat(page.getPolicies()).containsAll(Set.of(readPagePolicy, managePagePolicy));
                         assertThat(page.getApplicationId()).isEqualTo(clonedApplication.getId());
                     }
                 })
@@ -1084,15 +1437,14 @@ public class ApplicationServiceTest {
 
         final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
 
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         String pageId = gitConnectedApp.getPages().get(0).getId();
 
@@ -1109,12 +1461,6 @@ public class ApplicationServiceTest {
         Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
 
         Mono<List<NewAction>> clonedActionListMono = clonedApplicationMono
                 .flatMapMany(application -> newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null))
@@ -1124,14 +1470,45 @@ public class ApplicationServiceTest {
                 .collectList();
 
         StepVerifier
-                .create(Mono.zip(clonedApplicationMono, clonedActionListMono, srcActionListMono))
+                .create(Mono.zip(clonedApplicationMono, clonedActionListMono, srcActionListMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     Application clonedApplication = tuple.getT1(); // cloned application
                     List<NewAction> clonedActionList = tuple.getT2();
                     List<NewAction> srcActionList = tuple.getT3();
+                    List<PermissionGroup> permissionGroups = tuple.getT4();
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
 
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getOrganizationId().equals(orgId));
+                    assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
 
@@ -1156,7 +1533,7 @@ public class ApplicationServiceTest {
                     assertThat(clonedActionList).isNotEmpty();
                     assertThat(defaultClonedActionIdsFromDb).isNotEmpty();
                     for (NewAction newAction : clonedActionList) {
-                        assertThat(newAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+                        assertThat(newAction.getPolicies()).containsAll(Set.of(readActionPolicy, executeActionPolicy, manageActionPolicy));
                         assertThat(newAction.getApplicationId()).isEqualTo(clonedApplication.getId());
                         assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(newAction.getUnpublishedAction().getDefaultResources().getPageId());
                     }
@@ -1170,8 +1547,17 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
 
-        Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .cache();
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
         Mono<Application> resultMono = originalApplicationMono
@@ -1212,7 +1598,7 @@ public class ApplicationServiceTest {
                     temp = new JSONArray();
                     temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
                     secondWidget.put("dynamicBindingPathList", temp);
-                    secondWidget.put("testField1", "{{ testCollection1.cloneActionCollection1.data }}");
+                    secondWidget.put("testField1", "{{ testCollection1.getData.data }}");
                     children.add(secondWidget);
 
                     Layout layout = testPage.getLayouts().get(0);
@@ -1223,7 +1609,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setName("testCollection1");
                     actionCollectionDTO.setPageId(application.getPages().get(0).getId());
                     actionCollectionDTO.setApplicationId(application.getId());
-                    actionCollectionDTO.setOrganizationId(application.getOrganizationId());
+                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
                     actionCollectionDTO.setBody("export default {\n" +
@@ -1231,16 +1617,29 @@ public class ApplicationServiceTest {
                             "\t\tconst data = await cloneActionTest.run();\n" +
                             "\t\treturn data;\n" +
                             "\t}\n" +
+                            "\tanotherMethod: async () => {\n" +
+                            "\t\tconst data = await cloneActionTest.run();\n" +
+                            "\t\treturn data;\n" +
+                            "\t}\n" +
                             "}");
                     ActionDTO action1 = new ActionDTO();
-                    action1.setName("cloneActionCollection1");
+                    action1.setName("getData");
                     action1.setActionConfiguration(new ActionConfiguration());
                     action1.getActionConfiguration().setBody(
                             "async () => {\n" +
                                     "\t\tconst data = await cloneActionTest.run();\n" +
                                     "\t\treturn data;\n" +
                                     "\t}");
-                    actionCollectionDTO.setActions(List.of(action1));
+
+                    ActionDTO action2 = new ActionDTO();
+                    action2.setName("anotherMethod");
+                    action2.setActionConfiguration(new ActionConfiguration());
+                    action2.getActionConfiguration().setBody(
+                            "async () => {\n" +
+                                    "\t\tconst data = await cloneActionTest.run();\n" +
+                                    "\t\treturn data;\n" +
+                                    "\t}");
+                    actionCollectionDTO.setActions(List.of(action1, action2));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
                     return Mono.zip(
@@ -1267,45 +1666,60 @@ public class ApplicationServiceTest {
                 })
                 .cache();
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         StepVerifier.create(resultMono
                 .zipWhen(application -> Mono.zip(
                         newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                         actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
+                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
+                        defaultPermissionGroupsMono
                 )))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1(); // cloned application
                     List<NewAction> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
                     List<NewPage> pageList = tuple.getT2().getT3();
+                    List<PermissionGroup> permissionGroups = tuple.getT2().getT4();
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
 
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest Clone Source TestApp Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getOrganizationId().equals(orgId));
+                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
 
-                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
+                    assertThat(pageIdsFromApplication).containsAll(pageIdsFromDb);
 
                     assertThat(pageList).isNotEmpty();
                     for (NewPage page : pageList) {
@@ -1335,7 +1749,7 @@ public class ApplicationServiceTest {
                                 });
                     });
 
-                    assertThat(actionList).hasSize(2);
+                    assertThat(actionList).hasSize(3);
                     actionList.forEach(newAction -> {
                         assertThat(newAction.getDefaultResources()).isNotNull();
                         assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
@@ -1358,7 +1772,7 @@ public class ApplicationServiceTest {
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
                         assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
-                                .hasSize(1);
+                                .hasSize(2);
                         unpublishedCollection.getDefaultToBranchedActionIdsMap().keySet()
                                 .forEach(key ->
                                         assertThat(key).isEqualTo(unpublishedCollection.getDefaultToBranchedActionIdsMap().get(key))
@@ -1450,12 +1864,330 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void cloneApplication_withDeletedActionInActionCollection_deletedActionIsNotCloned() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest-clone-application-deleted-action-within-collection");
+
+        Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+                .cache();
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
+
+        Map<String, List<String>> originalResourceIds = new HashMap<>();
+        Mono<Application> resultMono = originalApplicationMono
+                .zipWhen(application -> newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    PageDTO testPage = tuple.getT2();
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("cloneActionTest");
+                    action.setPageId(application.getPages().get(0).getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(testDatasource);
+
+
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("testCollection1");
+                    actionCollectionDTO.setPageId(application.getPages().get(0).getId());
+                    actionCollectionDTO.setApplicationId(application.getId());
+                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
+                    actionCollectionDTO.setPluginId(testPlugin.getId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    actionCollectionDTO.setBody("export default {\n" +
+                            "\tgetData: async () => {\n" +
+                            "\t\tconst data = await cloneActionTest.run();\n" +
+                            "\t\treturn data;\n" +
+                            "\t},\n" +
+                            "\tanotherMethod: async () => {\n" +
+                            "\t\tconst data = await cloneActionTest.run();\n" +
+                            "\t\treturn data;\n" +
+                            "\t}\n" +
+                            "}");
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("getData");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    action1.getActionConfiguration().setBody(
+                            "async () => {\n" +
+                                    "\t\tconst data = await cloneActionTest.run();\n" +
+                                    "\t\treturn data;\n" +
+                                    "\t}");
+                    ActionDTO action2 = new ActionDTO();
+                    action2.setName("anotherMethod");
+                    action2.setActionConfiguration(new ActionConfiguration());
+                    action2.getActionConfiguration().setBody(
+                            "async () => {\n" +
+                                    "\t\tconst data = await cloneActionTest.run();\n" +
+                                    "\t\treturn data;\n" +
+                                    "\t}");
+                    actionCollectionDTO.setActions(List.of(action1, action2));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JSONObject parentDsl = null;
+                    try {
+                        parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+                        }));
+                    } catch (JsonProcessingException e) {
+                        log.debug("Error while creating JSONObj from defaultPageLayout: ", e);
+                    }
+
+                    ArrayList children = (ArrayList) parentDsl.get("children");
+                    JSONObject firstWidget = new JSONObject();
+                    firstWidget.put("widgetName", "firstWidget");
+                    JSONArray temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    firstWidget.put("dynamicBindingPathList", temp);
+                    firstWidget.put("testField", "{{ cloneActionTest.data }}");
+                    children.add(firstWidget);
+
+                    JSONObject secondWidget = new JSONObject();
+                    secondWidget.put("widgetName", "secondWidget");
+                    temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
+                    secondWidget.put("dynamicBindingPathList", temp);
+                    secondWidget.put("testField1", "{{ testCollection1.getData.data }}");
+                    children.add(secondWidget);
+
+                    JSONObject thirdWidget = new JSONObject();
+                    thirdWidget.put("widgetName", "thirdWidget");
+                    temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
+                    thirdWidget.put("dynamicBindingPathList", temp);
+                    thirdWidget.put("testField1", "{{ testCollection1.anotherMethod.data }}");
+                    children.add(thirdWidget);
+
+                    Layout layout = testPage.getLayouts().get(0);
+                    layout.setDsl(parentDsl);
+
+                    return Mono.zip(
+                            layoutCollectionService.createCollection(actionCollectionDTO),
+                            layoutActionService.createSingleAction(action),
+                            layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout),
+                            Mono.just(application)
+                    );
+                })
+                .flatMap(tuple -> {
+                    List<String> pageIds = new ArrayList<>(), collectionIds = new ArrayList<>();
+                    ActionCollectionDTO collectionDTO = tuple.getT1();
+                    collectionIds.add(collectionDTO.getId());
+                    tuple.getT4().getPages().forEach(page -> pageIds.add(page.getId()));
+
+                    originalResourceIds.put("pageIds", pageIds);
+                    originalResourceIds.put("collectionIds", collectionIds);
+
+                    String deletedActionIdWithinActionCollection = String
+                            .valueOf(collectionDTO.getDefaultToBranchedActionIdsMap().values().stream().findAny().orElse(null));
+
+                    return newActionService.deleteUnpublishedAction(deletedActionIdWithinActionCollection)
+                            .thenMany(newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, READ_ACTIONS, null))
+                            .collectList()
+                            .flatMap(actionList -> {
+                                List<String> actionIds = actionList.stream().map(BaseDomain::getId).collect(Collectors.toList());
+                                originalResourceIds.put("actionIds", actionIds);
+                                return applicationPageService.cloneApplication(tuple.getT4().getId(), null);
+                            });
+                })
+                .cache();
+
+
+        StepVerifier.create(resultMono
+                        .zipWhen(application -> Mono.zip(
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
+                                defaultPermissionGroupsMono
+                        )))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1(); // cloned application
+                    List<NewAction> actionList = tuple.getT2().getT1();
+                    List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
+                    List<NewPage> pageList = tuple.getT2().getT3();
+                    List<PermissionGroup> permissionGroups = tuple.getT2().getT4();
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(application).isNotNull();
+                    assertThat(application.isAppIsExample()).isFalse();
+                    assertThat(application.getId()).isNotNull();
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest-clone-application-deleted-action-within-collection Copy");
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    List<ApplicationPage> pages = application.getPages();
+                    Set<String> pageIdsFromApplication = pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
+                    Set<String> pageIdsFromDb = pageList.stream().map(BaseDomain::getId).collect(Collectors.toSet());
+
+                    assertThat(pageIdsFromApplication).containsAll(pageIdsFromDb);
+
+                    assertThat(pageList).isNotEmpty();
+                    for (NewPage page : pageList) {
+                        assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                        assertThat(page.getApplicationId()).isEqualTo(application.getId());
+                    }
+
+                    assertThat(pageList).isNotEmpty();
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getDefaultResources()).isNotNull();
+                        assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
+                        assertThat(newPage.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        newPage.getUnpublishedPage()
+                                .getLayouts()
+                                .forEach(layout -> {
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
+                                        assertThat(dslActionDTOS).hasSize(2);
+                                        dslActionDTOS.forEach(actionDTO -> {
+                                            assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
+                                            if (StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                                assertThat(actionDTO.getDefaultCollectionId()).isEqualTo(actionDTO.getCollectionId());
+                                            }
+                                        });
+                                    });
+                                });
+                    });
+
+                    assertThat(actionList).hasSize(2);
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getDefaultResources()).isNotNull();
+                        assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
+                        assertThat(newAction.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        ActionDTO action = newAction.getUnpublishedAction();
+                        assertThat(action.getDefaultResources()).isNotNull();
+                        assertThat(action.getDefaultResources().getPageId()).isEqualTo(application.getPages().get(0).getId());
+                        if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
+                            assertThat(action.getDefaultResources().getCollectionId()).isEqualTo(action.getCollectionId());
+                        }
+                    });
+
+                    assertThat(actionCollectionList).hasSize(1);
+                    actionCollectionList.forEach(actionCollection -> {
+                        assertThat(actionCollection.getDefaultResources()).isNotNull();
+                        assertThat(actionCollection.getDefaultResources().getCollectionId()).isEqualTo(actionCollection.getId());
+                        assertThat(actionCollection.getDefaultResources().getApplicationId()).isEqualTo(application.getId());
+
+                        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+
+                        // We should have single entry as other action is deleted from the parent application
+                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap()).hasSize(1);
+                        unpublishedCollection.getDefaultToBranchedActionIdsMap().keySet()
+                                .forEach(key ->
+                                        assertThat(key).isEqualTo(unpublishedCollection.getDefaultToBranchedActionIdsMap().get(key))
+                                );
+
+                        assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
+                        assertThat(unpublishedCollection.getDefaultResources().getPageId())
+                                .isEqualTo(application.getPages().get(0).getId());
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess() {
+        Application application = new Application();
+        application.setName("cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess");
+        application.setWorkspaceId(workspaceId);
+        Application defaultApp = applicationPageService.createApplication(application)
+                .flatMap(application1 -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application1.getId());
+                    gitApplicationMetadata.setBranchName("master");
+                    gitApplicationMetadata.setDefaultBranchName("feature1");
+                    gitApplicationMetadata.setIsRepoPrivate(false);
+                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitAuth gitAuth = new GitAuth();
+                    gitAuth.setPublicKey("testkey");
+                    gitAuth.setPrivateKey("privatekey");
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.save(application1);
+                }).block();
+
+        // Add a branch to the git connected app
+        application = new Application();
+        application.setName("cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess");
+        application.setWorkspaceId(workspaceId);
+        Mono<Application> forkedApp = applicationPageService.createApplication(application)
+                .flatMap(application1 -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application1.getId());
+                    gitApplicationMetadata.setBranchName("feature1");
+                    gitApplicationMetadata.setDefaultBranchName("feature1");
+                    gitApplicationMetadata.setIsRepoPrivate(false);
+                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitAuth gitAuth = new GitAuth();
+                    gitAuth.setPublicKey("testkey");
+                    gitAuth.setPrivateKey("privatekey");
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.save(application1);
+                })
+                .flatMap(application1 -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("testDuplicatePage");
+                    pageDTO.setApplicationId(application1.getId());
+                    return applicationPageService.createPage(pageDTO)
+                            .then(Mono.just(application1));
+                })
+                .flatMap(application1 -> applicationPageService.cloneApplication(application1.getGitApplicationMetadata().getDefaultApplicationId(), null));
+
+        StepVerifier
+                .create(forkedApp)
+                .assertNext(application1 -> {
+                    assertThat(application1.getPages().size()).isEqualTo(2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void basicPublishApplicationTest() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
@@ -1475,17 +2207,131 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals(appName));
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getName()).isEqualTo(appName);
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPublishedPages()).hasSize(1);
 
-                    assertThat(pages.size()).isEqualTo(1);
+                    assertThat(pages).hasSize(1);
                     NewPage newPage = pages.get(0);
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getId()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getId());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Method to test if the action, pages and actionCollection are archived after the application is published
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void publishApplication_withArchivedUnpublishedResources_resourcesArchived() {
+
+        /*
+        1. Create application
+        2. Add action and actionCollection
+        3. Publish application
+        4. Delete page in edit mode
+        5. Publish application
+        6. Page, action and actionCollection should be soft deleted
+        */
+        Application testApplication = new Application();
+        String appName = "Publish Application With Archived Page";
+        testApplication.setName(appName);
+        testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    PageDTO page = new PageDTO();
+                    page.setName("New Page");
+                    page.setApplicationId(application.getId());
+                    Layout defaultLayout = newPageService.createDefaultLayout();
+                    List<Layout> layouts = new ArrayList<>();
+                    layouts.add(defaultLayout);
+                    page.setLayouts(layouts);
+                    return Mono.zip(
+                            applicationPageService.createPage(page),
+                            pluginRepository.findByPackageName("installed-plugin")
+                    );
+                })
+                .flatMap(tuple -> {
+                    final PageDTO page = tuple.getT1();
+                    final Plugin installedPlugin = tuple.getT2();
+                    final Datasource datasource = new Datasource();
+                    datasource.setName("Default Database");
+                    datasource.setWorkspaceId(workspaceId);
+                    datasource.setPluginId(installedPlugin.getId());
+                    datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("publishActionTest");
+                    action.setPageId(page.getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
+
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("publishCollectionTest");
+                    actionCollectionDTO.setPageId(page.getId());
+                    actionCollectionDTO.setPluginId(datasource.getPluginId());
+                    actionCollectionDTO.setApplicationId(testApplication.getId());
+                    actionCollectionDTO.setWorkspaceId(testApplication.getWorkspaceId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("publishApplicationTest");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    actionCollectionDTO.setActions(List.of(action1));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+
+                    return layoutActionService.createSingleAction(action)
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .flatMap(tuple1 -> {
+                                ActionDTO savedAction = tuple1.getT1();
+                                ActionCollectionDTO savedActionCollection = tuple1.getT2();
+                                return applicationPageService.publish(testApplication.getId(), true)
+                                        .then(applicationPageService.deleteUnpublishedPage(page.getId()))
+                                        .then(applicationPageService.publish(testApplication.getId(), true))
+                                        .then(
+                                                Mono.zip(
+                                                        (Mono<NewAction>) this.getArchivedResource(savedAction.getId(), NewAction.class),
+                                                        (Mono<ActionCollection>) this.getArchivedResource(savedActionCollection.getId(), ActionCollection.class),
+                                                        (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)
+                                                ));
+                            });
+                })
+                .cache();
+
+        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono
+                .flatMap(tuple -> {
+                    final Optional<String> actionId = tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values()
+                            .stream()
+                            .findFirst();
+                    return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
+                });
+
+        StepVerifier
+                .create(resultMono.zipWith(archivedActionFromActionCollectionMono))
+                .assertNext(tuple -> {
+                    NewAction archivedAction = tuple.getT1().getT1();
+                    ActionCollection archivedActionCollection = tuple.getT1().getT2();
+                    NewPage archivedPage = tuple.getT1().getT3();
+                    NewAction archivedActionFromActionCollection = tuple.getT2();
+
+                    assertThat(archivedAction.getDeletedAt()).isNotNull();
+                    assertThat(archivedAction.getDeleted()).isTrue();
+
+                    assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionCollection.getDeleted()).isTrue();
+
+                    assertThat(archivedPage.getDeletedAt()).isNotNull();
+                    assertThat(archivedPage.getDeleted()).isTrue();
+
+                    assertThat(archivedActionFromActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1535,7 +2381,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Delete Page";
         testApplication.setName(appName);
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -1625,7 +2471,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Change Default Page";
         testApplication.setName(appName);
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -1689,7 +2535,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Get Application In View Mode";
         testApplication.setName(appName);
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -1743,7 +2589,7 @@ public class ApplicationServiceTest {
         String appName = "ApplicationServiceTest Clone Application Midway Cancellation";
         testApplication.setName(appName);
 
-        Application originalApplication = applicationPageService.createApplication(testApplication, orgId)
+        Application originalApplication = applicationPageService.createApplication(testApplication, workspaceId)
                 .block();
 
         String pageId = originalApplication.getPages().get(0).getId();
@@ -1755,7 +2601,7 @@ public class ApplicationServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -1790,7 +2636,7 @@ public class ApplicationServiceTest {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(pageId);
         actionCollectionDTO1.setApplicationId(originalApplication.getId());
-        actionCollectionDTO1.setOrganizationId(orgId);
+        actionCollectionDTO1.setWorkspaceId(workspaceId);
         actionCollectionDTO1.setPluginId(datasource.getPluginId());
         ActionDTO jsAction = new ActionDTO();
         jsAction.setName("jsFunc");
@@ -1865,7 +2711,7 @@ public class ApplicationServiceTest {
     public void newApplicationShouldHavePublishedState() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest NewApp PublishedState");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId).cache();
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId).cache();
 
         Mono<PageDTO> publishedPageMono = applicationMono
                 .flatMap(application -> {
@@ -1897,7 +2743,7 @@ public class ApplicationServiceTest {
         Application app = new Application();
         app.setName("validGetApplicationPagesMultiPageApp-Test");
 
-        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
+        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, workspaceId)
                 .cache();
 
         // Create all the pages for this application in a blocking manner.
@@ -1948,7 +2794,7 @@ public class ApplicationServiceTest {
         String appName = "ApplicationServiceTest Public View Application Midway Cancellation";
         testApplication.setName(appName);
 
-        Application originalApplication = applicationPageService.createApplication(testApplication, orgId)
+        Application originalApplication = applicationPageService.createApplication(testApplication, workspaceId)
                 .block();
 
         String pageId = originalApplication.getPages().get(0).getId();
@@ -1960,7 +2806,7 @@ public class ApplicationServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -2007,7 +2853,8 @@ public class ApplicationServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS);
+                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS)
+                            .flatMap(applicationService::setTransientFields);
                 })
                 .cache();
 
@@ -2025,13 +2872,40 @@ public class ApplicationServiceTest {
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
                 .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
 
+        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
+
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+
         StepVerifier
-                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono))
+                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application updatedApplication = tuple.getT1();
                     List<NewAction> actions = tuple.getT2();
                     List<PageDTO> pages = tuple.getT3();
                     Datasource datasource1 = tuple.getT4();
+                    PermissionGroup permissionGroup = tuple.getT5();
+
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(anonymousUser.getId()));
 
                     assertThat(updatedApplication).isNotNull();
                     assertThat(updatedApplication.getIsPublic()).isTrue();
@@ -2041,8 +2915,8 @@ public class ApplicationServiceTest {
                             .filter(policy -> policy.getPermission().equals(READ_APPLICATIONS.getValue()))
                             .findFirst()
                             .get()
-                            .getUsers()
-                    ).contains("anonymousUser");
+                            .getPermissionGroups()
+                    ).contains(permissionGroup.getId());
 
                     for (PageDTO page : pages) {
                         assertThat(page
@@ -2051,8 +2925,8 @@ public class ApplicationServiceTest {
                                 .filter(policy -> policy.getPermission().equals(READ_PAGES.getValue()))
                                 .findFirst()
                                 .get()
-                                .getUsers()
-                        ).contains("anonymousUser");
+                                .getPermissionGroups()
+                        ).contains(permissionGroup.getId());
                     }
 
                     for (NewAction action : actions) {
@@ -2062,10 +2936,9 @@ public class ApplicationServiceTest {
                                 .filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue()))
                                 .findFirst()
                                 .get()
-                                .getUsers()
-                        ).contains("anonymousUser");
+                                .getPermissionGroups()
+                        ).contains(permissionGroup.getId());
                     }
-
 
                     assertThat(datasource1
                             .getPolicies()
@@ -2073,8 +2946,8 @@ public class ApplicationServiceTest {
                             .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
                             .findFirst()
                             .get()
-                            .getUsers()
-                    ).contains("anonymousUser");
+                            .getPermissionGroups()
+                    ).contains(permissionGroup.getId());
 
                 })
                 .verifyComplete();
@@ -2089,7 +2962,12 @@ public class ApplicationServiceTest {
         testApplication.setModifiedBy("test-user");
         testApplication.setIsPublic(true);
 
-        Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+                    applicationAccessDTO.setPublicAccess(TRUE);
+                    return applicationService.changeViewAccess(application.getId(), applicationAccessDTO);
+                })
                 .flatMap(application ->
                     applicationService.saveLastEditInformation(application.getId())
                 );
@@ -2098,6 +2976,7 @@ public class ApplicationServiceTest {
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
             assertThat(application.getIsPublic()).isTrue();
+            assertThat(application.getIsManualUpdate()).isTrue();
         }).verifyComplete();
     }
 
@@ -2105,13 +2984,11 @@ public class ApplicationServiceTest {
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
-        unsavedApplication.setOrganizationId(orgId);
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
-        unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
+        unsavedApplication.setWorkspaceId(workspaceId);
         unsavedApplication.setName("ssh-test-app");
 
-        Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
-                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId())
+        Mono<Application> applicationMono = applicationPageService.createApplication(unsavedApplication)
+                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
                         .thenReturn(savedApplication.getId())
                 ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
 
@@ -2129,34 +3006,31 @@ public class ApplicationServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdSet_DefaultApplicationUpdated() {
-        AclPermission perm = MANAGE_APPLICATIONS;
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(perm), "api_user");
-        Set<Policy> policies = Set.copyOf(policyMap.values());
 
         Application unsavedMainApp = new Application();
-        unsavedMainApp.setPolicies(policies);
         unsavedMainApp.setName("ssh-key-master-app");
-        unsavedMainApp.setOrganizationId(orgId);
+        unsavedMainApp.setWorkspaceId(workspaceId);
 
-        Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
-                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId()).thenReturn(savedApplication))
+        Application savedApplication = applicationPageService.createApplication(unsavedMainApp, workspaceId).block();
+
+        Mono<Tuple2<Application, Application>> tuple2Mono = applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
+                .thenReturn(savedApplication)
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
                     unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
                     unsavedChildApp.getGitApplicationMetadata().setDefaultApplicationId(savedMainApp.getId());
-                    unsavedChildApp.setPolicies(policies);
                     unsavedChildApp.setName("ssh-key-child-app");
-                    unsavedChildApp.setOrganizationId(orgId);
-                    return applicationRepository.save(unsavedChildApp);
+                    unsavedChildApp.setWorkspaceId(workspaceId);
+                    return applicationPageService.createApplication(unsavedChildApp, workspaceId);
                 })
                 .flatMap(savedChildApp ->
-                        applicationService.createOrUpdateSshKeyPair(savedChildApp.getId()).thenReturn(savedChildApp)
+                        applicationService.createOrUpdateSshKeyPair(savedChildApp.getId(), null).thenReturn(savedChildApp)
                 )
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
                     String mainApplicationId = savedChildApp.getGitApplicationMetadata().getDefaultApplicationId();
-                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), perm);
-                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, perm);
+                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), MANAGE_APPLICATIONS);
+                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, MANAGE_APPLICATIONS);
                     return Mono.zip(childAppMono, mainAppMono);
                 });
 
@@ -2181,13 +3055,19 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void deleteApplicationWithPagesAndActions() {
+    public void deleteApplication_withPagesActionsAndActionCollections_resourcesArchived() {
 
+        /*
+        1. Create application
+        2. Add page, action and actionCollection
+        5. Delete application
+        6. Page, action and actionCollection should be soft deleted
+        */
         Application testApplication = new Application();
         String appName = "deleteApplicationWithPagesAndActions";
         testApplication.setName(appName);
 
-        Mono<NewAction> resultMono = applicationPageService.createApplication(testApplication, orgId)
+        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -2207,7 +3087,7 @@ public class ApplicationServiceTest {
 
                     final Datasource datasource = new Datasource();
                     datasource.setName("Default Database");
-                    datasource.setOrganizationId(orgId);
+                    datasource.setWorkspaceId(workspaceId);
                     datasource.setPluginId(installedPlugin.getId());
                     datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
@@ -2220,17 +3100,65 @@ public class ApplicationServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
+                    // Save actionCollection
+                    ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                    actionCollectionDTO.setName("testCollection1");
+                    actionCollectionDTO.setPageId(page.getId());
+                    actionCollectionDTO.setPluginId(datasource.getPluginId());
+                    actionCollectionDTO.setApplicationId(testApplication.getId());
+                    actionCollectionDTO.setWorkspaceId(testApplication.getWorkspaceId());
+                    actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("archivePageTest");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    actionCollectionDTO.setActions(List.of(action1));
+                    actionCollectionDTO.setPluginType(PluginType.JS);
+
                     return layoutActionService.createSingleAction(action)
-                            .flatMap(action1 -> {
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .flatMap(tuple1 -> {
+                                ActionDTO savedAction = tuple1.getT1();
+                                ActionCollectionDTO savedActionCollection = tuple1.getT2();
                                 return applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS)
                                         .flatMap(application -> applicationPageService.deleteApplication(application.getId()))
-                                        .flatMap(ignored -> newActionService.findById(action1.getId()));
+                                        .flatMap(ignored ->
+                                                Mono.zip(
+                                                    (Mono<NewAction>) this.getArchivedResource(savedAction.getId(), NewAction.class),
+                                                    (Mono<ActionCollection>) this.getArchivedResource(savedActionCollection.getId(), ActionCollection.class),
+                                                    (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)
+                                                ));
                             });
+                })
+                .cache();
+
+        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono
+                .flatMap(tuple -> {
+                    final Optional<String> actionId = tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values()
+                            .stream()
+                            .findFirst();
+                    return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
                 });
 
         StepVerifier
-                .create(resultMono)
-                // Since the action should be deleted, we exmpty the Mono to complete empty.
+                .create(resultMono.zipWith(archivedActionFromActionCollectionMono))
+                .assertNext(tuple -> {
+                    NewAction archivedAction = tuple.getT1().getT1();
+                    ActionCollection archivedActionCollection = tuple.getT1().getT2();
+                    NewPage archivedPage = tuple.getT1().getT3();
+                    NewAction archivedActionFromActionCollection = tuple.getT2();
+
+                    assertThat(archivedAction.getDeletedAt()).isNotNull();
+                    assertThat(archivedAction.getDeleted()).isTrue();
+
+                    assertThat(archivedActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionCollection.getDeleted()).isTrue();
+
+                    assertThat(archivedPage.getDeletedAt()).isNotNull();
+                    assertThat(archivedPage.getDeleted()).isTrue();
+
+                    assertThat(archivedActionFromActionCollection.getDeletedAt()).isNotNull();
+                    assertThat(archivedActionFromActionCollection.getDeleted()).isTrue();
+                })
                 .verifyComplete();
     }
 
@@ -2240,7 +3168,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "deleteApplication_withNullGitData_Success";
         testApplication.setName(appName);
-        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        Application application = applicationPageService.createApplication(testApplication, workspaceId).block();
 
         Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
 
@@ -2264,7 +3192,7 @@ public class ApplicationServiceTest {
         gitAuth.setPublicKey("publicKey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        Application application = applicationPageService.createApplication(testApplication, workspaceId).block();
 
         Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
 
@@ -2284,15 +3212,15 @@ public class ApplicationServiceTest {
         testApplication.setName(appName);
 
         Theme theme = new Theme();
-        theme.setName("Custom theme");
+        theme.setDisplayName("Custom theme");
 
         Mono<Theme> createTheme = themeService.create(theme);
 
         Mono<Tuple2<Theme, Tuple2<Application, Application>>> tuple2Application = createTheme
-                .then(applicationPageService.createApplication(testApplication, orgId))
+                .then(applicationPageService.createApplication(testApplication, workspaceId))
                 .flatMap(application ->
-                        themeService.updateTheme(application.getId(), theme).then(
-                                themeService.persistCurrentTheme(application.getId(), new Theme())
+                        themeService.updateTheme(application.getId(), null, theme).then(
+                                themeService.persistCurrentTheme(application.getId(), null, new Theme())
                                         .flatMap(theme1 -> Mono.zip(
                                                 applicationPageService.cloneApplication(application.getId(), null),
                                                 Mono.just(application))
@@ -2310,8 +3238,41 @@ public class ApplicationServiceTest {
                     Application srcApp = objects.getT2().getT2();
                     assertThat(clonedApp.getEditModeThemeId()).isNotEqualTo(srcApp.getEditModeThemeId());
                     assertThat(clonedTheme.getApplicationId()).isNull();
-                    assertThat(clonedTheme.getOrganizationId()).isNull();
+                    assertThat(clonedTheme.getWorkspaceId()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication() {
+        // Update the default Branch for the gitConected App
+        gitConnectedApp.getGitApplicationMetadata().setDefaultBranchName("release");
+        applicationService.save(gitConnectedApp).block();
+
+        Application testApplication = new Application();
+        testApplication.setName("getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication");
+        testApplication.setWorkspaceId(workspaceId);
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("release");
+        gitData.setDefaultApplicationId(gitConnectedApp.getId());
+        testApplication.setGitApplicationMetadata(gitData);
+        Application application = applicationPageService.createApplication(testApplication)
+                .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
+                .block();
+
+
+        Mono<Application> getApplication = applicationService.findByIdAndBranchName(gitConnectedApp.getId(), "release");
+        StepVerifier.create(getApplication)
+                .assertNext(application1 -> {
+                    assertThat(application1).isNotNull();
+                    assertThat(application1.getGitApplicationMetadata().getBranchName()).isNotEqualTo(gitConnectedApp.getGitApplicationMetadata().getBranchName());
+                    assertThat(application1.getGitApplicationMetadata().getBranchName()).isEqualTo(application.getGitApplicationMetadata().getBranchName());
+                    assertThat(application1.getId()).isEqualTo(gitConnectedApp.getId());
+                    assertThat(application1.getName()).isEqualTo(application.getName());
+                })
+                .verifyComplete();
+
     }
 }

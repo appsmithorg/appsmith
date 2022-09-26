@@ -8,11 +8,14 @@ export const getPropertyValue = (
 ) => {
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
-  }
-  if (value && Array.isArray(value) && value[index]) {
-    return preserveCase
-      ? value[index].toString()
-      : value[index].toString().toUpperCase();
+  } else if (value && Array.isArray(value)) {
+    if (value[index]) {
+      return preserveCase
+        ? value[index].toString()
+        : value[index].toString().toUpperCase();
+    } else {
+      return value[index];
+    }
   } else if (value) {
     return preserveCase ? value.toString() : value.toString().toUpperCase();
   } else {
@@ -48,10 +51,6 @@ export const getCellProperties = (
         rowIndex,
       ),
       buttonColor: getPropertyValue(columnProperties.buttonColor, rowIndex),
-      buttonLabelColor: getPropertyValue(
-        columnProperties.buttonLabelColor,
-        rowIndex,
-      ),
       buttonLabel: getPropertyValue(
         columnProperties.buttonLabel,
         rowIndex,
@@ -74,11 +73,6 @@ export const getCellProperties = (
         true,
       ),
       boxShadow: getPropertyValue(columnProperties.boxShadow, rowIndex, true),
-      boxShadowColor: getPropertyValue(
-        columnProperties.boxShadowColor,
-        rowIndex,
-        true,
-      ),
       iconButtonStyle: getPropertyValue(
         columnProperties.iconButtonStyle,
         rowIndex,

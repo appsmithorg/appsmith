@@ -5,7 +5,6 @@ import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
 import { getQueryIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import {
   fetchDatasourceStructure,
@@ -14,17 +13,19 @@ import {
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
-import { getQueryParams } from "utils/AppsmithUtils";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getQueryParams } from "utils/URLUtils";
 import { getAction } from "selectors/entitiesSelector";
+import {
+  datasourcesEditorIdURL,
+  saasEditorDatasourceIdURL,
+} from "RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useLocation } from "react-router";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -37,38 +38,41 @@ type ExplorerDatasourceEntityProps = {
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
-    const applicationId = useSelector(getCurrentApplicationId);
     const guidedTourEnabled = useSelector(inGuidedTour);
-    const pageId = useSelector(getCurrentPageId) as string;
     const dispatch = useDispatch();
+    const pageId = useSelector(getCurrentPageId);
     const icon = getPluginIcon(props.plugin);
+    const location = useLocation();
     const switchDatasource = useCallback(() => {
+      let url;
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
-        history.push(
-          SAAS_EDITOR_DATASOURCE_ID_URL(
-            applicationId,
-            pageId,
-            props.plugin.packageName,
-            props.datasource.id,
-            {
-              viewMode: true,
-            },
-          ),
-        );
+        url = saasEditorDatasourceIdURL({
+          pageId,
+          pluginPackageName: props.plugin.packageName,
+          datasourceId: props.datasource.id,
+          params: {
+            viewMode: true,
+          },
+        });
       } else {
         dispatch(
           setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
         );
-        history.push(
-          DATA_SOURCES_EDITOR_ID_URL(
-            applicationId,
-            pageId,
-            props.datasource.id,
-            getQueryParams(),
-          ),
-        );
+        url = datasourcesEditorIdURL({
+          pageId,
+          datasourceId: props.datasource.id,
+          params: getQueryParams(),
+        });
       }
-    }, [applicationId, pageId, props.datasource.id]);
+
+      AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
+        type: "DATASOURCES",
+        fromUrl: location.pathname,
+        toUrl: url,
+        name: props.datasource.name,
+      });
+      history.push(url);
+    }, [props.datasource.id, props.datasource.name, location.pathname]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>
@@ -87,7 +91,7 @@ const ExplorerDatasourceEntity = React.memo(
     });
 
     const getDatasourceStructure = useCallback(
-      (isOpen) => {
+      (isOpen: boolean) => {
         if (!datasourceStructure && isOpen) {
           dispatch(fetchDatasourceStructure(props.datasource.id));
         }
@@ -122,10 +126,10 @@ const ExplorerDatasourceEntity = React.memo(
           <DataSourceContextMenu
             className={EntityClassNames.CONTEXT_MENU}
             datasourceId={props.datasource.id}
-            entityId={`${props.datasource.id}-${props.pageId}`}
+            entityId={`${props.datasource.id}`}
           />
         }
-        entityId={`${props.datasource.id}-${props.pageId}`}
+        entityId={`${props.datasource.id}`}
         icon={icon}
         isDefaultExpanded={isDefaultExpanded}
         key={props.datasource.id}

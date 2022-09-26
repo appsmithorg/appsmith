@@ -18,7 +18,10 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static com.appsmith.server.constants.ResourceModes.EDIT;
+import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Getter
@@ -32,8 +35,15 @@ public class Application extends BaseDomain {
     @NotNull
     String name;
 
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     String organizationId;
 
+    String workspaceId;
+
+    /*
+    TODO: remove default values from application.
+     */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isPublic = false;
 
@@ -75,6 +85,15 @@ public class Application extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer evaluationVersion;
 
+    /**
+     * applicationVersion will be used when we've a breaking change in application, and it's not possible to write a
+     * migration. User need to update the application manually.
+     * In such cases, we can use this field to determine whether we need to notify user about that breaking change
+     * so that they can update their application.
+     * Once updated, we should set applicationVersion to latest version as well.
+     */
+    Integer applicationVersion;
+
     /*
     Changing name, change in pages, widgets and datasources will set lastEditedAt.
     Other activities e.g. changing policy will not change this property.
@@ -107,17 +126,39 @@ public class Application extends BaseDomain {
 
     Boolean forkingEnabled;
 
+    // Field to convey if the application is updated by the user
+    Boolean isManualUpdate;
+
+    // Field to convey if the application is modified from the DB migration
+    @Transient
+    Boolean isAutoUpdate;
+
+    // To convey current schema version for client and server. This will be used to check if we run the migration
+    // between 2 commits if the application is connected to git
+    @JsonIgnore
+    Integer clientSchemaVersion;
+
+    @JsonIgnore
+    Integer serverSchemaVersion;
+
     @JsonIgnore
     String publishedModeThemeId;
 
     @JsonIgnore
     String editModeThemeId;
 
+    // TODO Temporary provision for exporting the application with datasource configuration for the sample/template apps
+    Boolean exportWithConfiguration;
+
+    @JsonIgnore
+    @Deprecated
+    String defaultPermissionGroup;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
         super();
-        this.organizationId = application.getOrganizationId();
+        this.workspaceId = application.getWorkspaceId();
         this.pages = new ArrayList<>();
         this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();
@@ -125,6 +166,34 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+    }
+
+    public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
+        for (ApplicationPage applicationPage : this.getPages()) {
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
+            applicationPage.setDefaultPageId(null);
+        }
+        for (ApplicationPage applicationPage : this.getPublishedPages()) {
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
+            applicationPage.setDefaultPageId(null);
+        }
+    }
+
+    public void sanitiseToExportDBObject() {
+        this.setWorkspaceId(null);
+        this.setOrganizationId(null);
+        this.setModifiedBy(null);
+        this.setCreatedBy(null);
+        this.setLastDeployedAt(null);
+        this.setLastEditedAt(null);
+        this.setGitApplicationMetadata(null);
+        this.setEditModeThemeId(null);
+        this.setPublishedModeThemeId(null);
+        this.setClientSchemaVersion(null);
+        this.setServerSchemaVersion(null);
+        this.setIsManualUpdate(false);
+        this.sanitiseToExportBaseObject();
+        this.setDefaultPermissionGroup(null);
     }
 
     public List<ApplicationPage> getPages() {

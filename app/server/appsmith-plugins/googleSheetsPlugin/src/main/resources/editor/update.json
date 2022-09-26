@@ -1,0 +1,71 @@
+{
+  "identifier": "UPDATE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'UPDATE_ONE' || actionConfiguration.formData.command.data === 'UPDATE_MANY'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Row Objects",
+      "description": "",
+      "conditionals": {
+        "show": "{{!!actionConfiguration.formData.sheetName.data && actionConfiguration.formData.entityType.data === 'ROWS'}}"
+      },
+      "children": [
+        {
+          "label": "Update Row Object",
+          "tooltipText": "A single object to be updated based on it's rowIndex property",
+          "propertyName": "update_rowObjectWithSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObjects.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true,
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.smartSubstitution.data === true && actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'UPDATE_ONE'}}"
+          },
+          "placeholderText": "{{\n  { ...Table1.selectedRow, columnName: Input1.text }\n}}"
+        },
+        {
+          "label": "Update Row Object",
+          "tooltipText": "A single object to be updated based on it's rowIndex property",
+          "propertyName": "update_rowObjectWithoutSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObjects.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true,
+          "evaluationSubstitutionType": "TEMPLATE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.smartSubstitution.data === false && actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'UPDATE_ONE'}}"
+          },
+          "placeholderText": "{{\n  { ...Table1.selectedRow, columnName: Input1.text }\n}}"
+        },
+        {
+          "label": "Update Row Object(s)",
+          "tooltipText": "An array of objects to be updated based on their rowIndex property",
+          "propertyName": "update_rowObjectsWithSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObjects.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true,
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.smartSubstitution.data === true && actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'UPDATE_MANY'}}"
+          },
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Update Row Object(s)",
+          "tooltipText": "An array of objects to be updated based on their rowIndex property",
+          "propertyName": "update_rowObjectsWithoutSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObjects.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true,
+          "evaluationSubstitutionType": "TEMPLATE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.smartSubstitution.data === false && actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'UPDATE_MANY'}}"
+          },
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        }
+      ]
+    }
+  ]
+}

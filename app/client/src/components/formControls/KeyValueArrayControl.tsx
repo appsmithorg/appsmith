@@ -13,7 +13,7 @@ import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { TextInput, TextInputProps } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -78,7 +78,9 @@ function KeyValueRow(
       if (value && keyFieldProps?.validationRegex) {
         const regex = new RegExp(keyFieldProps?.validationRegex);
 
-        return regex.test(value) ? undefined : keyFieldProps.validationMessage;
+        return regex.test(value)
+          ? { isValid: true }
+          : { isValid: false, message: keyFieldProps.validationMessage };
       }
 
       return undefined;
@@ -118,7 +120,7 @@ function KeyValueRow(
                 name={keyTextFieldName}
                 props={{
                   dataType: getType(extraData[0]?.dataType),
-                  defaultValue: props.initialValue,
+                  defaultValue: extraData[0]?.initialValue,
                   keyFieldValidate,
                   placeholder: props.extraData
                     ? props.extraData[1]?.placeholderText
@@ -131,7 +133,7 @@ function KeyValueRow(
             {!props.actionConfig && (
               <div style={{ marginLeft: "16px", width: "20vw" }}>
                 <div
-                  data-replay-id={valueTextFieldName}
+                  data-replay-id={btoa(valueTextFieldName)}
                   style={{ display: "flex", flexDirection: "row" }}
                 >
                   <Field
@@ -139,7 +141,7 @@ function KeyValueRow(
                     name={valueTextFieldName}
                     props={{
                       dataType: getType(extraData[1]?.dataType),
-                      defaultValue: props.initialValue,
+                      defaultValue: extraData[1]?.initialValue,
                       placeholder: props.extraData
                         ? props.extraData[1]?.placeholderText
                         : "",

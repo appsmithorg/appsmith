@@ -121,12 +121,29 @@ public class ActionCollectionServiceImplTest {
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
 
         Mockito
+                .when(analyticsService.sendCreateEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
                 .when(analyticsService.sendUpdateEvent(Mockito.any()))
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
 
         Mockito
-                .when(analyticsService.sendDeleteEvent(Mockito.any()))
+                .when(analyticsService.sendUpdateEvent(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
+                .when(analyticsService.sendDeleteEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
+                .when(analyticsService.sendDeleteEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
+                .when(analyticsService.sendArchiveEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
     }
 
     <T> DefaultResources setDefaultResources(T collection) {
@@ -168,7 +185,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setName("testCollection");
         actionCollectionDTO.setPageId("testPageId");
         actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setOrganizationId("testOrganizationId");
+        actionCollectionDTO.setWorkspaceId("testWorkspaceId");
         actionCollectionDTO.setPluginId("testPluginId");
         actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -209,7 +226,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setName("testCollection");
         actionCollectionDTO.setPageId("testPageId");
         actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setOrganizationId("testOrganizationId");
+        actionCollectionDTO.setWorkspaceId("testWorkspaceId");
         actionCollectionDTO.setPluginId("testPluginId");
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
@@ -263,7 +280,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setName("testCollection");
         actionCollectionDTO.setPageId("testPageId");
         actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setOrganizationId("testOrganizationId");
+        actionCollectionDTO.setWorkspaceId("testWorkspaceId");
         actionCollectionDTO.setPluginId("testPluginId");
         ActionDTO action = new ActionDTO();
         action.setName("testAction");
@@ -365,6 +382,12 @@ public class ActionCollectionServiceImplTest {
                         .findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
 
+
+        Mockito
+                .when(newPageService
+                        .findById(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 layoutCollectionService.updateUnpublishedActionCollection("testId", actionCollectionDTO, null);
 
@@ -440,6 +463,12 @@ public class ActionCollectionServiceImplTest {
                 .when(newPageService.findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
 
+        Mockito
+                .when(newPageService
+                        .findById(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
+
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 layoutCollectionService.updateUnpublishedActionCollection("testCollectionId", modifiedActionCollectionDTO, null);
 
@@ -455,7 +484,7 @@ public class ActionCollectionServiceImplTest {
                                     .collect(Collectors.toSet())
                                     .containsAll(Set.of("testActionId1", "testActionId3")));
                     Assert.assertEquals("testActionId2", actionCollectionDTO1.getArchivedActions().get(0).getId());
-                    Assert.assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getArchivedAt()));
+                    Assert.assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getDeletedAt()));
                 })
                 .verifyComplete();
     }
@@ -570,7 +599,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito
-                .when(actionCollectionRepository.delete(Mockito.any()))
+                .when(actionCollectionRepository.archive(Mockito.any()))
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");
@@ -603,11 +632,11 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito
-                .when(newActionService.delete(Mockito.any()))
+                .when(newActionService.archiveById(Mockito.any()))
                 .thenReturn(Mono.just(new NewAction()));
 
         Mockito
-                .when(actionCollectionRepository.delete(Mockito.any()))
+                .when(actionCollectionRepository.archive(Mockito.any()))
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");

@@ -1,17 +1,18 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { useSelector } from "react-redux";
+import { getPluginImages } from "selectors/entitiesSelector";
+import { Classes } from "components/ads/common";
 import {
   DropdownOption,
   RenderDropdownOptionType,
-} from "components/ads/Dropdown";
-import { useSelector } from "react-redux";
-import { getPluginImages } from "../../../../selectors/entitiesSelector";
-import { Classes } from "../../../../components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+  Text,
+  TextType,
+} from "design-system";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 
 // ---------- Helpers and constants ----------
 
@@ -25,9 +26,7 @@ const OptionWrapper = styled.div<{
   width?: string;
 }>`
   padding: ${(props) =>
-    props.selected
-      ? `${props.theme.spaces[1]}px 0px`
-      : `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
+    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
   ${(props) => (!props.disabled ? "cursor: pointer" : "")};
   display: flex;
   align-items: center;
@@ -126,6 +125,9 @@ function DataSourceOption({
       disabled={
         isSupportedForTemplate || isSelectedNode || isConnectNewDataSourceBtn
       }
+      styles={{
+        width: "100%",
+      }}
     >
       <OptionWrapper
         className="t--dropdown-option"

@@ -9,11 +9,12 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -45,8 +46,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -54,7 +58,7 @@ import static org.mockito.Mockito.when;
  */
 @Slf4j
 public class RedshiftPluginTest {
-    PluginExecutor pluginExecutor = new RedshiftPlugin.RedshiftPluginExecutor();
+    RedshiftPlugin.RedshiftPluginExecutor pluginExecutor = new RedshiftPlugin.RedshiftPluginExecutor();
 
     private static String address;
     private static Integer port;
@@ -91,7 +95,14 @@ public class RedshiftPluginTest {
     @Test
     public void testDatasourceCreateConnectionFailure() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        DBAuth authentication = (DBAuth) dsConfig.getAuthentication();
+        authentication.setUsername("user");
+        authentication.setPassword("pass");
+        authentication.setDatabaseName("dbName");
+        dsConfig.setEndpoints(List.of(new Endpoint("host", 1234L)));
+        dsConfig.setConnection(new com.appsmith.external.models.Connection());
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .expectErrorMatches(throwable ->
@@ -99,7 +110,7 @@ public class RedshiftPluginTest {
                         throwable.getMessage().equals(
                                 new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "The connection attempt failed."
+                                    "Failed to initialize pool: The connection attempt failed."
                                 )
                                 .getMessage()
                         )
@@ -117,9 +128,9 @@ public class RedshiftPluginTest {
          *      a. isClosed(): return true
          *      b. isValid() : return false
          */
-        Connection mockConnection = mock(Connection.class);
+        HikariDataSource mockConnection = mock(HikariDataSource.class);
         when(mockConnection.isClosed()).thenReturn(true);
-        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(false);
+        when(mockConnection.isRunning()).thenReturn(false);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(mockConnection, dsConfig, actionConfiguration);
 
@@ -184,13 +195,18 @@ public class RedshiftPluginTest {
      */
     @Test
     public void testExecute() throws SQLException {
-        /* Mock java.sql.Connection:
+        /* Mock Hikari connection pool object:
          *      a. isClosed()
-         *      b. isValid()
+         *      b. isRunning()
          */
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isClosed()).thenReturn(false);
+        when(mockConnectionPool.isRunning()).thenReturn(true);
+
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.isClosed()).thenReturn(false);
         when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+        when(mockConnectionPool.getConnection()).thenReturn(mockConnection);
 
         /* Mock java.sql.Statement:
          *      a. execute(...)
@@ -198,7 +214,7 @@ public class RedshiftPluginTest {
          */
         Statement mockStatement = mock(Statement.class);
         when(mockConnection.createStatement()).thenReturn(mockStatement);
-        when(mockStatement.execute(Mockito.any())).thenReturn(true);
+        when(mockStatement.execute(any())).thenReturn(true);
         doNothing().when(mockStatement).close();
 
         /* Mock java.sql.ResultSet:
@@ -217,7 +233,7 @@ public class RedshiftPluginTest {
         when(mockResultSet.getDate(Mockito.anyInt())).thenReturn(Date.valueOf("2018-12-31"), Date.valueOf("2018-11-30"));
         when(mockResultSet.getString(Mockito.anyInt())).thenReturn("18:32:45", "12:05:06+00");
         when(mockResultSet.getTime(Mockito.anyInt())).thenReturn(Time.valueOf("20:45:15"));
-        when(mockResultSet.getObject(Mockito.anyInt(), Mockito.any(Class.class))).thenReturn(OffsetDateTime.parse(
+        when(mockResultSet.getObject(Mockito.anyInt(), any(Class.class))).thenReturn(OffsetDateTime.parse(
                 "2018-11-30T19:45:15+00"));
         when(mockResultSet.next()).thenReturn(true).thenReturn(false);
         doNothing().when(mockResultSet).close();
@@ -238,10 +254,13 @@ public class RedshiftPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
+        Mono<HikariDataSource> dsConnectionMono = Mono.just(mockConnectionPool);
+
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, false);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(connPool -> spyPluginExecutor.execute(connPool, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -308,13 +327,24 @@ public class RedshiftPluginTest {
      */
     @Test
     public void testStructure() throws SQLException {
+
+        /* Mock Hikari connection pool object:
+         *      a. isClosed()
+         *      b. isRunning()
+         */
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isClosed()).thenReturn(false);
+        when(mockConnectionPool.isRunning()).thenReturn(true);
+
         /* Mock java.sql.Connection:
          *      a. isClosed()
          *      b. isValid()
+         * Also, return mock connection object from mock connection pool
          */
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.isClosed()).thenReturn(false);
         when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+        when(mockConnectionPool.getConnection()).thenReturn(mockConnection);
 
         /* Mock java.sql.Statement:
          *      a. execute(...)
@@ -322,7 +352,7 @@ public class RedshiftPluginTest {
          */
         Statement mockStatement = mock(Statement.class);
         when(mockConnection.createStatement()).thenReturn(mockStatement);
-        when(mockStatement.execute(Mockito.any())).thenReturn(true);
+        when(mockStatement.execute(any())).thenReturn(true);
         doNothing().when(mockStatement).close();
 
         /* Mock java.sql.ResultSet:
@@ -367,10 +397,13 @@ public class RedshiftPluginTest {
         when(mockResultSet.getString("foreign_column")).thenReturn("id");     // KEYS_QUERY_FOREIGN_KEY
         doNothing().when(mockResultSet).close();
 
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, true);
+
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
+        Mono<HikariDataSource> dsConnectionMono = Mono.just(mockConnectionPool);
         Mono<DatasourceStructure> structureMono = dsConnectionMono
-                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+                .flatMap(connectionPool -> spyPluginExecutor.getStructure(connectionPool, dsConfig));
 
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
@@ -469,6 +502,14 @@ public class RedshiftPluginTest {
 
     @Test
     public void testDuplicateColumnNames() throws SQLException {
+        /* Mock Hikari connection pool object:
+         *      a. isClosed()
+         *      b. isRunning()
+         */
+        HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
+        when(mockConnectionPool.isClosed()).thenReturn(false);
+        when(mockConnectionPool.isRunning()).thenReturn(true);
+
         /* Mock java.sql.Connection:
          *      a. isClosed()
          *      b. isValid()
@@ -476,14 +517,11 @@ public class RedshiftPluginTest {
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.isClosed()).thenReturn(false);
         when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+        when(mockConnectionPool.getConnection()).thenReturn(mockConnection);
 
-        /* Mock java.sql.Statement:
-         *      a. execute(...)
-         *      b. close()
-         */
         Statement mockStatement = mock(Statement.class);
         when(mockConnection.createStatement()).thenReturn(mockStatement);
-        when(mockStatement.execute(Mockito.any())).thenReturn(true);
+        when(mockStatement.execute(any())).thenReturn(true);
         doNothing().when(mockStatement).close();
 
         /* Mock java.sql.ResultSet:
@@ -512,10 +550,13 @@ public class RedshiftPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id, id, username, username FROM users WHERE id = 1");
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
+        Mono<HikariDataSource> dsConnectionMono = Mono.just(mockConnectionPool);
+
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, false);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(connPool -> spyPluginExecutor.execute(connPool, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {

@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { BASE_URL } from "constants/routes";
 import { Colors } from "constants/Colors";
 import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
@@ -28,7 +28,7 @@ const LogoContainer = styled.div`
 
 export function LoginHeader() {
   return (
-    <StyledPageHeader>
+    <StyledPageHeader data-testid="t--appsmith-login-header">
       <LogoContainer>
         <Link to={BASE_URL}>
           <AppsmithLogo className="logoimg t--Appsmith-logo-image" />

@@ -2,8 +2,7 @@ import React from "react";
 import ActionCard from "./ActionCard";
 import { FormIcons } from "icons/FormIcons";
 import history from "utils/history";
-import { BUILDER_PAGE_URL, getGenerateTemplateFormURL } from "constants/routes";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
@@ -13,30 +12,24 @@ import {
   BUILD_FROM_SCRATCH_ACTION_SUBTITLE,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 
 type routeId = {
-  applicationId: string;
   pageId: string;
 };
 
-const routeToEmptyEditorFromGenPage = ({
-  applicationId,
-  pageId,
-}: routeId): void => {
+const routeToEmptyEditorFromGenPage = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
-  history.push(BUILDER_PAGE_URL({ applicationId: applicationId, pageId }));
+  history.push(builderURL({ pageId }));
 };
 
-const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
+const goToGenPageForm = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
-  history.push(getGenerateTemplateFormURL(applicationId, pageId));
+  history.push(generateTemplateFormURL({ pageId }));
 };
 
 function ActionCards() {
   const { pageId } = useParams<ExplorerURLParams>();
-  const applicationId = useSelector(getCurrentApplicationId);
 
   return (
     <>
@@ -45,7 +38,6 @@ function ActionCards() {
         className="t--BuildFromScratch"
         onClick={() =>
           routeToEmptyEditorFromGenPage({
-            applicationId: applicationId,
             pageId,
           })
         }
@@ -63,9 +55,7 @@ function ActionCards() {
           />
         )}
         className="t--GenerateCRUDPage"
-        onClick={() =>
-          goToGenPageForm({ applicationId: applicationId, pageId })
-        }
+        onClick={() => goToGenPageForm({ pageId })}
         subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
         title={GENERATE_PAGE_ACTION_TITLE()}
       />

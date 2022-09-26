@@ -1,7 +1,12 @@
-import React from "react";
-import { connect } from "react-redux";
+import React, { useEffect } from "react";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router-dom";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import {
+  change,
+  reduxForm,
+  InjectedFormProps,
+  formValueSelector,
+} from "redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,
@@ -24,9 +29,9 @@ import {
 } from "@appsmith/constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/ads/formFields/FormMessage";
-import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
+import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormGroup from "components/ads/formFields/FormGroup";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 import FormTextField from "components/ads/formFields/TextField";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
@@ -63,6 +68,14 @@ export const ForgotPassword = withTheme(
       submitSucceeded,
       submitting,
     } = props;
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      if (submitSucceeded) {
+        props.reset();
+        dispatch(change(FORGOT_PASSWORD_FORM_NAME, "email", ""));
+      }
+    }, [props.emailValue]);
 
     return (
       <>
@@ -82,8 +95,10 @@ export const ForgotPassword = withTheme(
           {submitSucceeded && (
             <FormMessage
               intent="lightSuccess"
-              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)}
-                ${props.emailValue}`}
+              message={createMessage(
+                FORGOT_PASSWORD_SUCCESS_TEXT,
+                props.emailValue,
+              )}
             />
           )}
           {!mailEnabled && (

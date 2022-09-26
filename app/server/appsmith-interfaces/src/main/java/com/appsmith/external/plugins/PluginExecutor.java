@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 
-public interface PluginExecutor<C> extends ExtensionPoint {
+public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     /**
      * This function is implemented by the plugins by default to execute the action.
@@ -205,7 +205,30 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
     }
 
-    default Mono<TriggerResultDTO> trigger(TriggerRequestDTO request) {
+    default Mono<TriggerResultDTO> trigger(C connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
         return Mono.empty();
+    }
+
+    /**
+     * This method coverts a plugin's form data to its native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query. It stores its result at the following two keys:
+     *   o formToNativeQuery.status: success / error
+     *   o formToNativeQuery.data: translated raw query if status is success or error message if status is error.
+     * Each plugin must override this method to provide their own translation logic.
+     * @param actionConfiguration
+     * @return modified actionConfiguration object after setting the two keys mentioned above in `formData`.
+     */
+    default void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+    }
+
+    /**
+     * This method returns a set of paths that are expected to contain bindings that refer to the same action
+     * object i.e. a cyclic reference. e.g. A REST API response can contain pagination related URL that would
+     * have to be configured in the pagination tab of the same API. We don't want to treat these cyclic
+     * references as cyclic dependency errors.
+     */
+    default Set<String> getSelfReferencingDataPaths() {
+        return Set.of("prev", "next");
     }
 }

@@ -1,19 +1,18 @@
 import React, { memo, useCallback } from "react";
 import Entity, { EntityClassNames } from "../Entity";
-import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getJSCollection } from "selectors/entitiesSelector";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
+import { jsCollectionIdURL } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useLocation } from "react-router";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
@@ -29,18 +28,27 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const applicationId = useSelector(getCurrentApplicationId);
     const pageId = useSelector(getCurrentPageId) as string;
     const jsAction = useSelector((state: AppState) =>
       getJSCollection(state, props.id),
     ) as JSCollection;
+    const location = useLocation();
+    const navigateToUrl = jsCollectionIdURL({
+      pageId,
+      collectionId: jsAction.id,
+      params: {},
+    });
     const navigateToJSCollection = useCallback(() => {
       if (jsAction.id) {
-        history.push(
-          JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.id, {}),
-        );
+        AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
+          type: "JSOBJECT",
+          fromUrl: location.pathname,
+          toUrl: navigateToUrl,
+          name: jsAction.name,
+        });
+        history.push(navigateToUrl);
       }
-    }, [pageId]);
+    }, [pageId, jsAction.id, jsAction.name, location.pathname]);
     const contextMenu = (
       <JSCollectionEntityContextMenu
         className={EntityClassNames.CONTEXT_MENU}
