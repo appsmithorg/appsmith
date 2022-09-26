@@ -115,14 +115,14 @@ ${({ buttonColor, buttonVariant, theme }) => `
 
     &:disabled, &.${Classes.DISABLED} {
     cursor: not-allowed;
-    background-color: ${Colors.GREY_1} !important;
-    color: ${Colors.GREY_9} !important;
+    background-color: var(--wds-color-bg-disabled) !important;
+    color: var(--wds-color-text-disabled) !important;
     box-shadow: none !important;
     pointer-events: none;
-    border-color: ${Colors.GREY_1} !important;
+    border-color: var(--wds-color-border-disabled) !important;
 
     > span {
-      color: ${Colors.GREY_9} !important;
+      color: var(--wds-color-text-disabled) !important;
     }
   }
 
