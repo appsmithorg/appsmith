@@ -44,6 +44,11 @@ import { AppTheme } from "entities/AppTheming";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { find } from "lodash";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
+import { getAllPageIds } from "./selectors";
+import { SagaIterator } from "@redux-saga/types";
+import { AxiosPromise } from "axios";
 
 /**
  * init app theming
@@ -97,10 +102,12 @@ export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
 export function* fetchAppSelectedTheme(
   // eslint-disable-next-line
   action: ReduxAction<FetchSelectedAppThemeAction>,
-) {
+): SagaIterator | AxiosPromise {
   const { applicationId } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
+  const pageIds = yield select(getAllPageIds);
+  const userDetails = yield select(getCurrentUser);
   try {
     // eslint-disable-next-line
     const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchSelected(
@@ -113,6 +120,16 @@ export function* fetchAppSelectedTheme(
         payload: response.data,
       });
     } else {
+      Sentry.captureException("Unable to fetch the selected theme", {
+        level: Severity.Critical,
+        extra: {
+          pageIds,
+          applicationId,
+          userDetails,
+          themeResponse: response,
+        },
+      });
+
       // If the response.data is undefined then we set selectedTheme to default Theme
       yield put({
         type: ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_INIT,
