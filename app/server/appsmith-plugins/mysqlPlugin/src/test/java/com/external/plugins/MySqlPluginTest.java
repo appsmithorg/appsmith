@@ -885,9 +885,12 @@ public class MySqlPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(2, structure.getTables().size());
+                    assertTrue(structure.getTables().size() > 0);
 
-                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(0);
+                    final DatasourceStructure.Table possessionsTable =
+                            structure.getTables().
+                                    stream().
+                                    filter(table -> table.getName().equalsIgnoreCase("possessions")).findFirst().get();
                     assertEquals("possessions", possessionsTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
@@ -931,7 +934,9 @@ public class MySqlPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables().get(1);
+                    final DatasourceStructure.Table usersTable = structure.getTables().
+                            stream().
+                            filter(table -> table.getName().equalsIgnoreCase("users")).findFirst().get();
                     assertEquals("users", usersTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
