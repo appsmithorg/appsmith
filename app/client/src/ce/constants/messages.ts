@@ -7,7 +7,7 @@ export function createMessage(
 
 /*
   For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
-  For cloud hosting, it displays "Appsmith v1.10.0". 
+  For cloud hosting, it displays "Appsmith v1.10.0".
   This is because Appsmith Cloud doesn't support business features yet.
  */
 export const APPSMITH_DISPLAY_VERSION = (
@@ -1244,3 +1244,11 @@ export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
+
+// Alert options and labels for showMessage types
+export const ALERT_STYLE_OPTIONS = [
+  { label: "Info", value: "'info'", id: "info" },
+  { label: "Success", value: "'success'", id: "success" },
+  { label: "Error", value: "'error'", id: "error" },
+  { label: "Warning", value: "'warning'", id: "warning" },
+];

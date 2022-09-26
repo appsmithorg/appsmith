@@ -119,12 +119,10 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
+    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
+    //Checking JS object was created successfully
+    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
 
-    // ********
-    // IMPORTANT TODO: This check will fail because we have removed the toast message
-    // Needs to be replaced with another check to see if the JS object was created successfully
-    // ********
-    // this.agHelper.AssertContains("created successfully");
     this.agHelper.Sleep();
   }
 
