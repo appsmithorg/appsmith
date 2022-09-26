@@ -102,7 +102,7 @@ export function WidgetContextMenu(props: {
     optionTree.push(option);
   }
 
-  if (widget.isDeletable !== false) {
+  if (widget.isDeletable !== false && props.canManagePages) {
     const option: TreeDropdownOption = {
       value: "delete",
       onSelect: dispatchDelete,
