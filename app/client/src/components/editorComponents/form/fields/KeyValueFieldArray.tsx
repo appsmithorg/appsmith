@@ -132,38 +132,17 @@ const expected = {
 };
 
 function KeyValueRow(props: Props & WrappedFieldArrayProps) {
-  const [initialFieldFlag, setInitialFieldFlag] = useState(false);
   useEffect(() => {
-    // remove empty fields if actual values are present
-    let nonEmptyFields = props.fields?.getAll() || [];
-    nonEmptyFields = nonEmptyFields.filter(
-      (data: any) => data && (!isEmpty(data.key) || !isEmpty(data.value)),
-    );
-    const emptyFieldsLength = props.fields.length - nonEmptyFields.length;
-    if (
-      nonEmptyFields.length > 0 &&
-      emptyFieldsLength > 0 &&
-      initialFieldFlag
-    ) {
-      props.fields.removeAll();
-      nonEmptyFields.forEach((pair) => {
-        props.fields.push(pair);
-      });
-
-      // to handle the case when we have one pair of header,
-      // and need to maintain another empty pair
-      if (nonEmptyFields.length < 2) {
-        props.fields.push({ key: "", value: "" });
+    const allProps = props.fields?.getAll();
+    if (!!allProps) {
+      if (props.fields.length < 2 && props.pushFields) {
+        for (let i = props.fields.length; i < 2; i += 1) {
+          // directly pushing the empty field in array
+          // instead of calling push action creator, because
+          // push action creator is async and causes issues
+          props.fields.getAll().push({ key: "", value: "" });
+        }
       }
-    }
-    setInitialFieldFlag(false);
-
-    // Always maintain 2 rows
-    if (props.fields.length < 2 && props.pushFields) {
-      for (let i = props.fields.length; i < 2; i += 1) {
-        props.fields.push({ key: "", value: "" });
-      }
-      setInitialFieldFlag(true);
     }
   }, [props.fields, props.pushFields]);
 
