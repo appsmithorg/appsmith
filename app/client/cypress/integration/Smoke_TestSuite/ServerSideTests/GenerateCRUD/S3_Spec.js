@@ -160,7 +160,9 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     // });
 
     //Create Dummy Page2 :
-    cy.CreatePage();
+    cy.get(pages.AddPage)
+      .first()
+      .click();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -168,7 +170,9 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     );
 
     //Creating CRUD Page3
-    cy.CreatePage();
+    cy.get(pages.AddPage)
+      .first()
+      .click();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
