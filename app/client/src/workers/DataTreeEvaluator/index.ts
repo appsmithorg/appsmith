@@ -841,32 +841,26 @@ export default class DataTreeEvaluator {
     );
     if (stringSegments.length === 0) return undefined;
     // Get the Data Tree value of those "binding "paths
-    let evaluatedValues: any = [];
-    try {
-      evaluatedValues = await Promise.all(
-        jsSnippets.map(async (jsSnippet, index) => {
-          const toBeSentForEval =
-            entity && isJSAction(entity) && propertyPath === "body"
-              ? jsSnippet.replace(/export default/g, "")
-              : jsSnippet;
-          if (!jsSnippet) return Promise.resolve(stringSegments[index]);
+    const evaluatedValues = await Promise.all(
+      jsSnippets.map(async (jsSnippet, index) => {
+        const toBeSentForEval =
+          entity && isJSAction(entity) && propertyPath === "body"
+            ? jsSnippet.replace(/export default/g, "")
+            : jsSnippet;
+        if (!jsSnippet) return Promise.resolve(stringSegments[index]);
 
-          return this.evaluateDynamicBoundValue(
-            toBeSentForEval,
-            data,
-            resolvedFunctions,
-            !!entity && isJSAction(entity),
-            contextData,
-            callBackData,
-            fullPropertyPath?.includes("body") ||
-              !toBeSentForEval.includes("console."),
-          );
-        }),
-      );
-    } catch (e) {
-      debugger;
-      console.log(e);
-    }
+        return this.evaluateDynamicBoundValue(
+          toBeSentForEval,
+          data,
+          resolvedFunctions,
+          !!entity && isJSAction(entity),
+          contextData,
+          callBackData,
+          fullPropertyPath?.includes("body") ||
+            !toBeSentForEval.includes("console."),
+        );
+      }),
+    );
 
     const values = [];
     for (const result of evaluatedValues) {
