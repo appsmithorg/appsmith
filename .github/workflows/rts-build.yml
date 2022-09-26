@@ -119,10 +119,15 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
           echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
-      # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --frozen-lockfile
+
+      # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run test:unit
 
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
