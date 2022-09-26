@@ -107,7 +107,6 @@ export function* fetchAppSelectedTheme(
       applicationId,
       mode,
     );
-
     if (response?.data) {
       yield put({
         type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
@@ -326,7 +325,7 @@ function* setDefaultSelectedThemeOnError() {
       // shows toast
       Toaster.show({
         text: createMessage(SET_DEFAULT_SELECTED_THEME, theme.displayName),
-        variant: Variant.success,
+        variant: Variant.warning,
       });
     }
   } catch (error) {
