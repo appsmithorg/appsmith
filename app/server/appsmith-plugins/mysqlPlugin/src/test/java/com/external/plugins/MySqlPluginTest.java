@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -891,11 +892,12 @@ public class MySqlPluginTest {
                     assertNotNull(structure);
                     assertEquals(2, structure.getTables().size());
 
-                    final DatasourceStructure.Table possessionsTable = structure.getTables()
+                    Optional<DatasourceStructure.Table> possessionsTableOptional = structure.getTables()
                             .stream()
                             .filter(table -> table.getName().equalsIgnoreCase("possessions"))
-                            .findFirst()
-                            .get();
+                            .findFirst();
+                    assertTrue(possessionsTableOptional.isPresent());
+                    final DatasourceStructure.Table possessionsTable = possessionsTableOptional.get();
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
@@ -938,11 +940,12 @@ public class MySqlPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables()
+                    Optional<DatasourceStructure.Table> usersTableOptional = structure.getTables()
                             .stream()
                             .filter(table -> table.getName().equalsIgnoreCase("users"))
-                            .findFirst()
-                            .get();
+                            .findFirst();
+                    assertTrue(usersTableOptional.isPresent());
+                    final DatasourceStructure.Table usersTable = usersTableOptional.get();
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
