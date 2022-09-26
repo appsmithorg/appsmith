@@ -570,16 +570,19 @@ public class MySqlPluginTest {
         Param param1 = new Param();
         param1.setKey("binding1");
         param1.setValue("1.123");
+        param1.setClientDataType(ClientDataType.NUMBER);
         params.add(param1);
 
         Param param2 = new Param();
         param2.setKey("binding2");
         param2.setValue("3.123");
+        param2.setClientDataType(ClientDataType.NUMBER);
         params.add(param2);
 
         Param param3 = new Param();
         param3.setKey("binding3");
         param3.setValue("5.123");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
 
         executeActionDTO.setParams(params);
@@ -636,6 +639,7 @@ public class MySqlPluginTest {
         Param param1 = new Param();
         param1.setKey("binding1");
         param1.setValue("True");
+        param1.setClientDataType(ClientDataType.BOOLEAN);
         params.add(param1);
         executeActionDTO.setParams(params);
 
