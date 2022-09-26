@@ -308,60 +308,62 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         // We want to be finding both type of references
         final int entityTypes = ACTION_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
-        return actionNameToActionMapMono.zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion)).map(tuple -> {
-            Map<String, ActionDTO> actionMap = tuple.getT1();
-            // For each binding, here we receive a set of possible references to global entities
-            // At this point we're guaranteed that these references are made to possible variables,
-            // but we do not know if those entities exist in the global namespace yet
-            Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
+        return actionNameToActionMapMono
+                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
+                .map(tuple -> {
+                    Map<String, ActionDTO> actionMap = tuple.getT1();
+                    // For each binding, here we receive a set of possible references to global entities
+                    // At this point we're guaranteed that these references are made to possible variables,
+                    // but we do not know if those entities exist in the global namespace yet
+                    Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
 
-            Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+                    Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
 
-            // From these references, we will try to validate action references at this point
-            // Each identified node is already annotated with the expected type of entity we need to search for
-            bindingToPossibleParentMap.entrySet()
-                    .stream()
-                    .forEach(entry -> {
-                        Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
-                        entry.getValue()
-                                .stream()
-                                .forEach(binding -> {
-                                    // For each possible reference node, check if the reference was to an action
-                                    ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
+                    // From these references, we will try to validate action references at this point
+                    // Each identified node is already annotated with the expected type of entity we need to search for
+                    bindingToPossibleParentMap.entrySet()
+                            .stream()
+                            .forEach(entry -> {
+                                Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
+                                entry.getValue()
+                                        .stream()
+                                        .forEach(binding -> {
+                                            // For each possible reference node, check if the reference was to an action
+                                            ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
 
-                                    if (actionDTO != null) {
-                                        // If it was, and had been identified as such,
-                                        if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION).contains(binding.getEntityReferenceType())) {
-                                            // Copy over some data from the identified action, this ensures that we do not have to query the DB again later
-                                            binding.setIsAsync(actionDTO.getActionConfiguration().getIsAsync());
-                                            binding.setActionDTO(actionDTO);
-                                            bindingsWithActionReference.add(binding);
-                                            // Only if this is not an async JS function action and is not a direct JS function call,
-                                            // add it to a possible on page load action call.
-                                            // This discards the following type:
-                                            // {{ JSObject1.asyncFunc() }}
-                                            if (!(TRUE.equals(binding.getIsAsync()) && TRUE.equals(binding.getIsFunctionCall()))) {
-                                                possibleEntitiesReferences.add(binding);
+                                            if (actionDTO != null) {
+                                                // If it was, and had been identified as such,
+                                                if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION).contains(binding.getEntityReferenceType())) {
+                                                    // Copy over some data from the identified action, this ensures that we do not have to query the DB again later
+                                                    binding.setIsAsync(actionDTO.getActionConfiguration().getIsAsync());
+                                                    binding.setActionDTO(actionDTO);
+                                                    bindingsWithActionReference.add(binding);
+                                                    // Only if this is not an async JS function action and is not a direct JS function call,
+                                                    // add it to a possible on page load action call.
+                                                    // This discards the following type:
+                                                    // {{ JSObject1.asyncFunc() }}
+                                                    if (!(TRUE.equals(binding.getIsAsync()) && TRUE.equals(binding.getIsFunctionCall()))) {
+                                                        possibleEntitiesReferences.add(binding);
+                                                    }
+                                                    // We're ignoring any reference that was identified as a widget but actually matched an action
+                                                    // We wouldn't have discarded JS collection names here, but this is just an optimization, so it's fine
+                                                }
+                                            } else {
+                                                // If the reference node was identified as a widget, directly add it as a possible reference
+                                                // Because we are not doing any validations for widget references at this point
+                                                if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
+                                                    possibleEntitiesReferences.add(binding);
+                                                }
                                             }
-                                            // We're ignoring any reference that was identified as a widget but actually matched an action
-                                            // We wouldn't have discarded JS collection names here, but this is just an optimization, so it's fine
-                                        }
-                                    } else {
-                                        // If the reference node was identified as a widget, directly add it as a possible reference
-                                        // Because we are not doing any validations for widget references at this point
-                                        if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
-                                            possibleEntitiesReferences.add(binding);
-                                        }
-                                    }
-                                });
+                                        });
 
-                        if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
-                            bindingsInDsl.addAll(bindingsWithActionReference);
-                        }
-                    });
+                                if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
+                                    bindingsInDsl.addAll(bindingsWithActionReference);
+                                }
+                            });
 
-            return possibleEntitiesReferences;
-        });
+                    return possibleEntitiesReferences;
+                });
     }
 
     /**
@@ -817,25 +819,33 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                                                                          int evalVersion) {
         final int entityTypes = WIDGET_ENTITY_REFERENCES;
         // This part will ensure that we are discovering widget to widget relationships.
-        return Flux.fromIterable(widgetBindingMap.entrySet()).doOnNext(widgetBindingEntries -> getPossibleEntityParentsMap(widgetBindingEntries.getValue(), entityTypes, evalVersion).doOnNext(possibleParentsMap -> {
-            possibleParentsMap.entrySet().stream().forEach(entry -> {
+        return Flux.fromIterable(widgetBindingMap.entrySet())
+                .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(widgetBindingEntries.getValue(), entityTypes, evalVersion)
+                        .map(possibleParentsMap -> {
+                            possibleParentsMap.entrySet().stream().forEach(entry -> {
 
-                if (entry.getValue() == null || entry.getValue().isEmpty()) {
-                    return;
-                }
-                String widgetPath = widgetBindingEntries.getKey().trim();
-                String[] widgetPathParts = widgetPath.split("\\.");
-                String widgetName = widgetPath;
-                if (widgetPathParts.length > 0) {
-                    widgetName = widgetPathParts[0];
-                }
-                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetPath, null, null, null);
-                ActionDependencyEdge edge = new ActionDependencyEdge(entry.getValue().stream().findFirst().get(), entityDependencyNode);
-                edges.add(edge);
+                                if (entry.getValue() == null || entry.getValue().isEmpty()) {
+                                    return;
+                                }
+                                String widgetPath = widgetBindingEntries.getKey().trim();
+                                String[] widgetPathParts = widgetPath.split("\\.");
+                                String widgetName = widgetPath;
+                                if (widgetPathParts.length > 0) {
+                                    widgetName = widgetPathParts[0];
+                                }
+                                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetPath, null, null, null);
+                                entry.getValue().stream().forEach(widgetDependencyNode -> {
+                                    ActionDependencyEdge edge = new ActionDependencyEdge(widgetDependencyNode, entityDependencyNode);
+                                    edges.add(edge);
+                                });
 
-            });
 
-        })).then(Mono.just(edges));
+                            });
+                            return possibleParentsMap;
+
+                        }))
+                .collectList()
+                .then(Mono.just(edges));
 
     }
 
