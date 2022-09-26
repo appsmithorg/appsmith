@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import DynamicTextField from "./DynamicTextField";
@@ -23,7 +23,6 @@ import {
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { isEmpty } from "lodash";
 
 type CustomStack = {
   removeTopPadding?: boolean;
