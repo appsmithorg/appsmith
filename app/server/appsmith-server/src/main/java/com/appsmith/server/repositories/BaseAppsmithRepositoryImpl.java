@@ -388,8 +388,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
-        return cacheableRepositoryHelper.getAnonymousUser()
-                .flatMap(anonymousUser -> cacheableRepositoryHelper.getPermissionGroupsOfUser(anonymousUser));
+        return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
 }
