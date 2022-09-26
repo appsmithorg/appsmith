@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isString } from "lodash";
+import _, { isString, debounce as _debounce } from "lodash";
 import {
   DataTree,
   ENTITY_TYPE,
@@ -350,7 +350,21 @@ class CodeEditor extends Component<Props, State> {
     return true;
   }
 
+  //Debounce editor refresh request as container resizing triggers many change events.
+  debounceEditorRefresh = _debounce(async () => {
+    console.log("ondhu 3");
+    this.editor.refresh();
+  }, 100);
+
   componentDidUpdate(prevProps: Props): void {
+    if (
+      prevProps.containerHeight &&
+      this.props.containerHeight &&
+      prevProps.containerHeight < this.props.containerHeight
+    ) {
+      //Refresh editor when the container height is increased.
+      this.debounceEditorRefresh();
+    }
     this.editor.operation(() => {
       if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
@@ -371,15 +385,6 @@ class CodeEditor extends Component<Props, State> {
       } else if (previousInputValue !== inputValue) {
         // handles case when inputValue changes from a truthy to a falsy value
         this.editor.setValue("");
-      }
-
-      if (
-        prevProps.containerHeight &&
-        this.props.containerHeight &&
-        prevProps.containerHeight < this.props.containerHeight
-      ) {
-        //Refresh editor when the container height is increased.
-        this.editor.refresh();
       }
       CodeEditor.updateMarkings(this.editor, this.props.marking);
     });
