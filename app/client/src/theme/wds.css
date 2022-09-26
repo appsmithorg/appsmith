@@ -1,5 +1,6 @@
 :root {
   --wds-color-border: #E0DEDE;
+  --wds-color-border-onaccent: rgba(161, 161, 161, 0.3);
   --wds-color-border-light: #FDDDDD;
   --wds-color-border-hover: #B3B3B3;
   --wds-color-border-disabled: #E0DEDE;

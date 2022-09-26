@@ -156,7 +156,7 @@ const Container = styled.div`
       stroke: ${(props) => props.theme.colors.header.tabText};
     }
   }
-  border-bottom: 1px solid var(--wds-color-border);
+  border-bottom: 1px solid var(--wds-color-border-onaccent);
 `;
 
 const ScrollBtnContainer = styled.div<{ visible: boolean }>`
