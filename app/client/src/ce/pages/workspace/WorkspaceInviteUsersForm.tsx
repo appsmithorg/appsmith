@@ -448,7 +448,7 @@ export const InviteButtonWidth = "88px";
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
-  const [selectedOption, setSelectedOption] = useState<any>([]);
+  const [selectedOption, setSelectedOption] = useState<any[]>([]);
   const userRef = React.createRef<HTMLDivElement>();
   const history = useHistory();
   const selectedId = props?.selected?.id;
