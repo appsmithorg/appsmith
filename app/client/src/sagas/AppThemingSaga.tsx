@@ -42,7 +42,10 @@ import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
 import { ApiResponse } from "api/ApiResponses";
 import { AppTheme } from "entities/AppTheming";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectApplicationVersion,
+} from "selectors/editorSelectors";
 import { find } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
@@ -108,6 +111,7 @@ export function* fetchAppSelectedTheme(
 
   const pageIds = yield select(getAllPageIds);
   const userDetails = yield select(getCurrentUser);
+  const applicationVersion = yield select(selectApplicationVersion);
   try {
     // eslint-disable-next-line
     const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchSelected(
@@ -125,6 +129,7 @@ export function* fetchAppSelectedTheme(
         extra: {
           pageIds,
           applicationId,
+          applicationVersion,
           userDetails,
           themeResponse: response,
         },
