@@ -19,8 +19,6 @@ export const getTemplatesSelector = (state: AppState) =>
   state.ui.templates.templates;
 export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
-export const isImportingTemplateToAppSelector = (state: AppState) =>
-  state.ui.templates.isImportingTemplateToApp;
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 
@@ -65,7 +63,6 @@ export const getFilteredTemplateList = createSelector(
   getTemplateFiltersLength,
   (templates, templatesFilters, numberOfFiltersApplied) => {
     const result: Template[] = [];
-    const activeTemplateIds: string[] = [];
 
     if (!numberOfFiltersApplied) {
       return templates;
@@ -77,17 +74,12 @@ export const getFilteredTemplateList = createSelector(
 
     Object.keys(templatesFilters).map((filter) => {
       templates.map((template) => {
-        if (activeTemplateIds.includes(template.id)) {
-          return;
-        }
-
         if (
           template[filter as FilterKeys].some((templateFilter) => {
             return templatesFilters[filter].includes(templateFilter);
           })
         ) {
           result.push(template);
-          activeTemplateIds.push(template.id);
         }
       });
     });
@@ -143,26 +135,22 @@ export const templatesDatasourceFiltersSelector = createSelector(
   },
 );
 
-export const templatesFiltersSelector = (state: AppState) =>
-  state.ui.templates.allFilters;
-
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
 export const getFilterListSelector = createSelector(
   getWidgetCards,
   templatesDatasourceFiltersSelector,
   getTemplatesSelector,
-  templatesFiltersSelector,
-  (widgetConfigs, allDatasources, templates, allTemplateFilters) => {
+  (widgetConfigs, allDatasources, templates) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
-      functions: [],
+      widgets: [],
     };
 
-    const allFunctions = allTemplateFilters.functions.map((item) => {
+    const allWidgets = widgetConfigs.map((widget) => {
       return {
-        label: item,
-        value: item,
+        label: widget.displayName,
+        value: widget.type,
       };
     });
 
@@ -193,7 +181,7 @@ export const getFilterListSelector = createSelector(
 
     templates.map((template) => {
       filterFilters("datasources", allDatasources, template);
-      filterFilters("functions", allFunctions, template);
+      filterFilters("widgets", allWidgets, template);
     });
 
     return filters;
@@ -211,9 +199,3 @@ export const getForkableWorkspaces = createSelector(
     });
   },
 );
-
-export const templateModalOpenSelector = (state: AppState) =>
-  state.ui.templates.showTemplatesModal;
-
-export const templatesCountSelector = (state: AppState) =>
-  state.ui.templates.templates.length;
