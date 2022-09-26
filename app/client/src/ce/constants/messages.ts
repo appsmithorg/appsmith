@@ -1228,3 +1228,11 @@ export const CLEAN_URL_UPDATE = {
 };
 
 export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+
+// Alert options and labels for showMessage types
+export const ALERT_STYLE_OPTIONS = [
+  { label: "Info", value: "'info'", id: "info" },
+  { label: "Success", value: "'success'", id: "success" },
+  { label: "Error", value: "'error'", id: "error" },
+  { label: "Warning", value: "'warning'", id: "warning" },
+];
