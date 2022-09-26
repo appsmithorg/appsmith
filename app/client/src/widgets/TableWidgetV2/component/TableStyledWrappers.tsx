@@ -83,7 +83,7 @@ export const TableWrapper = styled.div<{
       ${hideScrollbar};
     }
     .tbody.no-scroll {
-      overflow: unset;
+      overflow: hidden;
     }
     .tr {
       overflow: hidden;

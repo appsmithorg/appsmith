@@ -102,6 +102,7 @@ const TableVirtualBodyComponent = React.forwardRef(
             borderRadius={props.borderRadius}
             className="t--virtual-row"
             index={index}
+            key={index}
             multiRowSelection={props.multiRowSelection}
             prepareRow={props.prepareRow}
             row={row}
@@ -138,7 +139,7 @@ const TableVirtualBodyComponent = React.forwardRef(
           itemCount={Math.max(props.rows.length, props.pageSize)}
           itemSize={props.tableSizes.ROW_HEIGHT}
           outerRef={ref}
-          width="100%"
+          width={`calc(100% + ${2 * WIDGET_PADDING}px`}
         >
           {rowRenderer}
         </FixedSizeList>
