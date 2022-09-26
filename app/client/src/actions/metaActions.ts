@@ -3,6 +3,7 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
+import { MetaState } from "reducers/entityReducers/metaReducer";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 import { DataTreeWidget } from "../entities/DataTree/dataTreeFactory";
 
@@ -85,5 +86,12 @@ export const syncUpdateWidgetMetaProperty = (
       propertyName,
       propertyValue,
     },
+  };
+};
+
+export const setAllMetaProps = (metaState: MetaState) => {
+  return {
+    type: ReduxActionTypes.SET_ALL_META_PROPS,
+    payload: metaState,
   };
 };

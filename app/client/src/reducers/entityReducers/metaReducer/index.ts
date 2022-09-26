@@ -126,11 +126,14 @@ export const metaReducer = createReducer(initialState, {
     }
     return state;
   },
-  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: () => {
-    return initialState;
-  },
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS]: () => {
     return initialState;
+  },
+  [ReduxActionTypes.SET_ALL_META_PROPS]: (
+    state: MetaState,
+    action: ReduxAction<MetaState>,
+  ) => {
+    return action.payload || {};
   },
 });
 

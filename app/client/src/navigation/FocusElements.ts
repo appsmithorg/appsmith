@@ -62,11 +62,15 @@ import {
 } from "constants/AppConstants";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
+import { setAllMetaProps } from "actions/metaActions";
+import { getWidgetsMeta } from "sagas/selectors";
+import { initialState as MetaDefaultState } from "reducers/entityReducers/metaReducer";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
   ApiPaneResponseTabs = "ApiPaneResponseTabs",
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
+  CanvasDebuggerTabs = "CanvasDebuggerTabs",
   CodeEditorHistory = "CodeEditorHistory",
   EntityExplorerWidth = "EntityExplorerWidth",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
@@ -82,7 +86,7 @@ export enum FocusElement {
   SelectedPropertyPanel = "SelectedPropertyPanel",
   PropertyPaneWidth = "PropertyPaneWidth",
   SelectedWidgets = "SelectedWidgets",
-  CanvasDebuggerTabs = "CanvasDebuggerTabs",
+  WidgetMeta = "WidgetMeta",
 }
 
 type Config = {
@@ -106,6 +110,12 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getExplorerWidth,
       setter: updateExplorerWidthAction,
       defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
+    },
+    {
+      name: FocusElement.WidgetMeta,
+      selector: getWidgetsMeta,
+      setter: setAllMetaProps,
+      defaultValue: MetaDefaultState,
     },
   ],
   [FocusEntity.CANVAS]: [
