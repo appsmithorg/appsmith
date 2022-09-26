@@ -19,7 +19,12 @@ const locale = {
   next_3: "Next 3 Pages",
 };
 
-const paginatorCss = css`
+const paginatorCss = css<{
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+  disabled?: boolean;
+}>`
   margin: 0 auto;
   padding: 0;
   font-size: 14px;
@@ -308,15 +313,7 @@ const paginatorCss = css`
       display: none;
     }
   }
-`;
 
-const StyledPagination = styled(Pagination)<{
-  disabled?: boolean;
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor: string;
-}>`
-  ${paginatorCss}
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
   opacity: ${(props) => (props.disabled ? "0.4" : "1")};
 
@@ -366,6 +363,15 @@ const StyledPagination = styled(Pagination)<{
     }
 `;
 
+const StyledPagination = styled(Pagination)<{
+  disabled?: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+}>`
+  ${paginatorCss}
+`;
+
 interface ListPaginationProps {
   current: number;
   total: number;
@@ -411,7 +417,12 @@ const PaginationWrapper = styled.ul`
 
 export function ServerSideListPagination(props: any) {
   return (
-    <PaginationWrapper>
+    <PaginationWrapper
+      accentColor={props.accentColor}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      disabled={props.disabled}
+    >
       <li
         className={`t--list-widget-prev-page rc-pagination-prev ${props.pageNo ===
           1 && "rc-pagination-disabled"}`}
@@ -424,7 +435,9 @@ export function ServerSideListPagination(props: any) {
             if (props.pageNo > 1) props.prevPageClick();
           }}
           type="button"
-        />
+        >
+          <Icon name="left-arrow-2" size={IconSize.XXL} />
+        </button>
       </li>
       <li
         className="rc-pagination-item rc-pagination-item-0 rc-pagination-item-active"
@@ -443,7 +456,9 @@ export function ServerSideListPagination(props: any) {
             props.nextPageClick();
           }}
           type="button"
-        />
+        >
+          <Icon name="right-arrow-2" size={IconSize.XXL} />
+        </button>
       </li>
     </PaginationWrapper>
   );
