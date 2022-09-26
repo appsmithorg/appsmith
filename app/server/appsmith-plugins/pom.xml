@@ -64,7 +64,6 @@
         <module>postgresPlugin</module>
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
-        <module>rapidApiPlugin</module>
         <module>mysqlPlugin</module>
         <module>elasticSearchPlugin</module>
         <module>dynamoPlugin</module>
