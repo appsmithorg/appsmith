@@ -227,17 +227,7 @@ export function Table(props: TableProps) {
     [props.width],
   );
 
-  let totalColumnWidth = 2 * WIDGET_PADDING;
-
-  if (props.multiRowSelection) {
-    totalColumnWidth += MULTISELECT_CHECKBOX_WIDTH;
-  }
-
-  totalColumnWidth = props.columns.reduce((prev, curr) => {
-    return prev + (curr.width || DEFAULT_COLUMN_WIDTH);
-  }, totalColumnWidth);
-
-  const ShouldUseVirtual =
+  const shouldUseVirtual =
     !props.columns.some(
       (column) => column.columnProperties.allowCellWrapping,
     ) && props.serverSidePaginationEnabled;
@@ -389,8 +379,7 @@ export function Table(props: TableProps) {
               selectedRowIndex={props.selectedRowIndex}
               selectedRowIndices={props.selectedRowIndices}
               tableSizes={tableSizes}
-              totalColumnWidth={totalColumnWidth}
-              useVirtual={ShouldUseVirtual}
+              useVirtual={shouldUseVirtual}
               width={props.width}
             />
           </div>
