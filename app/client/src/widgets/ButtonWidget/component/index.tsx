@@ -115,7 +115,8 @@ ${({ buttonColor, buttonVariant, theme }) => `
 
     &:disabled, &.${Classes.DISABLED} {
     cursor: not-allowed;
-    background-color: var(--wds-color-bg-disabled) !important;
+    background-color: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
+      "var(--wds-color-bg-disabled)"} !important;
     color: var(--wds-color-text-disabled) !important;
     box-shadow: none !important;
     pointer-events: none;
