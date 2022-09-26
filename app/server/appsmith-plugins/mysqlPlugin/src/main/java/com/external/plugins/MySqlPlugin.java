@@ -368,7 +368,7 @@ public class MySqlPlugin extends BasePlugin {
 
         }
 
-        private boolean isIsOperatorUsed(String query) {
+        boolean isIsOperatorUsed(String query) {
             String queryKeyWordsOnly = query.replaceAll(MATCH_QUOTED_WORDS_REGEX, "");
             return Arrays.stream(queryKeyWordsOnly.split("\\s"))
                     .anyMatch(word -> IS_KEY.equalsIgnoreCase(word.trim()));

@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -17,6 +18,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
@@ -48,6 +50,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 @Slf4j
 public class MySqlPluginTest {
@@ -94,6 +99,8 @@ public class MySqlPluginTest {
         Mono.from(ConnectionFactories.get(ob.build()).create())
                 .map(connection -> {
                     return connection.createBatch()
+                            .add("DROP TABLE IF EXISTS possessions")
+                            .add("DROP TABLE IF EXISTS users")
                             .add("create table users (\n" +
                                     "    id int auto_increment primary key,\n" +
                                     "    username varchar (250) unique not null,\n" +
@@ -509,6 +516,7 @@ public class MySqlPluginTest {
         Param param1 = new Param();
         param1.setKey("binding1");
         param1.setValue("True");
+        param1.setClientDataType(ClientDataType.BOOLEAN);
         params.add(param1);
 
         executeActionDTO.setParams(params);
@@ -670,10 +678,12 @@ public class MySqlPluginTest {
         Param param1 = new Param();
         param1.setKey("binding1");
         param1.setValue("1");
+        param1.setClientDataType(ClientDataType.NUMBER);
         params.add(param1);
         Param param2 = new Param();
         param2.setKey("binding2");
         param2.setValue("0");
+        param2.setClientDataType(ClientDataType.NUMBER);
         params.add(param2);
         executeActionDTO.setParams(params);
 
@@ -1165,6 +1175,210 @@ public class MySqlPluginTest {
                     assertNotNull(result.getBody());
                     String expectedBody = "[{\"Field\":\"id\",\"Type\":\"int\",\"Null\":\"NO\",\"Key\":\"PRI\",\"Default\":null,\"Extra\":\"auto_increment\"},{\"Field\":\"username\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"password\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"email\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"spouse_dob\",\"Type\":\"date\",\"Null\":\"YES\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"dob\",\"Type\":\"date\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"yob\",\"Type\":\"year\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"time1\",\"Type\":\"time\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"created_on\",\"Type\":\"timestamp\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"updated_on\",\"Type\":\"datetime\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"}]";
                     assertEquals(expectedBody, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNullObjectWithPreparedStatement() {
+        pluginExecutor = spy(new MySqlPlugin.MySqlPluginExecutor());
+        doReturn(false).when(pluginExecutor).isIsOperatorUsed(any());
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * from (\n" +
+                "\tselect 'Appsmith' as company_name, true as open_source\n" +
+                "\tunion\n" +
+                "\tselect 'Retool' as company_name, false as open_source\n" +
+                "\tunion\n" +
+                "\tselect 'XYZ' as company_name, null as open_source\n" +
+                ") t\n" +
+                "where t.open_source IS {{binding1}}");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue(null);
+        param1.setClientDataType(ClientDataType.NULL);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[]{
+                                    "company_name",
+                                    "open_source"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                    // Verify value
+                    assertEquals(JsonNodeType.NULL, node.get("open_source").getNodeType());
+
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNullAsStringWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * from (\n" +
+                "\tselect 'Appsmith' as company_name, true as open_source\n" +
+                "\tunion\n" +
+                "\tselect 'Retool' as company_name, false as open_source\n" +
+                "\tunion\n" +
+                "\tselect 'XYZ' as company_name, 'null' as open_source\n" +
+                ") t\n" +
+                "where t.open_source = {{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("null");
+        param1.setClientDataType(ClientDataType.STRING);
+        params.add(param1);
+
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[]{
+                                    "company_name",
+                                    "open_source"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                    // Verify value
+                    assertEquals(JsonNodeType.STRING, node.get("open_source").getNodeType());
+
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNumericValuesHavingLeadingZeroWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT {{binding1}} as numeric_string;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("098765");
+        param1.setClientDataType(ClientDataType.STRING);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[]{
+                                    "numeric_string"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                    // Verify value
+                    assertEquals(JsonNodeType.STRING, node.get("numeric_string").getNodeType());
+                    assertEquals(param1.getValue(), node.get("numeric_string").asText());
+
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testLongValueWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select id from user LIMIT {{binding1}}");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("2147483648");
+        param1.setClientDataType(ClientDataType.NUMBER);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[]{
+                                    "id"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                    // Verify value
+                    assertEquals(JsonNodeType.NUMBER, node.get("id").getNodeType());
+
+
                 })
                 .verifyComplete();
     }
