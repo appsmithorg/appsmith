@@ -915,12 +915,19 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return evaluationVersion;
                 });
 
+        // setting the layoutOnLoadActionActionErrors to null to remove the existing errors before new DAG calculation.
+        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
+
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = evaluatedVersionMono
                 .flatMap(evaluatedVersion -> pageLoadActionsUtil
                         .findAllOnLoadActions(pageId, evaluatedVersion, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
                         .onErrorResume(AppsmithException.class, error -> {
                             log.info(error.getMessage());
                             validOnPageLoadActions.set(FALSE);
+                            layout.setLayoutOnLoadActionErrors(List.of(
+                                    new ErrorDTO(error.getAppErrorCode(),
+                                            layoutOnLoadActionErrorToastMessage,
+                                            error.getMessage())));
                             return Mono.just(new ArrayList<>());
                         }));
 

@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
@@ -153,6 +154,7 @@ public class ActionDTO {
             return this.fullyQualifiedName;
         }
     }
+
     public void sanitiseToExportDBObject() {
         this.setDefaultResources(null);
         this.setCacheResponse(null);
