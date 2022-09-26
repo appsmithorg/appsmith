@@ -1,6 +1,7 @@
 const homePage = require("../../../../locators/HomePage");
 const widgetLocators = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 describe("MaintainContext&Focus", function() {
   it("Import the test application", () => {
@@ -21,44 +22,48 @@ describe("MaintainContext&Focus", function() {
     cy.focusCodeInput(".t--graphql-query-editor", { line: 1, ch: 10 });
 
     cy.SearchEntityandOpen("Rest_Api_1");
-    // cy.contains(".react-tabs__tab", "Headers").click();
-    cy.focusCodeInput(".t--actionConfiguration.headers[0].key.0", {
+    cy.wait(1000);
+    cy.get('[data-cy="t--tab-PARAMS"]').click();
+    cy.focusCodeInput(apiwidget.queryKey, {
       line: 0,
       ch: 2,
     });
 
     cy.SearchEntityandOpen("Rest_Api_2");
-    cy.contains(".react-tabs__tab", "Params").click();
-    cy.updateCodeInput(
-      ".t--actionConfiguration.queryParameters[0].value.0",
-      "test",
-    );
+    cy.wait(1000);
+    cy.contains(".react-tabs__tab", "Headers").click();
+    cy.updateCodeInput(apiwidget.headerValue, "test");
 
     cy.SearchEntityandOpen("S3_Query");
+    cy.wait(1000);
     cy.focusCodeInput(".t--actionConfiguration.formData.bucket.data", {
       line: 0,
       ch: 1,
     });
 
     cy.SearchEntityandOpen("SQL_Query");
+    cy.wait(1000);
     cy.focusCodeInput(".t--actionConfiguration.body", {
       line: 0,
       ch: 10,
     });
 
     cy.SearchEntityandOpen("JSObject1");
+    cy.wait(1000);
     cy.focusCodeInput(".js-editor", {
       line: 5,
       ch: 4,
     });
 
     cy.SearchEntityandOpen("JSObject2");
+    cy.wait(1000);
     cy.focusCodeInput(".js-editor", {
       line: 2,
       ch: 3,
     });
 
     cy.SearchEntityandOpen("Mongo_Query");
+    cy.wait(1000);
     cy.updateCodeInput(
       ".t--actionConfiguration.formData.collection.data",
       "TestCollection",
