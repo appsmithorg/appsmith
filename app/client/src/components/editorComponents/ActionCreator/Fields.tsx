@@ -25,6 +25,11 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import DividerComponent from "widgets/DividerWidget/component";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
+import {
+  APPSMITH_GLOBAL_FUNCTIONS,
+  APPSMITH_NAMESPACED_FUNCTIONS,
+} from "./constants";
+import { PopoverPosition } from "@blueprintjs/core";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -236,21 +241,11 @@ const enumTypeGetter = (
 export const ActionType = {
   none: "none",
   integration: "integration",
-  showModal: "showModal",
-  closeModal: "closeModal",
-  navigateTo: "navigateTo",
-  showAlert: "showAlert",
-  storeValue: "storeValue",
-  download: "download",
-  copyToClipboard: "copyToClipboard",
-  resetWidget: "resetWidget",
   jsFunction: "jsFunction",
-  setInterval: "setInterval",
-  clearInterval: "clearInterval",
-  getGeolocation: "appsmith.geolocation.getCurrentPosition",
-  watchGeolocation: "appsmith.geolocation.watchPosition",
-  stopWatchGeolocation: "appsmith.geolocation.clearWatch",
+  ...APPSMITH_GLOBAL_FUNCTIONS,
+  ...APPSMITH_NAMESPACED_FUNCTIONS,
 };
+
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
 const ViewTypes = {
@@ -297,8 +292,14 @@ const views = {
             defaultText={props.defaultText}
             displayValue={props.displayValue}
             getDefaults={props.getDefaults}
+            modifiers={{
+              preventOverflow: {
+                boundariesElement: "viewport",
+              },
+            }}
             onSelect={props.set as Setter}
             optionTree={props.options}
+            position={PopoverPosition.AUTO}
             selectedLabelModifier={props.selectedLabelModifier}
             selectedValue={props.get(props.value, false) as string}
           />

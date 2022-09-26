@@ -1,27 +1,71 @@
-import { flatten } from "lodash";
+import { get, union } from "lodash";
 import toPath from "lodash/toPath";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
-import { extractIdentifiersFromCode } from "@shared/ast";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { convertPathToString } from "../evaluationUtils";
+import {
+  EvalErrorTypes,
+  EvalError,
+  DependencyMap,
+  getDynamicBindings,
+  extraLibrariesNames,
+} from "utils/DynamicBindingUtils";
+import { extractInfoFromCode } from "@shared/ast";
+import { convertPathToString, isWidget } from "../evaluationUtils";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import {
+  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+  JAVASCRIPT_KEYWORDS,
+} from "constants/WidgetValidation";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 
-export const extractReferencesFromBinding = (
+/** This function extracts validReferences and invalidReferences from a binding {{}}
+ * @param script
+ * @param allPaths
+ * @returns validReferences - Valid references from bindings
+ * invalidReferences- References which are currently invalid
+ * @example - For binding {{unknownEntity.name + Api1.name}}, it returns
+ * {
+ * validReferences:[Api1.name],
+ * invalidReferences: [unknownEntity.name]
+ * }
+ */
+export const extractInfoFromBinding = (
   script: string,
   allPaths: Record<string, true>,
-): string[] => {
-  const references: Set<string> = new Set<string>();
-  const identifiers = extractIdentifiersFromCode(
+): { validReferences: string[]; invalidReferences: string[] } => {
+  const { references } = extractInfoFromCode(
     script,
-    self?.evaluationVersion,
+    self.evaluationVersion,
+    invalidEntityIdentifiers,
   );
+  return extractInfoFromReferences(references, allPaths);
+};
 
-  identifiers.forEach((identifier: string) => {
+/** This function extracts validReferences and invalidReferences from an Array of Identifiers
+ * @param references
+ * @param allPaths
+ * @returns validReferences - Valid references from bindings
+ * invalidReferences- References which are currently invalid
+ *  @example - For identifiers [unknownEntity.name , Api1.name], it returns
+ * {
+ * validReferences:[Api1.name],
+ * invalidReferences: [unknownEntity.name]
+ * }
+ */
+export const extractInfoFromReferences = (
+  references: string[],
+  allPaths: Record<string, true>,
+): {
+  validReferences: string[];
+  invalidReferences: string[];
+} => {
+  const validReferences: Set<string> = new Set<string>();
+  const invalidReferences: string[] = [];
+  references.forEach((reference: string) => {
     // If the identifier exists directly, add it and return
-    if (allPaths.hasOwnProperty(identifier)) {
-      references.add(identifier);
+    if (allPaths.hasOwnProperty(reference)) {
+      validReferences.add(reference);
       return;
     }
-    const subpaths = toPath(identifier);
+    const subpaths = toPath(reference);
     let current = "";
     // We want to keep going till we reach top level, but not add top level
     // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
@@ -31,48 +75,102 @@ export const extractReferencesFromBinding = (
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (allPaths.hasOwnProperty(current)) {
-        references.add(current);
+        validReferences.add(current);
         return;
       }
       subpaths.pop();
     }
+    // If no valid reference is derived, add it to the list of invalidReferences
+    invalidReferences.push(reference);
   });
-  return Array.from(references);
+  return { validReferences: Array.from(validReferences), invalidReferences };
+};
+
+interface BindingsInfo {
+  validReferences: string[];
+  invalidReferences: string[];
+  errors: EvalError[];
+}
+export const extractInfoFromBindings = (
+  bindings: string[],
+  allPaths: Record<string, true>,
+) => {
+  return bindings.reduce(
+    (bindingsInfo: BindingsInfo, binding) => {
+      try {
+        const { invalidReferences, validReferences } = extractInfoFromBinding(
+          binding,
+          allPaths,
+        );
+        return {
+          ...bindingsInfo,
+          validReferences: union(bindingsInfo.validReferences, validReferences),
+          invalidReferences: union(
+            bindingsInfo.invalidReferences,
+            invalidReferences,
+          ),
+        };
+      } catch (error) {
+        const newEvalError: EvalError = {
+          type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+          message: (error as Error).message,
+          context: {
+            script: binding,
+          },
+        };
+        return {
+          ...bindingsInfo,
+          errors: union(bindingsInfo.errors, [newEvalError]),
+        };
+      }
+    },
+    { validReferences: [], invalidReferences: [], errors: [] },
+  );
+};
+
+export function listTriggerFieldDependencies(
+  entity: DataTreeWidget,
+  entityName: string,
+): DependencyMap {
+  const triggerFieldDependency: DependencyMap = {};
+  if (isWidget(entity)) {
+    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
+      dynamicTriggerPathlist.forEach((dynamicPath) => {
+        const propertyPath = dynamicPath.key;
+        const unevalPropValue = get(entity, propertyPath);
+        const { jsSnippets } = getDynamicBindings(unevalPropValue);
+        const existingDeps =
+          triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
+        triggerFieldDependency[
+          `${entityName}.${propertyPath}`
+        ] = existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
+      });
+    }
+  }
+  return triggerFieldDependency;
+}
+
+/**This function returns a unique array containing a merge of both arrays
+ * @param currentArr
+ * @param updateArr
+ * @returns A unique array containing a merge of both arrays
+ */
+export const mergeArrays = <T>(currentArr: T[], updateArr: T[]): T[] => {
+  if (!currentArr) return updateArr;
+  return union(currentArr, updateArr);
 };
 
 /**
- *
- * @param propertyBindings
- * @returns list of entities referenced in propertyBindings
- * Eg. [Api1.run(), Api2.data, Api1.data] => [Api1, Api2]
+ * Identifiers which can not be valid names of entities and are not dynamic in nature.
+ * therefore should be removed from the list of references extracted from code.
+ * NB: DATA_TREE_KEYWORDS in app/client/src/constants/WidgetValidation.ts isn't included, although they are not valid entity names,
+ * they can refer to potentially dynamic entities.
+ * Eg. "appsmith"
  */
-export const getEntityReferencesFromPropertyBindings = (
-  propertyBindings: string[],
-  dataTreeEvalRef: DataTreeEvaluator,
-): string[] => {
-  return flatten(
-    propertyBindings.map((binding) => {
-      {
-        try {
-          return [
-            ...new Set(
-              extractReferencesFromBinding(
-                binding,
-                dataTreeEvalRef.allKeys,
-              ).map((reference) => reference.split(".")[0]),
-            ),
-          ];
-        } catch (error) {
-          dataTreeEvalRef.errors.push({
-            type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-            message: (error as Error).message,
-            context: {
-              script: binding,
-            },
-          });
-          return [];
-        }
-      }
-    }),
-  );
+const invalidEntityIdentifiers: Record<string, unknown> = {
+  ...JAVASCRIPT_KEYWORDS,
+  ...APPSMITH_GLOBAL_FUNCTIONS,
+  ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+  ...extraLibrariesNames,
 };

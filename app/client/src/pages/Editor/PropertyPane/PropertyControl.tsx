@@ -57,6 +57,7 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import { setFocusableField } from "actions/editorContextActions";
+import PropertyPaneHelperText from "./PropertyPaneHelperText";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -466,6 +467,10 @@ const PropertyControl = memo((props: Props) => {
       ? props.label(widgetProperties, propertyName)
       : props.label;
 
+    const helperText = isFunction(props.helperText)
+      ? props.helperText(widgetProperties)
+      : props.helperText;
+
     dataTreePath =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
 
@@ -572,8 +577,9 @@ const PropertyControl = memo((props: Props) => {
     ) {
       if (
         // Check if value is not empty
-        propertyValue !== undefined &&
-        propertyValue !== ""
+        (propertyValue !== undefined && propertyValue !== "") ||
+        // No need to disable the button if value is default value
+        propertyValue !== config.defaultValue
       ) {
         let value = propertyValue;
         // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
@@ -675,6 +681,7 @@ const PropertyControl = memo((props: Props) => {
             additionAutocomplete,
             hideEvaluatedValue(),
           )}
+          <PropertyPaneHelperText helperText={helperText} />
         </ControlWrapper>
       );
     } catch (e) {
