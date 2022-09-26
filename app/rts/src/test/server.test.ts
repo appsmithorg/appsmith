@@ -18,8 +18,8 @@ afterAll((done) => {
   done();
 });
 
-describe("AST", () => {
-  it("Testing to see if Jest works", async () => {
+describe("AST tests", () => {
+  it("Checks to see if single script is parsed correctly using the API", async () => {
     const expectedResponse = {
       references: ["str.data", "Api1.data"],
       functionalParams: [],
@@ -38,7 +38,7 @@ describe("AST", () => {
       });
   });
 
-  it("Testing to see if Jest workss", async () => {
+  it("Checks to see if multiple scripts are parsed correctly using the API", async () => {
     const expectedResponse = [
       {
         references: ["Api1.data"],
