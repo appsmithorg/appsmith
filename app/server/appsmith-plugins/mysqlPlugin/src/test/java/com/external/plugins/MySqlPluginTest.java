@@ -1352,7 +1352,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("select id from user LIMIT {{binding1}}");
+        actionConfiguration.setBody("select id from users LIMIT {{binding1}}");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
