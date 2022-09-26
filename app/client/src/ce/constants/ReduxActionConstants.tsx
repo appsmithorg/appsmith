@@ -1,5 +1,8 @@
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { Workspace } from "constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
@@ -943,6 +946,7 @@ export interface UpdateCanvasPayload {
   currentApplicationId: string;
   pageActions: PageAction[][];
   updatedWidgetIds?: string[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 }
 
 export interface ShowPropertyPanePayload {
