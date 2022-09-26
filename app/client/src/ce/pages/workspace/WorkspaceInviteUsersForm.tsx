@@ -426,7 +426,7 @@ const validate = (values: any) => {
     errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAILS_EMPTY);
   }
 
-  if (typeof values.role === "undefined" || values.role?.trim().length === 0) {
+  if (typeof values.role === "undefined" || values.role.length === 0) {
     errors["role"] = createMessage(INVITE_USERS_VALIDATION_ROLE_EMPTY);
   }
 
@@ -448,7 +448,7 @@ export const InviteButtonWidth = "88px";
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
-  const [selectedOption, setSelectedOption] = useState<any>({});
+  const [selectedOption, setSelectedOption] = useState<any>([]);
   const userRef = React.createRef<HTMLDivElement>();
   const history = useHistory();
   const selectedId = props?.selected?.id;
@@ -506,7 +506,7 @@ function WorkspaceInviteUsersForm(props: any) {
     if (selected) {
       setSelectedOption([selected]);
       props.initialize({
-        role: isMultiSelectDropdown ? selected : selected.value,
+        role: [selected],
       });
     }
   }, []);
@@ -781,7 +781,6 @@ export default connect(
       applicationId?: string;
       workspaceId?: string;
       isApplicationInvite?: boolean;
-      links?: any[];
     }
   >({
     validate,
