@@ -23,6 +23,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
+import { inviteModalLinks } from "@appsmith/constants/forms";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -192,6 +193,7 @@ export default function Settings() {
         Form={WorkspaceInviteUsersForm}
         canOutsideClickClose
         isOpen={showModal}
+        links={inviteModalLinks}
         onClose={() => setShowModal(false)}
         title={`Invite Users to ${currentWorkspace?.name}`}
         trigger
