@@ -599,7 +599,10 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
   return [
     {
       propertyPath: `primaryColumns.${column.id}`,
-      propertyValue: column,
+      propertyValue: {
+        ...column,
+        ...editActionDynamicProperties,
+      },
     },
     {
       propertyPath: `columnOrder`,

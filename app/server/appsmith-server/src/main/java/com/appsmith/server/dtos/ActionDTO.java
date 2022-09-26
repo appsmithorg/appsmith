@@ -8,6 +8,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -60,6 +61,11 @@ public class ActionDTO {
     String collectionId;
 
     ActionConfiguration actionConfiguration;
+
+    //this attribute carries error messages while processing the actionCollection
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Transient
+    List<ErrorDTO> errorReports;
 
     Boolean executeOnLoad;
 
