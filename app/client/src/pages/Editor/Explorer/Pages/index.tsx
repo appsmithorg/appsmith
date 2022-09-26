@@ -6,7 +6,11 @@ import {
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
-import { createPage, updatePage } from "actions/pageActions";
+import {
+  createPage,
+  storeURLOnPageChange,
+  updatePage,
+} from "actions/pageActions";
 import {
   hiddenPageIcon,
   pageIcon,
@@ -115,6 +119,7 @@ function Pages() {
         type: "PAGES",
         toUrl: navigateToUrl,
       });
+      dispatch(storeURLOnPageChange(location.pathname));
       dispatch(toggleInOnboardingWidgetSelection(true));
       history.push(navigateToUrl);
     },
@@ -209,7 +214,7 @@ function Pages() {
           />
         );
       }),
-    [pages, currentPageId, applicationId],
+    [pages, currentPageId, applicationId, location.pathname],
   );
 
   return (

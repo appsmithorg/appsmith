@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
@@ -7,6 +7,7 @@ import { Tab, TabList, Tabs } from "react-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
+import { AppState } from "@appsmith/reducers";
 
 const StyledTabComponent = styled(TabComponent)`
   height: auto;
@@ -75,15 +76,12 @@ type PropertyPaneTabProps = {
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
   const dispatch = useDispatch();
-  const globalSelectedIndex = useSelector(getSelectedPropertyTabIndex);
-  const [localSelectedIndex, setLocalSelectedIndex] = useState(0);
+  const selectedIndex = useSelector((state: AppState) =>
+    getSelectedPropertyTabIndex(state, !!props.isPanelProperty),
+  );
 
   const setSelectedIndex = (index: number) => {
-    if (props.isPanelProperty) {
-      setLocalSelectedIndex(index);
-    } else {
-      dispatch(setSelectedPropertyTabIndex(index));
-    }
+    dispatch(setSelectedPropertyTabIndex(index, !!props.isPanelProperty));
   };
 
   const tabs = useMemo(() => {
@@ -105,9 +103,6 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
     return arr;
   }, [props.styleComponent, props.contentComponent]);
 
-  const selectedIndex = props.isPanelProperty
-    ? localSelectedIndex
-    : globalSelectedIndex;
   return (
     <>
       <StyledTabs onSelect={setSelectedIndex} selectedIndex={selectedIndex}>

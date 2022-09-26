@@ -9,6 +9,7 @@ import {
 } from "constants/routes";
 
 export enum FocusEntity {
+  PAGE = "PAGE",
   API = "API",
   CANVAS = "CANVAS",
   QUERY = "QUERY",

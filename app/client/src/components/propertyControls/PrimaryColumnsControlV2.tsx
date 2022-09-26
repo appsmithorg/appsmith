@@ -8,7 +8,6 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -33,6 +32,7 @@ import { DraggableListCard } from "components/ads/DraggableListCard";
 import { Checkbox, CheckboxType } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -221,7 +221,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         </div>
         <TabsWrapper>
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
-            <DroppableComponent
+            <DraggableListControl
               className={LIST_CLASSNAME}
               deleteOption={this.deleteOption}
               fixedHeight={370}
@@ -229,6 +229,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               itemHeight={45}
               items={draggableComponentColumns}
               onEdit={this.onEdit}
+              propertyName={this.props.propertyName}
               renderComponent={(props) =>
                 DraggableListCard({
                   ...props,

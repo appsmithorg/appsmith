@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import get from "lodash/get";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 
 export interface ExplorerReduxState {
   entity: {
@@ -14,7 +15,7 @@ export interface ExplorerReduxState {
     editingEntityName?: string;
   };
   pinned: boolean;
-  width: number | undefined;
+  width: number;
   active: boolean;
   entityInfo: {
     show: boolean;
@@ -27,7 +28,7 @@ export interface ExplorerReduxState {
 const initialState: ExplorerReduxState = {
   pinned: true,
   entity: {},
-  width: undefined,
+  width: DEFAULT_ENTITY_EXPLORER_WIDTH,
   active: true,
   entityInfo: {
     show: false,

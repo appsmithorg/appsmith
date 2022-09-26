@@ -23,6 +23,7 @@ import { getAppMode } from "selectors/entitiesSelector";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -30,6 +31,7 @@ const GUTTER_WIDTH = 72;
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
   const explorerWidth = useSelector(getExplorerWidth);
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
@@ -178,6 +180,7 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,
+    propertyPaneWidth,
   ]);
 
   return isCanvasInitialized;

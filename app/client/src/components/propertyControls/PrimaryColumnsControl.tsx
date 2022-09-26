@@ -8,7 +8,6 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -30,6 +29,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -165,13 +165,14 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     return (
       <TabsWrapper>
         <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
-          <DroppableComponent
+          <DraggableListControl
             deleteOption={this.deleteOption}
             fixedHeight={370}
             focusedIndex={this.state.focusedIndex}
             itemHeight={45}
             items={draggableComponentColumns}
             onEdit={this.onEdit}
+            propertyName={this.props.propertyName}
             renderComponent={(props) =>
               DraggableListCard({
                 ...props,

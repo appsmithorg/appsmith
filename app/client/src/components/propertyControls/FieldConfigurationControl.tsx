@@ -11,15 +11,13 @@ import SchemaParser, {
 import styled from "constants/DefaultTheme";
 import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
 import { Category, Size } from "design-system";
-import {
-  BaseItemProps,
-  DroppableComponent,
-} from "components/ads/DraggableListComponent";
+import { BaseItemProps } from "components/ads/DraggableListComponent";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -261,12 +259,13 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     return (
       <TabsWrapper>
-        <DroppableComponent
+        <DraggableListControl
           deleteOption={this.onDeleteOption}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={draggableComponentColumns}
           onEdit={this.onEdit}
+          propertyName={this.props.propertyName}
           renderComponent={(props) => {
             const { id, isCustomField } = props.item;
 

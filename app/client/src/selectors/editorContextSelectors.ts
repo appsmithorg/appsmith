@@ -3,10 +3,11 @@ import {
   CodeEditorHistory,
   CursorPosition,
   EvaluatedPopupState,
+  PropertyPanelContext,
+  PropertyPanelState,
+  SelectedPropertyPanel,
 } from "reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
-import { generatePropertyKey } from "utils/editorContextUtils";
-import { getCurrentPageId } from "./editorSelectors";
 
 export const getFocusableField = (state: AppState) =>
   state.ui.editorContext.focusableField;
@@ -14,22 +15,68 @@ export const getFocusableField = (state: AppState) =>
 export const getCodeEditorHistory = (state: AppState) =>
   state.ui.editorContext.codeEditorHistory;
 
+export const getSelectedPropertyPanel = (state: AppState) =>
+  state.ui.editorContext.selectedPropertyPanel;
+
+export const getPropertyPanelState = (state: AppState) =>
+  state.ui.editorContext.propertyPanelState;
+
+export const getAllPropertySectionState = (state: AppState) =>
+  state.ui.editorContext.propertySectionState;
+
+export const getSelectedCanvasDebuggerTab = (state: AppState) =>
+  state.ui.editorContext.selectedDebuggerTab;
+
+export const getWidgetSelectedPropertyTabIndex = (state: AppState) =>
+  state.ui.editorContext.selectedPropertyTabIndex;
+
+export const getPanelPropertyContext = createSelector(
+  getSelectedPropertyPanel,
+  getPropertyPanelState,
+  (
+    selectedPropertyPanel: SelectedPropertyPanel | undefined,
+    propertyPanelState: PropertyPanelState,
+  ) => {
+    if (!selectedPropertyPanel || !selectedPropertyPanel.path) return;
+
+    return propertyPanelState[selectedPropertyPanel.path];
+  },
+);
+
+export const getSelectedPropertyTabIndex = createSelector(
+  [
+    getWidgetSelectedPropertyTabIndex,
+    getPanelPropertyContext,
+    (_state: AppState, isPanelProperty: boolean) => isPanelProperty,
+  ],
+  (
+    selectedPropertyTabIndex: number,
+    propertyPanelContext: PropertyPanelContext | undefined,
+    isPanelProperty: boolean,
+  ) => {
+    if (
+      propertyPanelContext &&
+      propertyPanelContext.selectedPropertyTabIndex !== undefined &&
+      isPanelProperty
+    )
+      return propertyPanelContext.selectedPropertyTabIndex;
+    return selectedPropertyTabIndex;
+  },
+);
+
 export const getCodeEditorCursorPosition = createSelector(
   [
     getCodeEditorHistory,
-    getCurrentPageId,
     getFocusableField,
     (_state: AppState, key: string | undefined) => key,
   ],
   (
     codeEditorHistory: CodeEditorHistory,
-    pageId: string,
     focusableField: string | undefined,
     key: string | undefined,
   ): CursorPosition | undefined => {
-    const propertyFieldKey = generatePropertyKey(key, pageId);
-    return propertyFieldKey && focusableField === propertyFieldKey
-      ? codeEditorHistory?.[propertyFieldKey]?.cursorPosition
+    return key && focusableField === key
+      ? codeEditorHistory?.[key]?.cursorPosition
       : undefined;
   },
 );
@@ -37,52 +84,55 @@ export const getCodeEditorCursorPosition = createSelector(
 export const getshouldFocusPropertyPath = createSelector(
   [
     getFocusableField,
-    getCurrentPageId,
+    getPanelPropertyContext,
     (_state: AppState, key: string | undefined) => key,
   ],
   (
     focusableField: string | undefined,
-    pageId: string,
+    propertyPanelContext: PropertyPanelContext | undefined,
     key: string | undefined,
   ): boolean => {
-    const propertyFieldKey = generatePropertyKey(key, pageId);
-    return !!(propertyFieldKey && focusableField === propertyFieldKey);
+    if (propertyPanelContext?.focusableField)
+      return !!(key && propertyPanelContext.focusableField === key);
+    return !!(key && focusableField === key);
   },
 );
 
 export const getEvaluatedPopupState = createSelector(
-  [
-    getCodeEditorHistory,
-    getCurrentPageId,
-    (_state: AppState, key: string | undefined) => key,
-  ],
+  [getCodeEditorHistory, (_state: AppState, key: string | undefined) => key],
   (
     codeEditorHistory: CodeEditorHistory,
-    pageId: string,
     key: string | undefined,
   ): EvaluatedPopupState | undefined => {
-    const propertyFieldKey = generatePropertyKey(key, pageId);
-    return propertyFieldKey
-      ? codeEditorHistory?.[propertyFieldKey]?.evalPopupState
-      : undefined;
+    return key ? codeEditorHistory?.[key]?.evalPopupState : undefined;
   },
 );
 
-export const getAllPropertySectionState = (state: AppState) =>
-  state.ui.editorContext.propertySectionState;
-
 export const getPropertySectionState = createSelector(
-  [getAllPropertySectionState, (_state: AppState, key: string) => key],
+  [
+    getAllPropertySectionState,
+    getPanelPropertyContext,
+    (_state: AppState, key: string) => key,
+  ],
   (
     propertySectionState: { [key: string]: boolean },
+    propertyPanelContext: PropertyPanelContext | undefined,
     key: string,
   ): boolean | undefined => {
+    if (propertyPanelContext?.propertySectionState)
+      return propertyPanelContext.propertySectionState[key];
     return propertySectionState[key];
   },
 );
 
-export const getSelectedPropertyTabIndex = (state: AppState) =>
-  state.ui.editorContext.selectedPropertyTabIndex;
-
-export const getSelectedCanvasDebuggerTab = (state: AppState) =>
-  state.ui.editorContext.selectedDebuggerTab;
+export const getSelectedPropertyPanelIndex = createSelector(
+  [getSelectedPropertyPanel, (_state: AppState, path: string) => path],
+  (
+    selectedPropertyPanel: SelectedPropertyPanel | undefined,
+    path: string,
+  ): number | undefined => {
+    return selectedPropertyPanel?.path === path
+      ? selectedPropertyPanel?.index
+      : undefined;
+  },
+);

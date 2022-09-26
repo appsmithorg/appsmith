@@ -226,3 +226,6 @@ export const getIsPropertyPaneVisible = createSelector(
     );
   },
 );
+
+export const getPropertyPaneWidth = (state: AppState) =>
+  state.ui.propertyPane.width;

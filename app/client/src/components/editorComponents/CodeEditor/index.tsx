@@ -102,9 +102,9 @@ import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { getCodeEditorCursorPosition } from "selectors/editorContextSelectors";
 import { CursorPosition } from "reducers/uiReducers/editorContextReducer";
-import { generateKeyAndSetCodeEditorCursorPosition } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
+import { setCodeEditorCursorPosition } from "actions/editorContextActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -994,7 +994,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   setCursorPosition: (
     key: string | undefined,
     cursorPosition: CursorPosition,
-  ) => dispatch(generateKeyAndSetCodeEditorCursorPosition(key, cursorPosition)),
+  ) => dispatch(setCodeEditorCursorPosition(key, cursorPosition)),
 });
 
 export default Sentry.withProfiler(

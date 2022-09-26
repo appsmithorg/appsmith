@@ -12,15 +12,22 @@ import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
+  getCodeEditorHistory,
   getFocusableField,
+  getPropertyPanelState,
   getSelectedCanvasDebuggerTab,
-  getSelectedPropertyTabIndex,
+  getSelectedPropertyPanel,
+  getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import {
   setAllPropertySectionState,
   setCanvasDebuggerSelectedTab,
+  setCodeEditorHistory,
   setFocusableField,
-  setSelectedPropertyTabIndex,
+  setPanelPropertiesState,
+  setSelectedPropertyPanel,
+  setWidgetFocusableField,
+  setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 import { getSelectedWidgets } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
@@ -47,11 +54,21 @@ import {
   setJsPaneResponsePaneHeight,
   setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
+import { getExplorerWidth } from "selectors/explorerSelector";
+import { updateExplorerWidthAction } from "actions/explorerActions";
+import {
+  DEFAULT_ENTITY_EXPLORER_WIDTH,
+  DEFAULT_PROPERTY_PANE_WIDTH,
+} from "constants/AppConstants";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
   ApiPaneResponseTabs = "ApiPaneResponseTabs",
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
+  CodeEditorHistory = "CodeEditorHistory",
+  EntityExplorerWidth = "EntityExplorerWidth",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
   QueryPaneResponseTabs = "QueryPaneResponseTabs",
   QueryPaneResponseHeight = "QueryPaneResponseHeight",
@@ -61,6 +78,9 @@ export enum FocusElement {
   PropertyField = "PropertyField",
   PropertySections = "PropertySections",
   PropertyTabs = "PropertyTabs",
+  PropertyPanelContext = "PropertyPanelContext",
+  SelectedPropertyPanel = "SelectedPropertyPanel",
+  PropertyPaneWidth = "PropertyPaneWidth",
   SelectedWidgets = "SelectedWidgets",
   CanvasDebuggerTabs = "CanvasDebuggerTabs",
 }
@@ -74,6 +94,20 @@ type Config = {
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.NONE]: [],
+  [FocusEntity.PAGE]: [
+    {
+      name: FocusElement.CodeEditorHistory,
+      selector: getCodeEditorHistory,
+      setter: setCodeEditorHistory,
+      defaultValue: {},
+    },
+    {
+      name: FocusElement.EntityExplorerWidth,
+      selector: getExplorerWidth,
+      setter: updateExplorerWidthAction,
+      defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
+    },
+  ],
   [FocusEntity.CANVAS]: [
     {
       name: FocusElement.PropertySections,
@@ -91,6 +125,12 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.CanvasDebuggerTabs,
       selector: getSelectedCanvasDebuggerTab,
       setter: setCanvasDebuggerSelectedTab,
+    },
+    {
+      name: FocusElement.PropertyPaneWidth,
+      selector: getPropertyPaneWidth,
+      setter: setPropertyPaneWidthAction,
+      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
   ],
   [FocusEntity.JS_OBJECT]: [
@@ -144,15 +184,27 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.PROPERTY_PANE]: [
     {
+      name: FocusElement.SelectedPropertyPanel,
+      selector: getSelectedPropertyPanel,
+      setter: setSelectedPropertyPanel,
+      defaultValue: undefined,
+    },
+    {
+      name: FocusElement.PropertyPanelContext,
+      selector: getPropertyPanelState,
+      setter: setPanelPropertiesState,
+      defaultValue: {},
+    },
+    {
       name: FocusElement.PropertyTabs,
-      selector: getSelectedPropertyTabIndex,
-      setter: setSelectedPropertyTabIndex,
+      selector: getWidgetSelectedPropertyTabIndex,
+      setter: setWidgetSelectedPropertyTabIndex,
       defaultValue: 0,
     },
     {
       name: FocusElement.PropertyField,
       selector: getFocusableField,
-      setter: setFocusableField,
+      setter: setWidgetFocusableField,
     },
   ],
   [FocusEntity.API]: [

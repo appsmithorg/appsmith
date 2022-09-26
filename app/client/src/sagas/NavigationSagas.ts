@@ -1,4 +1,11 @@
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -8,9 +15,13 @@ import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import { FocusElementsConfig } from "navigation/FocusElements";
 import { identifyEntityFromPath, FocusEntity } from "navigation/FocusEntity";
+import history from "utils/history";
 
 let previousPath: string;
 let previousHash: string | undefined;
+
+let previousPageId: string;
+let previousURL: string;
 
 function* handleRouteChange(
   action: ReduxAction<{ pathname: string; hash?: string }>,
@@ -32,6 +43,20 @@ function* handleRouteChange(
 
   previousPath = pathname;
   previousHash = hash;
+}
+
+function* handlePageChange(
+  action: ReduxAction<{ pageId: string; currPath: string }>,
+) {
+  const { currPath, pageId } = action.payload;
+
+  if (previousPageId) {
+    yield call(storeStateOfPage, previousPageId);
+  }
+
+  yield call(setStateOfPage, pageId, currPath);
+
+  previousPageId = pageId;
 }
 
 function* storeStateOfPath(path: string, hash?: string) {
@@ -75,6 +100,49 @@ function* setStateOfPath(path: string, hash?: string) {
         yield put(selectorInfo.setter(selectorInfo.defaultValue));
     }
   }
+}
+
+function* storeStateOfPage(pageId: string) {
+  const entity = FocusEntity.PAGE;
+
+  const selectors = FocusElementsConfig[entity];
+  const state: Record<string, any> = {};
+  for (const selectorInfo of selectors) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    state[selectorInfo.name] = yield select(selectorInfo.selector);
+  }
+  state._routingURL = previousURL;
+  yield put(setFocusHistory(pageId, { entity, state }));
+}
+
+function* setStateOfPage(pageId: string, currPath: string) {
+  const focusHistory: FocusState = yield select(getCurrentFocusInfo, pageId);
+
+  const entity = FocusEntity.PAGE;
+
+  const selectors = FocusElementsConfig[entity];
+
+  if (focusHistory) {
+    for (const selectorInfo of selectors) {
+      yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
+    }
+    if (
+      focusHistory.state._routingURL &&
+      focusHistory.state._routingURL !== currPath
+    ) {
+      history.push(focusHistory.state._routingURL);
+    }
+  } else {
+    for (const selectorInfo of selectors) {
+      if ("defaultValue" in selectorInfo)
+        yield put(selectorInfo.setter(selectorInfo.defaultValue));
+    }
+  }
+}
+
+function* storeURLonPageChange(action: ReduxAction<string>) {
+  previousURL = action.payload;
 }
 
 /**
@@ -135,4 +203,8 @@ function shouldStoreStateForCanvas(
 
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
+  yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
+  yield all([
+    takeLatest(ReduxActionTypes.STORE_URL_ON_PAGE_CHANGE, storeURLonPageChange),
+  ]);
 }

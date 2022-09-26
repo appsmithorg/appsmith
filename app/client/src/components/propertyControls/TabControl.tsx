@@ -4,7 +4,6 @@ import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import {
   BaseItemProps,
-  DroppableComponent,
   RenderComponentProps,
 } from "components/ads/DraggableListComponent";
 import orderBy from "lodash/orderBy";
@@ -17,6 +16,7 @@ import { Category, Size } from "design-system";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -195,13 +195,14 @@ class TabControl extends BaseControl<ControlProps, State> {
   render() {
     return (
       <TabsWrapper>
-        <DroppableComponent
+        <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={this.getTabItems()}
           onEdit={this.onEdit}
+          propertyName={this.props.propertyName}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
           updateFocus={this.updateFocus}

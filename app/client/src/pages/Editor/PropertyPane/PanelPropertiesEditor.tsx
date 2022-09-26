@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { WidgetProps } from "widgets/BaseWidget";
 import { PanelConfig } from "constants/PropertyControlConstants";
@@ -14,12 +14,18 @@ import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
+import { setSelectedPropertyPanel } from "actions/editorContextActions";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
 `;
 
 function PanelHeader(props: PanelHeaderProps) {
+  const dispatch = useDispatch();
+  const onBackClick = () => {
+    dispatch(setSelectedPropertyPanel());
+    props.closePanel();
+  };
   return (
     <div
       onClick={(e: any) => {
@@ -29,7 +35,7 @@ function PanelHeader(props: PanelHeaderProps) {
       <PropertyPaneTitle
         actions={[]}
         isPanelTitle
-        onBackClick={props.closePanel}
+        onBackClick={onBackClick}
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}
       />

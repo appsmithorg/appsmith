@@ -8,6 +8,13 @@ export const routeChanged = (pathname: string, hash?: string) => {
   };
 };
 
+export const pageChanged = (pageId: string, currPath: string) => {
+  return {
+    type: ReduxActionTypes.PAGE_CHANGED,
+    payload: { pageId, currPath },
+  };
+};
+
 export const setFocusHistory = (key: string, focusState: FocusState) => {
   return {
     type: ReduxActionTypes.SET_FOCUS_HISTORY,

@@ -50,13 +50,13 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
 import { AppState } from "ce/reducers";
 import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
+import { setFocusableField } from "actions/editorContextActions";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -554,7 +554,7 @@ const PropertyControl = memo((props: Props) => {
       if (!shouldFocusPropertyPath) {
         hasDispatchedPropertyFocus = true;
         setTimeout(() => {
-          dispatch(generateKeyAndSetFocusableField(dataTreePath));
+          dispatch(setFocusableField(dataTreePath));
         }, 0);
       }
     };

@@ -1,19 +1,4 @@
 /**
- * Append PageId to path and return the key
- * @param path
- * @param currentPageId
- * @returns
- */
-export function generatePropertyKey(
-  path: string | undefined,
-  currentPageId: string,
-) {
-  if (!path) return;
-
-  return `Page[${currentPageId}].${path}`;
-}
-
-/**
  * This method returns boolean if the propertyControl is focused.
  * @param domElement
  * @returns
