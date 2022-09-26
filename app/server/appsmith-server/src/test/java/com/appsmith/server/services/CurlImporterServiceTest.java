@@ -73,8 +73,6 @@ public class CurlImporterServiceTest {
 
     String workspaceId;
 
-    @Before
-    @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
@@ -164,6 +162,7 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportAction_EmptyLex() {
+        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -185,6 +184,7 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
+        setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -840,7 +840,6 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
 

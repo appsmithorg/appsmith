@@ -16,6 +16,7 @@ import {
   useFullScreenHandle,
 } from "react-full-screen";
 import log from "loglevel";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 import { ThemeProp } from "components/ads/common";
 import {
@@ -835,6 +836,7 @@ function CameraComponent(props: CameraComponentProps) {
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
 
+  const isMobile = useIsMobileDevice();
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
   const [audioConstraints, setAudioConstraints] = useState<
@@ -842,7 +844,15 @@ function CameraComponent(props: CameraComponentProps) {
   >({});
   const [videoConstraints, setVideoConstraints] = useState<
     MediaTrackConstraints
-  >({});
+  >(
+    isMobile
+      ? {
+          height: 720,
+          width: 1280,
+        }
+      : {},
+  );
+
   const [image, setImage] = useState<string | null>();
   const [mediaCaptureStatus, setMediaCaptureStatus] = useState<
     MediaCaptureStatus
@@ -1119,6 +1129,7 @@ function CameraComponent(props: CameraComponentProps) {
         <Webcam
           audio
           audioConstraints={audioConstraints}
+          forceScreenshotSourceSize={isMobile ? true : undefined}
           mirrored={mirrored}
           muted
           onUserMedia={handleUserMedia}
