@@ -4,7 +4,9 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
+import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.EnvVariables;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
@@ -24,6 +26,10 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +53,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -112,6 +119,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final Set<String> VARIABLE_WHITELIST = Stream.of(EnvVariables.values())
             .map(Enum::name)
             .collect(Collectors.toUnmodifiableSet());
+
+    private static final JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     public EnvManagerCEImpl(SessionUserService sessionUserService,
                             UserService userService,
@@ -223,8 +232,49 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.empty();
     }
 
+    /**
+     * This function iterates over all the changes and checks if any of the changes contains configuration variables.
+     * This function operates under the assumption that any changes being sent by the client will either have
+     * configuration variable changes or .env variable changes.
+     *
+     * @param changes The changes that the user would like to make
+     * @return boolean
+     */
+    private boolean doChangesContainConfigNames(Map<String, String> changes) {
+        return changes.keySet().stream()
+                .anyMatch(key -> EnumUtils.isValidEnum(ConfigNames.class, key));
+    }
+
     @Override
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
+        // For configuration variables, save the variables to the config collection instead of .env file
+        // We ideally want to migrate all variables from .env file to the config collection for better scalability
+        if (doChangesContainConfigNames(changes)) {
+            return verifyCurrentUserIsSuper()
+                    .flatMap(user -> validateConfigChanges(user, changes).thenReturn(user))
+                    .flatMap(user -> {
+                        // Write the changes to the config collection
+                        return Flux.fromStream(changes.entrySet().stream())
+                                .filter(map -> EnumUtils.isValidEnum(ConfigNames.class, map.getKey()))
+                                .flatMap(map -> {
+                                    String key = map.getKey();
+                                    String value = map.getValue();
+                                    Config config = null;
+                                    try {
+                                        config = new Config((JSONObject) jsonParser.parse(value), key);
+                                        return configService.save(config);
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "for " + key));
+                                    }
+                                })
+                                .collectList()
+                                .thenReturn(sendAnalyticsEvent(user, null, changes))
+                                .thenReturn(new EnvChangesResponseDTO(false));
+                    });
+        }
+
+        // This flow is pertinent for any variables that need to change in the .env file
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
@@ -320,6 +370,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
                 });
+    }
+
+    @Override
+    public Mono<Void> validateConfigChanges(User user, Map<String, String> changes) {
+        return Mono.empty();
     }
 
     /**
@@ -464,6 +519,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     // set the default values to response
                     Map<String, String> envKeyValueMap = parseToMap(originalContent);
+                    // Add the variables from the config collection to be returned to the client
+                    List<String> configList = EnumUtils.getEnumList(ConfigNames.class)
+                            .stream()
+                            .map(config -> config.name())
+                            .collect(Collectors.toList());
+                    configService.getByNames(configList);
                     if (!envKeyValueMap.containsKey(APPSMITH_INSTANCE_NAME.name())) {
                         // no APPSMITH_INSTANCE_NAME set in env file, set the default value
                         envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
@@ -478,7 +539,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
         return userUtils.isCurrentUserSuperUser()
                 .flatMap(isSuperUser -> {
-                    if(isSuperUser) {
+                    if (isSuperUser) {
                         return sessionUserService.getCurrentUser();
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));

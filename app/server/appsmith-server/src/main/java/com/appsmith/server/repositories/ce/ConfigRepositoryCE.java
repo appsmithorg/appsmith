@@ -5,7 +5,11 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomConfigRepository;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ConfigRepositoryCE extends BaseRepository<Config, String>, CustomConfigRepository {
 
     Mono<Config> findByName(String name);
+
+    Mono<Config> findByNameIn(List<String> name);
 }

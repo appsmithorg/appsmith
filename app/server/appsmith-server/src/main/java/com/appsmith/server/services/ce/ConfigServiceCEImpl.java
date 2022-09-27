@@ -50,6 +50,12 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     }
 
     @Override
+    public Mono<Config> getByNames(List<String> names) {
+        return repository.findByNameIn(names)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, names)));
+    }
+
+    @Override
     public Mono<Config> updateByName(Config config) {
         final String name = config.getName();
         return repository.findByName(name)
