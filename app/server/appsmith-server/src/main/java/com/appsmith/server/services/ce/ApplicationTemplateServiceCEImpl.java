@@ -201,7 +201,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, application.getWorkspaceId(),
-                            "templateAppName", application.getName(),
+                            FieldName.TEMPLATE_APPLICATION_NAME, application.getName(),
                             FieldName.EVENT_DATA, eventData
                     );
 
