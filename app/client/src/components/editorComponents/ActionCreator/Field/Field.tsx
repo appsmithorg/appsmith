@@ -50,12 +50,13 @@ export function Field(props: {
   if (!fieldConfig) return;
   const view = views[fieldConfig.view];
   let viewElement: JSX.Element | null = null;
+  const label = APPSMITH_FUNCTION_CONFIG[fieldType].label(props);
 
   switch (fieldType) {
     case FieldType.ACTION_SELECTOR_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: APPSMITH_FUNCTION_CONFIG[fieldType].options(props),
-        label: APPSMITH_FUNCTION_CONFIG[fieldType].label(props),
+        label: label,
         get: fieldConfig.getter,
         set: (
           value: string | DropdownOption,
@@ -114,7 +115,7 @@ export function Field(props: {
     case FieldType.WIDGET_NAME_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: APPSMITH_FUNCTION_CONFIG[fieldType].options(props),
-        label: APPSMITH_FUNCTION_CONFIG[fieldType].label,
+        label: label,
         get: fieldConfig.getter,
         set: (
           value: string | DropdownOption,
@@ -136,13 +137,13 @@ export function Field(props: {
       viewElement = (view as (props: TabViewProps) => JSX.Element)({
         activeObj: props.activeNavigateToTab,
         switches: props.navigateToSwitches,
-        label: "Type",
+        label: label,
         value: props.value,
       });
       break;
     case FieldType.ARGUMENT_KEY_VALUE_FIELD:
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
-        label: props.field.label || "",
+        label: label,
         get: fieldConfig.getter,
         set: (value: string) => {
           const finalValueToSet = fieldConfig.setter(
@@ -159,14 +160,14 @@ export function Field(props: {
     case FieldType.KEY_VALUE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: props.integrationOptionTree,
-        label: "",
+        label: label,
         get: fieldConfig.getter,
         set: (value: string | DropdownOption) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
           props.onValueChange(finalValueToSet, false);
         },
         value: props.value,
-        defaultText: "Select Action",
+        defaultText: APPSMITH_FUNCTION_CONFIG[fieldType].defaultText,
       });
       break;
     case FieldType.ALERT_TEXT_FIELD:
@@ -181,9 +182,8 @@ export function Field(props: {
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
-      const fieldLabel = APPSMITH_FUNCTION_CONFIG[fieldType].fieldLabel;
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
-        label: fieldLabel,
+        label: label,
         get: fieldConfig.getter,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
