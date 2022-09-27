@@ -1672,22 +1672,23 @@ export function mergeDynamicPropertyPaths(
 }
 
 /**
- * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
+ * returns the BottomRow for CANVAS_WIDGET
  * @param finalWidgets
  * @param parentId
  */
 export function resizeCanvasToLowestWidget(
   finalWidgets: CanvasWidgetsReduxState,
   parentId: string | undefined,
+  currentBottomRow: number,
   mainCanvasMinHeight?: number, //defined only if parentId is MAIN_CONTAINER_ID
 ) {
-  if (!parentId) return;
+  if (!parentId) return currentBottomRow;
 
   if (
     !finalWidgets[parentId] ||
     finalWidgets[parentId].type !== "CANVAS_WIDGET"
   ) {
-    return;
+    return currentBottomRow;
   }
 
   const defaultLowestBottomRow =
@@ -1711,7 +1712,8 @@ export function resizeCanvasToLowestWidget(
     parentId === MAIN_CONTAINER_WIDGET_ID
       ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
       : GridDefaults.CANVAS_EXTENSION_OFFSET;
-  finalWidgets[parentId].bottomRow = Math.max(
+
+  return Math.max(
     defaultLowestBottomRow,
     (lowestBottomRow + canvasOffset) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );

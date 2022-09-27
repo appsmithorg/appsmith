@@ -332,7 +332,16 @@ export function* getUpdateDslAfterCreatingChild(
       getMainCanvasProps,
     );
     const mainCanvasMinHeight = mainCanvasProps?.height;
-    resizeCanvasToLowestWidget(updatedWidgets, widgetId, mainCanvasMinHeight);
+
+    //updates bottom Row of main Canvas
+    updatedWidgets[
+      MAIN_CONTAINER_WIDGET_ID
+    ].bottomRow = resizeCanvasToLowestWidget(
+      updatedWidgets,
+      widgetId,
+      updatedWidgets[MAIN_CONTAINER_WIDGET_ID].bottomRow,
+      mainCanvasMinHeight,
+    );
   }
 
   return updatedWidgets;

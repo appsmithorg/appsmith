@@ -1814,20 +1814,34 @@ describe("getValueFromTree - ", () => {
 
     it("should modify main container's bottomRow to minHeight of canvas when it is greater than bottomRow of lowest widget", () => {
       const currentWidgets = klona(widgets);
-      resizeCanvasToLowestWidget(currentWidgets, "0", 450);
-      expect(currentWidgets["0"].bottomRow).toEqual(450);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "0",
+        currentWidgets["0"].bottomRow,
+        450,
+      );
+      expect(bottomRow).toEqual(450);
     });
 
     it("should modify main container's bottomRow to lowest bottomRow of canvas when minHeight is lesser than bottomRow of lowest widget", () => {
       const currentWidgets = klona(widgets);
-      resizeCanvasToLowestWidget(currentWidgets, "0", 140);
-      expect(currentWidgets["0"].bottomRow).toEqual(430);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "0",
+        currentWidgets["0"].bottomRow,
+        140,
+      );
+      expect(bottomRow).toEqual(430);
     });
 
     it("should modify main container's bottomRow to lowest bottomRow of canvas when minHeight is lesser than bottomRow of lowest widget", () => {
       const currentWidgets = klona(widgets);
-      resizeCanvasToLowestWidget(currentWidgets, "1");
-      expect(currentWidgets["1"].bottomRow).toEqual(260);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "1",
+        currentWidgets["1"].bottomRow,
+      );
+      expect(bottomRow).toEqual(260);
     });
 
     it("should trim canvas close to the lowest bottomRow of it's children widget", () => {

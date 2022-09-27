@@ -183,8 +183,15 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       mainCanvasMinHeight = mainCanvasProps?.height;
     }
 
-    // Note: mutates finalWidgets
-    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
+    if (parentId && finalWidgets[parentId]) {
+      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
+        finalWidgets,
+        parentId,
+        finalWidgets[parentId].bottomRow,
+        mainCanvasMinHeight,
+      );
+    }
+
     return {
       finalWidgets,
       otherWidgetsToDelete,
@@ -296,7 +303,14 @@ function* deleteAllSelectedWidgetsSaga(
       mainCanvasMinHeight = mainCanvasProps?.height;
     }
 
-    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
+    if (parentId && finalWidgets[parentId]) {
+      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
+        finalWidgets,
+        parentId,
+        finalWidgets[parentId].bottomRow,
+        mainCanvasMinHeight,
+      );
+    }
 
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(selectWidgetInitAction(""));
