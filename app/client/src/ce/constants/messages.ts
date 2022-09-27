@@ -7,7 +7,7 @@ export function createMessage(
 
 /*
   For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
-  For cloud hosting, it displays "Appsmith v1.10.0". 
+  For cloud hosting, it displays "Appsmith v1.10.0".
   This is because Appsmith Cloud doesn't support business features yet.
  */
 export const APPSMITH_DISPLAY_VERSION = (
@@ -258,10 +258,10 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "Edit Datasource";
-export const SAVE_DATASOURCE = () => "Save as Datasource";
+export const EDIT_DATASOURCE = () => "EDIT DATASOURCE";
+export const SAVE_DATASOURCE = () => "SAVE AS DATASOURCE";
 export const SAVE_DATASOURCE_MESSAGE = () =>
-  "Save API as datasource to setup authentication";
+  "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
@@ -424,6 +424,8 @@ export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
+export const ACTION_EXECUTION_FAILED = (actionName: string) =>
+  `The action "${actionName}" has failed.`;
 export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
@@ -1060,6 +1062,8 @@ export const DELETE_WORKSPACE_SUCCESSFUL = () =>
   "Workspace deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SET_DEFAULT_SELECTED_THEME = (name: string) =>
+  `Applied the ${name} theme, since custom theme was not found`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
 export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
 export const DELETE_APP_THEME_WARNING = () =>
@@ -1226,3 +1230,11 @@ export const CLEAN_URL_UPDATE = {
 };
 
 export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+
+// Alert options and labels for showMessage types
+export const ALERT_STYLE_OPTIONS = [
+  { label: "Info", value: "'info'", id: "info" },
+  { label: "Success", value: "'success'", id: "success" },
+  { label: "Error", value: "'error'", id: "error" },
+  { label: "Warning", value: "'warning'", id: "warning" },
+];
