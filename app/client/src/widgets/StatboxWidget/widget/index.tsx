@@ -1,5 +1,5 @@
 import { WidgetType } from "constants/WidgetConstants";
-import ContainerWidget from "widgets/ContainerWidget";
+import { ContainerWidget } from "widgets/ContainerWidget/widget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 

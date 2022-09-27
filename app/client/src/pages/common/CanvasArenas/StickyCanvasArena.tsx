@@ -1,10 +1,12 @@
 import styled from "constants/DefaultTheme";
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
 import ResizeObserver from "resize-observer-polyfill";
+import { LayoutDirection } from "components/constants";
 
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
   canvasId: string;
+  direction?: LayoutDirection;
   id: string;
   canvasPadding: number;
   snapRows: number;
@@ -13,9 +15,11 @@ interface StickyCanvasArenaProps {
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
   ref: StickyCanvasArenaRef;
+  useAutoLayout?: boolean;
 }
 
 interface StickyCanvasArenaRef {
+  dropPositionRef: RefObject<HTMLDivElement>;
   stickyCanvasRef: RefObject<HTMLCanvasElement>;
   slidingArenaRef: RefObject<HTMLDivElement>;
 }
@@ -33,20 +37,39 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   overflow-y: auto;
 `;
 
+const Highlight = styled.div<{
+  direction?: LayoutDirection;
+}>`
+  width: ${({ direction }) =>
+    direction === LayoutDirection.Vertical ? "100%" : "4px"};
+  height: ${({ direction }) =>
+    direction === LayoutDirection.Horizontal ? "100%" : "4px"};
+  background-color: rgba(217, 89, 183, 0.8);
+  position: absolute;
+  opacity: 0;
+  z-index: 4;
+`;
+
+const StickyCanvas = styled.canvas`
+  position: absolute;
+`;
+
 export const StickyCanvasArena = forwardRef(
   (props: StickyCanvasArenaProps, ref: any) => {
     const {
       canExtend,
       canvasId,
       canvasPadding,
+      direction,
       getRelativeScrollingParent,
       id,
       showCanvas,
       snapColSpace,
       snapRows,
       snapRowSpace,
+      useAutoLayout,
     } = props;
-    const { slidingArenaRef, stickyCanvasRef } = ref.current;
+    const { dropPositionRef, slidingArenaRef, stickyCanvasRef } = ref.current;
 
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
@@ -117,19 +140,25 @@ export const StickyCanvasArena = forwardRef(
         resizeObserver.current.unobserve(slidingArenaRef.current);
       };
     }, []);
-
     return (
       <>
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <canvas data-testid={canvasId} id={canvasId} ref={stickyCanvasRef} />
+        <StickyCanvas
+          data-testid={canvasId}
+          id={canvasId}
+          ref={stickyCanvasRef}
+        />
         <StyledCanvasSlider
           data-testid={id}
           id={id}
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}
         />
+        {useAutoLayout && (
+          <Highlight direction={direction} ref={dropPositionRef} />
+        )}
       </>
     );
   },

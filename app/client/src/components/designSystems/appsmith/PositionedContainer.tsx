@@ -20,6 +20,7 @@ import {
   getReflowSelector,
 } from "selectors/widgetReflowSelectors";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import equal from "fast-deep-equal";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
@@ -37,6 +38,10 @@ export type PositionedContainerProps = {
   selected?: boolean;
   focused?: boolean;
   resizeDisabled?: boolean;
+  useAutoLayout?: boolean;
+  isWrapper?: boolean;
+  responsiveBehavior?: ResponsiveBehavior;
+  direction?: LayoutDirection;
   topRow: number;
   parentRowSpace: number;
   noContainerOffset?: boolean;
@@ -139,12 +144,23 @@ export function PositionedContainer(props: PositionedContainerProps) {
       : {};
 
     const styles: CSSProperties = {
-      position: "absolute",
+      // TODO: remove the widget type check. Add check for parent type.
+      position: props?.useAutoLayout ? "unset" : "absolute",
       left: x,
       top: y,
       height:
-        reflowHeight || style.componentHeight + (style.heightUnit || "px"),
-      width: reflowWidth || style.componentWidth + (style.widthUnit || "px"),
+        reflowHeight || props.isWrapper
+          ? "auto"
+          : style.componentHeight + (style.heightUnit || "px"),
+      width:
+        reflowWidth ||
+        (props.useAutoLayout &&
+          !(
+            props.direction === LayoutDirection.Horizontal &&
+            props.responsiveBehavior === ResponsiveBehavior.Hug
+          ))
+          ? "auto"
+          : style.componentWidth + (style.widthUnit || "px"),
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",

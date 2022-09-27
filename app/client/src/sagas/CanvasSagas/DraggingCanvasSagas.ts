@@ -26,10 +26,23 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
-import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import {
+  getUpdateDslAfterCreatingAutoLayoutChild,
+  getUpdateDslAfterCreatingChild,
+} from "sagas/WidgetAdditionSagas";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  LayoutDirection,
+  LayoutWrapperType,
+  ResponsiveBehavior,
+} from "components/constants";
+import {
+  addAndWrapWidget,
+  purgeEmptyWrappers,
+  WrappedWidgetPayload,
+} from "../WidgetOperationUtils";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -45,6 +58,8 @@ export type WidgetMoveParams = {
     */
   newParentId: string;
   allWidgets: CanvasWidgetsReduxState;
+  position?: number;
+  useAutoLayout?: boolean;
 };
 
 export function* getCanvasSizeAfterWidgetMove(
@@ -154,6 +169,8 @@ function* addWidgetAndMoveWidgetsSaga(
     });
   }
 }
+
+// function* update
 
 function* addWidgetAndMoveWidgets(
   newWidget: WidgetAddChild,
@@ -291,7 +308,12 @@ function* moveWidgetsSaga(
     ) {
       throw Error;
     }
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    /**
+     * Trim empty layout wrappers
+     * Caused by dragging a widget from auto layout to positioned container
+     */
+    const trimmedWidgets = purgeEmptyWrappers(updatedWidgetsOnMove);
+    yield put(updateAndSaveLayout(trimmedWidgets));
 
     const block = draggedBlocksToUpdate[0];
     const oldParentId = block.updateWidgetParams.payload.parentId;
@@ -383,12 +405,274 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   return widgets;
 }
 
+function* autolayoutReorderSaga(
+  actionPayload: ReduxAction<{
+    movedWidgets: string[];
+    index: number;
+    parentId: string;
+    wrapperType: LayoutWrapperType;
+    direction: LayoutDirection;
+  }>,
+) {
+  const start = performance.now();
+
+  const {
+    direction,
+    index,
+    movedWidgets,
+    parentId,
+    wrapperType,
+  } = actionPayload.payload;
+  // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
+  // console.log(`#### parentId: ${parentId}`);
+  try {
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    if (!parentId || !movedWidgets || !movedWidgets.length) return;
+    const updatedWidgets: CanvasWidgetsReduxState = yield call(
+      reorderAutolayoutChildren,
+      {
+        movedWidgets,
+        index,
+        parentId,
+        allWidgets,
+        wrapperType,
+        direction,
+      },
+    );
+
+    yield put(updateAndSaveLayout(updatedWidgets));
+    log.debug("reorder computations took", performance.now() - start, "ms");
+  } catch (e) {
+    // console.error(e);
+  }
+}
+
+function* reorderAutolayoutChildren(params: {
+  movedWidgets: string[];
+  index: number;
+  parentId: string;
+  allWidgets: CanvasWidgetsReduxState;
+  wrapperType: LayoutWrapperType;
+  direction: LayoutDirection;
+}) {
+  const {
+    allWidgets,
+    direction,
+    index,
+    movedWidgets,
+    parentId,
+    wrapperType,
+  } = params;
+  const widgets = Object.assign({}, allWidgets);
+  if (!movedWidgets) return widgets;
+  const selectedWidgets = [...movedWidgets];
+  // Check if parent has changed
+  const orphans = selectedWidgets.filter(
+    (item) => widgets[item].parentId !== parentId,
+  );
+  if (orphans && orphans.length) {
+    //parent has changed
+    // console.log(`#### orphans ${JSON.stringify(orphans)}`);
+    // update parent for children
+    orphans.forEach((item) => {
+      const prevParentId = widgets[item].parentId;
+      if (prevParentId !== undefined) {
+        // console.log(`#### previous parent: ${prevParentId}`);
+        const prevParent = Object.assign({}, widgets[prevParentId]);
+        if (prevParent.children && Array.isArray(prevParent.children)) {
+          const updatedPrevParent = {
+            ...prevParent,
+            children: prevParent.children.filter((each) => each !== item),
+          };
+          widgets[prevParentId] = updatedPrevParent;
+        }
+      }
+      widgets[item] = {
+        ...widgets[item],
+        parentId: parentId,
+      };
+    });
+  }
+  // Remove all empty wrappers
+  const trimmedWidgets = purgeEmptyWrappers(widgets);
+  // console.log(`#### trimmed widgets: ${JSON.stringify(trimmedWidgets)}`);
+  // Update moved widgets. Add wrappers to those missing one.
+  const { newMovedWidgets, updatedWidgets } = yield call(
+    updateMovedWidgets,
+    selectedWidgets,
+    trimmedWidgets,
+    parentId,
+    wrapperType,
+    direction,
+  );
+  const items = [...(updatedWidgets[parentId].children || [])];
+  // remove moved widegts from children
+  const newItems = items.filter((item) => newMovedWidgets.indexOf(item) === -1);
+  // calculate valid position for drop
+  const pos = index > newItems.length ? newItems.length : index;
+  updatedWidgets[parentId] = {
+    ...updatedWidgets[parentId],
+    children: [
+      ...newItems.slice(0, pos),
+      ...newMovedWidgets,
+      ...newItems.slice(pos),
+    ],
+  };
+  return updatedWidgets;
+}
+
+function* updateMovedWidgets(
+  movedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  wrapperType: LayoutWrapperType,
+  direction: LayoutDirection,
+) {
+  let widgets = { ...allWidgets };
+  if (!movedWidgets || !widgets)
+    return { newMovedWidgets: movedWidgets, updatedWidgets: widgets };
+  const stateParent = widgets[parentId];
+  if (stateParent.isWrapper) {
+    // If widgets are being dropped in a wrapper,
+    // then updated the wrapper type and return'
+    let hasFillChild = false;
+    for (const each of movedWidgets) {
+      if (widgets[each].responsiveBehavior === ResponsiveBehavior.Fill) {
+        hasFillChild = true;
+        break;
+      }
+      widgets[each] = {
+        ...widgets[each],
+        wrapperType,
+      };
+    }
+    if (hasFillChild) {
+      for (const each of movedWidgets) {
+        widgets[each] = {
+          ...widgets[each],
+          wrapperType: LayoutWrapperType.Start,
+        };
+      }
+    }
+    return { newMovedWidgets: movedWidgets, updatedWidgets: widgets };
+  }
+  const newMovedWidgets: string[] = [];
+  for (const each of movedWidgets) {
+    const widget = widgets[each];
+    if (!widget) continue;
+    if (widget.isWrapper) {
+      newMovedWidgets.push(each);
+      continue;
+    }
+
+    const res: WrappedWidgetPayload = yield call(
+      addAndWrapWidget,
+      widgets,
+      parentId,
+      each,
+      undefined,
+      direction,
+      stateParent?.isWrapper || false,
+      wrapperType,
+    );
+
+    widgets = res.widgets;
+    newMovedWidgets.push(res.wrapperId);
+  }
+  return { newMovedWidgets, updatedWidgets: widgets };
+}
+
+function* addWidgetAndReorderSaga(
+  actionPayload: ReduxAction<{
+    newWidget: WidgetAddChild;
+    index: number;
+    parentId: string;
+    wrapperType: LayoutWrapperType;
+    direction: LayoutDirection;
+  }>,
+) {
+  const start = performance.now();
+  const {
+    direction,
+    index,
+    newWidget,
+    parentId,
+    wrapperType,
+  } = actionPayload.payload;
+  try {
+    const updatedWidgetsOnAddition: {
+      widgets: CanvasWidgetsReduxState;
+      containerId?: string;
+    } = yield call(addAutoLayoutChild, newWidget, parentId, direction);
+
+    const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
+      reorderAutolayoutChildren,
+      {
+        movedWidgets: [
+          updatedWidgetsOnAddition.containerId || newWidget.newWidgetId,
+        ],
+        index,
+        parentId,
+        allWidgets: updatedWidgetsOnAddition.widgets,
+        wrapperType,
+        direction,
+      },
+    );
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    log.debug("reorder computations took", performance.now() - start, "ms");
+  } catch (e) {
+    // console.error(e);
+  }
+}
+
+function* addAutoLayoutChild(
+  newWidget: WidgetAddChild,
+  parentId: string,
+  direction: LayoutDirection,
+) {
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const stateParent: FlattenedWidgetProps = allWidgets[parentId];
+
+  if (stateParent?.isWrapper) {
+    const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
+      getUpdateDslAfterCreatingChild,
+      {
+        ...newWidget,
+        widgetId: parentId,
+      },
+    );
+    return { widgets: updatedWidgetsOnAddition };
+  } else {
+    const updatedWidgetsOnAddition: {
+      widgets: CanvasWidgetsReduxState;
+      containerId?: string;
+    } = yield call(
+      getUpdateDslAfterCreatingAutoLayoutChild,
+      {
+        ...newWidget,
+        widgetId: parentId,
+      },
+      direction,
+    );
+
+    return updatedWidgetsOnAddition;
+  }
+}
+
 export default function* draggingCanvasSagas() {
   yield all([
     takeLatest(ReduxActionTypes.WIDGETS_MOVE, moveWidgetsSaga),
     takeLatest(
       ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
       addWidgetAndMoveWidgetsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+      autolayoutReorderSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+      addWidgetAndReorderSaga,
     ),
   ]);
 }

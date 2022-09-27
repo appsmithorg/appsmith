@@ -19,6 +19,8 @@ import {
 import panelConfig from "./PanelConfig";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "components/constants";
 
 export default [
   {
@@ -399,6 +401,7 @@ export default [
         hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
         dependencies: ["isVisibleDownload"],
       },
+      { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
     ],
   },
 ] as PropertyPaneConfig[];

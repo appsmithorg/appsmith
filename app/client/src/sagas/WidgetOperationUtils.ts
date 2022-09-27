@@ -53,6 +53,18 @@ import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
+import {
+  Alignment,
+  ButtonBoxShadowTypes,
+  LayoutDirection,
+  LayoutWrapperType,
+  Spacing,
+} from "components/constants";
+import {
+  generateChildWidgets,
+  GeneratedWidgetPayload,
+} from "./WidgetAdditionSagas";
+import { WidgetAddChild } from "actions/pageActions";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1668,4 +1680,325 @@ export function mergeDynamicPropertyPaths(
   b?: DynamicPath[],
 ) {
   return _.unionWith(a, b, (a, b) => a.key === b.key);
+}
+
+// TODO: check for performance in complex apps.
+export function purgeEmptyWrappers(allWidgets: CanvasWidgetsReduxState) {
+  const widgets = { ...allWidgets };
+  // Fetch all empty wrappers
+  const emptyWrappers = Object.values(widgets).filter(
+    (each) => each.isWrapper && (!each.children || !each.children?.length),
+  );
+  // Remove wrappers from their parents and then delete them.
+  emptyWrappers.forEach((each) => {
+    const parent = each.parentId ? widgets[each.parentId] : null;
+    if (
+      parent &&
+      parent.children &&
+      parent.children?.indexOf(each.widgetId) > -1
+    ) {
+      const updatedParent = {
+        ...parent,
+        children: [
+          ...(parent.children || []).filter((child) => child !== each.widgetId),
+        ],
+      };
+      widgets[parent.widgetId] = updatedParent;
+    }
+    delete widgets[each.widgetId];
+  });
+  return widgets;
+}
+
+export function purgeChildWrappers(
+  allWidgets: CanvasWidgetsReduxState,
+  containerId: string,
+): CanvasWidgetsReduxState {
+  const widgets = { ...allWidgets };
+  const container = widgets[containerId];
+  if (!containerId) return widgets;
+  const canvasId = container.children ? container.children[0] : "";
+  let parent = widgets[canvasId];
+  if (!parent) return widgets;
+  const wrapperChildren = parent.children?.filter(
+    (each) => widgets[each] && widgets[each].isWrapper,
+  );
+
+  if (!wrapperChildren || !wrapperChildren.length) return widgets;
+  parent = {
+    ...parent,
+    children: [
+      ...(parent.children || []).filter(
+        (each) => wrapperChildren.indexOf(each) === -1,
+      ),
+    ],
+  };
+  wrapperChildren.forEach((each) => {
+    const wrapper = widgets[each];
+    const children = wrapper.children || [];
+    if (children.length) {
+      children.forEach((child) => {
+        parent = {
+          ...parent,
+          children: [...(parent.children || []), child],
+        };
+        widgets[child] = { ...widgets[child], parentId: canvasId };
+      });
+    }
+    delete widgets[each];
+  });
+  widgets[canvasId] = parent;
+  return widgets;
+}
+
+export function* wrapChildren(
+  allWidgets: CanvasWidgetsReduxState,
+  containerId: string,
+  direction: LayoutDirection,
+) {
+  let widgets = { ...allWidgets };
+  const container = widgets[containerId];
+  if (!container) return widgets;
+  const canvasId = container.children ? container.children[0] : "";
+  let parent = widgets[canvasId];
+  if (!parent) return widgets;
+  const children = parent.children || [];
+  if (!children.length) return widgets;
+
+  // Remove current children from the parent
+  parent = {
+    ...parent,
+    children: [],
+  };
+  /**
+   * Generate new wrappers
+   * and wrap each child in its own wrapper
+   */
+  for (const each of children) {
+    const child = widgets[each];
+    if (!child || child.isWrapper) continue;
+    // Create new wrapper
+    const res: WrappedWidgetPayload = yield call(
+      addAndWrapWidget,
+      widgets,
+      canvasId,
+      each,
+      undefined,
+      direction,
+      false,
+    );
+    widgets = res.widgets;
+  }
+  return widgets;
+}
+
+export function getLayoutWrapperName(widgets: CanvasWidgetsReduxState): string {
+  const arr =
+    Object.values(widgets)
+      .filter((each) => each.type === "LAYOUT_WRAPPER_WIDGET")
+      .map((each) => each.widgetName.split("LayoutWrapper")[1])
+      .sort((a, b) => parseInt(b) - parseInt(a)) || [];
+  const suffix = arr.length > 0 ? parseInt(arr[0]) + 1 : 1;
+  return `LayoutWrapper${suffix}`;
+}
+
+export function getLayoutWrapperPayload(
+  widgets: CanvasWidgetsReduxState,
+  payload: Omit<
+    WidgetAddChild,
+    "newWidgetId" | "tabId" | "widgetName" | "type"
+  >,
+  direction: LayoutDirection = LayoutDirection.Vertical,
+  isWrapper = false,
+): WidgetAddChild {
+  // A horizontal wrapper should stretch to occupy the parent's entire width.
+  const shouldStretch = isWrapper
+    ? direction === LayoutDirection.Horizontal
+    : direction === LayoutDirection.Vertical;
+  return {
+    ...payload,
+    newWidgetId: generateReactKey(),
+    type: "LAYOUT_WRAPPER_WIDGET",
+    widgetName: getLayoutWrapperName(widgets),
+    props: {
+      containerStyle: "none",
+      canExtend: false,
+      detachFromLayout: true,
+      children: [],
+      alignment: Alignment.Left,
+      spacing: Spacing.None,
+      isWrapper: true,
+      backgroundColor: "transparent",
+      boxShadow: ButtonBoxShadowTypes.NONE,
+      borderStyle: "none",
+    },
+    columns: shouldStretch ? 64 : payload.columns + 1,
+    tabId: "0",
+  };
+}
+
+export interface WrappedWidgetPayload {
+  widgets: CanvasWidgetsReduxState;
+  wrapperId: string;
+}
+
+export function* addAndWrapWidget(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  childId?: string,
+  addChildPayload?: WidgetAddChild,
+  direction = LayoutDirection.Horizontal,
+  isWrapper = false,
+  wrapperType = LayoutWrapperType.Start,
+) {
+  let widgets = { ...allWidgets };
+  const widgetId: string = childId || addChildPayload?.newWidgetId || "";
+  if (!widgetId) return { widgets, wrapperId: parentId };
+  let child = widgets[widgetId];
+  let parent = widgets[parentId];
+
+  // remove widget from parent's children
+  parent = {
+    ...parent,
+    children: [...(parent.children || []).filter((each) => each !== widgetId)],
+  };
+
+  const payload = childId
+    ? {
+        rows: child.rows || child.bottomRow - child.topRow,
+        columns: child.columns || child.rightColumn - child.leftColumn,
+        topRow: child.topRow,
+        leftColumn: child.leftColumn,
+        parentColumnSpace: child.parentColumnSpace,
+        parentRowSpace: child.parentRowSpace,
+        widgetId: parentId,
+      }
+    : addChildPayload
+    ? {
+        rows: addChildPayload.rows,
+        columns: addChildPayload.columns,
+        topRow: addChildPayload.topRow,
+        leftColumn: addChildPayload.leftColumn,
+        parentColumnSpace: addChildPayload.parentColumnSpace,
+        parentRowSpace: addChildPayload.parentRowSpace,
+        widgetId: parentId,
+      }
+    : null;
+  if (!payload) return { widgets, wrapperId: parentId };
+
+  // Create new wrapper
+  const wrapperPayload = getLayoutWrapperPayload(
+    widgets,
+    payload,
+    direction,
+    isWrapper,
+  );
+  const widgetsAfterCreatingWrapper: GeneratedWidgetPayload = yield generateChildWidgets(
+    parent,
+    wrapperPayload,
+    widgets,
+  );
+  let wrapper =
+    widgetsAfterCreatingWrapper.widgets[widgetsAfterCreatingWrapper.widgetId];
+
+  widgets = widgetsAfterCreatingWrapper.widgets;
+
+  // Add child to wrapper's children
+  wrapper = {
+    ...wrapper,
+    children: [...(wrapper.children || []), widgetId],
+  };
+
+  // If new widget, then create it.
+  if (addChildPayload) {
+    const childPayload: WidgetAddChild = {
+      ...addChildPayload,
+      widgetId: wrapper.widgetId,
+    };
+    const widgetsAfterCreatingChild: GeneratedWidgetPayload = yield generateChildWidgets(
+      wrapper,
+      childPayload,
+      widgets,
+      childPayload?.props?.blueprint,
+    );
+    widgets = widgetsAfterCreatingChild.widgets;
+  }
+
+  child = widgets[widgetId];
+  child = {
+    ...child,
+    parentId: wrapper.widgetId,
+    wrapperType,
+  };
+
+  // Update child to fill the width of the parent if it is wrapped in a vertical wrapper.
+  // if (
+  //   (!isWrapper && direction === LayoutDirection.Horizontal) ||
+  //   (isWrapper && direction === LayoutDirection.Vertical)
+  // ) {
+  //   child = {
+  //     ...child,
+  //     leftColumn: 0,
+  //     rightColumn: 63,
+  //   };
+  // }
+
+  widgets[wrapper.widgetId] = wrapper;
+  widgets[widgetId] = child;
+  widgets[parentId] = {
+    ...parent,
+    children: [...(parent.children || []), wrapper.widgetId],
+  };
+  return { widgets, wrapperId: wrapper.widgetId };
+}
+
+export function updateWrapperDimensions(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  direction: LayoutDirection,
+): CanvasWidgetsReduxState {
+  const widgets = { ...allWidgets };
+  const container = widgets[parentId];
+  if (!container?.children) return widgets;
+  const canvas = widgets[container.children[0]];
+  const wrappers = canvas?.children;
+  if (!wrappers) return widgets;
+  if (direction === LayoutDirection.Vertical) {
+    for (const each of wrappers) {
+      const wrapper = widgets[each];
+      if (!wrapper || !wrapper.children) continue;
+      const prevRightColumn = wrapper.rightColumn;
+      widgets[each] = {
+        ...wrapper,
+        leftColumn: 0,
+        rightColumn: 63,
+      };
+      const children = wrapper.children;
+      for (const child of children) {
+        const childWidget = widgets[child];
+        widgets[child] = {
+          ...childWidget,
+          leftColumn: 0,
+          rightColumn: prevRightColumn ? prevRightColumn - 1 : 0,
+        };
+      }
+    }
+  } else {
+    for (const each of wrappers) {
+      const wrapper = widgets[each];
+      if (!wrapper || !wrapper.children) continue;
+      const children = wrapper.children;
+      let max = 0;
+      for (const child of children) {
+        const childWidget = widgets[child];
+        max = Math.max(max, childWidget.rightColumn - childWidget.leftColumn);
+      }
+      widgets[each] = {
+        ...wrapper,
+        leftColumn: 0,
+        rightColumn: max + 1,
+      };
+    }
+  }
+  return widgets;
 }

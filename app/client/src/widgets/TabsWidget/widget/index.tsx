@@ -13,6 +13,17 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
+import {
+  Alignment,
+  Positioning,
+  ResponsiveBehavior,
+  Spacing,
+} from "components/constants";
+import {
+  generatePositioningConfig,
+  generateResponsiveBehaviorConfig,
+  getLayoutConfig,
+} from "utils/layoutPropertiesUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -101,6 +112,29 @@ class TabsWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
+                    {
+                      helpText: "Position styles to be applied to the children",
+                      propertyName: "positioning",
+                      label: "Positioning",
+                      controlType: "DROP_DOWN",
+                      defaultValue: Positioning.Fixed,
+                      options: [
+                        { label: "Fixed", value: Positioning.Fixed },
+                        {
+                          label: "Horizontal stack",
+                          value: Positioning.Horizontal,
+                        },
+                        {
+                          label: "Vertical stack",
+                          value: Positioning.Vertical,
+                        },
+                      ],
+                      isJSConvertible: false,
+                      isBindProperty: true,
+                      isTriggerProperty: true,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    ...getLayoutConfig(Alignment.Left, Spacing.None),
                   ],
                 },
               ],
@@ -165,6 +199,7 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
@@ -281,6 +316,7 @@ class TabsWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
+                    { ...generatePositioningConfig(Positioning.Fixed) },
                   ],
                 },
               ],
@@ -350,6 +386,7 @@ class TabsWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
@@ -471,6 +508,12 @@ class TabsWidget extends BaseWidget<
       : componentHeight - 1;
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
+    const selectedTabProps = Object.values(this.props.tabsObj)?.filter(
+      (item) => item.widgetId === selectedTabWidgetId,
+    )[0];
+    childWidgetData.positioning = selectedTabProps?.positioning;
+    childWidgetData.alignment = selectedTabProps?.alignment;
+    childWidgetData.spacing = selectedTabProps?.spacing;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };

@@ -24,6 +24,8 @@ export interface WidgetStyleContainerProps {
   borderRadius?: number;
   boxShadow?: BoxShadow;
   className?: string;
+  useAutoLayout?: boolean;
+  direction?: string;
 }
 
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
@@ -31,10 +33,12 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   width: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${(props) => props.boxShadow} !important;
-  border-width: ${(props) => props.borderWidth}px;
+  border-width: ${(props) => props.borderWidth || 0}px;
   border-color: ${(props) => props.borderColor || "transparent"};
   border-style: solid;
   background-color: ${(props) => props.backgroundColor || "transparent"};
+
+  display: block;
 
   & > div {
     height: 100%;
