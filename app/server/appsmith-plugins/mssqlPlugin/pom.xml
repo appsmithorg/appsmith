@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mssqlserver</artifactId>
-            <version>1.17.1</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
 

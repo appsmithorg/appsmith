@@ -6,9 +6,9 @@ import com.appsmith.external.helpers.restApiUtils.connections.OAuth2ClientCreden
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import okio.Buffer;
 import org.junit.AfterClass;
 import org.junit.Assert;

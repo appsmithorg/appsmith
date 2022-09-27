@@ -28,15 +28,12 @@
     </properties>
 
     <dependencies>
-
-        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.17.1</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

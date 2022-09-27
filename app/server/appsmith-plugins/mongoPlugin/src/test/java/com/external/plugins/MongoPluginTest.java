@@ -36,9 +36,8 @@ import org.bson.Document;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.Decimal128;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -105,11 +104,10 @@ public class MongoPluginTest {
     private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
-    @ClassRule
     public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("mongo:4.4"))
             .withExposedPorts(27017);
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();

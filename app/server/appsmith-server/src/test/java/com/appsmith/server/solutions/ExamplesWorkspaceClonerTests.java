@@ -19,10 +19,10 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -40,15 +40,15 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,7 +59,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -81,7 +81,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class ExamplesWorkspaceClonerTests {
@@ -167,7 +167,7 @@ public class ExamplesWorkspaceClonerTests {
                 .thenReturn(data);
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
@@ -404,7 +404,7 @@ public class ExamplesWorkspaceClonerTests {
                                 app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{ app })))
+                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{app})))
                             .then();
                     // Clone this application into the same workspace thrice.
                     return cloneMono
@@ -940,7 +940,7 @@ public class ExamplesWorkspaceClonerTests {
                                         })
                                         .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
                                                 targetOrg1.getId(),
-                                                Flux.fromArray(new Application[]{ app })
+                                                Flux.fromArray(new Application[]{app})
                                         ))
                                         .then();
 

@@ -25,9 +25,9 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,7 +40,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -70,7 +70,7 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @Slf4j
@@ -117,7 +117,7 @@ public class WorkspaceServiceTest {
 
     private static String origin = "http://appsmith-local.test";
 
-    @Before
+    @BeforeEach
     public void setup() {
         workspace = new Workspace();
         workspace.setName("Test Name");
@@ -802,14 +802,14 @@ public class WorkspaceServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
-                READ_APPLICATIONS)
+                        READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
         Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
-                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(),READ_DATASOURCES)
+                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(), READ_DATASOURCES)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
         );
 
@@ -936,7 +936,7 @@ public class WorkspaceServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
-                READ_APPLICATIONS)
+                        READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")
@@ -1124,7 +1124,7 @@ public class WorkspaceServiceTest {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
                 .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo_large.png"), new DefaultDataBufferFactory(), 4096);
-        assertThat(dataBufferFlux.count().block()).isGreaterThan((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB/4.0));
+        assertThat(dataBufferFlux.count().block()).isGreaterThan((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
@@ -1158,7 +1158,7 @@ public class WorkspaceServiceTest {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
                 .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
-        assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB/4.0));
+        assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
@@ -1250,8 +1250,8 @@ public class WorkspaceServiceTest {
 
         Mono<Workspace> deleteWorkspaceMono = workspaceService.create(workspace)
                 .flatMap(savedWorkspace ->
-                    workspaceService.archiveById(savedWorkspace.getId())
-                            .then(workspaceRepository.findById(savedWorkspace.getId()))
+                        workspaceService.archiveById(savedWorkspace.getId())
+                                .then(workspaceRepository.findById(savedWorkspace.getId()))
                 );
 
         // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
