@@ -53,58 +53,9 @@ export function Field(props: {
 
   switch (fieldType) {
     case FieldType.ACTION_SELECTOR_FIELD:
-    case FieldType.ON_SUCCESS_FIELD:
-    case FieldType.ON_ERROR_FIELD:
-    case FieldType.SHOW_MODAL_FIELD:
-    case FieldType.CLOSE_MODAL_FIELD:
-    case FieldType.PAGE_SELECTOR_FIELD:
-    case FieldType.ALERT_TYPE_SELECTOR_FIELD:
-    case FieldType.DOWNLOAD_FILE_TYPE_FIELD:
-    case FieldType.NAVIGATION_TARGET_FIELD:
-    case FieldType.RESET_CHILDREN_FIELD:
-    case FieldType.WIDGET_NAME_FIELD:
-      let label = APPSMITH_FUNCTION_CONFIG[fieldType].label;
-      const defaultText = APPSMITH_FUNCTION_CONFIG[fieldType].defaultText;
-      const options = APPSMITH_FUNCTION_CONFIG[fieldType].options(props);
-      let selectedLabelModifier = undefined;
-      let displayValue = undefined;
-      let getDefaults = undefined;
-      if (fieldType === FieldType.ACTION_SELECTOR_FIELD) {
-        label = props.label || "";
-        displayValue =
-          field.value !== "{{undefined}}" &&
-          field.value !== "{{()}}" &&
-          field.value !== "{{{}, ()}}"
-            ? field.value
-            : undefined;
-        // eslint-disable-next-line react/display-name
-        selectedLabelModifier = function(
-          option: TreeDropdownOption,
-          displayValue?: string,
-        ) {
-          if (option.type === AppsmithFunction.integration) {
-            return (
-              <HightlightedCode
-                codeText={`{{${option.label}.run()}}`}
-                skin={Skin.LIGHT}
-              />
-            );
-          } else if (displayValue) {
-            return (
-              <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
-            );
-          }
-          return <span>{option.label}</span>;
-        };
-        getDefaults = (value: string) => {
-          return {
-            [AppsmithFunction.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
-          }[value];
-        };
-      }
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: options,
-        label: label,
+        options: APPSMITH_FUNCTION_CONFIG[fieldType].options(props),
+        label: APPSMITH_FUNCTION_CONFIG[fieldType].label(props),
         get: fieldConfig.getter,
         set: (
           value: string | DropdownOption,
@@ -119,10 +70,66 @@ export function Field(props: {
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: props.value,
-        defaultText: defaultText,
-        getDefaults: getDefaults,
-        selectedLabelModifier: selectedLabelModifier,
-        displayValue: displayValue ? displayValue : "",
+        defaultText: APPSMITH_FUNCTION_CONFIG[fieldType].defaultText,
+        getDefaults: (value: string) => {
+          return {
+            [AppsmithFunction.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
+          }[value];
+        },
+        selectedLabelModifier: (
+          option: TreeDropdownOption,
+          displayValue?: string,
+        ) => {
+          if (option.type === AppsmithFunction.integration) {
+            return (
+              <HightlightedCode
+                codeText={`{{${option.label}.run()}}`}
+                skin={Skin.LIGHT}
+              />
+            );
+          } else if (displayValue) {
+            return (
+              <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
+            );
+          }
+          return <span>{option.label}</span>;
+        },
+        displayValue:
+          field.value !== "{{undefined}}" &&
+          field.value !== "{{()}}" &&
+          field.value !== "{{{}, ()}}"
+            ? field.value
+            : undefined,
+      });
+      break;
+    case FieldType.ON_SUCCESS_FIELD:
+    case FieldType.ON_ERROR_FIELD:
+    case FieldType.SHOW_MODAL_FIELD:
+    case FieldType.CLOSE_MODAL_FIELD:
+    case FieldType.PAGE_SELECTOR_FIELD:
+    case FieldType.ALERT_TYPE_SELECTOR_FIELD:
+    case FieldType.DOWNLOAD_FILE_TYPE_FIELD:
+    case FieldType.NAVIGATION_TARGET_FIELD:
+    case FieldType.RESET_CHILDREN_FIELD:
+    case FieldType.WIDGET_NAME_FIELD:
+      viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
+        options: APPSMITH_FUNCTION_CONFIG[fieldType].options(props),
+        label: APPSMITH_FUNCTION_CONFIG[fieldType].label,
+        get: fieldConfig.getter,
+        set: (
+          value: string | DropdownOption,
+          defaultValue?: string,
+          isUpdatedViaKeyboard = false,
+        ) => {
+          const finalValueToSet = fieldConfig.setter(
+            value,
+            props.value,
+            defaultValue,
+          );
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
+        },
+        value: props.value,
+        defaultText: APPSMITH_FUNCTION_CONFIG[fieldType].defaultText,
       });
       break;
     case FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD:

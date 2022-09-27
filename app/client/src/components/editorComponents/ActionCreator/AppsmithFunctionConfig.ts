@@ -88,8 +88,9 @@ export const APPSMITH_FUNCTION_CONFIG = {
     options: () => NAVIGATION_TARGET_FIELD_OPTIONS,
     defaultText: NAVIGATION_TARGET_FIELD_OPTIONS[0].label,
   },
+  // TODO: add type
   [FieldType.ACTION_SELECTOR_FIELD]: {
-    label: "",
+    label: (props: any) => props.label || "",
     options: (props: any) => props.integrationOptionTree,
     defaultText: "Select Action",
   },
