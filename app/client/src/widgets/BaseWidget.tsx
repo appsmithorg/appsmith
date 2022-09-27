@@ -256,15 +256,14 @@ abstract class BaseWidget<
       }
     }
 
-    // If current height is less than the minDynamicHeightInRows
-    // We're trying to see if we can increase the height
-    if (currentHeightInRows < minDynamicHeightInRows) {
-      return true;
-    }
-
     // If current height is more than the maxDynamicHeightInRows
     // We're trying to see if we can decrease the height
     if (currentHeightInRows > maxDynamicHeightInRows) {
+      return true;
+    }
+
+    // The widget height should always be at least minDynamicHeightInRows
+    if (currentHeightInRows !== minDynamicHeightInRows) {
       return true;
     }
 
