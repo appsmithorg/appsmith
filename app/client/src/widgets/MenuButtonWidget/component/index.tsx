@@ -13,7 +13,7 @@ import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 
-import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import { darkenActive, darkenHover, theme } from "constants/DefaultTheme";
 import {
   ButtonPlacement,
   ButtonVariant,
@@ -122,11 +122,20 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     }
 
     &:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
-      border-color: ${theme.colors.button.disabled.bgColor} !important;
-      > span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+      border: ${
+        buttonVariant === ButtonVariantTypes.SECONDARY
+          ? "1px solid var(--wds-color-border-disabled)"
+          : "none"
+      } !important;
+      background: ${
+        buttonVariant !== ButtonVariantTypes.TERTIARY
+          ? "var(--wds-color-bg-disabled)"
+          : "transparent"
+      } !important;
+      color: var(--wds-color-text-disabled) !important;
+      
+      span {
+        color: var(--wds-color-text-disabled) !important;
       }
     }
 
@@ -172,6 +181,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+  font-family: var(--wds-font-family);
+
   ${({ backgroundColor, theme }) =>
     backgroundColor
       ? `
