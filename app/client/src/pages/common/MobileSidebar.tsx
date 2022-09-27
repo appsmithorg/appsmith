@@ -118,7 +118,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         <h4>ACCOUNT</h4>
         {user?.isSuperUser && user?.isConfigurable && (
           <StyledMenuItem
-            className={`t--admin-settings-menu`}
+            className="admin-settings-menu-option"
             icon="setting"
             onSelect={() => {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {

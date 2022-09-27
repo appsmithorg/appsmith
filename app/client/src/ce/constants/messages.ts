@@ -521,7 +521,10 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a data table";
+
+export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
+  "Start with a simple CRUD UI and customize it";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -1154,8 +1157,6 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
-export const PAGE = () => "Page";
-export const PAGES = () => "Pages";
 
 // Entity explorer
 export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
@@ -1175,7 +1176,7 @@ export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
 export const SELECT_WORKSPACE = () => "Select Workspace";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
-export const FORK_THIS_TEMPLATE = () => "Use template";
+export const FORK_THIS_TEMPLATE = () => "Fork this template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
@@ -1188,24 +1189,14 @@ export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Use Case";
+export const INDUSTRY = () => "Industry";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
-export const WIDGET_USED = () => "Widgets";
+export const WIDGET_USED = () => "Widgets Used";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
 export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
 export const FILTERS = () => "FILTERS";
-export const TEMPLATE_CARD_TITLE = () => "Start from a template";
-export const TEMPLATE_CARD_DESCRIPTION = () =>
-  "Create app from template by selecting pages";
-export const FILTER_SELECTALL = () => "Select all";
-export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
-export const FORKING_TEMPLATE = () => "Setting up the template";
-export const FETCHING_TEMPLATES = () => "Loading template details";
-export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
-
-export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -1237,13 +1228,6 @@ export const CLEAN_URL_UPDATE = {
 };
 
 export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
-
-export const CREATE_PAGE = () => "New Blank Page";
-export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
-export const GENERATE_PAGE = () => "Generate page from data table";
-export const GENERATE_PAGE_DESCRIPTION = () =>
-  "Start app with a simple CRUD UI and customize it";
-export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
