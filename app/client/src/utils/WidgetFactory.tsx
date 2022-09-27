@@ -219,7 +219,11 @@ class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneConfigsMap.get(type);
     if (!map || (map && map.length === 0)) {
-      return WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
+      const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
+      if (config.length === 0) {
+        log.error("Widget property pane config not defined", type);
+      }
+      return config;
     }
     return map;
   }
