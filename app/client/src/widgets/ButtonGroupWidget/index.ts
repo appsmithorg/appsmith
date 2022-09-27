@@ -14,7 +14,7 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   searchTags: ["click", "submit"],
   defaults: {
-    rows: 4,
+    rows: 5,
     columns: 24,
     widgetName: "ButtonGroup",
     orientation: "horizontal",
