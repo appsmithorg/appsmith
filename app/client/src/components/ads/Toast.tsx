@@ -236,12 +236,11 @@ export const Toaster = {
         hideProgressBar: config.hideProgressBar,
       },
     );
-    if (config.autoClose !== false) {
-      // Update autoclose everytime to keep resetting the timer.
-      toast.update(toastId, {
-        autoClose: config.duration || 5000,
-      });
-    }
+
+    // Update autoclose everytime to keep resetting the timer.
+    toast.update(toastId, {
+      autoClose: config.duration || 5000,
+    });
   },
   clear: () => toast.dismiss(),
 };
