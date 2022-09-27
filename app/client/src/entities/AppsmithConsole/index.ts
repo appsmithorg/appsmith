@@ -61,6 +61,8 @@ export interface LogActionPayload {
   logType?: LOG_TYPE;
   // This is the preview of the log that the user sees.
   text: string;
+  // Number of times this log has been repeated
+  occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
   logData?: any[];
   messages?: Array<Message>;
