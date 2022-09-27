@@ -40,6 +40,12 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
           layoutActions: [],
         },
       ],
+      userPermissions: [
+        "read:pages",
+        "manage:pages",
+        "create:pageActions",
+        "delete:pages",
+      ],
     },
   };
   const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
@@ -59,6 +65,12 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
       isDefault: mockResp.data.isDefault,
       isHidden: !!mockResp.data.isHidden,
       slug: mockResp.data.slug,
+      userPermissions: [
+        "read:pages",
+        "manage:pages",
+        "create:pageActions",
+        "delete:pages",
+      ],
     },
   ];
   dispatch({
@@ -156,6 +168,12 @@ export function MockApplication({ children }: any) {
         name: "Page1",
         isDefault: true,
         slug: "page-1",
+        userPermissions: [
+          "read:pages",
+          "manage:pages",
+          "create:pageActions",
+          "delete:pages",
+        ],
       },
     ],
     id: "app_id",
@@ -189,7 +207,16 @@ export function MockApplication({ children }: any) {
   });
   dispatch({
     type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-    payload: { id: "page_id", slug: "page-1" },
+    payload: {
+      id: "page_id",
+      slug: "page-1",
+      permissions: [
+        "read:pages",
+        "manage:pages",
+        "create:pageActions",
+        "delete:pages",
+      ],
+    },
   });
   return children;
 }

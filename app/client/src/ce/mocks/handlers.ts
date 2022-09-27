@@ -32,6 +32,7 @@ export const handlers = [
             "manage:actions",
             "delete:actions",
             "create:pages",
+            "create:workspaces",
           ],
           name: "Sangeeth's Apps",
           email: "sangeeth@appsmith.com",

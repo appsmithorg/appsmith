@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import Entity from "../Entity";
 import WidgetEntity from "./WidgetEntity";
 import {
-  getCurrentApplication,
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
@@ -25,7 +24,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { AppState } from "@appsmith/reducers";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -60,15 +58,6 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
-  );
-
-  const canCreatePages = isPermitted(
-    userAppPermissions,
-    PERMISSION_TYPE.CREATE_PAGE,
-  );
-
   const canManagePages = isPermitted(
     pagePermissions,
     PERMISSION_TYPE.MANAGE_PAGE,
@@ -89,7 +78,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       onCreate={props.addWidgetsFn}
       onToggle={onWidgetToggle}
       searchKeyword={props.searchKeyword}
-      showAddButton={canCreatePages}
+      showAddButton={canManagePages}
       step={props.step}
     >
       {widgets?.children?.map((child) => (

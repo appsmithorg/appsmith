@@ -185,7 +185,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       }
       name={props.widgetName}
       searchKeyword={props.searchKeyword}
-      showAddButton={canCreatePages}
+      showAddButton={canManagePages}
       step={props.step}
       updateEntityName={updateWidgetName}
     >
