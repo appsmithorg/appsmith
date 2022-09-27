@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isString, debounce as _debounce } from "lodash";
+import _ from "lodash";
 import {
   DataTree,
   ENTITY_TYPE,
@@ -351,8 +351,7 @@ class CodeEditor extends Component<Props, State> {
   }
 
   //Debounce editor refresh request as container resizing triggers many change events.
-  debounceEditorRefresh = _debounce(async () => {
-    console.log("ondhu 3");
+  debounceEditorRefresh = _.debounce(async () => {
     this.editor.refresh();
   }, 100);
 
@@ -374,7 +373,7 @@ class CodeEditor extends Component<Props, State> {
       const previousInputValue = getInputValue(prevProps.input.value);
 
       if (!!inputValue || inputValue === "") {
-        if (inputValue !== editorValue && isString(inputValue)) {
+        if (inputValue !== editorValue && _.isString(inputValue)) {
           this.editor.setValue(inputValue);
           this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
         } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
