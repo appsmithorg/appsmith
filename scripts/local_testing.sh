@@ -7,6 +7,7 @@ display_help()
   echo "Use this script to run a local instance of Appsmith on port 80."
   echo "The script will build all the artefacts required for a fat Docker container to come up."
   echo "If no argument is given, the build defaults to release branch."
+  echo "If --local or -l is passed, it will build with local changes"
   echo "---------------------------------------------------------------------------------------"
   echo
   echo "Syntax: $0 [-h] [-l] [branchName]"
