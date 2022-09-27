@@ -161,6 +161,9 @@ import CategorySliderWidget, {
 import CodeScannerWidget, {
   CONFIG as CODE_SCANNER_WIDGET_CONFIG,
 } from "widgets/CodeScannerWidget";
+import LeafletWidget, {
+  CONFIG as LEAFLET_WIDGET_CONFIG,
+} from "widgets/LeafletWidget";
 
 export const ALL_WIDGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -212,6 +215,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [RangeSliderWidget, RANGE_SLIDER_WIDGET_CONFIG],
   [CategorySliderWidget, CATEGORY_SLIDER_WIDGET_CONFIG],
   [CodeScannerWidget, CODE_SCANNER_WIDGET_CONFIG],
+  [LeafletWidget, LEAFLET_WIDGET_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],
