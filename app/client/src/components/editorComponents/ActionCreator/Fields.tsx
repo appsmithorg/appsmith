@@ -18,7 +18,6 @@ import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import DividerComponent from "widgets/DividerWidget/component";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -262,7 +261,7 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.NAVIGATION_TARGET_FIELD]: {
     getter: (value: any) => {
-      return enumTypeGetter(value, 2, NavigationTargetType.SAME_WINDOW);
+      return enumTypeGetter(value, 2, NAVIGATION_TARGET_FIELD_OPTIONS[0].value);
     },
     setter: (option: any, currentValue: string) => {
       return enumTypeSetter(option.value, currentValue, 2);
