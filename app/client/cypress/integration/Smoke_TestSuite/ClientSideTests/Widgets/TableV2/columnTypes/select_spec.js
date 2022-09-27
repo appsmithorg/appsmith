@@ -87,6 +87,7 @@ describe("Table widget - Select column type functionality", () => {
       ]}}
     `,
     );
+    cy.wait(500);
     cy.editTableSelectCell(0, 0);
     cy.get(
       `[data-colindex="0"][data-rowindex="0"] .select-button .bp3-button-text`,
@@ -97,14 +98,14 @@ describe("Table widget - Select column type functionality", () => {
     cy.editTableSelectCell(0, 0);
     cy.get(
       `[data-colindex="0"][data-rowindex="0"] .select-button .bp3-button-text`,
-    ).should("contain", "choose an option".toUpperCase());
+    ).should("contain", "choose an option");
 
     cy.updateCodeInput(".t--property-control-placeholder", "choose an item");
 
     cy.editTableSelectCell(0, 0);
     cy.get(
       `[data-colindex="0"][data-rowindex="0"] .select-button .bp3-button-text`,
-    ).should("contain", "choose an item".toUpperCase());
+    ).should("contain", "choose an item");
   });
 
   it("5. should check that filterable property is working", () => {
