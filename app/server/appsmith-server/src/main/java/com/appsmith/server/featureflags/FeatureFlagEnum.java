@@ -30,4 +30,5 @@ public enum FeatureFlagEnum {
     GIT,
     GIT_IMPORT,
     APP_TEMPLATE,
+    TEMPLATES_PHASE_2
 }
