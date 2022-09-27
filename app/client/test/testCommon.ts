@@ -127,6 +127,10 @@ export const mockGetChildWidgets = (state: AppState, widgetId: string) => {
   return getChildWidgets(state.entities.canvasWidgets, widgetId);
 };
 
+export const mockGetPagePermissions = () => {
+  return ["read:pages", "manage:pages", "create:pageActions", "delete:pages"];
+};
+
 export const mockCreateCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

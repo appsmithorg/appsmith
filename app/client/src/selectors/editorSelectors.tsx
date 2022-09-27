@@ -128,15 +128,10 @@ export const getCurrentPagePermissions = createSelector(
   },
 );
 
-const TEST_PAGE_ID = "page_id";
-
 export const getPagePermissions = (state: AppState) => {
   const pageId = getCurrentPageId(state);
   const page = find(state.entities.pageList.pages, { pageId });
-  /* for jest tests */
-  if (pageId === TEST_PAGE_ID) {
-    return ["read:pages", "manage:pages", "create:pageActions", "delete:pages"];
-  }
+
   return page?.userPermissions || [];
 };
 
