@@ -129,7 +129,7 @@ const baseOptions: { label: string; value: string }[] = [
   },
   {
     label: createMessage(POST_MESSAGE),
-    value: ActionType.postMessage,
+    value: AppsmithFunction.postMessage,
   },
 ];
 
