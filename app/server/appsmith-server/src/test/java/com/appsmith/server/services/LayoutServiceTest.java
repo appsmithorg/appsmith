@@ -804,14 +804,14 @@ public class LayoutServiceTest {
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
             return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId("aPostAction", page.getId(), AclPermission.MANAGE_ACTIONS));
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
         });
 
         StepVerifier
                 .create(actionDTOMono)
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
-                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                    assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
                 })
                 .verifyComplete();
     }
