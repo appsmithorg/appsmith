@@ -1062,6 +1062,8 @@ export const DELETE_WORKSPACE_SUCCESSFUL = () =>
   "Workspace deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SET_DEFAULT_SELECTED_THEME = (name: string) =>
+  `Applied the ${name} theme, since custom theme was not found`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
 export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
 export const DELETE_APP_THEME_WARNING = () =>
