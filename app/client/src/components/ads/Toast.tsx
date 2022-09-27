@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch } from "react";
 import {
   CommonComponentProps,
   Classes,
@@ -10,7 +10,6 @@ import { Icon, IconSize, Text, TextType } from "design-system";
 import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
-import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import * as log from "loglevel";
@@ -23,7 +22,11 @@ export type ToastProps = ToastOptions &
     variant?: Variant;
     duration?: number;
     onUndo?: () => void;
-    dispatchableAction?: { type: ReduxActionType; payload: any };
+    dispatchableAction?: {
+      dispatch: Dispatch<any>;
+      type: ReduxActionType;
+      payload: any;
+    };
     showDebugButton?: boolean;
     hideProgressBar?: boolean;
     hideActionElementSpace?: boolean;
@@ -61,7 +64,11 @@ export function StyledToastContainer(props: ToastOptions) {
 const ToastBody = styled.div<{
   variant?: Variant;
   isUndo?: boolean;
-  dispatchableAction?: { type: ReduxActionType; payload: any };
+  dispatchableAction?: {
+    dispatch: Dispatch<any>;
+    type: ReduxActionType;
+    payload: any;
+  };
   width?: string;
   maxWidth?: string;
 }>`
@@ -144,7 +151,11 @@ const StyledActionText = styled(Text)`
 export function ToastComponent(
   props: ToastProps & { undoAction?: () => void },
 ) {
-  const dispatch = useDispatch();
+  const dispatch = props.dispatchableAction?.dispatch;
+  const newDispatchableAction = {
+    type: props.dispatchableAction?.type,
+    payload: props.dispatchableAction?.payload,
+  };
 
   return (
     <ToastBody
@@ -186,8 +197,8 @@ export function ToastComponent(
         {props.onUndo || props.dispatchableAction ? (
           <Text
             onClick={() => {
-              if (props.dispatchableAction) {
-                dispatch(props.dispatchableAction);
+              if (dispatch && newDispatchableAction) {
+                dispatch(newDispatchableAction);
                 props.undoAction && props.undoAction();
               } else {
                 props.undoAction && props.undoAction();
