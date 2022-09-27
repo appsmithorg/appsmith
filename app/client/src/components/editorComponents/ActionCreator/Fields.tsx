@@ -7,7 +7,7 @@ import {
 import DividerComponent from "widgets/DividerWidget/component";
 import { FieldType } from "./constants";
 import { FieldsProps } from "./types";
-import { Field } from "./Field";
+import { Field } from "./Field/Field";
 
 /**
  ******** Steps to add a new function *******
@@ -59,7 +59,7 @@ function Fields(props: FieldsProps) {
             </StyledDividerContainer>
             <StyledNavigateToFieldsContainer>
               {remainingFields.map((paramField: any) => {
-                return Field({ ...otherProps, field: paramField });
+                return Field({ field: paramField, ...otherProps });
               })}
             </StyledNavigateToFieldsContainer>
           </StyledNavigateToFieldWrapper>
