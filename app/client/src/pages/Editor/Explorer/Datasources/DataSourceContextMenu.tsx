@@ -49,12 +49,12 @@ export function DataSourceContextMenu(props: {
 
   const canDeleteDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.DELETE_DATASOURCE,
+    PERMISSION_TYPE.DELETE_DATASOURCES,
   );
 
   const canManageDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCE,
+    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const treeOptions = [

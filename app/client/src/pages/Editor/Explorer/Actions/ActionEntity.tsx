@@ -64,12 +64,12 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const canDeleteAction = isPermitted(
     actionPermissions,
-    PERMISSION_TYPE.DELETE_ACTION,
+    PERMISSION_TYPE.DELETE_ACTIONS,
   );
 
   const canManageAction = isPermitted(
     actionPermissions,
-    PERMISSION_TYPE.MANAGE_ACTION,
+    PERMISSION_TYPE.MANAGE_ACTIONS,
   );
 
   const contextMenu = (

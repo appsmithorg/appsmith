@@ -82,7 +82,7 @@ function PagesEditor() {
 
   const canCreatePages = isPermitted(
     userAppPermissions,
-    PERMISSION_TYPE.CREATE_PAGE,
+    PERMISSION_TYPE.CREATE_PAGES,
   );
 
   useEffect(() => {

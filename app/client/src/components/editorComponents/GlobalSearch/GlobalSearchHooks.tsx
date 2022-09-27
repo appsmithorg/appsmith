@@ -57,17 +57,17 @@ export const useFilteredFileOperations = (query = "") => {
 
   const canCreateActions = isPermitted(
     pagePermissions,
-    PERMISSION_TYPE.CREATE_ACTION,
+    PERMISSION_TYPE.CREATE_ACTIONS,
   );
 
   const canCreateDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCE,
+    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
   const canCreateDatasourceActions = isPermitted(
     [...userWorkspacePermissions, ...pagePermissions],
-    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTION],
+    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTIONS],
   );
 
   return useMemo(() => {

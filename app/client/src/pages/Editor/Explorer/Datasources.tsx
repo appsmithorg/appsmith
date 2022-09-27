@@ -69,12 +69,12 @@ const Datasources = React.memo(() => {
 
   const canCreateDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCE,
+    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
   const canManageDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCE,
+    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const addDatasource = useCallback(() => {

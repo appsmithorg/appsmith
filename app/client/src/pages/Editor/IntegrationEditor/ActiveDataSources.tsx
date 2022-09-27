@@ -69,7 +69,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
 
   const canCreateDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCE,
+    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
   if (dataSources.length === 0) {

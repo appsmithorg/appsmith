@@ -556,7 +556,7 @@ const mapStateToProps = (state: AppState) => {
 
   const canCreateDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCE,
+    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
   return {
     dataSources: getDatasources(state),

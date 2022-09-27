@@ -65,12 +65,12 @@ function Files() {
 
   const canCreateActions = isPermitted(
     pagePermissions,
-    PERMISSION_TYPE.CREATE_ACTION,
+    PERMISSION_TYPE.CREATE_ACTIONS,
   );
 
   const canManageActions = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.MANAGE_ACTION,
+    PERMISSION_TYPE.MANAGE_ACTIONS,
   );
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);

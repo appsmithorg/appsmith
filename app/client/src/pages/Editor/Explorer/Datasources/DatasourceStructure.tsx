@@ -64,7 +64,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
 
   const canManageDatasources = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCE,
+    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const lightningMenu = canManageDatasources ? (

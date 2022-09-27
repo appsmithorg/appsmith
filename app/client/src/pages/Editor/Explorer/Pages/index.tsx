@@ -185,12 +185,12 @@ function Pages() {
 
   const canCreatePages = isPermitted(
     userAppPermissions,
-    PERMISSION_TYPE.CREATE_PAGE,
+    PERMISSION_TYPE.CREATE_PAGES,
   );
 
   const canManagePages = isPermitted(
     pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGE,
+    PERMISSION_TYPE.MANAGE_PAGES,
   );
 
   const pageElements = useMemo(

@@ -221,7 +221,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const canManageDatasource = isPermitted(
     userWorkspacePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCE,
+    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   return {

@@ -90,7 +90,7 @@ export default function ExplorerSubMenu({
 
   const canCreateActions = isPermitted(
     pagePermissions,
-    PERMISSION_TYPE.CREATE_ACTION,
+    PERMISSION_TYPE.CREATE_ACTIONS,
   );
 
   useEffect(() => {

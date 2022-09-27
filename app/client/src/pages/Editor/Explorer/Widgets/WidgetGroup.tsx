@@ -60,7 +60,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   const canManagePages = isPermitted(
     pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGE,
+    PERMISSION_TYPE.MANAGE_PAGES,
   );
 
   return (

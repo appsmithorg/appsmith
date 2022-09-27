@@ -155,12 +155,12 @@ function PageListItem(props: PageListItemProps) {
 
   const canManagePages = isPermitted(
     pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGE,
+    PERMISSION_TYPE.MANAGE_PAGES,
   );
 
   const canDeletePages = isPermitted(
     pagePermissions,
-    PERMISSION_TYPE.DELETE_PAGE,
+    PERMISSION_TYPE.DELETE_PAGES,
   );
 
   return (
