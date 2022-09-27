@@ -193,17 +193,18 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
                     applicationTemplate.setId(templateId);
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID, application.getId(),
-                            FieldName.WORKSPACE_ID, application.getWorkspaceId(),
-                            "templateAppName", application.getName()
-                    );
-
                     final Map<String, Object> eventData = Map.of(
                             FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                             FieldName.APPLICATION, application
                     );
-                    data.put(FieldName.EVENT_DATA, eventData);
+
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, application.getWorkspaceId(),
+                            "templateAppName", application.getName(),
+                            FieldName.EVENT_DATA, eventData
+                    );
+
                     return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, data)
                             .thenReturn(applicationImportDTO);
                 });
