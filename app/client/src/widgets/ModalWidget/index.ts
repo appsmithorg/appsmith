@@ -53,7 +53,7 @@ export const CONFIG = {
               view: [
                 {
                   type: "ICON_BUTTON_WIDGET",
-                  position: { left: 57, top: 1 },
+                  position: { left: 58, top: 0 },
                   size: {
                     rows: 4,
                     cols: 6,

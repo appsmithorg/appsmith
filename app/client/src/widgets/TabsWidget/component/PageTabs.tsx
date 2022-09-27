@@ -46,6 +46,7 @@ const StyleTabText = styled.div<{
   justify-content: center;
   ${(props) => getTypographyByKey(props, "h6")}
   color: ${(props) => getComplementaryGrayscaleColor(props.backgroundColor)};
+  font-weight: normal;
   height: 32px;
   max-width: 138px;
   display: flex;
@@ -110,7 +111,7 @@ function PageTabName({
     if (isEllipsisActive(tabNameRef?.current)) {
       setEllipsisActive(true);
     }
-  }, [tabNameRef]);
+  }, [tabNameRef, tabNameText]);
 
   return (
     <TooltipComponent
