@@ -43,8 +43,7 @@ describe("Form Login test functionality", function() {
       // restore setting
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.visit("/applications");
-      cy.get(".t--profile-menu-icon").click();
-      cy.get(".t--admin-settings-menu").click();
+      cy.get(".admin-settings-menu-option").click();
       cy.get(adminSettings.authenticationTab).click();
       cy.get(adminSettings.formloginButton).click();
       cy.wait(2000);

@@ -645,6 +645,28 @@ export const entityDefinitions = {
     isVisible: isVisible,
     docUrl: "string",
   },
+  NUMBER_SLIDER_WIDGET: {
+    "!doc":
+      "Number slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "number",
+  },
+  CATEGORY_SLIDER_WIDGET: {
+    "!doc":
+      "Category slider widget is used to capture user feedback from a range of categories",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "string",
+  },
+  RANGE_SLIDER_WIDGET: {
+    "!doc":
+      "Range slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    start: "number",
+    end: "number",
+  },
   CODE_SCANNER_WIDGET: {
     "!doc": "Scan a Code",
     "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
