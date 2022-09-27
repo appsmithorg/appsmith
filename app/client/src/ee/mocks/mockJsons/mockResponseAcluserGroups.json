@@ -16,11 +16,11 @@
         "Administrator",
         "App Viewer"
       ],
-      "activePermissions": [
+      "roles": [
         "HR_Appsmith",
         "devops_design"
       ],
-      "allUsers": []
+      "users": []
     },
     {
       "isEditing": false,
@@ -34,11 +34,11 @@
         "Administrator",
         "App Viewer"
       ],
-      "activePermissions": [
+      "roles": [
         "devops_eng_nov",
         "marketing_nov"
       ],
-      "allUsers": [
+      "users": [
         {
           "isChangingRole": false,
           "isCurrentUser": true,
@@ -69,21 +69,16 @@
         "devops_eng_nov",
         "marketing_nov"
       ],
-      "activePermissions": [
+      "roles": [
         "Administrator",
         "App Viewer"
       ],
-      "allUsers": [
+      "users": [
         {
           "isChangingRole": false,
           "isCurrentUser": true,
           "isDeleting": false,
           "name": "Ankita Kinger",
-          "allRoles": [
-            "Administrator",
-            "Test_Admin",
-            "HR_Admin"
-          ],
           "username": "techak@appsmith.com",
           "userId": "123"
         },
@@ -109,21 +104,16 @@
         "Administrator",
         "App Viewer"
       ],
-      "activePermissions": [
+      "roles": [
         "devops_design",
         "devops_eng_nov"
       ],
-      "allUsers": [
+      "users": [
         {
           "isChangingRole": false,
           "isCurrentUser": true,
           "isDeleting": false,
           "name": "Ankita Kinger",
-          "allRoles": [
-            "Administrator",
-            "Test_Admin",
-            "HR_Admin"
-          ],
           "username": "techak@appsmith.com",
           "userId": "123"
         },
@@ -150,7 +140,7 @@
         "marketing_nov",
         "App Viewer"
       ],
-      "activePermissions": [
+      "roles": [
         "Administrator"
       ],
       "allUsers": [
@@ -159,11 +149,6 @@
           "isCurrentUser": true,
           "isDeleting": false,
           "name": "Ankita Kinger",
-          "allRoles": [
-            "Administrator",
-            "Test_Admin",
-            "HR_Admin"
-          ],
           "username": "techak@appsmith.com",
           "userId": "123"
         },
@@ -190,10 +175,10 @@
         "marketing_nov",
         "Administrator"
       ],
-      "activePermissions": [
+      "roles": [
         "App Viewer"
       ],
-      "allUsers": [
+      "users": [
         {
           "isChangingRole": false,
           "isCurrentUser": true,

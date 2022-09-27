@@ -11,13 +11,11 @@ import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { AclWrapper } from "./components";
-// import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   createGroup,
-  // cloneGroup,
   deleteGroup,
   getGroupById,
 } from "@appsmith/actions/aclActions";
@@ -25,8 +23,6 @@ import {
   createMessage,
   ADD_GROUP,
   GROUP_DELETED,
-  // GROUP_CLONED,
-  // CLONE_GROUP,
   EDIT_GROUP,
   DELETE_GROUP,
   SEARCH_GROUPS_PLACEHOLDER,
@@ -70,34 +66,12 @@ export function GroupListing() {
   }, [selectedGroup]);
 
   useEffect(() => {
-    if (selectedUserGroupId) {
+    if (selectedUserGroupId && selectedGroup?.id !== selectedUserGroupId) {
       dispatch(getGroupById({ id: selectedUserGroupId }));
-    } else {
+    } else if (!selectedUserGroupId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });
     }
   }, [selectedUserGroupId]);
-
-  const onDeleteHandler = (id: string) => {
-    dispatch(deleteGroup(id));
-    /* for jest tests */
-    const updatedData = data.filter((userGroup) => {
-      return userGroup.id !== id;
-    });
-    setData(updatedData);
-    /* for jest tests */
-    Toaster.show({
-      text: createMessage(GROUP_DELETED),
-      variant: Variant.success,
-    });
-  };
-
-  /*const onCloneHandler = (selected: GroupProps) => {
-    dispatch(cloneGroup(selected));
-    Toaster.show({
-      text: createMessage(GROUP_CLONED),
-      variant: Variant.success,
-    });
-  };*/
 
   const columns = [
     {
@@ -125,18 +99,6 @@ export function GroupListing() {
   ];
 
   const listMenuItems: MenuItemProps[] = [
-    /*{
-      className: "clone-menu-item",
-      icon: "duplicate",
-      onSelect: (e: React.MouseEvent, id: string) => {
-        const selectedUserGroup = data.find((userGroup) => userGroup.id === id);
-        selectedUserGroup &&
-          onCloneHandler({
-            ...selectedUserGroup,
-          });
-      },
-      text: createMessage(CLONE_GROUP),
-    },*/
     {
       className: "edit-menu-item",
       icon: "edit-underline",
@@ -190,13 +152,26 @@ export function GroupListing() {
     }
   }, 300);
 
+  const onDeleteHandler = (id: string) => {
+    dispatch(deleteGroup(id));
+    /* for jest tests */
+    const updatedData = data.filter((userGroup) => {
+      return userGroup.id !== id;
+    });
+    setData(updatedData);
+    /* for jest tests */
+    Toaster.show({
+      text: createMessage(GROUP_DELETED),
+      variant: Variant.success,
+    });
+  };
+
   return (
     <AclWrapper data-testid="t--group-listing-wrapper">
       {selectedUserGroupId && selectedUserGroup ? (
         <GroupAddEdit
           isLoading={isLoading}
           isSaving={isSaving}
-          // onClone={onCloneHandler}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
         />

@@ -10,4 +10,5 @@ public interface UserService extends UserServiceCE {
 
     Flux<User> findAllByIdsIn(Set<String> ids);
 
+    Flux<User> findAllByUsernameIn(Set<String> usernames);
 }

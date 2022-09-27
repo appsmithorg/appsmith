@@ -10,7 +10,6 @@ import RolesTree from "./RolesTree";
 import { response2 } from "./mocks/mockRoleTreeResponse";
 import {
   createMessage,
-  CLONE_ROLE,
   DELETE_ROLE,
   RENAME_ROLE,
   RENAME_SUCCESSFUL,
@@ -42,10 +41,6 @@ export function RoleAddEdit(props: RoleEditProps) {
       setIsSaving(false);
     }
   }, [pageTitle]);
-
-  /*const onButtonClick = () => {
-    console.log("hello onClickHandler");
-  };*/
 
   const onSaveChanges = () => {
     Toaster.show({
@@ -100,6 +95,35 @@ export function RoleAddEdit(props: RoleEditProps) {
     }
   }, 300);
 
+  const onDeleteHandler = () => {
+    props.onDelete && props.onDelete(selected.id);
+    history.push(`/settings/roles`);
+  };
+
+  const onEditTitle = (name: string) => {
+    setPageTitle(name);
+    Toaster.show({
+      text: createMessage(RENAME_SUCCESSFUL),
+      variant: Variant.success,
+    });
+  };
+
+  const menuItems: MenuItemProps[] = [
+    {
+      className: "rename-menu-item",
+      icon: "edit-underline",
+      text: createMessage(RENAME_ROLE),
+      label: "rename",
+    },
+    {
+      className: "delete-menu-item",
+      icon: "delete-blank",
+      onSelect: () => onDeleteHandler(),
+      text: createMessage(DELETE_ROLE),
+      label: "delete",
+    },
+  ];
+
   const tabs: TabProp[] = response2.map((tab: any, index: any) => {
     const count = searchValue && filteredData ? filteredData[index]?.count : 0;
     return {
@@ -115,70 +139,6 @@ export function RoleAddEdit(props: RoleEditProps) {
       ),
     };
   });
-
-  /*[
-    {
-      key: "application-resources",
-      title: "Application Resources",
-      panelComponent: <div>TAB</div>,
-    },
-    {
-      key: "database-queries",
-      title: "Datasources & Queries",
-      panelComponent: <div>TAB</div>,
-    },
-    {
-      key: "user-permission-groups",
-      title: "Groups & Roles",
-      panelComponent: <div>TAB</div>,
-    },
-    {
-      key: "others",
-      title: "Others",
-      panelComponent: <div>TAB</div>,
-    },
-  ];*/
-
-  const onDeleteHandler = () => {
-    props.onDelete && props.onDelete(selected.id);
-    history.push(`/settings/roles`);
-  };
-
-  const onCloneHandler = () => {
-    props.onClone && props.onClone(selected);
-    history.push(`/settings/roles`);
-  };
-
-  const onEditTitle = (name: string) => {
-    setPageTitle(name);
-    Toaster.show({
-      text: createMessage(RENAME_SUCCESSFUL),
-      variant: Variant.success,
-    });
-  };
-
-  const menuItems: MenuItemProps[] = [
-    {
-      className: "clone-menu-item",
-      icon: "duplicate",
-      onSelect: () => onCloneHandler(),
-      text: createMessage(CLONE_ROLE),
-      label: "clone",
-    },
-    {
-      className: "rename-menu-item",
-      icon: "edit-underline",
-      text: createMessage(RENAME_ROLE),
-      label: "rename",
-    },
-    {
-      className: "delete-menu-item",
-      icon: "delete-blank",
-      onSelect: () => onDeleteHandler(),
-      text: createMessage(DELETE_ROLE),
-      label: "delete",
-    },
-  ];
 
   return isLoading ? (
     <LoaderContainer>

@@ -113,15 +113,22 @@ export function* fetchAclGroupSagaById(
   action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
-    const response: ApiResponse = yield AclApi.fetchSingleAclGroup(
-      action.payload,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
+    const response: ApiResponse[] = yield all([
+      AclApi.fetchSingleAclGroup(action.payload),
+      AclApi.fetchAclRoles(),
+    ]);
 
-    if (isValidResponse) {
+    const isValidResponse1: boolean = yield validateResponse(response[0]);
+    const isValidResponse2: boolean = yield validateResponse(response[1]);
+
+    if (isValidResponse1 && isValidResponse2) {
+      const data: any = response[0].data;
       yield put({
         type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_SUCCESS,
-        payload: response.data,
+        payload: {
+          ...data,
+          allRoles: response[1].data,
+        },
       });
     } else {
       yield put({
@@ -137,20 +144,27 @@ export function* fetchAclGroupSagaById(
 
 export function* createAclGroupSaga(action: ReduxAction<any>) {
   try {
-    const response: CreateGroupResponse = yield AclApi.createAclGroup(
-      action.payload,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
+    const response: [CreateGroupResponse, ApiResponse] = yield all([
+      AclApi.createAclGroup(action.payload),
+      AclApi.fetchAclRoles(),
+    ]);
 
-    if (isValidResponse) {
+    const isValidResponse1: boolean = yield validateResponse(response[0]);
+    const isValidResponse2: boolean = yield validateResponse(response[1]);
+
+    if (isValidResponse1 && isValidResponse2) {
+      const data: any = response[0].data;
       yield put({
         type: ReduxActionTypes.CREATE_ACL_GROUP_SUCCESS,
-        payload: response.data,
+        payload: {
+          ...data,
+          allRoles: response[1].data,
+        },
       });
       const role: RoleProps = {
-        ...response.data,
-        id: response.data.id,
-        name: response.data.name,
+        ...data,
+        id: data.id,
+        name: data.name,
       };
       history.push(`/settings/groups/${role.id}`);
     } else {

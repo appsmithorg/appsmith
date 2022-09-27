@@ -31,6 +31,19 @@ export const groupsReducers = {
     selectedGroup: action.payload,
     isLoading: false,
   }),
+  [ReduxActionTypes.CREATE_ACL_GROUP]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.CREATE_ACL_GROUP_ERROR]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.CREATE_ACL_GROUP_SUCCESS]: (state: any, action: any) => ({
+    ...state,
+    selectedGroup: action.payload,
+    isLoading: false,
+  }),
   [ReduxActionTypes.CLONE_ACL_GROUP]: (state: any) => ({
     ...state,
     isLoading: true,

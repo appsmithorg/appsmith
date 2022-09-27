@@ -7,12 +7,33 @@ export const userGroupTableData: GroupProps[] = [
     name: "Eng_New",
     id: "123",
     allRoles: [
-      "devops_eng_nov",
-      "marketing_nov",
-      "Administrator",
-      "App Viewer",
+      {
+        id: "1",
+        name: "devops_eng_nov",
+      },
+      {
+        id: "2",
+        name: "marketing_nov",
+      },
+      {
+        id: "3",
+        name: "Administrator",
+      },
+      {
+        id: "4",
+        name: "App Viewer",
+      },
     ],
-    activePermissions: ["HR_Appsmith", "devops_design"],
+    roles: [
+      {
+        id: "5",
+        name: "HR_Appsmith",
+      },
+      {
+        id: "6",
+        name: "devops_design",
+      },
+    ],
     users: [],
   },
   {
@@ -20,8 +41,34 @@ export const userGroupTableData: GroupProps[] = [
     isDeleting: false,
     name: "Design",
     id: "456",
-    allRoles: ["HR_Appsmith", "devops_design", "Administrator", "App Viewer"],
-    activePermissions: ["devops_eng_nov", "marketing_nov"],
+    allRoles: [
+      {
+        id: "5",
+        name: "HR_Appsmith",
+      },
+      {
+        id: "6",
+        name: "devops_design",
+      },
+      {
+        id: "3",
+        name: "Administrator",
+      },
+      {
+        id: "4",
+        name: "App Viewer",
+      },
+    ],
+    roles: [
+      {
+        id: "1",
+        name: "devops_eng_nov",
+      },
+      {
+        id: "2",
+        name: "marketing_nov",
+      },
+    ],
     users: [
       {
         isChangingRole: false,
@@ -29,8 +76,8 @@ export const userGroupTableData: GroupProps[] = [
         name: "Ankita Kinger",
         username: "techak@appsmith.com",
         userId: "123",
-        allGroups: [],
-        allRoles: [],
+        groups: [],
+        roles: [],
       },
       {
         isChangingRole: false,
@@ -38,12 +85,12 @@ export const userGroupTableData: GroupProps[] = [
         name: "Hello",
         username: "hello123@appsmith.com",
         userId: "456",
-        allGroups: [],
-        allRoles: [],
+        groups: [],
+        roles: [],
       },
     ],
   },
-  {
+  /*{
     isEditing: false,
     isDeleting: false,
     name: "contractors_ruby",
@@ -54,7 +101,7 @@ export const userGroupTableData: GroupProps[] = [
       "devops_eng_nov",
       "marketing_nov",
     ],
-    activePermissions: ["Administrator", "App Viewer"],
+    roles: ["Administrator", "App Viewer"],
     users: [
       {
         isChangingRole: false,
@@ -82,7 +129,7 @@ export const userGroupTableData: GroupProps[] = [
     name: "marketing_newsletter",
     id: "103",
     allRoles: ["HR_Appsmith", "marketing_nov", "Administrator", "App Viewer"],
-    activePermissions: ["devops_design", "devops_eng_nov"],
+    roles: ["devops_design", "devops_eng_nov"],
     users: [
       {
         isChangingRole: false,
@@ -116,7 +163,7 @@ export const userGroupTableData: GroupProps[] = [
       "marketing_nov",
       "App Viewer",
     ],
-    activePermissions: ["Administrator"],
+    roles: ["Administrator"],
     users: [
       {
         isChangingRole: false,
@@ -150,7 +197,7 @@ export const userGroupTableData: GroupProps[] = [
       "marketing_nov",
       "Administrator",
     ],
-    activePermissions: ["App Viewer"],
+    roles: ["App Viewer"],
     users: [
       {
         isChangingRole: false,
@@ -171,5 +218,5 @@ export const userGroupTableData: GroupProps[] = [
         allRoles: [],
       },
     ],
-  },
+  },*/
 ];
