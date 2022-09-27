@@ -53,7 +53,6 @@ const OverlayDiv = styled.div`
 `;
 
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
-console.log("disableIframeWidgetSandbox", disableIframeWidgetSandbox);
 
 export interface IframeComponentProps extends ComponentProps {
   renderMode: RenderMode;
