@@ -111,6 +111,7 @@ import {
   saasEditorApiIdURL,
 } from "RouteBuilder";
 import { PLUGIN_PACKAGE_MONGO } from "constants/QueryEditorConstants";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -325,6 +326,7 @@ export function* updateActionSaga(
       // @ts-expect-error: Types are not available
       action,
     );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageName: string = yield select(
@@ -356,6 +358,9 @@ export function* updateActionSaga(
       );
 
       yield put(updateActionSuccess({ data: response.data }));
+      checkAndLogErrorsIfCyclicDependency(
+        (response.data as Action).errorReports,
+      );
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(

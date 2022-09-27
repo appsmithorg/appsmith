@@ -151,6 +151,12 @@ export const saasEditorApiIdURL = (
     suffix: `saas/${props.pluginPackageName}/api/${props.apiId}`,
   });
 
+export const generateTemplateURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
+    ...props,
+    suffix: GEN_TEMPLATE_URL,
+  });
+
 export const generateTemplateFormURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,

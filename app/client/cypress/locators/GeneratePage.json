@@ -1,5 +1,6 @@
 {
-  "generateCRUDPageActionCard": "[data-cy='generate-app']",
+  "buildFromScratchActionCard": ".t--BuildFromScratch",
+  "generateCRUDPageActionCard": ".t--GenerateCRUDPage",
   "selectDatasourceDropdown": "[data-cy=t--datasource-dropdown]",
   "datasourceDropdownOption": "[data-cy=t--datasource-dropdown-option]",
   "selectTableDropdown": "[data-cy=t--table-dropdown]",
