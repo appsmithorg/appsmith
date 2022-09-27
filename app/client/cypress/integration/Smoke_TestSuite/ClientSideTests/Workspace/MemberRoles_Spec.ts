@@ -48,9 +48,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      .should("have.length", 2)
+      .should("have.length", 1)
       .and("contain.text", `App Viewer - ${workspaceId}`);
-    cy.get(".t--dropdown-option").should("contain.text", `Select a role`);
     cy.get(HomePage.closeBtn).click();
 
     homePage.LaunchAppFromAppHover();
@@ -88,13 +87,12 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      .should("have.length", 3)
+      .should("have.length", 2)
       .and(
         "contain.text",
         `App Viewer - ${workspaceId}`,
         `Developer - ${workspaceId}`,
       );
-    cy.get(".t--dropdown-option").should("contain.text", `Select a role`);
     cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
@@ -129,7 +127,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      .should("have.length", 4)
+      .should("have.length", 3)
       .should(
         "contain.text",
         `App Viewer - ${workspaceId}`,
@@ -139,7 +137,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "contain.text",
       `Administrator - ${workspaceId}`,
     );
-    cy.get(".t--dropdown-option").should("contain.text", `Select a role`);
     cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
