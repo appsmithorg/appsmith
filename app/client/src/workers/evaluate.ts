@@ -125,7 +125,6 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
 
   const GLOBAL_DATA: Record<string, any> = {};
 
-  if (!isTriggerBased) return GLOBAL_DATA;
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
   //// Adding contextual data not part of data tree
@@ -141,16 +140,22 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     }
   }
 
-  //// Add internal functions to dataTree;
-  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-    dataTree,
-    context?.requestId,
-    skipEntityFunctions,
-  );
-  ///// Adding Data tree with functions
-  Object.keys(dataTreeWithFunctions).forEach((datum) => {
-    GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-  });
+  if (isTriggerBased) {
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      dataTree,
+      context?.requestId,
+      skipEntityFunctions,
+    );
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+  } else {
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
+    });
+  }
 
   if (isEmpty(resolvedFunctions)) return GLOBAL_DATA;
 
@@ -228,7 +233,7 @@ export function evaluateJSString(
       evalArguments,
     });
 
-    GLOBAL_DATA.ALLOW_ASYNC = true;
+    GLOBAL_DATA.ALLOW_ASYNC = enableAppsmithFunctions;
 
     const executionScript = getEvalScript(sanitizeScript(code), evalArguments);
 
