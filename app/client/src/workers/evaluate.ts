@@ -124,6 +124,8 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   } = args;
 
   const GLOBAL_DATA: Record<string, any> = {};
+
+  if (!isTriggerBased) return GLOBAL_DATA;
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
   //// Adding contextual data not part of data tree
@@ -144,7 +146,6 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     dataTree,
     context?.requestId,
     skipEntityFunctions,
-    isTriggerBased,
   );
   ///// Adding Data tree with functions
   Object.keys(dataTreeWithFunctions).forEach((datum) => {
