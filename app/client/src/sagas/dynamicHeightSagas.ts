@@ -87,6 +87,7 @@ export function* updateWidgetDynamicHeightSaga() {
     currentBottomRow: number;
     expectedBottomRow: number;
     parentId?: string;
+    hasScroll?: boolean;
   }> = [];
 
   const appMode: APP_MODE = yield select(getAppMode);
@@ -140,6 +141,7 @@ export function* updateWidgetDynamicHeightSaga() {
             newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         ),
         parentId: widget.parentId,
+        hasScroll: widget.isCanvas ? true : false,
       });
     } else {
       const newHeight = updates[widgetId];
@@ -319,6 +321,7 @@ export function* updateWidgetDynamicHeightSaga() {
             const canvasHeightOffset: number = yield select(
               getCanvasHeightOffset,
               parentContainerLikeWidget.type,
+              parentContainerLikeWidget,
             );
             minHeightInRows += canvasHeightOffset;
 
@@ -350,7 +353,7 @@ export function* updateWidgetDynamicHeightSaga() {
               {
                 propertyPath: "bottomRow",
                 propertyValue:
-                  minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                  maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
               },
               {
                 propertyPath: "minHeight",
@@ -501,6 +504,10 @@ export function* updateWidgetDynamicHeightSaga() {
     // Convert the changesSoFar (this are the computed changes)
     // To the widgetsToUpdate data structure for final reducer update.
     for (const changedWidgetId in changesSoFar) {
+      const hasScroll = Object.values(expectedUpdates).find(
+        (entry) => entry.widgetId === changedWidgetId,
+      )?.hasScroll;
+
       widgetsToUpdate[changedWidgetId] = [
         {
           propertyPath: "bottomRow",
@@ -511,6 +518,33 @@ export function* updateWidgetDynamicHeightSaga() {
           propertyValue: changesSoFar[changedWidgetId].topRow,
         },
       ];
+      if (hasScroll) {
+        const containerLikeWidget = stateWidgets[changedWidgetId];
+        if (
+          Array.isArray(containerLikeWidget.children) &&
+          containerLikeWidget.children.length > 0
+        ) {
+          const canvasHeight =
+            (changesSoFar[changedWidgetId].bottomRow -
+              changesSoFar[changedWidgetId].topRow) *
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+          const propertyUpdates = [
+            {
+              propertyPath: "minHeight",
+              propertyValue: canvasHeight,
+            },
+            {
+              propertyPath: "bottomRow",
+              propertyValue: canvasHeight,
+            },
+          ];
+          containerLikeWidget.children.forEach((childWidgetId) => {
+            if (!widgetsToUpdate.hasOwnProperty(childWidgetId)) {
+              widgetsToUpdate[childWidgetId] = propertyUpdates;
+            }
+          });
+        }
+      }
     }
   }
 
@@ -655,7 +689,9 @@ export function* dynamicallyUpdateContainersSaga() {
             const canvasHeightOffset: number = yield select(
               getCanvasHeightOffset,
               parentContainerWidget.type,
+              parentContainerWidget,
             );
+
             maxBottomRow += canvasHeightOffset;
           }
           // Get the boundaries for possible min and max dynamic height.

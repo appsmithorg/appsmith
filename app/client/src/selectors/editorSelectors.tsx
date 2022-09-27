@@ -207,9 +207,11 @@ export const getCurrentPageName = createSelector(
 export const getCanvasHeightOffset = (
   state: AppState,
   widgetType: WidgetType,
+  props: WidgetProps,
 ) => {
   const config = state.entities.widgetConfig.config[widgetType];
-  return config.canvasHeightOffset || 0;
+  if (config.canvasHeightOffset) return config.canvasHeightOffset(props);
+  else return 0;
 };
 
 export const getWidgetCards = createSelector(

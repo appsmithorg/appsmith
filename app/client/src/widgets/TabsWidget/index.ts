@@ -9,7 +9,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
-  canvasHeightOffset: 4,
+  canvasHeightOffset: (props: WidgetProps): number =>
+    props.showTabs === true ? 4 : 0,
   features: {
     dynamicHeight: true,
   },
