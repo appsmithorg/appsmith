@@ -119,11 +119,12 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(homePage._applicationCard)
       .first()
       .trigger("mouseover");
-    homePage.InviteUserToWorkspace(
-      workspaceId,
-      Cypress.env("TESTUSERNAME2"),
-      "App Viewer",
-    );
+    cy.get(homePage._appHoverIcon("edit"))
+      .first()
+      .click({ force: true });
+    // cy.xpath(homePage._editPageLanding).should("exist");
+    cy.wait(4000);
+    cy.xpath("//span[text()='SHARE']").click();
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
