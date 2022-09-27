@@ -259,6 +259,12 @@ export const darkenColor = (color = "#fff", amount = 10) => {
         .toString();
 };
 
+export const getRgbaColor = (color: string, opacity: number) => {
+  const { b, g, r } = tinycolor(color).toRgb();
+
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
 /**
  * checks if color is dark or not
  *
