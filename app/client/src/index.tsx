@@ -18,13 +18,15 @@ import { StyledToastContainer } from "components/ads/Toast";
 import localStorage from "utils/localStorage";
 import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
+import GlobalStyles from "globalStyles";
+import AppCrashImage from "assets/images/404-image.png";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
+import AppErrorBoundary from "AppErrorBoundry";
+import styled from "styled-components";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
-import AppErrorBoundary from "./AppErrorBoundry";
-import GlobalStyles from "globalStyles";
 appInitializer();
 
 if (process.env.NODE_ENV === "development") {
@@ -33,9 +35,36 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
+const RetryButton = styled.button`
+  background-color: #f3672a;
+  color: white;
+  height: 40px;
+  width: 300px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 17px;
+`;
+
 function App() {
   return (
-    <Sentry.ErrorBoundary fallback={"An error has occured"}>
+    <Sentry.ErrorBoundary
+      fallback={
+        <div>
+          <img alt="App crashed" src={AppCrashImage} />
+          <div>
+            <p className="bold-text">Oops! Something went wrong</p>
+            <p>
+              Please try again using the button below. <br />
+              If the issue persists, please contact us
+            </p>
+            <RetryButton onClick={() => window.location.reload()}>
+              {"Retry"}
+            </RetryButton>
+          </div>
+        </div>
+      }
+    >
       <Provider store={store}>
         <LayersContext.Provider value={Layers}>
           <ThemedAppWithProps />

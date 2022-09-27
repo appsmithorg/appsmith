@@ -12126,6 +12126,11 @@ prettier@^1.18.2:
   version "1.19.1"
   resolved "https://registry.npmjs.org/prettier/-/prettier-1.19.1.tgz"
 
+prettier@^2.6.2:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.1.tgz#e235806850d057f97bb08368a4f7d899f7760c64"
+  integrity sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==
+
 pretty-bytes@^5.3.0:
   version "5.4.1"
   resolved "https://registry.npmjs.org/pretty-bytes/-/pretty-bytes-5.4.1.tgz"
@@ -15464,6 +15469,13 @@ webpack-merge@^5.8.0:
   dependencies:
     clone-deep "^4.0.1"
     wildcard "^2.0.0"
+
+webpack-retry-chunk-load-plugin@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/webpack-retry-chunk-load-plugin/-/webpack-retry-chunk-load-plugin-3.1.1.tgz#44aefc21abd01769ecd07f9a200a58a78caf930c"
+  integrity sha512-BKq/7EcelyWUUI6SeBaUKB1G+fSZP0rlxIwRQ+aO6mK5tffljaHdpJ4I2q54rpaaKjSbwbZRQlaITXe93SL9nA==
+  dependencies:
+    prettier "^2.6.2"
 
 webpack-sources@^1.4.3:
   version "1.4.3"
