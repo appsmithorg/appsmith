@@ -491,10 +491,10 @@ export function isFunctionAsync(
       logs.push({ error: "Error when determining async function" + e });
     }
     const isAsync = !!self.IS_ASYNC;
-    for (const entity in GLOBAL_DATA) {
+    Object.keys(GLOBAL_DATA).forEach((key) => {
       // @ts-expect-error: Types are not available
-      delete self[entity];
-    }
+      delete self[key];
+    });
     return isAsync;
   })();
 }

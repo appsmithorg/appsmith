@@ -117,7 +117,7 @@ describe("evaluateSync", () => {
       logs: [],
       errors: [
         {
-          errorMessage: "TypeError: setTimeout is not a function",
+          errorMessage: "TypeError: setImmediate is not a function",
           errorType: "PARSE",
           raw: `
   function closedFunction () {

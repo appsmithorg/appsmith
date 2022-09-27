@@ -291,10 +291,7 @@ export const enhanceDataTreeWithFunctions = (
   requestId = "",
   // Whether not to add functions like "run", "clear" to entity
   skipEntityFunctions = false,
-  isTriggerBased = false,
 ): DataTree => {
-  if (!isTriggerBased) return dataTree;
-
   const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
 
