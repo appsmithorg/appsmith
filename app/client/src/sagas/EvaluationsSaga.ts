@@ -93,6 +93,7 @@ import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { LogObject, UserLogObject } from "workers/UserLog";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -254,7 +255,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
 
-  const { errors, logs } = yield call(
+  const { errors, logs, triggers } = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
@@ -269,6 +270,14 @@ export function* evaluateAndExecuteDynamicTrigger(
       : ENTITY_TYPE.WIDGET,
     triggerMeta.source?.id || "",
   );
+  if (triggers?.length > 0) {
+    log.debug({ triggers });
+    yield all(
+      triggers.map((trigger: ActionDescription) =>
+        call(executeActionTriggers, trigger, eventType, triggerMeta),
+      ),
+    );
+  }
   yield call(evalErrorHandler, errors);
   // if (!isEmpty(errors)) {
   //   if (

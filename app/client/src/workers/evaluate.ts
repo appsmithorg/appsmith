@@ -13,7 +13,6 @@ import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs, { LogObject } from "./UserLog";
-import { klona } from "klona/full";
 
 export type EvalResult = {
   result: any;
@@ -171,7 +170,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   return GLOBAL_DATA;
 };
 
-export function sanitizeScript(js: string) {
+export function sanitizeScript(js: string): string {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
@@ -211,7 +210,7 @@ export function evaluateJSString(
   code: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
-  isJSCollection: boolean,
+  enableAppsmithFunctions: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
   skipLogsOperations = false,
@@ -220,27 +219,23 @@ export function evaluateJSString(
     let result,
       logs: LogObject[] = [];
     const errors: EvaluationError[] = [];
-    code = sanitizeScript(code);
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
-      isTriggerBased: isJSCollection,
+      isTriggerBased: enableAppsmithFunctions,
       context,
       evalArguments,
     });
 
     GLOBAL_DATA.ALLOW_ASYNC = true;
 
-    const executionScript = `new Promise((resolve, reject) => {
-      try {
-        const result = ${code};
-        resolve(result);
-      } catch(e) {
-        reject(e);
-      }
-    })`;
+    const executionScript = getEvalScript(sanitizeScript(code), evalArguments);
+
+    console.log({ executionScript });
 
     Object.assign(self, GLOBAL_DATA);
+
+    console.log({ resolvedFunctions });
 
     try {
       result = await eval(executionScript);
@@ -258,10 +253,17 @@ export function evaluateJSString(
     } finally {
       logs = userLogs.flushLogs(skipLogsOperations);
       for (const entity in GLOBAL_DATA) {
-        // @ts-expect-error: Types are not available
-        delete self[entity];
+        if (GLOBAL_DATA.hasOwnProperty(entity)) {
+          // @ts-expect-error: Types are not available
+          delete self[entity];
+        }
       }
-      return { result, errors, logs };
+      return {
+        result,
+        errors,
+        logs,
+        triggers: Array.from(self.TRIGGER_COLLECTOR || []),
+      };
     }
   })();
 }
@@ -421,14 +423,13 @@ export function isFunctionAsync(
   logs: unknown[] = [],
 ) {
   return (function() {
-    const dataTreeClone = klona(dataTree);
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
       ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };
     //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTreeClone);
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
@@ -496,4 +497,16 @@ export function isFunctionAsync(
     }
     return isAsync;
   })();
+}
+
+function getEvalScript(code: string, evalArgs: any) {
+  if (evalArgs) code = `(${code}).apply(THIS_CONTEXT, ARGUMENTS)`;
+  return `new Promise((resolve, reject) => {
+    try {
+      const result = ${code};
+      resolve(result);
+    } catch(e) {
+      reject(e);
+    }
+  })`;
 }

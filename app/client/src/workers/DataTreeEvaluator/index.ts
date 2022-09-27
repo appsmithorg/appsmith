@@ -938,7 +938,6 @@ export default class DataTreeEvaluator {
           fullPropertyPath,
         );
       }
-      return undefined;
     }
     return undefined;
   }
@@ -1194,7 +1193,7 @@ export default class DataTreeEvaluator {
     return inverseDag;
   }
 
-  evaluateActionBindings(
+  async evaluateActionBindings(
     bindings: string[],
     executionParams?: Record<string, unknown> | string,
   ) {
@@ -1204,7 +1203,7 @@ export default class DataTreeEvaluator {
     // it would be a string (invalid case)
     let evaluatedExecutionParams: Record<string, any> = {};
     if (executionParams && _.isObject(executionParams)) {
-      evaluatedExecutionParams = this.getDynamicValue(
+      evaluatedExecutionParams = await this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
         this.evalTree,
         this.resolvedFunctions,
@@ -1212,30 +1211,32 @@ export default class DataTreeEvaluator {
       );
     }
 
-    return bindings.map((binding) => {
-      // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
-      // also helps with dealing with IIFE which are normal functions (not arrow)
-      // because normal functions won't retain 'this' context (when executed elsewhere)
-      const replacedBinding = binding.replace(
-        EXECUTION_PARAM_REFERENCE_REGEX,
-        EXECUTION_PARAM_KEY,
-      );
-      return this.getDynamicValue(
-        `{{${replacedBinding}}}`,
-        this.evalTree,
-        this.resolvedFunctions,
-        EvaluationSubstitutionType.TEMPLATE,
-        // params can be accessed via "this.params" or "executionParams"
-        {
-          thisContext: {
-            [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams,
+    return Promise.all(
+      bindings.map((binding) => {
+        // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
+        // also helps with dealing with IIFE which are normal functions (not arrow)
+        // because normal functions won't retain 'this' context (when executed elsewhere)
+        const replacedBinding = binding.replace(
+          EXECUTION_PARAM_REFERENCE_REGEX,
+          EXECUTION_PARAM_KEY,
+        );
+        return this.getDynamicValue(
+          `{{${replacedBinding}}}`,
+          this.evalTree,
+          this.resolvedFunctions,
+          EvaluationSubstitutionType.TEMPLATE,
+          // params can be accessed via "this.params" or "executionParams"
+          {
+            thisContext: {
+              [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams,
+            },
+            globalContext: {
+              [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+            },
           },
-          globalContext: {
-            [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
-          },
-        },
-      );
-    });
+        );
+      }),
+    );
   }
 
   clearErrors() {

@@ -110,7 +110,7 @@ describe("evaluateSync", () => {
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", () => {
-    const js = "setTimeout(() => {}, 100)";
+    const js = "setImmediate(() => {}, 100)";
     const response = evaluate(js, dataTree, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
@@ -121,13 +121,13 @@ describe("evaluateSync", () => {
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = setTimeout(() => {}, 100)
+    const result = setImmediate(() => {}, 100)
     return result;
   }
   closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
-          originalBinding: "setTimeout(() => {}, 100)",
+          originalBinding: "setImmediate(() => {}, 100)",
         },
       ],
     });

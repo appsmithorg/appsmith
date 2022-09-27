@@ -246,10 +246,9 @@ export async function parseJSActions(
       );
     }
   }
-
-  Object.keys(jsUpdates).forEach((entityName) => {
+  for (const entityName of Object.keys(jsUpdates)) {
     const parsedBody = jsUpdates[entityName].parsedBody;
-    if (!parsedBody) return;
+    if (!parsedBody) continue;
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
@@ -263,7 +262,7 @@ export async function parseJSActions(
         parsedFunction: undefined,
       } as ParsedJSSubAction;
     });
-  });
+  }
   return { jsUpdates };
 }
 

@@ -2,6 +2,7 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/evaluate";
 import uniqueId from "lodash/uniqueId";
+import { RequestOrigin } from "utils/WorkerUtil";
 jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
@@ -120,11 +121,10 @@ describe("Add functions", () => {
       dataTreeWithFunctions.action1.run(null, null, actionParams),
     ).resolves.toBe({ a: "b" });
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("RUN_PLUGIN_ACTION_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -140,11 +140,10 @@ describe("Add functions", () => {
       dataTreeWithFunctions.action1.run(undefined, undefined, actionParams),
     ).resolves.toBe({ a: "b" });
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("RUN_PLUGIN_ACTION_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -163,11 +162,10 @@ describe("Add functions", () => {
         .catch(onError),
     ).resolves.toBe({ a: "b" });
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("RUN_PLUGIN_ACTION_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -181,11 +179,10 @@ describe("Add functions", () => {
     expect(dataTreeWithFunctions.action1.run()).resolves.toBe({ a: "b" });
 
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("RUN_PLUGIN_ACTION_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -200,11 +197,10 @@ describe("Add functions", () => {
   it("action.clear works", () => {
     expect(dataTreeWithFunctions.action1.clear()).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("CLEAR_PLUGIN_ACTION_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "CLEAR_PLUGIN_ACTION",
           payload: {
@@ -225,11 +221,10 @@ describe("Add functions", () => {
     ).resolves.toBe({});
 
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("NAVIGATE_TO_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "NAVIGATE_TO",
           payload: {
@@ -247,11 +242,10 @@ describe("Add functions", () => {
     const style = "info";
     expect(dataTreeWithFunctions.showAlert(message, style)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("SHOW_ALERT_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "SHOW_ALERT",
           payload: {
@@ -268,11 +262,10 @@ describe("Add functions", () => {
 
     expect(dataTreeWithFunctions.showModal(modalName)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("SHOW_MODAL_BY_NAME_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "SHOW_MODAL_BY_NAME",
           payload: {
@@ -287,11 +280,10 @@ describe("Add functions", () => {
     const modalName = "Modal 1";
     expect(dataTreeWithFunctions.closeModal(modalName)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("CLOSE_MODAL_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "CLOSE_MODAL",
           payload: {
@@ -315,11 +307,10 @@ describe("Add functions", () => {
       {},
     );
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("STORE_VALUE_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "STORE_VALUE",
           payload: {
@@ -340,11 +331,10 @@ describe("Add functions", () => {
 
     expect(dataTreeWithFunctions.download(data, name, type)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("DOWNLOAD_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "DOWNLOAD",
           payload: {
@@ -361,11 +351,10 @@ describe("Add functions", () => {
     const data = "file";
     expect(dataTreeWithFunctions.copyToClipboard(data)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining("COPY_TO_CLIPBOARD_"),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "COPY_TO_CLIPBOARD",
           payload: {
@@ -385,11 +374,12 @@ describe("Add functions", () => {
       dataTreeWithFunctions.resetWidget(widgetName, resetChildren),
     ).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      responseData: {
+      requestId: expect.stringContaining(
+        "RESET_WIDGET_META_RECURSIVE_BY_NAME_",
+      ),
+      requestOrigin: RequestOrigin.Worker,
+      data: {
         errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
         trigger: {
           type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
           payload: {
