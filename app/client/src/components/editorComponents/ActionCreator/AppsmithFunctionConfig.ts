@@ -10,39 +10,63 @@ import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
 export const APPSMITH_FUNCTION_CONFIG = {
   [FieldType.ALERT_TEXT_FIELD]: {
     label: () => "Message",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.URL_FIELD]: {
     label: () => "Enter URL",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.QUERY_PARAMS_FIELD]: {
     label: () => "Query Params",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.KEY_TEXT_FIELD]: {
     label: () => "Key",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.VALUE_TEXT_FIELD]: {
     label: () => "Value",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.DOWNLOAD_DATA_FIELD]: {
     label: () => "Data to download",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.DOWNLOAD_FILE_NAME_FIELD]: {
     label: () => "File name with extension",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.COPY_TEXT_FIELD]: {
     label: () => "Text to be copied to clipboard",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.CALLBACK_FUNCTION_FIELD]: {
     label: () => "Callback function",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.DELAY_FIELD]: {
     label: () => "Delay (ms)",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.ID_FIELD]: {
     label: () => "Id",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.CLEAR_INTERVAL_ID_FIELD]: {
     label: () => "Id",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.SHOW_MODAL_FIELD]: {
     label: () => "Modal Name",
@@ -106,19 +130,29 @@ export const APPSMITH_FUNCTION_CONFIG = {
   },
   [FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD]: {
     label: () => "Type",
+    defaultText: "",
+    options: () => null,
   },
+  // TODO: add type
   [FieldType.KEY_VALUE_FIELD]: {
     label: () => "",
     defaultText: "Select Action",
+    options: (props: any) => props.integrationOptionTree,
   },
   // TODO: add type
   [FieldType.ARGUMENT_KEY_VALUE_FIELD]: {
     label: (props: any) => props.field.label || "",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.MESSAGE_FIELD]: {
     label: () => "",
+    defaultText: "",
+    options: () => null,
   },
   [FieldType.TARGET_ORIGIN_FIELD]: {
     label: () => "",
+    defaultText: "",
+    options: () => null,
   },
 };
