@@ -8,7 +8,7 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { RenderMode } from "constants/WidgetConstants";
-import { getAppsmithConfigs } from "../../../ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 interface IframeContainerProps {
   borderColor?: string;
