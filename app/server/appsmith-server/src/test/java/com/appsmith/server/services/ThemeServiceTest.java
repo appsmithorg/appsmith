@@ -89,11 +89,6 @@ public class ThemeServiceTest {
         this.workspace = workspaceService.create(workspace).block();
     }
 
-    @AfterEach
-    public void clear() {
-        workspaceService.archiveById(this.workspace.getId()).block();
-    }
-
     private Application createApplication() {
 
         if (this.workspace == null) {
