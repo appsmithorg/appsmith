@@ -14,7 +14,7 @@ public interface AstServiceCE {
      * to let the user know that their on page load actions have not been updated.
      * @param bindingValue    : The mustache binding value string to be analyzed
      * @param evalVersion     : The evaluated value version of the current app to be used while AST parsing
-     * @return A mono of list of strings that represent all valid global references in thw binding string
+     * @return A mono of list of strings that represent all valid global references in the binding string
      */
     Mono<List<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion);
 }

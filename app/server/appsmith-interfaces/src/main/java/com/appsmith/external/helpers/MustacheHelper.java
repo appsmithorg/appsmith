@@ -62,6 +62,9 @@ public class MustacheHelper {
     private static final String laxMustacheBindingRegex = "\\{\\{([\\s\\S]*?)}}";
     private static final Pattern laxMustacheBindingPattern = Pattern.compile(laxMustacheBindingRegex);
 
+
+    private static final Pattern nestedPathTokenSplitter = Pattern.compile("\\[.*\\]\\.?|\\.");
+
     // Possible types of entity references that we want to be filtering
     // from the global identifiers found in a dynamic binding
     public static final int ACTION_ENTITY_REFERENCES = 0b01;
@@ -373,7 +376,7 @@ public class MustacheHelper {
         Set<EntityDependencyNode> dependencyNodes = new HashSet<>();
         String key = reference.trim();
 
-        String[] subStrings = key.split(Pattern.quote("."));
+        String[] subStrings = nestedPathTokenSplitter.split(key);
 
         if (subStrings.length < 1) {
             return dependencyNodes;
@@ -407,7 +410,8 @@ public class MustacheHelper {
         Set<EntityDependencyNode> dependencyNodes = new HashSet<>();
         String key = reference.trim();
 
-        String[] subStrings = key.split(Pattern.quote("."));
+
+        String[] subStrings = nestedPathTokenSplitter.split(key);
 
         if (subStrings.length < 1) {
             return dependencyNodes;

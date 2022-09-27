@@ -1,18 +1,17 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -317,6 +316,15 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(layoutActionService.createSingleAction(action));
 
+                    // Create another POST API Action
+                    action = new ActionDTO();
+                    action.setName("anotherPostAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
                     // Action aPostActionWithAutoExec depends on [aPostSecondaryAction, aPostTertiaryAction]
                     action = new ActionDTO();
                     action.setName("aPostActionWithAutoExec");
@@ -472,6 +480,38 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(layoutActionService.createSingleAction(action));
 
+                    action = new ActionDTO();
+                    action.setName("ignoredAction1");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("ignoredAction2");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("ignoredAction3");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("ignoredAction4");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
                     return Mono.zip(monos, objects -> page1);
                 })
                 .zipWhen(page1 -> {
@@ -495,7 +535,15 @@ public class LayoutServiceTest {
                             "key", "value-updated",
                             "another", "Hello people of the {{input1.text}} planet!",
                             "dynamicGet", "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
-                            "dynamicPost", "some dynamic {{aPostAction.data}}",
+                            "dynamicPost", "some dynamic {{\n" +
+                                    "(function(ignoredAction1){\n" +
+                                    "\tlet a = ignoredAction1.data\n" +
+                                    "\tlet ignoredAction2 = { data: \"nothing\" }\n" +
+                                    "\tlet b = ignoredAction2.data\n" +
+                                    "\tlet c = \"ignoredAction3.data\"\n" +
+                                    "\t// ignoredAction4.data\n" +
+                                    "\treturn aPostAction.data\n" +
+                                    "})(anotherPostAction.data)}}",
                             "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
                     ));
@@ -506,7 +554,7 @@ public class LayoutServiceTest {
                             // only add sync function call dependencies in the dependency tree. sync call would be done during eval.
                             "collection4Key", "some dynamic {{Collection.aSyncCollectionActionWithCall()}}"
                     ));
-                    obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.data.irrelevant}}")));
+                    obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.data[0].irrelevant}}")));
                     obj.put("dynamicDB2", List.of("{{ anotherDBAction.data.optional }}"));
                     obj.put("tableWidget", new JSONObject(
                             Map.of("test",
@@ -516,6 +564,7 @@ public class LayoutServiceTest {
                     JSONArray dynamicBindingsPathList = new JSONArray();
                     dynamicBindingsPathList.addAll(List.of(
                             new JSONObject(Map.of("key", "dynamicGet")),
+                            new JSONObject(Map.of("key", "dynamicPost")),
                             new JSONObject(Map.of("key", "dynamicPostWithAutoExec")),
                             new JSONObject(Map.of("key", "dynamicDB.test")),
                             new JSONObject(Map.of("key", "dynamicDB2.0")),
@@ -568,10 +617,20 @@ public class LayoutServiceTest {
 
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("\"anIgnoredAction.data:\" + aGetAction.data", EVALUATION_VERSION))
                 .thenReturn(Mono.just(new ArrayList<>(Set.of("aGetAction.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        "(function(ignoredAction1){\n" +
+                                "\tlet a = ignoredAction1.data\n" +
+                                "\tlet ignoredAction2 = { data: \"nothing\" }\n" +
+                                "\tlet b = ignoredAction2.data\n" +
+                                "\tlet c = \"ignoredAction3.data\"\n" +
+                                "\t// ignoredAction4.data\n" +
+                                "\treturn aPostAction.data\n" +
+                                "})(anotherPostAction.data)", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new ArrayList<>(Set.of("aPostAction.data", "anotherPostAction.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostActionWithAutoExec.data", EVALUATION_VERSION))
                 .thenReturn(Mono.just(new ArrayList<>(Set.of("aPostActionWithAutoExec.data"))));
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aDBAction.data.irrelevant", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aDBAction.data.irrelevant"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aDBAction.data[0].irrelevant", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new ArrayList<>(Set.of("aDBAction.data[0].irrelevant"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("anotherDBAction.data.optional", EVALUATION_VERSION))
                 .thenReturn(Mono.just(new ArrayList<>(Set.of("anotherDBAction.data.optional"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aTableAction.data.child", EVALUATION_VERSION))
@@ -600,23 +659,28 @@ public class LayoutServiceTest {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-                    assertThat(layout.getLayoutOnLoadActions()).hasSize(3);
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(4);
 
                     Set<String> firstSetPageLoadActions = Set.of(
                             "aPostTertiaryAction",
                             "aGetAction",
                             "hiddenAction1",
                             "hiddenAction2",
-                            "hiddenAction4"
+                            "hiddenAction4",
+                            "aPostAction",
+                            "anotherPostAction"
                     );
 
                     Set<String> secondSetPageLoadActions = Set.of(
                             "aTableAction",
-                            "aDBAction",
                             "anotherDBAction"
                     );
 
                     Set<String> thirdSetPageLoadActions = Set.of(
+                            "aDBAction"
+                    );
+
+                    Set<String> fourthSetPageLoadActions = Set.of(
                             "aPostActionWithAutoExec",
                             "Collection.anAsyncCollectionActionWithoutCall",
                             "Collection.aSyncCollectionActionWithoutCall"
@@ -627,6 +691,8 @@ public class LayoutServiceTest {
                             .hasSameElementsAs(secondSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(2).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(thirdSetPageLoadActions);
+                    assertThat(layout.getLayoutOnLoadActions().get(3).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(fourthSetPageLoadActions);
                     Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
                     for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
                         flatOnLoadActions.addAll(actions);
@@ -641,7 +707,7 @@ public class LayoutServiceTest {
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
             return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId("aPostAction", page.getId(), AclPermission.MANAGE_ACTIONS));
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
         });
 
         StepVerifier
@@ -698,12 +764,18 @@ public class LayoutServiceTest {
                             "hiddenAction1",
                             "hiddenAction2",
                             "hiddenAction4",
-                            "anIgnoredAction"
+                            "anIgnoredAction",
+                            "aDBAction",
+                            "aPostAction",
+                            "anotherPostAction",
+                            "ignoredAction1",
+                            "ignoredAction2",
+                            "ignoredAction3",
+                            "ignoredAction4"
                     );
 
                     Set<String> secondSetPageLoadActions = Set.of(
                             "aTableAction",
-                            "aDBAction",
                             "anotherDBAction"
                     );
 

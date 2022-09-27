@@ -21,7 +21,7 @@ public class EntityDependencyNode {
         boolean result = true;
 
         if (this.referenceString == null) {
-            // This binding represents an on page load reference
+            // This node represents an entity that has been explicitly marked to run on page load
             return true;
         }
 
