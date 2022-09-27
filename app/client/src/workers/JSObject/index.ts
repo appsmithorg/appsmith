@@ -183,7 +183,6 @@ export async function saveResolvedFunctionsAndJSUpdates(
       dataTreeEvalRef.errors.push(errors);
     }
   }
-  return jsUpdates;
 }
 
 export async function parseJSActions(
@@ -192,7 +191,7 @@ export async function parseJSActions(
   differences?: DataTreeDiff[],
   oldUnEvalTree?: DataTree,
 ) {
-  let jsUpdates: Record<string, JSUpdate> = {};
+  const jsUpdates: Record<string, JSUpdate> = {};
   if (!!differences && !!oldUnEvalTree) {
     for (const diff of differences) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -224,7 +223,7 @@ export async function parseJSActions(
         (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
         (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
       ) {
-        jsUpdates = await saveResolvedFunctionsAndJSUpdates(
+        await saveResolvedFunctionsAndJSUpdates(
           dataTreeEvalRef,
           entity,
           jsUpdates,
@@ -237,7 +236,7 @@ export async function parseJSActions(
     for (const entityName of Object.keys(unEvalDataTree)) {
       const entity = unEvalDataTree[entityName];
       if (!isJSAction(entity)) continue;
-      jsUpdates = await saveResolvedFunctionsAndJSUpdates(
+      await saveResolvedFunctionsAndJSUpdates(
         dataTreeEvalRef,
         entity,
         jsUpdates,

@@ -237,11 +237,7 @@ export function evaluateJSString(
 
     const executionScript = getEvalScript(sanitizeScript(code), evalArguments);
 
-    console.log({ executionScript });
-
     Object.assign(self, GLOBAL_DATA);
-
-    console.log({ resolvedFunctions });
 
     try {
       result = await eval(executionScript);
