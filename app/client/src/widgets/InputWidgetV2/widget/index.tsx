@@ -63,12 +63,7 @@ export function defaultValueValidation(
         parsed = null;
       } else {
         parsed = hasDecimalValue
-          ? Number(
-              String(value).replace(
-                new RegExp("\\" + decimalSeperator, "g"),
-                ".",
-              ),
-            )
+          ? Number(String(value).replaceAll(decimalSeperator, "."))
           : Number(value);
       }
 
@@ -96,7 +91,9 @@ export function defaultValueValidation(
          */
         isValid = false;
         messages = [
-          `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
+          'Please use "' +
+            decimalSeperator +
+            '" as decimal separator since your locale is ${localeLang}',
         ];
         parsed = null;
       } else {

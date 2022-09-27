@@ -63,9 +63,7 @@ export function defaultValueValidation(
   const hasDecimalValue = String(value).includes(decimalSeperator);
   const defaultDecimalSeparator = ".";
   let parsed: any = hasDecimalValue
-    ? Number(
-        String(value).replace(new RegExp("\\" + decimalSeperator, "g"), "."),
-      )
+    ? Number(String(value).replaceAll(decimalSeperator, "."))
     : Number(value);
   let isValid, messages;
 
@@ -93,7 +91,9 @@ export function defaultValueValidation(
      */
     isValid = false;
     messages = [
-      `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
+      'Please use "' +
+        decimalSeperator +
+        '" as decimal separator since your locale is ${localeLang}',
     ];
     parsed = undefined;
   } else {
