@@ -3,6 +3,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { useDispatch } from "react-redux";
 import {
   all,
   put,
@@ -406,6 +407,11 @@ function* endFirstTimeUserOnboardingSaga() {
     hideProgressBar: false,
     variant: Variant.success,
     dispatchableAction: {
+      // Rules of hooks - I am unable to call useDispatch here because it is not a function component
+      // What is the significance of the `function*`? it means that something is a generator.
+      // I can't convert this function to a function component because then one cannot use yield inside it.
+      // TODO: refactor where Toast is called from.
+      dispatch: useDispatch,
       type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
       payload: firstTimeUserExperienceAppId,
     },
