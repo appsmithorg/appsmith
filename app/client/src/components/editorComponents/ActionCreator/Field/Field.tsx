@@ -1,11 +1,4 @@
-import {
-  AppsmithFunction,
-  FieldType,
-  FILE_TYPE_OPTIONS,
-  NAVIGATION_TARGET_FIELD_OPTIONS,
-  RESET_CHILDREN_OPTIONS,
-  ViewTypes,
-} from "../constants";
+import { AppsmithFunction, FieldType, ViewTypes } from "../constants";
 import { TreeDropdownOption } from "design-system";
 import {
   KeyValueViewProps,
@@ -16,7 +9,6 @@ import {
 } from "../types";
 import HightlightedCode from "../../HighlightedCode";
 import { Skin } from "../../../../constants/DefaultTheme";
-import { ALERT_STYLE_OPTIONS } from "../../../../ce/constants/messages";
 import { DropdownOption } from "../../../constants";
 import React from "react";
 import { SelectorView } from "../viewComponents/SelectorView/SelectorView";
@@ -71,9 +63,9 @@ export function Field(props: {
     case FieldType.NAVIGATION_TARGET_FIELD:
     case FieldType.RESET_CHILDREN_FIELD:
     case FieldType.WIDGET_NAME_FIELD:
-      let label = "";
-      let defaultText = "Select Action";
-      let options = props.integrationOptionTree;
+      let label = APPSMITH_FUNCTION_CONFIG[fieldType].label;
+      const defaultText = APPSMITH_FUNCTION_CONFIG[fieldType].defaultText;
+      const options = APPSMITH_FUNCTION_CONFIG[fieldType].options(props);
       let selectedLabelModifier = undefined;
       let displayValue = undefined;
       let getDefaults = undefined;
@@ -109,44 +101,6 @@ export function Field(props: {
             [AppsmithFunction.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
           }[value];
         };
-      }
-      if (
-        fieldType === FieldType.SHOW_MODAL_FIELD ||
-        fieldType === FieldType.CLOSE_MODAL_FIELD
-      ) {
-        label = "Modal Name";
-        options = props.modalDropdownList;
-        defaultText = "Select Modal";
-      }
-      if (fieldType === FieldType.RESET_CHILDREN_FIELD) {
-        label = "Reset Children";
-        options = RESET_CHILDREN_OPTIONS;
-        defaultText = "true";
-      }
-      if (fieldType === FieldType.WIDGET_NAME_FIELD) {
-        label = "Widget";
-        options = props.widgetOptionTree;
-        defaultText = "Select Widget";
-      }
-      if (fieldType === FieldType.PAGE_SELECTOR_FIELD) {
-        label = "Choose Page";
-        options = props.pageDropdownOptions;
-        defaultText = "Select Page";
-      }
-      if (fieldType === FieldType.ALERT_TYPE_SELECTOR_FIELD) {
-        label = "Type";
-        options = ALERT_STYLE_OPTIONS;
-        defaultText = "Select type";
-      }
-      if (fieldType === FieldType.DOWNLOAD_FILE_TYPE_FIELD) {
-        label = "Type";
-        options = FILE_TYPE_OPTIONS;
-        defaultText = "Select file type (optional)";
-      }
-      if (fieldType === FieldType.NAVIGATION_TARGET_FIELD) {
-        label = "Target";
-        options = NAVIGATION_TARGET_FIELD_OPTIONS;
-        defaultText = NAVIGATION_TARGET_FIELD_OPTIONS[0].label;
       }
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options,
