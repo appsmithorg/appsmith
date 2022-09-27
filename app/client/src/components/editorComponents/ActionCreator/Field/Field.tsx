@@ -24,6 +24,7 @@ import { KeyValueView } from "../viewComponents/KeyValueView";
 import { TextView } from "../viewComponents/TextView/TextView";
 import { TabView } from "../viewComponents/TabView/TabView";
 import { FIELD_CONFIGS } from "../FieldConfig";
+import { APPSMITH_FUNCTION_CONFIG } from "../AppsmithFunctionConfig";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
@@ -219,32 +220,7 @@ export function Field(props: {
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
-      let fieldLabel = "";
-      if (fieldType === FieldType.ALERT_TEXT_FIELD) {
-        fieldLabel = "Message";
-      } else if (fieldType === FieldType.URL_FIELD) {
-        fieldLabel = "Enter URL";
-      } else if (fieldType === FieldType.KEY_TEXT_FIELD) {
-        fieldLabel = "Key";
-      } else if (fieldType === FieldType.VALUE_TEXT_FIELD) {
-        fieldLabel = "Value";
-      } else if (fieldType === FieldType.QUERY_PARAMS_FIELD) {
-        fieldLabel = "Query Params";
-      } else if (fieldType === FieldType.DOWNLOAD_DATA_FIELD) {
-        fieldLabel = "Data to download";
-      } else if (fieldType === FieldType.DOWNLOAD_FILE_NAME_FIELD) {
-        fieldLabel = "File name with extension";
-      } else if (fieldType === FieldType.COPY_TEXT_FIELD) {
-        fieldLabel = "Text to be copied to clipboard";
-      } else if (fieldType === FieldType.CALLBACK_FUNCTION_FIELD) {
-        fieldLabel = "Callback function";
-      } else if (fieldType === FieldType.DELAY_FIELD) {
-        fieldLabel = "Delay (ms)";
-      } else if (fieldType === FieldType.ID_FIELD) {
-        fieldLabel = "Id";
-      } else if (fieldType === FieldType.CLEAR_INTERVAL_ID_FIELD) {
-        fieldLabel = "Id";
-      }
+      const fieldLabel = APPSMITH_FUNCTION_CONFIG[fieldType].fieldLabel;
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
         get: fieldConfig.getter,
