@@ -48,6 +48,7 @@ describe("MySQL Datatype tests", function() {
         dataSources.RunQuery(false);
       });
     });
+    agHelper.Sleep(2000);
   });
 
   //This is a special case. 
@@ -65,7 +66,6 @@ describe("MySQL Datatype tests", function() {
   });
 
   it("6. Verify Deletion of the datasource after all created queries are Deleted", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     ["falseCases", "createTable"].forEach((type) => {
       ee.ActionContextMenuByEntityName(type, "Delete", "Are you sure?");

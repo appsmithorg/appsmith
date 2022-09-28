@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import inputData from "../../../../support/Objects/mySqlData";
+const isEqual = require("lodash/isEqual");
 
 let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -93,7 +94,12 @@ describe("MySQL Datatype tests", function() {
     inputData.result.forEach((res_array, i) => {
       res_array.forEach((value, j) => {
         table.ReadTableRowColumnData(j, i, 0).then(($cellData) => {
-          expect($cellData).to.eq(value);
+          if(i === inputData.result.length-1){
+            let obj = JSON.parse($cellData)
+            expect(JSON.stringify(obj)).to.eq(JSON.stringify(value));
+          }else{
+            expect($cellData).to.eq(value);
+          }
         });
       });
     });

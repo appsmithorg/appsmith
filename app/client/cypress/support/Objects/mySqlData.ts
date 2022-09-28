@@ -220,7 +220,7 @@ const mySqlData = {
     ["a", "abcdefghij", "012345", "false", "NulL"],
     ["a", "b", "c"],
     ["0", "1"],
-    ['{"abc": "123"}', "{}", "[1, 2, 3, 4]", "[]", '["a", true, 0, 12.34]'],
+    [{"abc": "123"}, {}, [1, 2, 3, 4], [], ["a",true,0,12.34]],
   ],
   query: {
     createTable: `CREATE TABLE mysqlDTs (serialId SERIAL not null primary key, stinyint_column TINYINT, utinyint_column TINYINT UNSIGNED, 
