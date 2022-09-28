@@ -13,7 +13,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { RoleTreeProps } from "./types";
-// import { replayHighlightClass } from "globalStyles/portals";
+/* import { replayHighlightClass } from "globalStyles/portals"; */
 
 type hashtableType = {
   [key: string]: Array<{
@@ -1204,7 +1204,7 @@ const getExpandedTrees = (data: any, pIndex?: string) => {
   return openTrees;
 };
 
-// TODO: Performance improvements
+/* TODO: Performance improvements */
 function Table({
   columns,
   data,
@@ -1489,7 +1489,7 @@ export default function RolesTree(props: RoleTreeProps) {
                     ? true
                     : false
                 }
-                // id={`${cellProps.cell.row.original.id}-${column}`}
+                /* id={`${cellProps.cell.row.original.id}-${column}`} */
                 indeterminate={
                   cellProps.cell.row.original.permission[index] === 3
                     ? true

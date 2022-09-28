@@ -9,13 +9,6 @@ import { GroupEditProps } from "./types";
 let container: any = null;
 
 const listMenuItems = [
-  /*{
-    className: "clone-menu-item",
-    icon: "duplicate",
-    onSelect: jest.fn(),
-    text: "Clone",
-    label: "clone",
-  },*/
   {
     className: "rename-menu-item",
     icon: "edit-underline",
@@ -33,7 +26,6 @@ const listMenuItems = [
 
 const props: GroupEditProps = {
   selected: userGroupTableData[0],
-  // onClone: jest.fn(),
   onDelete: jest.fn(),
   isLoading: false,
   isSaving: false,
@@ -55,7 +47,7 @@ describe("<GroupAddEdit />", () => {
   });
   it("should render the selected group name as title", () => {
     renderComponent();
-    const title = screen.queryAllByTestId("t--editatble-title");
+    const title = screen.queryAllByTestId("t--page-title");
     expect(title[0]).toHaveTextContent(props.selected.name);
   });
   it("should show empty state when there are no users", async () => {
@@ -69,15 +61,14 @@ describe("<GroupAddEdit />", () => {
     const button = screen.getByTestId("t--add-users-button");
     expect(emptyState).toContainElement(button);
     expect(button).toHaveTextContent("Add Users");
-    // userEvent.click(button);
-    // const modal = screen.getByText(/invite users/i);
-    // expect(modal).toBeTruthy();
+    /* userEvent.click(button);
+       const modal = screen.getByText(/invite users/i);
+       expect(modal).toBeTruthy(); */
   });
   it("should search and filter users on search", async () => {
     const selectedGroup = userGroupTableData[1];
     const props = {
       selected: selectedGroup,
-      // onClone: jest.fn(),
       onDelete: jest.fn(),
       isLoading: false,
       isSaving: false,
@@ -94,7 +85,7 @@ describe("<GroupAddEdit />", () => {
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
       userGroupTableData[1].users.length.toString(),
-      userGroupTableData[1].activePermissions.length.toString(),
+      userGroupTableData[1].roles.length.toString(),
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
@@ -120,7 +111,6 @@ describe("<GroupAddEdit />", () => {
     const selectedGroup = userGroupTableData[1];
     const props = {
       selected: selectedGroup,
-      // onClone: jest.fn(),
       onDelete: jest.fn(),
       isLoading: false,
       isSaving: false,
@@ -137,7 +127,7 @@ describe("<GroupAddEdit />", () => {
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
       userGroupTableData[1].users.length.toString(),
-      userGroupTableData[1].activePermissions.length.toString(),
+      userGroupTableData[1].roles.length.toString(),
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
@@ -170,7 +160,7 @@ describe("<GroupAddEdit />", () => {
     await userEvent.click(moreMenu[0]);
     const options = listMenuItems.map((menuItem) => menuItem.text);
     const menuElements = options.map((option) => getAllByText(option)).flat();
-    options.map((option, index) => {
+    options.forEach((option, index) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
@@ -178,38 +168,21 @@ describe("<GroupAddEdit />", () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    let titleEl = document.getElementsByClassName("t--editable-title");
+    let titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).not.toContain("input");
     await userEvent.dblClick(titleEl[0]);
-    titleEl = document.getElementsByClassName("t--editable-title");
+    titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).toContainHTML("input");
   });
-  /*it("should clone the group when Clone menu item is clicked", async () => {
-    const { getAllByTestId } = renderComponent();
-    const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
-    const cloneOption = document.getElementsByClassName("clone-menu-item");
-    await userEvent.click(cloneOption[0]);
-    await waitFor(
-      () => {
-        expect(window.location.pathname).toEqual("/settings/groups");
-        const clonedGroup = screen.queryByText(
-          `Copy of ${props.selected.name}`,
-        );
-        return expect(clonedGroup).toBeTruthy();
-      },
-      { timeout: 1000 },
-    );
-  });*/
   it("should show input box on group name on clicking rename menu item", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
     const renameOption = document.getElementsByClassName("rename-menu-item");
-    let titleEl = document.getElementsByClassName("t--editable-title");
+    let titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).not.toContain("input");
-    await userEvent.click(renameOption[0]);
-    titleEl = document.getElementsByClassName("t--editable-title");
+    await userEvent.dblClick(titleEl[0]);
+    titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).toContainHTML("input");
   });
   /*it("should delete the group when Delete menu item is clicked", async () => {

@@ -1,9 +1,11 @@
 package com.appsmith.server.services.ee;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -410,4 +412,127 @@ public class UserGroupServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void invalidAddUserToGroup_emptyId() {
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setUsernames(Set.of("username-1", "username-2"));
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.GROUP_ID))
+                )
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void invalidAddUserToGroup_emptyUsernames() {
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupId("groupId");
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.USERNAMES))
+                )
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addUsersToGroupValid_WithoutRoles() {
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : addUsersToGroupValid";
+        String description = "Test Group Description : addUsersToGroupValid";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroup createdGroup = userGroupService.create(userGroup).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupId(createdGroup.getId());
+        inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .assertNext(group -> {
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group.getId());
+                    assertEquals(createdGroup.getTenantId(), group.getTenantId());
+                    assertEquals(createdGroup.getName(), group.getName());
+                    assertEquals(createdGroup.getDescription(), group.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group.getUsers().size());
+                    assertEquals(api_user.getId(), group.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group.getUsers().get(0).getUsername());
+                })
+                .verifyComplete();
+
+    }
+
+    // TODO: Add tests for groups with roles and then adding users to the group.
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void invalidRemoveUserToGroup_emptyId() {
+        UsersForGroupDTO removeUsersFromGroupDTO = new UsersForGroupDTO();
+        removeUsersFromGroupDTO.setUsernames(Set.of("username-1", "username-2"));
+
+        StepVerifier.create(userGroupService.removeUsers(removeUsersFromGroupDTO))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.GROUP_ID))
+                )
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void invalidRemoveUserToGroup_emptyUsernames() {
+        UsersForGroupDTO removeUsersFromGroupDTO = new UsersForGroupDTO();
+        removeUsersFromGroupDTO.setGroupId("groupId");
+
+        StepVerifier.create(userGroupService.removeUsers(removeUsersFromGroupDTO))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.USERNAMES))
+                )
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void removeUsersToGroupValid_WithoutRoles() {
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : removeUsersToGroupValid_WithoutRoles";
+        String description = "Test Group Description : removeUsersToGroupValid_WithoutRoles";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroup createdGroup = userGroupService.create(userGroup).block();
+
+        UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
+        usersForGroupDTO.setGroupId(createdGroup.getId());
+        usersForGroupDTO.setUsernames(Set.of("api_user"));
+
+        // Add API User
+        userGroupService.inviteUsers(usersForGroupDTO, "origin").block();
+
+        StepVerifier.create(userGroupService.removeUsers(usersForGroupDTO))
+                .assertNext(group -> {
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group.getId());
+                    assertEquals(createdGroup.getTenantId(), group.getTenantId());
+                    assertEquals(createdGroup.getName(), group.getName());
+                    assertEquals(createdGroup.getDescription(), group.getDescription());
+
+                    // assert that the user was removed from the group
+                    assertEquals(0, group.getUsers().size());
+                })
+                .verifyComplete();
+
+    }
+
+    // TODO: Add tests for groups with roles and then adding users to the group.
+
+
 }

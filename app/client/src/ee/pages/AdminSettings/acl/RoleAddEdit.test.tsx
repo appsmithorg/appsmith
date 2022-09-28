@@ -79,13 +79,6 @@ const searchResultsMock = [
 
 const listMenuItems = [
   {
-    className: "clone-menu-item",
-    icon: "duplicate",
-    onSelect: jest.fn(),
-    text: "Clone",
-    label: "clone",
-  },
-  {
     className: "rename-menu-item",
     icon: "edit-underline",
     text: "Rename",
@@ -102,7 +95,6 @@ const listMenuItems = [
 
 const props: RoleEditProps = {
   selected: rolesTableData[0],
-  onClone: jest.fn(),
   onDelete: jest.fn(),
   isLoading: false,
 };
@@ -123,7 +115,7 @@ describe("<RoleAddEdit />", () => {
   });
   it("should render the selected role name as title", () => {
     renderComponent();
-    const title = screen.queryAllByTestId("t--editatble-title");
+    const title = screen.queryAllByTestId("t--page-title");
     expect(title[0]).toHaveTextContent(props.selected.name);
   });
   it("should list the correct options in the more menu", async () => {
@@ -134,7 +126,7 @@ describe("<RoleAddEdit />", () => {
     const menuElements = options
       .map((option: any) => getAllByText(option))
       .flat();
-    options.map((option: any, index: any) => {
+    options.forEach((option: any, index: any) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
@@ -142,10 +134,10 @@ describe("<RoleAddEdit />", () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    let titleEl = document.getElementsByClassName("t--editable-title");
+    let titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).not.toContain("input");
     await userEvent.dblClick(titleEl[0]);
-    titleEl = document.getElementsByClassName("t--editable-title");
+    titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).toContainHTML("input");
   });
   it("should show tabs as per data recieved", () => {
@@ -246,43 +238,26 @@ describe("<RoleAddEdit />", () => {
     const hoverCheckboxEl = screen.getAllByTestId(elId);
     userEvent.hover(hoverCheckboxEl[0]);
     const hoverEls: any[] = [];
-    hashtable[elId].map((item: any) => {
+    hashtable[elId].forEach((item: any) => {
       hoverEls.push(
         ...screen.queryAllByTestId(item.id + "-" + item.permission),
       );
     });
     expect(hoverEls[0]).toHaveClass("hover-state");
-    // expect(hoverEls[0]).toHaveStyle("opacity: 0.4"); styled-components 5.2.1 should solve this
+    /* expect(hoverEls[0]).toHaveStyle("opacity: 0.4"); styled-components 5.2.1 should solve this */
   });
 
-  // it("should update data on clicking a checkbox as expected", async () => {});
-  // it("should save data on save button click", async () => {});
-  /*it("should clone the role when clone menu item is clicked", async () => {
-    const { getAllByTestId } = renderComponent();
-    const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
-    const cloneOption = document.getElementsByClassName("clone-menu-item");
-    await userEvent.click(cloneOption[0]);
-    await waitFor(
-      () => {
-        expect(window.location.pathname).toEqual("/settings/roles");
-        const clonedRole = screen.queryByText(
-          `Copy of ${props.selected.name}`,
-        );
-        return expect(clonedRole).toBeTruthy();
-      },
-      { timeout: 1000 },
-    );
-  });*/
+  /* it("should update data on clicking a checkbox as expected", async () => {});
+     it("should save data on save button click", async () => {}); */
   it("should show input box on group name on clicking rename menu item", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    const cloneOption = document.getElementsByClassName("rename-menu-item");
-    let titleEl = document.getElementsByClassName("t--editable-title");
+    const renameOption = document.getElementsByClassName("rename-menu-item");
+    let titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).not.toContain("input");
-    await userEvent.click(cloneOption[0]);
-    titleEl = document.getElementsByClassName("t--editable-title");
+    await userEvent.dblClick(titleEl[0]);
+    titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).toContainHTML("input");
   });
   /*it("should delete the group when Delete menu item is clicked", async () => {

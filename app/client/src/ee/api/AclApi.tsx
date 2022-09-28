@@ -2,6 +2,7 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "api/ApiResponses";
 import { uniqueId } from "lodash";
+import { BaseAclProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export interface FetchAclUsersResponse extends ApiResponse {
   id: string;
@@ -16,9 +17,7 @@ export interface FetchSingleDataPayload {
   id: string;
 }
 
-export interface RoleResponsePayload {
-  id: string;
-  name: string;
+export type RoleResponsePayload = BaseAclProps & {
   assignedToGroupIds: string[];
   assignedToUserIds: string[];
   new: boolean;
@@ -28,18 +27,17 @@ export interface RoleResponsePayload {
   }[];
   tenantId: string;
   userPermissions: string[];
-}
+};
 
 export type CreateRoleResponse = ApiResponse<RoleResponsePayload>;
 
-export interface GroupResponsePayload {
-  id: string;
-  name: string;
+export type GroupResponsePayload = BaseAclProps & {
   new: boolean;
   tenantId: string;
   userPermissions: string[];
   users: string[];
-}
+  roles: BaseAclProps[];
+};
 
 export type CreateGroupResponse = ApiResponse<GroupResponsePayload>;
 

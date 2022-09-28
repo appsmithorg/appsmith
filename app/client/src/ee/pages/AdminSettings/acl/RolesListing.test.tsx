@@ -12,13 +12,6 @@ let container: any = null;
 
 const listMenuItems: MenuItemProps[] = [
   {
-    className: "clone-menu-item",
-    icon: "duplicate",
-    onSelect: jest.fn(),
-    text: "Clone",
-    label: "clone",
-  },
-  {
     className: "edit-menu-item",
     icon: "edit-underline",
     onSelect: jest.fn(),
@@ -35,7 +28,7 @@ const listMenuItems: MenuItemProps[] = [
 ];
 
 function renderComponent() {
-  // Mock store to bypass the error of react-redux
+  /* Mock store to bypass the error of react-redux */
   const store = configureStore()({
     acl: {
       roles: rolesTableData,
@@ -81,7 +74,7 @@ describe("<RoleListing />", () => {
       (role: any) => role.isAppsmithProvided,
     );
     expect(appsmithBadge.length).toEqual(appsmithProvided.length);
-    rolesTableData.map((group: any, index: any) => {
+    rolesTableData.forEach((group: any, index: any) => {
       if (!group.isAppsmithProvided) {
         expect(
           role[index].querySelectorAll("[data-testid='t--appsmith-badge']"),
@@ -97,7 +90,7 @@ describe("<RoleListing />", () => {
     renderComponent();
     const button = screen.getAllByTestId("t--acl-page-header-input");
     button[0].click();
-    // expect(window.location.pathname).toEqual(`/settings/roles/10102`);
+    /* expect(window.location.pathname).toEqual(`/settings/roles/10102`); */
   });
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
@@ -107,22 +100,10 @@ describe("<RoleListing />", () => {
     const menuElements = options
       .map((option: any) => getAllByText(option))
       .flat();
-    options.map((option: any, index: any) => {
+    options.forEach((option: any, index: any) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
-  /*it("should clone the group when Clone list menu item is clicked", async () => {
-    const { getAllByTestId, queryByText } = renderComponent();
-    const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
-    const cloneOption = document.getElementsByClassName("clone-menu-item");
-    let clonedGroup = queryByText(`Copy of ${rolesTableData[0].name}`);
-    expect(clonedGroup).toBeFalsy();
-    await userEvent.click(cloneOption[0]);
-    clonedGroup = queryByText(`Copy of ${rolesTableData[0].name}`);
-    expect(clonedGroup).toBeTruthy();
-    expect(clonedGroup?.nextSibling).toBeFalsy();
-  });*/
   it("should navigate to role edit page when Edit list menu option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");

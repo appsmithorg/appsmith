@@ -96,4 +96,9 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     public Flux<User> findAllByIdsIn(Set<String> ids) {
         return repository.findAllById(ids);
     }
+
+    @Override
+    public Flux<User> findAllByUsernameIn(Set<String> usernames) {
+        return repository.findAllByEmails(usernames);
+    }
 }

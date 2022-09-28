@@ -32,7 +32,7 @@ function renderComponent() {
 }
 
 function renderUserListing() {
-  // Mock store to bypass the error of react-redux
+  /* Mock store to bypass the error of react-redux */
   const store = configureStore()({
     acl: {
       roles: [],

@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.services.UserGroupService;
@@ -77,6 +78,19 @@ public class UserGroupController {
         log.debug("Going to delete resource from user group controller with id: {}", id);
         return service.archiveById(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @PostMapping("/invite")
+    public Mono<ResponseDTO<UserGroupDTO>> inviteUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO,
+                                                     @RequestHeader("Origin") String originHeader) {
+        return service.inviteUsers(inviteUsersToGroupDTO, originHeader)
+                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
+    }
+
+    @PostMapping("/removeUsers")
+    public Mono<ResponseDTO<UserGroupDTO>> removeUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO) {
+        return service.removeUsers(inviteUsersToGroupDTO)
+                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
 }

@@ -147,7 +147,6 @@ export function SaveButtonBar({
           disabled={false}
           isLoading={false}
           onClick={() => {
-            /*console.log("hello save");*/
             onSave();
           }}
           tag="button"
@@ -158,7 +157,6 @@ export function SaveButtonBar({
           className="t--admin-settings-reset-button"
           disabled={false}
           onClick={() => {
-            /*console.log("hello reset");*/
             onClear();
           }}
           tag="button"

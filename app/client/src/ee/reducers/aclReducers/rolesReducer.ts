@@ -41,7 +41,7 @@ export const rolesReducers = {
   }),
   [ReduxActionTypes.CREATE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    roles: action.payload,
+    selectedRole: action.payload,
     isLoading: false,
   }),
   [ReduxActionTypes.CLONE_ACL_ROLE]: (state: any) => ({

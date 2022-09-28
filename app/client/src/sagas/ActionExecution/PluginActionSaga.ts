@@ -31,7 +31,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isArray, isString, set } from "lodash";
+import { get, isArray, isString, set, find, isNil, flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -45,10 +45,12 @@ import {
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_PLUGIN_ACTION_EXECUTE,
   ACTION_EXECUTION_CANCELLED,
+  ACTION_EXECUTION_FAILED,
 } from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import {
   EventType,
+  LayoutOnLoadActionErrors,
   PageAction,
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
@@ -56,6 +58,7 @@ import {
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
+  getLayoutOnLoadIssues,
 } from "selectors/editorSelectors";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -109,6 +112,7 @@ import { isTrueObject, findDatatype } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
+import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -118,12 +122,9 @@ export const getActionTimeout = (
   state: AppState,
   actionId: string,
 ): number | undefined => {
-  const action = _.find(
-    state.entities.actions,
-    (a) => a.config.id === actionId,
-  );
+  const action = find(state.entities.actions, (a) => a.config.id === actionId);
   if (action) {
-    const timeout = _.get(
+    const timeout = get(
       action,
       "config.actionConfiguration.timeoutInMillisecond",
       DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
@@ -269,7 +270,7 @@ function* evaluateActionParams(
   executeActionRequest: ExecuteActionRequest,
   executionParams?: Record<string, any> | string,
 ) {
-  if (_.isNil(bindings) || bindings.length === 0) {
+  if (isNil(bindings) || bindings.length === 0) {
     formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
     return [];
   }
@@ -700,7 +701,9 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
       getJSCollection,
       collectionId,
     );
-    const jsAction = collection.actions.find((d) => d.id === pageAction.id);
+    const jsAction = collection.actions.find(
+      (action) => action.id === pageAction.id,
+    );
     if (!!jsAction) {
       if (jsAction.confirmBeforeExecute) {
         const modalPayload = {
@@ -718,7 +721,15 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          throw new UserCancelledActionExecutionError();
+          Toaster.show({
+            text: createMessage(
+              ACTION_EXECUTION_CANCELLED,
+              `${collection.name}.${jsAction.name}`,
+            ),
+            variant: Variant.danger,
+          });
+          // Don't proceed to executing the js function
+          return;
         }
       }
       const data = {
@@ -752,7 +763,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     let payload = EMPTY_RESPONSE;
     let isError = true;
-    const error = `The action "${pageAction.name}" has failed.`;
+    const error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,
@@ -820,7 +831,13 @@ function* executePageLoadAction(pageAction: PageAction) {
 function* executePageLoadActionsSaga() {
   try {
     const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
-    const actionCount = _.flatten(pageActions).length;
+    const layoutOnLoadActionErrors: LayoutOnLoadActionErrors[] = yield select(
+      getLayoutOnLoadIssues,
+    );
+    const actionCount = flatten(pageActions).length;
+
+    // when cyclical depedency issue is there,
+    // none of the page load actions would be executed
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
       { numActions: actionCount },
@@ -835,10 +852,10 @@ function* executePageLoadActionsSaga() {
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
-
     // We show errors in the debugger once onPageLoad actions
     // are executed
     yield put(hideDebuggerErrors(false));
+    checkAndLogErrorsIfCyclicDependency(layoutOnLoadActionErrors);
   } catch (e) {
     log.error(e);
 

@@ -2,7 +2,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { UserListing } from "./UserListing";
-import { allUsers, columns } from "./mocks/UserListingMock";
+import { allUsers } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
@@ -10,30 +10,25 @@ import { Provider } from "react-redux";
 let container: any = null;
 const onSelectFn = jest.fn();
 
-const userListingProps = {
-  data: allUsers,
-  columns: columns,
-  listMenuItems: [
-    {
-      label: "edit",
-      className: "edit-menu-item",
-      icon: "edit-underline",
-      onSelect: onSelectFn,
-      text: "Edit",
-    },
-    {
-      label: "delete",
-      className: "delete-menu-item",
-      icon: "delete-blank",
-      onSelect: onSelectFn,
-      text: "Delete",
-    },
-  ],
-  keyAccessor: "userId",
-};
+const listMenuItems = [
+  {
+    label: "edit",
+    className: "edit-menu-item",
+    icon: "edit-underline",
+    onSelect: onSelectFn,
+    text: "Edit",
+  },
+  {
+    label: "delete",
+    className: "delete-menu-item",
+    icon: "delete-blank",
+    onSelect: onSelectFn,
+    text: "Delete",
+  },
+];
 
 function renderComponent() {
-  // Mock store to bypass the error of react-redux
+  /* Mock store to bypass the error of react-redux */
   const store = configureStore()({
     acl: {
       roles: [],
@@ -68,7 +63,7 @@ describe("<UserListing />", () => {
     const userEditLink = await screen.queryAllByTestId("user-listing-userCell");
     await userEvent.click(userEditLink[0]);
     expect(window.location.pathname).toBe(
-      `/settings/users/${userListingProps.data[0].userId}`,
+      `/settings/users/${allUsers[0].userId}`,
     );
   });
   it("should expand on show more and collapse on show less", () => {
@@ -94,13 +89,11 @@ describe("<UserListing />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const options = userListingProps.listMenuItems.map(
-      (menuItem: any) => menuItem.text,
-    );
+    const options = listMenuItems.map((menuItem: any) => menuItem.text);
     const menuElements = options
       .map((option: any) => getAllByText(option))
       .flat();
-    options.map((option: any, index: any) => {
+    options.forEach((option: any, index: any) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
