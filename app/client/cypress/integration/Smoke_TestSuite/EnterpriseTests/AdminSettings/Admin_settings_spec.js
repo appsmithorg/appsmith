@@ -43,4 +43,14 @@ describe("Admin settings page", function() {
       ).contains("UPGRADE");
     }
   });
+
+  it("should test that embed settings options are visible", () => {
+    cy.visit("/settings/general");
+
+    if (Cypress.env("Edition") === 0) {
+      cy.get(EnterpriseAdminSettingsLocators.embedSettings).should(
+        "be.visible",
+      );
+    }
+  });
 });
