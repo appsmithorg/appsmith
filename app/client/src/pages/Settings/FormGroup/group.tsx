@@ -154,11 +154,13 @@ export default function Group({
                       <CalloutV2
                         actionLabel="READ MORE"
                         desc={createMessage(() => setting.label || "")}
-                        onClick={() => {
-                          if (setting.action) {
-                            setting.action(calloutDispatch);
-                          }
-                        }}
+                        onClick={
+                          ((() => {
+                            if (setting.action) {
+                              setting.action(calloutDispatch);
+                            }
+                          }) as unknown) as React.MouseEvent<HTMLElement>
+                        }
                         type={setting.calloutType || "Notify"}
                       />
                     ) : (

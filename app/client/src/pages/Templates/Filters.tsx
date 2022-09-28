@@ -2,16 +2,18 @@ import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
-import { Checkbox, Text, TextType } from "design-system";
+import { Classes } from "components/ads/common";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import { filterTemplates } from "actions/templateActions";
 import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
 } from "selectors/templatesSelectors";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const FilterWrapper = styled.div`
   overflow: auto;
@@ -29,11 +31,48 @@ const FilterWrapper = styled.div`
   }
 `;
 
-const FilterItemWrapper = styled.div<{ selected: boolean }>`
+const Wrapper = styled.div`
+  width: ${(props) => props.theme.homePage.sidebar}px;
+  height: 100%;
+  display: flex;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
+  padding-top: ${(props) => props.theme.spaces[11]}px;
+  flex-direction: column;
+`;
+
+const SecondWrapper = styled.div`
+  height: calc(
+    100vh - ${(props) => props.theme.homePage.header + props.theme.spaces[11]}px
+  );
+  position: relative;
+`;
+
+const StyledFilterItem = styled.div<{ selected: boolean }>`
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   padding: ${(props) =>
-    `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11]}px`};
-  .filter input + span {
-    ${(props) => !props.selected && `border: 1.8px solid ${Colors.GRAY_400};`}
+    `${props.theme.spaces[2]}px ${props.theme.spaces[6]}px ${props.theme.spaces[2]}px ${props.theme.spaces[11]}px`};
+  .${Classes.TEXT} {
+    color: ${Colors.MIRAGE_2};
+  }
+  ${(props) =>
+    props.selected &&
+    `
+    background-color: ${Colors.GALLERY_1};
+    .${Classes.TEXT} {
+      color: ${Colors.EBONY_CLAY_2};
+    }
+  `}
+
+  .${Classes.ICON} {
+    visibility: ${(props) => (props.selected ? "visible" : "hidden")};
+  }
+
+  &:hover {
+    background-color: ${Colors.GALLERY_1};
   }
 `;
 
@@ -86,15 +125,12 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   };
 
   return (
-    <FilterItemWrapper selected={selected}>
-      <Checkbox
-        backgroundColor={Colors.GREY_900}
-        className="filter"
-        isDefaultChecked={selected}
-        label={item.label}
-        onCheckChange={onClick}
-      />
-    </FilterItemWrapper>
+    <StyledFilterItem onClick={onClick} selected={selected}>
+      <Text color={Colors.MIRAGE_2} type={TextType.P1}>
+        {item.label}
+      </Text>
+      <Icon name={"close-x"} size={IconSize.XXXL} />
+    </StyledFilterItem>
   );
 }
 
@@ -183,21 +219,26 @@ function Filters() {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (
-    <FilterWrapper className="filter-wrapper">
-      <StyledFilterCategory className={"title"} type={TextType.H5}>
-        {createMessage(FILTERS)}
-      </StyledFilterCategory>
-      {Object.keys(filters).map((filter) => {
-        return (
-          <FilterCategory
-            filterList={filters[filter]}
-            key={filter}
-            label={filter}
-            selectedFilters={selectedFilters[filter] ?? []}
-          />
-        );
-      })}
-    </FilterWrapper>
+    <Wrapper>
+      <SecondWrapper>
+        <FilterWrapper>
+          <StyledFilterCategory className={"title"} type={TextType.H5}>
+            {createMessage(FILTERS)}
+          </StyledFilterCategory>
+          {Object.keys(filters).map((filter) => {
+            return (
+              <FilterCategory
+                filterList={filters[filter]}
+                key={filter}
+                label={filter}
+                selectedFilters={selectedFilters[filter] ?? []}
+              />
+            );
+          })}
+        </FilterWrapper>
+        <LeftPaneBottomSection />
+      </SecondWrapper>
+    </Wrapper>
   );
 }
 
