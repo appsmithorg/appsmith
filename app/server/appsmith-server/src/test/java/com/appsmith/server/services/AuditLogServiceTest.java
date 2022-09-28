@@ -515,35 +515,6 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void logEvent_pageUpdates_success() {
-        //Update page name multiple times
-        ApplicationPage page = app.getPages().get(0);
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setName("testUpdate");
-        newPageService.updatePage(page.getId(), pageDTO).block();
-
-        pageDTO.setName("testUpdate1");
-        newPageService.updatePage(page.getId(), pageDTO).block();
-
-        pageDTO.setName("testUpdate2");
-        newPageService.updatePage(page.getId(), pageDTO).block();
-
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, null, null, null, null);
-
-        StepVerifier
-                .create(auditLogService.get(params))
-                .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isNotEqualTo(0);
-                    assertThat(auditLogs.size()).isEqualTo(1);
-                    assertThat(auditLogs.get(0).getEvent()).isEqualTo("page.updated");
-                    assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(page.getId());
-                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(pageDTO.getName());
-                })
-                .verifyComplete();
-    }
-
     //Test case to validate workspace created audit log event and contents
     @Test
     @WithUserDetails(value = "api_user")
@@ -1390,6 +1361,34 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_pageUpdatedMultipleTimes_success() {
+        //Update page name multiple times
+        ApplicationPage page = app.getPages().get(0);
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName("testUpdate");
+        newPageService.updatePage(page.getId(), pageDTO).block();
+
+        pageDTO.setName("testUpdate1");
+        newPageService.updatePage(page.getId(), pageDTO).block();
+
+        pageDTO.setName("testUpdate2");
+        newPageService.updatePage(page.getId(), pageDTO).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, page.getId(), null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs.size()).isEqualTo(1);
+                    assertThat(auditLogs.get(0).getEvent()).isEqualTo("page.updated");
+                    assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(page.getId());
+                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(pageDTO.getName());
+                })
+                .verifyComplete();
+    }
+
     // Test case to validate page view audit log event and contents
 
     @Test
@@ -1865,6 +1864,57 @@ public class AuditLogServiceTest {
                     // Misc. fields validation
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_queryUpdatedMultipleTimes_success() {
+        //Update page name multiple times
+
+        Workspace workspace = new Workspace();
+        workspace.setName("AuditLogWorkspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("AuditLogApplication");
+        Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
+
+        PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
+
+        Datasource createdDatasource = createDatasource(createdWorkspace.getId());
+
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setName("AuditLogQuery");
+        actionDTO.setDatasource(createdDatasource);
+        actionDTO.setPluginId(createdDatasource.getPluginId());
+        actionDTO.setApplicationId(createdApplication.getId());
+        actionDTO.setPageId(createdPageDTO.getId());
+
+        ActionDTO createdActionDTO = layoutActionService.createSingleActionWithBranch(actionDTO, null).block();
+
+        String resourceType = auditLogService.getResourceType(new NewAction());
+
+        ActionDTO updateActionDTO = new ActionDTO();
+        updateActionDTO.setName("AuditLogQueryUpdated");
+        ActionDTO updatedActionDTO = layoutActionService.updateAction(createdActionDTO.getId(), updateActionDTO).block();
+
+        updateActionDTO.setName("AuditLogQueryUpdated1");
+        updatedActionDTO = layoutActionService.updateAction(createdActionDTO.getId(), updateActionDTO).block();
+
+        updateActionDTO.setName("AuditLogQueryUpdated2");
+        updatedActionDTO = layoutActionService.updateAction(createdActionDTO.getId(), updateActionDTO).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.updated", resourceType, createdActionDTO.getId(), null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs.size()).isEqualTo(1);
+                    assertThat(auditLogs.get(0).getEvent()).isEqualTo("query.updated");
+                    assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(createdActionDTO.getId());
+                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(updateActionDTO.getName());
                 })
                 .verifyComplete();
     }

@@ -92,6 +92,11 @@ public class AuditLogServiceImpl implements AuditLogService {
     public static String LOG_EVENT_ERROR = "Error while saving the Audit Logs";
     public static String FILTER_LOG_ERROR = "Error while fetching the Audit Logs";
 
+    public static List<String> autoUpdateEventResources = List.of(
+            FieldName.PAGE,
+            FieldName.QUERY
+    );
+
     /**
      * To return all the Audit Logs
      * @return List of Audit Logs
@@ -597,12 +602,6 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     private boolean isUpdatedEvent(String resource, String event) {
-        if(FieldName.UPDATED.equals(event)) {
-            if(FieldName.PAGE.equals(resource) || FieldName.QUERY.equals(resource)) {
-                return true;
-            }
-            return false;
-        }
-        return false;
+        return FieldName.UPDATED.equals(event) && autoUpdateEventResources.contains(resource);
     }
 }
