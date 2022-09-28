@@ -6,6 +6,9 @@ export const getLastSelectedWidget = (state: AppState) =>
 export const getSelectedWidgets = (state: AppState) =>
   state.ui.widgetDragResize.selectedWidgets;
 
+export const getSelectDrawWidget = (state: AppState) =>
+  state.ui.widgetDragResize.drawingDetails.type;
+
 /**
  * Selector to use id and provide the status of saving an API.
  */

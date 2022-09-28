@@ -1,4 +1,5 @@
 import {
+  drawWidget,
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
@@ -56,6 +57,7 @@ export function CanvasSelectionArena({
     widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
+
   const parentWidget = useSelector((state: AppState) =>
     getWidget(state, parentId || ""),
   );
@@ -68,6 +70,10 @@ export function CanvasSelectionArena({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isDrawingModeEnabled = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDrawing,
+  );
+
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
@@ -336,12 +342,17 @@ export function CanvasSelectionArena({
           (!isDraggableParent || e.ctrlKey || e.metaKey)
         ) {
           dispatch(setCanvasSelectionStateAction(true, widgetId));
+
           firstRender(e);
         }
       };
+
+      let isDrawing = false;
+
       const onMouseUp = () => {
         if (isDragging && slidingArenaRef.current && stickyCanvasRef.current) {
           isDragging = false;
+          const { height, left, top, width } = getSelectionDimensions();
           canvasCtx.clearRect(
             0,
             0,
@@ -351,11 +362,28 @@ export function CanvasSelectionArena({
           stickyCanvasRef.current.style.zIndex = "";
           slidingArenaRef.current.style.zIndex = "";
           slidingArenaRef.current.style.cursor = "";
+          if (isDrawingModeEnabled && isDrawing) {
+            const rows = Math.ceil(height / snapRowSpace);
+            const topRow = Math.ceil(top / snapRowSpace);
+
+            const columns = Math.ceil(width / snapColumnSpace);
+            const leftColumn = Math.ceil(left / snapColumnSpace);
+            dispatch(
+              drawWidget({
+                rows,
+                columns,
+                topRow,
+                leftColumn,
+              }),
+            );
+            isDrawing = false;
+          }
           dispatch(setCanvasSelectionStateAction(false, widgetId));
         }
       };
       const onMouseMove = (e: any) => {
         if (isDragging && slidingArenaRef.current && stickyCanvasRef.current) {
+          isDrawing = true;
           selectionRectangle.width =
             e.offsetX -
             slidingArenaRef.current.offsetLeft -
@@ -372,7 +400,9 @@ export function CanvasSelectionArena({
           );
           const selectionDimensions = getSelectionDimensions();
           drawRectangle(selectionDimensions);
-          selectWidgetsInit(selectionDimensions, isMultiSelect);
+          if (!isDrawingModeEnabled) {
+            selectWidgetsInit(selectionDimensions, isMultiSelect);
+          }
           scrollObj.lastMouseMoveEvent = e;
           scrollObj.lastScrollTop = scrollParent?.scrollTop;
           scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
@@ -464,6 +494,7 @@ export function CanvasSelectionArena({
     dropDisabled,
     mainContainer,
     isDragging,
+    isDrawingModeEnabled,
     isResizing,
     snapRows,
     snapColumnSpace,

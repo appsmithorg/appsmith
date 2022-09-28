@@ -54,3 +54,15 @@ export const selectAllWidgetsInAreaAction = (
     },
   };
 };
+
+export const drawWidget = (dimensions: {
+  rows: number;
+  columns: number;
+  topRow: number;
+  leftColumn: number;
+}): ReduxAction<any> => {
+  return {
+    type: ReduxActionTypes.DRAW_WIDGET,
+    payload: dimensions,
+  };
+};

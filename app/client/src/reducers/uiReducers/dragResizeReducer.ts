@@ -11,7 +11,7 @@ const initialState: WidgetDragResizeState = {
   isDrawing: false,
   isDragging: false,
   drawingDetails: {
-    selectedWidget: undefined,
+    type: undefined,
   },
   dragDetails: {},
   isResizing: false,
@@ -148,10 +148,10 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SET_WIDGET_DRAWING]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ isDrawing: boolean; selectedWidget?: string }>,
+    action: ReduxAction<{ isDrawing: boolean; type?: string }>,
   ) => {
     state.isDrawing = action.payload.isDrawing;
-    state.drawingDetails.selectedWidget = action.payload.selectedWidget;
+    state.drawingDetails.type = action.payload.type;
   },
 });
 
@@ -173,7 +173,7 @@ export type WidgetDragResizeState = {
   isDragging: boolean;
   isDrawing: boolean;
   drawingDetails: {
-    selectedWidget?: string;
+    type?: string;
   };
   dragDetails: DragDetails;
   isResizing: boolean;

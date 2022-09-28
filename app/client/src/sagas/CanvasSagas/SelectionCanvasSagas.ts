@@ -10,12 +10,13 @@ import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelecti
 import { Task } from "redux-saga";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { getSelectedWidgets } from "selectors/ui";
+import { getSelectDrawWidget, getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { generateReactKey } from "utils/generators";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];
@@ -139,6 +140,36 @@ function* startCanvasSelectionSaga(
   yield cancel(selectionTask);
 }
 
+function* drawWidgetSaga(
+  drawWidgetAction: ReduxAction<{
+    rows: number;
+    columns: number;
+    topRow: number;
+    leftColumn: number;
+  }>,
+) {
+  const widgetType: string | undefined = yield select(getSelectDrawWidget);
+
+  const widgetId = generateReactKey();
+
+  const widgetPayload = {
+    columns: drawWidgetAction.payload.columns,
+    leftColumn: drawWidgetAction.payload.leftColumn,
+    newWidgetId: widgetId,
+    parentColumnSpace: 10.046875,
+    parentRowSpace: 10,
+    rows: drawWidgetAction.payload.rows,
+    topRow: drawWidgetAction.payload.topRow,
+    type: widgetType,
+    widgetId: "0",
+  };
+
+  yield put({
+    type: ReduxActionTypes.WIDGET_ADD_CHILD,
+    payload: widgetPayload,
+  });
+}
+
 export default function* selectionCanvasSagas() {
   yield all([
     takeLatest(
@@ -149,5 +180,6 @@ export default function* selectionCanvasSagas() {
       ReduxActionTypes.START_CANVAS_SELECTION_FROM_EDITOR,
       startCanvasSelectionSaga,
     ),
+    takeLatest(ReduxActionTypes.DRAW_WIDGET, drawWidgetSaga),
   ]);
 }

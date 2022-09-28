@@ -103,7 +103,7 @@ function WidgetCard(props: CardProps) {
     event.preventDefault();
     event.stopPropagation();
 
-    if (drawingDetails.selectedWidget === props.details.key) {
+    if (drawingDetails.type === props.details.type) {
       dispatch({
         type: ReduxActionTypes.SET_WIDGET_DRAWING,
         payload: { isDrawing: false },
@@ -113,7 +113,7 @@ function WidgetCard(props: CardProps) {
 
     dispatch({
       type: ReduxActionTypes.SET_WIDGET_DRAWING,
-      payload: { isDrawing: true, selectedWidget: props.details.key },
+      payload: { isDrawing: true, type: props.details.type },
     });
   };
 
@@ -127,7 +127,7 @@ function WidgetCard(props: CardProps) {
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
       draggable={!isDrawing}
-      isDrawing={drawingDetails.selectedWidget === props.details.key}
+      isDrawing={drawingDetails.type === props.details.type}
       onClick={onWidgetCardClick}
       onDragStart={onDragStart}
     >

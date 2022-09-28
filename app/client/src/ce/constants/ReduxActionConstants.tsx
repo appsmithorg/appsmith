@@ -664,6 +664,7 @@ export const ReduxActionTypes = {
   FETCH_TRIGGER_VALUES_INIT: "FETCH_TRIGGER_VALUES_INIT",
   FETCH_TRIGGER_VALUES_SUCCESS: "FETCH_TRIGGER_VALUES_SUCCESS",
   SET_WIDGET_DRAWING: "SET_WIDGET_DRAWING",
+  DRAW_WIDGET: "DRAW_WIDGET",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
