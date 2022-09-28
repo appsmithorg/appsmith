@@ -91,6 +91,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     public static String DELIMITER = ",";
     public static String LOG_EVENT_ERROR = "Error while saving the Audit Logs";
     public static String FILTER_LOG_ERROR = "Error while fetching the Audit Logs";
+    public static int UPDATE_TIME_LIMIT = 300;
 
     public static List<String> autoUpdateEventResources = List.of(
             FieldName.PAGE,
@@ -223,7 +224,7 @@ public class AuditLogServiceImpl implements AuditLogService {
                     The latest event of the same type is updated given that it is the same user who is performing these actions
                     */
                     if(isUpdatedEvent(resourceName, actionName)) {
-                        return repository.updateAuditLogByEventNameUserAndTimeStamp(eventName, auditLog1.getUser().getEmail(), Instant.now().toEpochMilli(), auditLog1.getResource().getName())
+                        return repository.updateAuditLogByEventNameUserAndTimeStamp(eventName, auditLog1.getUser().getEmail(), Instant.now().toEpochMilli(), auditLog1.getResource().getName(), UPDATE_TIME_LIMIT)
                                 .flatMap(matchCounters -> {
                                     if(matchCounters > 0) {
                                         return Mono.just(auditLog1);
