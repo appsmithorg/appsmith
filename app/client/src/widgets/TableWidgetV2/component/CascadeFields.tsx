@@ -290,7 +290,11 @@ type CascadeFieldProps = {
   operator: Operator;
   index: number;
   hasAnyFilters: boolean;
-  applyFilter: (filter: ReactTableFilter, index: number) => void;
+  applyFilter: (
+    filter: ReactTableFilter,
+    index: number,
+    isOperatorChange: boolean,
+  ) => void;
   removeFilter: (index: number) => void;
   accentColor: string;
   borderRadius: string;
@@ -307,6 +311,7 @@ type CascadeFieldState = {
   showDateInput: boolean;
   isDeleted: boolean;
   isUpdate: boolean;
+  isOperatorChange: boolean;
 };
 
 const getConditions = (props: CascadeFieldProps) => {
@@ -373,6 +378,7 @@ function calculateInitialState(props: CascadeFieldProps) {
     showDateInput: showDateInput,
     isDeleted: false,
     isUpdate: false,
+    isOperatorChange: false,
   };
 }
 
@@ -425,6 +431,7 @@ function CaseCaseFieldReducer(
         ...state,
         operator: action.payload,
         isUpdate: true,
+        isOperatorChange: true,
       };
     case CascadeFieldActionTypes.UPDATE_FILTER:
       const calculatedState = calculateInitialState(action.payload);
@@ -491,6 +498,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     condition,
     conditions,
     isDeleted,
+    isOperatorChange,
     isUpdate,
     operator,
     showConditions,
@@ -500,7 +508,11 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   } = state;
   useEffect(() => {
     if (!isDeleted && isUpdate) {
-      applyFilter({ operator, column, condition, value }, index);
+      applyFilter(
+        { operator, column, condition, value },
+        index,
+        isOperatorChange,
+      );
     } else if (isDeleted) {
       removeFilter(index);
     }
@@ -510,6 +522,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     condition,
     value,
     isDeleted,
+    isOperatorChange,
     isUpdate,
     index,
     applyFilter,

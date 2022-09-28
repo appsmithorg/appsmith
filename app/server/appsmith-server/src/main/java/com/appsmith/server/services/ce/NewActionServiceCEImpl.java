@@ -897,9 +897,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(part -> {
                     final Param param = new Param();
-                    String pseudoBindingName = part.name();
-                    param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
-                    param.setClientDataType(ClientDataType.valueOf(dto.getParamProperties().get(pseudoBindingName).toUpperCase()));
+                    param.setPseudoBindingName(part.name());
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
@@ -915,6 +913,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (dto.getActionId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
                     }
+                    /*
+                        Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
+                        along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
+                        Ref: https://github.com/appsmithorg/appsmith/issues/16722
+                     */
+                    params.forEach(
+                            param -> {
+                                String pseudoBindingName = param.getPseudoBindingName();
+                                param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
+                                param.setClientDataType(ClientDataType.valueOf(dto.getParamProperties().get(pseudoBindingName).toUpperCase()));
+                            }
+                    );
                     dto.setParams(params);
                     return Mono.just(dto);
                 })
@@ -1007,6 +1017,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return result;
     }
 
+    /**
+     * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
+     * active before making the call to DB.
+     * @return
+     */
+    public Boolean isSendExecuteAnalyticsEvent() {
+        return analyticsService.isActive();
+    }
+
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
             NewAction action,
             ActionDTO actionDTO,
@@ -1015,14 +1034,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
-        // Since we're loading the application from DB *only* for analytics, we check if analytics is
-        // active before making the call to DB.
-        if (!analyticsService.isActive()) {
-            // This is to have consistency in how the AnalyticsService is being called.
-            // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
-            // from being sent to analytics provider if telemetry is disabled.
-            return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action)
-                    .then(Mono.empty());
+
+        if (!isSendExecuteAnalyticsEvent()) {
+            return Mono.empty();
         }
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;

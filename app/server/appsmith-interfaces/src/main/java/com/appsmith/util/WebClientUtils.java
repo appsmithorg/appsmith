@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class WebClientUtils {
 
     private static final Set<String> DISALLOWED_HOSTS = Set.of(
@@ -71,20 +72,21 @@ public class WebClientUtils {
         }
     }
 
-    @Slf4j
+    public static boolean isDisallowedAndFail(String host, Promise<?> promise) {
+        if (DISALLOWED_HOSTS.contains(host)) {
+            log.warn("Host {} is disallowed. Failing the request.", host);
+            if (promise != null) {
+                promise.setFailure(new UnknownHostException("Host not allowed."));
+            }
+            return true;
+        }
+        return false;
+    }
+
     private static class NameResolver extends InetNameResolver {
 
         public NameResolver(EventExecutor executor) {
             super(executor);
-        }
-
-        private static boolean isDisallowedAndFail(String host, Promise<?> promise) {
-            if (DISALLOWED_HOSTS.contains(host)) {
-                log.warn("Host {} is disallowed. Failing the request.", host);
-                promise.setFailure(new UnknownHostException("Host not allowed."));
-                return true;
-            }
-            return false;
         }
 
         @Override
