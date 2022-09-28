@@ -48,6 +48,12 @@
             <artifactId>elasticsearch</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.testcontainers</groupId>
+                    <artifactId>testcontainers</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
