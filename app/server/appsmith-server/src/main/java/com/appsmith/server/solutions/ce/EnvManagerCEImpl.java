@@ -28,7 +28,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -53,7 +52,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -249,6 +247,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
         // For configuration variables, save the variables to the config collection instead of .env file
         // We ideally want to migrate all variables from .env file to the config collection for better scalability
+        // Currently, we assume that we will either get changes pertaining either to configuration variables or env variables
         if (doChangesContainConfigNames(changes)) {
             return verifyCurrentUserIsSuper()
                     .flatMap(user -> validateConfigChanges(user, changes).thenReturn(user))
@@ -259,17 +258,14 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                 .flatMap(map -> {
                                     String key = map.getKey();
                                     String value = map.getValue();
-                                    Config config = null;
-                                    try {
-                                        config = new Config((JSONObject) jsonParser.parse(value), key);
-                                        return configService.save(config);
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "for " + key));
-                                    }
+                                    // The configuration variables will be a JSON object of the form { "value": <actual value> }
+                                    Map<String, String> configMap = Map.of("value", value);
+                                    Config config = new Config(new JSONObject(configMap), key);
+                                    return configService.save(config);
                                 })
                                 .collectList()
-                                .thenReturn(sendAnalyticsEvent(user, null, changes))
+                                // TODO: Currently we aren't sending original variables to the analytics
+                                .thenReturn(sendAnalyticsEvent(user, Map.of(), changes))
                                 .thenReturn(new EnvChangesResponseDTO(false));
                     });
         }
