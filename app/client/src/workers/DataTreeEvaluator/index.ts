@@ -84,8 +84,12 @@ import {
 } from "workers/JSObject";
 import { lintTree } from "workers/Lint";
 import { UserLogObject } from "workers/UserLog";
+import { isJSObjectFunction } from "workers/JSObject/utils";
 
 export default class DataTreeEvaluator {
+  /**
+   * dependencyMap: Maintains map of <PATH, list of paths that re-evaluates on the evaluation of the PATH>
+   */
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
   inverseDependencyMap: DependencyMap = {};
@@ -111,6 +115,11 @@ export default class DataTreeEvaluator {
    * }
    */
   invalidReferencesMap: DependencyMap = {};
+  /**
+   * Maintains dependency of paths to re-validate on evaluation of particular property path.
+   */
+  validationDependencyMap: DependencyMap = {};
+
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -156,10 +165,14 @@ export default class DataTreeEvaluator {
       dependencyMap,
       invalidReferencesMap,
       triggerFieldDependencyMap,
+      validationDependencyMap,
     } = createDependencyMap(this, localUnEvalTree);
+
     this.dependencyMap = dependencyMap;
     this.triggerFieldDependencyMap = triggerFieldDependencyMap;
     this.invalidReferencesMap = invalidReferencesMap;
+    this.validationDependencyMap = validationDependencyMap;
+
     const createDependencyEnd = performance.now();
     // Sort
     const sortDependenciesStart = performance.now();
@@ -220,14 +233,6 @@ export default class DataTreeEvaluator {
     };
   }
 
-  isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
-    const entity = dataTree[jsObjectName];
-    if (isJSAction(entity)) {
-      return entity.meta.hasOwnProperty(key);
-    }
-    return false;
-  }
-
   updateLocalUnEvalTree(dataTree: DataTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
@@ -235,7 +240,7 @@ export default class DataTreeEvaluator {
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
           const data = _.get(dataTree, `${update}.${key}.data`, undefined);
-          if (this.isJSObjectFunction(dataTree, update, key)) {
+          if (isJSObjectFunction(dataTree, update, key)) {
             _.set(dataTree, `${update}.${key}`, new String(updates[key]));
             _.set(dataTree, `${update}.${key}.data`, data);
           } else {

@@ -28,6 +28,7 @@ import {
   extractInfoFromBindings,
   extractInfoFromReferences,
   listTriggerFieldDependencies,
+  listValidationDependencies,
   mergeArrays,
 } from "./utils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
@@ -42,6 +43,7 @@ interface CreateDependencyMap {
    *  because an entity or path is newly added.
    * */
   invalidReferencesMap: DependencyMap;
+  validationDependencyMap: DependencyMap;
 }
 
 export function createDependencyMap(
@@ -50,6 +52,7 @@ export function createDependencyMap(
 ): CreateDependencyMap {
   let dependencyMap: DependencyMap = {};
   let triggerFieldDependencyMap: DependencyMap = {};
+  let validationDependencyMap: DependencyMap = {};
   const invalidReferencesMap: DependencyMap = {};
   Object.keys(unEvalTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
@@ -65,6 +68,11 @@ export function createDependencyMap(
       triggerFieldDependencyMap = {
         ...triggerFieldDependencyMap,
         ...listTriggerFieldDependencies(entity, entityName),
+      };
+      // only widgets have validation paths
+      validationDependencyMap = {
+        ...validationDependencyMap,
+        ...listValidationDependencies(entity, entityName),
       };
     }
   });
@@ -106,11 +114,18 @@ export function createDependencyMap(
       dataTreeEvalRef.errors.push(error);
     });
   });
+
   dependencyMap = makeParentsDependOnChildren(
     dependencyMap,
     dataTreeEvalRef.allKeys,
   );
-  return { dependencyMap, triggerFieldDependencyMap, invalidReferencesMap };
+
+  return {
+    dependencyMap,
+    triggerFieldDependencyMap,
+    invalidReferencesMap,
+    validationDependencyMap,
+  };
 }
 
 interface UpdateDependencyMap {
