@@ -22,7 +22,6 @@ export function WidgetContextMenu(props: {
   widgetId: string;
   pageId: string;
   className?: string;
-  canCreatePages?: boolean;
   canManagePages?: boolean;
 }) {
   const { widgetId } = props;

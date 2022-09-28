@@ -287,7 +287,7 @@ function ActionSidebar({
           entityDependencies={entityDependencies}
         />
       )}
-      {hasResponse && Object.keys(widgets).length > 1 && (
+      {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Connect Widget">
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
