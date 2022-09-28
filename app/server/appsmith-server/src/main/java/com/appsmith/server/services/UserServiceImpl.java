@@ -34,6 +34,7 @@ import java.util.Set;
 @Service
 public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final UserDataService userDataService;
+    private final UserRepository userRepository;
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -63,6 +64,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 permissionGroupService, userUtils);
 
         this.userDataService = userDataService;
+        this.userRepository = repository;
     }
 
     @Override

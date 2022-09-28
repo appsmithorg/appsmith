@@ -60,4 +60,147 @@ export const ReduxActionTypes = {
   CLONE_ACL_ROLE_SUCCESS: "CLONE_ACL_ROLE_SUCCESS",
   CLONE_ACL_ROLE_ERROR: "CLONE_ACL_ROLE_ERROR",
   ACL_GROUP_IS_SAVING: "ACL_GROUP_IS_SAVING",
+  /** SET_USER_CAN_ACCESS_AUDIT_LOGS
+   * Current user can access audit logs
+   */
+  SET_USER_CAN_ACCESS_AUDIT_LOGS: "SET_USER_CAN_ACCESS_AUDIT_LOGS",
+  /** SET_USER_CANNOT_ACCESS_AUDIT_LOGS
+   * Current user cannot access audit logs
+   */
+  SET_USER_CANNOT_ACCESS_AUDIT_LOGS: "SET_USER_CANNOT_ACCESS_AUDIT_LOGS",
+  /** SET_RESOURCE_ID_JSON_FILTER
+   * Only set the resourceId filter value. Leaves rest of the filters alone.
+   */
+  SET_RESOURCE_ID_JSON_FILTER: "SET_RESOURCE_ID_JSON_FILTER",
+  /** SET_ONLY_RESOURCE_ID_JSON_FILTER
+   * Reset all filters, then set resourceId filter.
+   */
+  SET_ONLY_RESOURCE_ID_JSON_FILTER: "SET_ONLY_RESOURCE_ID_JSON_FILTER",
+  /** ADD_EMAIL_JSON_FILTER
+   * Add payload email to the existing list of email filters
+   */
+  ADD_EMAIL_JSON_FILTER: "ADD_EMAIL_JSON_FILTER",
+  /** SET_ONLY_EMAIL_JSON_FILTER
+   * Reset all filters, then set email filter.
+   */
+  SET_ONLY_EMAIL_JSON_FILTER: "SET_ONLY_EMAIL_JSON_FILTER",
+  /** ADD_EVENT_JSON_FILTER
+   * Add payload event to the existing list of event filters
+   */
+  ADD_EVENT_JSON_FILTER: "ADD_EVENT_JSON_FILTER",
+  /** SET_ONLY_EVENT_JSON_FILTER
+   * Reset all filters, then set event filter.
+   */
+  SET_ONLY_EVENT_JSON_FILTER: "SET_ONLY_EVENT_JSON_FILTER",
+  /** FETCH_AUDIT_LOGS_LOGS_INIT
+   * Initiated audit logs logs fetch
+   */
+  FETCH_AUDIT_LOGS_LOGS_INIT: "FETCH_AUDIT_LOGS_LOGS_INIT",
+  /** FETCH_AUDIT_LOGS_LOGS_SUCCESS
+   * Audit logs logs fetched successfully
+   */
+  FETCH_AUDIT_LOGS_LOGS_SUCCESS: "FETCH_AUDIT_LOGS_LOGS_SUCCESS",
+  /** FETCH_AUDIT_LOGS_LOGS_FAILED
+   * Failed to fetch audit logs logs
+   */
+  FETCH_AUDIT_LOGS_LOGS_FAILED: "FETCH_AUDIT_LOGS_LOGS_FAILED",
+  /** FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_INIT
+   * Initiated audit logs logs next page fetch
+   */
+  FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_INIT: "FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_INIT",
+  /** FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_SUCCESS
+   * Audit logs logs next page fetched successfully
+   */
+  FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_SUCCESS:
+    "FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_SUCCESS",
+  /** FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_FAILED
+   * Failed to fetch audit logs logs next page
+   */
+  FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_FAILED:
+    "FETCH_AUDIT_LOGS_LOGS_NEXT_PAGE_FAILED",
+  /** FETCH_AUDIT_LOGS_EMAILS_INIT
+   * Initiated audit logs emails fetch
+   */
+  FETCH_AUDIT_LOGS_EMAILS_INIT: "FETCH_AUDIT_LOGS_EMAILS_INIT",
+  /** FETCH_AUDIT_LOGS_EMAILS_SUCCESS
+   * Emails for audit logs filter fetched successfully
+   */
+  FETCH_AUDIT_LOGS_EMAILS_SUCCESS: "FETCH_AUDIT_LOGS_EMAILS_SUCCESS",
+  /** FETCH_AUDIT_LOGS_EMAILS_FAILED
+   * Failed to fetch logs emails
+   */
+  FETCH_AUDIT_LOGS_EMAILS_FAILED: "FETCH_AUDIT_LOGS_EMAILS_FAILED",
+  /** FETCH_AUDIT_LOGS_EVENTS_INIT
+   * Initiated audit logs event types fetch
+   */
+  FETCH_AUDIT_LOGS_EVENTS_INIT: "FETCH_AUDIT_LOGS_EVENTS_INIT",
+  /** FETCH_AUDIT_LOGS_EVENTS_SUCCESS
+   * Event types for event type filter fetched successfully
+   */
+  FETCH_AUDIT_LOGS_EVENTS_SUCCESS: "FETCH_AUDIT_LOGS_EVENTS_SUCCESS",
+  /** FETCH_AUDIT_LOGS_EVENTS_FAILED
+   * Failed to fetch event types
+   */
+  FETCH_AUDIT_LOGS_EVENTS_FAILED: "FETCH_AUDIT_LOGS_EVENTS_FAILED",
+  /** SET_AUDIT_LOGS_ON_URL_LOAD_FILTERS
+   * When user enters a URL, we are going to load filters from url and save in redux store.
+   */
+  SET_AUDIT_LOGS_ON_URL_LOAD_FILTERS: "SET_AUDIT_LOGS_ON_URL_LOAD_FILTERS",
+  /** RESET_AUDIT_LOGS_FILTERS
+   * Set default values to the filters
+   */
+  RESET_AUDIT_LOGS_FILTERS: "RESET_AUDIT_LOGS_FILTERS",
+  /** SET_AUDIT_LOGS_DATE_SORT_FILTER
+   * Set date sort filter
+   */
+  SET_AUDIT_LOGS_DATE_SORT_FILTER: "SET_AUDIT_LOGS_DATE_SORT_FILTER",
+  /** FETCH_AUDIT_LOGS_METADATA_INIT
+   * Initiated audit logs metadata fetch
+   */
+  FETCH_AUDIT_LOGS_METADATA_INIT: "FETCH_AUDIT_LOGS_METADATA_INIT",
+  /** FETCH_AUDIT_LOGS_METADATA_SUCCESS
+   * Successfully fetched audit logs metadata
+   */
+  FETCH_AUDIT_LOGS_METADATA_SUCCESS: "FETCH_AUDIT_LOGS_METADATA_SUCCESS",
+  /** FETCH_AUDIT_LOGS_METADATA_FAILED
+   * Failed in fetching audit logs metadata
+   */
+  FETCH_AUDIT_LOGS_METADATA_FAILED: "FETCH_AUDIT_LOGS_METADATA_FAILED",
+  /** REFRESH_AUDIT_LOGS_INIT
+   * Initiates fetching of metadata and logs from backend for the given filters
+   */
+  REFRESH_AUDIT_LOGS_INIT: "REFRESH_AUDIT_LOGS_INIT",
+  /** REFRESH_AUDIT_LOGS_SUCCESS
+   * Successfully fetched metadata and logs
+   */
+  REFRESH_AUDIT_LOGS_SUCCESS: "REFRESH_AUDIT_LOGS_SUCCESS",
+  /** REFRESH_AUDIT_LOGS_FAILED
+   * Failed to fetch metadata and logs
+   */
+  REFRESH_AUDIT_LOGS_FAILED: "REFRESH_AUDIT_LOGS_FAILED",
+  /** REPLACE_AUDIT_LOGS_SELECTED_EMAILS
+   * Set a list of selected emails for email filter
+   */
+  REPLACE_AUDIT_LOGS_SELECTED_EMAILS: "REPLACE_AUDIT_LOGS_SELECTED_EMAILS",
+  /** REPLACE_AUDIT_LOGS_SELECTED_EVENTS
+   * Set a list of selected event types for event types filter
+   */
+  REPLACE_AUDIT_LOGS_SELECTED_EVENTS: "REPLACE_AUDIT_LOGS_SELECTED_EVENTS",
+  /** SET_AUDIT_LOGS_DATE_FILTER
+   * Set Date filter
+   */
+  SET_AUDIT_LOGS_DATE_FILTER: "SET_AUDIT_LOGS_DATE_FILTER",
+  /** MARK_AUDIT_LOGS_LOG_OPEN
+   * Mark an individual log open
+   */
+  MARK_AUDIT_LOGS_LOG_OPEN: "MARK_AUDIT_LOGS_LOG_OPEN",
+  /** MARK_AUDIT_LOGS_LOG_CLOSE
+   * Mark an individual log close
+   */
+  MARK_AUDIT_LOGS_LOG_CLOSE: "MARK_AUDIT_LOGS_LOG_CLOSE",
+  /** RESET_AUDIT_LOGS
+   * Completely reset the audit-logs data
+   * to save space in redux-store
+   */
+  RESET_AUDIT_LOGS: "RESET_AUDIT_LOGS",
 };

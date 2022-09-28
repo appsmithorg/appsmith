@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
@@ -45,6 +46,8 @@ public enum AclPermission {
 
     CREATE_USER_GROUPS("createUserGroups:tenant", Tenant.class),
     CREATE_WORKSPACES("createWorkspaces:tenant", Tenant.class),
+    READ_TENANT_AUDIT_LOGS("readAuditLogs:tenant", Tenant.class),
+
 
     // Does the user have manage workspace permission
     @Deprecated
@@ -146,6 +149,8 @@ public enum AclPermission {
     ADD_USERS_TO_USER_GROUPS("addUsers:userGroups", UserGroup.class),
     REMOVE_USERS_FROM_USER_GROUPS("removeUsers:userGroups", UserGroup.class),
 
+    // AuditLogs Permission
+    READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),
     ;
 
 

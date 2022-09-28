@@ -4,10 +4,11 @@ import styled from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { MenuItem } from "design-system";
 import {
+  ADMIN_SETTINGS,
+  APPSMITH_DISPLAY_VERSION,
   createMessage,
   DOCUMENTATION,
   WELCOME_TOUR,
-  APPSMITH_DISPLAY_VERSION,
 } from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
@@ -17,13 +18,12 @@ import { howMuchTimeBeforeText } from "utils/helpers";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { Colors } from "constants/Colors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "../common/CustomizedDropdown/dropdownHelpers";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { ADMIN_SETTINGS } from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;

@@ -90,3 +90,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com
+
+    - uid: AUDIT_LOGS
+      enable: true
+      description: Enable Audit Logs
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com

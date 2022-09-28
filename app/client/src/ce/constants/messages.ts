@@ -1005,6 +1005,7 @@ export const HIDDEN_TOOLTIP = () => "Hidden";
 export const CLONE_TOOLTIP = () => "Clone";
 export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
+
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () =>
@@ -1214,6 +1215,11 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;
+
+// Audit logs begin
+export const AUDIT_LOGS = () => "Audit logs";
+export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+// Audit logs end
 
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",

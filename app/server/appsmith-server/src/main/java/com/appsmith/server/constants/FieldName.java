@@ -119,7 +119,6 @@ public class FieldName {
     public static final String AUDIT_LOG_EVENT_DELIMITER = ".";
     public static final String CREATED = "created";
     public static final String UPDATED = "updated";
-    public static final String DESTROYED = "destroyed";
     public static final String IMPORTED = "imported";
     public static final String EXPORTED = "exported";
     public static final String CLONED = "cloned";
@@ -152,4 +151,26 @@ public class FieldName {
     public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String LOGGED_IN = "logged_in";
+    public static final String LOGGED_OUT = "logged_out";
+    public static final String SIGNED_UP = "signed_up";
+    public static final String INSTANCE_SETTING = "instance_setting";
+    public static final String GOOGLE = "Google";
+    public static final String GITHUB = "GitHub";
+    public static final String SAML = "SAML";
+    public static final String OIDC = "OIDC";
+    public static final String DEPLOYED = "deployed";
+    public static final String VIEWED = "viewed";
+    public static final String INVITED = "invited";
+    public static final String GROUP = "group";
+    public static final String INVITED_USERS = "userEmails";
+    public static final String PROVIDER = "provider";
+    public static final String PUBLIC = "public";
+    public static final String PRIVATE = "private";
+    public static final String IS_SUCCESSFUL_EXECUTION = "isSuccessfulExecution";
+    public static final String STATUS_CODE = "statusCode";
+    public static final String TIME_ELAPSED = "timeElapsed";
+    public static final String SUCCESS = "success";
+    public static final String FAILED = "failed";
+    public static final String AUDIT_LOG_FILTER_EVENT_DELIMITER = "_";
 }

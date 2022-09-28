@@ -23,9 +23,11 @@ const LinkToApplications = styled.div`
   margin-bottom: 35px;
   display: inline-block;
   width: auto;
+
   &:hover {
     text-decoration: none;
   }
+
   svg {
     cursor: pointer;
   }

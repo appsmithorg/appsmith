@@ -9,4 +9,5 @@ export type SentryConfig = CE_SentryConfig;
 export interface AppsmithUIConfigs extends CE_AppsmithUIConfigs {
   enableSamlOAuth: boolean;
   enableOidcOAuth: boolean;
+  enableAuditLogs: boolean;
 }
