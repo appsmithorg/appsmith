@@ -17,7 +17,9 @@ import {
   RecaptchaType,
   ButtonPlacementTypes,
   ButtonPlacement,
+  ResponsiveBehavior,
 } from "components/constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -101,6 +103,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug) },
         ],
       },
       {
@@ -443,6 +446,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug) },
         ],
       },
       // TODO: refactor widgetParentProps implementation when we address #10659

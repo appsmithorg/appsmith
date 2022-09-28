@@ -22,6 +22,8 @@ import UpIcon from "assets/icons/ads/up-arrow.svg";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { Colors } from "constants/Colors";
 import Papa from "papaparse";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "components/constants";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
@@ -376,6 +378,7 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
@@ -635,6 +638,7 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {

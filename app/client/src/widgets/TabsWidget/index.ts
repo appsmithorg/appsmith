@@ -2,6 +2,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,6 +11,7 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
+    responsiveBehavior: ResponsiveBehavior.Fill,
     rows: 40,
     columns: 24,
     shouldScrollContents: false,

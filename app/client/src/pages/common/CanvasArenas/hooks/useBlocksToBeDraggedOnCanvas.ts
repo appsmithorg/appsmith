@@ -31,6 +31,11 @@ import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "./useCanvasDragging";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
+import {
+  AlignItems,
+  LayoutDirection,
+  LayoutWrapperType,
+} from "components/constants";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -71,6 +76,8 @@ const logContainerJumpOnDrop = () => {
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
+  alignItems,
+  direction,
   noPad,
   snapColumnSpace,
   snapRows,
@@ -260,14 +267,79 @@ export const useBlocksToBeDraggedOnCanvas = ({
     }
   };
   const { blocksToDraw, draggingSpaces } = getBlocksToDraw();
-  const dragCenterSpace: any = getDragCenterSpace();
 
+  const dragCenterSpace: any = getDragCenterSpace();
+  // get spaces occupied by unselected children
   const filteredChildOccupiedSpaces = childrenOccupiedSpaces.filter(
     (each) => !selectedWidgets.includes(each.id),
   );
   const { updateDropTargetRows } = useContext(DropTargetContext);
   const stopReflowing = () => {
     if (isReflowing) dispatch(stopReflowAction());
+  };
+  const updateChildrenPositions = (
+    index: number,
+    drawingBlocks: WidgetDraggingBlock[],
+    wrapperType: LayoutWrapperType,
+  ): void => {
+    if (isNewWidget)
+      addNewWidgetToAutoLayout(index, drawingBlocks, wrapperType);
+    else
+      dispatch({
+        type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+        payload: {
+          index,
+          movedWidgets: selectedWidgets,
+          parentId: widgetId,
+          wrapperType,
+          direction,
+        },
+      });
+  };
+  const addNewWidgetToAutoLayout = (
+    index: number,
+    drawingBlocks: WidgetDraggingBlock[],
+    wrapperType: LayoutWrapperType,
+  ) => {
+    logContainerJumpOnDrop();
+    const blocksToUpdate = drawingBlocks.map((each) => {
+      const updateWidgetParams = widgetOperationParams(
+        newWidget,
+        { x: 0, y: each.top },
+        { x: 0, y: 0 },
+        snapColumnSpace,
+        snapRowSpace,
+        newWidget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
+        {
+          width: each.width,
+          height: each.height,
+        },
+        direction === LayoutDirection.Vertical &&
+          alignItems === AlignItems.Stretch,
+      );
+      return {
+        ...each,
+        updateWidgetParams,
+      };
+    });
+    // Add wrapperType to props of the new widget
+    const widgetPayload = {
+      ...blocksToUpdate[0]?.updateWidgetParams?.payload,
+      props: {
+        ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
+        wrapperType,
+      },
+    };
+    dispatch({
+      type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+      payload: {
+        index,
+        newWidget: widgetPayload,
+        parentId: widgetId,
+        wrapperType,
+        direction,
+      },
+    });
   };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
@@ -492,6 +564,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     rowRef,
     stopReflowing,
     updateBottomRow,
+    updateChildrenPositions,
     updateRelativeRows,
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,

@@ -34,6 +34,12 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import {
+  AlignItems,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "components/constants";
+import { AutoLayoutWrapper } from "components/AutoLayoutWrapper";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
@@ -291,15 +297,19 @@ abstract class BaseWidget<
       <PositionedContainer
         componentHeight={componentHeight}
         componentWidth={componentWidth}
+        direction={this.props.direction}
         focused={this.props.focused}
+        isWrapper={this.props.isWrapper}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         parentRowSpace={this.props.parentRowSpace}
         resizeDisabled={this.props.resizeDisabled}
+        responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
         topRow={this.props.topRow}
+        useAutoLayout={this.props.useAutoLayout}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
@@ -317,6 +327,23 @@ abstract class BaseWidget<
       <PreviewModeComponent isVisible={this.props.isVisible}>
         {content}
       </PreviewModeComponent>
+    );
+  }
+
+  addAutoLayoutWrapper(content: ReactNode) {
+    return (
+      <AutoLayoutWrapper
+        alignItems={this.props.alignItems}
+        direction={this.props.direction}
+        isWrapper={this.props.isWrapper}
+        parentId={this.props.parentId}
+        responsiveBehavior={this.props.responsiveBehavior}
+        useAutoLayout={this.props.useAutoLayout}
+        widgetId={this.props.widgetId}
+        widgetType={this.props.type}
+      >
+        {content}
+      </AutoLayoutWrapper>
     );
   }
 
@@ -343,6 +370,8 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
+    // console.log(`${this.props.widgetName} : ${this.props.widgetId} =========`);
+    // console.log(this.props);
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();
@@ -354,6 +383,8 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
+          if (this.props.useAutoLayout)
+            content = this.addAutoLayoutWrapper(content);
         }
         return content;
 
@@ -365,6 +396,7 @@ abstract class BaseWidget<
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
+          content = this.addAutoLayoutWrapper(content);
           return content;
         }
         return null;
@@ -403,6 +435,7 @@ abstract class BaseWidget<
     isDeletable: true,
     resizeDisabled: false,
     disablePropertyPane: false,
+    useAutoLayout: false,
   };
 }
 
@@ -455,6 +488,10 @@ export interface WidgetPositionProps extends WidgetRowCols {
   // MODAL_WIDGET is also detached from layout.
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
+  useAutoLayout?: boolean;
+  direction?: LayoutDirection;
+  alignItems?: AlignItems;
+  responsiveBehavior?: ResponsiveBehavior;
 }
 
 export const WIDGET_STATIC_PROPS = {

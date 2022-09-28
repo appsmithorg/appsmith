@@ -2,6 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -31,6 +32,7 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     placeholderText: "Select option(s)",
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import moment from "moment";
 import { TimePrecision } from "./constants";
 import IconSVG from "./icon.svg";
@@ -33,6 +33,7 @@ export const CONFIG = {
     firstDayOfWeek: 0,
     timePrecision: TimePrecision.MINUTE,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

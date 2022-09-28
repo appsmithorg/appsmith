@@ -10,6 +10,7 @@ import {
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -25,6 +26,7 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
+    responsiveBehavior: ResponsiveBehavior.Fill,
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {

@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "components/constants";
 import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
 import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
@@ -22,6 +23,7 @@ export const CONFIG = {
     overflow: OverflowTypes.NONE,
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

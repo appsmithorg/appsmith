@@ -3,7 +3,8 @@ import _, { get, some } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { WidgetProps } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import ContainerWidget, {
+import {
+  ContainerWidget,
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
 import { ContainerComponentProps } from "widgets/ContainerWidget/component";

@@ -1,3 +1,4 @@
+import { LayoutDirection } from "components/constants";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
@@ -13,26 +14,34 @@ export interface SelectedArenaDimensions {
 }
 
 export interface CanvasDraggingArenaProps {
+  alignItems?: string;
   canExtend: boolean;
   detachFromLayout?: boolean;
+  direction?: LayoutDirection;
   dropDisabled?: boolean;
   noPad?: boolean;
   snapColumnSpace: number;
   snapRows: number;
   snapRowSpace: number;
   parentId?: string;
+  useAutoLayout?: boolean;
   widgetId: string;
+  widgetName?: string;
 }
 
 export function CanvasDraggingArena({
+  alignItems,
   canExtend,
+  direction,
   dropDisabled = false,
   noPad,
   parentId = "",
   snapColumnSpace,
   snapRows,
   snapRowSpace,
+  useAutoLayout,
   widgetId,
+  widgetName,
 }: CanvasDraggingArenaProps) {
   const needsPadding = useMemo(() => {
     return widgetId === MAIN_CONTAINER_WIDGET_ID;
@@ -40,17 +49,28 @@ export function CanvasDraggingArena({
 
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
-  const { showCanvas } = useCanvasDragging(slidingArenaRef, stickyCanvasRef, {
-    canExtend,
-    dropDisabled,
-    noPad,
-    parentId,
-    snapColumnSpace,
-    snapRows,
-    snapRowSpace,
-    widgetId,
-  });
+  const dropPositionRef = React.useRef<HTMLDivElement>(null);
+  const { showCanvas } = useCanvasDragging(
+    dropPositionRef,
+    slidingArenaRef,
+    stickyCanvasRef,
+    {
+      alignItems,
+      canExtend,
+      direction,
+      dropDisabled,
+      noPad,
+      parentId,
+      snapColumnSpace,
+      snapRows,
+      snapRowSpace,
+      useAutoLayout,
+      widgetId,
+      widgetName,
+    },
+  );
   const canvasRef = React.useRef({
+    dropPositionRef,
     stickyCanvasRef,
     slidingArenaRef,
   });
@@ -59,6 +79,7 @@ export function CanvasDraggingArena({
       canExtend={canExtend}
       canvasId={`canvas-dragging-${widgetId}`}
       canvasPadding={needsPadding ? theme.canvasBottomPadding : 0}
+      direction={direction}
       getRelativeScrollingParent={getNearestParentCanvas}
       id={`div-dragarena-${widgetId}`}
       ref={canvasRef}
@@ -66,6 +87,7 @@ export function CanvasDraggingArena({
       snapColSpace={snapColumnSpace}
       snapRowSpace={snapRowSpace}
       snapRows={snapRows}
+      useAutoLayout={useAutoLayout}
     />
   ) : null;
 }

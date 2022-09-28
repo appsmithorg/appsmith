@@ -1,5 +1,6 @@
-import React, { ReactNode, useRef, useEffect, RefObject } from "react";
+import React, { ReactNode, useRef, useEffect, RefObject, useMemo } from "react";
 import styled, { css } from "styled-components";
+import { isArray, pick } from "lodash";
 import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
@@ -8,9 +9,25 @@ import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpda
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  AlignItems,
+  Alignment,
+  FlexDirection,
+  JustifyContent,
+  LayoutDirection,
+  LayoutWrapperType,
+  Overflow,
+  ResponsiveBehavior,
+  Spacing,
+} from "components/constants";
+import {
+  getLayoutProperties,
+  LayoutProperties,
+} from "utils/layoutPropertiesUtils";
+import { useSelector } from "store";
+import { getWidgets } from "sagas/selectors";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -51,6 +68,60 @@ const StyledContainerComponent = styled.div<
         : props.backgroundColor;
     }};
   }
+
+  .auto-temp-no-display {
+    position: absolute;
+    left: -9999px;
+  }
+
+  .no-display {
+    display: none;
+  }
+`;
+
+export const FlexContainer = styled.div<{
+  useAutoLayout?: boolean;
+  flexDirection?: FlexDirection;
+  justifyContent?: JustifyContent;
+  alignItems?: AlignItems;
+  stretchHeight: boolean;
+  overflow: Overflow;
+}>`
+  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
+  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+  justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
+  align-items: ${({ alignItems }) => alignItems || "flex-start"};
+  flex-wrap: ${({ overflow }) =>
+    overflow?.indexOf("wrap") > -1 ? overflow : "nowrap"};
+
+  width: 100%;
+  height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
+
+  overflow: ${({ overflow }) =>
+    overflow?.indexOf("wrap") === -1 ? overflow : "hidden"};
+  padding: 4px;
+`;
+
+const SubWrapper = styled.div<{
+  flexDirection: FlexDirection;
+}>`
+  flex: 1 1 33.3%;
+  display: flex;
+  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+  align-items: ${({ flexDirection }) =>
+    flexDirection === FlexDirection.Column ? "flex-start" : "center"};
+`;
+
+const StartWrapper = styled(SubWrapper)`
+  justify-content: flex-start;
+`;
+
+const EndWrapper = styled(SubWrapper)`
+  justify-content: flex-end;
+`;
+
+const CenterWrapper = styled(SubWrapper)`
+  justify-content: center;
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
@@ -69,6 +140,7 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
       }
     }
   }, [props.shouldScrollContents]);
+
   return (
     <StyledContainerComponent
       {...props}
@@ -82,6 +154,88 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
     >
       {props.children}
     </StyledContainerComponent>
+  );
+}
+
+export function FlexBox(props: FlexBoxProps) {
+  const layoutProps = useMemo(
+    () => getLayoutProperties(props.direction, props.alignment, props.spacing),
+    [props.direction, props.alignment, props.spacing],
+  );
+  return (
+    <FlexContainer
+      className={`flex-container-${props.widgetId}`}
+      {...layoutProps}
+      overflow={props.overflow}
+      stretchHeight={props.stretchHeight}
+      useAutoLayout={props.useAutoLayout}
+    >
+      {props.children}
+    </FlexContainer>
+  );
+}
+
+export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
+  const allWidgets = useSelector(getWidgets);
+  let start: JSX.Element[] = [],
+    center: JSX.Element[] = [],
+    end: JSX.Element[] = [];
+  let hasFillChild = false;
+  if (isArray(props.children)) {
+    for (const child of props.children) {
+      const widget = allWidgets[(child as JSX.Element).props?.widgetId];
+      if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+        hasFillChild = true;
+        break;
+      }
+      if (widget?.wrapperType === LayoutWrapperType.End)
+        end.push(child as JSX.Element);
+      else if (widget?.wrapperType === LayoutWrapperType.Center)
+        center.push(child as JSX.Element);
+      else start.push(child as JSX.Element);
+    }
+  }
+  if (hasFillChild) {
+    start = props.children as JSX.Element[];
+    center = [];
+    end = [];
+  }
+
+  const layoutProps: LayoutProperties = useMemo(
+    () => getLayoutProperties(props.direction, props.alignment, props.spacing),
+    [props.direction, props.alignment, props.spacing],
+  );
+  return (
+    <FlexContainer
+      className={`flex-container-${props.widgetId}`}
+      {...layoutProps}
+      overflow={props.overflow}
+      stretchHeight={props.stretchHeight}
+      useAutoLayout={props.useAutoLayout}
+    >
+      <StartWrapper
+        className={`start-wrapper-${props.widgetId}`}
+        flexDirection={layoutProps.flexDirection}
+      >
+        {start}
+      </StartWrapper>
+      <CenterWrapper
+        className={`center-wrapper-${props.widgetId} ${
+          hasFillChild ? "no-display" : ""
+        }`}
+        flexDirection={layoutProps.flexDirection}
+      >
+        {center}
+      </CenterWrapper>
+      <EndWrapper
+        className={`end-wrapper-${props.widgetId} ${
+          hasFillChild ? "no-display" : ""
+        }`}
+        flexDirection={layoutProps.flexDirection}
+      >
+        {end}
+      </EndWrapper>
+    </FlexContainer>
   );
 }
 
@@ -99,6 +253,8 @@ function ContainerComponent(props: ContainerComponentProps) {
         "borderWidth",
         "borderRadius",
         "boxShadow",
+        "useAutoLayout",
+        "direction",
       ])}
     >
       <ContainerComponentWrapper {...props} />
@@ -119,6 +275,21 @@ export interface ContainerComponentProps
   selected?: boolean;
   focused?: boolean;
   minHeight?: number;
+  useAutoLayout?: boolean;
+  direction?: string;
+  justifyContent?: string;
+  alignItems?: string;
+}
+
+export interface FlexBoxProps {
+  alignment: Alignment;
+  direction: LayoutDirection;
+  spacing: Spacing;
+  stretchHeight: boolean;
+  useAutoLayout: boolean;
+  children?: ReactNode;
+  widgetId: string;
+  overflow: Overflow;
 }
 
 export default ContainerComponent;

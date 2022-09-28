@@ -27,6 +27,7 @@ import {
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
+import { LayoutDirection } from "components/constants";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -34,15 +35,26 @@ type DropTargetComponentProps = WidgetProps & {
   snapRowSpace: number;
   minHeight: number;
   noPad?: boolean;
+  isWrapper?: boolean;
 };
 
-const StyledDropTarget = styled.div`
+const StyledDropTarget = styled.div<{
+  direction?: LayoutDirection;
+  isDragging: boolean;
+  isWrapper: boolean;
+}>`
   transition: height 100ms ease-in;
   width: 100%;
   position: relative;
   background: none;
   user-select: none;
-  z-index: 1;
+  z-index: ${({ isWrapper }) => (isWrapper ? 2 : 1)};
+  margin-top: ${({ direction, isDragging, isWrapper }) =>
+    isWrapper && isDragging && direction === LayoutDirection.Horizontal
+      ? "8px"
+      : 0};
+  margin-right: ${({ direction, isWrapper }) =>
+    isWrapper && direction === LayoutDirection.Vertical ? "6px" : 0};
 `;
 
 function Onboarding() {
@@ -126,7 +138,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
-      const height = canDropTargetExtend
+      const height = props.isWrapper
+        ? "auto"
+        : canDropTargetExtend
         ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
         : "100%";
       dropTargetRef.current.style.height = height;
@@ -165,7 +179,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // e.stopPropagation();
     e.preventDefault();
   };
-  const height = canDropTargetExtend
+  const height = props.isWrapper
+    ? "auto"
+    : canDropTargetExtend
     ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
     : "100%";
   const boxShadow =
@@ -180,16 +196,26 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       updateDropTargetRows,
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
+
+  const wrapperClass = props.isWrapper
+    ? `auto-layout-parent-${props.parentId} auto-layout-child-${props.widgetId}`
+    : "";
+  const style: { [key: string]: string } = {
+    height,
+    boxShadow,
+  };
+  if (props.isWrapper && props.direction === LayoutDirection.Vertical)
+    style["width"] = "auto";
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
-        className="t--drop-target"
+        className={`t--drop-target ${wrapperClass}`}
+        direction={props.direction}
+        isDragging={isDragging}
+        isWrapper={props.isWrapper || false}
         onClick={handleFocus}
         ref={dropTargetRef}
-        style={{
-          height,
-          boxShadow,
-        }}
+        style={style}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&

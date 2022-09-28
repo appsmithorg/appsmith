@@ -1,6 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 
 export const CONFIG = {
@@ -27,6 +27,7 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

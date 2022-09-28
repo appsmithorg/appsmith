@@ -5,6 +5,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import { klona as clone } from "klona/full";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -22,6 +23,7 @@ export const CONFIG = {
     isVisible: true,
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     groupButtons: {
       groupButton1: {
         label: "Favorite",

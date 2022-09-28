@@ -4,7 +4,6 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -15,18 +14,37 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import { compact, map, sortBy } from "lodash";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import {
+  Alignment,
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+  Spacing,
+} from "components/constants";
+import {
+  generatePositioningConfig,
+  generateResponsiveBehaviorConfig,
+} from "utils/layoutPropertiesUtils";
+import { connect } from "react-redux";
+import {
+  addWrappers,
+  removeWrappers,
+  updateWrappers,
+} from "actions/autoLayoutActions";
 
-class ContainerWidget extends BaseWidget<
+export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
-  WidgetState
+  ContainerWidgetState
 > {
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
+    this.state = {
+      useAutoLayout: false,
+      direction: LayoutDirection.Horizontal,
+      isMobile: false,
+    };
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
@@ -64,6 +82,29 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
           },
+        ],
+      },
+      {
+        sectionName: "Layout",
+        children: [
+          {
+            helpText: "Position styles to be applied to the children",
+            propertyName: "positioning",
+            label: "Positioning",
+            controlType: "DROP_DOWN",
+            defaultValue: Positioning.Fixed,
+            options: [
+              { label: "Fixed", value: Positioning.Fixed },
+              { label: "Horizontal stack", value: Positioning.Horizontal },
+              { label: "Vertical stack", value: Positioning.Vertical },
+            ],
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: true,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          // ...getLayoutConfig(Alignment.Left, Spacing.None),
+          // { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
@@ -161,6 +202,8 @@ class ContainerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          generatePositioningConfig(),
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
     ];
@@ -244,6 +287,59 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.updatePositioningInformation();
+    this.checkIsMobile();
+  }
+
+  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
+    super.componentDidUpdate(prevProps);
+    if (this.props.positioning !== prevProps.positioning) {
+      this.updatePositioningInformation();
+      this.updateWrappers(prevProps);
+    }
+  }
+
+  checkIsMobile = (): void => {
+    if (window.innerWidth < 767) this.setState({ isMobile: true });
+  };
+
+  updatePositioningInformation = (): void => {
+    if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
+      this.setState({ useAutoLayout: false });
+    else
+      this.setState({
+        useAutoLayout: true,
+        direction:
+          this.props.positioning === Positioning.Horizontal
+            ? LayoutDirection.Horizontal
+            : LayoutDirection.Vertical,
+      });
+  };
+
+  updateWrappers = (prevProps: ContainerWidgetProps<any>): void => {
+    if (this.props.positioning === Positioning.Fixed) {
+      this.props.removeWrappers &&
+        this.props.removeWrappers(this.props.widgetId);
+    } else if (prevProps.positioning === Positioning.Fixed) {
+      this.props.addWrappers &&
+        this.props.addWrappers(
+          this.props.widgetId,
+          this.props.positioning === Positioning.Horizontal
+            ? LayoutDirection.Horizontal
+            : LayoutDirection.Vertical,
+        );
+    } else
+      this.props.updateWrappers &&
+        this.props.updateWrappers(
+          this.props.widgetId,
+          this.props.positioning === Positioning.Horizontal
+            ? LayoutDirection.Horizontal
+            : LayoutDirection.Vertical,
+        );
+  };
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
@@ -283,6 +379,12 @@ class ContainerWidget extends BaseWidget<
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
+    // Pass layout controls to children
+    childWidget.useAutoLayout = this.state.useAutoLayout;
+    childWidget.direction = this.state.direction;
+    childWidget.positioning = this.props.positioning;
+    childWidget.alignment = this.props.alignment;
+    childWidget.spacing = this.props.spacing;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -292,37 +394,18 @@ class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      sortBy(compact(this.props.children), (child) => child.topRow),
+      this.state.useAutoLayout
+        ? this.props.children
+        : sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    // console.log(`${props.widgetName} : ${props.widgetId} =======`);
+    // console.log(props);
     return (
       <ContainerComponent {...props}>
-        {props.type === "CANVAS_WIDGET" &&
-          props.renderMode === RenderModes.CANVAS && (
-            <>
-              <CanvasDraggingArena
-                {...this.getSnapSpaces()}
-                canExtend={props.canExtend}
-                dropDisabled={!!props.dropDisabled}
-                noPad={this.props.noPad}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                widgetId={props.widgetId}
-              />
-              <CanvasSelectionArena
-                {...this.getSnapSpaces()}
-                canExtend={props.canExtend}
-                dropDisabled={!!props.dropDisabled}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                widgetId={props.widgetId}
-              />
-            </>
-          )}
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
@@ -344,12 +427,33 @@ class ContainerWidget extends BaseWidget<
   }
 }
 
+const mapDispatchToProps = (dispatch: any) => ({
+  removeWrappers: (id: string) => dispatch(removeWrappers(id)),
+  addWrappers: (id: string, direction: LayoutDirection) =>
+    dispatch(addWrappers(id, direction)),
+  updateWrappers: (id: string, direction: LayoutDirection) =>
+    dispatch(updateWrappers(id, direction)),
+});
+
 export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
+  positioning?: Positioning;
+  alignment?: Alignment;
+  spacing?: Spacing;
+  removeWrappers?: (id: string) => void;
+  addWrappers?: (id: string, direction: LayoutDirection) => void;
+  updateWrappers?: (id: string, direction: LayoutDirection) => void;
 }
 
-export default ContainerWidget;
+export interface ContainerWidgetState extends WidgetState {
+  useAutoLayout: boolean;
+  direction: LayoutDirection;
+  isMobile: boolean;
+}
+
+export default connect(null, mapDispatchToProps)(ContainerWidget);
+// export default ContainerWidget;
