@@ -167,7 +167,11 @@ export function MainContainerLayoutControl() {
         </div>
       </div>
       <TooltipComponent
-        content="Update your app theme, URL and other settings"
+        content={
+          <>
+            <div>Update your app theme, URL</div>and other settings
+          </>
+        }
         position={PopoverPosition.BOTTOM}
       >
         <Button
