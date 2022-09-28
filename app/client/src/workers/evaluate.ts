@@ -7,12 +7,12 @@ import {
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
-import { Severity } from "entities/AppsmithConsole";
+import { LogObject, Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import userLogs, { LogObject } from "./UserLog";
+import userLogs from "./UserLog";
 
 export type EvalResult = {
   result: any;
