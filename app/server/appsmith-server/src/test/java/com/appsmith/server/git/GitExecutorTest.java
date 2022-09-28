@@ -183,8 +183,6 @@ public class GitExecutorTest {
                         && throwable.getMessage().contains("Ref main1 cannot be resolved"));
     }
 
-    ;
-
     @Test
     public void checkoutBranch_ValidBranchName_Success() throws IOException {
         createFileInThePath("TestFIle4");
@@ -200,8 +198,6 @@ public class GitExecutorTest {
                 })
                 .verifyComplete();
     }
-
-    ;
 
     @Test
     public void checkoutBranch_NothingToCommit_Success() throws IOException {
@@ -223,8 +219,6 @@ public class GitExecutorTest {
                 })
                 .verifyComplete();
     }
-
-    ;
 
     @Test
     public void checkoutBranch_ModifiedFilesNonConflictingChanges_Success() throws IOException {
@@ -249,8 +243,6 @@ public class GitExecutorTest {
                 .verifyComplete();
     }
 
-    ;
-
     @Test
     public void checkoutBranch_ModifiedFileContent_Success() throws IOException {
         createFileInThePath("TestFIle4");
@@ -274,8 +266,6 @@ public class GitExecutorTest {
                 })
                 .verifyComplete();
     }
-
-    ;
 
     @Test
     public void listBranches_LocalMode_Success() throws IOException {
