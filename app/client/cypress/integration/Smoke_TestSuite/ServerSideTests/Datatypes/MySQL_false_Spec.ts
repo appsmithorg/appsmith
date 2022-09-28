@@ -49,9 +49,10 @@ describe("MySQL Datatype tests", function() {
       });
     });
     agHelper.Sleep(2000);
+    agHelper.WaitUntilAllToastsDisappear();
   });
 
-  //This is a special case. 
+  //This is a special case.
   //Added due to server side checks, which was handled in Datatype handling.
   it("4. Long Integer as query param", () => {
     query = `SELECT * FROM ${inputData.tableName} LIMIT {{2147483648}}`;
