@@ -17,7 +17,7 @@ export const CONFIG = {
     text: "Submit",
     buttonVariant: ButtonVariantTypes.PRIMARY,
     placement: ButtonPlacementTypes.CENTER,
-    rows: 5,
+    rows: 4,
     columns: 16,
     widgetName: "Button",
     isDisabled: false,

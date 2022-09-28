@@ -40,7 +40,7 @@ export const CONFIG = {
         index: 2,
       },
     },
-    rows: 5,
+    rows: 4,
     columns: 16,
     widgetName: "MenuButton",
     version: 1,
