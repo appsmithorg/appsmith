@@ -30,9 +30,15 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
+  canManageDatasource?: boolean;
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
@@ -83,6 +89,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      canManageDatasource,
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
@@ -105,7 +112,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
           <Header>
             <FormTitleContainer>
               <PluginImage alt="Datasource" src={this.props.pluginImage} />
-              <FormTitle focusOnMount={this.props.isNewDatasource} />
+              <FormTitle
+                disabled={canManageDatasource}
+                focusOnMount={this.props.isNewDatasource}
+              />
             </FormTitleContainer>
 
             {viewMode && (
@@ -176,6 +186,14 @@ const mapStateToProps = (state: AppState, props: any) => {
     formData?.pluginId,
   );
 
+  const userWorkspacePermissions =
+    getCurrentAppWorkspace(state).userPermissions ?? [];
+
+  const canManageDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCES,
+  );
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -194,6 +212,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
     applicationId: getCurrentApplicationId(state),
+    canManageDatasource: canManageDatasource,
   };
 };
 

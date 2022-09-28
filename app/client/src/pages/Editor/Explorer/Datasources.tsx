@@ -33,6 +33,13 @@ import {
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+
+import { AppState } from "@appsmith/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
@@ -55,6 +62,21 @@ const Datasources = React.memo(() => {
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_DATASOURCES,
+  );
+
+  const canManageDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCES,
+  );
+
   const addDatasource = useCallback(() => {
     history.push(
       integrationEditorURL({
@@ -80,6 +102,7 @@ const Datasources = React.memo(() => {
       appWideDS.concat(datasourceSuggestions).map((datasource: Datasource) => {
         return (
           <ExplorerDatasourceEntity
+            canManageDatasource={canManageDatasource}
             datasource={datasource}
             isActive={datasource.id === activeDatasourceId}
             key={datasource.id}
@@ -112,18 +135,21 @@ const Datasources = React.memo(() => {
       onCreate={addDatasource}
       onToggle={onDatasourcesToggle}
       searchKeyword={""}
+      showAddButton={canCreateDatasource}
       step={0}
     >
       {datasourceElements.length ? (
         datasourceElements
       ) : (
         <EmptyComponent
-          addBtnText={createMessage(EMPTY_DATASOURCE_BUTTON_TEXT)}
-          addFunction={addDatasource || noop}
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
+          {...(canCreateDatasource && {
+            addBtnText: createMessage(EMPTY_DATASOURCE_BUTTON_TEXT),
+            addFunction: addDatasource || noop,
+          })}
         />
       )}
-      {datasourceElements.length > 0 && (
+      {datasourceElements.length > 0 && canCreateDatasource && (
         <AddEntity
           action={addDatasource}
           entityId="add_new_datasource"

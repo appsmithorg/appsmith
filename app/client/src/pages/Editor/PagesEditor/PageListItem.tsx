@@ -31,10 +31,15 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 import {
   getCurrentApplicationId,
+  getPagePermissions,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
 import { AppState } from "@appsmith/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 export const Container = styled.div`
   display: flex;
@@ -146,6 +151,18 @@ function PageListItem(props: PageListItemProps) {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
   }, [dispatch, item]);
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canManagePages = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.MANAGE_PAGES,
+  );
+
+  const canDeletePages = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.DELETE_PAGES,
+  );
+
   return (
     <Container>
       <ListItem>
@@ -200,6 +217,7 @@ function PageListItem(props: PageListItemProps) {
                 <Action type="button">
                   <CopyIcon
                     color={Colors.GREY_9}
+                    disabled={!canManagePages}
                     height={16}
                     onClick={clonePageCallback}
                     width={16}
@@ -218,7 +236,7 @@ function PageListItem(props: PageListItemProps) {
                         ? get(theme, "colors.propertyPane.deleteIconColor")
                         : Colors.GREY_9
                     }
-                    disabled={item.isDefault}
+                    disabled={item.isDefault || !canDeletePages}
                     height={16}
                     onClick={deletePageCallback}
                     width={16}

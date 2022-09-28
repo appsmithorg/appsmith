@@ -4,7 +4,7 @@ import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
-import { getPageList } from "selectors/editorSelectors";
+import { getPageList, getPagePermissions } from "selectors/editorSelectors";
 import {
   getActions,
   getAllPageWidgets,
@@ -25,6 +25,12 @@ import { integrationEditorURL } from "RouteBuilder";
 import AddLineIcon from "remixicon-react/AddLineIcon";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewQueryAction } from "actions/apiPaneActions";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { AppState } from "@appsmith/reducers";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
@@ -43,11 +49,34 @@ export const useFilteredFileOperations = (query = "") => {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
   }
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.CREATE_ACTIONS,
+  );
+
+  const canCreateDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_DATASOURCES,
+  );
+
+  const canCreateDatasourceActions = isPermitted(
+    [...userWorkspacePermissions, ...pagePermissions],
+    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTIONS],
+  );
+
   return useMemo(() => {
     let fileOperations: any =
-      actionOperations.filter((op) =>
-        op.title.toLowerCase().includes(query.toLowerCase()),
-      ) || [];
+      (canCreateActions &&
+        actionOperations.filter((op) =>
+          op.title.toLowerCase().includes(query.toLowerCase()),
+        )) ||
+      [];
     const filteredAppWideDS = appWideDS.filter((ds: Datasource) =>
       ds.name.toLowerCase().includes(query.toLowerCase()),
     );
@@ -57,7 +86,7 @@ export const useFilteredFileOperations = (query = "") => {
     if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        {
+        canCreateDatasourceActions && {
           title: "CREATE A QUERY",
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
@@ -66,34 +95,38 @@ export const useFilteredFileOperations = (query = "") => {
     if (filteredAppWideDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        ...filteredAppWideDS.map((ds) => ({
-          title: `New ${ds.name} Query`,
-          shortTitle: `${ds.name} Query`,
-          desc: `Create a query in ${ds.name}`,
-          pluginId: ds.pluginId,
-          kind: SEARCH_ITEM_TYPES.actionOperation,
-          action: (pageId: string, from: EventLocation) =>
-            createNewQueryAction(pageId, from, ds.id),
-        })),
+        ...(canCreateDatasourceActions
+          ? filteredAppWideDS.map((ds) => ({
+              title: `New ${ds.name} Query`,
+              shortTitle: `${ds.name} Queryssss`,
+              desc: `Create a query in ${ds.name}`,
+              pluginId: ds.pluginId,
+              kind: SEARCH_ITEM_TYPES.actionOperation,
+              action: (pageId: string, from: EventLocation) =>
+                createNewQueryAction(pageId, from, ds.id),
+            }))
+          : []),
       ];
     }
     if (otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        ...otherFilteredDS.map((ds) => ({
-          title: `New ${ds.name} Query`,
-          shortTitle: `${ds.name} Query`,
-          desc: `Create a query in ${ds.name}`,
-          kind: SEARCH_ITEM_TYPES.actionOperation,
-          pluginId: ds.pluginId,
-          action: (pageId: string, from: EventLocation) =>
-            createNewQueryAction(pageId, from, ds.id),
-        })),
+        ...(canCreateDatasourceActions
+          ? otherFilteredDS.map((ds) => ({
+              title: `New ${ds.name} Query`,
+              shortTitle: `${ds.name} Queryddd`,
+              desc: `Create a query in ${ds.name}`,
+              kind: SEARCH_ITEM_TYPES.actionOperation,
+              pluginId: ds.pluginId,
+              action: (pageId: string, from: EventLocation) =>
+                createNewQueryAction(pageId, from, ds.id),
+            }))
+          : []),
       ];
     }
     fileOperations = [
       ...fileOperations,
-      {
+      canCreateDatasource && {
         title: "New Datasource",
         icon: (
           <EntityIcon>
@@ -111,7 +144,7 @@ export const useFilteredFileOperations = (query = "") => {
         },
       },
     ];
-    return fileOperations;
+    return fileOperations.filter(Boolean);
   }, [query, appWideDS, otherDS]);
 };
 

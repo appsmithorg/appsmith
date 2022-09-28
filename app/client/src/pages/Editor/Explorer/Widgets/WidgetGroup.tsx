@@ -5,6 +5,7 @@ import WidgetEntity from "./WidgetEntity";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import {
   ADD_WIDGET_BUTTON,
@@ -19,6 +20,10 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -51,9 +56,17 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
     [applicationId],
   );
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canManagePages = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.MANAGE_PAGES,
+  );
+
   return (
     <Entity
       addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
+      canEditEntityName={canManagePages}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!widgets && !!props.searchKeyword}
       entityId={pageId + "_widgets"}
@@ -65,6 +78,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       onCreate={props.addWidgetsFn}
       onToggle={onWidgetToggle}
       searchKeyword={props.searchKeyword}
+      showAddButton={canManagePages}
       step={props.step}
     >
       {widgets?.children?.map((child) => (

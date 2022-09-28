@@ -20,6 +20,7 @@ type ExplorerJSCollectionEntityProps = {
   id: string;
   isActive: boolean;
   type: PluginType;
+  canManageActions?: boolean;
 };
 
 const getUpdateJSObjectName = (id: string, name: string) => {
@@ -61,6 +62,7 @@ export const ExplorerJSCollectionEntity = memo(
       <Entity
         action={navigateToJSCollection}
         active={props.isActive}
+        canEditEntityName={props.canManageActions}
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}

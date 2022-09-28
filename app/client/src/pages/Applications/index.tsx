@@ -393,6 +393,7 @@ function LeftPane() {
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
+
   let userWorkspaces;
   if (!isFetchingApplications) {
     userWorkspaces = fetchedUserWorkspaces;

@@ -1,8 +1,10 @@
 import React, { useCallback, useMemo, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getCurrentApplication,
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
@@ -40,6 +42,11 @@ import useResize, {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { AppState } from "@appsmith/reducers";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -170,6 +177,22 @@ function Pages() {
     [applicationId],
   );
 
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreatePages = isPermitted(
+    userAppPermissions,
+    PERMISSION_TYPE.CREATE_PAGES,
+  );
+
+  const canManagePages = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.MANAGE_PAGES,
+  );
+
   const pageElements = useMemo(
     () =>
       pages.map((page) => {
@@ -191,6 +214,7 @@ function Pages() {
         return (
           <StyledEntity
             action={() => switchPage(page)}
+            canEditEntityName={canManagePages}
             className={`page ${isCurrentPage && "activePage"}`}
             contextMenu={contextMenu}
             entityId={page.pageId}
@@ -218,6 +242,7 @@ function Pages() {
         action={onPageListSelection}
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
+        canEditEntityName={canManagePages}
         className="group pages"
         collapseRef={pageResizeRef}
         entityId="Pages"
@@ -231,6 +256,7 @@ function Pages() {
         pagesSize={ENTITY_HEIGHT * pages.length}
         rightIcon={settingsIconWithTooltip}
         searchKeyword={""}
+        showAddButton={canCreatePages}
         step={0}
       >
         {pageElements}

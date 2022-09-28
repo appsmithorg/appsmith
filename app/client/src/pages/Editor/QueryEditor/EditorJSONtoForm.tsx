@@ -117,7 +117,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
+import { executeCommandAction } from "actions/apiPaneActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;

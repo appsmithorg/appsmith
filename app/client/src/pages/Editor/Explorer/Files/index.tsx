@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
@@ -20,6 +21,12 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
+import { AppState } from "@appsmith/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -50,6 +57,22 @@ function Files() {
     [applicationId],
   );
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = isPermitted(
+    pagePermissions,
+    PERMISSION_TYPE.CREATE_ACTIONS,
+  );
+
+  const canManageActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_ACTIONS,
+  );
+
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 
   const fileEntities = useMemo(
@@ -67,6 +90,7 @@ function Files() {
         } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
+              canManageActions={canManageActions}
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
@@ -112,18 +136,21 @@ function Files() {
       onCreate={onCreate}
       onToggle={onFilesToggle}
       searchKeyword={""}
+      showAddButton={canCreateActions}
       step={0}
     >
       {fileEntities.length ? (
         fileEntities
       ) : (
         <EmptyComponent
-          addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
-          addFunction={onCreate}
           mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
+          {...(canCreateActions && {
+            addBtnText: createMessage(EMPTY_QUERY_JS_BUTTON_TEXT),
+            addFunction: onCreate,
+          })}
         />
       )}
-      {fileEntities.length > 0 && (
+      {fileEntities.length > 0 && canCreateActions && (
         <AddEntity
           action={onCreate}
           entityId={pageId + "_queries_js_add_new_datasource"}

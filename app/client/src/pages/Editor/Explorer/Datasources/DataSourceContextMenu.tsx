@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteDatasource,
   refreshDatasourceStructure,
@@ -16,6 +16,13 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { AppState } from "@appsmith/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { TreeDropdownOption } from "design-system";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -36,36 +43,52 @@ export function DataSourceContextMenu(props: {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canDeleteDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.DELETE_DATASOURCES,
+  );
+
+  const canManageDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCES,
+  );
+
+  const treeOptions = [
+    {
+      value: "refresh",
+      onSelect: dispatchRefresh,
+      label: createMessage(CONTEXT_REFRESH),
+    },
+    canManageDatasource && {
+      value: "rename",
+      onSelect: editDatasourceName,
+      label: createMessage(CONTEXT_EDIT_NAME),
+    },
+    canDeleteDatasource && {
+      confirmDelete: confirmDelete,
+      className: "t--apiFormDeleteBtn single-select",
+      value: "delete",
+      onSelect: () => {
+        confirmDelete ? dispatchDelete() : setConfirmDelete(true);
+      },
+      label: confirmDelete
+        ? createMessage(CONFIRM_CONTEXT_DELETE)
+        : createMessage(CONTEXT_DELETE),
+      intent: "danger",
+    },
+  ].filter(Boolean);
+
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={[
-        {
-          value: "rename",
-          onSelect: editDatasourceName,
-          label: createMessage(CONTEXT_EDIT_NAME),
-        },
-        {
-          value: "refresh",
-          onSelect: dispatchRefresh,
-          label: createMessage(CONTEXT_REFRESH),
-        },
-        {
-          confirmDelete: confirmDelete,
-          className: "t--apiFormDeleteBtn single-select",
-          value: "delete",
-          onSelect: () => {
-            confirmDelete ? dispatchDelete() : setConfirmDelete(true);
-          },
-          label: confirmDelete
-            ? createMessage(CONFIRM_CONTEXT_DELETE)
-            : createMessage(CONTEXT_DELETE),
-          intent: "danger",
-        },
-      ]}
+      optionTree={treeOptions && (treeOptions as TreeDropdownOption[])}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
