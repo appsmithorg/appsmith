@@ -114,9 +114,6 @@ function SaveThemeModal(props: SaveThemeModalProps) {
       canOutsideClickClose
       isOpen={isOpen}
       onClose={onClose}
-      portalContainer={
-        document.getElementById("app-settings-portal") || undefined
-      }
       title="Save Theme"
       width="400px"
     >

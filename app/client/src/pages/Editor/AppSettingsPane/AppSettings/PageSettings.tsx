@@ -1,3 +1,4 @@
+import { ApplicationVersion } from "actions/applicationActions";
 import { setPageAsDefault, setPageSlug, updatePage } from "actions/pageActions";
 import { UpdatePageRequest } from "api/PageApi";
 import { Page } from "ce/constants/ReduxActionConstants";
@@ -6,14 +7,21 @@ import { Button, Size, TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
 import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectApplicationVersion,
+} from "selectors/editorSelectors";
 
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
   const page = props.page;
   const applicationId = useSelector(getCurrentApplicationId);
+  const applicationVersion = useSelector(selectApplicationVersion);
+
+  const appNeedsUpdate = applicationVersion < ApplicationVersion.SLUG_URL;
 
   const [pageName, setPageName] = useState(page.pageName);
   const [customSlug, setCustomSlug] = useState(page.customSlug);
@@ -103,11 +111,23 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       <div className="pb-1 text-[#575757]">Change Page URL</div>
+      {appNeedsUpdate && (
+        <div className="pb-1 text-[#575757]">
+          Please{" "}
+          <ManualUpgrades inline>
+            <a>
+              <u>update</u>
+            </a>
+          </ManualUpgrades>{" "}
+          your app URL to new readable format to change this*
+        </div>
+      )}
       <div className="pb-1">
         <TextInput
           fill
           onChange={setCustomSlug}
           placeholder="Page URL"
+          readOnly={appNeedsUpdate}
           type="input"
           value={customSlug}
         />

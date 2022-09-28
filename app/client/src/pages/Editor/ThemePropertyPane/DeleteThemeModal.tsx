@@ -31,9 +31,6 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
       headerIcon={deleteIconConfig}
       isOpen={isOpen}
       onClose={onClose}
-      portalContainer={
-        document.getElementById("app-settings-portal") || undefined
-      }
       title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
       width="400px"
     >
