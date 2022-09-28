@@ -485,9 +485,15 @@ abstract class BaseWidget<
       return <Skeleton />;
     }
 
-    return renderMode === RenderModes.CANVAS
-      ? this.getCanvasView()
-      : this.getPageView();
+    if (renderMode === RenderModes.CANVAS) {
+      return this.getCanvasView();
+    } else {
+      if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
+        return this.addDynamicHeightContainer(this.getPageView());
+      }
+
+      return this.getPageView();
+    }
   };
 
   addDynamicHeightContainer = (content: ReactNode) => {
