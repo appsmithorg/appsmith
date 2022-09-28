@@ -1023,6 +1023,12 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
+
+// Audit logs begin
+export const AUDIT_LOGS = () => "Audit logs";
+export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+// Audit logs end
+
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
