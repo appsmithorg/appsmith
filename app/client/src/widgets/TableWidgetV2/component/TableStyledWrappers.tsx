@@ -479,7 +479,7 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  width: ${(props) => props.width - 8}px;
+  width: ${(props) => props.width}px;
   .show-page-items {
     display: ${(props) =>
       props.width < MIN_WIDTH_TO_SHOW_PAGE_ITEMS ? "none" : "flex"};
