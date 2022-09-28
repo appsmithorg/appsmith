@@ -1,5 +1,6 @@
 import { uuid4 } from "@sentry/utils";
 import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
+import { klona } from "klona/lite";
 import moment from "moment";
 
 class UserLog {
@@ -84,7 +85,9 @@ class UserLog {
     let returnData = [];
 
     try {
-      returnData = data.map((item: any) => {
+      // cloning the object to avoid mutation
+      const dataObject = klona(data);
+      returnData = dataObject.map((item: any) => {
         if (typeof item === "object") {
           return this.replaceFunctionWithNamesFromObjects(item);
         }
