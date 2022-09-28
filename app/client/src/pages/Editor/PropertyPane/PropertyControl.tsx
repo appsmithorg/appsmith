@@ -521,9 +521,8 @@ const PropertyControl = memo((props: Props) => {
     ) {
       if (
         // Check if value is not empty
-        (propertyValue !== undefined && propertyValue !== "") ||
-        // No need to disable the button if value is default value
-        propertyValue !== config.defaultValue
+        propertyValue !== undefined &&
+        propertyValue !== ""
       ) {
         let value = propertyValue;
         // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
