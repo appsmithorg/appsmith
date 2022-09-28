@@ -1,4 +1,4 @@
-import React, { useState, ReactElement } from "react";
+import React, { ReactElement } from "react";
 import {
   IconWrapper,
   OptionProps,
@@ -93,8 +93,6 @@ function RadioFieldWrapper(
     input: Partial<WrappedFieldInputProps>;
   } & RadioProps,
 ) {
-  const [selected] = useState(componentProps.input.value.value);
-
   function onChangeHandler(e?: any) {
     componentProps.input.onChange &&
       componentProps.input.onChange({
@@ -118,7 +116,7 @@ function RadioFieldWrapper(
   return (
     <div>
       {componentProps.options.map((item, index) => {
-        const isSelected = selected === item.value;
+        const isSelected = componentProps.input.value.value === item.value;
 
         return (
           <RadioWrapper index={index} key={item.value}>
