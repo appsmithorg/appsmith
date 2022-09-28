@@ -86,7 +86,7 @@ export class CommonLocators {
   _actionTextArea = (actionName: string) =>
     "//label[text()='" +
     actionName +
-    "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea";
+    "']/ancestor::div[contains(@class, 'gap-1')]/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea";
   _existingDefaultTextInput =
     ".t--property-control-defaulttext .CodeMirror-code";
   _widgetPageIcon = (widgetType: string) =>
