@@ -208,18 +208,6 @@ public class EnvManagerTest {
 
     }
 
-    public void parseTest() {
-
-        assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'"
-        )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_MONGODB_URI", "'first value'",
-                "APPSMITH_REDIS_URL", "'second value'",
-                "APPSMITH_INSTANCE_NAME", "'third value'"
-        ));
-
-    }
-
     @Test
     public void parseEmptyValues() {
 
@@ -250,6 +238,16 @@ public class EnvManagerTest {
                 "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance"
         ));
 
+    }
+
+    @Test
+    public void parseTestWithEscapes() {
+        assertThat(envManager.parseToMap(
+                "APPSMITH_ALLOWED_FRAME_ANCESTORS=\"'\"'none'\"'\"\nAPPSMITH_REDIS_URL='second\" value'\n"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "APPSMITH_ALLOWED_FRAME_ANCESTORS", "'none'",
+                "APPSMITH_REDIS_URL", "second\" value"
+        ));
     }
 
     @Test
