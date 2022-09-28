@@ -17,8 +17,8 @@ export const getGroupById = (payload: FetchSingleDataPayload) => ({
   payload,
 });
 
-export const updateGroupById = (payload: GroupProps) => ({
-  type: ReduxActionTypes.UPDATE_ACL_GROUP,
+export const updateGroupName = (payload: GroupProps) => ({
+  type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME,
   payload,
 });
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
+import { PopoverPosition, Position } from "@blueprintjs/core";
 import {
   Button,
   IconSize,
@@ -136,7 +136,7 @@ export function PageHeader(props: PageHeaderProps) {
             boundary="viewport"
             content={title ?? pageTitle}
             maxWidth="400px"
-            position="bottom"
+            position={PopoverPosition.BOTTOM_LEFT}
           >
             <StyledSettingsHeader
               data-testid="t--page-title"
