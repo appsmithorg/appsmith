@@ -226,7 +226,6 @@ function Pages() {
             preRightIcon={isCurrentPage ? currentPageIcon : ""}
             rightIcon={rightIcon}
             searchKeyword={""}
-            showAddButton={canCreatePages}
             step={1}
             updateEntityName={(id, name) =>
               updatePage(id, name, !!page.isHidden)

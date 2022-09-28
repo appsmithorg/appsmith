@@ -70,7 +70,6 @@ export const ExplorerJSCollectionEntity = memo(
         key={jsAction.id}
         name={jsAction.name}
         searchKeyword={props.searchKeyword}
-        showAddButton={false}
         step={props.step}
         updateEntityName={getUpdateJSObjectName}
       />
