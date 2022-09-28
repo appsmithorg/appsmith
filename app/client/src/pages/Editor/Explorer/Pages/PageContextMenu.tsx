@@ -110,18 +110,18 @@ export function PageContextMenu(props: {
     PERMISSION_TYPE.DELETE_PAGES,
   );
 
-  const managePageOptions: TreeDropdownOption[] = [
-    {
+  const optionsTree = [
+    canManagePages && {
       value: "rename",
       onSelect: editPageName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
-    {
+    canManagePages && {
       value: "clone",
       onSelect: clonePage,
       label: createMessage(CONTEXT_CLONE),
     },
-    {
+    canManagePages && {
       value: "visibility",
       onSelect: setHiddenField,
       // Possibly support ReactNode in TreeOption
@@ -132,28 +132,25 @@ export function PageContextMenu(props: {
         </CustomLabel>
       ) as ReactNode) as string,
     },
-  ];
-
-  const deletePageOption: TreeDropdownOption = {
-    className: "t--apiFormDeleteBtn single-select",
-    confirmDelete: confirmDelete,
-    value: "delete",
-    onSelect: () => {
-      confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+    canDeletePages && {
+      className: "t--apiFormDeleteBtn single-select",
+      confirmDelete: confirmDelete,
+      value: "delete",
+      onSelect: () => {
+        confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+      },
+      label: confirmDelete
+        ? createMessage(CONFIRM_CONTEXT_DELETE)
+        : createMessage(CONTEXT_DELETE),
+      intent: "danger",
     },
-    label: confirmDelete
-      ? createMessage(CONFIRM_CONTEXT_DELETE)
-      : createMessage(CONTEXT_DELETE),
-    intent: "danger",
-  };
-
-  if (!props.isDefaultPage) {
-    managePageOptions.push({
-      value: "setdefault",
-      onSelect: setPageAsDefaultCallback,
-      label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
-    });
-  }
+    !props.isDefaultPage &&
+      canManagePages && {
+        value: "setdefault",
+        onSelect: setPageAsDefaultCallback,
+        label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
+      },
+  ].filter(Boolean);
 
   return (
     <TreeDropdown
@@ -161,10 +158,7 @@ export function PageContextMenu(props: {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={[
-        ...(canManagePages ? managePageOptions : []),
-        ...(canDeletePages ? [deletePageOption] : []),
-      ]}
+      optionTree={optionsTree as TreeDropdownOption[]}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}

@@ -29,6 +29,7 @@ import {
 } from "@appsmith/constants/messages";
 import { builderURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { TreeDropdownOption } from "design-system";
 
 type EntityContextMenuProps = {
   id: string;
@@ -39,6 +40,7 @@ type EntityContextMenuProps = {
   canDeleteAction?: boolean;
 };
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
+  const { canDeleteAction, canManageAction } = props;
   const nextEntityName = useNewActionName();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
@@ -103,13 +105,18 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [],
   );
 
-  const manageOptions = [
-    {
+  const optionsTree = [
+    canManageAction && {
       value: "rename",
       onSelect: editActionName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
     {
+      value: "showBinding",
+      onSelect: () => showBinding(props.id, props.name),
+      label: createMessage(CONTEXT_SHOW_BINDING),
+    },
+    canManageAction && {
       value: "copy",
       onSelect: noop,
       label: createMessage(CONTEXT_COPY),
@@ -120,7 +127,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         };
       }),
     },
-    {
+    canManageAction && {
       value: "move",
       onSelect: noop,
       label: createMessage(CONTEXT_MOVE),
@@ -143,25 +150,24 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
               },
             ],
     },
-  ];
-
-  const deleteOption = {
-    confirmDelete: confirmDelete,
-    className: "t--apiFormDeleteBtn single-select",
-    value: "delete",
-    label: confirmDelete
-      ? createMessage(CONFIRM_CONTEXT_DELETE)
-      : createMessage(CONTEXT_DELETE),
-    intent: "danger",
-    onSelect: () => {
-      confirmDelete
-        ? deleteActionFromPage(props.id, props.name, () => {
-            history.push(builderURL({ pageId }));
-            setConfirmDelete(false);
-          })
-        : setConfirmDelete(true);
+    canDeleteAction && {
+      confirmDelete: confirmDelete,
+      className: "t--apiFormDeleteBtn single-select",
+      value: "delete",
+      label: confirmDelete
+        ? createMessage(CONFIRM_CONTEXT_DELETE)
+        : createMessage(CONTEXT_DELETE),
+      intent: "danger",
+      onSelect: () => {
+        confirmDelete
+          ? deleteActionFromPage(props.id, props.name, () => {
+              history.push(builderURL({ pageId }));
+              setConfirmDelete(false);
+            })
+          : setConfirmDelete(true);
+      },
     },
-  };
+  ].filter(Boolean);
 
   return (
     <TreeDropdown
@@ -169,15 +175,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={[
-        ...(props.canManageAction ? manageOptions : []),
-        {
-          value: "showBinding",
-          onSelect: () => showBinding(props.id, props.name),
-          label: createMessage(CONTEXT_SHOW_BINDING),
-        },
-        ...(props.canDeleteAction ? [{ ...deleteOption }] : []),
-      ].filter(Boolean)}
+      optionTree={optionsTree as TreeDropdownOption[]}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
