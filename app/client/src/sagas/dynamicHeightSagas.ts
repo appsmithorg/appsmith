@@ -664,7 +664,10 @@ export function* dynamicallyUpdateContainersSaga() {
         ) {
           let maxBottomRow =
             parentContainerWidget.bottomRow - parentContainerWidget.topRow;
-          if (parentContainerWidget.detachFromLayout) {
+          if (
+            parentContainerWidget.detachFromLayout &&
+            parentContainerWidget.height
+          ) {
             maxBottomRow =
               parentContainerWidget.height /
               GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
