@@ -53,7 +53,6 @@ const OAuthText = styled.span<ErrorProps>`
 
 const DescriptionText = styled(Text)`
   margin: 12px auto;
-  ${(props) => props.disabled && "cursor: not-allowed;opacity:0.5"}
 `;
 
 function OAuthLabel(props: ErrorProps) {
