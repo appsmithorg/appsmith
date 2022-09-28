@@ -21,12 +21,10 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
-import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -57,20 +55,11 @@ function Files() {
     [applicationId],
   );
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
-
   const pagePermissions = useSelector(getPagePermissions);
 
   const canCreateActions = isPermitted(
     pagePermissions,
     PERMISSION_TYPE.CREATE_ACTIONS,
-  );
-
-  const canManageActions = isPermitted(
-    userWorkspacePermissions,
-    PERMISSION_TYPE.MANAGE_ACTIONS,
   );
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
@@ -90,7 +79,6 @@ function Files() {
         } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
-              canManageActions={canManageActions}
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}

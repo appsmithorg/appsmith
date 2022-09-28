@@ -209,6 +209,7 @@ function ContextMenu(props: Props) {
               <MenuItem aria-disabled={!canManagePages}>
                 <div>Set Homepage</div>
                 <MenuItemToggle
+                  disabled={!canManagePages}
                   onToggle={() => onSetPageDefault(page.pageId, applicationId)}
                   value={page.isDefault}
                 />
@@ -218,6 +219,7 @@ function ContextMenu(props: Props) {
             <MenuItem aria-disabled={!canManagePages}>
               <div>Visible</div>
               <MenuItemToggle
+                disabled={!canManagePages}
                 onToggle={onSetPageHidden}
                 value={!page.isHidden}
               />
