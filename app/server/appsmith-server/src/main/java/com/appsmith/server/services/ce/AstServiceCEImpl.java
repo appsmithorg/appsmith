@@ -17,8 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,6 +64,23 @@ public class AstServiceCEImpl implements AstServiceCE {
         GetIdentifiersResponseDetails data;
     }
 
+    /**
+     * Consider the following binding:
+     *   ( function(ignoredAction1) {
+     *     let a = ignoredAction1.data
+     *     let ignoredAction2 = { data: "nothing" }
+     *     let b = ignoredAction2.data
+     *     let c = "ignoredAction3.data"
+     *     // ignoredAction4.data
+     *     return aPostAction.data
+     *   } )(anotherPostAction.data)
+     * <p/>
+     * The values in the returned instance of GetIdentifiersResponseDetails will be:
+     * {
+     *   references: ["aPostAction.data", "anotherPostAction.data"],
+     *   functionalParams: ["ignoredAction1"],
+     *   variables: ["ignoredAction2"]
+     */
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter

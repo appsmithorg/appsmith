@@ -29,9 +29,7 @@ public class EntityDependencyNode {
             if (!this.referenceString.startsWith(this.validEntityName + ".data")) {
                 result = false;
             }
-        }
-
-        if (EntityReferenceType.JSACTION.equals(this.entityReferenceType)) {
+        } else if (EntityReferenceType.JSACTION.equals(this.entityReferenceType)) {
             if (Boolean.TRUE.equals(this.isAsync) && (Boolean.TRUE.equals(this.isFunctionCall) || !this.referenceString.startsWith(this.validEntityName + ".data"))) {
                 result = false;
             }

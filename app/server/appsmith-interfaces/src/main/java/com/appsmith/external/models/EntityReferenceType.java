@@ -1,8 +1,8 @@
 package com.appsmith.external.models;
 
 public enum EntityReferenceType {
-    ACTION,
-    JSACTION,
+    ACTION, // Queries or APIs
+    JSACTION, // Functions inside JS objects
     WIDGET,
-    APPSMITH
+    APPSMITH // References inside the appsmith object in the global scope
 }
