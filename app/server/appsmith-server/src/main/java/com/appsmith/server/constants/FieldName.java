@@ -147,10 +147,12 @@ public class FieldName {
     public static final String EVENT_DATA = "eventData";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
-    public static final String VIEW_MODE = "viewMode";
+    public static final String APP_MODE = "appMode";
+    public static final String PAGE_ORDER = "order";
     public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
     public static final String LOGGED_IN = "logged_in";
     public static final String LOGGED_OUT = "logged_out";
     public static final String SIGNED_UP = "signed_up";
