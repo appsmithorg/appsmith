@@ -34,6 +34,7 @@ const positionProps = [
   "detachFromLayout",
   "noContainerOffset",
   "isCanvas",
+  "height",
 ];
 
 /**

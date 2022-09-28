@@ -19,6 +19,7 @@ const positionProps = [
   "detachFromLayout",
   "noContainerOffset",
   "isCanvas",
+  "height",
 ];
 
 export const TOASTS = "toasts";

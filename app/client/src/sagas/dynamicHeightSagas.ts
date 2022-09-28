@@ -92,10 +92,6 @@ export function* updateWidgetDynamicHeightSaga() {
 
   const appMode: APP_MODE = yield select(getAppMode);
 
-  const independentUpdates: Record<
-    string,
-    { newHeight: number; newBottomRow: number; newTopRow: number }
-  > = {};
   // For each widget which have new heights to update.
   for (const widgetId in updates) {
     // Get the widget from the reducer.
@@ -143,429 +139,432 @@ export function* updateWidgetDynamicHeightSaga() {
         parentId: widget.parentId,
         hasScroll: widget.isCanvas ? true : false,
       });
-    } else {
+    } else if (widget) {
+      // For widgets like Modal Widget. (Rather this assumes that it is only the modal widget which needs a change)
       const newHeight = updates[widgetId];
       const newHeightInRows = newHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-      independentUpdates[widgetId] = {
-        newBottomRow: widget.topRow + newHeightInRows,
-        newTopRow: widget.topRow,
-        newHeight,
-      };
-    }
-  }
 
-  // If there are updates.
-  if (expectedUpdates.length > 0) {
-    // Get the canvas level map from the store
-    // This map tells us the nesting of each canvas widget in the DSL.
-    // MainContainer's level is 0.
-    const canvasLevelMap: CanvasLevelsReduxState = yield select(
-      getCanvasLevelMap,
-    );
-    // 1. Get all siblings together.
-
-    // Get all updates for that level.
-    // Move up a level, add it to the expectedUpdatesGroupedByParent. A new entry if unavailable, or append to an existing entry,
-    // Repeat for the next level.
-    const expectedUpdatesGroupedByParentCanvasWidget = groupBy(
-      expectedUpdates,
-      "parentId",
-    );
-
-    // Initialise a map of the levels and canvaswidgetIds at that level.
-    const parentCanvasWidgetsGroupedByLevel: { [level: string]: string[] } = {
-      "0": [MAIN_CONTAINER_WIDGET_ID],
-    };
-
-    let maxLevel = 0;
-
-    // For each canvas widget which has updates.
-    for (const parentCanvasWidgetId in expectedUpdatesGroupedByParentCanvasWidget) {
-      // Get the level of the canvas widget
-      const _level = canvasLevelMap[parentCanvasWidgetId];
-
-      // If the level is higher than the previous level, increment maxLevel
-      if (_level > maxLevel) maxLevel = _level;
-
-      // updateteh map with the canvas widgets in the current level.
-      parentCanvasWidgetsGroupedByLevel[_level] = uniq([
-        ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
-        parentCanvasWidgetId,
-      ]);
+      widgetsToUpdate[widgetId] = [
+        {
+          propertyPath: "height",
+          propertyValue: newHeight,
+        },
+        {
+          propertyPath: "bottomRow",
+          propertyValue: widget.topRow + newHeightInRows,
+        },
+        {
+          propertyPath: "topRow",
+          propertyValue: widget.topRow,
+        },
+      ];
     }
 
-    // Get the tree data structure we will be using to compute updates
-    const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
-      getDynamicHeightLayoutTree,
-    );
+    // If there are updates.
+    if (expectedUpdates.length > 0) {
+      // Get the canvas level map from the store
+      // This map tells us the nesting of each canvas widget in the DSL.
+      // MainContainer's level is 0.
+      const canvasLevelMap: CanvasLevelsReduxState = yield select(
+        getCanvasLevelMap,
+      );
+      // 1. Get all siblings together.
 
-    log.debug("Dynamic height: Working with tree:", {
-      dynamicHeightLayoutTree,
-    });
-
-    // Initialise a list of changes so far.
-    // This contains a map of widgetIds with their new topRow and bottomRow
-    let changesSoFar: Record<
-      string,
-      { topRow: number; bottomRow: number }
-    > = {};
-
-    // start with the bottom most level (maxLevel)
-    // We do this so, that we don't have to re-comupte the higher levels,
-    // as children can modify their parent sizes.
-    for (let level = maxLevel; level >= 0; level--) {
-      // The canvas widgets at this level.
-      const parentCanvasWidgetsToConsider =
-        parentCanvasWidgetsGroupedByLevel[level];
-      const delta: Record<string, number> = {};
-
-      log.debug(
-        "Dynamic height considering: ",
-        { level },
-        { parentCanvasWidgetsToConsider },
-        { expectedUpdatesGroupedByParentCanvasWidget },
+      // Get all updates for that level.
+      // Move up a level, add it to the expectedUpdatesGroupedByParent. A new entry if unavailable, or append to an existing entry,
+      // Repeat for the next level.
+      const expectedUpdatesGroupedByParentCanvasWidget = groupBy(
+        expectedUpdates,
+        "parentId",
       );
 
-      // For each canvas widget at this level.
-      parentCanvasWidgetsToConsider.forEach((parentCanvasWidgetId) => {
-        // If we have expected updates for this widget already
+      // Initialise a map of the levels and canvaswidgetIds at that level.
+      const parentCanvasWidgetsGroupedByLevel: { [level: string]: string[] } = {
+        "0": [MAIN_CONTAINER_WIDGET_ID],
+      };
+
+      let maxLevel = 0;
+
+      // For each canvas widget which has updates.
+      for (const parentCanvasWidgetId in expectedUpdatesGroupedByParentCanvasWidget) {
+        // Get the level of the canvas widget
+        const _level = canvasLevelMap[parentCanvasWidgetId];
+
+        // If the level is higher than the previous level, increment maxLevel
+        if (_level > maxLevel) maxLevel = _level;
+
+        // update the map with the canvas widgets in the current level.
+        parentCanvasWidgetsGroupedByLevel[_level] = uniq([
+          ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
+          parentCanvasWidgetId,
+        ]);
+      }
+
+      // Get the tree data structure we will be using to compute updates
+      const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
+        getDynamicHeightLayoutTree,
+      );
+
+      log.debug("Dynamic height: Working with tree:", {
+        dynamicHeightLayoutTree,
+      });
+
+      // Initialise a list of changes so far.
+      // This contains a map of widgetIds with their new topRow and bottomRow
+      let changesSoFar: Record<
+        string,
+        { topRow: number; bottomRow: number }
+      > = {};
+
+      // start with the bottom most level (maxLevel)
+      // We do this so, that we don't have to re-comupte the higher levels,
+      // as children can modify their parent sizes.
+      for (let level = maxLevel; level >= 0; level--) {
+        // The canvas widgets at this level.
+        const parentCanvasWidgetsToConsider =
+          parentCanvasWidgetsGroupedByLevel[level];
+        const delta: Record<string, number> = {};
+
+        log.debug(
+          "Dynamic height considering: ",
+          { level },
+          { parentCanvasWidgetsToConsider },
+          { expectedUpdatesGroupedByParentCanvasWidget },
+          { parentCanvasWidgetsGroupedByLevel },
+        );
+
         if (
-          expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
-            parentCanvasWidgetId,
-          )
+          Array.isArray(parentCanvasWidgetsToConsider) &&
+          parentCanvasWidgetsToConsider.length > 0
         ) {
-          // For each widget to update, add to the delta, the expected change.
-          expectedUpdatesGroupedByParentCanvasWidget[
-            parentCanvasWidgetId
-          ].forEach((expectedUpdate) => {
-            delta[expectedUpdate.widgetId] =
-              expectedUpdate.expectedChangeInHeightInRows;
+          // For each canvas widget at this level.
+          parentCanvasWidgetsToConsider.forEach((parentCanvasWidgetId) => {
+            // If we have expected updates for this widget already
+            if (
+              expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
+                parentCanvasWidgetId,
+              )
+            ) {
+              // For each widget to update, add to the delta, the expected change.
+              expectedUpdatesGroupedByParentCanvasWidget[
+                parentCanvasWidgetId
+              ].forEach((expectedUpdate) => {
+                delta[expectedUpdate.widgetId] =
+                  expectedUpdate.expectedChangeInHeightInRows;
+              });
+            }
           });
         }
-      });
 
-      // 2. Run the reflow computations for  this parent's child updates
-      const siblingWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
-        dynamicHeightLayoutTree,
-        delta,
-      );
-      log.debug("Dynamic height: Computing sibling updates:", {
-        siblingWidgetsToUpdate,
-        dynamicHeightLayoutTree,
-        delta,
-        parentCanvasWidgetsToConsider,
-      });
+        if (Object.keys(delta).length > 0) {
+          // 2. Run the reflow computations for  this parent's child updates
+          const siblingWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
+            dynamicHeightLayoutTree,
+            delta,
+          );
 
-      // Add to the changes so far, the changes computed for this canvas widget's children.
-      changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
+          log.debug("Dynamic height: Computing sibling updates:", {
+            siblingWidgetsToUpdate,
+            dynamicHeightLayoutTree,
+            delta,
+            parentCanvasWidgetsToConsider,
+          });
 
-      // Repeat the previous loop, we need to do this, because we need the changesSoFar
-      // populated before we can reliably work on the parents
-      for (const parentCanvasWidgetId of parentCanvasWidgetsToConsider) {
-        // Get the current canvas Widget props
-        const parentCanvasWidget: FlattenedWidgetProps =
-          stateWidgets[parentCanvasWidgetId];
-        // If this canvas widget has a parent then it is not the MainContainer
-        if (parentCanvasWidget.parentId) {
-          // Get the parent widget. This could be Tabs, Modal, Container, Form, etc.
-          // As these widgets have canvas children.
-          const parentContainerLikeWidget: FlattenedWidgetProps =
-            stateWidgets[parentCanvasWidget.parentId];
+          // Add to the changes so far, the changes computed for this canvas widget's children.
+          changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
 
-          // Widgets need to consider changing heights, only if they have dynamic height
-          // enabled.
-          if (isDynamicHeightEnabledForWidget(parentContainerLikeWidget)) {
-            // Get the minimum number of rows this parent must have
+          // Repeat the previous loop, we need to do this, because we need the changesSoFar
+          // populated before we can reliably work on the parents
+          for (const parentCanvasWidgetId of parentCanvasWidgetsToConsider) {
+            // Get the current canvas Widget props
+            const parentCanvasWidget: FlattenedWidgetProps =
+              stateWidgets[parentCanvasWidgetId];
+            // If this canvas widget has a parent then it is not the MainContainer
+            if (parentCanvasWidget.parentId) {
+              // Get the parent widget. This could be Tabs, Modal, Container, Form, etc.
+              // As these widgets have canvas children.
+              const parentContainerLikeWidget: FlattenedWidgetProps =
+                stateWidgets[parentCanvasWidget.parentId];
 
-            let minHeightInRows = getWidgetMinDynamicHeight(
-              parentContainerLikeWidget,
-            );
+              // Widgets need to consider changing heights, only if they have dynamic height
+              // enabled.
+              if (isDynamicHeightEnabledForWidget(parentContainerLikeWidget)) {
+                // Get the minimum number of rows this parent must have
 
-            // Get the array of children ids.
-            // This cannot be [], because we came to this point due to an update
-            // caused by one of the children.
-            const children = parentCanvasWidget.children || []; // It's never going to be []
+                let minHeightInRows = getWidgetMinDynamicHeight(
+                  parentContainerLikeWidget,
+                );
 
-            // For each child widget id.
-            for (const childWidgetId of children) {
-              // If we've changed the widget's bottomRow via computations
-              const { detachFromLayout } = stateWidgets[childWidgetId];
-              // We ignore widgets like ModalWidget which don't occupy parent's space.
-              // detachFromLayout helps us identify such widgets
-              if (!detachFromLayout) {
-                if (changesSoFar.hasOwnProperty(childWidgetId)) {
-                  minHeightInRows = Math.max(
-                    minHeightInRows,
-                    changesSoFar[childWidgetId].bottomRow,
-                  );
-                  // If we need to get the existing bottomRow from the state
-                } else {
-                  const childWidget: FlattenedWidgetProps =
-                    stateWidgets[childWidgetId];
+                // Get the array of children ids.
+                // This cannot be [], because we came to this point due to an update
+                // caused by one of the children.
+                const children = parentCanvasWidget.children || []; // It's never going to be []
 
-                  minHeightInRows = Math.max(
-                    minHeightInRows,
-                    childWidget.bottomRow,
-                  );
+                // For each child widget id.
+                for (const childWidgetId of children) {
+                  // If we've changed the widget's bottomRow via computations
+                  const { detachFromLayout } = stateWidgets[childWidgetId];
+                  // We ignore widgets like ModalWidget which don't occupy parent's space.
+                  // detachFromLayout helps us identify such widgets
+                  if (!detachFromLayout) {
+                    if (changesSoFar.hasOwnProperty(childWidgetId)) {
+                      minHeightInRows = Math.max(
+                        minHeightInRows,
+                        changesSoFar[childWidgetId].bottomRow,
+                      );
+                      // If we need to get the existing bottomRow from the state
+                    } else {
+                      const childWidget: FlattenedWidgetProps =
+                        stateWidgets[childWidgetId];
+
+                      minHeightInRows = Math.max(
+                        minHeightInRows,
+                        childWidget.bottomRow,
+                      );
+                    }
+                  }
                 }
-              }
-            }
 
-            // Add extra rows, this is to accommodate for padding and margins in the parent
-            minHeightInRows =
-              minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET;
+                // Add extra rows, this is to accommodate for padding and margins in the parent
+                minHeightInRows =
+                  minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET;
 
-            // For widgets like Tabs Widget, some of the height is occupied by the
-            // tabs themselves, the child canvas as a result has less number of rows available
-            // To accommodate for this, we need to increase the new height by the offset amount.
-            const canvasHeightOffset: number = yield select(
-              getCanvasHeightOffset,
-              parentContainerLikeWidget.type,
-              parentContainerLikeWidget,
-            );
-            minHeightInRows += canvasHeightOffset;
+                // For widgets like Tabs Widget, some of the height is occupied by the
+                // tabs themselves, the child canvas as a result has less number of rows available
+                // To accommodate for this, we need to increase the new height by the offset amount.
+                const canvasHeightOffset: number = yield select(
+                  getCanvasHeightOffset,
+                  parentContainerLikeWidget.type,
+                  parentContainerLikeWidget,
+                );
+                minHeightInRows += canvasHeightOffset;
 
-            // Setting this in a variable, as this will be the total scroll height in the canvas.
-            const maxBottomRow = minHeightInRows + 0;
+                // Setting this in a variable, as this will be the total scroll height in the canvas.
+                const maxBottomRow = minHeightInRows + 0;
 
-            // Make sure we're not overflowing the max height bounds
-            const maxDynamicHeight = getWidgetMaxDynamicHeight(
-              parentContainerLikeWidget,
-            );
+                // Make sure we're not overflowing the max height bounds
+                const maxDynamicHeight = getWidgetMaxDynamicHeight(
+                  parentContainerLikeWidget,
+                );
 
-            minHeightInRows = Math.min(maxDynamicHeight, minHeightInRows);
+                minHeightInRows = Math.min(maxDynamicHeight, minHeightInRows);
 
-            log.debug("Dynamic height, updating parent:", {
-              parentContainerLikeWidget,
-              canvasHeightOffset,
-              minHeightInRows,
-              maxBottomRow,
-              maxDynamicHeight,
-            });
+                log.debug("Dynamic height, updating parent:", {
+                  parentContainerLikeWidget,
+                  canvasHeightOffset,
+                  minHeightInRows,
+                  maxBottomRow,
+                  maxDynamicHeight,
+                });
 
-            // We need to make sure that the canvas widget doesn't have
-            // any extra scroll, to this end, we need to add the `minHeight` update
-            // for the canvas widgets. Canvas Widgets are never updated in other flows
-            // As they simply take up whatever space the parent has, but this doesn't effect
-            // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
-            // Also, for canvas widgets, the values are in pure pixels instead of rows.
-            widgetsToUpdate[parentCanvasWidgetId] = [
-              {
-                propertyPath: "bottomRow",
-                propertyValue:
-                  maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              },
-              {
-                propertyPath: "minHeight",
-                propertyValue:
-                  maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              },
-            ];
+                // We need to make sure that the canvas widget doesn't have
+                // any extra scroll, to this end, we need to add the `minHeight` update
+                // for the canvas widgets. Canvas Widgets are never updated in other flows
+                // As they simply take up whatever space the parent has, but this doesn't effect
+                // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
+                // Also, for canvas widgets, the values are in pure pixels instead of rows.
+                widgetsToUpdate[parentCanvasWidgetId] = [
+                  {
+                    propertyPath: "bottomRow",
+                    propertyValue:
+                      maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                  },
+                  {
+                    propertyPath: "minHeight",
+                    propertyValue:
+                      maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                  },
+                ];
 
-            // Convert this change into the standard expected update format.
-            const expectedUpdate = {
-              widgetId: parentContainerLikeWidget.widgetId,
-              expectedHeightinPx:
-                minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              expectedChangeInHeightInRows:
-                minHeightInRows -
-                (parentContainerLikeWidget.bottomRow -
-                  parentContainerLikeWidget.topRow),
-              currentTopRow: parentContainerLikeWidget.topRow,
-              currentBottomRow: parentContainerLikeWidget.bottomRow,
-              expectedBottomRow:
-                parentContainerLikeWidget.topRow + minHeightInRows,
-              parentId: parentContainerLikeWidget.parentId,
-            };
-
-            log.debug("Dynamic height parent container like widget:", {
-              parentContainerLikeWidget,
-              type: parentContainerLikeWidget.type,
-            });
-
-            // If this widget is actually removed from the layout
-            // For example, if this is a ModalWidget
-            // We need to make sure that we change properties other than bottomRow and topRow
-            // In this case we're updating minHeight and height as well.
-
-            // TODO(abhinav): Why do we need another offset for Modal widget particularly.
-            if (parentContainerLikeWidget.detachFromLayout) {
-              widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
-                {
-                  propertyPath: "bottomRow",
-                  propertyValue:
+                // Convert this change into the standard expected update format.
+                const expectedUpdate = {
+                  widgetId: parentContainerLikeWidget.widgetId,
+                  expectedHeightinPx:
                     minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                },
-                {
-                  propertyPath: "height",
-                  propertyValue:
-                    (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                },
-                {
-                  propertyPath: "minHeight",
-                  propertyValue:
-                    (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                },
-              ];
-            }
+                  expectedChangeInHeightInRows:
+                    minHeightInRows -
+                    (parentContainerLikeWidget.bottomRow -
+                      parentContainerLikeWidget.topRow),
+                  currentTopRow: parentContainerLikeWidget.topRow,
+                  currentBottomRow: parentContainerLikeWidget.bottomRow,
+                  expectedBottomRow:
+                    parentContainerLikeWidget.topRow + minHeightInRows,
+                  parentId: parentContainerLikeWidget.parentId,
+                };
 
-            // If this is not a widget which is outside of the layout,
-            // We must check if it has a parent
-            // It most likely will, as this widget cannot be the MainContainer
-            // The maincontainer is a Canvas Widget, not a container like widget.
-            if (
-              !parentContainerLikeWidget.detachFromLayout &&
-              parentContainerLikeWidget.parentId
-            ) {
-              log.debug("Dynamic height: Adding parent update", {
-                parentContainerLikeWidget,
-                expectedUpdate,
-              });
-              // If this widget's parent canvas already has some updates
-              // We push this update to the existing array.
-              if (
-                expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
-                  parentContainerLikeWidget.parentId,
-                )
-              ) {
-                expectedUpdatesGroupedByParentCanvasWidget[
-                  parentContainerLikeWidget.parentId
-                ].push(expectedUpdate);
-              } else {
-                // Otherwise, we add a new entry.
-                expectedUpdatesGroupedByParentCanvasWidget[
-                  parentContainerLikeWidget.parentId
-                ] = [expectedUpdate];
-              }
+                log.debug("Dynamic height parent container like widget:", {
+                  parentContainerLikeWidget,
+                  type: parentContainerLikeWidget.type,
+                });
 
-              // The parent might not have been added to the previously created group
-              // parentCanvasWidgetGroupedByLevel
-              const _level = canvasLevelMap[parentContainerLikeWidget.parentId];
-              // So, we add it, if it is not the MainContainer.
-              // This way it will be used in parentCanvasWidgetsToConsider
-              // MainContainer was added when we initialised this variable,
-              // so we're skipping it. level === 0 is true only for the MainContainer.
-              if (_level !== 0) {
-                parentCanvasWidgetsGroupedByLevel[_level] = uniq([
-                  ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
-                  parentCanvasWidgetId,
-                ]);
+                // If this widget is actually removed from the layout
+                // For example, if this is a ModalWidget
+                // We need to make sure that we change properties other than bottomRow and topRow
+                // In this case we're updating minHeight and height as well.
+
+                // TODO(abhinav): Why do we need another offset for Modal widget particularly.
+                if (parentContainerLikeWidget.detachFromLayout) {
+                  widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
+                    {
+                      propertyPath: "bottomRow",
+                      propertyValue:
+                        minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                    },
+                    {
+                      propertyPath: "height",
+                      propertyValue:
+                        (minHeightInRows +
+                          GridDefaults.CANVAS_EXTENSION_OFFSET) *
+                        GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                    },
+                    {
+                      propertyPath: "minHeight",
+                      propertyValue:
+                        (minHeightInRows +
+                          GridDefaults.CANVAS_EXTENSION_OFFSET) *
+                        GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                    },
+                  ];
+                }
+
+                // If this is not a widget which is outside of the layout,
+                // We must check if it has a parent
+                // It most likely will, as this widget cannot be the MainContainer
+                // The maincontainer is a Canvas Widget, not a container like widget.
+                if (
+                  !parentContainerLikeWidget.detachFromLayout &&
+                  parentContainerLikeWidget.parentId
+                ) {
+                  log.debug("Dynamic height: Adding parent update", {
+                    parentContainerLikeWidget,
+                    expectedUpdate,
+                  });
+                  // If this widget's parent canvas already has some updates
+                  // We push this update to the existing array.
+                  if (
+                    expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
+                      parentContainerLikeWidget.parentId,
+                    )
+                  ) {
+                    expectedUpdatesGroupedByParentCanvasWidget[
+                      parentContainerLikeWidget.parentId
+                    ].push(expectedUpdate);
+                  } else {
+                    // Otherwise, we add a new entry.
+                    expectedUpdatesGroupedByParentCanvasWidget[
+                      parentContainerLikeWidget.parentId
+                    ] = [expectedUpdate];
+                  }
+
+                  // The parent might not have been added to the previously created group
+                  // parentCanvasWidgetGroupedByLevel
+                  const _level =
+                    canvasLevelMap[parentContainerLikeWidget.parentId];
+                  // So, we add it, if it is not the MainContainer.
+                  // This way it will be used in parentCanvasWidgetsToConsider
+                  // MainContainer was added when we initialised this variable,
+                  // so we're skipping it. level === 0 is true only for the MainContainer.
+                  if (_level !== 0) {
+                    parentCanvasWidgetsGroupedByLevel[_level] = uniq([
+                      ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
+                      parentContainerLikeWidget.parentId,
+                    ]);
+                  }
+                }
               }
             }
           }
         }
       }
-    }
-    // Get all children of the MainContainer
-    // TODO(abhinav): MainContainer should cut off only in view mode.
-    const mainCanvasChildren =
-      stateWidgets[MAIN_CONTAINER_WIDGET_ID].children || [];
-    // Let's consider the minimum Canvas Height
-    let maxCanvasHeight = CANVAS_MIN_HEIGHT;
-    // The same logic to compute the minimum height of the MainContainer
-    // Based on how many rows are being occuped by children.
-    for (const childWidgetId of mainCanvasChildren) {
-      const { detachFromLayout } = stateWidgets[childWidgetId];
-      if (!detachFromLayout) {
-        if (changesSoFar.hasOwnProperty(childWidgetId)) {
-          maxCanvasHeight = Math.max(
-            maxCanvasHeight,
-            changesSoFar[childWidgetId].bottomRow *
-              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          );
-        }
-      } else {
-        const childWidget = stateWidgets[childWidgetId];
+      // Get all children of the MainContainer
+      // TODO(abhinav): MainContainer should cut off only in view mode.
+      const mainCanvasChildren =
+        stateWidgets[MAIN_CONTAINER_WIDGET_ID].children || [];
+      // Let's consider the minimum Canvas Height
+      let maxCanvasHeight = CANVAS_MIN_HEIGHT;
+      // The same logic to compute the minimum height of the MainContainer
+      // Based on how many rows are being occuped by children.
+      for (const childWidgetId of mainCanvasChildren) {
         const { detachFromLayout } = stateWidgets[childWidgetId];
         if (!detachFromLayout) {
-          const bottomRow =
-            dynamicHeightLayoutTree[childWidget.widgetId].bottomRow;
-          maxCanvasHeight = Math.max(
-            maxCanvasHeight,
-            bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          );
+          if (changesSoFar.hasOwnProperty(childWidgetId)) {
+            maxCanvasHeight = Math.max(
+              maxCanvasHeight,
+              changesSoFar[childWidgetId].bottomRow *
+                GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            );
+          }
+        } else {
+          const childWidget = stateWidgets[childWidgetId];
+          const { detachFromLayout } = stateWidgets[childWidgetId];
+          if (!detachFromLayout) {
+            const bottomRow =
+              dynamicHeightLayoutTree[childWidget.widgetId].bottomRow;
+            maxCanvasHeight = Math.max(
+              maxCanvasHeight,
+              bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            );
+          }
+        }
+      }
+
+      // Add the MainContainer's update.
+      widgetsToUpdate[MAIN_CONTAINER_WIDGET_ID] = [
+        {
+          propertyPath: "bottomRow",
+          propertyValue:
+            maxCanvasHeight +
+            GridDefaults.CANVAS_EXTENSION_OFFSET *
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        },
+      ];
+
+      // Convert the changesSoFar (this are the computed changes)
+      // To the widgetsToUpdate data structure for final reducer update.
+      for (const changedWidgetId in changesSoFar) {
+        const hasScroll = Object.values(expectedUpdates).find(
+          (entry) => entry.widgetId === changedWidgetId,
+        )?.hasScroll;
+
+        widgetsToUpdate[changedWidgetId] = [
+          {
+            propertyPath: "bottomRow",
+            propertyValue: changesSoFar[changedWidgetId].bottomRow,
+          },
+          {
+            propertyPath: "topRow",
+            propertyValue: changesSoFar[changedWidgetId].topRow,
+          },
+        ];
+        if (hasScroll) {
+          const containerLikeWidget = stateWidgets[changedWidgetId];
+          if (
+            Array.isArray(containerLikeWidget.children) &&
+            containerLikeWidget.children.length > 0
+          ) {
+            const canvasHeight =
+              (changesSoFar[changedWidgetId].bottomRow -
+                changesSoFar[changedWidgetId].topRow) *
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+            const propertyUpdates = [
+              {
+                propertyPath: "minHeight",
+                propertyValue: canvasHeight,
+              },
+              {
+                propertyPath: "bottomRow",
+                propertyValue: canvasHeight,
+              },
+            ];
+            containerLikeWidget.children.forEach((childWidgetId) => {
+              if (!widgetsToUpdate.hasOwnProperty(childWidgetId)) {
+                widgetsToUpdate[childWidgetId] = propertyUpdates;
+              }
+            });
+          }
         }
       }
     }
-
-    // Add the MainContainer's update.
-    widgetsToUpdate[MAIN_CONTAINER_WIDGET_ID] = [
-      {
-        propertyPath: "bottomRow",
-        propertyValue:
-          maxCanvasHeight +
-          GridDefaults.CANVAS_EXTENSION_OFFSET *
-            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      },
-    ];
-
-    // Convert the changesSoFar (this are the computed changes)
-    // To the widgetsToUpdate data structure for final reducer update.
-    for (const changedWidgetId in changesSoFar) {
-      const hasScroll = Object.values(expectedUpdates).find(
-        (entry) => entry.widgetId === changedWidgetId,
-      )?.hasScroll;
-
-      widgetsToUpdate[changedWidgetId] = [
-        {
-          propertyPath: "bottomRow",
-          propertyValue: changesSoFar[changedWidgetId].bottomRow,
-        },
-        {
-          propertyPath: "topRow",
-          propertyValue: changesSoFar[changedWidgetId].topRow,
-        },
-      ];
-      if (hasScroll) {
-        const containerLikeWidget = stateWidgets[changedWidgetId];
-        if (
-          Array.isArray(containerLikeWidget.children) &&
-          containerLikeWidget.children.length > 0
-        ) {
-          const canvasHeight =
-            (changesSoFar[changedWidgetId].bottomRow -
-              changesSoFar[changedWidgetId].topRow) *
-            GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-          const propertyUpdates = [
-            {
-              propertyPath: "minHeight",
-              propertyValue: canvasHeight,
-            },
-            {
-              propertyPath: "bottomRow",
-              propertyValue: canvasHeight,
-            },
-          ];
-          containerLikeWidget.children.forEach((childWidgetId) => {
-            if (!widgetsToUpdate.hasOwnProperty(childWidgetId)) {
-              widgetsToUpdate[childWidgetId] = propertyUpdates;
-            }
-          });
-        }
-      }
-    }
-  }
-
-  if (Object.keys(independentUpdates).length > 0) {
-    Object.keys(independentUpdates).forEach((updatedWidgetId) => {
-      const changes = independentUpdates[updatedWidgetId];
-      widgetsToUpdate[updatedWidgetId] = [
-        {
-          propertyPath: "height",
-          propertyValue: changes.newHeight,
-        },
-        {
-          propertyPath: "bottomRow",
-          propertyValue: changes.newBottomRow,
-        },
-        {
-          propertyPath: "topRow",
-          propertyValue: changes.newTopRow,
-        },
-      ];
-    });
   }
 
   log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
@@ -665,7 +664,10 @@ export function* dynamicallyUpdateContainersSaga() {
         ) {
           let maxBottomRow =
             parentContainerWidget.bottomRow - parentContainerWidget.topRow;
-          if (parentContainerWidget.detachFromLayout) {
+          if (
+            parentContainerWidget.detachFromLayout &&
+            parentContainerWidget.height
+          ) {
             maxBottomRow =
               parentContainerWidget.height /
               GridDefaults.DEFAULT_GRID_ROW_HEIGHT;

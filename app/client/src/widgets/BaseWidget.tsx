@@ -643,6 +643,7 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
+  height?: number;
 };
 
 export interface WidgetPositionProps extends WidgetRowCols {
@@ -673,6 +674,7 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+  height: false,
 };
 
 export const WIDGET_DISPLAY_PROPS = {
