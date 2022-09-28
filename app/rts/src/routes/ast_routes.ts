@@ -11,14 +11,14 @@ router.post(
   "/single-script-data",
   AstRules.getScriptValidator(),
   validator.validateRequest,
-  astController.getDataFromScript
+  astController.getIdentifierDataFromScript
 );
 
 router.post(
   "/multiple-script-data",
   AstRules.getMultipleScriptValidator(),
   validator.validateRequest,
-  astController.getDataFromMultipleScripts
+  astController.getIdentifierDataFromMultipleScripts
 );
 
 export default router;

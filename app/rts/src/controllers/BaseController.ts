@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { ValidationError } from "express-validator";
 import { StatusCodes } from "http-status-codes";
-import { Extractions } from "@shared/ast";
+import { IdentifierInfo } from "@shared/ast";
 
 type ErrorData = {
   error: string | string[];
@@ -17,7 +17,7 @@ type ErrorBag = {
 type ResponseData = {
   success: boolean;
   message?: string;
-  data: Extractions;
+  data: IdentifierInfo;
 };
 
 export default class BaseController {

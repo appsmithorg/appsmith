@@ -8,12 +8,12 @@ import {
   isPropertyNode,
   isPropertyAFunctionNode,
   getAST,
-  extractInfoFromCode,
+  extractIdentifierInfoFromCode,
   extractInvalidTopLevelMemberExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
   MemberExpressionData,
-  Extractions,
+  IdentifierInfo,
 } from "./src";
 
 // constants
@@ -27,7 +27,7 @@ export type {
   ObjectExpression,
   PropertyNode,
   MemberExpressionData,
-  Extractions,
+  IdentifierInfo,
 };
 
 export {
@@ -38,7 +38,7 @@ export {
   isPropertyNode,
   isPropertyAFunctionNode,
   getAST,
-  extractInfoFromCode,
+  extractIdentifierInfoFromCode,
   extractInvalidTopLevelMemberExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
