@@ -211,7 +211,24 @@ public class AuditLogServiceImpl implements AuditLogService {
                     auditLog.setUser(auditLogUserMetadata);
                     return auditLog;
                 })
-                .flatMap(repository::save) // TODO: Needs to be scheduled in separate thread
+                .flatMap(auditLog1 -> {
+                    /*
+                    Update events for Page, Actions are not logged as a new event instead the latest entry is updated with the time.
+                    Because of the auto save there would be too many entries in AuditLog collection with updated events.
+                    The latest event of the same type is updated given that it is the same user who is performing these actions
+                    */
+                    if(isUpdatedEvent(resourceName, actionName)) {
+                        return repository.updateAuditLogByEventNameUserAndTimeStamp(eventName, auditLog1.getUser().getEmail(), Instant.now().toEpochMilli())
+                                .flatMap(matchCounters -> {
+                                    if(matchCounters > 0) {
+                                        return Mono.just(auditLog1);
+                                    }
+                                    return repository.save(auditLog1);
+                                });
+                    } else {
+                        return repository.save(auditLog1);
+                    }
+                }) // TODO: Needs to be scheduled in separate thread
                 .onErrorResume(throwable -> {
                     log.error(LOG_EVENT_ERROR, throwable.getMessage());
                     return Mono.empty();
@@ -577,5 +594,15 @@ public class AuditLogServiceImpl implements AuditLogService {
                         policy.getPermissionGroups().contains(permissionGroupId))
                 .findFirst()
                 .isPresent();
+    }
+
+    private boolean isUpdatedEvent(String resource, String event) {
+        if(FieldName.UPDATED.equals(event)) {
+            if(FieldName.PAGE.equals(resource) || FieldName.QUERY.equals(resource)) {
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }
