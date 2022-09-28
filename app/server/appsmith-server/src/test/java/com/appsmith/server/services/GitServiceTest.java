@@ -1328,7 +1328,6 @@ public class GitServiceTest {
         mergeStatusDTO.setMergeAble(true);
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
-        ;
         applicationJson.getExportedApplication().setName("upstreamChangesAvailable_pullSuccess");
 
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
