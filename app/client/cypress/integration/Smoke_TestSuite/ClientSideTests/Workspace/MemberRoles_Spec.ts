@@ -121,6 +121,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "App Viewer",
     );
     cy.get(HomePage.closeBtn).click();
+    cy.wait(2000);
     homePage.FilterApplication(appid, workspaceId);
     cy.get(homePage._applicationCard)
       .first()
