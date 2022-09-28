@@ -28,7 +28,6 @@ import {
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import CanvasTopSection from "./EmptyCanvasSection";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -109,20 +108,17 @@ function WidgetsEditor() {
         <>
           {guidedTourEnabled && <Guide />}
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div className="relative flex flex-col w-full overflow-hidden">
-              <CanvasTopSection />
-              <div
-                className="relative flex flex-row w-full overflow-hidden"
-                data-testid="widgets-editor"
-                draggable
-                onClick={handleWrapperClick}
-                onDragStart={onDragStart}
-              >
-                <PageTabs />
-                <CanvasContainer />
-                <CrudInfoModal />
-                <Debugger />
-              </div>
+            <div
+              className="relative flex flex-row w-full overflow-hidden"
+              data-testid="widgets-editor"
+              draggable
+              onClick={handleWrapperClick}
+              onDragStart={onDragStart}
+            >
+              <PageTabs />
+              <CanvasContainer />
+              <CrudInfoModal />
+              <Debugger />
             </div>
             <PropertyPaneContainer />
           </div>

@@ -29,7 +29,6 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
 import { AppState } from "@appsmith/reducers";
@@ -47,7 +46,7 @@ import {
   getJSFunctionLineGutter,
   JSActionDropdownOption,
 } from "./utils";
-import { DropdownOnSelect } from "design-system";
+import { DropdownOnSelect, SearchSnippet } from "design-system";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
@@ -61,6 +60,8 @@ import {
 } from "./styledComponents";
 import { getJSPaneConfigSelectedTabIndex } from "selectors/jsPaneSelectors";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { executeCommandAction } from "../../../actions/apiPaneActions";
+import { SlashCommand } from "../../../entities/Action";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -242,9 +243,20 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
-              <SearchSnippets
+              <SearchSnippet
                 entityId={currentJSCollection?.id}
                 entityType={ENTITY_TYPE.JSACTION}
+                onClick={() => {
+                  dispatch(
+                    executeCommandAction({
+                      actionType: SlashCommand.NEW_SNIPPET,
+                      args: {
+                        entityId: currentJSCollection?.id,
+                        entityType: ENTITY_TYPE.JSACTION,
+                      },
+                    }),
+                  );
+                }}
               />
               <JSFunctionRun
                 disabled={disableRunFunctionality}

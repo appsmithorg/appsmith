@@ -139,6 +139,7 @@ import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
+import { matchGeneratePagePath } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 
@@ -1593,7 +1594,11 @@ function* pasteWidgetSaga(
 
   const pageId: string = yield select(getCurrentPageId);
 
-  if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
+  if (
+    copiedWidgetGroups &&
+    copiedWidgetGroups.length > 0 &&
+    matchGeneratePagePath(window.location.pathname)
+  ) {
     history.push(builderURL({ pageId }));
   }
 
