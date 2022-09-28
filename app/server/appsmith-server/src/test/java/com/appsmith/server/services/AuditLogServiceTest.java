@@ -19,6 +19,7 @@ import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -514,8 +515,36 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
-    //Test case to validate workspace created audit log event and contents
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_pageUpdates_success() {
+        //Update page name multiple times
+        ApplicationPage page = app.getPages().get(0);
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName("testUpdate");
+        newPageService.updatePage(page.getId(), pageDTO).block();
 
+        pageDTO.setName("testUpdate1");
+        newPageService.updatePage(page.getId(), pageDTO).block();
+
+        pageDTO.setName("testUpdate2");
+        newPageService.updatePage(page.getId(), pageDTO).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, null, null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs.size()).isNotEqualTo(0);
+                    assertThat(auditLogs.size()).isEqualTo(1);
+                    assertThat(auditLogs.get(0).getEvent()).isEqualTo("page.updated");
+                    assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(page.getId());
+                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(pageDTO.getName());
+                })
+                .verifyComplete();
+    }
+
+    //Test case to validate workspace created audit log event and contents
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_workspaceCreated_success() {

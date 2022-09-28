@@ -80,9 +80,9 @@ public class CustomAuditLogRepositoryImpl extends BaseAppsmithRepositoryImpl<Aud
     }
 
     @Override
-    public Mono<Long> updateAuditLogByEventNameUserAndTimeStamp(String eventName, String userEmail, long time) {
+    public Mono<Long> updateAuditLogByEventNameUserAndTimeStamp(String eventName, String userEmail, long time, String name) {
         Update update = new Update();
-        update.set(fieldName(QAuditLog.auditLog.timestamp), new Date(time));
+        update.set(fieldName(QAuditLog.auditLog.timestamp), new Date(time)).set(fieldName(QAuditLog.auditLog.resource) + "." + fieldName(QAuditLog.auditLog.resource.name), name);
 
         long lastUpdatedTImeCriteria = Instant.now().minusSeconds(300).toEpochMilli();
         Query query = new Query();

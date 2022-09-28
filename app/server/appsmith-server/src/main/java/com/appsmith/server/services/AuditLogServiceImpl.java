@@ -218,7 +218,7 @@ public class AuditLogServiceImpl implements AuditLogService {
                     The latest event of the same type is updated given that it is the same user who is performing these actions
                     */
                     if(isUpdatedEvent(resourceName, actionName)) {
-                        return repository.updateAuditLogByEventNameUserAndTimeStamp(eventName, auditLog1.getUser().getEmail(), Instant.now().toEpochMilli())
+                        return repository.updateAuditLogByEventNameUserAndTimeStamp(eventName, auditLog1.getUser().getEmail(), Instant.now().toEpochMilli(), auditLog1.getResource().getName())
                                 .flatMap(matchCounters -> {
                                     if(matchCounters > 0) {
                                         return Mono.just(auditLog1);
