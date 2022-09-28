@@ -144,7 +144,6 @@ describe("MySQL Datatype tests", function() {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
     [
-      "falseCases",
       "createTable",
       "deleteAllRecords",
       "dropTable",
