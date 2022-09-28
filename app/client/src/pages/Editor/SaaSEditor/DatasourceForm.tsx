@@ -122,7 +122,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               <EditDatasourceButton
                 category={Category.tertiary}
                 className="t--edit-datasource"
-                // disabled={!canManageDatasource}
                 onClick={() => {
                   this.props.history.replace(
                     saasEditorDatasourceIdURL({

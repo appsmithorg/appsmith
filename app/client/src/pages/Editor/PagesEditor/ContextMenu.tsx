@@ -72,6 +72,11 @@ const MenuItem = styled.div`
     flex-grow: 1;
     font-size: 14px;
   }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 `;
 
 const MenuItemToggle = styled(Toggle)`
@@ -81,6 +86,11 @@ const MenuItemToggle = styled(Toggle)`
 
   input:checked + .slider {
     background-color: ${Colors.GREY_10};
+  }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    pointer-events: none;
   }
 `;
 
@@ -173,7 +183,7 @@ function ContextMenu(props: Props) {
                       ? get(theme, "colors.propertyPane.deleteIconColor")
                       : Colors.GREY_9
                   }
-                  disabled={page.isDefault && !canDeletePages}
+                  disabled={page.isDefault || !canDeletePages}
                   height={16}
                   onClick={() => onDelete(page.pageId, page.pageName)}
                   width={16}
