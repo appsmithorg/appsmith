@@ -1748,7 +1748,6 @@ public class ActionServiceCE_Test {
                 "  }\n" +
                 "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
