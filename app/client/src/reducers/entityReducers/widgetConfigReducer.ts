@@ -34,7 +34,7 @@ export interface WidgetConfig
   key: string;
   isCanvas?: boolean;
   needsMeta?: boolean;
-  canvasHeightOffset?: number;
+  canvasHeightOffset?: (props: WidgetProps) => number;
 }
 
 export interface WidgetConfigReducerState {
