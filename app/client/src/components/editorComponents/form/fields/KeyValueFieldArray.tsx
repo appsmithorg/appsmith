@@ -136,10 +136,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
     if (!!allProps) {
       if (props.fields.length < 2 && props.pushFields) {
         for (let i = props.fields.length; i < 2; i += 1) {
-          // directly pushing the empty field in array
-          // instead of calling push action creator, because
-          // push action creator is async and causes issues
-          props.fields.getAll().push({ key: "", value: "" });
+          props.fields.push({ key: "", value: "" });
         }
       }
     }
