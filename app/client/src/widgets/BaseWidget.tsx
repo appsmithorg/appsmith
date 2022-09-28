@@ -297,19 +297,15 @@ abstract class BaseWidget<
       <PositionedContainer
         componentHeight={componentHeight}
         componentWidth={componentWidth}
-        direction={this.props.direction}
         focused={this.props.focused}
-        isWrapper={this.props.isWrapper}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         parentRowSpace={this.props.parentRowSpace}
         resizeDisabled={this.props.resizeDisabled}
-        responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
         topRow={this.props.topRow}
-        useAutoLayout={this.props.useAutoLayout}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
