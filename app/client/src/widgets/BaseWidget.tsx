@@ -39,10 +39,10 @@ import {
   LayoutDirection,
   ResponsiveBehavior,
 } from "components/constants";
-import { AutoLayoutWrapper } from "components/AutoLayoutWrapper";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import FlexComponent from "components/designSystems/appsmith/FlexComponent";
 
 /***
  * BaseWidget
@@ -330,20 +330,23 @@ abstract class BaseWidget<
     );
   }
 
-  addAutoLayoutWrapper(content: ReactNode) {
+  makeFlex(content: ReactNode) {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return (
-      <AutoLayoutWrapper
-        alignItems={this.props.alignItems}
+      <FlexComponent
+        componentHeight={componentHeight}
+        componentWidth={componentWidth}
         direction={this.props.direction}
-        isWrapper={this.props.isWrapper}
+        focused={this.props.focused}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
-        useAutoLayout={this.props.useAutoLayout}
+        selected={this.props.selected}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
         {content}
-      </AutoLayoutWrapper>
+      </FlexComponent>
     );
   }
 
@@ -382,9 +385,8 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          content = this.makePositioned(content);
-          if (this.props.useAutoLayout)
-            content = this.addAutoLayoutWrapper(content);
+          if (this.props.useAutoLayout) content = this.makeFlex(content);
+          else content = this.makePositioned(content);
         }
         return content;
 
@@ -393,10 +395,10 @@ abstract class BaseWidget<
         content = this.getWidgetComponent();
         if (this.props.isVisible) {
           content = this.addErrorBoundary(content);
-          if (!this.props.detachFromLayout) {
+          if (this.props.useAutoLayout) content = this.makeFlex(content);
+          else if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
-          content = this.addAutoLayoutWrapper(content);
           return content;
         }
         return null;
