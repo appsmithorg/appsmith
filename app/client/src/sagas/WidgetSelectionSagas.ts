@@ -34,6 +34,7 @@ import { AppState } from "@appsmith/reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
 import { showModal } from "actions/widgetActions";
+import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -250,6 +251,7 @@ function* selectWidgetSaga(
       },
     });
   }
+  yield put(closeAppSettingsPaneAction());
 }
 
 function* shiftSelectWidgetsSaga(
