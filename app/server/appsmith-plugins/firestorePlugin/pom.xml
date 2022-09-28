@@ -49,12 +49,6 @@
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
             <artifactId>gcloud</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>

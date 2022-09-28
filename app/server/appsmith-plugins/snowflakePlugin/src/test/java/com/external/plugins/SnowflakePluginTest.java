@@ -92,7 +92,7 @@ public class SnowflakePluginTest {
 
         // Mock datasourceCreate method to return mockConnection.
         Connection mockConnection = mock(Connection.class);
-        
+
         // Mock getRowsFromQueryResult method to return row list.
         List<Map<String, Object>> rowList = new ArrayList<>();
         Map<String, Object> row = new HashMap<>();
