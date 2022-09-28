@@ -70,3 +70,12 @@ ff4j:
         param:
           - name: emails
             value: aswath+test_grouping@appsmith.com
+
+    - uid: TEMPLATES_PHASE_2
+      enable: true
+      description: Allow importing particular pages from templates in existing apps
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emails
+            value: appsmith.com,moolya.com
