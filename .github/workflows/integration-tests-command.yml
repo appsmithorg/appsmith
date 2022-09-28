@@ -46,9 +46,6 @@ jobs:
     # Only run if the build step is successful
     if: success()
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     defaults:
       run:
         shell: bash
