@@ -226,7 +226,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    this.props.deselectModalWidget(this.props.widgetId, this.props.children);
+    setTimeout(() => {
+      this.props.deselectModalWidget(this.props.widgetId, this.props.children);
+    }, 0);
   };
 
   onModalResize = (dimensions: UIElementSize) => {
