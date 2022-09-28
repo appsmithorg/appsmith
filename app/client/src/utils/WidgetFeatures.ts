@@ -1,6 +1,7 @@
 import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
+import { OverflowTypes } from "widgets/TextWidget/constants";
 
 import { AutocompleteDataType } from "./autocomplete/TernServer";
 import EventEmitter from "./EventEmitter";
@@ -152,6 +153,15 @@ function updateMinMaxDynamicHeight(
     updates.push({
       propertyPath: "shouldScrollContents",
       propertyValue: true,
+    });
+  }
+
+  console.log("updateMinMaxDynamicHeight", props);
+
+  if (props.type === "TEXT_WIDGET") {
+    updates.push({
+      propertyPath: "overflow",
+      propertyValue: OverflowTypes.NONE,
     });
   }
 
