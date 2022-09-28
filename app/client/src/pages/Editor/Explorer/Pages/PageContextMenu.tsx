@@ -132,18 +132,19 @@ export function PageContextMenu(props: {
         </CustomLabel>
       ) as ReactNode) as string,
     },
-    canDeletePages && {
-      className: "t--apiFormDeleteBtn single-select",
-      confirmDelete: confirmDelete,
-      value: "delete",
-      onSelect: () => {
-        confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+    !props.isDefaultPage &&
+      canDeletePages && {
+        className: "t--apiFormDeleteBtn single-select",
+        confirmDelete: confirmDelete,
+        value: "delete",
+        onSelect: () => {
+          confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+        },
+        label: confirmDelete
+          ? createMessage(CONFIRM_CONTEXT_DELETE)
+          : createMessage(CONTEXT_DELETE),
+        intent: "danger",
       },
-      label: confirmDelete
-        ? createMessage(CONFIRM_CONTEXT_DELETE)
-        : createMessage(CONTEXT_DELETE),
-      intent: "danger",
-    },
     !props.isDefaultPage &&
       canManagePages && {
         value: "setdefault",

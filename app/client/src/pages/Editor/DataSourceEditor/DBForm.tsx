@@ -140,7 +140,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               <EditDatasourceButton
                 category={Category.tertiary}
                 className="t--edit-datasource"
-                // disabled={!canManageDatasource}
                 onClick={() => {
                   this.props.setDatasourceEditorMode(
                     this.props.datasourceId,

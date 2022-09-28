@@ -220,7 +220,7 @@ export type EntityProps = {
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
-    const { canEditEntityName, showAddButton = true } = props;
+    const { canEditEntityName = true, showAddButton = true } = props;
     const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
