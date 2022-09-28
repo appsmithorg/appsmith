@@ -46,9 +46,6 @@ jobs:
     # Only run if the build step is successful
     if: success()
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     defaults:
       run:
         shell: bash
@@ -72,8 +69,6 @@ jobs:
           - 27017:27017
 
     steps:
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
 
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
