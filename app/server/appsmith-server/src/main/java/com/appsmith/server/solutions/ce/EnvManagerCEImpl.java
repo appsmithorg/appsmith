@@ -106,7 +106,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * respectively.
      */
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile(
-            "^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<quote>[\"']?)(?<value>.*?)\\k<quote>$"
+            "^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<value>.*)$"
     );
 
     private static final Set<String> VARIABLE_WHITELIST = Stream.of(EnvVariables.values())
@@ -185,23 +185,63 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return line;
                     }
                     final String name = matcher.group("name");
-                    if (!changes.containsKey(name)) {
-                        return line;
-                    }
-                    remainingChangedNames.remove(name);
-                    String safeValue = changes.get(name);
-                    if (safeValue.contains(" ") || safeValue.contains("?") || safeValue.contains("*") || safeValue.contains("#")) {
-                        safeValue = "'" + safeValue.replace("'", "'\"'\"'") + "'";
-                    }
-                    return String.format("%s=%s", name, safeValue);
+                    return remainingChangedNames.remove(name)
+                            ? String.format("%s=%s", name, escapeForShell(changes.get(name)))
+                            : line;
                 })
                 .collect(Collectors.toList());
 
         for (final String name : remainingChangedNames) {
-            outLines.add(name + "=" + changes.get(name));
+            outLines.add(name + "=" + escapeForShell(changes.get(name)));
         }
 
         return outLines;
+    }
+
+    private String escapeForShell(String input) {
+        if (org.apache.commons.lang3.StringUtils.containsAny(input, " ?*#'")) {
+            return ("'" + input.replace("'", "'\"'\"'") + "'")
+                    .replaceAll("^''", "")
+                    .replaceAll("''$", "");
+        }
+
+        return input;
+    }
+
+    private String unescapeFromShell(String input) {
+        final int len = input.length();
+        final StringBuilder valueBuilder = new StringBuilder();
+        Character inQuote = null;
+
+        for (int i = 0; i < len; ++i) {
+            final char c = input.charAt(i);
+
+            if (inQuote != null && inQuote == '\'') {
+                if (c == '\'') {
+                    inQuote = null;
+                } else {
+                    valueBuilder.append(c);
+                }
+
+            } else if (inQuote != null) {
+                // If `inQuote` is not null here, then it can only be the double-quote character.
+                // We don't do variable interpolation here, since we don't expect it to be present in the env file.
+                if (c == '"') {
+                    inQuote = null;
+                } else {
+                    valueBuilder.append(c);
+                }
+
+            } else if (c == '\'' || c == '"') {
+                inQuote = c;
+
+            } else {
+                valueBuilder.append(c);
+
+            }
+        }
+
+        return valueBuilder.toString();
     }
 
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
@@ -429,18 +469,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     if (matcher.matches()) {
                         final String name = matcher.group("name");
                         if (VARIABLE_WHITELIST.contains(name)) {
-                            String actualValue = matcher.group("value");
-                            final String quote = matcher.group("quote");
-                            if ("'".equals(quote)) {
-                                // Undo two common methods of escaping single quotes:
-                                actualValue = actualValue
-                                        .replace("'\"'\"'", "'")
-                                        .replace("'\\''", "'");
-                            } else if ("\"".equals(quote)) {
-                                // Undo escaped double quotes:
-                                actualValue = actualValue.replace("\\\"", "\"");
-                            }
-                            data.put(name, actualValue);
+                            data.put(name, unescapeFromShell(matcher.group("value")));
                         }
                     }
                 });
