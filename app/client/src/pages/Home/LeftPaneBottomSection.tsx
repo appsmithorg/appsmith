@@ -18,12 +18,12 @@ import { howMuchTimeBeforeText } from "utils/helpers";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { Colors } from "constants/Colors";
-import { getCurrentUser } from "selectors/usersSelectors";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "../common/CustomizedDropdown/dropdownHelpers";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
