@@ -467,7 +467,6 @@ public class CreateDBTablePageSolutionTests {
                                 .replaceAll(specialCharactersRegex, "")
                                 .replace("like", "ilike")
                                 .replace(structure.getTables().get(0).getName(), structure.getTables().get(1).getName());
-                        ;
                         assertThat(actionBody).isEqualTo(templateActionBody);
                     }
                     assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase("TABLE");
