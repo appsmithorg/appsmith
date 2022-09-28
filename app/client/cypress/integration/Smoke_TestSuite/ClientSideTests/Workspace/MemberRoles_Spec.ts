@@ -139,6 +139,12 @@ describe("Create new workspace and invite user & validate all roles", () => {
       `Administrator - ${workspaceId}`,
     );
     cy.get(HomePage.closeBtn).click();
+    homePage.InviteUserToWorkspace(
+      workspaceId,
+      Cypress.env("TESTUSERNAME2"),
+      "App Viewer",
+    );
+    cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
 
