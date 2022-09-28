@@ -14,7 +14,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { groupBy } from "lodash";
+import { groupBy, uniq } from "lodash";
 import log from "loglevel";
 import {
   CanvasWidgetsReduxState,
@@ -87,10 +87,15 @@ export function* updateWidgetDynamicHeightSaga() {
     currentBottomRow: number;
     expectedBottomRow: number;
     parentId?: string;
+    hasScroll?: boolean;
   }> = [];
 
   const appMode: APP_MODE = yield select(getAppMode);
 
+  const independentUpdates: Record<
+    string,
+    { newHeight: number; newBottomRow: number; newTopRow: number }
+  > = {};
   // For each widget which have new heights to update.
   for (const widgetId in updates) {
     // Get the widget from the reducer.
@@ -136,7 +141,16 @@ export function* updateWidgetDynamicHeightSaga() {
             newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         ),
         parentId: widget.parentId,
+        hasScroll: widget.isCanvas ? true : false,
       });
+    } else {
+      const newHeight = updates[widgetId];
+      const newHeightInRows = newHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+      independentUpdates[widgetId] = {
+        newBottomRow: widget.topRow + newHeightInRows,
+        newTopRow: widget.topRow,
+        newHeight,
+      };
     }
   }
 
@@ -174,10 +188,10 @@ export function* updateWidgetDynamicHeightSaga() {
       if (_level > maxLevel) maxLevel = _level;
 
       // updateteh map with the canvas widgets in the current level.
-      parentCanvasWidgetsGroupedByLevel[_level] = [
+      parentCanvasWidgetsGroupedByLevel[_level] = uniq([
         ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
         parentCanvasWidgetId,
-      ];
+      ]);
     }
 
     // Get the tree data structure we will be using to compute updates
@@ -205,12 +219,12 @@ export function* updateWidgetDynamicHeightSaga() {
         parentCanvasWidgetsGroupedByLevel[level];
       const delta: Record<string, number> = {};
 
-      // log.debug(
-      //   "Dynamic height considering: ",
-      //   { level },
-      //   { parentCanvasWidgetsToConsider },
-      //   { expectedUpdatesGroupedByParentCanvasWidget },
-      // );
+      log.debug(
+        "Dynamic height considering: ",
+        { level },
+        { parentCanvasWidgetsToConsider },
+        { expectedUpdatesGroupedByParentCanvasWidget },
+      );
 
       // For each canvas widget at this level.
       parentCanvasWidgetsToConsider.forEach((parentCanvasWidgetId) => {
@@ -235,12 +249,12 @@ export function* updateWidgetDynamicHeightSaga() {
         dynamicHeightLayoutTree,
         delta,
       );
-      // log.debug("Dynamic height: Computing sibling updates:", {
-      //   siblingWidgetsToUpdate,
-      //   dynamicHeightLayoutTree,
-      //   delta,
-      //   parentCanvasWidgetsToConsider,
-      // });
+      log.debug("Dynamic height: Computing sibling updates:", {
+        siblingWidgetsToUpdate,
+        dynamicHeightLayoutTree,
+        delta,
+        parentCanvasWidgetsToConsider,
+      });
 
       // Add to the changes so far, the changes computed for this canvas widget's children.
       changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
@@ -307,6 +321,7 @@ export function* updateWidgetDynamicHeightSaga() {
             const canvasHeightOffset: number = yield select(
               getCanvasHeightOffset,
               parentContainerLikeWidget.type,
+              parentContainerLikeWidget,
             );
             minHeightInRows += canvasHeightOffset;
 
@@ -338,7 +353,7 @@ export function* updateWidgetDynamicHeightSaga() {
               {
                 propertyPath: "bottomRow",
                 propertyValue:
-                  minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                  maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
               },
               {
                 propertyPath: "minHeight",
@@ -433,10 +448,10 @@ export function* updateWidgetDynamicHeightSaga() {
               // MainContainer was added when we initialised this variable,
               // so we're skipping it. level === 0 is true only for the MainContainer.
               if (_level !== 0) {
-                parentCanvasWidgetsGroupedByLevel[_level] = [
+                parentCanvasWidgetsGroupedByLevel[_level] = uniq([
                   ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
                   parentCanvasWidgetId,
-                ];
+                ]);
               }
             }
           }
@@ -489,6 +504,10 @@ export function* updateWidgetDynamicHeightSaga() {
     // Convert the changesSoFar (this are the computed changes)
     // To the widgetsToUpdate data structure for final reducer update.
     for (const changedWidgetId in changesSoFar) {
+      const hasScroll = Object.values(expectedUpdates).find(
+        (entry) => entry.widgetId === changedWidgetId,
+      )?.hasScroll;
+
       widgetsToUpdate[changedWidgetId] = [
         {
           propertyPath: "bottomRow",
@@ -499,23 +518,72 @@ export function* updateWidgetDynamicHeightSaga() {
           propertyValue: changesSoFar[changedWidgetId].topRow,
         },
       ];
+      if (hasScroll) {
+        const containerLikeWidget = stateWidgets[changedWidgetId];
+        if (
+          Array.isArray(containerLikeWidget.children) &&
+          containerLikeWidget.children.length > 0
+        ) {
+          const canvasHeight =
+            (changesSoFar[changedWidgetId].bottomRow -
+              changesSoFar[changedWidgetId].topRow) *
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+          const propertyUpdates = [
+            {
+              propertyPath: "minHeight",
+              propertyValue: canvasHeight,
+            },
+            {
+              propertyPath: "bottomRow",
+              propertyValue: canvasHeight,
+            },
+          ];
+          containerLikeWidget.children.forEach((childWidgetId) => {
+            if (!widgetsToUpdate.hasOwnProperty(childWidgetId)) {
+              widgetsToUpdate[childWidgetId] = propertyUpdates;
+            }
+          });
+        }
+      }
     }
+  }
 
-    log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
+  if (Object.keys(independentUpdates).length > 0) {
+    Object.keys(independentUpdates).forEach((updatedWidgetId) => {
+      const changes = independentUpdates[updatedWidgetId];
+      widgetsToUpdate[updatedWidgetId] = [
+        {
+          propertyPath: "height",
+          propertyValue: changes.newHeight,
+        },
+        {
+          propertyPath: "bottomRow",
+          propertyValue: changes.newBottomRow,
+        },
+        {
+          propertyPath: "topRow",
+          propertyValue: changes.newTopRow,
+        },
+      ];
+    });
+  }
 
+  log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
+
+  if (Object.keys(widgetsToUpdate).length > 0) {
     // Push all updates to the CanvasWidgetsReducer.
     // Note that we're not calling `UPDATE_LAYOUT`
     // as we don't need to trigger an eval
     yield put(updateMultipleWidgetProperties(widgetsToUpdate));
     dynamicHeightUpdateWidgets = {};
     yield put(generateDynamicHeightComputationTree(false));
-
-    log.debug(
-      "Dynamic Height: Overall time taken: ",
-      performance.now() - start,
-      "ms",
-    );
   }
+
+  log.debug(
+    "Dynamic Height: Overall time taken: ",
+    performance.now() - start,
+    "ms",
+  );
 }
 
 let dynamicHeightUpdateWidgets: Record<string, number> = {};
@@ -586,7 +654,6 @@ export function* dynamicallyUpdateContainersSaga() {
     .sort((a, b) => b - a);
 
   const updates: Record<string, number> = {};
-
   for (const level of levels) {
     const canvasWidgetsAtThisLevel = groupedByCanvasLevel[`${level}`];
     for (const canvasWidget of canvasWidgetsAtThisLevel) {
@@ -598,6 +665,11 @@ export function* dynamicallyUpdateContainersSaga() {
         ) {
           let maxBottomRow =
             parentContainerWidget.bottomRow - parentContainerWidget.topRow;
+          if (parentContainerWidget.detachFromLayout) {
+            maxBottomRow =
+              parentContainerWidget.height /
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+          }
           if (
             Array.isArray(canvasWidget.children) &&
             canvasWidget.children.length > 0
@@ -617,7 +689,9 @@ export function* dynamicallyUpdateContainersSaga() {
             const canvasHeightOffset: number = yield select(
               getCanvasHeightOffset,
               parentContainerWidget.type,
+              parentContainerWidget,
             );
+
             maxBottomRow += canvasHeightOffset;
           }
           // Get the boundaries for possible min and max dynamic height.

@@ -44,12 +44,10 @@ function validateMinHeight(value: unknown, props: WidgetProps) {
   const _value: number = parseInt(value as string, 10);
   const _maxHeight: number = parseInt(props.maxDynamicHeight as string, 10);
 
-  if (isNaN(_value) || _value <= 2) {
+  if (isNaN(_value) || _value < 4) {
     return {
       isValid: false,
-      messages: [
-        `Value should be a positive integer greater than ${WidgetHeightLimits.MIN_HEIGHT_IN_ROWS}`,
-      ],
+      messages: [`Value should be a positive integer greater than 4`],
       parsed: 4,
     };
   } else if (_value > _maxHeight) {
@@ -71,11 +69,11 @@ function validateMaxHeight(value: unknown, props: WidgetProps) {
   const _value: number = parseInt(value as string, 10);
   const _minHeight: number = parseInt(props.minDynamicHeight as string, 10);
 
-  if (isNaN(_value) || _value <= 2) {
+  if (isNaN(_value) || _value < 4) {
     return {
       isValid: false,
-      messages: [`Value should be a positive integer greater than 2`],
-      parsed: 9000,
+      messages: [`Value should be a positive integer greater than 4`],
+      parsed: 100,
     };
   } else if (_value < _minHeight) {
     return {
@@ -226,7 +224,7 @@ export const PropertyPaneConfigTemplates = {
         helpText: "Minimum number of rows to occupy irrespective of contents",
         controlType: "INPUT_TEXT",
         hidden: hideDynamicHeightPropertyControl,
-        dependencies: ["dynamicHeight"],
+        dependencies: ["dynamicHeight", "maxDynamicHeight"],
         isJSConvertible: false,
         isBindProperty: true,
         isTriggerProperty: false,
@@ -254,7 +252,7 @@ export const PropertyPaneConfigTemplates = {
         label: "Max Height (in rows)",
         helpText: "Maximum Height, after which contents will scroll",
         controlType: "INPUT_TEXT",
-        dependencies: ["dynamicHeight"],
+        dependencies: ["dynamicHeight", "minDynamicHeight"],
         hidden: hideDynamicHeightPropertyControl,
         updateHook: transformToNumber,
         validation: {

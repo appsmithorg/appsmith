@@ -29,6 +29,7 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -149,8 +150,24 @@ class JSONFormWidget extends BaseWidget<
       this.state.metaInternalFieldState,
       schema,
     );
-    const height = this.formRef?.current?.scrollHeight || 0;
-    const footerHeight = 60; // TODO(abhinav): Get it from the component.
+    let height = this.formRef?.current?.scrollHeight || 0;
+
+    const { maxDynamicHeight, minDynamicHeight } = this.props;
+    const footerHeight = 60; // TODO(abhinav): Get it from the component. Check with Ashit
+
+    if (
+      maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT <
+      height + footerHeight
+    ) {
+      height =
+        maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT - footerHeight;
+    } else if (
+      minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT >
+      height + footerHeight
+    ) {
+      height =
+        minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT - footerHeight;
+    }
     const totalHeight = footerHeight + height;
     const { componentHeight } = this.getComponentDimensions();
 

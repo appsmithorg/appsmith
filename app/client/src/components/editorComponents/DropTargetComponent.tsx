@@ -165,6 +165,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // e.stopPropagation();
     e.preventDefault();
   };
+
   const height = canDropTargetExtend
     ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
     : "100%";
