@@ -21,9 +21,20 @@ describe("Post window message", () => {
     });
     cy.get("[data-testid=Target-iframe-code-wrapper]").within(() => {
       cy.get(".CodeMirror textarea")
+        .first()
         .focus()
-        .clear()
-        .type("Iframe1");
+        .type("{ctrl}{uparrow}", { force: true })
+        .type("{ctrl}{shift}{downarrow}", { force: true });
+      cy.focused().then(() => {
+        cy.get(".CodeMirror textarea")
+          .first()
+          .click({ force: true })
+          .focused()
+          .clear({
+            force: true,
+          })
+          .type("Iframe1");
+      });
     });
 
     ee.SelectEntityByName("Iframe1", "Widgets");
@@ -31,26 +42,19 @@ describe("Post window message", () => {
       "srcDoc",
       `<!doctype html>
           <html lang="en">
-
           <head>
             <meta charset="UTF-8">
           </head>
-
           <body>
           <button id="iframe-button" onclick="sendMsg()">Send message</button>
-
           <script>
-
             function sendMsg() {
             window.parent.postMessage("got msg", "*");
             }
-
             window.addEventListener("message", (e) => {
                 alert(e.data);
-            })
-
+            });
           </script>
-
           </body>
           </html>`,
     );
@@ -59,13 +63,19 @@ describe("Post window message", () => {
       cy.get(".CodeEditorTarget").type("I got a message from iframe");
     });
 
-    agHelper.ClickButton("Submit");
+    deployMode.DeployApp();
+    cy.get("#iframe-Iframe1").then((element) => {
+      const body = element.contents().find("body");
+      body.find("#iframe-button").click();
+    });
+
     agHelper.ValidateToastMessage("I got a message");
 
-    agHelper.ClickButton("Send message");
+    agHelper.ClickButton("Submit");
     cy.on("window:alert", (str) => {
       expect(str).to.equal("hello world!");
     });
-    cy.on("window:confirm", () => true);
+
+    deployMode.NavigateBacktoEditor();
   });
 });
