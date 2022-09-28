@@ -30,7 +30,11 @@ import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
 import { GridDefaults } from "constants/WidgetConstants";
-import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  getWidgetMaxDynamicHeight,
+  getWidgetMinDynamicHeight,
+  isDynamicHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -154,7 +158,8 @@ class JSONFormWidget extends BaseWidget<
     let height = this.formRef?.current?.scrollHeight || 0;
 
     if (isDynamicHeightEnabledForWidget(this.props)) {
-      const { maxDynamicHeight, minDynamicHeight } = this.props;
+      const maxDynamicHeight = getWidgetMaxDynamicHeight(this.props);
+      const minDynamicHeight = getWidgetMinDynamicHeight(this.props);
       const footerHeight = 60; // TODO(abhinav): Get it from the component. Check with Ashit
 
       if (
