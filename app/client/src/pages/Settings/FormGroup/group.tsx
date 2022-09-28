@@ -59,6 +59,10 @@ const GroupBody = styled.div`
     }
   }
   &&&& {
+    .tag-input .${Classes.TAG_INPUT} {
+      box-shadow: none;
+    }
+
     .tag-input .${Classes.TAG} {
       color: #575757;
       background-color: #e7e7e7;
