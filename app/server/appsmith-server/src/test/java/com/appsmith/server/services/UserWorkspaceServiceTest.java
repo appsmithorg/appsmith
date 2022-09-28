@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-//@ExtendWith(SpringExtension.class)
 @Slf4j
 @SpringBootTest
 @DirtiesContext
