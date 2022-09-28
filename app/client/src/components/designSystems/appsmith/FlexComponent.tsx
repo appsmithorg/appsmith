@@ -2,7 +2,11 @@ import React, { ReactNode, useCallback } from "react";
 import styled from "styled-components";
 
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
-import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  WidgetType,
+  widgetTypeClassname,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "./PositionedContainer";
@@ -70,15 +74,17 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
+  /**
+   * In a vertical stack,
+   * Fill widgets grow / shrink to take up all the available space.
+   * => width: auto && flex-grow: 1;
+   */
   const isFillWidget: boolean =
     props.direction === LayoutDirection.Vertical &&
     props.responsiveBehavior === ResponsiveBehavior.Fill;
   const className = `auto-layout-parent-${props.parentId} auto-layout-child-${
     props.widgetId
-  } t--widget-${props.widgetType
-    .split("_")
-    .join("")
-    .toLowerCase()}`;
+  } ${widgetTypeClassname(props.widgetType)}`;
 
   return (
     <FlexWidget

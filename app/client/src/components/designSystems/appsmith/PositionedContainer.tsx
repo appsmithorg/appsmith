@@ -5,6 +5,7 @@ import {
   CSSUnits,
   PositionTypes,
   WidgetType,
+  widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -88,10 +89,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
-      ` ${POSITIONED_WIDGET} t--widget-${props.widgetType
-        .split("_")
-        .join("")
-        .toLowerCase()}`
+      ` ${POSITIONED_WIDGET} ${widgetTypeClassname(props.widgetType)}`
     );
   }, [props.widgetType, props.widgetId]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
