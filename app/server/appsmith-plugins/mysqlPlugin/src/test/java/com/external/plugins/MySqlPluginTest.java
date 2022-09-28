@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -570,16 +571,19 @@ public class MySqlPluginTest {
         Param param1 = new Param();
         param1.setKey("binding1");
         param1.setValue("1.123");
+        param1.setClientDataType(ClientDataType.NUMBER);
         params.add(param1);
 
         Param param2 = new Param();
         param2.setKey("binding2");
         param2.setValue("3.123");
+        param2.setClientDataType(ClientDataType.NUMBER);
         params.add(param2);
 
         Param param3 = new Param();
         param3.setKey("binding3");
         param3.setValue("5.123");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
 
         executeActionDTO.setParams(params);
@@ -636,6 +640,7 @@ public class MySqlPluginTest {
         Param param1 = new Param();
         param1.setKey("binding1");
         param1.setValue("True");
+        param1.setClientDataType(ClientDataType.BOOLEAN);
         params.add(param1);
         executeActionDTO.setParams(params);
 
@@ -887,8 +892,12 @@ public class MySqlPluginTest {
                     assertNotNull(structure);
                     assertEquals(2, structure.getTables().size());
 
-                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(0);
-                    assertEquals("possessions", possessionsTable.getName());
+                    Optional<DatasourceStructure.Table> possessionsTableOptional = structure.getTables()
+                            .stream()
+                            .filter(table -> table.getName().equalsIgnoreCase("possessions"))
+                            .findFirst();
+                    assertTrue(possessionsTableOptional.isPresent());
+                    final DatasourceStructure.Table possessionsTable = possessionsTableOptional.get();
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
@@ -931,8 +940,12 @@ public class MySqlPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables().get(1);
-                    assertEquals("users", usersTable.getName());
+                    Optional<DatasourceStructure.Table> usersTableOptional = structure.getTables()
+                            .stream()
+                            .filter(table -> table.getName().equalsIgnoreCase("users"))
+                            .findFirst();
+                    assertTrue(usersTableOptional.isPresent());
+                    final DatasourceStructure.Table usersTable = usersTableOptional.get();
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
@@ -1343,7 +1356,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("select id from user LIMIT {{binding1}}");
+        actionConfiguration.setBody("select id from users LIMIT {{binding1}}");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
