@@ -4,7 +4,6 @@ import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
