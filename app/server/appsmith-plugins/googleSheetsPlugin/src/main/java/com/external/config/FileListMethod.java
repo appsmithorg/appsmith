@@ -33,7 +33,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
-                "?q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse", true);
+                "?q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20or%20mimeType%3D'application%2Fvnd.openxmlformats-officedocument.spreadsheetml.sheet'%20and%20trashed%3Dfalse", true);
 
         return webClient.method(HttpMethod.GET)
                 .uri(uriBuilder.build(true).toUri())
