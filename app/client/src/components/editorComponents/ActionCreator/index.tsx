@@ -33,6 +33,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
+  CLEAR_TIMEOUT,
   CLOSE_MODAL,
   COPY_TO_CLIPBOARD,
   createMessage,
@@ -45,6 +46,7 @@ import {
   OPEN_MODAL,
   RESET_WIDGET,
   SET_INTERVAL,
+  SET_TIMEOUT,
   SHOW_MESSAGE,
   STOP_WATCH_GEO_LOCATION,
   STORE_VALUE,
@@ -105,6 +107,14 @@ const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(RESET_WIDGET),
     value: AppsmithFunction.resetWidget,
+  },
+  {
+    label: createMessage(SET_TIMEOUT),
+    value: AppsmithFunction.setTimeout,
+  },
+  {
+    label: createMessage(CLEAR_TIMEOUT),
+    value: AppsmithFunction.clearTimeout,
   },
   {
     label: createMessage(SET_INTERVAL),
@@ -375,6 +385,27 @@ function getFieldFromValue(
         field: FieldType.ID_FIELD,
       },
     );
+  }
+  if (value.indexOf("setTimeout") !== -1) {
+    fields.push(
+      {
+        field: FieldType.CALLBACK_FUNCTION_FIELD,
+      },
+      {
+        field: FieldType.DELAY_FIELD,
+      },
+      {
+        field: FieldType.VALUE_TEXT_FIELD,
+      },
+      {
+        field: FieldType.ID_FIELD,
+      },
+    );
+  }
+  if (value.indexOf("clearTimeout") !== -1) {
+    fields.push({
+      field: FieldType.ID_FIELD,
+    });
   }
 
   if (value.indexOf("clearInterval") !== -1) {

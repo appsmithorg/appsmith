@@ -183,6 +183,9 @@ const fieldConfigs: FieldConfigs = {
         case AppsmithFunction.setInterval:
           defaultParams = "() => { \n\t // add code here \n}, 5000";
           break;
+        case AppsmithFunction.setTimeout:
+          defaultParams = "() => { \n\t // add code here \n}, 5000";
+          break;
         case AppsmithFunction.getGeolocation:
           defaultParams = "(location) => { \n\t // add code here \n  }";
           break;

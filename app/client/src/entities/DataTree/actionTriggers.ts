@@ -18,10 +18,13 @@ export enum ActionTriggerType {
   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
+  SET_TIMEOUT = "SET_TIMEOUT",
+  CLEAR_TIMEOUT = "CLEAR_TIMEOUT",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.CLEAR_INTERVAL]: "clearInterval",
+  [ActionTriggerType.CLEAR_TIMEOUT]: "clearTimeout",
   [ActionTriggerType.CLEAR_PLUGIN_ACTION]: "action.clear",
   [ActionTriggerType.CLOSE_MODAL]: "closeModal",
   [ActionTriggerType.COPY_TO_CLIPBOARD]: "copyToClipboard",
@@ -30,6 +33,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME]: "resetWidget",
   [ActionTriggerType.RUN_PLUGIN_ACTION]: "action.run",
   [ActionTriggerType.SET_INTERVAL]: "setInterval",
+  [ActionTriggerType.SET_TIMEOUT]: "setTimeout",
   [ActionTriggerType.SHOW_ALERT]: "showAlert",
   [ActionTriggerType.SHOW_MODAL_BY_NAME]: "showModal",
   [ActionTriggerType.STORE_VALUE]: "storeValue",
