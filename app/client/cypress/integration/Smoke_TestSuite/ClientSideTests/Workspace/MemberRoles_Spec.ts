@@ -115,6 +115,12 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTPASSWORD1"),
       "Administrator",
     );
+    homePage.InviteUserToWorkspace(
+      workspaceId,
+      Cypress.env("TESTUSERNAME2"),
+      "App Viewer",
+    );
+    cy.get(HomePage.closeBtn).click();
     homePage.FilterApplication(appid, workspaceId);
     cy.get(homePage._applicationCard)
       .first()
@@ -137,12 +143,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(".t--dropdown-option").should(
       "contain.text",
       `Administrator - ${workspaceId}`,
-    );
-    cy.get(HomePage.closeBtn).click();
-    homePage.InviteUserToWorkspace(
-      workspaceId,
-      Cypress.env("TESTUSERNAME2"),
-      "App Viewer",
     );
     cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
