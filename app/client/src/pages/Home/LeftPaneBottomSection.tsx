@@ -17,6 +17,13 @@ import { howMuchTimeBeforeText } from "utils/helpers";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { Colors } from "constants/Colors";
+import {
+  DropdownOnSelectActions,
+  getOnSelectAction,
+} from "../common/CustomizedDropdown/dropdownHelpers";
+import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { ADMIN_SETTINGS } from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
@@ -52,9 +59,22 @@ function LeftPaneBottomSection() {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { appVersion, cloudHosting } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
+  const user = useSelector(getCurrentUser);
 
   return (
     <Wrapper>
+      {user?.isSuperUser && user?.isConfigurable && !isFetchingApplications && (
+        <MenuItem
+          className="admin-settings-menu-option"
+          icon="setting"
+          onSelect={() => {
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+            });
+          }}
+          text={createMessage(ADMIN_SETTINGS)}
+        />
+      )}
       <MenuItem
         className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
         icon="discord"
