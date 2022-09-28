@@ -1222,11 +1222,6 @@ export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;
 
-// Audit logs begin
-export const AUDIT_LOGS = () => "Audit logs";
-export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
-// Audit logs end
-
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",
   shortDesc: () =>
