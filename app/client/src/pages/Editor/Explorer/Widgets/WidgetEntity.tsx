@@ -17,10 +17,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import {
-  getCurrentApplication,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -98,15 +95,6 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
-  );
-
-  const canCreatePages = isPermitted(
-    userAppPermissions,
-    PERMISSION_TYPE.CREATE_PAGES,
-  );
-
   const canManagePages = isPermitted(
     pagePermissions,
     PERMISSION_TYPE.MANAGE_PAGES,
@@ -155,7 +143,6 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const contextMenu = (
     <WidgetContextMenu
-      canCreatePages={canCreatePages}
       canManagePages={canManagePages}
       className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
