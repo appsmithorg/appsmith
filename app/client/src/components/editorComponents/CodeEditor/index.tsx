@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isString } from "lodash";
+import _, { isEqual, isString } from "lodash";
 import {
   DataTree,
   ENTITY_TYPE,
@@ -344,8 +344,24 @@ class CodeEditor extends Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
-    if (this.props.dynamicData !== nextProps.dynamicData)
-      return nextState.isFocused || !!nextProps.isJSObject;
+    if (this.props.dynamicData !== nextProps.dynamicData) {
+      // check if isFocused or isJSObject or areErrors changed then re-render
+      let areErrorsEqual = true;
+      if (this.props.dataTreePath) {
+        const errors = this.getErrors(
+          this.props.dynamicData,
+          this.props.dataTreePath,
+        );
+        const newErrors = this.getErrors(
+          nextProps.dynamicData,
+          this.props.dataTreePath,
+        );
+        if (errors && newErrors) {
+          areErrorsEqual = isEqual(errors, newErrors);
+        }
+      }
+      return nextState.isFocused || !!nextProps.isJSObject || !areErrorsEqual;
+    }
     return true;
   }
 
@@ -756,6 +772,14 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  getErrors(dynamicData: DataTree, dataTreePath: string) {
+    return _.get(
+      dynamicData,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+  }
+
   getPropertyValidation = (
     dataTreePath?: string,
   ): {
@@ -771,11 +795,7 @@ class CodeEditor extends Component<Props, State> {
       };
     }
 
-    const errors = _.get(
-      this.props.dynamicData,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
+    const errors = this.getErrors(this.props.dynamicData, dataTreePath);
 
     const filteredLintErrors = errors.filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
