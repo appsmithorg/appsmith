@@ -69,10 +69,10 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 }, {} as any);
 
 function resetWorkerGlobalScope() {
-  const libs = extraLibraries.map((lib) => lib.accessor);
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key]) continue;
-    if (libs.includes(key)) continue;
+    if (key === "evaluationVersion") continue;
+    if (extraLibraries.find((lib) => lib.accessor === key)) continue;
     // @ts-expect-error: Types are not available
     delete self[key];
   }
