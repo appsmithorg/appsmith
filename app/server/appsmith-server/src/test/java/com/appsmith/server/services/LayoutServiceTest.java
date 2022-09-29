@@ -997,8 +997,7 @@ public class LayoutServiceTest {
 
                     Set<String> fourthSetPageLoadActions = Set.of(
                             "aPostActionWithAutoExec",
-                            "Collection.anAsyncCollectionActionWithoutCall",
-                            "Collection.aSyncCollectionActionWithoutCall"
+                            "Collection.anAsyncCollectionActionWithoutCall"
                     );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
@@ -1096,8 +1095,7 @@ public class LayoutServiceTest {
 
                     Set<String> thirdSetPageLoadActions = Set.of(
                             "aPostActionWithAutoExec",
-                            "Collection.anAsyncCollectionActionWithoutCall",
-                            "Collection.aSyncCollectionActionWithoutCall"
+                            "Collection.anAsyncCollectionActionWithoutCall"
                     );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);

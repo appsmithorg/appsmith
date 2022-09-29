@@ -343,12 +343,6 @@
             <artifactId>mockwebserver3</artifactId>
             <version>5.0.0-alpha.10</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.squareup.okhttp3</groupId>
-                    <artifactId>okhttp-jvm</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
