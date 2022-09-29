@@ -40,6 +40,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { noop } from "utils/AppsmithUtils";
 
 export const Container = styled.div`
   display: flex;
@@ -219,7 +220,7 @@ function PageListItem(props: PageListItemProps) {
                     color={Colors.GREY_9}
                     disabled={!canManagePages}
                     height={16}
-                    onClick={clonePageCallback}
+                    onClick={!canManagePages ? noop : clonePageCallback}
                     width={16}
                   />
                 </Action>
@@ -238,7 +239,11 @@ function PageListItem(props: PageListItemProps) {
                     }
                     disabled={item.isDefault || !canDeletePages}
                     height={16}
-                    onClick={deletePageCallback}
+                    onClick={
+                      item.isDefault || !canDeletePages
+                        ? noop
+                        : deletePageCallback
+                    }
                     width={16}
                   />
                 </Action>

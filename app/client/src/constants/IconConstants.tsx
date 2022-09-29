@@ -28,7 +28,6 @@ export const IconWrapper = styled.div<IconProps>`
       ? "pointer"
       : props.cursor ?? "default"};
   opacity: ${(props) => (props.disabled ? 0.5 : 1)};
-  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
   && svg {
     width: ${(props) => props.width || props.theme.fontSizes[6]}px;
     height: ${(props) => props.height || props.theme.fontSizes[6]}px;
