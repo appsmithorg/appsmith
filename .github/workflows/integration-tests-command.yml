@@ -200,6 +200,7 @@ jobs:
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_AUDITLOG_ENABLED=true \
+            -e APPSMITH_ENVFILE_PATH=/tmp/dummy.env \
             --add-host=host.docker.internal:host-gateway \
             fatcontainer
 
@@ -620,6 +621,7 @@ jobs:
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
           APPSMITH_AUDITLOG_ENABLED: true
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
         run: |
           ls -l
           ls -l scripts/
