@@ -27,9 +27,8 @@ Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 describe("Cyclic Dependency Informational Error Messagaes", function() {
   before(() => {
     cy.addDsl(dsl);
-    cy.wait(3000); //dsl to settle! 
+    cy.wait(3000); //dsl to settle!
   });
-
 
   it("1. Create Users Sample DB & Sample DB Query", () => {
     //Step1
@@ -84,10 +83,8 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     cy.assertPageSave();
   });
 
- 
-
   //Case 1: On page load actions
-  it ("3. Reload Page and it should provide errors in response", () => {
+  it("3. Reload Page and it should provide errors in response", () => {
     // cy.get(widgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("inputwidgetv2");
@@ -98,7 +95,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     );
   });
 
-  it ("4. update input widget's placeholder property and check errors array", () => {
+  it("4. update input widget's placeholder property and check errors array", () => {
     // Case 2: When updating DSL attribute
     cy.get(widgetsPage.placeholder).type("cyclic placeholder");
     cy.wait("@updateLayout").should(
@@ -122,8 +119,8 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
         toRun: true,
         shouldCreateNewJSObj: true,
       },
-    )
-    jsEditor.RenameJSObjFromPane("newName")
+    );
+    jsEditor.RenameJSObjFromPane("newName");
 
     cy.wait("@renameJsAction").should(
       "have.nested.property",
@@ -148,7 +145,6 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   // Case 5: When updating DSL name
   it("6. Update Widget Name and check for errors", () => {
-
     let entityName = "gender";
     let newEntityName = "newInput";
     ee.SelectEntityByName(entityName, "Widgets");
@@ -158,7 +154,6 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
       "response.body.data.layoutOnLoadActionErrors.length",
       1,
     );
-
   });
 
   // Case 6: When updating Datasource query
@@ -169,12 +164,12 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     // update query and check for cyclic depedency issue
     cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
-    .first()
-    .focus()
-    .type(" ", {
-      force: true,
-      parseSpecialCharSequences: false,
-    });
+      .first()
+      .focus()
+      .type(" ", {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
     cy.wait("@saveAction").should(
       "have.nested.property",
       "response.body.data.errorReports.length",

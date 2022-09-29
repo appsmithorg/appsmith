@@ -25,10 +25,11 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.GeoPoint;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.FirestoreEmulatorContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -63,21 +64,19 @@ import static com.external.constants.FieldName.PREV;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static com.external.constants.FieldName.WHERE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit tests for the FirestorePlugin
- */
 @Slf4j
+@Testcontainers
 public class FirestorePluginTest {
 
     static FirestorePlugin.FirestorePluginExecutor pluginExecutor = new FirestorePlugin.FirestorePluginExecutor();
 
-    @ClassRule
+    @Container
     public static final FirestoreEmulatorContainer emulator = new FirestoreEmulatorContainer(
             DockerImageName.parse("gcr.io/google.com/cloudsdktool/cloud-sdk:316.0.0-emulators")
     );
@@ -86,7 +85,7 @@ public class FirestorePluginTest {
 
     static DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws ExecutionException, InterruptedException, ParseException {
         firestoreConnection = FirestoreOptions.newBuilder()
                 .setHost(emulator.getEmulatorEndpoint())
@@ -132,11 +131,11 @@ public class FirestorePluginTest {
         firestoreConnection.document("numeric/two").set(numData).get();
 
         firestoreConnection.document("info/family")
-                .set( Map.of(
-                            "kids", Arrays.asList("Ally", "Dolly", "Shelly", "Kelly"),
-                            "cars", Arrays.asList("Odyssey", "Dodge"),
-                            "wife", "Billy",
-                            "phone_numbers", Arrays.asList(Integer.valueOf("555"),Integer.valueOf("99"), Integer.valueOf("333"), Integer.valueOf("888") )
+                .set(Map.of(
+                        "kids", Arrays.asList("Ally", "Dolly", "Shelly", "Kelly"),
+                        "cars", Arrays.asList("Odyssey", "Dodge"),
+                        "wife", "Billy",
+                        "phone_numbers", Arrays.asList(Integer.valueOf("555"), Integer.valueOf("99"), Integer.valueOf("333"), Integer.valueOf("888"))
                 ))
                 .get();
 

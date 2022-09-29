@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
@@ -260,8 +261,18 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             }
                             return Mono.error(error);
                         })
-                        .flatMap(analyticsService::sendUpdateEvent)
-                );
+                        .flatMap(application1 -> {
+                            final Map<String, Object> eventData = Map.of(
+                                    FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                    FieldName.APPLICATION, application1
+                            );
+                            final Map<String, Object> data = Map.of(
+                                    FieldName.APPLICATION_ID, application1.getId(),
+                                    FieldName.WORKSPACE_ID, application1.getWorkspaceId(),
+                                    FieldName.EVENT_DATA, eventData
+                            );
+                            return analyticsService.sendUpdateEvent(application1, data);
+                        }));
     }
 
     public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
@@ -513,12 +524,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(application -> {
                     // Send generate SSH key analytics event
                     assert application.getId() != null;
-                    final Map<String, Object> data = Map.of(
-                            "applicationId", application.getId(),
-                            "organizationId", application.getWorkspaceId(),
-                            "isRegeneratedKey", gitAuth.isRegeneratedKey()
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.APPLICATION, application
                     );
-
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            "organizationId", application.getWorkspaceId(),
+                            "isRegeneratedKey", gitAuth.isRegeneratedKey(),
+                            FieldName.EVENT_DATA, eventData
+                    );
                     return analyticsService.sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
                             .onErrorResume(e -> {
                                 log.warn("Error sending ssh key generation data point", e);
