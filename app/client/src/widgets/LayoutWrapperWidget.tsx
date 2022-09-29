@@ -9,7 +9,7 @@ import {
 import { DropTargetComponent } from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getCanvasClassName } from "utils/generators";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
   AlignItems,
@@ -46,22 +46,6 @@ class LayoutWrapperWidget extends ContainerWidget {
   static getWidgetType() {
     return "LAYOUT_WRAPPER_WIDGET";
   }
-  componentDidMount(): void {
-    super.componentDidMount();
-  }
-  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
-    if (this.props.positioning !== prevProps.positioning)
-      this.updatePositioningInformation();
-  }
-  updatePositioningInformation = (): void => {
-    this.setState({
-      useAutoLayout: true,
-      direction:
-        this.props.positioning === Positioning.Horizontal
-          ? LayoutDirection.Vertical
-          : LayoutDirection.Horizontal,
-    });
-  };
 
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {
     return {
@@ -80,7 +64,7 @@ class LayoutWrapperWidget extends ContainerWidget {
       <DropTargetComponent
         {...canvasProps}
         {...this.getSnapSpaces()}
-        direction={this.state.direction}
+        direction={LayoutDirection.Vertical}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
       >
         {this.renderAsContainerComponent(canvasProps)}
@@ -101,20 +85,18 @@ class LayoutWrapperWidget extends ContainerWidget {
     // Pass layout controls to children
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
-    childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.state.direction;
+    childWidget.useAutoLayout = this.props.useAutoLayout;
+    childWidget.direction = this.getInverseDirection(this.props.direction);
     childWidget.justifyContent = this.props.justifyContent;
     childWidget.alignItems = this.props.alignItems;
 
-    if (
-      childWidget?.responsiveBehavior === ResponsiveBehavior.Fill &&
-      this.state.isMobile
-    ) {
-      childWidget.leftColumn = 0;
-      childWidget.rightColumn = 64;
-    }
-
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
+  }
+
+  getInverseDirection(direction = LayoutDirection.Vertical): LayoutDirection {
+    return direction === LayoutDirection.Vertical
+      ? LayoutDirection.Horizontal
+      : LayoutDirection.Vertical;
   }
 
   renderAsContainerComponent(
@@ -134,12 +116,12 @@ class LayoutWrapperWidget extends ContainerWidget {
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={this.state.direction}
+              direction={this.getInverseDirection(this.props.direction)}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
               snapRows={snapRows}
-              useAutoLayout={this.state.useAutoLayout}
+              useAutoLayout
               widgetId={props.widgetId}
               widgetName={props.widgetName}
             />
@@ -162,8 +144,8 @@ class LayoutWrapperWidget extends ContainerWidget {
         {/* without the wrapping div onClick events are triggered twice */}
         <AutoLayoutContext.Provider
           value={{
-            useAutoLayout: this.state.useAutoLayout,
-            direction: this.state.direction,
+            useAutoLayout: this.props.useAutoLayout,
+            direction: this.props.direction,
             justifyContent: JustifyContent.FlexStart,
             alignItems: AlignItems.FlexStart,
             overflow:
@@ -174,11 +156,11 @@ class LayoutWrapperWidget extends ContainerWidget {
         >
           <LayoutWrapper
             alignment={this.props.alignment || Alignment.Left}
-            direction={this.state.direction}
+            direction={this.getInverseDirection(this.props.direction)}
             overflow={Overflow.NoWrap}
             spacing={this.props.spacing || Spacing.None}
             stretchHeight={stretchFlexBox}
-            useAutoLayout={this.state.useAutoLayout}
+            useAutoLayout
             widgetId={this.props.widgetId}
           >
             {this.renderChildren()}

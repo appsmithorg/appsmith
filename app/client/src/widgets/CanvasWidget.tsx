@@ -15,6 +15,7 @@ import {
   AlignItems,
   Alignment,
   JustifyContent,
+  LayoutDirection,
   Overflow,
   Positioning,
   ResponsiveBehavior,
@@ -75,18 +76,10 @@ class CanvasWidget extends ContainerWidget {
     // Pass layout controls to children
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
-    childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.state.direction;
+    childWidget.useAutoLayout = this.props.useAutoLayout;
+    childWidget.direction = this.props.direction;
     childWidget.justifyContent = this.props.justifyContent;
     childWidget.alignItems = this.props.alignItems;
-
-    if (
-      childWidget?.responsiveBehavior === ResponsiveBehavior.Fill &&
-      this.state.isMobile
-    ) {
-      childWidget.leftColumn = 0;
-      childWidget.rightColumn = 64;
-    }
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -108,12 +101,12 @@ class CanvasWidget extends ContainerWidget {
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={this.state.direction}
+              direction={this.props.direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
               snapRows={snapRows}
-              useAutoLayout={this.state.useAutoLayout}
+              useAutoLayout={this.props.useAutoLayout}
               widgetId={props.widgetId}
               widgetName={props.widgetName}
             />
@@ -136,17 +129,17 @@ class CanvasWidget extends ContainerWidget {
         {/* without the wrapping div onClick events are triggered twice */}
         <FlexBox
           alignment={this.props.alignment || Alignment.Left}
-          direction={this.state.direction}
+          direction={this.props.direction || LayoutDirection.Vertical}
           overflow={Overflow.NoWrap}
           spacing={this.props.spacing || Spacing.None}
           stretchHeight={stretchFlexBox}
-          useAutoLayout={this.state.useAutoLayout}
+          useAutoLayout={this.props.useAutoLayout || false}
           widgetId={this.props.widgetId}
         >
           <AutoLayoutContext.Provider
             value={{
-              useAutoLayout: this.state.useAutoLayout,
-              direction: this.state.direction,
+              useAutoLayout: true,
+              direction: LayoutDirection.Vertical,
               justifyContent: JustifyContent.FlexStart,
               alignItems: AlignItems.FlexStart,
               overflow:

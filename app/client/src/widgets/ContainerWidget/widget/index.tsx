@@ -36,15 +36,10 @@ import {
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
-  ContainerWidgetState
+  WidgetState
 > {
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
-    this.state = {
-      useAutoLayout: false,
-      direction: LayoutDirection.Horizontal,
-      isMobile: false,
-    };
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
@@ -278,7 +273,10 @@ export class ContainerWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
+    return {
+      useAutoLayout: `{{ this.positioning && this.positioning !== "fixed" }}`,
+      direction: `{{ this.positioning && this.positioning === "vertical" ? "Vertical" : "Horizontal" }}`,
+    };
   }
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
@@ -289,33 +287,18 @@ export class ContainerWidget extends BaseWidget<
 
   componentDidMount(): void {
     super.componentDidMount();
-    this.updatePositioningInformation();
     this.checkIsMobile();
   }
 
   componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
     super.componentDidUpdate(prevProps);
     if (this.props.positioning !== prevProps.positioning) {
-      this.updatePositioningInformation();
       this.updateWrappers(prevProps);
     }
   }
 
   checkIsMobile = (): void => {
     if (window.innerWidth < 767) this.setState({ isMobile: true });
-  };
-
-  updatePositioningInformation = (): void => {
-    if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
-      this.setState({ useAutoLayout: false });
-    else
-      this.setState({
-        useAutoLayout: true,
-        direction:
-          this.props.positioning === Positioning.Horizontal
-            ? LayoutDirection.Horizontal
-            : LayoutDirection.Vertical,
-      });
   };
 
   updateWrappers = (prevProps: ContainerWidgetProps<any>): void => {
@@ -380,8 +363,8 @@ export class ContainerWidget extends BaseWidget<
 
     childWidget.parentId = this.props.widgetId;
     // Pass layout controls to children
-    childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.state.direction;
+    childWidget.useAutoLayout = this.props.useAutoLayout;
+    childWidget.direction = this.props.direction;
     childWidget.positioning = this.props.positioning;
     childWidget.alignment = this.props.alignment;
     childWidget.spacing = this.props.spacing;
@@ -394,7 +377,7 @@ export class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      this.state.useAutoLayout
+      this.props.useAutoLayout
         ? this.props.children
         : sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
@@ -402,8 +385,8 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    // console.log(`${props.widgetName} : ${props.widgetId} =======`);
-    // console.log(props);
+    console.log(`${props.widgetName} : ${props.widgetId} =======`);
+    console.log(props);
     return (
       <ContainerComponent {...props}>
         <WidgetsMultiSelectBox
@@ -447,12 +430,6 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   removeWrappers?: (id: string) => void;
   addWrappers?: (id: string, direction: LayoutDirection) => void;
   updateWrappers?: (id: string, direction: LayoutDirection) => void;
-}
-
-export interface ContainerWidgetState extends WidgetState {
-  useAutoLayout: boolean;
-  direction: LayoutDirection;
-  isMobile: boolean;
 }
 
 export default connect(null, mapDispatchToProps)(ContainerWidget);
