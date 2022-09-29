@@ -30,6 +30,12 @@ export const getSelectedCanvasDebuggerTab = (state: AppState) =>
 export const getWidgetSelectedPropertyTabIndex = (state: AppState) =>
   state.ui.editorContext.selectedPropertyTabIndex;
 
+export const getAllEntityCollapsibleStates = (state: AppState) =>
+  state.ui.editorContext.entityCollapsibleFields;
+
+export const getExplorerSwitchIndex = (state: AppState) =>
+  state.ui.editorContext.explorerSwitchIndex;
+
 export const getPanelPropertyContext = createSelector(
   getSelectedPropertyPanel,
   getPropertyPanelState,
@@ -134,5 +140,18 @@ export const getSelectedPropertyPanelIndex = createSelector(
     return selectedPropertyPanel?.path === path
       ? selectedPropertyPanel?.index
       : undefined;
+  },
+);
+
+export const getEntityCollapsibleState = createSelector(
+  [
+    getAllEntityCollapsibleStates,
+    (_state: AppState, entityName: string) => entityName,
+  ],
+  (
+    entityCollapsibleStates: { [key: string]: boolean },
+    entityName: string,
+  ): boolean | undefined => {
+    return entityCollapsibleStates[entityName];
   },
 );

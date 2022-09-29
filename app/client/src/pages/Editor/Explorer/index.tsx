@@ -3,7 +3,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { Switcher } from "design-system";
 import { Colors } from "constants/Colors";
 import { tailwindLayers } from "constants/Layers";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { AppState } from "@appsmith/reducers";
@@ -15,6 +15,8 @@ import { trimQueryString } from "utils/helpers";
 import history from "utils/history";
 import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
+import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
+import { setExplorerSwitchIndex } from "actions/editorContextActions";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -48,6 +50,7 @@ function ExplorerContent() {
             });
           }
           dispatch(forceOpenWidgetPanel(true));
+          dispatch(setExplorerSwitchIndex(1));
           if (isFirstTimeUserOnboardingEnabled) {
             dispatch(toggleInOnboardingWidgetSelection(true));
           }
@@ -63,11 +66,18 @@ function ExplorerContent() {
       pageId,
     ],
   );
-  const [activeSwitch, setActiveSwitch] = useState(switches[0]);
+  const activeSwitchIndex = useSelector(getExplorerSwitchIndex);
+
+  const setActiveSwitchIndex = (index: number) => {
+    dispatch(setExplorerSwitchIndex(index));
+  };
   const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
 
   useEffect(() => {
-    setActiveSwitch(switches[openWidgetPanel ? 1 : 0]);
+    const currentIndex = openWidgetPanel ? 1 : 0;
+    if (currentIndex !== activeSwitchIndex) {
+      setActiveSwitchIndex(currentIndex);
+    }
   }, [openWidgetPanel]);
 
   return (
@@ -77,10 +87,12 @@ function ExplorerContent() {
       <div
         className={`flex-shrink-0 px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}
       >
-        <Switcher activeObj={activeSwitch} switches={switches} />
+        <Switcher activeObj={switches[activeSwitchIndex]} switches={switches} />
       </div>
-      <WidgetSidebar isActive={activeSwitch.id === "widgets"} />
-      <EntityExplorer isActive={activeSwitch.id === "explorer"} />
+      <WidgetSidebar isActive={switches[activeSwitchIndex].id === "widgets"} />
+      <EntityExplorer
+        isActive={switches[activeSwitchIndex].id === "explorer"}
+      />
     </div>
   );
 }

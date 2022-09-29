@@ -35,6 +35,8 @@ export type PropertyPanelState = {
 export type CodeEditorHistory = Record<string, CodeEditorContext>;
 
 export type EditorContextState = {
+  entityCollapsibleFields: Record<string, boolean>;
+  explorerSwitchIndex: number;
   focusableField?: string;
   selectedPropertyPanel?: SelectedPropertyPanel;
   codeEditorHistory: Record<string, CodeEditorContext>;
@@ -50,6 +52,8 @@ const initialState: EditorContextState = {
   selectedPropertyTabIndex: 0,
   selectedDebuggerTab: "",
   propertyPanelState: {},
+  entityCollapsibleFields: {},
+  explorerSwitchIndex: 0,
 };
 
 /**
@@ -178,5 +182,24 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: PropertyPanelState },
   ) => {
     state.propertyPanelState = action.payload;
+  },
+  [ReduxActionTypes.SET_ENTITY_COLLAPSIBLE_STATE]: (
+    state: EditorContextState,
+    action: { payload: { name: string; isOpen: boolean } },
+  ) => {
+    const { isOpen, name } = action.payload;
+    state.entityCollapsibleFields[name] = isOpen;
+  },
+  [ReduxActionTypes.SET_ALL_ENTITY_COLLAPSIBLE_STATE]: (
+    state: EditorContextState,
+    action: { payload: { [key: string]: boolean } },
+  ) => {
+    state.entityCollapsibleFields = action.payload;
+  },
+  [ReduxActionTypes.SET_EXPLORER_SWITCH_INDEX]: (
+    state: EditorContextState,
+    action: { payload: number },
+  ) => {
+    state.explorerSwitchIndex = action.payload;
   },
 });

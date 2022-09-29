@@ -140,3 +140,26 @@ export const setPanelPropertiesState = (
     payload: propertyPanelContext,
   };
 };
+
+export const setEntityCollapsibleState = (name: string, isOpen: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_ENTITY_COLLAPSIBLE_STATE,
+    payload: { name, isOpen },
+  };
+};
+
+export const setAllEntityCollapsibleStates = (payload: {
+  [key: string]: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_ALL_ENTITY_COLLAPSIBLE_STATE,
+    payload,
+  };
+};
+
+export const setExplorerSwitchIndex = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SET_EXPLORER_SWITCH_INDEX,
+    payload,
+  };
+};

@@ -11,8 +11,10 @@ import {
 import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
+  getAllEntityCollapsibleStates,
   getAllPropertySectionState,
   getCodeEditorHistory,
+  getExplorerSwitchIndex,
   getFocusableField,
   getPropertyPanelState,
   getSelectedCanvasDebuggerTab,
@@ -20,9 +22,11 @@ import {
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import {
+  setAllEntityCollapsibleStates,
   setAllPropertySectionState,
   setCanvasDebuggerSelectedTab,
   setCodeEditorHistory,
+  setExplorerSwitchIndex,
   setFocusableField,
   setPanelPropertiesState,
   setSelectedPropertyPanel,
@@ -72,7 +76,9 @@ export enum FocusElement {
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
   CanvasDebuggerTabs = "CanvasDebuggerTabs",
   CodeEditorHistory = "CodeEditorHistory",
+  EntityCollapsibleState = "EntityCollapsibleState",
   EntityExplorerWidth = "EntityExplorerWidth",
+  ExplorerSwitchIndex = "ExplorerSwitchIndex",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
   QueryPaneResponseTabs = "QueryPaneResponseTabs",
   QueryPaneResponseHeight = "QueryPaneResponseHeight",
@@ -116,6 +122,18 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getWidgetsMeta,
       setter: setAllMetaProps,
       defaultValue: MetaDefaultState,
+    },
+    {
+      name: FocusElement.EntityCollapsibleState,
+      selector: getAllEntityCollapsibleStates,
+      setter: setAllEntityCollapsibleStates,
+      defaultValue: {},
+    },
+    {
+      name: FocusElement.ExplorerSwitchIndex,
+      selector: getExplorerSwitchIndex,
+      setter: setExplorerSwitchIndex,
+      defaultValue: 0,
     },
   ],
   [FocusEntity.CANVAS]: [
