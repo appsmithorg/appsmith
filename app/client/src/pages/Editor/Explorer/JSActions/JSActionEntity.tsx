@@ -13,6 +13,10 @@ import { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
@@ -20,7 +24,6 @@ type ExplorerJSCollectionEntityProps = {
   id: string;
   isActive: boolean;
   type: PluginType;
-  canManageActions?: boolean;
 };
 
 const getUpdateJSObjectName = (id: string, name: string) => {
@@ -50,8 +53,28 @@ export const ExplorerJSCollectionEntity = memo(
         history.push(navigateToUrl);
       }
     }, [pageId, jsAction.id, jsAction.name, location.pathname]);
+
+    const jsActionPermissions = jsAction.userPermissions || [
+      "read:actions",
+      "delete:actions",
+      "execute:actions",
+      "manage:actions",
+    ];
+
+    const canDeleteJSAction = isPermitted(
+      jsActionPermissions,
+      PERMISSION_TYPE.DELETE_ACTIONS,
+    );
+
+    const canManageJSAction = isPermitted(
+      jsActionPermissions,
+      PERMISSION_TYPE.MANAGE_ACTIONS,
+    );
+
     const contextMenu = (
       <JSCollectionEntityContextMenu
+        canDelete={canDeleteJSAction}
+        canManage={canManageJSAction}
         className={EntityClassNames.CONTEXT_MENU}
         id={jsAction.id}
         name={jsAction.name}
@@ -62,7 +85,7 @@ export const ExplorerJSCollectionEntity = memo(
       <Entity
         action={navigateToJSCollection}
         active={props.isActive}
-        canEditEntityName={props.canManageActions}
+        canEditEntityName={canManageJSAction}
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}

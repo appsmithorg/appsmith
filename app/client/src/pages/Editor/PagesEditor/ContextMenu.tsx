@@ -172,7 +172,7 @@ function ContextMenu(props: Props) {
                   color={Colors.GREY_9}
                   disabled={!canManagePages}
                   height={16}
-                  onClick={() => onCopy(page.pageId)}
+                  onClick={!canManagePages ? noop : () => onCopy(page.pageId)}
                   width={16}
                 />
               </Action>
@@ -185,7 +185,11 @@ function ContextMenu(props: Props) {
                   }
                   disabled={page.isDefault || !canDeletePages}
                   height={16}
-                  onClick={() => onDelete(page.pageId, page.pageName)}
+                  onClick={
+                    page.isDefault || !canDeletePages
+                      ? noop
+                      : () => onDelete(page.pageId, page.pageName)
+                  }
                   width={16}
                 />
               </Action>
@@ -241,7 +245,6 @@ function ContextMenu(props: Props) {
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
             color={Colors.GREY_9}
-            disabled={!canManagePages}
             height={16}
             onClick={noop}
             width={16}
