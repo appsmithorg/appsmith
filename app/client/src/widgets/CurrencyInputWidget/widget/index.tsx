@@ -93,7 +93,8 @@ export function defaultValueValidation(
     messages = [
       'Please use "' +
         decimalSeperator +
-        '" as decimal separator since your locale is ${localeLang}',
+        '" as decimal separator since your locale is ' +
+        localeLang,
     ];
     parsed = undefined;
   } else {
