@@ -122,7 +122,7 @@ const MyLeafLetComponent = (props: any) => {
     <MapContainer
       center={mapCenter}
       scrollWheelZoom
-      style={{ height: "100vh", width: "100wh" }}
+      style={{ height: "100%", width: "100%" }}
       zoom={props.zoom}
     >
       <TileLayer
