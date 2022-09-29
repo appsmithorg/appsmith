@@ -1,7 +1,7 @@
-import { KeyValueViewProps } from "../types";
-import { ControlWrapper } from "../../../propertyControls/StyledControls";
-import { KeyValueComponent } from "../../../propertyControls/KeyValueComponent";
-import { DropdownOption } from "../../../constants";
+import { KeyValueViewProps } from "../../types";
+import { ControlWrapper } from "components/propertyControls/StyledControls";
+import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
+import { DropdownOption } from "../../../../constants";
 import React from "react";
 
 export function KeyValueView(props: KeyValueViewProps) {

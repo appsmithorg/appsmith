@@ -2,8 +2,8 @@ import { TextViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,
-} from "../../../../propertyControls/StyledControls";
-import { InputText } from "../../../../propertyControls/InputTextControl";
+} from "components/propertyControls/StyledControls";
+import { InputText } from "components/propertyControls/InputTextControl";
 import { AutocompleteDataType } from "../../../../../utils/autocomplete/TernServer";
 import React from "react";
 

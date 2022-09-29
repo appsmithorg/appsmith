@@ -1,7 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import { TabView } from "./TabView";
+import { TabView } from "./index";
 import { TabViewProps } from "../../types";
 
 describe("Tab View component", () => {

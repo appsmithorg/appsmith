@@ -37,11 +37,11 @@ import {
   enumTypeSetter,
   enumTypeGetter,
 } from "./utils";
-import { ALERT_STYLE_OPTIONS } from "../../../ce/constants/messages";
-import { SelectorView } from "./viewComponents/SelectorView/SelectorView";
+import { ALERT_STYLE_OPTIONS } from "@appsmith/constants/messages";
+import { SelectorView } from "./viewComponents/SelectorView";
 import { KeyValueView } from "./viewComponents/KeyValueView";
-import { TextView } from "./viewComponents/TextView/TextView";
-import { TabView } from "./viewComponents/TabView/TabView";
+import { TextView } from "./viewComponents/TextView";
+import { TabView } from "./viewComponents/TabView";
 
 /**
  ******** Steps to add a new function *******
