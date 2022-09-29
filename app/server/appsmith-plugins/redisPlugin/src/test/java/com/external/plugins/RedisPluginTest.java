@@ -11,28 +11,32 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.JedisPool;
 
-import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
+@Testcontainers
 public class RedisPluginTest {
-    @ClassRule
+    @Container
     public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:6.2.0-alpine"))
             .withExposedPorts(6379);
     private static String host;
@@ -40,7 +44,7 @@ public class RedisPluginTest {
 
     private RedisPlugin.RedisPluginExecutor pluginExecutor = new RedisPlugin.RedisPluginExecutor();
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         host = redis.getContainerIpAddress();
         port = redis.getFirstMappedPort();
@@ -63,7 +67,7 @@ public class RedisPluginTest {
         Mono<JedisPool> jedisPoolMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
         StepVerifier.create(jedisPoolMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
 
         pluginExecutor.datasourceDestroy(jedisPoolMono.block());
@@ -73,7 +77,7 @@ public class RedisPluginTest {
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
 
-        Assert.assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
+        assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
                         "desired endpoint."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
@@ -85,7 +89,7 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
+        assertEquals(Set.of("Could not find host address. Please edit the 'Host Address' field to provide the " +
                         "desired endpoint."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
@@ -99,7 +103,7 @@ public class RedisPluginTest {
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         // Since default port is picked, set of invalids should be empty.
-        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of());
+        assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of());
     }
 
     @Test
@@ -114,7 +118,7 @@ public class RedisPluginTest {
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertEquals(
+        assertEquals(
                 Set.of("Could not find password. Please edit the 'Password' field to provide the password."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration)
         );
@@ -135,7 +139,7 @@ public class RedisPluginTest {
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
+        assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
     }
 
     @Test
@@ -145,8 +149,8 @@ public class RedisPluginTest {
 
         StepVerifier.create(datasourceTestResultMono)
                 .assertNext(datasourceTestResult -> {
-                    Assert.assertNotNull(datasourceTestResult);
-                    Assert.assertTrue(datasourceTestResult.isSuccess());
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
@@ -163,9 +167,9 @@ public class RedisPluginTest {
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
-                    Assert.assertNotNull(result);
-                    Assert.assertFalse(result.getIsExecutionSuccess());
-                    Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -183,9 +187,9 @@ public class RedisPluginTest {
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
-                    Assert.assertNotNull(result);
-                    Assert.assertFalse(result.getIsExecutionSuccess());
-                    Assert.assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -203,10 +207,10 @@ public class RedisPluginTest {
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
-                    Assert.assertNotNull(actionExecutionResult);
-                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    assertNotNull(actionExecutionResult);
+                    assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals("PONG", node.get("result").asText());
+                    assertEquals("PONG", node.get("result").asText());
                 }).verifyComplete();
     }
 
@@ -223,10 +227,10 @@ public class RedisPluginTest {
                         getActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
-                    Assert.assertNotNull(actionExecutionResult);
-                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    assertNotNull(actionExecutionResult);
+                    assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals("null", node.get("result").asText());
+                    assertEquals("null", node.get("result").asText());
 
 
                     /* - Adding only in this test as the query editor form for Redis plugin is exactly same for each
@@ -250,10 +254,10 @@ public class RedisPluginTest {
                         setActionConfigurationManyKeys));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
-                    Assert.assertNotNull(actionExecutionResult);
-                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    assertNotNull(actionExecutionResult);
+                    assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals("OK", node.get("result").asText());
+                    assertEquals("OK", node.get("result").asText());
                 }).verifyComplete();
 
         // Verify the keys
@@ -264,15 +268,15 @@ public class RedisPluginTest {
                         getActionConfigurationManyKeys));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
-                    Assert.assertNotNull(actionExecutionResult);
-                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    assertNotNull(actionExecutionResult);
+                    assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody());
-                    Assert.assertEquals("value", node.get(0).get("result").asText());
-                    Assert.assertEquals("value", node.get(1).get("result").asText());
-                    Assert.assertEquals("my value", node.get(2).get("result").asText());
-                    Assert.assertEquals("value", node.get(3).get("result").asText());
-                    Assert.assertEquals("my value", node.get(4).get("result").asText());
-                    Assert.assertEquals("{\"a\":\"b\"}", node.get(5).get("result").asText());
+                    assertEquals("value", node.get(0).get("result").asText());
+                    assertEquals("value", node.get(1).get("result").asText());
+                    assertEquals("my value", node.get(2).get("result").asText());
+                    assertEquals("value", node.get(3).get("result").asText());
+                    assertEquals("my value", node.get(4).get("result").asText());
+                    assertEquals("{\"a\":\"b\"}", node.get(5).get("result").asText());
                 }).verifyComplete();
     }
 
@@ -292,10 +296,10 @@ public class RedisPluginTest {
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
-                    Assert.assertNotNull(actionExecutionResult);
-                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    assertNotNull(actionExecutionResult);
+                    assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertTrue(node.get("result").asText().contains("db=7"));
+                    assertTrue(node.get("result").asText().contains("db=7"));
                 }).verifyComplete();
     }
 
@@ -314,10 +318,10 @@ public class RedisPluginTest {
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
-                    Assert.assertNotNull(actionExecutionResult);
-                    Assert.assertNotNull(actionExecutionResult.getBody());
+                    assertNotNull(actionExecutionResult);
+                    assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertTrue(node.get("result").asText().contains("db=0"));
+                    assertTrue(node.get("result").asText().contains("db=0"));
                 }).verifyComplete();
     }
 }

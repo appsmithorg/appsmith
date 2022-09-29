@@ -381,7 +381,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      */
     public void setAnalyticsEventAction(Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
         // Authentication configuration added
-        if (!newVariable.isEmpty() && originalVariable.isEmpty()) {
+        if (!newVariable.isEmpty() && (originalVariable == null || originalVariable.isEmpty())) {
             properties.put("action", "Added");
         }
         // Authentication configuration removed

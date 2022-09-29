@@ -1,5 +1,8 @@
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { Workspace } from "constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
@@ -616,6 +619,7 @@ export const ReduxActionTypes = {
   SET_APP_THEMING_STACK: "SET_APP_THEMING_STACK",
   FETCH_APP_THEMES_INIT: "FETCH_APP_THEMES_INIT",
   FETCH_APP_THEMES_SUCCESS: "FETCH_APP_THEMES_SUCCESS",
+  SET_DEFAULT_SELECTED_THEME_INIT: "SET_DEFAULT_SELECTED_THEME_INIT",
   FETCH_SELECTED_APP_THEME_INIT: "FETCH_SELECTED_APP_THEME_INIT",
   FETCH_SELECTED_APP_THEME_SUCCESS: "FETCH_SELECTED_APP_THEME_SUCCESS",
   UPDATE_SELECTED_APP_THEME_INIT: "UPDATE_SELECTED_APP_THEME_INIT",
@@ -810,6 +814,7 @@ export const ReduxActionErrorTypes = {
   RESTART_SERVER_ERROR: "RESTART_SERVER_ERROR",
   UPDATE_JS_ACTION_BODY_ERROR: "UPDATE_JS_ACTION_BODY_ERROR",
   FETCH_APP_THEMES_ERROR: "FETCH_APP_THEMES_ERROR",
+  SET_DEFAULT_SELECTED_THEME_ERROR: "SET_DEFAULT_SELECTED_THEME_ERROR",
   FETCH_SELECTED_APP_THEME_ERROR: "FETCH_SELECTED_APP_THEME_ERROR",
   UPDATE_SELECTED_APP_THEME_ERROR: "UPDATE_SELECTED_APP_THEME_ERROR",
   CHANGE_SELECTED_APP_THEME_ERROR: "CHANGE_SELECTED_APP_THEME_ERROR",
@@ -905,6 +910,7 @@ export interface UpdateCanvasPayload {
   currentApplicationId: string;
   pageActions: PageAction[][];
   updatedWidgetIds?: string[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 }
 
 export interface ShowPropertyPanePayload {
