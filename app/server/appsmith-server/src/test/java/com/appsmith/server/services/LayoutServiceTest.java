@@ -23,10 +23,11 @@ import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +35,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -44,11 +45,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -89,7 +91,7 @@ public class LayoutServiceTest {
 
     Plugin installedJsPlugin;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
@@ -168,7 +170,7 @@ public class LayoutServiceTest {
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl().equals(obj));
+                    assertThat(layout.getDsl()).isEqualTo(obj);
                 })
                 .verifyComplete();
     }
@@ -243,7 +245,8 @@ public class LayoutServiceTest {
                 .flatMap(tuple -> {
                     PageDTO page = tuple.getT1();
                     Layout startLayout = tuple.getT2();
-                    return layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
+                    startLayout.setDsl(obj1);
+                    return layoutActionService.updateLayout(page.getId(), startLayout.getId(), startLayout);
                 });
 
         StepVerifier
@@ -251,7 +254,7 @@ public class LayoutServiceTest {
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl().equals(obj1));
+                    assertThat(layout.getDsl()).isEqualTo(obj1);
                 })
                 .verifyComplete();
     }
@@ -266,6 +269,7 @@ public class LayoutServiceTest {
      * 3. An action which has been marked to not execute on page load does not get added to the on page load order
      */
     @Test
+    @Tag("performance")
     @WithUserDetails(value = "api_user")
     public void getActionsExecuteOnLoad() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -580,7 +584,7 @@ public class LayoutServiceTest {
 
         PageDTO page = createPage(app, testPage).block();
         String pageId = page.getId();
-        String layoutId = page.getLayouts().get(0).getId();
+        final AtomicReference<String> layoutId = new AtomicReference<>();
 
         Mono<LayoutDTO> testMono = Mono.just(page)
                 .flatMap(page1 -> {
@@ -609,6 +613,7 @@ public class LayoutServiceTest {
                 .flatMap(tuple2 -> {
                     final PageDTO page1 = tuple2.getT1();
                     final Layout layout = tuple2.getT2();
+                    layoutId.set(layout.getId());
 
                     Layout newLayout = new Layout();
 
@@ -634,9 +639,10 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(testMono)
                 .expectErrorMatches(throwable -> {
-                    assertThat(throwable instanceof AppsmithException);
-                    assertThat(throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE
-                            .getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId)));
+                    assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    assertThat(throwable.getMessage()).isEqualTo(
+                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), null)
+                    );
                     return true;
                 })
                 .verify();
@@ -708,7 +714,7 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(testMono)
                 .assertNext(layoutDTO -> {
-                    // We have reached here means we didnt get a throwable. Thats good
+                    // We have reached here means we didn't get a throwable. That's good
                     assertThat(layoutDTO).isNotNull();
                     // Since this is still a bad mustache binding, we couldn't have extracted the action name
                     assertThat(layoutDTO.getLayoutOnLoadActions().size()).isEqualTo(0);
@@ -716,7 +722,7 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
-    @After
+    @AfterEach
     public void purgePages() {
         newPageService.deleteAll();
     }

@@ -302,7 +302,6 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
         isValid={isValid}
         labelPosition={labelPosition}
         ref={_menu as React.RefObject<HTMLDivElement>}
-        style={isDynamicHeightEnabled ? { height: "auto" } : undefined}
       >
         <DropdownStyles
           accentColor={accentColor}

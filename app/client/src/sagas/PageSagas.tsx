@@ -37,6 +37,7 @@ import PageApi, {
   FetchPublishedPageRequest,
   PageLayout,
   SavePageResponse,
+  SavePageResponseData,
   SetPageOrderRequest,
   UpdatePageRequest,
   UpdateWidgetNameRequest,
@@ -120,6 +121,7 @@ import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
 import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -204,6 +206,8 @@ export const getCanvasWidgetsPayload = (
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
     pageActions: pageResponse.data.layouts[0].layoutOnLoadActions || [],
+    layoutOnLoadActionErrors:
+      pageResponse.data.layouts[0].layoutOnLoadActionErrors || [],
   };
 };
 
@@ -454,6 +458,10 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
+      );
+      checkAndLogErrorsIfCyclicDependency(
+        (savePageResponse.data as SavePageResponseData)
+          .layoutOnLoadActionErrors,
       );
     }
   } catch (error) {
@@ -855,6 +863,9 @@ export function* updateWidgetNameSaga(
               dsl: response.data.dsl,
             },
           });
+          checkAndLogErrorsIfCyclicDependency(
+            (response.data as PageLayout).layoutOnLoadActionErrors,
+          );
         }
       } else {
         yield put({

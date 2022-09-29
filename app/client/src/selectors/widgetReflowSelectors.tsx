@@ -22,3 +22,21 @@ export const getDynamicHeightLayoutTree = (state: AppState) =>
 
 export const getCanvasLevelMap = (state: AppState) =>
   state.entities.canvasLevels;
+
+export const getIsReflowEffectedSelector = (
+  widgetId: string | undefined,
+  reflowed: boolean,
+) => {
+  return createSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+    (dragDetails) => {
+      return (
+        widgetId &&
+        dragDetails &&
+        !!dragDetails.draggedOn &&
+        dragDetails.draggedOn === widgetId &&
+        reflowed
+      );
+    },
+  );
+};

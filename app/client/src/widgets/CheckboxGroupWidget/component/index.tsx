@@ -66,7 +66,6 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
 
 export interface CheckboxGroupContainerProps {
   compactMode: boolean;
-  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -79,9 +78,6 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   & .select-all {
     white-space: nowrap;
   }
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface SelectAllProps {
@@ -202,7 +198,6 @@ const CheckboxGroupComponent = React.forwardRef<
     <CheckboxGroupContainer
       compactMode={compactMode}
       data-testid="checkboxgroup-container"
-      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
       ref={ref}
     >

@@ -93,7 +93,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return currentUserWithTenantMono
                 .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
                 .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                        List.of(), null, permission, null, permissionGroups)
+                        List.of(), null, permission, null, permissionGroups, NO_RECORD_LIMIT)
                 );
     }
 

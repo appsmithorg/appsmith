@@ -14,7 +14,6 @@ import LabelWithTooltip, {
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
-  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -24,9 +23,6 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface InputContainerProps {
@@ -86,7 +82,6 @@ const SwitchGroupComponent = React.forwardRef<
     <SwitchGroupContainer
       compactMode={compactMode}
       data-testid="switchgroup-container"
-      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
       ref={ref}
     >

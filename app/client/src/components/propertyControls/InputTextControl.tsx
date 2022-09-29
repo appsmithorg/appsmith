@@ -96,7 +96,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         onFocus={onFocus}
         placeholder={placeholderText}
         theme={this.props.theme}
-        value={propertyValue ? propertyValue : defaultValue}
+        value={propertyValue !== undefined ? propertyValue : defaultValue}
       />
     );
   }

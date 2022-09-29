@@ -13,7 +13,6 @@ import LabelWithTooltip, {
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
-  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -23,9 +22,6 @@ export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface StyledRadioGroupProps {
@@ -102,7 +98,6 @@ const RadioGroupComponent = React.forwardRef<
     <RadioGroupContainer
       compactMode={compactMode}
       data-testid="radiogroup-container"
-      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
       ref={ref}
     >

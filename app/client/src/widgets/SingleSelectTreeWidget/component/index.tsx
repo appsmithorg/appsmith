@@ -27,6 +27,7 @@ import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import { isNil } from "lodash";
 
 export interface TreeSelectProps
   extends Required<
@@ -235,6 +236,14 @@ const SingleSelectTreeComponent = React.forwardRef<
       // Clear the search input on closing the widget
       setFilter("");
     };
+    const allowClearMemo = useMemo(
+      () => allowClear && !isNil(value) && value !== "",
+      [allowClear, value],
+    );
+
+    const memoValue = useMemo(() => (value !== "" ? value : undefined), [
+      value,
+    ]);
 
     return (
       <TreeSelectContainer
@@ -247,7 +256,6 @@ const SingleSelectTreeComponent = React.forwardRef<
         isValid={isValid}
         labelPosition={labelPosition}
         ref={_menu as React.RefObject<HTMLDivElement>}
-        style={isDynamicHeightEnabled ? { height: "auto" } : undefined}
       >
         <DropdownStyles
           accentColor={accentColor}
@@ -274,7 +282,7 @@ const SingleSelectTreeComponent = React.forwardRef<
         )}
         <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
           <TreeSelect
-            allowClear={allowClear}
+            allowClear={allowClearMemo}
             animation="slide-up"
             choiceTransitionName="rc-tree-select-selection__choice-zoom"
             className="rc-tree-select"
@@ -321,7 +329,7 @@ const SingleSelectTreeComponent = React.forwardRef<
             treeDefaultExpandAll={expandAll}
             treeIcon
             treeNodeFilterProp="label"
-            value={filter ? "" : value} // value should empty when filter value exist otherwise dropdown flickers #12714
+            value={memoValue}
           />
         </InputContainer>
       </TreeSelectContainer>

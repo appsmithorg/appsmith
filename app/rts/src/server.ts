@@ -6,7 +6,11 @@ import log, { LogLevelDesc } from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
 
+// routes
+import ast_routes from "./routes/ast_routes";
+
 const RTS_BASE_PATH = "/rts";
+export const RTS_BASE_API_PATH = "/rts-api/v1";
 
 // Setting the logLevel for all log messages
 const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
@@ -32,28 +36,30 @@ if (API_BASE_URL == null || API_BASE_URL === "") {
 
 const PORT = process.env.PORT || 8091;
 
-main();
+//Disable x-powered-by header to prevent information disclosure
+const app = express();
+app.disable("x-powered-by");
+const server = new http.Server(app);
+const io = new Server(server, {
+  path: RTS_BASE_PATH,
+});
 
-function main() {
-  const app = express();
-  //Disable x-powered-by header to prevent information disclosure
-  app.disable("x-powered-by");
-  const server = new http.Server(app);
-  const io = new Server(server, {
-    path: RTS_BASE_PATH,
-  });
+// Initializing Sockets
+initializeSockets(io);
 
-  // Initializing Sockets
-  initializeSockets(io);
+// parse incoming json requests
+app.use(express.json({ limit: "5mb" }));
+// Initializing Routes
+app.use(express.static(path.join(__dirname, "static")));
+app.get("/", (_, res) => {
+  res.redirect("/index.html");
+});
 
-  // Initializing Routes
-  app.use(express.static(path.join(__dirname, "static")));
-  app.get("/", (_, res) => {
-    res.redirect("/index.html");
-  });
-  
-  // Run the server
-  server.listen(PORT, () => {
-    log.info(`RTS version ${buildVersion} running at http://localhost:${PORT}`);
-  });
-}
+app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
+
+// Run the server
+server.listen(PORT, () => {
+  log.info(`RTS version ${buildVersion} running at http://localhost:${PORT}`);
+});
+
+export default server;

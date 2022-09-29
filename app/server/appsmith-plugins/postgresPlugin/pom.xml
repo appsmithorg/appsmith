@@ -48,12 +48,18 @@
             </exclusions>
         </dependency>
 
-        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.3.20</version>
+            <scope>provided</scope>
+        </dependency>
 
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>1.17.1</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -75,7 +81,8 @@
                         <configuration>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Plugin-Id>${plugin.id}</Plugin-Id>
                                         <Plugin-Class>${plugin.class}</Plugin-Class>

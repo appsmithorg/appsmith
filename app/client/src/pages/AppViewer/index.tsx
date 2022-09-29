@@ -21,7 +21,7 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";

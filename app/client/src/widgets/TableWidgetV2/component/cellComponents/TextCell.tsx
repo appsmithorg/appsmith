@@ -5,7 +5,7 @@ import AutoToolTipComponent from "./AutoToolTipComponent";
 import { RenderDefaultPropsType } from "./DefaultCell";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { InlineCellEditor } from "./InlineCellEditor";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, EditableCell } from "widgets/TableWidgetV2/constants";
 import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
@@ -89,10 +89,11 @@ const Content = styled.div`
 `;
 
 interface PropType extends RenderDefaultPropsType {
-  onChange: (text: string) => void;
+  onChange: (value: EditableCell["value"], inputValue: string) => void;
   onDiscard: () => void;
   onSave: () => void;
   onEdit: () => void;
+  url?: string;
 }
 
 export function TextCell({
@@ -108,6 +109,7 @@ export function TextCell({
   isCellEditable,
   isCellEditMode,
   isCellVisible,
+  isEditableCellValid,
   isHidden,
   onChange,
   onDiscard,
@@ -117,8 +119,11 @@ export function TextCell({
   textColor,
   textSize,
   toggleCellEditMode,
+  url,
+  validationErrorMessage,
   value,
   verticalAlignment,
+  widgetId,
 }: PropType) {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -149,13 +154,16 @@ export function TextCell({
             ? InputTypes.NUMBER
             : InputTypes.TEXT
         }
+        isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
         onChange={onChange}
         onDiscard={onDiscard}
         onSave={onSave}
         textSize={textSize}
+        validationErrorMessage={validationErrorMessage}
         value={value}
         verticalAlignment={verticalAlignment}
+        widgetId={widgetId}
       />
     );
   }
@@ -190,6 +198,7 @@ export function TextCell({
           textColor={textColor}
           textSize={textSize}
           title={!!value ? value.toString() : ""}
+          url={url}
           verticalAlignment={verticalAlignment}
         >
           <Content ref={contentRef}>{value}</Content>

@@ -98,6 +98,10 @@ export const getPageSavingError = (state: AppState) => {
 export const getLayoutOnLoadActions = (state: AppState) =>
   state.ui.editor.pageActions || [];
 
+export const getLayoutOnLoadIssues = (state: AppState) => {
+  return state.ui.editor.layoutOnLoadActionErrors || [];
+};
+
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;
 

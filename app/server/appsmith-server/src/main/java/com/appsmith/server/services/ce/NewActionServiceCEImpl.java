@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
@@ -26,6 +27,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -36,7 +38,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DateUtils;
@@ -59,7 +60,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -364,9 +364,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             return datasource;
                         })
                         // If the action is publicly executable, update the datasource policy
-                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(
-                                newAction.getApplicationId(), newAction.getPolicies(), datasource)
-                        );
+                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction, datasource));
             }
         }
 
@@ -574,8 +572,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Datasource datasource = zippedData.getT2();
                     final NewAction newAction1 = zippedActions.getT2();
 
+                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.ACTION, newAction1
+                    );
+                    data.put(FieldName.EVENT_DATA, eventData);
+
                     return analyticsService
-                            .sendUpdateEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                            .sendUpdateEvent(newAction1, data)
                             .thenReturn(zippedActions.getT1());
 
                 });
@@ -900,8 +906,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(part -> {
                     final Param param = new Param();
-                    String pseudoBindingName = part.name();
-                    param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
+                    param.setPseudoBindingName(part.name());
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
@@ -917,6 +922,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (dto.getActionId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
                     }
+                    /*
+                        Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
+                        along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
+                        Ref: https://github.com/appsmithorg/appsmith/issues/16722
+                     */
+                    params.forEach(
+                            param -> {
+                                String pseudoBindingName = param.getPseudoBindingName();
+                                param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
+                                param.setClientDataType(ClientDataType.valueOf(dto.getParamProperties().get(pseudoBindingName).toUpperCase()));
+                            }
+                    );
                     dto.setParams(params);
                     return Mono.just(dto);
                 })
@@ -1009,6 +1026,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return result;
     }
 
+    /**
+     * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
+     * active before making the call to DB.
+     * @return
+     */
+    public Boolean isSendExecuteAnalyticsEvent() {
+        return analyticsService.isActive();
+    }
+
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
             NewAction action,
             ActionDTO actionDTO,
@@ -1017,13 +1043,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
-        // Since we're loading the application from DB *only* for analytics, we check if analytics is
-        // active before making the call to DB.
-        if (!analyticsService.isActive()) {
-            // This is to have consistency in how the AnalyticsService is being called.
-            // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
-            // from being sent to analytics provider if telemetry is disabled.
-            analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action);
+
+        if (!isSendExecuteAnalyticsEvent()) {
             return Mono.empty();
         }
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
@@ -1107,7 +1128,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             ),
                             "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
-                            "appMode", TRUE.equals(viewMode) ? "view" : "edit",
+                            "appMode", TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString(),
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample()
                     ));
@@ -1155,7 +1176,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
-                            FieldName.VIEW_MODE, viewMode,
+                            FieldName.APP_MODE, viewMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
                             FieldName.ACTION_EXECUTION_REQUEST, request,
@@ -1333,9 +1354,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.EVENT_DATA, eventData);
 
                                     return analyticsService
-                                            .sendArchiveEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendArchiveEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1356,9 +1383,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.EVENT_DATA, eventData);
 
                                     return analyticsService
-                                            .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendDeleteEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1524,6 +1557,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return actionMono;
+    }
+
+    @Override
+    public Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO) {
+        Mono<Plugin> pluginMono = pluginService.getById(actionDTO.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
+        return pluginExecutorMono
+                .map(pluginExecutor -> {
+                    actionDTO.getActionConfiguration().setSelfReferencingDataPaths(pluginExecutor.getSelfReferencingDataPaths());
+                    return actionDTO;
+                });
     }
 
     private boolean isPluginTypeOrPluginIdMissing(NewAction action) {
@@ -1786,9 +1831,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .flatMap(zippedActions -> {
                             final Datasource datasource = zippedActions.getT2();
                             final NewAction newAction1 = zippedActions.getT1();
+                            final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                            final Map<String, Object> eventData = Map.of(
+                                    FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                    FieldName.ACTION, newAction1
+                            );
+                            data.put(FieldName.EVENT_DATA, eventData);
 
                             return analyticsService
-                                    .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                    .sendDeleteEvent(newAction1, data)
                                     .thenReturn(zippedActions.getT1());
 
                         })
@@ -1837,60 +1888,50 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return updatedActionConfiguration.getBody();
     }
 
-    private Mono<Datasource> updateDatasourcePolicyForPublicAction(String applicationId, Set<Policy> actionPolicies, Datasource datasource) {
+    private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
         }
 
-        // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
-        return repository.isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)
-                .flatMap(isPublicAction -> {
+        String applicationId = action.getApplicationId();
+
+        return permissionGroupService.getPublicPermissionGroup()
+                .flatMap(publicPermissionGroup -> {
+                    String publicPermissionGroupId = publicPermissionGroup.getId();
+                    // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
+                    boolean isPublicAction = permissionGroupService.isEntityAccessible(action, EXECUTE_ACTIONS.getValue(), publicPermissionGroupId);
 
                     if (!isPublicAction) {
                         return Mono.just(datasource);
                     }
                     // Check if datasource has execute permission
-                    return repository.isPermissionPresentForUser(
-                                    datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER
-                            )
-                            .flatMap(isPublicDatasource -> {
-                                if (isPublicDatasource) {
-                                    // Datasource has correct permission. Return as is
-                                    return Mono.just(datasource);
+                    boolean isPublicDatasource = permissionGroupService.isEntityAccessible(datasource, EXECUTE_DATASOURCES.getValue(), publicPermissionGroupId);
+                    if (isPublicDatasource) {
+                        // Datasource has correct permission. Return as is
+                        return Mono.just(datasource);
+                    }
+
+                    // Add the permission to datasource
+                    return applicationService.findById(applicationId)
+                            .flatMap(application -> {
+                                if (!application.getIsPublic()) {
+                                    return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
                                 }
 
-                                // Add the permission to datasource
-                                return applicationService.findById(applicationId)
-                                        .flatMap(application -> {
-                                            String defaultPermissionGroup = application.getDefaultPermissionGroup();
-                                            if (defaultPermissionGroup == null) {
-                                                return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
-                                            }
+                                Policy executePolicy = Policy.builder()
+                                        .permission(EXECUTE_DATASOURCES.getValue())
+                                        .permissionGroups(Set.of(publicPermissionGroupId))
+                                        .build();
+                                Map<String, Policy> datasourcePolicyMap = Map.of(
+                                        EXECUTE_DATASOURCES.getValue(), executePolicy
+                                );
 
-                                            Map<String, Policy> datasourcePolicyMap =
-                                                    policyUtils.generatePolicyFromPermissionWithPermissionGroup(
-                                                            EXECUTE_DATASOURCES, defaultPermissionGroup
-                                                    );
-
-                                            Datasource updatedDatasource =
-                                                    policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                Datasource updatedDatasource =
+                                        policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
 
-                                            // Update the permission group to store the datasource execute permission
-                                            return permissionGroupService.findById(defaultPermissionGroup)
-                                                    .flatMap(permissionGroup -> {
-                                                        Set<Permission> permissions = permissionGroup.getPermissions();
-                                                        Permission datasourcePermission = new Permission(datasource.getId(), EXECUTE_DATASOURCES);
-
-                                                        permissionGroup.setPermissions(
-                                                                Sets.union(permissions, Sets.newHashSet(datasourcePermission))
-                                                        );
-
-                                                        return permissionGroupService.save(permissionGroup)
-                                                                .then(datasourceService.save(updatedDatasource));
-                                                    });
-                                        });
+                                return datasourceService.save(updatedDatasource);
                             });
                 });
     }

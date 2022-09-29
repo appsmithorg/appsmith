@@ -295,9 +295,6 @@ class SelectComponent extends React.Component<
         data-testid="select-container"
         labelPosition={labelPosition}
         ref={this.props.innerRef}
-        style={
-          this.props.isDynamicHeightEnabled ? { height: "auto" } : undefined
-        }
       >
         <DropdownStyles
           accentColor={accentColor}

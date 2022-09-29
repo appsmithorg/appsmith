@@ -44,6 +44,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.contentConfig,
     config.properties.styleConfig,
     config.features,
+    config.properties.loadingProperties,
   );
   configureWidget(config);
 };

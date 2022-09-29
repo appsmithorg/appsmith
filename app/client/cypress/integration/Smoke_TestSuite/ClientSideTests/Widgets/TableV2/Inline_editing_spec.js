@@ -1,6 +1,9 @@
 const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
   beforeEach(() => {
@@ -254,6 +257,9 @@ describe("Table widget inline editing functionality", () => {
       "contain.value",
       "Save / Discard",
     );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
+    );
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
 
@@ -264,6 +270,9 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
       "Save / Discard",
+    );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
     );
     cy.get(
       `.t--property-control-columns .t--uber-editable-checkbox input+span`,
@@ -277,6 +286,9 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
       "Save / Discard",
+    );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
     );
     cy.editColumn("step");
     cy.get(".t--property-control-editable .bp3-switch span").click();
@@ -409,7 +421,7 @@ describe("Table widget inline editing functionality", () => {
     cy.saveTableCellValue(0, 0);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
-      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅",      "action": ""    }  }]`,
+      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
     );
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
@@ -535,8 +547,7 @@ describe("Table widget inline editing functionality", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
-
+    agHelper.EnterActionValue("Message", "Submitted!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.saveTableCellValue(0, 0);
@@ -559,11 +570,7 @@ describe("Table widget inline editing functionality", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage(
-      "{{Table1.triggeredRow.step}}",
-      ".t--property-control-onsubmit",
-    );
-
+    agHelper.EnterActionValue("Message", "{{Table1.triggeredRow.step}}");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, value);
     cy.saveTableCellValue(0, 0);
@@ -591,6 +598,7 @@ describe("Table widget inline editing functionality", () => {
     cy.selectShowMsg();
     //cy.addSuccessMessage("Saved!!", ".t--property-control-onsave");
     cy.toggleJsAndUpdateWithIndex("onsave", "Saved!!", 1);
+    agHelper.EnterActionValue("Message", "Saved!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");
@@ -618,6 +626,7 @@ describe("Table widget inline editing functionality", () => {
     cy.selectShowMsg();
     cy.toggleJsAndUpdateWithIndex("onsave", "{{Table1.triggeredRow.step}}", 1);
 
+    agHelper.EnterActionValue("Message", "{{Table1.triggeredRow.step}}");
     /*
     cy.addSuccessMessage(
       "{{Table1.triggeredRow.step}}",
@@ -649,6 +658,7 @@ describe("Table widget inline editing functionality", () => {
     cy.selectShowMsg();
     cy.toggleJsAndUpdateWithIndex("ondiscard", "discarded!!", 3);
     //cy.addSuccessMessage("discarded!!", ".t--property-control-ondiscard");
+    agHelper.EnterActionValue("Message", "discarded!!");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");

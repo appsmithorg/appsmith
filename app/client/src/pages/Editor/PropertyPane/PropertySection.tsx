@@ -8,8 +8,6 @@ import React, {
   useCallback,
 } from "react";
 import { Collapse } from "@blueprintjs/core";
-import { useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { AppIcon as Icon, Size } from "design-system";
@@ -78,13 +76,13 @@ type PropertySectionProps = {
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
-  return prev.id === next.id;
+  return prev.id === next.id && prev.hidden === next.hidden;
 };
 
 //Context is being provided to re-render anything that subscribes to this context on open and close
@@ -93,15 +91,12 @@ export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
   const [isOpen, setIsOpen] = useState(!!isDefaultOpen);
-  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible) setIsOpen((x) => !x);
   }, []);
 
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "")) {
-      return null;
-    }
+    return null;
   }
 
   const className = props.name

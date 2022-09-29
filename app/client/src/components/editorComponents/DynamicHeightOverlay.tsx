@@ -12,10 +12,10 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetProps } from "widgets/BaseWidget";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import { getParentToOpenIfAny } from "selectors/widgetSelectors";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
