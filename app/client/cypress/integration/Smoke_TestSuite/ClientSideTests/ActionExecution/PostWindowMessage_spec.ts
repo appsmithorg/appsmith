@@ -3,7 +3,6 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 
 const {
   AggregateHelper: agHelper,
-  CommonLocators: locator,
   DeployMode: deployMode,
   EntityExplorer: ee,
   PropertyPane: propPane,
@@ -25,7 +24,7 @@ describe("Post window message", () => {
       `<!doctype html>
       <html lang="en">
       <head>
-      <meta charset="UTF-8">
+      <meta charset="UTF-8"><title>post msg</title>
       </head>
       <body>
       <button id="iframe-button" onclick="sendMsg()">Send message</button>
@@ -46,21 +45,27 @@ describe("Post window message", () => {
     deployMode.DeployApp();
 
     cy.get("#iframe-Iframe1").then((element) => {
-      element.contents().find("body").find("#iframe-button").click();
+      element
+        .contents()
+        .find("body")
+        .find("#iframe-button")
+        .click();
     });
     agHelper.ValidateToastMessage("I got a message from iframe");
 
     cy.get("#iframe-Iframe1").then(($element) => {
       const $body = $element.contents().find("body");
       cy.wrap($body)
-        .find("#txtMsg").should("have.text", "Before postMessage");
-    })
+        .find("#txtMsg")
+        .should("have.text", "Before postMessage");
+    });
 
-    agHelper.ClickButton("Submit")
+    agHelper.ClickButton("Submit");
     cy.get("#iframe-Iframe1").then(($element) => {
       const $body = $element.contents().find("body");
       cy.wrap($body)
-        .find("#txtMsg").should("have.text", "After postMessage")
+        .find("#txtMsg")
+        .should("have.text", "After postMessage");
     });
     deployMode.NavigateBacktoEditor();
   });
