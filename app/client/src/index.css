@@ -100,19 +100,6 @@ div.bp3-popover-arrow {
   border-radius: 0 !important;
 }
 
-/* rich text editor styles */
-.tox-tinymce {
-  border-color: #E7E7E7 !important;
-}
-
-.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar {
-  border-color: #E7E7E7 !important;
-}
-
-.tox .tox-toolbar__primary {
-  background: white !important;
-  border-bottom: 1px solid #E7E7E7 !important;
-}
 
 /* making both the Modal layer and the Dropdown layer */
 .bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
