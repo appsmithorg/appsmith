@@ -24,14 +24,18 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
+import { TreeDropdownOption } from "design-system";
 
 type EntityContextMenuProps = {
   id: string;
   name: string;
   className?: string;
   pageId: string;
+  canManage?: boolean;
+  canDelete?: boolean;
 };
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
+  const { canDelete, canManage } = props;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
 
@@ -87,73 +91,74 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch, props.id],
   );
 
+  const optionsTree = [
+    canManage && {
+      value: "rename",
+      onSelect: editJSCollectionName,
+      label: createMessage(CONTEXT_EDIT_NAME),
+    },
+    {
+      value: "showBinding",
+      onSelect: () => showBinding(props.id, props.name),
+      label: createMessage(CONTEXT_SHOW_BINDING),
+    },
+    canManage && {
+      value: "copy",
+      onSelect: noop,
+      label: createMessage(CONTEXT_COPY),
+      children: menuPages.map((page) => {
+        return {
+          ...page,
+          onSelect: () => copyJSCollectionToPage(props.id, props.name, page.id),
+        };
+      }),
+    },
+    canManage && {
+      value: "move",
+      onSelect: noop,
+      label: createMessage(CONTEXT_MOVE),
+      children:
+        menuPages.length > 1
+          ? menuPages
+              .filter((page) => page.id !== props.pageId) // Remove current page from the list
+              .map((page) => {
+                return {
+                  ...page,
+                  onSelect: () =>
+                    moveJSCollectionToPage(props.id, props.name, page.id),
+                };
+              })
+          : [
+              {
+                value: "No Pages",
+                onSelect: noop,
+                label: createMessage(CONTEXT_NO_PAGE),
+              },
+            ],
+    },
+    canDelete && {
+      confirmDelete: confirmDelete,
+      className: "t--apiFormDeleteBtn single-select",
+      value: "delete",
+      onSelect: () => {
+        confirmDelete
+          ? deleteJSCollectionFromPage(props.id, props.name)
+          : setConfirmDelete(true);
+      },
+      label: confirmDelete
+        ? createMessage(CONFIRM_CONTEXT_DELETE)
+        : createMessage(CONTEXT_DELETE),
+      intent: "danger",
+    },
+  ].filter(Boolean);
+
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={[
-        {
-          value: "rename",
-          onSelect: editJSCollectionName,
-          label: createMessage(CONTEXT_EDIT_NAME),
-        },
-        {
-          value: "showBinding",
-          onSelect: () => showBinding(props.id, props.name),
-          label: createMessage(CONTEXT_SHOW_BINDING),
-        },
-        {
-          value: "copy",
-          onSelect: noop,
-          label: createMessage(CONTEXT_COPY),
-          children: menuPages.map((page) => {
-            return {
-              ...page,
-              onSelect: () =>
-                copyJSCollectionToPage(props.id, props.name, page.id),
-            };
-          }),
-        },
-        {
-          value: "move",
-          onSelect: noop,
-          label: createMessage(CONTEXT_MOVE),
-          children:
-            menuPages.length > 1
-              ? menuPages
-                  .filter((page) => page.id !== props.pageId) // Remove current page from the list
-                  .map((page) => {
-                    return {
-                      ...page,
-                      onSelect: () =>
-                        moveJSCollectionToPage(props.id, props.name, page.id),
-                    };
-                  })
-              : [
-                  {
-                    value: "No Pages",
-                    onSelect: noop,
-                    label: createMessage(CONTEXT_NO_PAGE),
-                  },
-                ],
-        },
-        {
-          confirmDelete: confirmDelete,
-          className: "t--apiFormDeleteBtn single-select",
-          value: "delete",
-          onSelect: () => {
-            confirmDelete
-              ? deleteJSCollectionFromPage(props.id, props.name)
-              : setConfirmDelete(true);
-          },
-          label: confirmDelete
-            ? createMessage(CONFIRM_CONTEXT_DELETE)
-            : createMessage(CONTEXT_DELETE),
-          intent: "danger",
-        },
-      ]}
+      optionTree={optionsTree as TreeDropdownOption[]}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
