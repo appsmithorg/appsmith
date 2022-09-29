@@ -352,11 +352,11 @@ function ApiResponseView(props: Props) {
     responseHeaders = {};
   }
 
-  const onResponseTabSelect = (tab: any) => {
+  const onResponseTabSelect = (tab: string) => {
     updateActionResponseDisplayFormat({
       id: apiId ? apiId : "",
       field: "responseDisplayFormat",
-      value: tab.title,
+      value: tab,
     });
   };
 
