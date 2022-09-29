@@ -12,8 +12,6 @@ import {
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
-import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
@@ -64,14 +62,6 @@ class DynamicTextControl extends BaseControl<
       responseType,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
-    const isNewQuery =
-      new URLSearchParams(window.location.search).get("showTemplate") ===
-      "true";
-    const showTemplate =
-      isNewQuery &&
-      this.state.showTemplateMenu &&
-      this.props.pluginId &&
-      QUERY_BODY_FIELDS.includes(this.props.configProperty);
     const mode =
       responseType === "TABLE"
         ? EditorModes.SQL_WITH_BINDING
@@ -79,37 +69,18 @@ class DynamicTextControl extends BaseControl<
 
     return (
       <Wrapper className={`t--${configProperty}`}>
-        {showTemplate ? (
-          <TemplateMenu
-            createTemplate={(templateString) => {
-              this.setState(
-                {
-                  showTemplateMenu: false,
-                },
-                () =>
-                  this.props.createTemplate(
-                    templateString,
-                    this.props.formName,
-                    this.props?.configProperty,
-                  ),
-              );
-            }}
-            pluginId={this.props.pluginId}
-          />
-        ) : (
-          <DynamicTextField
-            className="dynamic-text-field"
-            dataTreePath={dataTreePath}
-            disabled={this.props.disabled}
-            evaluationSubstitutionType={evaluationSubstitutionType}
-            mode={mode}
-            name={this.props.configProperty}
-            placeholder={placeholderText}
-            showLineNumbers={this.props.showLineNumbers}
-            size={EditorSize.EXTENDED}
-            tabBehaviour={TabBehaviour.INDENT}
-          />
-        )}
+        <DynamicTextField
+          className="dynamic-text-field"
+          dataTreePath={dataTreePath}
+          disabled={this.props.disabled}
+          evaluationSubstitutionType={evaluationSubstitutionType}
+          mode={mode}
+          name={this.props.configProperty}
+          placeholder={placeholderText}
+          showLineNumbers={this.props.showLineNumbers}
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INDENT}
+        />
       </Wrapper>
     );
   }

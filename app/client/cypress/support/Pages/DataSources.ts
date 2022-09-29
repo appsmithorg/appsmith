@@ -135,6 +135,12 @@ export class DataSources {
     });
   }
 
+  public startRoutesForDatasource() {
+    cy.server();
+    cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+    cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  }
+
   public StartInterceptRoutesForMySQL() {
     //All stubbing - updating app id to current app id for Delete app by api call to be successfull:
 
