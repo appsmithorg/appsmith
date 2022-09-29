@@ -115,6 +115,31 @@ export function convertFunctionsToString(config: PropertyPaneConfig[]) {
 
       (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
+
+    if (
+      config.panelConfig &&
+      config.panelConfig.contentChildren &&
+      Array.isArray(config.panelConfig.contentChildren)
+    ) {
+      config.panelConfig.contentChildren = convertFunctionsToString(
+        config.panelConfig.contentChildren,
+      );
+
+      (sectionOrControlConfig as PropertyPaneControlConfig) = config;
+    }
+
+    if (
+      config.panelConfig &&
+      config.panelConfig.styleChildren &&
+      Array.isArray(config.panelConfig.styleChildren)
+    ) {
+      config.panelConfig.styleChildren = convertFunctionsToString(
+        config.panelConfig.styleChildren,
+      );
+
+      (sectionOrControlConfig as PropertyPaneControlConfig) = config;
+    }
+
     return sectionOrControlConfig;
   });
 }

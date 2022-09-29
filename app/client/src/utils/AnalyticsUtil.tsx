@@ -261,7 +261,9 @@ export type EventName =
   | "PRETTIFY_CODE_KEYBOARD_SHORTCUT"
   | "JS_OBJECT_CREATED"
   | "JS_OBJECT_FUNCTION_ADDED"
-  | "JS_OBJECT_FUNCTION_RUN";
+  | "JS_OBJECT_FUNCTION_RUN"
+  | "SHOW_BINDINGS_TRIGGERED"
+  | "BINDING_COPIED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

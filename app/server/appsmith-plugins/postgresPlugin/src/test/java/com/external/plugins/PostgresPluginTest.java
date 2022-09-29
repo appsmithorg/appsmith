@@ -19,11 +19,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -43,15 +44,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit tests for the PostgresPlugin
- */
+@Testcontainers
 public class PostgresPluginTest {
 
     public class MockSharedConfig implements SharedConfig {
@@ -76,7 +75,7 @@ public class PostgresPluginTest {
     PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig());
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
-    @ClassRule
+    @Container
     public static final PostgreSQLContainer pgsqlContainer = new PostgreSQLContainer<>("postgres:alpine")
             .withExposedPorts(5432)
             .withUsername("postgres")
@@ -86,7 +85,7 @@ public class PostgresPluginTest {
     private static Integer port;
     private static String username, password;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         if (address != null) {
             return;
@@ -163,14 +162,14 @@ public class PostgresPluginTest {
                         ")");
 
                 statement.execute("CREATE SCHEMA sample_schema " +
-                    " CREATE TABLE sample_table (\n" +
-                    "    id serial PRIMARY KEY,\n" +
-                    "    username VARCHAR (50) UNIQUE,\n" +
-                    "    email VARCHAR (355) UNIQUE ,\n" +
-                    "    numbers INTEGER[3] ,\n" +
-                    "    texts VARCHAR[2] ,\n" +
-                    "    rating FLOAT4 \n" +
-                    ")");
+                        " CREATE TABLE sample_table (\n" +
+                        "    id serial PRIMARY KEY,\n" +
+                        "    username VARCHAR (50) UNIQUE,\n" +
+                        "    email VARCHAR (355) UNIQUE ,\n" +
+                        "    numbers INTEGER[3] ,\n" +
+                        "    texts VARCHAR[2] ,\n" +
+                        "    rating FLOAT4 \n" +
+                        ")");
 
             }
 
@@ -187,10 +186,10 @@ public class PostgresPluginTest {
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                    "INSERT INTO sample_schema.\"sample_table\" VALUES (" +
-                        "1, 'Jack', 'jack@exemplars.com', " +
-                        " '{1, 2, 3}', '{\"a\", \"b\"}', 1.0" +
-                        ")");
+                        "INSERT INTO sample_schema.\"sample_table\" VALUES (" +
+                                "1, 'Jack', 'jack@exemplars.com', " +
+                                " '{1, 2, 3}', '{\"a\", \"b\"}', 1.0" +
+                                ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -219,7 +218,7 @@ public class PostgresPluginTest {
                 statement.execute(
                         "INSERT INTO dataTypeTest VALUES (" +
                                 "1, '{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}'," +
-                                "'{\"country\":\"japan\", \"city\":\"kyoto\"}', 'A Lincoln'"+
+                                "'{\"country\":\"japan\", \"city\":\"kyoto\"}', 'A Lincoln'" +
                                 ")");
             }
 
@@ -260,7 +259,7 @@ public class PostgresPluginTest {
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 
@@ -270,7 +269,7 @@ public class PostgresPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.setEndpoints(new ArrayList<>());
 
-        Assert.assertEquals(Set.of("Missing endpoint."),
+        assertEquals(Set.of("Missing endpoint."),
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
@@ -280,7 +279,7 @@ public class PostgresPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("");
 
-        Assert.assertEquals(Set.of("Missing hostname."),
+        assertEquals(Set.of("Missing hostname."),
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
@@ -291,7 +290,7 @@ public class PostgresPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
 
-        Assert.assertEquals(Set.of("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."),
+        assertEquals(Set.of("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."),
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
@@ -420,10 +419,10 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
                                     new DatasourceStructure.Column(
-                                        "id",
-                                        "int4",
-                                        "nextval('datatypetest_id_seq'::regclass)",
-                                        true),
+                                            "id",
+                                            "int4",
+                                            "nextval('datatypetest_id_seq'::regclass)",
+                                            true),
                                     new DatasourceStructure.Column("item", "json", null, false),
                                     new DatasourceStructure.Column("origin", "jsonb", null, false),
                                     new DatasourceStructure.Column("citextdata", "citext", null, false)
@@ -476,7 +475,7 @@ public class PostgresPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "nextval('users_id_seq'::regclass)",true),
+                                    new DatasourceStructure.Column("id", "int4", "nextval('users_id_seq'::regclass)", true),
                                     new DatasourceStructure.Column("username", "varchar", null, false),
                                     new DatasourceStructure.Column("password", "varchar", null, false),
                                     new DatasourceStructure.Column("email", "varchar", null, false),
@@ -537,41 +536,41 @@ public class PostgresPluginTest {
                     assertEquals("sample_schema", sampleTable.getSchema());
                     assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
                     assertArrayEquals(
-                        new DatasourceStructure.Column[]{
-                            new DatasourceStructure.Column("id", "int4", "nextval('sample_schema.sample_table_id_seq'::regclass)",true),
-                            new DatasourceStructure.Column("username", "varchar", null, false),
-                            new DatasourceStructure.Column("email", "varchar", null, false),
-                            new DatasourceStructure.Column("numbers", "_int4", null, false),
-                            new DatasourceStructure.Column("texts", "_varchar", null, false),
-                            new DatasourceStructure.Column("rating", "float4", null, false),
-                        },
-                        sampleTable.getColumns().toArray()
+                            new DatasourceStructure.Column[]{
+                                    new DatasourceStructure.Column("id", "int4", "nextval('sample_schema.sample_table_id_seq'::regclass)", true),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("email", "varchar", null, false),
+                                    new DatasourceStructure.Column("numbers", "_int4", null, false),
+                                    new DatasourceStructure.Column("texts", "_varchar", null, false),
+                                    new DatasourceStructure.Column("rating", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray()
                     );
 
                     final DatasourceStructure.PrimaryKey samplePrimaryKey = new DatasourceStructure.PrimaryKey("sample_table_pkey", new ArrayList<>());
                     samplePrimaryKey.getColumnNames().add("id");
                     assertArrayEquals(
-                        new DatasourceStructure.Key[]{samplePrimaryKey},
-                        sampleTable.getKeys().toArray()
+                            new DatasourceStructure.Key[]{samplePrimaryKey},
+                            sampleTable.getKeys().toArray()
                     );
 
                     assertArrayEquals(
-                        new DatasourceStructure.Template[]{
-                            new DatasourceStructure.Template("SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;"),
-                            new DatasourceStructure.Template("INSERT", "INSERT INTO sample_schema.\"sample_table\" " +
-                                "(\"username\", \"email\", \"numbers\", \"texts\", \"rating\")\n  " +
-                                "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
-                            new DatasourceStructure.Template("UPDATE", "UPDATE sample_schema.\"sample_table\" SET\n" +
-                                "    \"username\" = '',\n" +
-                                "    \"email\" = '',\n" +
-                                "    \"numbers\" = '{1, 2, 3}',\n" +
-                                "    \"texts\" = '{\"first\", \"second\"}',\n" +
-                                "    \"rating\" = 1.0\n" +
-                                "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                            new DatasourceStructure.Template("DELETE", "DELETE FROM sample_schema.\"sample_table\"\n" +
-                                "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
-                        },
-                        sampleTable.getTemplates().toArray()
+                            new DatasourceStructure.Template[]{
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO sample_schema.\"sample_table\" " +
+                                            "(\"username\", \"email\", \"numbers\", \"texts\", \"rating\")\n  " +
+                                            "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
+                                    new DatasourceStructure.Template("UPDATE", "UPDATE sample_schema.\"sample_table\" SET\n" +
+                                            "    \"username\" = '',\n" +
+                                            "    \"email\" = '',\n" +
+                                            "    \"numbers\" = '{1, 2, 3}',\n" +
+                                            "    \"texts\" = '{\"first\", \"second\"}',\n" +
+                                            "    \"rating\" = 1.0\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                    new DatasourceStructure.Template("DELETE", "DELETE FROM sample_schema.\"sample_table\"\n" +
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                            },
+                            sampleTable.getTemplates().toArray()
                     );
                 })
                 .verifyComplete();
@@ -746,7 +745,7 @@ public class PostgresPluginTest {
 
                     // check if '?' is replaced by $i.
                     assertEquals("SELECT * FROM public.\"users\" where id = $1;",
-                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
 
                     PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
                     PsParameterDTO returnedPsParam =
@@ -1259,20 +1258,20 @@ public class PostgresPluginTest {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertEquals(node.get("affectedRows").asText(), "1");
 
-                    List<RequestParamDTO>  requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
+                    List<RequestParamDTO> requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
                     RequestParamDTO requestParamDTO = requestParams.get(0);
                     Map<String, Object> substitutedParams = requestParamDTO.getSubstitutedParams();
                     for (Map.Entry<String, Object> substitutedParam : substitutedParams.entrySet()) {
                         PsParameterDTO psParameter = (PsParameterDTO) substitutedParam.getValue();
                         switch (psParameter.getValue()) {
-                            case "10" :
+                            case "10":
                                 assertEquals(psParameter.getType(), "INTEGER");
                                 break;
-                            case "1001" :
+                            case "1001":
 
-                            case "LastName" :
+                            case "LastName":
 
-                            case "email@email.com" :
+                            case "email@email.com":
                                 assertEquals(psParameter.getType(), "STRING");
                                 break;
                             case "2018-12-31":
@@ -1291,7 +1290,7 @@ public class PostgresPluginTest {
         // Check that precision for decimal value is maintained
         assert actionExecutionResult != null;
         final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-        Assert.assertEquals("5.1", node.get("rating").asText());
+        assertEquals("5.1", node.get("rating").asText());
 
         // Delete the newly added row to not affect any other test case
         actionConfiguration.setBody("DELETE FROM users WHERE id = 10");
@@ -1400,21 +1399,21 @@ public class PostgresPluginTest {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertEquals(node.get("affectedRows").asText(), "1");
 
-                    List<RequestParamDTO>  requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
+                    List<RequestParamDTO> requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
                     RequestParamDTO requestParamDTO = requestParams.get(0);
                     Map<String, Object> substitutedParams = requestParamDTO.getSubstitutedParams();
                     for (Map.Entry<String, Object> substitutedParam : substitutedParams.entrySet()) {
                         PsParameterDTO psParameter = (PsParameterDTO) substitutedParam.getValue();
                         switch (psParameter.getValue()) {
-                            case "10" :
+                            case "10":
                                 assertEquals(psParameter.getType(), "INTEGER");
                                 break;
                             case "{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}":
 
-                            case "{\"country\":\"japan\", \"city\":\"kyoto\"}" :
+                            case "{\"country\":\"japan\", \"city\":\"kyoto\"}":
                                 assertEquals(psParameter.getType(), "JSON_OBJECT");
                                 break;
-                            case "Something here" :
+                            case "Something here":
                                 assertEquals(psParameter.getType(), "STRING");
                                 break;
                         }

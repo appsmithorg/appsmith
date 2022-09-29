@@ -19,6 +19,7 @@ import {
   PAGE_LIST_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
+  GENERATE_TEMPLATE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   matchBuilderPath,
   BUILDER_CHECKLIST_PATH,
@@ -153,6 +154,11 @@ function EditorsRouter() {
             component={ProviderTemplates}
             exact
             path={`${path}${PROVIDER_TEMPLATE_PATH}`}
+          />
+          <SentryRoute
+            component={GeneratePage}
+            exact
+            path={`${path}${GENERATE_TEMPLATE_PATH}`}
           />
           <SentryRoute
             component={GeneratePage}

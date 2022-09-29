@@ -10,8 +10,8 @@ SSL_KEY_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem"
 
 # In case of existing custom certificate, container will use them to configure SSL
 if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-	SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
-	SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
+  SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
+  SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
 fi
 
 cat <<EOF
@@ -73,7 +73,8 @@ server {
   server_tokens off;
 
   root /opt/appsmith/editor;
-  index index.html index.htm;
+  index index.html;
+  error_page 404 /;
 
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
@@ -81,6 +82,11 @@ server {
 
   location / {
     try_files \$uri /index.html =404;
+  }
+
+  # If the path has an extension at the end, then respond with 404 status if the file not found.
+  location ~ \.[a-z]+$ {
+    try_files \$uri =404;
   }
 
   location /api {
