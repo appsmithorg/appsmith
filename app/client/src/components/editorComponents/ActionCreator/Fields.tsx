@@ -8,7 +8,6 @@ import {
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DividerComponent from "widgets/DividerWidget/component";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
