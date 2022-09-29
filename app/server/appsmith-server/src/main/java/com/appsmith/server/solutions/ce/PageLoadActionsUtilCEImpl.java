@@ -112,11 +112,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         // In the above case, the two actions depend on each other without there being a real cyclical dependency.
         Map<String, EntityDependencyNode> actionsFoundDuringWalk = new HashMap<>();
 
-        Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS).flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false)).cache();
+        Flux<ActionDTO> allActionsByPageIdFlux = newActionService
+                .findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .cache();
 
-        Mono<Map<String, ActionDTO>> actionNameToActionMapMono = allActionsByPageIdMono.collectMap(ActionDTO::getValidName, action -> action).cache();
+        Mono<Map<String, ActionDTO>> actionNameToActionMapMono = allActionsByPageIdFlux.collectMap(ActionDTO::getValidName, action -> action).cache();
 
-        Mono<Set<String>> actionsInPageMono = allActionsByPageIdMono.map(ActionDTO::getValidName).collect(Collectors.toSet()).cache();
+        Mono<Set<String>> actionsInPageMono = allActionsByPageIdFlux.map(ActionDTO::getValidName).collect(Collectors.toSet()).cache();
 
         Set<EntityDependencyNode> actionBindingsInDsl = new HashSet<>();
         Mono<Set<ActionDependencyEdge>> directlyReferencedActionsAddedToGraphMono =
@@ -169,12 +172,12 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 }).cache();
 
         // Generate on page load schedule
-        Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionsInPageMono, createGraphMono)
+        Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionNameToActionMapMono, createGraphMono)
                 .map(tuple -> {
-                    Set<String> actionNames = tuple.getT1();
+                    Map<String, ActionDTO> actionNameToActionMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
-                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames, explicitUserSetOnLoadActions);
+                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNameToActionMap, explicitUserSetOnLoadActions);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
                     // Find all explicitly turned on actions which haven't found their way into the scheduling order
@@ -600,14 +603,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * actions which depend on one or more of the actions which were executed from the 0th index set and so on.
      * Breadth First level by level traversal is used to compute each set of such independent actions.
      *
-     * @param dag                 : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     * @param dag                   : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
      * @param onPageLoadActionSet
-     * @param actionNames         : All the action names for the page
+     * @param actionNameToActionMap : All the action names for the page
      * @return
      */
     private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
                                                                       Set<String> onPageLoadActionSet,
-                                                                      Set<String> actionNames,
+                                                                      Map<String, ActionDTO> actionNameToActionMap,
                                                                       Set<String> explicitUserSetOnLoadActions) {
         Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
@@ -627,7 +630,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, vertex, pageLoadActionAndLevelMap, onPageLoadActions, explicitUserSetOnLoadActions);
+            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNameToActionMap, vertex, pageLoadActionAndLevelMap, onPageLoadActions, explicitUserSetOnLoadActions);
             onPageLoadActions.get(level).addAll(actionsFromBinding);
             for (String action : actionsFromBinding) {
                 pageLoadActionAndLevelMap.put(action, level);
@@ -995,13 +998,13 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * - If sync function, ignore. This is because client would execute the same during dynamic binding eval
      * - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
      *
-     * @param allActionNames
+     * @param actionNameToActionMap
      * @param vertex
      * @param pageLoadActionsLevelMap
      * @param existingPageLoadActions
      * @return
      */
-    private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
+    private Set<String> actionCandidatesForPageLoadFromBinding(Map<String, ActionDTO> actionNameToActionMap,
                                                                String vertex,
                                                                Map<String, Integer> pageLoadActionsLevelMap,
                                                                List<Set<String>> existingPageLoadActions,
@@ -1014,7 +1017,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         for (String entity : possibleParents) {
 
             // if this generated entity name from the binding matches an action name check for its eligibility
-            if (allActionNames.contains(entity)) {
+            if (actionNameToActionMap.containsKey(entity)) {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
@@ -1030,6 +1033,12 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     validBinding = entity + "." + "actionConfiguration";
                 } else {
                     validBinding = entity + "." + "data";
+                }
+
+                // If the reference is to a sync JS function, discard it from the scheduling order
+                ActionDTO actionDTO = actionNameToActionMap.get(entity);
+                if (PluginType.JS.equals(actionDTO.getPluginType()) && FALSE.equals(actionDTO.getActionConfiguration().getIsAsync())) {
+                    isCandidateForPageLoad = FALSE;
                 }
 
                 if (!vertex.contains(validBinding)) {
