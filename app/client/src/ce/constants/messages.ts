@@ -407,8 +407,6 @@ export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying ${actionName}`;
 export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
   `${actionName} deleted successfully`;
-export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} created successfully`;
 export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} moved to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
@@ -456,7 +454,8 @@ export const IMPORT_APPLICATION_MODAL_LABEL = () =>
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
-export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
+export const IMPORT_APP_FROM_GIT_TITLE = () =>
+  "Import from Git repository (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
@@ -644,7 +643,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
-  "git@example.com:user/repo.git";
+  "git@example.com:user/repository.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
@@ -708,8 +707,8 @@ export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
-export const OPEN_REPO = () => "OPEN REPO";
-export const CONNECTING_REPO = () => "Connecting to Git repo";
+export const OPEN_REPO = () => "OPEN REPOSITORY";
+export const CONNECTING_REPO = () => "Connecting to Git repository";
 export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
@@ -779,9 +778,9 @@ export const DELETE_BRANCH_WARNING_DEFAULT = (defaultBranchName: string) =>
 
 // GIT ERRORS begin
 export const ERROR_GIT_AUTH_FAIL = () =>
-  "Please make sure that regenerated SSH key is added and has write access to the repo.";
+  "Please make sure that regenerated SSH key is added and has write access to the repository.";
 export const ERROR_GIT_INVALID_REMOTE = () =>
-  "Remote repo doesn't exist or is unreachable.";
+  "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
 
 // JS Snippets
@@ -831,7 +830,8 @@ export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
 export const ONBOARDING_CHECKLIST_BANNER_BODY = () =>
   "You can carry on here, or explore the homepage to see how your projects are stored.";
 export const ONBOARDING_CHECKLIST_BANNER_BUTTON = () => "Explore homepage";
-
+export const ONBOARDING_SKIPPED_FIRST_TIME_USER = () =>
+  "Skipped onboarding tour";
 export const ONBOARDING_CHECKLIST_HEADER = () => "👋 Welcome to Appsmith!";
 export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
