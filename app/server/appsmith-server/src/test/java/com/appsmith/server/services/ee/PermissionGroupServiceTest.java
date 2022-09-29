@@ -13,14 +13,14 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -40,7 +40,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -66,7 +66,7 @@ public class PermissionGroupServiceTest {
 
     String superAdminPermissionGroupId = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
@@ -254,7 +254,7 @@ public class PermissionGroupServiceTest {
         PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
 
         Mono<PermissionGroup> deletePermissionGroupMono = permissionGroupService.archiveById(createdRole.getId())
-                        .then(permissionGroupService.findById(createdRole.getId(), READ_PERMISSION_GROUPS));
+                .then(permissionGroupService.findById(createdRole.getId(), READ_PERMISSION_GROUPS));
 
         StepVerifier.create(deletePermissionGroupMono)
                 .expectNextCount(0)
