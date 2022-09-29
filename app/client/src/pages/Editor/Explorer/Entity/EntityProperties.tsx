@@ -20,6 +20,7 @@ import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -63,6 +64,13 @@ export function EntityProperties() {
 
     return () => document.removeEventListener("click", handleOutsideClick);
   }, [show]);
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("SHOW_BINDINGS_TRIGGERED", {
+      entityName,
+      entityType,
+    });
+  }, []);
 
   const actionEntity = useSelector((state: AppState) =>
     state.entities.actions.find((action) => action.config.id === entityId),
