@@ -5,6 +5,7 @@ type FeatureFlags = {
   SNIPPET?: boolean;
   GIT?: boolean;
   GIT_IMPORT?: boolean;
+  AUDIT_LOGS?: boolean;
 };
 
 export default FeatureFlags;
