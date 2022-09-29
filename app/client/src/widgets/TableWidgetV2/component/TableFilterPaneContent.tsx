@@ -43,7 +43,6 @@ const TableFilterOuterWrapper = styled.div<{
   width: 100%;
   background: ${Colors.WHITE};
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
   border-radius: ${(props) => props.borderRadius || "0"};
 `;
 
@@ -81,10 +80,10 @@ const ButtonActionsWrapper = styled.div`
 const ColumnTypeBindingMessage = styled.div`
   height: 40px;
   line-height: 40px;
-  background: ${Colors.WHITE_SNOW};
+  background: var(--wds-color-bg-light);
   box-sizing: border-box;
   font-size: 12px;
-  color: ${Colors.GREY_11};
+  color: var(--wds-color-text-light);
   letter-spacing: 0.04em;
   font-weight: 500;
   margin-left: 83px;

@@ -241,6 +241,7 @@ export function Table(props: TableProps) {
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}
+      isResizingColumn={isResizingColumn.current}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
       width={props.width}

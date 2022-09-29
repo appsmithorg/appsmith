@@ -43,8 +43,9 @@ export type PopperProps = {
 const PopperWrapper = styled.div<{ zIndex: number; borderRadius?: string }>`
   z-index: ${(props) => props.zIndex};
   position: absolute;
-  overflow: hidden;
   border-radius: ${(props) => props.borderRadius || "0"};
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
 `;
 
 const DragHandleBlock = styled.div`

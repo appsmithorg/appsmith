@@ -35,6 +35,7 @@ export const TableWrapper = styled.div<{
   boxShadow?: string;
   borderColor?: string;
   borderWidth?: number;
+  isResizingColumn?: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -67,9 +68,9 @@ export const TableWrapper = styled.div<{
     border-spacing: 0;
     color: ${Colors.THUNDER};
     position: relative;
-    background: ${Colors.ATHENS_GRAY_DARKER};
     display: table;
     width: 100%;
+    background: red;
     ${hideScrollbar};
     .thead,
     .tbody {
@@ -99,8 +100,13 @@ export const TableWrapper = styled.div<{
     .th,
     .td {
       margin: 0;
-      border-bottom: 1px solid var(--wds-color-border-onaccent);
-      border-right: 1px solid var(--wds-color-border-onaccent);
+      border-bottom: ${true
+        ? `1px solid var(--wds-color-border-onaccent)`
+        : `1px solid transparent`};
+      border-right: ${(props) =>
+        false || props.isResizingColumn
+          ? `1px solid var(--wds-color-border-onaccent)`
+          : `1px solid transparent`};
       position: relative;
       font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
@@ -123,6 +129,11 @@ export const TableWrapper = styled.div<{
         }
       }
     }
+
+    .thead:hover .th {
+      border-right: 1px solid var(--wds-color-border-onaccent);
+    }
+
     .th {
       padding: 0 10px 0 0;
       height: ${(props) =>
@@ -247,7 +258,7 @@ export const PaginationWrapper = styled.div`
   justify-content: flex-end;
   align-items: center;
   padding: 8px 20px;
-  color: ${Colors.GRAY};
+  color: var(--wds-color-text-light);
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -256,8 +267,13 @@ export const PaginationItemWrapper = styled.div<{
   borderRadius: string;
   accentColor: string;
 }>`
-  background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
-  border: 1px solid ${Colors.ALTO2};
+  background: ${(props) =>
+    props.disabled ? `var(--wds-color-bg-disabled)` : `var(--wds-color-bg)`};
+  border: 1px solid
+    ${(props) =>
+      props.disabled
+        ? `var(--wds-color-border-disabled)`
+        : `var(--wds-color-border)`};
   box-sizing: border-box;
   width: 24px;
   height: 24px;
@@ -265,12 +281,18 @@ export const PaginationItemWrapper = styled.div<{
   justify-content: center;
   align-items: center;
   margin: 0 4px;
-  pointer-events: ${(props) => props.disabled && "none"};
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   border-radius: ${({ borderRadius }) => borderRadius};
-  &:hover {
-    border-color: ${({ accentColor }) => accentColor};
+
+  & > * {
+    pointer-events: ${(props) => props.disabled && "none"};
   }
+  ${({ disabled }) =>
+    !disabled &&
+    `&:hover {
+    border-color: var(--wds-color-border-hover);
+    background-color: var(--wds-color-bg-hover);
+  }`}
 `;
 
 export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
@@ -332,6 +354,7 @@ export const CellWrapper = styled.div<{
   textColor?: string;
   cellBackground?: string;
   textSize?: string;
+  disablePadding?: boolean;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -358,8 +381,13 @@ export const CellWrapper = styled.div<{
   font-size: ${(props) => props.textSize};
 
   padding: ${(props) =>
-    props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
-    10px;
+    props.disablePadding
+      ? 0
+      : `${
+          props.compactMode
+            ? `${TABLE_SIZES[props.compactMode].VERTICAL_PADDING}px 10px`
+            : `${0}px 10px`
+        }`};
   line-height: ${CELL_WRAPPER_LINE_HEIGHT}px;
   .${Classes.POPOVER_WRAPPER} {
     width: 100%;
@@ -508,7 +536,7 @@ export const TableHeaderInnerWrapper = styled.div<{
   display: flex;
   width: 100%;
   height: 100%;
-  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+  border-bottom: ${true && `1px solid var(--wds-color-border-onaccent)`};
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
@@ -516,7 +544,17 @@ export const CommonFunctionsMenuWrapper = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  height: 100%;
+
+  & .bp3-popover-target,
+  & .bp3-popover-wrapper {
+    height: 100%;
+  }
+
+  & .bp3-popover-target {
+    display: flex;
+    align-items: center;
+  }
 `;
 
 export const TableHeaderContentWrapper = styled.div`

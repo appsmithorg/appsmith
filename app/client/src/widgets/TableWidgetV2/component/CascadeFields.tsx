@@ -24,6 +24,7 @@ import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../constants";
 
+import CloseIcon from "remixicon-react/CloseCircleFillIcon";
 import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 
 const StyledRemoveIcon = styled(
@@ -253,7 +254,7 @@ function RenderOptions(props: {
           borderRadius={props.borderRadius}
           className={props.className}
         >
-          <AutoToolTipComponentWrapper title={selectedValue}>
+          <AutoToolTipComponentWrapper disablePadding title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
           <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
@@ -551,14 +552,12 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   }, [props]);
   return (
     <FieldWrapper className="t--table-filter">
-      <StyledRemoveIcon
-        className={`t--table-filter-remove-btn ${
-          hasAnyFilters ? "" : "hide-icon"
+      <CloseIcon
+        className={`t--table-filter-remove-btn w-6 h-6 cursor-pointer ${
+          hasAnyFilters ? "" : "hidden"
         }`}
         color="var(--wds-color-icon)"
-        height={16}
         onClick={handleRemoveFilter}
-        width={16}
       />
       {index === 1 ? (
         <DropdownWrapper width={95}>

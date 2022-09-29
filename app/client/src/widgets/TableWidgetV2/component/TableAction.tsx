@@ -12,17 +12,21 @@ interface TableActionProps {
   icon: string;
   title: string;
   titleColor?: string;
+  borderRadius?: string;
 }
 
 export const TableIconWrapper = styled.div<{
   selected?: boolean;
   disabled?: boolean;
   titleColor?: string;
+  borderRadius?: string;
 }>`
-  height: 38px;
+  height: calc(100% - 12px);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--wds-color-bg);
+  border-radius: ${(props) => props.borderRadius || "0"};
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
   cursor: ${(props) => !props.disabled && "pointer"};
   color: ${(props) => (props.selected ? Colors.CODE_GRAY : Colors.GRAY)};
@@ -33,9 +37,17 @@ export const TableIconWrapper = styled.div<{
   }
   position: relative;
   margin-left: 5px;
-  padding: 0 5px;
+  padding: 0 6px;
   &:hover {
-    background: ${Colors.ATHENS_GRAY};
+    background: var(--wds-color-bg-hover);
+  }
+
+  & > div {
+    width: 16px;
+  }
+
+  span {
+    font-size: 14px;
   }
 `;
 
@@ -59,6 +71,7 @@ function TableAction(props: TableActionProps) {
 
   return (
     <TableIconWrapper
+      borderRadius={props.borderRadius}
       className={props.className}
       onClick={handleIconClick}
       selected={props.selected}

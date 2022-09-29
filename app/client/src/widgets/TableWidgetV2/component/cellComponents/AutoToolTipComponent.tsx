@@ -83,6 +83,7 @@ interface Props {
   fontStyle?: string;
   cellBackground?: string;
   textSize?: string;
+  disablePadding?: boolean;
 }
 
 function LinkWrapper(props: Props) {
@@ -130,6 +131,7 @@ function AutoToolTipComponent(props: Props) {
         cellBackground={props.cellBackground}
         className="cell-wrapper"
         compactMode={props.compactMode}
+        disablePadding={props.disablePadding}
         fontStyle={props.fontStyle}
         horizontalAlignment={props.horizontalAlignment}
         isCellVisible={props.isCellVisible}
