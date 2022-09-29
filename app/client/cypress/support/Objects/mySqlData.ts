@@ -184,7 +184,7 @@ const mySqlData = {
     ["abcdefghijklmnopqrstu"],
     ["abcdefghijk"],
     ["d"],
-    ["abc", "{", "["],
+    ["{", "["],
   ],
   result: [
     ["1", "2", "3", "4", "5"],
