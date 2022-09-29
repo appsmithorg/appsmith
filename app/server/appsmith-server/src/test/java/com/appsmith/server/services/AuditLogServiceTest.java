@@ -37,21 +37,21 @@ import com.appsmith.server.dtos.AuditLogFilterDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
+import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.solutions.EnvManager;
-import com.appsmith.server.solutions.UserSignup;
-import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.solutions.ApplicationForkingService;
+import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.UserSignup;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,9 +69,7 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.mock.web.server.MockWebSession;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -100,10 +98,10 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CL
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_SECRET;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class AuditLogServiceTest {
@@ -179,7 +177,7 @@ public class AuditLogServiceTest {
     private static Application gitConnectedApp;
     private static String workspaceName = "AuditLogsTest";
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() throws IOException {
 
@@ -292,31 +290,31 @@ public class AuditLogServiceTest {
 
     private MultiValueMap<String, String> getAuditLogRequest(String emails, String events, String resourceType, String resourceId, String sortOrder, String cursor, String numberOfDays) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if(emails != null && !emails.isEmpty()) {
+        if (emails != null && !emails.isEmpty()) {
             params.add(AuditLogConstants.EMAILS, emails);
         }
 
-        if(events != null && !events.isEmpty()) {
+        if (events != null && !events.isEmpty()) {
             params.add(AuditLogConstants.EVENTS, events);
         }
 
-        if(resourceType != null && !resourceType.isEmpty()) {
+        if (resourceType != null && !resourceType.isEmpty()) {
             params.add(AuditLogConstants.RESOURCE_TYPE, resourceType);
         }
 
-        if(resourceId != null && !resourceId.isEmpty()) {
+        if (resourceId != null && !resourceId.isEmpty()) {
             params.add(AuditLogConstants.RESOURCE_ID, resourceId);
         }
 
-        if(sortOrder != null && !sortOrder.isEmpty()) {
+        if (sortOrder != null && !sortOrder.isEmpty()) {
             params.add(AuditLogConstants.SORT_ORDER, sortOrder);
         }
 
-        if(cursor != null && !cursor.isEmpty()) {
+        if (cursor != null && !cursor.isEmpty()) {
             params.add(AuditLogConstants.CURSOR, cursor);
         }
 
-        if(numberOfDays != null && !numberOfDays.isEmpty()) {
+        if (numberOfDays != null && !numberOfDays.isEmpty()) {
             params.add(AuditLogConstants.NUMBER_OF_DAYS, numberOfDays);
         }
         return params;
@@ -332,7 +330,7 @@ public class AuditLogServiceTest {
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
                     assertThat(auditLogs.size()).isNotEqualTo(0);
-                    for(AuditLog log : auditLogs) {
+                    for (AuditLog log : auditLogs) {
                         assertThat(log.getTimestamp()).isBefore(Instant.now());
                     }
                 })
@@ -352,8 +350,8 @@ public class AuditLogServiceTest {
                     assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(workspaceName);
                     assertThat(auditLogs.get(0).getResource().getType()).isEqualTo(auditLogService.getResourceType(new Workspace()));
                     assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(workspaceId);
-                    for(int i = 1; i < auditLogs.size(); i++) {
-                        assertThat(auditLogs.get(i).getTimestamp()).isAfterOrEqualTo(auditLogs.get(i-1).getTimestamp());
+                    for (int i = 1; i < auditLogs.size(); i++) {
+                        assertThat(auditLogs.get(i).getTimestamp()).isAfterOrEqualTo(auditLogs.get(i - 1).getTimestamp());
                     }
                 })
                 .verifyComplete();
@@ -368,13 +366,14 @@ public class AuditLogServiceTest {
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
                     assertThat(auditLogs.size()).isNotEqualTo(0);
-                    for(AuditLog log : auditLogs) {
+                    for (AuditLog log : auditLogs) {
                         assertThat(log.getEvent()).isEqualTo(AuditLogEvents.Events.WORKSPACE_CREATED.toString().toLowerCase().replace("_", "."));
                         assertThat(log.getResource().getType()).isEqualTo(auditLogService.getResourceType(new Workspace()));
                     }
                 })
                 .verifyComplete();
     }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withResourceId_Success() {
@@ -388,7 +387,7 @@ public class AuditLogServiceTest {
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
-                    for(AuditLog log : auditLogs) {
+                    for (AuditLog log : auditLogs) {
                         assertThat(log.getResource().getType()).isEqualTo(auditLogService.getResourceType(new NewPage()));
                         assertThat(log.getResource().getId()).isEqualTo(resourceId);
                     }
@@ -422,7 +421,7 @@ public class AuditLogServiceTest {
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
-                    for(AuditLog auditLog1 : auditLogs) {
+                    for (AuditLog auditLog1 : auditLogs) {
                         assertThat(auditLog1.getUser().getEmail()).isEqualTo("test@appsmith.com");
                     }
                 })
@@ -432,7 +431,7 @@ public class AuditLogServiceTest {
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
-                    for(AuditLog auditLog1 : auditLogs) {
+                    for (AuditLog auditLog1 : auditLogs) {
                         assertThat(auditLog1.getUser().getEmail()).containsAnyOf("test@appsmith.com", "test@test.com");
                     }
                 })
@@ -481,7 +480,7 @@ public class AuditLogServiceTest {
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
                     assertThat(auditLogs.size()).isGreaterThan(0);
-                    for(AuditLog log : auditLogs) {
+                    for (AuditLog log : auditLogs) {
                         assertThat(log.getUser().getEmail()).isIn("api_user", "test@appsmith.com", "test@test.com");
                     }
                 })
@@ -1212,10 +1211,11 @@ public class AuditLogServiceTest {
 
     /**
      * To generate page in an application
+     *
      * @param pageName
      * @param application
      * @return Mono of PageDTO
-     * */
+     */
 
     private Mono<PageDTO> createNewPage(String pageName, Application application) {
         PageDTO page = new PageDTO();
@@ -1503,10 +1503,12 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
-     /** To create a datasource for testing
+    /**
+     * To create a datasource for testing
+     *
      * @param workspaceId
      * @return Datasource
-      * */
+     */
 
     private Datasource createDatasource(String workspaceId) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -1529,7 +1531,7 @@ public class AuditLogServiceTest {
         auth.setPassword("test");
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        String pluginId = pluginRepository.findByPackageName("restapi-plugin").block().getId();;
+        String pluginId = pluginRepository.findByPackageName("restapi-plugin").block().getId();
         datasource.setPluginId(pluginId);
 
         return datasourceService.create(datasource).block();
@@ -2137,10 +2139,12 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
-     /** To signup and login a new user
+    /**
+     * To signup and login a new user
+     *
      * @param user
      * @return Mono of User
-      * */
+     */
 
     private Mono<User> signupAndLoginUser(User user) {
         MockWebSession session = new MockWebSession();
