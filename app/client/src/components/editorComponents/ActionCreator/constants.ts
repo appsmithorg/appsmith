@@ -44,12 +44,12 @@ export const FILE_TYPE_OPTIONS = [
 export const NAVIGATION_TARGET_FIELD_OPTIONS = [
   {
     label: "Same window",
-    value: "SAME_WINDOW",
+    value: "'SAME_WINDOW'",
     id: "SAME_WINDOW",
   },
   {
     label: "New window",
-    value: "NEW_WINDOW",
+    value: "'NEW_WINDOW'",
     id: "NEW_WINDOW",
   },
 ];

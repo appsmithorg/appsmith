@@ -1,8 +1,8 @@
 import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GsonUnorderedToOrderedSerializationTest {
     private Gson gson;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         gson = new GsonBuilder()
                 .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
@@ -36,7 +36,7 @@ public class GsonUnorderedToOrderedSerializationTest {
 
     @Test
     public void convert_withNonEmptySet_returnsOrderedArrayString() {
-        Set data = Set.of("abcd", "abc", "abcd1", "1abcd","xyz", "1xyz", "0xyz");
+        Set data = Set.of("abcd", "abc", "abcd1", "1abcd", "xyz", "1xyz", "0xyz");
         String orderedData = gson.toJson(data, Set.class);
         assertThat(orderedData).isEqualTo("[\"0xyz\",\"1abcd\",\"1xyz\",\"abc\",\"abcd\",\"abcd1\",\"xyz\"]");
     }
@@ -56,7 +56,7 @@ public class GsonUnorderedToOrderedSerializationTest {
 
     @Test
     public void convert_withNonEmptyMap_returnsOrderedMapString() {
-        Map<String, String> data = Map.of("key2", "value2", "key1", "value1","0key", "value0");
+        Map<String, String> data = Map.of("key2", "value2", "key1", "value1", "0key", "value0");
         String orderedData = gson.toJson(data, Map.class);
         assertThat(orderedData).isEqualTo("{\"0key\":\"value0\",\"key1\":\"value1\",\"key2\":\"value2\"}");
     }

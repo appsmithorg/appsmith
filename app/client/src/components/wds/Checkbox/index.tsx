@@ -101,6 +101,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     // not checked + disabled
     &.bp3-control.bp3-checkbox input:not(:checked):disabled ~ .bp3-control-indicator {
       background-color: var(--wds-color-bg-disabled) !important;
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border-disabled);
     }
 
     // indeterminate

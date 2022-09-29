@@ -592,13 +592,3 @@ export const getIsSavingEntity = (state: AppState) =>
 
 export const selectJSCollections = (state: AppState) =>
   state.entities.jsActions;
-
-export const showCanvasTopSectionSelector = createSelector(
-  getCanvasWidgets,
-  previewModeSelector,
-  (canvasWidgets, inPreviewMode) => {
-    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
-
-    return true;
-  },
-);
