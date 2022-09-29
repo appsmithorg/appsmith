@@ -8,17 +8,17 @@ const astController = new AstController();
 const validator = new Validator();
 
 router.post(
-  "/single-script-identifiers",
+  "/single-script-data",
   AstRules.getScriptValidator(),
   validator.validateRequest,
-  astController.getDependentIdentifiers
+  astController.getIdentifierDataFromScript
 );
 
 router.post(
-  "/multiple-script-identifiers",
+  "/multiple-script-data",
   AstRules.getMultipleScriptValidator(),
   validator.validateRequest,
-  astController.getMultipleDependentIdentifiers
+  astController.getIdentifierDataFromMultipleScripts
 );
 
 export default router;
