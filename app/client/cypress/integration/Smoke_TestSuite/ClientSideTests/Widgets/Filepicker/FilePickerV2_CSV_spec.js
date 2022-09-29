@@ -42,10 +42,8 @@ describe("File picker widget v2", () => {
       expect(tabValue).to.be.equal("1000");
       cy.log("the value is" + tabValue);
     });
-    cy.readTableV2dataPublish("1", "3").then((tabData) => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("false");
-      cy.log("the value is" + tabValue);
-    });
+    cy.get(
+      `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${1}][data-colindex=${3}] input`,
+    ).should("not.be.checked");
   });
 });

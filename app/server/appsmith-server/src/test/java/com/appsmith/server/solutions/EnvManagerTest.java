@@ -208,18 +208,6 @@ public class EnvManagerTest {
 
     }
 
-    public void parseTest() {
-
-        assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'"
-        )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_MONGODB_URI", "'first value'",
-                "APPSMITH_REDIS_URL", "'second value'",
-                "APPSMITH_INSTANCE_NAME", "'third value'"
-        ));
-
-    }
-
     @Test
     public void parseEmptyValues() {
 
@@ -253,6 +241,16 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void parseTestWithEscapes() {
+        assertThat(envManager.parseToMap(
+                "APPSMITH_ALLOWED_FRAME_ANCESTORS=\"'\"'none'\"'\"\nAPPSMITH_REDIS_URL='second\" value'\n"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "APPSMITH_ALLOWED_FRAME_ANCESTORS", "'none'",
+                "APPSMITH_REDIS_URL", "second\" value"
+        ));
+    }
+
+    @Test
     public void disallowedVariable() {
         final String content = "APPSMITH_MONGODB_URI=first value\nDISALLOWED_NASTY_STUFF=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
 
@@ -283,6 +281,25 @@ public class EnvManagerTest {
                 "",
                 "APPSMITH_INSTANCE_NAME='third value'",
                 "APPSMITH_DISABLE_TELEMETRY=false"
+        );
+    }
+
+    @Test
+    public void setValueWithQuotes() {
+        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
+
+        assertThat(envManager.transformEnvContent(
+                content,
+                Map.of(
+                        "APPSMITH_MONGODB_URI", "'just quotes'",
+                        "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it"
+                )
+        )).containsExactly(
+                "APPSMITH_MONGODB_URI=\"'\"'just quotes'\"'\"",
+                "APPSMITH_REDIS_URL='quoted value'",
+                "",
+                "APPSMITH_INSTANCE_NAME='third value'",
+                "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'"
         );
     }
 
