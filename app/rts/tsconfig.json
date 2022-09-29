@@ -14,7 +14,7 @@
       "@middlewares/*": ["./src/middlewares/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@rules/*": ["./src/middlewares/rules/*"],
-      "@utils/*": ["./src/utils/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
   "lib": ["es2015"]
