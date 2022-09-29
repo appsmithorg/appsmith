@@ -66,11 +66,13 @@ export function EntityProperties() {
   }, [show]);
 
   useEffect(() => {
-    AnalyticsUtil.logEvent("SHOW_BINDINGS_TRIGGERED", {
-      entityName,
-      entityType,
-    });
-  }, []);
+    if (entityId) {
+      AnalyticsUtil.logEvent("SHOW_BINDINGS_TRIGGERED", {
+        entityName,
+        entityType,
+      });
+    }
+  }, [entityId]);
 
   const actionEntity = useSelector((state: AppState) =>
     state.entities.actions.find((action) => action.config.id === entityId),
@@ -140,6 +142,7 @@ export function EntityProperties() {
               propertyName: actionProperty,
               entityName: jsCollection.config.name,
               value: value,
+              entityType,
             };
           },
         );
@@ -174,6 +177,7 @@ export function EntityProperties() {
               propertyName: actionProperty,
               entityName: entityName,
               value,
+              entityType,
             };
           });
       }
@@ -200,6 +204,7 @@ export function EntityProperties() {
             propertyName: widgetProperty,
             entityName: entity.widgetName,
             value: entity[widgetProperty],
+            entityType,
           };
         });
       break;
