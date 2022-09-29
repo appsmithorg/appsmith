@@ -10,6 +10,7 @@ import {
   addPropertyConfigIds,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
+  generatePropertyPaneSearchConfig,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
 
@@ -45,6 +46,11 @@ class WidgetFactory {
     readonly PropertyPaneConfig[]
   > = new Map();
   static propertyPaneStyleConfigsMap: Map<
+    WidgetType,
+    readonly PropertyPaneConfig[]
+  > = new Map();
+  // used to store the properties that appear in the search results
+  static propertyPaneSearchConfigsMap: Map<
     WidgetType,
     readonly PropertyPaneConfig[]
   > = new Map();
@@ -135,6 +141,14 @@ class WidgetFactory {
           Object.freeze(finalPropertyPaneConfig),
         );
       }
+
+      this.propertyPaneSearchConfigsMap.set(
+        widgetType,
+        generatePropertyPaneSearchConfig(
+          WidgetFactory.getWidgetPropertyPaneContentConfig(widgetType),
+          WidgetFactory.getWidgetPropertyPaneStyleConfig(widgetType),
+        ),
+      );
     }
   }
 
@@ -242,6 +256,16 @@ class WidgetFactory {
     type: WidgetType,
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneStyleConfigsMap.get(type);
+    if (!map) {
+      return [];
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneSearchConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneSearchConfigsMap.get(type);
     if (!map) {
       return [];
     }

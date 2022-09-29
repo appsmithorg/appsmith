@@ -6,6 +6,24 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "./generators";
 import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
 
+export function generatePropertyPaneSearchConfig(
+  contentConfig: readonly PropertyPaneConfig[],
+  styleConfig: readonly PropertyPaneConfig[],
+) {
+  return [
+    ...contentConfig.map((x) => ({
+      ...x,
+      tag: "CONTENT",
+      collapsible: false,
+    })),
+    ...styleConfig.map((x) => ({
+      ...x,
+      tag: "STYLE",
+      collapsible: false,
+    })),
+  ];
+}
+
 /* This function recursively parses the property pane configuration and
    adds random hash values as `id`.
 

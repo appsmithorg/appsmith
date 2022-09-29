@@ -77,6 +77,7 @@ function Section(props: SectionProps) {
         key={config.id + generatorProps.id + generatorProps.searchQuery}
         name={sectionName}
         propertyPath={sectionConfig.propertySectionPath}
+        tag={sectionConfig.tag}
       >
         {config.children &&
           generatePropertyControl(config.children, generatorProps)}

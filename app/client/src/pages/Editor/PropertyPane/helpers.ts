@@ -3,7 +3,7 @@ import {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import Fuse from "fuse.js";
+import Fuse, { FuseResultWithMatches } from "fuse.js";
 import { debounce } from "lodash";
 import { useCallback, useState } from "react";
 
@@ -35,20 +35,29 @@ export function searchProperty(
   const fuseConfig = {
     threshold: 0.2,
     distance: 100,
-    keys: ["children.label", "label", "children.children.label"],
+    includeMatches: true,
+    keys: ["sectionName", "children.label", "label", "children.children.label"],
   };
   const fuse = new Fuse(config, fuseConfig);
-  const searchResults = fuse.search(searchQuery).map((result) => {
-    const res = { ...result };
-    if (result.children)
-      res.children = searchProperty(
-        result.children,
+  const searchResults = fuse.search(searchQuery) as FuseResultWithMatches<
+    PropertyPaneConfig
+  >[];
+
+  const res = [];
+  for (const result of searchResults) {
+    const x = { ...result.item };
+    const isSectionNameMatch =
+      result.matches.findIndex((x: any) => x.key === "sectionName") >= 0;
+    if (!isSectionNameMatch && x.children) {
+      x.children = searchProperty(
+        x.children,
         searchQuery,
       ) as PropertyPaneConfig[];
+    }
+    res.push(x);
+  }
 
-    return res;
-  });
-  return searchResults;
+  return res;
 }
 
 export function updateConfigPaths(

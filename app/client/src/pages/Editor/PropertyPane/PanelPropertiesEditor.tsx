@@ -172,36 +172,50 @@ export function PanelPropertiesEditor(
             placeholder="Search for controls, labels etc"
             variant={SearchVariant.BACKGROUND}
           />
-          <PropertyPaneTab
-            contentComponent={
-              panelConfigsWithStyleAndContent?.content ? (
-                <PanelWrapper>
-                  <PropertyControlsGenerator
-                    config={panelConfigsWithStyleAndContent.content}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={theme}
-                    type={widgetProperties.type}
-                  />
-                </PanelWrapper>
-              ) : null
-            }
-            styleComponent={
-              panelConfigsWithStyleAndContent.style ? (
-                <PanelWrapper>
-                  <PropertyControlsGenerator
-                    config={panelConfigsWithStyleAndContent.style}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={theme}
-                    type={widgetProperties.type}
-                  />
-                </PanelWrapper>
-              ) : null
-            }
-          />
+          {searchText.length > 0 ? (
+            <PanelWrapper>
+              <PropertyControlsGenerator
+                config={[
+                  ...panelConfigsWithStyleAndContent.content,
+                  ...panelConfigsWithStyleAndContent.style,
+                ]}
+                id={widgetProperties.widgetId}
+                panel={panel}
+                searchQuery={searchText}
+                theme={theme}
+                type={widgetProperties.type}
+              />
+            </PanelWrapper>
+          ) : (
+            <PropertyPaneTab
+              contentComponent={
+                panelConfigsWithStyleAndContent?.content.length > 0 ? (
+                  <PanelWrapper>
+                    <PropertyControlsGenerator
+                      config={panelConfigsWithStyleAndContent.content}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={theme}
+                      type={widgetProperties.type}
+                    />
+                  </PanelWrapper>
+                ) : null
+              }
+              styleComponent={
+                panelConfigsWithStyleAndContent.style.length > 0 ? (
+                  <PanelWrapper>
+                    <PropertyControlsGenerator
+                      config={panelConfigsWithStyleAndContent.style}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={theme}
+                      type={widgetProperties.type}
+                    />
+                  </PanelWrapper>
+                ) : null
+              }
+            />
+          )}
         </>
       ) : (
         panelConfigs && (
@@ -210,7 +224,6 @@ export function PanelPropertiesEditor(
               config={panelConfigs}
               id={widgetProperties.widgetId}
               panel={panel}
-              searchQuery={searchText}
               theme={theme}
               type={widgetProperties.type}
             />

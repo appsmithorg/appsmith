@@ -12,17 +12,15 @@ import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { AppIcon as Icon, Size } from "design-system";
 
-const SectionTitle = styled.div`
+const SectionTitleWrapper = styled.div`
   cursor: pointer;
-  & span {
-    color: ${Colors.GRAY_800};
-    font-size: ${(props) => props.theme.fontSizes[3]}px;
-    display: flex;
-    font-weight: 500;
-    justify-content: flex-start;
-    align-items: center;
-    margin: 0;
-  }
+`;
+
+const SectionTitle = styled.span`
+  color: ${Colors.GRAY_800};
+  font-size: ${(props) => props.theme.fontSizes[3]}px;
+  font-weight: 500;
+  margin-right: 8px;
 `;
 
 const SectionWrapper = styled.div`
@@ -43,12 +41,12 @@ const SectionWrapper = styled.div`
     }
   }
 
-  & & ${SectionTitle} {
+  & & ${SectionTitleWrapper} {
     margin-top: 10px;
     margin-bottom: 7px;
   }
 
-  & & ${SectionTitle} span {
+  & & ${SectionTitleWrapper} span {
     color: ${Colors.GRAY_700};
     font-size: 12px;
   }
@@ -65,9 +63,17 @@ const SectionWrapper = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
+  margin-left: auto;
   svg path {
     fill: ${Colors.GRAY_700};
   }
+`;
+
+export const Label = styled.div`
+  font-size: 11px;
+  background: ${Colors.GRAY_100};
+  color: ${Colors.GRAY_600};
+  padding: 2px 4px;
 `;
 
 type PropertySectionProps = {
@@ -79,6 +85,7 @@ type PropertySectionProps = {
   hidden?: boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
+  tag?: string;
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
@@ -105,11 +112,12 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     .toLowerCase();
   return (
     <SectionWrapper className="t--property-pane-section-wrapper">
-      <SectionTitle
+      <SectionTitleWrapper
         className={`t--property-pane-section-collapse-${className} flex items-center`}
         onClick={handleSectionTitleClick}
       >
-        <span className="grow">{props.name}</span>
+        <SectionTitle>{props.name}</SectionTitle>
+        {props.tag && <Label>{props.tag}</Label>}
         {props.collapsible && (
           <StyledIcon
             className="t--chevron-icon"
@@ -117,7 +125,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
             size={Size.small}
           />
         )}
-      </SectionTitle>
+      </SectionTitleWrapper>
       {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
           <div
