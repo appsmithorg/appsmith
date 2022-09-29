@@ -1,5 +1,4 @@
 import React from "react";
-import { TreeDropdownOption } from "design-system";
 import {
   StyledDividerContainer,
   StyledNavigateToFieldsContainer,
@@ -7,7 +6,7 @@ import {
 } from "components/propertyControls/StyledControls";
 import DividerComponent from "widgets/DividerWidget/component";
 import { FieldType } from "./constants";
-import { SwitchType } from "./types";
+import { FieldsProps } from "./types";
 import { Field } from "./Field/Field";
 
 /**
@@ -30,21 +29,7 @@ import { Field } from "./Field/Field";
  * 2. Attach fields to the new action in the getFieldFromValue function
  **/
 
-function Fields(props: {
-  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
-  value: string;
-  fields: any;
-  label?: string;
-  integrationOptionTree: TreeDropdownOption[];
-  widgetOptionTree: TreeDropdownOption[];
-  modalDropdownList: TreeDropdownOption[];
-  pageDropdownOptions: TreeDropdownOption[];
-  depth: number;
-  maxDepth: number;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  navigateToSwitches: Array<SwitchType>;
-  activeNavigateToTab: SwitchType;
-}) {
+function Fields(props: FieldsProps) {
   const { fields, ...otherProps } = props;
 
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
@@ -59,8 +44,8 @@ function Fields(props: {
       return (
         <>
           {Field({
-            field: fields[0],
             ...otherProps,
+            field: fields[0],
           })}
 
           <StyledNavigateToFieldWrapper>
@@ -74,7 +59,7 @@ function Fields(props: {
             </StyledDividerContainer>
             <StyledNavigateToFieldsContainer>
               {remainingFields.map((paramField: any) => {
-                return Field({ field: paramField, ...otherProps });
+                return Field({ ...otherProps, field: paramField });
               })}
             </StyledNavigateToFieldsContainer>
           </StyledNavigateToFieldWrapper>
@@ -84,8 +69,8 @@ function Fields(props: {
     return (
       <>
         {Field({
-          field: fields[0],
           ...otherProps,
+          field: fields[0],
         })}
 
         <ul className={props.depth === 1 ? "tree" : ""}>

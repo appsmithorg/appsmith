@@ -1,9 +1,9 @@
 import { AppsmithFunction, FieldType, ViewTypes } from "../constants";
 import { TreeDropdownOption } from "design-system";
 import {
+  FieldProps,
   KeyValueViewProps,
   SelectorViewProps,
-  SwitchType,
   TabViewProps,
   TextViewProps,
 } from "../types";
@@ -29,21 +29,7 @@ const views = {
   [ViewTypes.TAB_VIEW]: (props: TabViewProps) => <TabView {...props} />,
 };
 
-export function Field(props: {
-  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
-  value: string;
-  field: { field: FieldType; value: string; label: string; index: number };
-  label?: string;
-  widgetOptionTree: TreeDropdownOption[];
-  modalDropdownList: TreeDropdownOption[];
-  pageDropdownOptions: TreeDropdownOption[];
-  integrationOptionTree: TreeDropdownOption[];
-  depth: number;
-  maxDepth: number;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  activeNavigateToTab: SwitchType;
-  navigateToSwitches: Array<SwitchType>;
-}) {
+export function Field(props: FieldProps) {
   const { field } = props;
   const fieldType = field.field;
   const fieldConfig = FIELD_CONFIGS[fieldType];
@@ -59,7 +45,7 @@ export function Field(props: {
   switch (fieldType) {
     case FieldType.ACTION_SELECTOR_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: options,
+        options: options as TreeDropdownOption[],
         label: label,
         get: getterFunction,
         set: (
@@ -118,7 +104,7 @@ export function Field(props: {
     case FieldType.RESET_CHILDREN_FIELD:
     case FieldType.WIDGET_NAME_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: options,
+        options: options as TreeDropdownOption[],
         label: label,
         get: getterFunction,
         set: (
@@ -163,7 +149,7 @@ export function Field(props: {
       break;
     case FieldType.KEY_VALUE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: options,
+        options: options as TreeDropdownOption[],
         label: label,
         get: getterFunction,
         set: (value: string | DropdownOption) => {
