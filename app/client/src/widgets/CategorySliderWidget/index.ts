@@ -40,7 +40,6 @@ export const CONFIG = {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
-    config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
