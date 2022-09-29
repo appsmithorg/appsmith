@@ -277,12 +277,6 @@
             <groupId>com.segment.analytics.java</groupId>
             <artifactId>analytics</artifactId>
             <version>2.1.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.squareup.okhttp3</groupId>
-                    <artifactId>okhttp</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.sentry</groupId>
