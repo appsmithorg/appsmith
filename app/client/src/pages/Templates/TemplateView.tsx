@@ -1,29 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  Icon,
-  IconSize,
-  IconPositions,
-  Size,
-  Text,
-  FontWeight,
-  TextType,
-} from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import DatasourceChip from "./DatasourceChip";
-import WidgetInfo from "./WidgetInfo";
 import {
   getActiveTemplateSelector,
   isFetchingTemplateSelector,
 } from "selectors/templatesSelectors";
-import ForkTemplate from "./ForkTemplate";
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
@@ -31,25 +17,12 @@ import {
 import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import {
-  createMessage,
-  GO_BACK,
-  OVERVIEW,
-  FORK_THIS_TEMPLATE,
-  FUNCTION,
-  INDUSTRY,
-  NOTE,
-  NOTE_MESSAGE,
-  WIDGET_USED,
-  DATASOURCES,
-  SIMILAR_TEMPLATES,
-  VIEW_ALL_TEMPLATES,
-} from "@appsmith/constants/messages";
+import { createMessage, GO_BACK } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import { useQuery } from "pages/Editor/utils";
+import TemplateDescription from "./Template/TemplateDescription";
+import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "RouteBuilder";
 
 const breakpointColumnsObject = {
@@ -86,9 +59,7 @@ const Title = styled(Text)`
   display: inline-block;
 `;
 
-const IframeWrapper = styled.div`
-  height: 734px;
-  width: 100%;
+export const IframeWrapper = styled.div`
   border-radius: 16px;
   margin-top: ${(props) => props.theme.spaces[12]}px;
 
@@ -96,78 +67,12 @@ const IframeWrapper = styled.div`
     border-radius: 0px 0px 16px 16px;
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
       0px 8px 8px -4px rgba(16, 24, 40, 0.04);
-    height: calc(100% - 41px);
+    width: 100%;
+    height: 734px;
   }
 `;
 
-const DescriptionWrapper = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spaces[17]}px;
-  margin-top: ${(props) => props.theme.spaces[15]}px;
-`;
-
-const DescriptionColumn = styled.div`
-  flex: 1;
-`;
-
-const Section = styled.div`
-  padding-top: ${(props) => props.theme.spaces[12]}px;
-
-  .section-content {
-    margin-top: ${(props) => props.theme.spaces[3]}px;
-  }
-
-  .template-fork-button {
-    margin-top: ${(props) => props.theme.spaces[7]}px;
-  }
-
-  .datasource-note {
-    margin-top: ${(props) => props.theme.spaces[5]}px;
-  }
-`;
-
-const StyledDatasourceChip = styled(DatasourceChip)`
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[10]}px`};
-  .image {
-    height: 25px;
-    width: 25px;
-  }
-  span {
-    ${(props) => getTypographyByKey(props, "h4")}
-    color: ${Colors.EBONY_CLAY};
-  }
-`;
-
-const TemplatesWidgetList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${(props) => props.theme.spaces[12]}px;
-`;
-
-const TemplateDatasources = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${(props) => props.theme.spaces[4]}px;
-`;
-
-const SimilarTemplatesWrapper = styled.div`
-  padding-right: 132px;
-  padding-left: 132px;
-  background-color: rgba(248, 248, 248, 0.5);
-
-  .grid {
-    display: flex;
-    margin-left: ${(props) => -props.theme.spaces[9]}px;
-    margin-top: ${(props) => props.theme.spaces[12]}px;
-  }
-
-  .grid_column {
-    padding-left: ${(props) => props.theme.spaces[9]}px;
-  }
-`;
-
-const IframeTopBar = styled.div`
+export const IframeTopBar = styled.div`
   width: 100%;
   background-color: ${Colors.GEYSER_LIGHT};
   border-radius: 8px 8px 0px 0px;
@@ -222,12 +127,6 @@ const LoadingWrapper = styled.div`
   }
 `;
 
-const SimilarTemplatesTitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 function TemplateViewLoader() {
   return (
     <LoadingWrapper>
@@ -243,8 +142,6 @@ function TemplateNotFound() {
   return <EntityNotFoundPane />;
 }
 
-const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
-
 function TemplateView() {
   const dispatch = useDispatch();
   const similarTemplates = useSelector(
@@ -254,23 +151,6 @@ function TemplateView() {
   const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const containerRef = useRef<HTMLDivElement>(null);
-  const query = useQuery();
-
-  const onForkButtonTrigger = () => {
-    if (currentTemplate) {
-      history.replace(
-        `${templateIdUrl({
-          id: currentTemplate.id,
-        })}?${SHOW_FORK_MODAL_PARAM}=true`,
-      );
-    }
-  };
-
-  const onForkModalClose = () => {
-    if (currentTemplate) {
-      history.replace(`${templateIdUrl({ id: currentTemplate.id })}`);
-    }
-  };
 
   const goToTemplateListView = () => {
     history.push(TEMPLATES_PATH);
@@ -299,6 +179,7 @@ function TemplateView() {
         name: template.title,
       },
     });
+    history.push(templateIdUrl({ id: template.id }));
   };
 
   return (
@@ -334,121 +215,14 @@ function TemplateView() {
                 width={"100%"}
               />
             </IframeWrapper>
-            <DescriptionWrapper>
-              <DescriptionColumn>
-                <Section>
-                  <Text type={TextType.H1}>{createMessage(OVERVIEW)}</Text>
-                  <div className="section-content">
-                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                      {currentTemplate.description}
-                    </Text>
-                  </div>
-                  <ForkTemplate
-                    onClose={onForkModalClose}
-                    showForkModal={!!query.get(SHOW_FORK_MODAL_PARAM)}
-                    templateId={params.templateId}
-                  >
-                    <Button
-                      className="template-fork-button"
-                      data-cy="template-fork-button"
-                      icon="fork-2"
-                      iconPosition={IconPositions.left}
-                      onClick={onForkButtonTrigger}
-                      size={Size.large}
-                      tag="button"
-                      text={createMessage(FORK_THIS_TEMPLATE)}
-                      width="228px"
-                    />
-                  </ForkTemplate>
-                </Section>
-                <Section>
-                  <Text type={TextType.H1}>{createMessage(FUNCTION)}</Text>
-                  <div className="section-content">
-                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                      {currentTemplate.functions.join(" • ")}
-                    </Text>
-                  </div>
-                </Section>
-                <Section>
-                  <Text type={TextType.H1}>{createMessage(INDUSTRY)}</Text>
-                  <div className="section-content">
-                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                      {currentTemplate.useCases.join(" • ")}
-                    </Text>
-                  </div>
-                </Section>
-              </DescriptionColumn>
-              <DescriptionColumn>
-                <Section>
-                  <Text type={TextType.H1}>{createMessage(DATASOURCES)}</Text>
-                  <div className="section-content">
-                    <TemplateDatasources>
-                      {currentTemplate.datasources.map((packageName) => {
-                        return (
-                          <StyledDatasourceChip
-                            key={packageName}
-                            pluginPackageName={packageName}
-                          />
-                        );
-                      })}
-                    </TemplateDatasources>
-                    <div className="datasource-note">
-                      <Text type={TextType.H4}>{createMessage(NOTE)} </Text>
-                      <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                        {createMessage(NOTE_MESSAGE)}
-                      </Text>
-                    </div>
-                  </div>
-                </Section>
-                <Section>
-                  <Text type={TextType.H1}>{createMessage(WIDGET_USED)}</Text>
-                  <div className="section-content">
-                    <TemplatesWidgetList>
-                      {currentTemplate.widgets.map((widgetType) => {
-                        return (
-                          <WidgetInfo
-                            key={widgetType}
-                            widgetType={widgetType}
-                          />
-                        );
-                      })}
-                    </TemplatesWidgetList>
-                  </div>
-                </Section>
-              </DescriptionColumn>
-            </DescriptionWrapper>
+            <TemplateDescription template={currentTemplate} />
           </TemplateViewWrapper>
-
-          {!!similarTemplates.length && (
-            <SimilarTemplatesWrapper>
-              <Section>
-                <SimilarTemplatesTitleWrapper>
-                  <Text type={TextType.H1} weight={FontWeight.BOLD}>
-                    {createMessage(SIMILAR_TEMPLATES)}
-                  </Text>
-                  <BackButtonWrapper onClick={goToTemplateListView}>
-                    <Text type={TextType.P4}>
-                      {createMessage(VIEW_ALL_TEMPLATES)}
-                    </Text>
-                    <Icon name="view-all" size={IconSize.XL} />
-                  </BackButtonWrapper>
-                </SimilarTemplatesTitleWrapper>
-                <Masonry
-                  breakpointCols={breakpointColumnsObject}
-                  className="grid"
-                  columnClassName="grid_column"
-                >
-                  {similarTemplates.map((template) => (
-                    <Template
-                      key={template.id}
-                      onClick={() => onSimilarTemplateClick(template)}
-                      template={template}
-                    />
-                  ))}
-                </Masonry>
-              </Section>
-            </SimilarTemplatesWrapper>
-          )}
+          <SimilarTemplates
+            breakpointCols={breakpointColumnsObject}
+            onBackPress={goToTemplateListView}
+            onClick={onSimilarTemplateClick}
+            similarTemplates={similarTemplates}
+          />
         </Wrapper>
       )}
     </PageWrapper>

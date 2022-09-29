@@ -1,17 +1,24 @@
 import {
   ApplicationPayload,
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, put, takeEvery, call } from "redux-saga/effects";
+import { all, put, takeEvery, call, select, take } from "redux-saga/effects";
+import { differenceBy } from "lodash";
 import TemplatesAPI, {
-  FetchTemplateResponse,
   ImportTemplateResponse,
+  FetchTemplateResponse,
+  TemplateFiltersResponse,
 } from "api/TemplatesApi";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
-import { setTemplateNotificationSeenAction } from "actions/templateActions";
+import {
+  getAllTemplates,
+  setTemplateNotificationSeenAction,
+  showTemplatesModal,
+} from "actions/templateActions";
 import {
   getTemplateNotificationSeen,
   setTemplateNotificationSeen,
@@ -95,6 +102,7 @@ function* importTemplateToWorkspaceSaga(
         });
         history.push(pageURL);
       }
+      yield put(getAllTemplates());
     }
   } catch (error) {
     yield put({
@@ -327,6 +335,14 @@ export default function* watchActionSagas() {
     takeEvery(
       ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN,
       setTemplateNotificationSeenSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
+      forkTemplateToApplicationSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
+      getTemplateFiltersSaga,
     ),
   ]);
 }
