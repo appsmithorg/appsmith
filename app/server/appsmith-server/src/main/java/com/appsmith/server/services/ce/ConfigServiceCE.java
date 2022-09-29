@@ -10,13 +10,12 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public interface ConfigServiceCE {
 
     Mono<Config> getByName(String name);
 
-    Mono<Config> getByNames(List<String> names);
+    Flux<Config> getByNames(List<String> names);
 
     Mono<Config> updateByName(Config config);
 

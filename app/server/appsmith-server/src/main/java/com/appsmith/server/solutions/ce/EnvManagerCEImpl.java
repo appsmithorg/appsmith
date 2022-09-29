@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -515,18 +516,37 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     // set the default values to response
                     Map<String, String> envKeyValueMap = parseToMap(originalContent);
-                    // Add the variables from the config collection to be returned to the client
-                    List<String> configList = EnumUtils.getEnumList(ConfigNames.class)
-                            .stream()
-                            .map(config -> config.name())
-                            .collect(Collectors.toList());
-                    configService.getByNames(configList);
+
                     if (!envKeyValueMap.containsKey(APPSMITH_INSTANCE_NAME.name())) {
                         // no APPSMITH_INSTANCE_NAME set in env file, set the default value
                         envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
                     }
 
-                    return Mono.justOrEmpty(envKeyValueMap);
+                    // Add the variables from the config collection to be returned to the client
+                    List<String> configList = EnumUtils.getEnumList(ConfigNames.class)
+                            .stream()
+                            .map(config -> config.name())
+                            .collect(Collectors.toList());
+
+                    Mono<Map<String, String>> configMapMono;
+
+                    if (!CollectionUtils.isNullOrEmpty(configList)) {
+                        configMapMono = configService.getByNames(configList)
+                                .collectMap(config -> config.getName(), config -> config.getConfig().getAsString("value"));
+                    } else {
+                        configMapMono = Mono.just(new HashMap<>());
+                    }
+
+                    return Mono.zip(Mono.justOrEmpty(envKeyValueMap), configMapMono)
+                            .map(tuple -> {
+                                Map<String, String> envFileMap = tuple.getT1();
+                                Map<String, String> configMap = tuple.getT2();
+
+                                Map<String, String> envMap = new HashMap<>();
+                                envMap.putAll(envFileMap);
+                                envMap.putAll(configMap);
+                                return envMap;
+                            });
                 });
     }
 
