@@ -1,8 +1,20 @@
 import { Colors } from "constants/Colors";
-import React, { useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
+import "leaflet/dist/leaflet.css";
+
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+} from "react-leaflet";
+
+import { LatLng } from "leaflet";
+import markerIconPng from "leaflet/dist/images/marker-icon.png";
+import { Icon } from "leaflet";
+import { MarkerProps } from "../constants";
 
 export interface LeafletComponentProps {
   lat: number;
@@ -10,8 +22,35 @@ export interface LeafletComponentProps {
   zoom: number;
   markerText: string;
   enableDrag: (e: any) => void;
+  allowZoom: boolean;
+  enablePickLocation: boolean;
+  mapCenter: {
+    lat: number;
+    long: number;
+    title?: string;
+  };
+  center?: {
+    lat: number;
+    long: number;
+  };
+  defaultMarkers?: Array<MarkerProps>;
+  markers?: Array<MarkerProps>;
+  selectedMarker?: {
+    lat: number;
+    long: number;
+    title?: string;
+    color?: string;
+  };
+  onMarkerClick?: string;
+  onCreateMarker?: string;
+  updateCenter: (lat: number, long: number) => void;
+  updateMarker: (lat: number, long: number, index: number) => void;
+  saveMarker: (lat: number, long: number) => void;
+  selectMarker: (lat: number, long: number, title: string) => void;
+  unselectMarker: () => void;
   borderRadius: string;
   boxShadow?: string;
+  widgetId: string;
 }
 
 const LeafletContainerWrapper = styled.div`
@@ -39,10 +78,79 @@ const LeafletWrapper = styled.div<{
     margin-right: 10px !important;`
       : ""}
 `;
+function LocationMarker() {
+  const [position, setPosition] = useState<LatLng>();
+  const map = useMapEvents({
+    click() {
+      map.locate();
+    },
+    locationfound(e) {
+      setPosition(e.latlng);
+      map.flyTo(e.latlng, map.getZoom());
+    },
+  });
+
+  return position !== undefined ? (
+    <Marker position={position}>
+      <Popup>You are here</Popup>
+    </Marker>
+  ) : null;
+}
+
+const MyLeafLetComponent = (props: any) => {
+  const [mapCenter, setMapCenter] = React.useState<
+    | {
+        lat: number;
+        lng: number;
+        title?: string;
+        description?: string;
+      }
+    | undefined
+  >({
+    ...props.center,
+    lng: props.center.long,
+  });
+  useEffect(() => {
+    if (!props.selectedMarker) {
+      setMapCenter({
+        ...props.center,
+        lng: props.center.long,
+      });
+    }
+  }, [props.center, props.selectedMarker]);
+  return (
+    <MapContainer
+      center={mapCenter}
+      scrollWheelZoom
+      style={{ height: "100vh", width: "100wh" }}
+      zoom={props.zoom}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {Array.isArray(props.markers) &&
+        props.markers.map((marker: MarkerProps, index: number) => (
+          <Marker
+            icon={
+              new Icon({
+                iconUrl: markerIconPng,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+              })
+            }
+            key={index}
+            position={{ lat: Number(marker.lat), lng: Number(marker.long) }}
+            title={marker.title}
+          >
+            <Popup>{props.markerText}</Popup>
+          </Marker>
+        ))}
+    </MapContainer>
+  );
+};
 
 function LeafletComponent(props: LeafletComponentProps) {
-  const { lat, long, markerText, zoom } = props;
-  const status = useScript("leaflet/dist/leaflet.css", AddScriptTo.HEAD);
   const LeafletContainerWrapperMemoized = useMemo(
     () => <LeafletContainerWrapper />,
     [props.borderRadius, props.boxShadow],
@@ -51,19 +159,13 @@ function LeafletComponent(props: LeafletComponentProps) {
     <LeafletWrapper
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      onMouseLeave={props.enableDrag}
     >
-      {status === ScriptStatus.READY && (
-        <MapContainer center={[lat, long]} scrollWheelZoom zoom={zoom}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[lat, long]}>
-            <Popup>{markerText}</Popup>
-          </Marker>
-        </MapContainer>
-      )}
+      <MyLeafLetComponent
+        containerElement={LeafletContainerWrapperMemoized}
+        loadingElement={LeafletContainerWrapperMemoized}
+        mapElement={LeafletContainerWrapperMemoized}
+        {...props}
+      />
     </LeafletWrapper>
   );
 }
