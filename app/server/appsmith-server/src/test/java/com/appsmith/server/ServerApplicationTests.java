@@ -1,13 +1,12 @@
 package com.appsmith.server;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.suite.api.Suite;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@RunWith(Suite.class)
+
 @SpringBootTest
-@Suite.SuiteClasses({})
+@Suite
 public class ServerApplicationTests {
 
     @Test
