@@ -52,15 +52,17 @@ const StyledEditIcon = styled.div<{
   backgroundColor?: string;
   compactMode: string;
   disabledEditIcon: boolean;
+  borderRadius?: string;
 }>`
   position: absolute;
   right: 6px;
   top: ${(props) => TABLE_SIZES[props.compactMode].EDIT_ICON_TOP}px;
   background: ${(props) =>
     props.disabledEditIcon ? "#999" : props.accentColor};
-  padding: 2px;
+  padding: 4px;
   cursor: ${(props) => (props.disabledEditIcon ? "default" : "pointer")};
   display: none;
+  border-radius: ${(props) => props.borderRadius};
 
   & svg {
     transform: scale(0.9);
@@ -98,6 +100,7 @@ interface PropType extends RenderDefaultPropsType {
 export function TextCell({
   accentColor,
   allowCellWrapping,
+  borderRadius,
   cellBackground,
   columnType,
   compactMode,
@@ -204,6 +207,7 @@ export function TextCell({
           <StyledEditIcon
             accentColor={accentColor}
             backgroundColor={cellBackground}
+            borderRadius={borderRadius}
             className="editable-cell-icon t--editable-cell-icon"
             compactMode={compactMode}
             disabledEditIcon={disabledEditIcon}

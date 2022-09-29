@@ -33,12 +33,15 @@ export const TableWrapper = styled.div<{
   isHeaderVisible?: boolean;
   borderRadius: string;
   boxShadow?: string;
+  borderColor?: string;
+  borderWidth?: number;
 }>`
   width: 100%;
   height: 100%;
   background: white;
-  border: ${({ boxShadow }) =>
-    boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
+  border-style: solid;
+  border-width: ${({ borderWidth }) => `${borderWidth}px`};
+  border-color: ${({ borderColor }) => borderColor};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
@@ -90,15 +93,14 @@ export const TableWrapper = styled.div<{
           `${lightenColor(accentColor)}`} !important;
       }
       &:hover {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
+        background: var(--wds-color-bg-hover) !important;
       }
     }
     .th,
     .td {
       margin: 0;
-      border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-      border-right: 1px solid ${Colors.GEYSER_LIGHT};
+      border-bottom: 1px solid var(--wds-color-border-onaccent);
+      border-right: 1px solid var(--wds-color-border-onaccent);
       position: relative;
       font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
@@ -127,7 +129,8 @@ export const TableWrapper = styled.div<{
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       line-height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
-      background: ${Colors.ATHENS_GRAY_DARKER};
+      background: var(--wds-color-bg);
+      font-weight: bold;
     }
     .td {
       min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
@@ -150,7 +153,6 @@ export const TableWrapper = styled.div<{
     text-overflow: ellipsis;
     overflow: hidden;
     color: ${Colors.OXFORD_BLUE};
-    font-weight: 500;
     padding-left: 10px;
     &.sorted {
       padding-left: 5px;
@@ -444,7 +446,7 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{
           background: ${props.accentColor};
           &:hover {
             background: ${darkenColor(props.accentColor)};
-          } 
+          }
             `
         : `
           border: 1px solid ${Colors.GREY_3};

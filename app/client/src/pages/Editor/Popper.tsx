@@ -16,6 +16,7 @@ export type PopperProps = {
   parentElement?: Element | null;
   zIndex: number;
   isOpen: boolean;
+  borderRadius?: string;
   themeMode?: ThemeMode;
   targetNode?: Element;
   children: JSX.Element | null;
@@ -39,9 +40,11 @@ export type PopperProps = {
   // DraggableNode?: any;
 };
 
-const PopperWrapper = styled.div<{ zIndex: number }>`
+const PopperWrapper = styled.div<{ zIndex: number; borderRadius?: string }>`
   z-index: ${(props) => props.zIndex};
   position: absolute;
+  overflow: hidden;
+  border-radius: ${(props) => props.borderRadius || "0"};
 `;
 
 const DragHandleBlock = styled.div`
@@ -178,7 +181,11 @@ export default (props: PopperProps) => {
   ]);
   return createPortal(
     props.isOpen && (
-      <PopperWrapper ref={contentRef} zIndex={props.zIndex}>
+      <PopperWrapper
+        borderRadius={props.borderRadius}
+        ref={contentRef}
+        zIndex={props.zIndex}
+      >
         {props.children}
       </PopperWrapper>
     ),

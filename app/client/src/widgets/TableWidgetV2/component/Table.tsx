@@ -83,6 +83,8 @@ interface TableProps {
   accentColor: string;
   borderRadius: string;
   boxShadow?: string;
+  borderWidth?: number;
+  borderColor?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
 }
@@ -232,7 +234,9 @@ export function Table(props: TableProps) {
     <TableWrapper
       accentColor={props.accentColor}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      borderColor={props.borderColor}
       borderRadius={props.borderRadius}
+      borderWidth={props.borderWidth}
       boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}

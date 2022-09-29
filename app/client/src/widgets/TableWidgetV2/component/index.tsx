@@ -83,11 +83,15 @@ interface ReactTableComponentProps {
   borderRadius: string;
   boxShadow?: string;
   isEditableCellValid?: boolean;
+  borderColor?: string;
+  borderWidth?: number;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
   const {
     applyFilter,
+    borderColor,
+    borderWidth,
     columns,
     columnWidthMap,
     compactMode,
@@ -266,7 +270,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     <Table
       accentColor={props.accentColor}
       applyFilter={applyFilter}
+      borderColor={borderColor}
       borderRadius={props.borderRadius}
+      borderWidth={borderWidth}
       boxShadow={props.boxShadow}
       columnWidthMap={columnWidthMap}
       columns={columns}
@@ -347,6 +353,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.width === next.width &&
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
+    prev.borderWidth === next.borderWidth &&
+    prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
     equal(prev.columnWidthMap, next.columnWidthMap) &&
     equal(prev.tableData, next.tableData) &&

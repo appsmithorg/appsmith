@@ -24,6 +24,8 @@ import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../constants";
 
+import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
+
 const StyledRemoveIcon = styled(
   ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
 )`
@@ -38,7 +40,7 @@ const StyledRemoveIcon = styled(
 const LabelWrapper = styled.div`
   width: 95px;
   margin-left: 10px;
-  color: ${Colors.BLUE_BAYOUX};
+  color: var(--wds-color-text-light);
   font-size: 14px;
   font-weight: 500;
 `;
@@ -55,17 +57,28 @@ const DropdownWrapper = styled.div<{ width: number }>`
   margin-left: 10px;
 `;
 
-const StyledInputGroup = styled(InputGroup)`
-  background: ${Colors.WHITE};
-  border: 1px solid #d3dee3;
+const StyledInputGroup = styled(InputGroup)<{
+  borderRadius?: string;
+}>`
+  background: var(--wds-color-bg);
+  border: 1px solid var(--wds-color-border);
   box-sizing: border-box;
-  border-radius: 2px;
-  color: ${Colors.OXFORD_BLUE};
+  border-radius: ${(props) => props.borderRadius || "0"};
+  color: var(--wds-color-text);
   height: 32px;
   width: 150px;
   margin-left: 10px;
+  overflow: hidden;
+
   input {
     box-shadow: none;
+  }
+
+  input:focus {
+    box-shadow: none;
+  }
+  &:hover {
+    border-color: var(--wds-color-border-hover);
   }
 `;
 
@@ -74,20 +87,26 @@ const DatePickerWrapper = styled.div`
   width: 150px;
 `;
 
-const DropdownTrigger = styled.div`
+const DropdownTrigger = styled.div<{
+  borderRadius?: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   height: 32px;
-  background: ${Colors.WHITE};
-  border: 1px solid #d3dee3;
+  background: var(--wds-color-bg);
+  border: 1px solid var(--wds-color-border);
   box-sizing: border-box;
-  border-radius: 2px;
+  border-radius: ${(props) => props.borderRadius || "0"};
   font-size: 14px;
   padding: 5px 12px 7px;
-  color: ${Colors.OXFORD_BLUE};
+  color: var(--wds-color-text);
   cursor: pointer;
+
+  &:hover {
+    border-color: var(--wds-color-border-hover);
+  }
   &&& span {
     margin-right: 0;
   }
@@ -199,6 +218,7 @@ function RenderOptions(props: {
   value?: string | Condition;
   showType?: boolean;
   className?: string;
+  borderRadius?: string;
 }) {
   const [selectedValue, selectValue] = useState(props.placeholder);
   const configs = {
@@ -229,15 +249,20 @@ function RenderOptions(props: {
     openDirection: Directions.DOWN,
     trigger: {
       content: (
-        <DropdownTrigger className={props.className}>
+        <DropdownTrigger
+          borderRadius={props.borderRadius}
+          className={props.className}
+        >
           <AutoToolTipComponentWrapper title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
-          <Icon color={Colors.SLATE_GRAY} icon="caret-down" iconSize={16} />
+          <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
         </DropdownTrigger>
       ),
     },
     skin: Skin.LIGHT,
+    borderRadius: props.borderRadius,
+    customizedDropdownId: "cascade-dropdown",
   };
   useEffect(() => {
     if (props.value && props.columns) {
@@ -260,6 +285,7 @@ function RenderInput(props: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  borderRadius?: string;
 }) {
   const debouncedOnChange = useCallback(debounce(props.onChange, 400), []);
   const [value, setValue] = useState(props.value);
@@ -273,6 +299,7 @@ function RenderInput(props: {
   }, [props.value]);
   return (
     <StyledInputGroup
+      borderRadius={props.borderRadius}
       className={props.className}
       defaultValue={value}
       onChange={onChange}
@@ -528,7 +555,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
         className={`t--table-filter-remove-btn ${
           hasAnyFilters ? "" : "hide-icon"
         }`}
-        color={Colors.GRAY}
+        color="var(--wds-color-icon)"
         height={16}
         onClick={handleRemoveFilter}
         width={16}
@@ -536,6 +563,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {index === 1 ? (
         <DropdownWrapper width={95}>
           <RenderOptions
+            borderRadius={props.borderRadius}
             className="t--table-filter-operators-dropdown"
             columns={operatorOptions}
             placeholder="or"
@@ -550,6 +578,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       )}
       <DropdownWrapper width={150}>
         <RenderOptions
+          borderRadius={props.borderRadius}
           className="t--table-filter-columns-dropdown"
           columns={props.columns}
           placeholder="Attribute"
@@ -561,6 +590,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showConditions ? (
         <DropdownWrapper width={200}>
           <RenderOptions
+            borderRadius={props.borderRadius}
             className="t--table-filter-conditions-dropdown"
             columns={conditions}
             placeholder=""
@@ -571,6 +601,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       ) : null}
       {showInput ? (
         <RenderInput
+          borderRadius={props.borderRadius}
           className="t--table-filter-value-input"
           onChange={onValueChange}
           value={value}

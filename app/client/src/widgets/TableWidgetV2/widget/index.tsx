@@ -788,7 +788,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         <ReactTableComponent
           accentColor={this.props.accentColor}
           applyFilter={this.updateFilters}
+          borderColor={this.props.borderColor}
           borderRadius={this.props.borderRadius}
+          borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
@@ -1644,6 +1646,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
             allowCellWrapping={cellProperties.allowCellWrapping}
+            borderRadius={this.props.borderRadius}
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
             compactMode={compactMode}

@@ -9,7 +9,6 @@ import {
   OperatorTypes,
 } from "./Constants";
 import { DropdownOption } from "./TableFilters";
-import Button from "components/editorComponents/Button";
 import CascadeFields from "./CascadeFields";
 import {
   createMessage,
@@ -17,6 +16,10 @@ import {
 } from "@appsmith/constants/messages";
 import { ControlIcons } from "icons/ControlIcons";
 import { Icon, IconSize } from "design-system";
+import Button from "pages/AppViewer/AppViewerButton";
+import { ButtonVariantTypes } from "components/constants";
+
+import AddIcon from "remixicon-react/AddLineIcon";
 
 const StyledPlusCircleIcon = styled(
   ControlIcons.ADD_CIRCLE_CONTROL as AnyStyledComponent,
@@ -27,17 +30,21 @@ const StyledPlusCircleIcon = styled(
   svg {
     circle {
       fill: none !important;
-      stroke: ${Colors.GREEN};
+      stroke: ${Colors.GREY_5} !important;
     }
   }
 `;
 
-const TableFilterOuterWrapper = styled.div`
+const TableFilterOuterWrapper = styled.div<{
+  borderRadius?: string;
+}>`
   display: flex;
   flex-direction: column;
   width: 100%;
   background: ${Colors.WHITE};
-  box-shadow: 0px 12px 28px -8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  border-radius: ${(props) => props.borderRadius || "0"};
 `;
 
 const TableFilerWrapper = styled.div`
@@ -179,6 +186,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   );
   return (
     <TableFilterOuterWrapper
+      borderRadius={props.borderRadius}
       onClick={(e) => {
         e.stopPropagation();
       }}
@@ -234,25 +242,29 @@ function TableFilterPaneContent(props: TableFilterProps) {
         {hasAnyFilters ? (
           <ButtonWrapper>
             <Button
+              borderRadius={props.borderRadius}
+              buttonColor={props.accentColor}
+              buttonVariant={ButtonVariantTypes.TERTIARY}
               className="t--add-filter-btn"
-              icon={<StyledPlusCircleIcon height={16} width={16} />}
-              intent="primary"
+              icon={<AddIcon className="w-5 h-5" color={props.accentColor} />}
               onClick={addFilter}
               size="small"
               text="Add Filter"
             />
             <ButtonActionsWrapper>
               <Button
+                borderRadius={props.borderRadius}
+                buttonColor={props.accentColor}
+                buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--clear-all-filter-btn"
-                intent="primary"
                 onClick={clearFilters}
-                outline
                 text="CLEAR ALL"
               />
               <Button
+                borderRadius={props.borderRadius}
+                buttonColor={props.accentColor}
+                buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--apply-filter-btn"
-                filled
-                intent="primary"
                 onClick={applyFilter}
                 text="APPLY"
               />

@@ -11,6 +11,7 @@ import { TextCell } from "./TextCell";
 
 export type RenderDefaultPropsType = BaseCellComponentProps & {
   accentColor: string;
+  borderRadius?: string;
   value: any;
   columnType: string;
   tableWidth: number;
@@ -63,6 +64,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     accentColor,
     alias,
     allowCellWrapping,
+    borderRadius,
     cellBackground,
     columnType,
     compactMode,
@@ -138,6 +140,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     <TextCell
       accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
+      borderRadius={borderRadius}
       cellBackground={cellBackground}
       columnType={columnType}
       compactMode={compactMode}
