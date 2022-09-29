@@ -13,7 +13,7 @@ import {
 import { getSettingsSavingState } from "selectors/settingsSelectors";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { Callout } from "components/ads/CalloutV2";
+import { CalloutV2 } from "design-system";
 import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import {
   BodyContainer,
@@ -249,7 +249,7 @@ function MetadataForm(
   return (
     <>
       {providerForm.callout && (
-        <Callout
+        <CalloutV2
           actionLabel="Read Documentation"
           desc={providerForm.callout}
           type="Notify"
