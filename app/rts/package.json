@@ -26,7 +26,7 @@
     "typescript": "^4.2.3"
   },
   "scripts": {
-    "test:unit": "export APPSMITH_API_BASE_URL=http APPSMITH_MONGODB_URI=mongodb && $(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
+    "test:unit": "export APPSMITH_API_BASE_URL=http APPSMITH_MONGODB_URI=mongodb && $(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
     "test:jest": "export APPSMITH_API_BASE_URL=http APPSMITH_MONGODB_URI=mongodb && $(npm bin)/jest --watch ",
     "preinstall": "CURRENT_SCOPE=rts node ../shared/build-shared-dep.js",
     "build": "./build.sh",
