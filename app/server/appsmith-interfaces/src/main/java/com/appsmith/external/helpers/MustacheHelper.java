@@ -417,19 +417,25 @@ public class MustacheHelper {
             return dependencyNodes;
         }
 
-        if (subStrings.length == 2 && !"data".equals(subStrings[1])) {
-            // This could only qualify if it is a sync JS function call
+        if (subStrings.length == 2) {
+            // This could qualify if it is a sync JS function call, even if it is called `JsObject1.data()`
             // For sync JS actions, the entire reference could be a function call
             EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, key, reference, false, true, null);
             dependencyNodes.add(entityDependencyNode);
-        }
-
-        if (subStrings.length >= 2) {
             if ("data".equals(subStrings[1])) {
+                // This means it is a valid API/query reference
                 // For queries and APIs, the first word is the action name
-                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
-                dependencyNodes.add(entityDependencyNode);
-            } else if (subStrings.length > 2 && "data".equals(subStrings[2])) {
+                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
+                dependencyNodes.add(actionEntityDependencyNode);
+            }
+        } else if (subStrings.length > 2) {
+            if ("data".equals(subStrings[1])) {
+                // This means it is a valid API/query reference
+                // For queries and APIs, the first word is the action name
+                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
+                dependencyNodes.add(actionEntityDependencyNode);
+            }
+            if ("data".equals(subStrings[2])) {
                 // For JS actions, the first two words are the action name since action name consists of
                 // the collection name and the individual action name
                 // We don't know if this is a run for sync or async JS action at this point,

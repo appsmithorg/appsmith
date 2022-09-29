@@ -1,17 +1,15 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.EntityDependencyNode;
 import com.appsmith.external.models.EntityReferenceType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.ActionDTO;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.NewActionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -332,8 +330,9 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                                             ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
 
                                             if (actionDTO != null) {
-                                                // If it was, and had been identified as such,
-                                                if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION).contains(binding.getEntityReferenceType())) {
+                                                // If it was, and had been identified as the same type of action as what exists in this app,
+                                                if ((PluginType.JS.equals(actionDTO.getPluginType()) && EntityReferenceType.JSACTION.equals(binding.getEntityReferenceType()))
+                                                        || (!PluginType.JS.equals(actionDTO.getPluginType()) && EntityReferenceType.ACTION.equals(binding.getEntityReferenceType()))) {
                                                     // Copy over some data from the identified action, this ensures that we do not have to query the DB again later
                                                     binding.setIsAsync(actionDTO.getActionConfiguration().getIsAsync());
                                                     binding.setActionDTO(actionDTO);
