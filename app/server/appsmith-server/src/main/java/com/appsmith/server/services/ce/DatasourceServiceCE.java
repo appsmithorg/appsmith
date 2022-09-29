@@ -31,4 +31,6 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
     Mono<Datasource> populateHintMessages(Datasource datasource);
+
+    Mono<Datasource> getValidDatasourceMono(Datasource datasource);
 }
