@@ -5,17 +5,17 @@ import ProfileImage from "pages/common/ProfileImage";
 import { MenuItem } from "design-system";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
-  getOnSelectAction,
   DropdownOnSelectActions,
+  getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
-  createMessage,
   ADMIN_SETTINGS,
-  DOCUMENTATION,
   APPSMITH_DISPLAY_VERSION,
+  createMessage,
+  DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";

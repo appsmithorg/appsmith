@@ -4,8 +4,7 @@ import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.models.Condition;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,6 +15,8 @@ import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PluginUtilsTest {
 
@@ -127,7 +128,7 @@ public class PluginUtilsTest {
             PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", new TypeReference<List<String>>() {
             });
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof ClassCastException);
+            assertTrue(e instanceof ClassCastException);
         }
     }
 
@@ -138,7 +139,7 @@ public class PluginUtilsTest {
 
         final String data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", STRING_TYPE);
 
-        Assert.assertEquals("[\"value\"]", data);
+        assertEquals("[\"value\"]", data);
     }
 
     @Test
@@ -149,7 +150,7 @@ public class PluginUtilsTest {
         final List<String> data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", new TypeReference<List<String>>() {
         });
 
-        Assert.assertEquals(List.of("value"), data);
+        assertEquals(List.of("value"), data);
     }
 
     @Test
@@ -159,7 +160,7 @@ public class PluginUtilsTest {
 
         final Object data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", OBJECT_TYPE);
 
-        Assert.assertEquals(List.of("value"), data);
+        assertEquals(List.of("value"), data);
     }
 
     @Test
@@ -170,7 +171,7 @@ public class PluginUtilsTest {
         final Map<String, String> data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", new TypeReference<Map<String, String>>() {
         });
 
-        Assert.assertEquals(Map.of("k", "value"), data);
+        assertEquals(Map.of("k", "value"), data);
     }
 
     @Test
@@ -179,6 +180,6 @@ public class PluginUtilsTest {
 
         PluginUtils.setDataValueSafelyInFormData(dataMap, "key.innerKey", "value");
 
-        Assert.assertEquals(Map.of("key", Map.of("innerKey", Map.of("data", "value"))), dataMap);
+        assertEquals(Map.of("key", Map.of("innerKey", Map.of("data", "value"))), dataMap);
     }
 }
