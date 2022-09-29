@@ -376,7 +376,7 @@ class TabsWidget extends BaseWidget<
         children: [
           {
             propertyName: "accentColor",
-            helpText: "Sets the checked state color of the checkbox",
+            helpText: "Sets the color of the checkbox",
             label: "Accent Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
