@@ -24,15 +24,15 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.BsonObjectId;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -49,7 +49,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RunWith(SpringRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class ActionCollectionServiceImplTest {
 
@@ -92,7 +96,7 @@ public class ActionCollectionServiceImplTest {
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         actionCollectionService = new ActionCollectionServiceImpl(
                 scheduler,
@@ -269,7 +273,7 @@ public class ActionCollectionServiceImplTest {
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
-                    Assert.assertTrue(actionCollectionDTO1.getActions().isEmpty());
+                    assertTrue(actionCollectionDTO1.getActions().isEmpty());
                 })
                 .verifyComplete();
     }
@@ -338,13 +342,13 @@ public class ActionCollectionServiceImplTest {
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
-                    Assert.assertEquals(1, actionCollectionDTO1.getActions().size());
+                    assertEquals(1, actionCollectionDTO1.getActions().size());
                     final ActionDTO actionDTO = actionCollectionDTO1.getActions().get(0);
-                    Assert.assertEquals("testAction", actionDTO.getName());
-                    Assert.assertEquals("testActionId", actionDTO.getId());
-                    Assert.assertEquals("testCollection.testAction", actionDTO.getFullyQualifiedName());
-                    Assert.assertEquals("testActionCollectionId", actionDTO.getDefaultResources().getCollectionId());
-                    Assert.assertTrue(actionDTO.getClientSideExecution());
+                    assertEquals("testAction", actionDTO.getName());
+                    assertEquals("testActionId", actionDTO.getId());
+                    assertEquals("testCollection.testAction", actionDTO.getFullyQualifiedName());
+                    assertEquals("testActionCollectionId", actionDTO.getDefaultResources().getCollectionId());
+                    assertTrue(actionDTO.getClientSideExecution());
                 })
                 .verifyComplete();
     }
@@ -474,17 +478,17 @@ public class ActionCollectionServiceImplTest {
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
-                    Assert.assertEquals(2, actionCollectionDTO1.getActions().size());
-                    Assert.assertEquals(1, actionCollectionDTO1.getArchivedActions().size());
-                    Assert.assertTrue(
+                    assertEquals(2, actionCollectionDTO1.getActions().size());
+                    assertEquals(1, actionCollectionDTO1.getArchivedActions().size());
+                    assertTrue(
                             actionCollectionDTO1
                                     .getActions()
                                     .stream()
                                     .map(ActionDTO::getId)
                                     .collect(Collectors.toSet())
                                     .containsAll(Set.of("testActionId1", "testActionId3")));
-                    Assert.assertEquals("testActionId2", actionCollectionDTO1.getArchivedActions().get(0).getId());
-                    Assert.assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getDeletedAt()));
+                    assertEquals("testActionId2", actionCollectionDTO1.getArchivedActions().get(0).getId());
+                    assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getDeletedAt()));
                 })
                 .verifyComplete();
     }
@@ -535,9 +539,9 @@ public class ActionCollectionServiceImplTest {
         StepVerifier
                 .create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO -> {
-                    Assert.assertEquals("testCollection", actionCollectionDTO.getName());
-                    Assert.assertEquals(0, actionCollectionDTO.getActions().size());
-                    Assert.assertTrue(deletedAt.isBefore(actionCollectionDTO.getDeletedAt()));
+                    assertEquals("testCollection", actionCollectionDTO.getName());
+                    assertEquals(0, actionCollectionDTO.getActions().size());
+                    assertTrue(deletedAt.isBefore(actionCollectionDTO.getDeletedAt()));
                 })
                 .verifyComplete();
     }
@@ -573,9 +577,9 @@ public class ActionCollectionServiceImplTest {
         StepVerifier
                 .create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO -> {
-                    Assert.assertEquals("testCollection", actionCollectionDTO.getName());
-                    Assert.assertEquals(2, actionCollectionDTO.getActions().size());
-                    Assert.assertTrue(deletedAt.isBefore(actionCollectionDTO.getDeletedAt()));
+                    assertEquals("testCollection", actionCollectionDTO.getName());
+                    assertEquals(2, actionCollectionDTO.getActions().size());
+                    assertTrue(deletedAt.isBefore(actionCollectionDTO.getDeletedAt()));
                 })
                 .verifyComplete();
     }
@@ -606,7 +610,7 @@ public class ActionCollectionServiceImplTest {
 
         StepVerifier
                 .create(actionCollectionDTOMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 
@@ -643,7 +647,7 @@ public class ActionCollectionServiceImplTest {
 
         StepVerifier
                 .create(actionCollectionDTOMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 
@@ -751,8 +755,8 @@ public class ActionCollectionServiceImplTest {
         StepVerifier
                 .create(layoutDTOMono)
                 .assertNext(layoutDTO -> {
-                    Assert.assertNotNull(layoutDTO.getDsl());
-                    Assert.assertEquals("value", layoutDTO.getDsl().get("key"));
+                    assertNotNull(layoutDTO.getDsl());
+                    assertEquals("value", layoutDTO.getDsl().get("key"));
                 })
                 .verifyComplete();
     }
@@ -829,8 +833,8 @@ public class ActionCollectionServiceImplTest {
         StepVerifier
                 .create(layoutDTOMono)
                 .assertNext(layoutDTO -> {
-                    Assert.assertNotNull(layoutDTO.getDsl());
-                    Assert.assertEquals("value", layoutDTO.getDsl().get("key"));
+                    assertNotNull(layoutDTO.getDsl());
+                    assertEquals("value", layoutDTO.getDsl().get("key"));
                 })
                 .verifyComplete();
     }
@@ -920,7 +924,7 @@ public class ActionCollectionServiceImplTest {
         StepVerifier
                 .create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO -> {
-                    Assert.assertEquals("newPageId", actionCollectionDTO.getPageId());
+                    assertEquals("newPageId", actionCollectionDTO.getPageId());
                 })
                 .verifyComplete();
     }

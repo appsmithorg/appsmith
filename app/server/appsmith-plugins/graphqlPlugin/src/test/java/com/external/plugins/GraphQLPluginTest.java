@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -14,7 +15,6 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
-import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.external.utils.GraphQLHintMessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,13 +25,14 @@ import io.jsonwebtoken.security.Keys;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -56,11 +57,12 @@ import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtil
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Testcontainers
 public class GraphQLPluginTest {
 
     private static GraphQLHintMessageUtils hintMessageUtils;
@@ -86,13 +88,13 @@ public class GraphQLPluginTest {
     GraphQLPlugin.GraphQLPluginExecutor pluginExecutor = new GraphQLPlugin.GraphQLPluginExecutor(new MockSharedConfig());
 
     @SuppressWarnings("rawtypes")
-    @ClassRule
+    @Container
     public static GenericContainer graphqlContainer = new GenericContainer(CompletableFuture.completedFuture("appsmith/test-event" +
             "-driver"))
             .withExposedPorts(5000)
             .waitingFor(Wait.forHttp("/").forStatusCode(404));
 
-    @Before
+    @BeforeEach
     public void setUp() {
         hintMessageUtils = new GraphQLHintMessageUtils();
     }

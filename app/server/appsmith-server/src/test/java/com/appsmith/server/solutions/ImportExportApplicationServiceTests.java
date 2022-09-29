@@ -61,12 +61,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -80,7 +79,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -110,12 +109,13 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class ImportExportApplicationServiceTests {
 
     @Autowired
@@ -138,7 +138,7 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     NewActionService newActionService;
-    
+
     @Autowired
     WorkspaceService workspaceService;
 
@@ -176,7 +176,7 @@ public class ImportExportApplicationServiceTests {
     private static Boolean isSetupDone = false;
     private static String exportWithConfigurationAppId;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Mockito
                 .when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -289,12 +289,12 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null, "");
-        
+
         StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
-            .verify();
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
+                .verify();
     }
 
     @Test
@@ -377,7 +377,7 @@ public class ImportExportApplicationServiceTests {
                     final Datasource ds2 = datasourceMap.get("DS2");
                     ds2.setWorkspaceId(workspace.getId());
 
-                    return  applicationPageService.createApplication(testApplication, workspaceId);
+                    return applicationPageService.createApplication(testApplication, workspaceId);
                 })
                 .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), ""));
 
@@ -390,7 +390,7 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithActionAndActionCollectionTest() {
@@ -405,9 +405,9 @@ public class ImportExportApplicationServiceTests {
         assert testApplication != null;
         final String appName = testApplication.getName();
         final Mono<ApplicationJson> resultMono = Mono.zip(
-                Mono.just(testApplication),
-                newPageService.findPageById(testApplication.getPages().get(0).getId(), READ_PAGES, false)
-        )
+                        Mono.just(testApplication),
+                        newPageService.findPageById(testApplication.getPages().get(0).getId(), READ_PAGES, false)
+                )
                 .flatMap(tuple -> {
                     Application testApp = tuple.getT1();
                     PageDTO testPage = tuple.getT2();
@@ -524,13 +524,13 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(DBPages).hasSize(1);
                     DBPages.forEach(newPage ->
-                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                            if (layout.getLayoutOnLoadActions() != null) {
-                                layout.getLayoutOnLoadActions().forEach(dslActionDTOSet -> {
-                                    dslActionDTOSet.forEach(actionDTO -> DBOnLayoutLoadActionIds.add(actionDTO.getId()));
-                                });
-                            }
-                        })
+                            newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                if (layout.getLayoutOnLoadActions() != null) {
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOSet -> {
+                                        dslActionDTOSet.forEach(actionDTO -> DBOnLayoutLoadActionIds.add(actionDTO.getId()));
+                                    });
+                                }
+                            })
                     );
                     pageList.forEach(newPage ->
                             newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
@@ -605,7 +605,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(applicationJson.getInvisibleActionFields()).isNull();
                     NewAction validAction2 = actionList.stream().filter(action -> action.getId().equals("Page1_validAction2")).findFirst().get();
-                    Assert.assertEquals(true, validAction2.getUnpublishedAction().getUserSetOnLoad());
+                    assertEquals(true, validAction2.getUnpublishedAction().getUserSetOnLoad());
 
                     assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNull();
                     assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNull();
@@ -638,8 +638,8 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(testApp -> {
                     final String pageId = testApp.getPages().get(0).getId();
                     return Mono.zip(
-                        Mono.just(testApp),
-                        newPageService.findPageById(pageId, READ_PAGES, false)
+                            Mono.just(testApp),
+                            newPageService.findPageById(pageId, READ_PAGES, false)
                     );
                 })
                 .flatMap(tuple -> {
@@ -664,60 +664,60 @@ public class ImportExportApplicationServiceTests {
                     action.setDatasource(ds1);
 
                     return layoutActionService.createAction(action)
-                        .then(importExportApplicationService.exportApplicationById(testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
                 });
 
         StepVerifier
-            .create(resultMono)
-            .assertNext(applicationJson -> {
+                .create(resultMono)
+                .assertNext(applicationJson -> {
 
-                Application exportedApp = applicationJson.getExportedApplication();
-                List<NewPage> pageList = applicationJson.getPageList();
-                List<NewAction> actionList = applicationJson.getActionList();
-                List<Datasource> datasourceList = applicationJson.getDatasourceList();
+                    Application exportedApp = applicationJson.getExportedApplication();
+                    List<NewPage> pageList = applicationJson.getPageList();
+                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<Datasource> datasourceList = applicationJson.getDatasourceList();
 
-                NewPage newPage = pageList.get(0);
+                    NewPage newPage = pageList.get(0);
 
-                assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
-                assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                    assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
 
-                assertThat(exportedApp.getName()).isNotNull();
-                assertThat(exportedApp.getWorkspaceId()).isNull();
-                assertThat(exportedApp.getPages()).hasSize(1);
-                assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
-                assertThat(exportedApp.getGitApplicationMetadata()).isNull();
+                    assertThat(exportedApp.getName()).isNotNull();
+                    assertThat(exportedApp.getWorkspaceId()).isNull();
+                    assertThat(exportedApp.getPages()).hasSize(1);
+                    assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
+                    assertThat(exportedApp.getGitApplicationMetadata()).isNull();
 
-                assertThat(exportedApp.getPolicies()).isNull();
-                assertThat(exportedApp.getUserPermissions()).isNull();
+                    assertThat(exportedApp.getPolicies()).isNull();
+                    assertThat(exportedApp.getUserPermissions()).isNull();
 
-                assertThat(pageList).hasSize(1);
-                assertThat(newPage.getApplicationId()).isNull();
-                assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
-                assertThat(newPage.getId()).isNull();
-                assertThat(newPage.getPolicies()).isNull();
+                    assertThat(pageList).hasSize(1);
+                    assertThat(newPage.getApplicationId()).isNull();
+                    assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
+                    assertThat(newPage.getId()).isNull();
+                    assertThat(newPage.getPolicies()).isNull();
 
-                assertThat(actionList.isEmpty()).isFalse();
-                NewAction validAction = actionList.get(0);
-                assertThat(validAction.getApplicationId()).isNull();
-                assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
-                assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
-                assertThat(validAction.getWorkspaceId()).isNull();
-                assertThat(validAction.getPolicies()).isNull();
-                assertThat(validAction.getId()).isNotNull();
-                assertThat(validAction.getUnpublishedAction().getPageId())
-                    .isEqualTo(newPage.getUnpublishedPage().getName());
+                    assertThat(actionList.isEmpty()).isFalse();
+                    NewAction validAction = actionList.get(0);
+                    assertThat(validAction.getApplicationId()).isNull();
+                    assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
+                    assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
+                    assertThat(validAction.getWorkspaceId()).isNull();
+                    assertThat(validAction.getPolicies()).isNull();
+                    assertThat(validAction.getId()).isNotNull();
+                    assertThat(validAction.getUnpublishedAction().getPageId())
+                            .isEqualTo(newPage.getUnpublishedPage().getName());
 
-                assertThat(datasourceList).hasSize(1);
-                Datasource datasource = datasourceList.get(0);
-                assertThat(datasource.getWorkspaceId()).isNull();
-                assertThat(datasource.getId()).isNull();
-                assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
-                assertThat(datasource.getDatasourceConfiguration()).isNull();
+                    assertThat(datasourceList).hasSize(1);
+                    Datasource datasource = datasourceList.get(0);
+                    assertThat(datasource.getWorkspaceId()).isNull();
+                    assertThat(datasource.getId()).isNull();
+                    assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
+                    assertThat(datasource.getDatasourceConfiguration()).isNull();
 
-                assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNull();
-                assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNull();
-            })
-            .verifyComplete();
+                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNull();
+                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNull();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -738,179 +738,179 @@ public class ImportExportApplicationServiceTests {
                 .expectErrorMatches(error -> error instanceof AppsmithException)
                 .verify();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationWithNullWorkspaceIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        
+
         Mono<ApplicationImportDTO> resultMono = importExportApplicationService
-            .extractFileAndSaveApplication(null, filepart);
-        
+                .extractFileAndSaveApplication(null, filepart);
+
         StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID)))
-            .verify();
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID)))
+                .verify();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromInvalidJsonFileWithoutPagesTest() {
-        
+
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
-        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId,filePart);
-        
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
+
         StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
-            .verify();
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
+                .verify();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromInvalidJsonFileWithoutApplicationTest() {
-        
+
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
-        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId,filePart);
-        
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
+
         StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, INVALID_JSON_FILE)))
-            .verify();
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, INVALID_JSON_FILE)))
+                .verify();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromValidJsonFileTest() {
-        
+
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
-    
+
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
         Mono<Workspace> workspaceMono = workspaceService
-            .create(newWorkspace).cache();
-    
+                .create(newWorkspace).cache();
+
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
-            .flatMap(workspace -> importExportApplicationService
-                .extractFileAndSaveApplication(workspace.getId(), filePart)
-            );
+                .flatMap(workspace -> importExportApplicationService
+                        .extractFileAndSaveApplication(workspace.getId(), filePart)
+                );
 
         List<PermissionGroup> permissionGroups = workspaceMono
-            .flatMapMany(savedWorkspace -> {
-                Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                return permissionGroupRepository.findAllById(defaultPermissionGroups);
-            })
-            .collectList()
-            .block();
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-            .build();
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                    viewerPermissionGroup.getId()))
-            .build();
-        
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
+                .build();
+
         StepVerifier
-            .create(resultMono
-                .flatMap(applicationImportDTO -> {
-                    Application application = applicationImportDTO.getApplication();
-                    return Mono.zip(
-                            Mono.just(applicationImportDTO),
-                            datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
-                            newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                            newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                            actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
-                    );
-                }))
-            .assertNext(tuple -> {
-                final Application application = tuple.getT1().getApplication();
-                final List<Datasource> unConfiguredDatasourceList  = tuple.getT1().getUnConfiguredDatasourceList();
-                final boolean isPartialImport = tuple.getT1().getIsPartialImport();
-                final List<Datasource> datasourceList = tuple.getT2();
-                final List<NewAction> actionList = tuple.getT3();
-                final List<PageDTO> pageList = tuple.getT4();
-                final List<ActionCollection> actionCollectionList = tuple.getT5();
+                .create(resultMono
+                        .flatMap(applicationImportDTO -> {
+                            Application application = applicationImportDTO.getApplication();
+                            return Mono.zip(
+                                    Mono.just(applicationImportDTO),
+                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                    newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                    newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                            );
+                        }))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1().getApplication();
+                    final List<Datasource> unConfiguredDatasourceList = tuple.getT1().getUnConfiguredDatasourceList();
+                    final boolean isPartialImport = tuple.getT1().getIsPartialImport();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<NewAction> actionList = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
 
-                assertThat(application.getName()).isEqualTo("valid_application");
-                assertThat(application.getWorkspaceId()).isNotNull();
-                assertThat(application.getPages()).hasSize(2);
-                assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                assertThat(application.getPublishedPages()).hasSize(1);
-                assertThat(application.getModifiedBy()).isEqualTo("api_user");
-                assertThat(application.getUpdatedAt()).isNotNull();
-                assertThat(application.getEditModeThemeId()).isNotNull();
-                assertThat(application.getPublishedModeThemeId()).isNotNull();
-                assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
-                assertThat(unConfiguredDatasourceList).isNotNull();
+                    assertThat(application.getName()).isEqualTo("valid_application");
+                    assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEditModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
+                    assertThat(unConfiguredDatasourceList).isNotNull();
 
-                assertThat(datasourceList).isNotEmpty();
-                datasourceList.forEach(datasource -> {
-                    assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
-                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
-                });
+                    assertThat(datasourceList).isNotEmpty();
+                    datasourceList.forEach(datasource -> {
+                        assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
+                        assertThat(datasource.getDatasourceConfiguration()).isNotNull();
+                    });
 
-                List<String> collectionIdInAction = new ArrayList<>();
-                assertThat(actionList).isNotEmpty();
-                actionList.forEach(newAction -> {
-                    ActionDTO actionDTO = newAction.getUnpublishedAction();
-                    assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
-                    if (StringUtils.equals(actionDTO.getName(), "api_wo_auth")) {
-                        ActionDTO publishedAction = newAction.getPublishedAction();
-                        assertThat(publishedAction).isNotNull();
-                        assertThat(publishedAction.getActionConfiguration()).isNotNull();
-                        // Test the fallback page ID from the unpublishedAction is copied to published version when
-                        // published version does not have pageId
-                        assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
-                    }
-                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
-                        collectionIdInAction.add(actionDTO.getCollectionId());
-                    }
-                });
+                    List<String> collectionIdInAction = new ArrayList<>();
+                    assertThat(actionList).isNotEmpty();
+                    actionList.forEach(newAction -> {
+                        ActionDTO actionDTO = newAction.getUnpublishedAction();
+                        assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+                        if (StringUtils.equals(actionDTO.getName(), "api_wo_auth")) {
+                            ActionDTO publishedAction = newAction.getPublishedAction();
+                            assertThat(publishedAction).isNotNull();
+                            assertThat(publishedAction.getActionConfiguration()).isNotNull();
+                            // Test the fallback page ID from the unpublishedAction is copied to published version when
+                            // published version does not have pageId
+                            assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
+                        }
+                        if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                            collectionIdInAction.add(actionDTO.getCollectionId());
+                        }
+                    });
 
-                assertThat(actionCollectionList).isNotEmpty();
-                actionCollectionList.forEach(actionCollection -> {
-                    assertThat(actionCollection.getUnpublishedCollection().getPageId()).isNotEqualTo(pageList.get(0).getName());
-                    if (StringUtils.equals(actionCollection.getUnpublishedCollection().getName(), "JSObject2")) {
-                        // Check if this action collection is not attached to any action
-                        assertThat(collectionIdInAction).doesNotContain(actionCollection.getId());
-                    } else {
-                        assertThat(collectionIdInAction).contains(actionCollection.getId());
-                    }
-                });
+                    assertThat(actionCollectionList).isNotEmpty();
+                    actionCollectionList.forEach(actionCollection -> {
+                        assertThat(actionCollection.getUnpublishedCollection().getPageId()).isNotEqualTo(pageList.get(0).getName());
+                        if (StringUtils.equals(actionCollection.getUnpublishedCollection().getName(), "JSObject2")) {
+                            // Check if this action collection is not attached to any action
+                            assertThat(collectionIdInAction).doesNotContain(actionCollection.getId());
+                        } else {
+                            assertThat(collectionIdInAction).contains(actionCollection.getId());
+                        }
+                    });
 
-                assertThat(pageList).hasSize(2);
+                    assertThat(pageList).hasSize(2);
 
-                ApplicationPage defaultAppPage = application.getPages()
-                        .stream()
-                        .filter(ApplicationPage::getIsDefault)
-                        .findFirst()
-                        .orElse(null);
-                assertThat(defaultAppPage).isNotNull();
-    
-                PageDTO defaultPageDTO = pageList.stream()
-                    .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
-    
-                assertThat(defaultPageDTO).isNotNull();
-                assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
-            })
-            .verifyComplete();
+                    ApplicationPage defaultAppPage = application.getPages()
+                            .stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                    assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -999,7 +999,7 @@ public class ImportExportApplicationServiceTests {
         newWorkspace.setName("Template Workspace");
 
         Mono<Workspace> workspaceMono = workspaceService
-            .create(newWorkspace).cache();
+                .create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
                 .flatMap(workspace -> importExportApplicationService
@@ -1007,32 +1007,32 @@ public class ImportExportApplicationServiceTests {
                 );
 
         List<PermissionGroup> permissionGroups = workspaceMono
-            .flatMapMany(savedWorkspace -> {
-                Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                return permissionGroupRepository.findAllById(defaultPermissionGroups);
-            })
-            .collectList()
-            .block();
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
 
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-            .build();
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                    viewerPermissionGroup.getId()))
-            .build();
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
+                .build();
 
         StepVerifier
                 .create(resultMono
@@ -1227,7 +1227,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplication_incompatibleJsonFile_throwException() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
-        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId,filePart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
 
         StepVerifier
                 .create(resultMono)
@@ -1245,7 +1245,7 @@ public class ImportExportApplicationServiceTests {
         newWorkspace.setName("Template Workspace");
 
         Mono<Workspace> workspaceMono = workspaceService
-            .create(newWorkspace).cache();
+                .create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
                 .flatMap(workspace -> importExportApplicationService
@@ -1253,32 +1253,32 @@ public class ImportExportApplicationServiceTests {
                 );
 
         List<PermissionGroup> permissionGroups = workspaceMono
-            .flatMapMany(savedWorkspace -> {
-                Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                return permissionGroupRepository.findAllById(defaultPermissionGroups);
-            })
-            .collectList()
-            .block();
-    
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
 
         PermissionGroup developerPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
 
         PermissionGroup viewerPermissionGroup = permissionGroups.stream()
-            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
-            .findFirst().get();
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
-            .build();
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                viewerPermissionGroup.getId()))
-            .build();
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
+                .build();
 
         StepVerifier
                 .create(resultMono
@@ -1294,7 +1294,7 @@ public class ImportExportApplicationServiceTests {
                         }))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
-                    final List<Datasource> unConfiguredDatasourceList  = tuple.getT1().getUnConfiguredDatasourceList();
+                    final List<Datasource> unConfiguredDatasourceList = tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();
                     final List<Datasource> datasourceList = tuple.getT2();
                     final List<NewAction> actionList = tuple.getT3();
@@ -1520,7 +1520,7 @@ public class ImportExportApplicationServiceTests {
                 .build();
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
-                    viewerPermissionGroup.getId(), anonymousPermissionGroup.getId()))
+                        viewerPermissionGroup.getId(), anonymousPermissionGroup.getId()))
                 .build();
 
         Mono<Application> applicationMono = importExportApplicationService.exportApplicationById(application.getId(), "master")
@@ -1707,15 +1707,15 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson -> {
-                                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-                                    importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
-                                    return applicationService.save(importedApplication)
-                                            .then(importExportApplicationService.importApplicationInWorkspace(
-                                                    importedApplication.getWorkspaceId(),
-                                                    applicationJson,
-                                                    importedApplication.getId(),
-                                                    "main")
-                                            );
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInWorkspace(
+                                                            importedApplication.getWorkspaceId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
                                         }
                                 )
                 );
@@ -2348,9 +2348,9 @@ public class ImportExportApplicationServiceTests {
                     assertThat(invisibleActionFields).isNull();
                     for (NewAction newAction : actionList) {
                         if (newAction.getId().equals("Page1_validAction2")) {
-                            Assert.assertEquals(true, newAction.getUnpublishedAction().getUserSetOnLoad());
+                            assertEquals(true, newAction.getUnpublishedAction().getUserSetOnLoad());
                         } else {
-                            Assert.assertEquals(false, newAction.getUnpublishedAction().getUserSetOnLoad());
+                            assertEquals(false, newAction.getUnpublishedAction().getUserSetOnLoad());
                         }
                     }
 
@@ -2735,7 +2735,7 @@ public class ImportExportApplicationServiceTests {
         List<NewAction> actionList = new ArrayList<>();
         List<ActionCollection> actionCollectionList = new ArrayList<>();
 
-        for(String pageName : pageNames) {
+        for (String pageName : pageNames) {
             NewPage newPage = new NewPage();
             newPage.setUnpublishedPage(new PageDTO());
             newPage.getUnpublishedPage().setName(pageName);
@@ -2923,7 +2923,7 @@ public class ImportExportApplicationServiceTests {
                     Workspace workspace = tuple.getT1();
                     ApplicationJson applicationJson = tuple.getT2();
                     return importExportApplicationService
-                                    .importApplicationInWorkspace(workspace.getId(), applicationJson);
+                            .importApplicationInWorkspace(workspace.getId(), applicationJson);
                 });
 
         StepVerifier

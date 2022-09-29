@@ -38,11 +38,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,7 +50,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -73,9 +72,10 @@ import static com.mongodb.assertions.Assertions.assertNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -144,7 +144,7 @@ public class LayoutActionServiceTest {
 
     Plugin installedJsPlugin;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         newPageService.deleteAll();
@@ -233,7 +233,7 @@ public class LayoutActionServiceTest {
         jsDatasource.setPluginId(installedJsPlugin.getId());
     }
 
-    @After
+    @AfterEach
     @WithUserDetails(value = "api_user")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
@@ -343,8 +343,8 @@ public class LayoutActionServiceTest {
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
                 .flatMap(savedAction -> {
-                    Assert.assertFalse(savedAction.getActionConfiguration().getIsValid());
-                    Assert.assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
+                    assertFalse(savedAction.getActionConfiguration().getIsValid());
+                    assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
@@ -1423,7 +1423,7 @@ public class LayoutActionServiceTest {
                     final JSONObject dsl = layoutDTO.getDsl();
                     final Object fieldValue = ((JSONObject) ((ArrayList) dsl.get("children")).get(0)).getAsString("testField");
                     // Make sure the DSL got updated
-                    Assert.assertEquals("{{ firstWidget.testField }}", fieldValue);
+                    assertEquals("{{ firstWidget.testField }}", fieldValue);
                 })
                 .verifyComplete();
     }

@@ -23,10 +23,11 @@ import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,7 +36,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -92,7 +93,7 @@ public class LayoutServiceTest {
     @SpyBean
     AstService astService;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
@@ -958,7 +959,7 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(testMono)
                 .assertNext(layoutDTO -> {
-                    // We have reached here means we didnt get a throwable. Thats good
+                    // We have reached here means we didn't get a throwable. That's good
                     assertThat(layoutDTO).isNotNull();
                     // Since this is still a bad mustache binding, we couldn't have extracted the action name
                     assertThat(layoutDTO.getLayoutOnLoadActions().size()).isEqualTo(0);
@@ -966,7 +967,7 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
-    @After
+    @AfterEach
     public void purgePages() {
         newPageService.deleteAll();
     }

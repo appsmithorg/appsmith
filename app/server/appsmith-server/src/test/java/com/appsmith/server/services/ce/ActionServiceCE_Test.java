@@ -66,10 +66,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -78,7 +78,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -108,7 +108,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -184,7 +184,7 @@ public class ActionServiceCE_Test {
 
     String branchName;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
 
@@ -259,7 +259,7 @@ public class ActionServiceCE_Test {
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
     }
 
-    @After
+    @AfterEach
     @WithUserDetails(value = "api_user")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
@@ -1744,7 +1744,7 @@ public class ActionServiceCE_Test {
                 "    \"y\": 36000\n" +
                 "  }\n" +
                 "]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1857,7 +1857,8 @@ public class ActionServiceCE_Test {
                 "\t\t\t]\n" +
                 "\t}\n" +
                 "]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1962,7 +1963,8 @@ public class ActionServiceCE_Test {
                 "        \"height\": 200\n" +
                 "    }\n" +
                 "]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2023,7 +2025,8 @@ public class ActionServiceCE_Test {
                 "     \"carID\": \"ford123\"\n" +
                 "       }\n" +
                 "  ]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2066,7 +2069,8 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2109,7 +2113,8 @@ public class ActionServiceCE_Test {
         final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"]," +
                 "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
                 "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2151,7 +2156,8 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[] }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2260,7 +2266,8 @@ public class ActionServiceCE_Test {
                 "        }\n" +
                 "    ]\n" +
                 "}}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2269,10 +2276,10 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.CHART_WIDGET,"users","name","id"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET_V2,"users"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.SELECT_WIDGET,"users","name", "status"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET, "users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.CHART_WIDGET, "users", "name", "id"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, "users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.SELECT_WIDGET, "users", "name", "status"));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -2314,7 +2321,8 @@ public class ActionServiceCE_Test {
                 "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n" +
                 "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
                 "        } }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2376,7 +2384,8 @@ public class ActionServiceCE_Test {
                 "            \"createdAt\": \"2019-10-04T03:22:23.000Z\",\n" +
                 "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n" +
                 "        } }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data);;
+        final JsonNode arrNode = new ObjectMapper().readTree(data);
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2421,7 +2430,8 @@ public class ActionServiceCE_Test {
                 "    \"previous\": null,\n" +
                 "    \"users\": [1, 2, 3]\n" +
                 "}}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2467,7 +2477,8 @@ public class ActionServiceCE_Test {
                 "    \"previous\": null,\n" +
                 "    \"users\": []\n" +
                 "}}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2507,13 +2518,13 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         ArrayList<JSONObject> listData = new ArrayList<>();
-        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width",32, "height", 32));
+        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width", 32, "height", 32));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width",42, "height", 22));
+        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width", 42, "height", 22));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width",52, "height", 12));
+        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width", 52, "height", 12));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width",62, "height", 52));
+        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width", 62, "height", 52));
         listData.add(jsonObject);
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(listData);
@@ -2556,13 +2567,13 @@ public class ActionServiceCE_Test {
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         ArrayList<JSONObject> listData = new ArrayList<>();
-        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width","32", "height", "32"));
+        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width", "32", "height", "32"));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width","42", "height", "22"));
+        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width", "42", "height", "22"));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width","52", "height", "12"));
+        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width", "52", "height", "12"));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width","62", "height", "52"));
+        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width", "62", "height", "52"));
         listData.add(jsonObject);
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(listData);

@@ -26,9 +26,9 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.codec.ByteBufferDecoder;
@@ -47,7 +47,7 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -63,18 +63,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class NewActionServiceCEImplTest {
-    
+
     NewActionServiceCE newActionService;
 
     @MockBean
@@ -124,7 +124,7 @@ public class NewActionServiceCEImplTest {
 
     private Map<String, Object> hints;
 
-    @Before
+    @BeforeEach
     public void setup() {
         newActionService = new NewActionServiceCEImpl(scheduler,
                 validator,
@@ -148,7 +148,7 @@ public class NewActionServiceCEImplTest {
                 permissionGroupService);
     }
 
-    @Before
+    @BeforeEach
     public void createContext() {
         final List<HttpMessageReader<?>> messageReaders = new ArrayList<>();
         messageReaders.add(new DecoderHttpMessageReader<>(new ByteBufferDecoder()));
