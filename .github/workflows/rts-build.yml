@@ -114,6 +114,16 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run test:unit
 
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --frozen-lockfile
+
+      # Run the Jest tests only if the workflow has been invoked in a PR
+      - name: Run the jest tests
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run test:unit
+
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         run: |
