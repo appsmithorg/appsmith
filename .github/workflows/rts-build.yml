@@ -119,6 +119,16 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
           echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --frozen-lockfile
+
+      # Run the Jest tests only if the workflow has been invoked in a PR
+      - name: Run the jest tests
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run test:unit
+
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         run: |

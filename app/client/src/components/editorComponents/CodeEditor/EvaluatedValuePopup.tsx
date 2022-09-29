@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import _ from "lodash";
+import { isObject, isString } from "lodash";
 import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
@@ -10,15 +10,19 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import { ScrollIndicator } from "design-system";
+import { ScrollIndicator, TooltipComponent as Tooltip } from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { TooltipComponent as Tooltip } from "design-system";
 import { Toaster } from "components/ads/Toast";
-import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
+import {
+  Button,
+  Classes,
+  Collapse,
+  Icon,
+  IPopoverSharedProps,
+} from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { IPopoverSharedProps } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
@@ -169,14 +173,17 @@ function CollapseToggle(props: { isOpen: boolean }) {
   );
 }
 
-function copyContent(content: any) {
-  const stringifiedContent = _.isString(content)
+function copyContent(
+  content: any,
+  onCopyContentText = `Evaluated value copied to clipboard`,
+) {
+  const stringifiedContent = isString(content)
     ? content
     : JSON.stringify(content, null, 2);
 
   copy(stringifiedContent);
   Toaster.show({
-    text: `Evaluated value copied to clipboard`,
+    text: onCopyContentText,
     variant: Variant.success,
   });
 }
@@ -267,7 +274,22 @@ export const CurrentValueViewer = memo(
     evaluatedValue: any;
     hideLabel?: boolean;
     preparedStatementViewer?: boolean;
+    /** @param {number} [collapseStringsAfterLength=20]
+     * This collapses the values visible in (say json) after these many characters and shows ellipsis.
+     */
+    collapseStringsAfterLength?: number;
+    /** @param {string} [onCopyContentText=`Evaluated value copied to clipboard`]
+     * This parameter contains the string that is shown when the evaluatedValue is copied.
+     */
+    onCopyContentText?: string;
   }) {
+    /* Setting the default value for collapseStringsAfterLength to 20;
+       This ensures that earlier code that depends on the value keeps working.
+     */
+    const collapseStringsAfterLength = props.collapseStringsAfterLength || 20;
+    /* Setting the default value; ensuring that earlier code keeps working. */
+    const onCopyContentText =
+      props.onCopyContentText || `Evaluated value copied to clipboard`;
     const codeWrapperRef = React.createRef<HTMLPreElement>();
     const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
     const toggleEvaluatedValue = () => {
@@ -281,7 +303,7 @@ export const CurrentValueViewer = memo(
     );
     if (props.evaluatedValue !== undefined) {
       if (
-        _.isObject(props.evaluatedValue) ||
+        isObject(props.evaluatedValue) ||
         Array.isArray(props.evaluatedValue)
       ) {
         if (props.preparedStatementViewer) {
@@ -305,7 +327,7 @@ export const CurrentValueViewer = memo(
               fontSize: "12px",
             },
             collapsed: 2,
-            collapseStringsAfterLength: 20,
+            collapseStringsAfterLength,
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
               return index >= 2;
@@ -347,7 +369,9 @@ export const CurrentValueViewer = memo(
               <CopyIconWrapper
                 colorTheme={props.theme}
                 minimal
-                onClick={() => copyContent(props.evaluatedValue)}
+                onClick={() =>
+                  copyContent(props.evaluatedValue, onCopyContentText)
+                }
               >
                 <CopyIcon height={34} />
               </CopyIconWrapper>

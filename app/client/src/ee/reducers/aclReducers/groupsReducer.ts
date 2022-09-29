@@ -61,16 +61,19 @@ export const groupsReducers = {
     ...state,
     isSaving: action.payload.isSaving,
   }),
-  [ReduxActionTypes.UPDATE_ACL_GROUP]: (state: any) => ({
+  [ReduxActionTypes.UPDATE_ACL_GROUP_NAME]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.UPDATE_ACL_GROUP_ERROR]: (state: any) => ({
+  [ReduxActionTypes.UPDATE_ACL_GROUP_NAME_ERROR]: (state: any) => ({
     ...state,
     isSaving: false,
     isLoading: false,
   }),
-  [ReduxActionTypes.UPDATE_ACL_GROUP_SUCCESS]: (state: any, action: any) => ({
+  [ReduxActionTypes.UPDATE_ACL_GROUP_NAME_SUCCESS]: (
+    state: any,
+    action: any,
+  ) => ({
     ...state,
     selectedGroup: action.payload,
     isSaving: false,

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import Button from "components/editorComponents/Button";
+import { Button, Size } from "design-system";
 import { flushErrors } from "actions/errorActions";
 import PageUnavailableImage from "assets/images/404-image.png";
 
@@ -28,26 +28,26 @@ function ClientError(props: Props) {
   const { flushErrors } = props;
 
   return (
-    <Wrapper>
+    <Wrapper className="space-y-6">
       <img
         alt="Page Unavailable"
         className="page-unavailable-img"
         src={PageUnavailableImage}
       />
-      <div>
+      <div className="space-y-2">
         <p className="bold-text">Whoops something went wrong!</p>
         <p>This is embarrassing, please contact Appsmith support for help</p>
         <Button
+          category="primary"
           className="button-position"
-          filled
-          icon="arrow-right"
+          fill="true"
+          icon="right-arrow"
           iconAlignment="right"
-          intent="primary"
           onClick={() => {
             flushErrors();
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
-          size="small"
+          size={Size.large}
           text="Contact us on discord"
         />
       </div>

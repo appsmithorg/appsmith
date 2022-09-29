@@ -99,4 +99,12 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
                 });
     }
+
+    @Override
+    public Boolean isSendExecuteAnalyticsEvent() {
+        // This is to send analytics event from NewActionService as part of event logging irrespective of telemetry
+        // disabled status.
+        // AnalyticsService would still prevent sending event to Analytics provider if telemetry is disabled
+        return true;
+    }
 }

@@ -42,33 +42,33 @@ export type GroupResponsePayload = BaseAclProps & {
 export type CreateGroupResponse = ApiResponse<GroupResponsePayload>;
 
 export class AclApi extends Api {
-  static aclUsersURL = "/mockUsers";
+  static users = "/v1/users";
   static roles = "/v1/roles";
   static userGroups = "/v1/user-groups";
 
   static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(AclApi.aclUsersURL, "", { baseURL: "/" });
+    const response = await Api.get(AclApi.users);
     return response;
   }
 
   static async fetchSingleAclUser(
     payload: FetchSingleDataPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const res = await Api.get(`${AclApi.aclUsersURL}/${payload.id}`);
+    const res = await Api.get(`${AclApi.users}/${payload.id}`);
     return res;
   }
 
   static createAclUser(request: any): AxiosPromise<ApiResponse> {
-    return Api.post(AclApi.aclUsersURL, request, { baseURL: "/" });
+    return Api.post(AclApi.users, request);
   }
 
   static updateAclUser(request: any): AxiosPromise<ApiResponse> {
-    return Api.patch(AclApi.aclUsersURL, request, { baseURL: "/" });
+    return Api.patch(AclApi.users, request);
   }
 
   static deleteAclUser(id: string): Promise<ApiResponse> {
-    // return Api.delete(AclApi.aclUsersURL, id, { baseURL: "/" });
-    const response = Api.get(AclApi.aclUsersURL, "", { baseURL: "/" });
+    // return Api.delete(AclApi.aclUsersURL, id);
+    const response = Api.get(AclApi.users, "");
     const result = response.then((data) => {
       const user = data.data.filter((user: any) => user?.userId !== id);
       return { responseMeta: { status: 200, success: true }, data: user };
@@ -77,10 +77,7 @@ export class AclApi extends Api {
   }
 
   /*static cloneAclGroup(payload: any): Promise<ApiResponse> {
-    // return Api.post(AclApi.userGroups, request, { baseURL: "/" });
-    const response = Api.get(AclApi.userGroups, "", {
-      baseURL: "/",
-    });
+    const response = Api.get(AclApi.userGroups);
     const clonedData = {
       ...payload,
       id: uniqueId("ug"),
@@ -131,13 +128,12 @@ export class AclApi extends Api {
     return response;
   }
 
-  static async updateAclGroup(
+  static async updateAclGroupName(
     payload: any,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.put(
-      `${AclApi.userGroups}/${payload.id}`,
-      payload,
-    );
+    const response = await Api.put(`${AclApi.userGroups}/${payload.id}`, {
+      name: payload.name,
+    });
     return response;
   }
 

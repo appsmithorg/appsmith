@@ -241,7 +241,6 @@ public class GitExecutorImpl implements GitExecutor {
             while (file.exists()) {
                 FileSystemUtils.deleteRecursively(file);
             }
-
             Git git = Git.cloneRepository()
                     .setURI(remoteUrl)
                     .setTransportConfigCallback(transportConfigCallback)

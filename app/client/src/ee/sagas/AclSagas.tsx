@@ -225,25 +225,27 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
   }
 }*/
 
-export function* updateGroupSaga(action: ReduxAction<any>) {
+export function* updateGroupNameSaga(action: ReduxAction<any>) {
   try {
-    const response: ApiResponse = yield AclApi.updateAclGroup(action.payload);
+    const response: ApiResponse = yield AclApi.updateAclGroupName(
+      action.payload,
+    );
 
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.UPDATE_ACL_GROUP_SUCCESS,
+        type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME_SUCCESS,
         payload: response.data,
       });
     } else {
       yield put({
-        type: ReduxActionTypes.UPDATE_ACL_GROUP_ERROR,
+        type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME_ERROR,
       });
     }
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.UPDATE_ACL_GROUP_ERROR,
+      type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME_ERROR,
     });
   }
 }
@@ -389,7 +391,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
       // takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
       takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
-      takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP, updateGroupSaga),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
     ]);
   }
 }

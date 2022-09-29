@@ -32,11 +32,12 @@ import {
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
   GROUP_UPDATED_SUCCESS,
+  RENAME_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
 import { useDispatch } from "react-redux";
-import { updateGroupById } from "@appsmith/actions/aclActions";
+import { updateGroupName } from "@appsmith/actions/aclActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getFilteredData } from "./utils/getFilteredData";
 
@@ -129,23 +130,19 @@ export function GroupAddEdit(props: GroupEditProps) {
     BaseAclProps[]
   >([]);
   const [addedAllGroups, setAddedAllGroups] = useState<BaseAclProps[]>([]);
-  const [pageTitle, setPageTitle] = useState(selected.name);
 
   const history = useHistory();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const saving =
-      removedActiveGroups.length > 0 ||
-      addedAllGroups.length > 0 ||
-      pageTitle !== selected.name;
+    const saving = removedActiveGroups.length > 0 || addedAllGroups.length > 0;
     dispatch({
       type: ReduxActionTypes.ACL_GROUP_IS_SAVING,
       payload: {
         isSaving: saving,
       },
     });
-  }, [removedActiveGroups, addedAllGroups, pageTitle]);
+  }, [removedActiveGroups, addedAllGroups]);
 
   useEffect(() => {
     setUsers(selected.users || []);
@@ -153,7 +150,6 @@ export function GroupAddEdit(props: GroupEditProps) {
       roles: selected.roles || [],
       allRoles: selected.allRoles || [],
     });
-    setPageTitle(selected.name || "");
   }, [selected]);
 
   const onButtonClick = () => {
@@ -223,14 +219,6 @@ export function GroupAddEdit(props: GroupEditProps) {
     });
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
-    dispatch(
-      updateGroupById({
-        ...selected,
-        allRoles: updatedAllGroups,
-        roles: updatedActiveGroups,
-        name: pageTitle,
-      }),
-    );
     Toaster.show({
       text: createMessage(GROUP_UPDATED_SUCCESS),
       variant: Variant.success,
@@ -240,11 +228,21 @@ export function GroupAddEdit(props: GroupEditProps) {
   const onClearChanges = () => {
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
-    setPageTitle(selected.name);
   };
 
   const onEditTitle = (name: string) => {
-    setPageTitle(name);
+    if (selected.name !== name) {
+      dispatch(
+        updateGroupName({
+          ...selected,
+          name,
+        }),
+      );
+      Toaster.show({
+        text: createMessage(RENAME_SUCCESSFUL),
+        variant: Variant.success,
+      });
+    }
   };
 
   const onDeleteHandler = () => {
@@ -413,7 +411,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
-        title={pageTitle}
+        title={selected.name}
       />
       <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
         <TabComponent

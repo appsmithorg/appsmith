@@ -1,105 +1,37 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.ArrayList;
 
 @Data
 @ToString
 @Document
+@NoArgsConstructor
 public class AuditLog extends BaseDomain {
-    String eventName;
+    String event;
 
-    Instant eventDate;
+    Instant timestamp;
 
-    ApplicationInfo application;
+    AuditLogApplicationMetadata application;
 
-    Git git;
+    AuditLogWorkpsaceMetadata workspace;
 
-    WorkspaceInfo workspace;
+    AuditLogMetadata metadata;
 
-    Metadata metadata;
+    AuditLogResource resource;
 
-    Resource resource;
+    AuditLogUserMetadata user;
 
-    UserInfo user;
+    AuditLogPageMetadata page;
 
-    public AuditLog() {
-        this.application = new ApplicationInfo();
-        this.git = new Git();
-        this.workspace = new WorkspaceInfo();
-        this.metadata = new Metadata();
-        this.resource = new Resource();
-        this.user = new UserInfo();
-    }
+    AuditLogAuthenticationMetadata authentication;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class ApplicationInfo {
-        String id;
-
-        String name;
-
-        Git git;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class Git {
-        String branch;
-
-        String defaultBranch;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class WorkspaceInfo {
-        String id;
-
-        String name;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class Metadata {
-        String ipAddress;
-
-        String appsmithVersion;
-
-        Instant createdAt;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class Resource {
-        String id;
-
-        String type;
-
-        String name;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class UserInfo {
-        String id;
-
-        String email;
-
-        String name;
-
-        String ipAddress;
-    }
-
+    // Invited users list for user.invited event
+    ArrayList<String> invitedUsers;
 }

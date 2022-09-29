@@ -6,6 +6,7 @@ type FeatureFlags = {
   GIT?: boolean;
   GIT_IMPORT?: boolean;
   RBAC?: boolean;
+  AUDIT_LOGS?: boolean;
 };
 
 export default FeatureFlags;

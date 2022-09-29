@@ -37,6 +37,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     public void createPolicyGraph() {
         super.createPolicyGraph();
         createTenantPolicyGraph();
+        createAuditLogPolicyGraph();
         createUserGroupPolicies();
     }
 
@@ -58,6 +59,10 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         // Given edit, we must give view
         lateralGraph.addEdge(TENANT_MANAGE_PERMISSION_GROUPS, TENANT_READ_PERMISSION_GROUPS);
         lateralGraph.addEdge(TENANT_MANAGE_USER_GROUPS, TENANT_READ_USER_GROUPS);
+    }
+
+    private void createAuditLogPolicyGraph() {
+        hierarchyGraph.addEdge(AclPermission.READ_TENANT_AUDIT_LOGS, AclPermission.READ_AUDIT_LOGS);
     }
 
     @Override
