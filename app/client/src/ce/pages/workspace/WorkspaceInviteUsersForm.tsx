@@ -341,8 +341,10 @@ export const OptionWrapper = styled.div<{
       }
     }
   }
-  &:hover {
-    background-color: ${(props) => props.selectedHighlightBg || `initial`};
+  &:hover,
+  &.highlighted {
+    background-color: ${(props) =>
+      props.selectedHighlightBg || `var(--appsmith-color-black-200)`};
     &&& svg {
       rect {
         fill: ${(props) => props.theme.colors.textOnDarkBG};
@@ -626,12 +628,14 @@ function WorkspaceInviteUsersForm(props: any) {
 
   const renderOption = ({
     index,
+    isHighlighted,
     option,
     optionClickHandler,
   }: {
     index?: number;
     option: DropdownOption | DropdownOption[];
     optionClickHandler?: (dropdownOption: DropdownOption) => void;
+    isHighlighted?: boolean;
   }) => {
     let isSelected = false;
     if (props.isMultiSelect && Array.isArray(selected) && selected.length) {
@@ -660,7 +664,9 @@ function WorkspaceInviteUsersForm(props: any) {
         >
           <OptionWrapper
             aria-selected={isSelected}
-            className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
+            className={`t--dropdown-option ${isSelected ? "selected" : ""} ${
+              isHighlighted ? "highlighted" : ""
+            }`}
             data-cy={`t--dropdown-option-${option?.label}`}
             disabled={option.disabled}
             key={index}

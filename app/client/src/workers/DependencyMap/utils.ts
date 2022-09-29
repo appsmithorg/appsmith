@@ -7,7 +7,7 @@ import {
   getDynamicBindings,
   extraLibrariesNames,
 } from "utils/DynamicBindingUtils";
-import { extractInfoFromCode } from "@shared/ast";
+import { extractIdentifierInfoFromCode } from "@shared/ast";
 import { convertPathToString, isWidget } from "../evaluationUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
@@ -31,7 +31,7 @@ export const extractInfoFromBinding = (
   script: string,
   allPaths: Record<string, true>,
 ): { validReferences: string[]; invalidReferences: string[] } => {
-  const { references } = extractInfoFromCode(
+  const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
     invalidEntityIdentifiers,
