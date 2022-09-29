@@ -100,26 +100,6 @@
         return window.localStorage.setItem(key, value);
       }
     };
-
-    window.onerror = function(...args) {
-      console.log({ args })
-      const regex = /\/static\/js\/(\w.+).js$/;
-      const chunkLoadErrorMessage = "Unexpected token '<'"
-      if(regex.test(url) && url.indexOf(window.location.host) > -1 && message.includes(chunkLoadErrorMessage)) {
-        console.log("match")
-        // console.error("chunk load failed!", url);
-        // // First check if we've set the flag to not reload on chunk load fail
-        // const donotReload = localStorageUtil.getItem("donotReloadOnChunkLoadFail");
-        // if(!donotReload){
-        //   // If donotReload is set to false or undefined, we can set it to true and reload
-        //   // This signifies that this is the first time this happened in this session.
-        //   localStorageUtil.setItem("donotReloadOnChunkLoadFail", true);
-        //   window.location.assign(window.location.href);
-        // }
-      }
-      return true;
-    };
-
     window.addEventListener("DOMContentLoaded", (event) => {
       document.getElementById("loader").style.width = "50vw";
     });
