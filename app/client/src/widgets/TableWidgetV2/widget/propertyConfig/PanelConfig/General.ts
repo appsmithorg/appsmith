@@ -81,7 +81,7 @@ export default {
       dependencies: ["primaryColumns", "columnType"],
       label: "Cell Wrapping",
       helpText: "Allows content of the cell to be wrapped",
-      defaultValue: true,
+      defaultValue: false,
       controlType: "SWITCH",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
