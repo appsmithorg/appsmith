@@ -3,6 +3,7 @@
 set -o errexit
 
 cd "$(dirname "$0")"
+rm -rf dist/
 yarn install --frozen-lockfile
 npx tsc && npx tsc-alias
 # Copying node_modules directory into dist as rts server requires node_modules to run server build properly. 
