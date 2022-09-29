@@ -163,6 +163,28 @@ public class MongoPluginTest {
                                         "state", "UP"
                                 ))
                         ))).block();
+
+
+                        final MongoCollection<Document> teamCollection = mongoClient.getDatabase("test")
+                                .getCollection("teams");
+                        Mono.from(teamCollection.insertMany(List.of(
+                                new Document(Map.of(
+                                        "name", "Noisy Neighbours 2",
+                                        "goals_allowed", "20",
+                                        "goals_forwarded", "41",
+                                        "goal_difference", "+21",
+                                        "xGD", "-2.5",
+                                        "best_scoreline", "5-2"
+                                )),
+                                new Document(Map.of(
+                                        "name", "Red Side of the city",
+                                        "goals_allowed", "35",
+                                        "goals_forwarded", "28",
+                                        "goal_difference", "-7",
+                                        "xGD" , "+3.6",
+                                        "best_scoreline", "8-3"
+                                ))
+                        ))).block();
                     }
                     return Mono.empty();
                 }).block();
@@ -558,8 +580,9 @@ public class MongoPluginTest {
                                     -> t2.getName().compareTo(t1.getName())
                     );
                     assertNotNull(structure);
-                    assertEquals(2, structure.getTables().size());
+                    assertEquals(3, structure.getTables().size());
 
+                    // now there are three tables named <users, teams, address>
                     final DatasourceStructure.Table usersTable = structure.getTables().get(0);
                     assertEquals("users", usersTable.getName());
                     assertEquals(DatasourceStructure.TableType.COLLECTION, usersTable.getType());
@@ -2852,4 +2875,185 @@ public class MongoPluginTest {
         assertEquals(1, strings.size());
         assertTrue(strings.contains("Missing default database name."));
     }
+
+    @Test
+    public void testRegexStringQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"users\", \n " +
+                "filter: {\"name\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "[a-zA-Z]{0,3}.*Ci.*")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testRegexNumberQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"goals_allowed\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "35")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRegexStringWithNumbersQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"best_scoreline\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "5-.*")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    System.out.println(actionExecutionResult.getBody());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRegexNegativeNumbersQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"goal_difference\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-7")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    System.out.println(actionExecutionResult.getBody());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testRegexNegativeDecimalNumberQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"xGD\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-2.5")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    System.out.println(actionExecutionResult.getBody());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
 }
