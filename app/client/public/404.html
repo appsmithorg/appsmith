@@ -22,22 +22,19 @@
     <p class="bold-text">We couldn’t load some JavaScript files for the operation.</p>
     <p>A refresh usually works, but sometimes, it may take us a bit to get those files for you.</p>
     <div class="button-container">
-      <span class="button" onclick="history.back()">Refresh</span>
-      <span class="button" onclick="tryAgain()">Try again later</span>
+      <span class="button primary" onclick="refresh()">Refresh</span>
     </div>
-    <div class="try-again-container"></div>
+    <div class="try-again-container">
+      <p class="try-again-text">Trying again in 2 minutes</p>
+    </div>
   </div>
   </body>
 <script type="application/javascript">
-  function tryAgain() {
-    document.getElementsByClassName("button-container")[0].remove()
-    const message = document.createElement("p");
-    message.innerText = "Trying again in 2 minutes...";
-    document.getElementsByClassName("try-again-container")[0].appendChild(message)
-    setTimeout(() => {
-      console.log("Hey");
-      history.back();
-    },5000)
+  setTimeout(() => {
+    refresh();
+  },120000);
+  function refresh() {
+    history.back();
   }
 </script>
 </html>

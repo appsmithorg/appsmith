@@ -82,9 +82,6 @@ body, html {
   text-decoration: none;
   outline: none;
   text-transform: uppercase;
-  background-color: #f86a2b;
-  color: #fff;
-  border: 1.2px solid #f86a2b;
   border-radius: 0;
   font-size: 13px;
   font-weight: 600;
@@ -99,4 +96,43 @@ body, html {
   justify-content: center;
   position: relative;
   cursor: pointer;
+}
+
+.primary {
+  background-color: #f86a2b;
+  color: #fff;
+  border: 1.2px solid #f86a2b;
+}
+
+.secondary {
+  text-transform: uppercase;
+  background-color: transparent;
+  color: #f86a2b;
+  border: 1.2px solid #f86a2b;
+}
+
+.try-again-container {
+  width: 200px;
+}
+
+.try-again-text:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0px;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 1.25em;
+  }
 }
