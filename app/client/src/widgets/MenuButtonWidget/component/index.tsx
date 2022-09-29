@@ -13,7 +13,7 @@ import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 
-import { darkenActive, darkenHover, theme } from "constants/DefaultTheme";
+import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import {
   ButtonPlacement,
   ButtonVariant,

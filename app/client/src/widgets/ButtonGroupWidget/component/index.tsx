@@ -20,7 +20,6 @@ import {
 } from "components/constants";
 import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
-import { Colors } from "constants/Colors";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
