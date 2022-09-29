@@ -4,15 +4,14 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
-import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.EnvVariables;
-import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -24,12 +23,14 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.apache.commons.lang3.EnumUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -49,10 +50,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +67,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
@@ -106,6 +110,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final UserUtils userUtils;
 
+    private final TenantService tenantService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -134,7 +142,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             FileUtils fileUtils,
                             PermissionGroupService permissionGroupService,
                             ConfigService configService,
-                            UserUtils userUtils) {
+                            UserUtils userUtils,
+                            TenantService tenantService) {
 
         this.sessionUserService = sessionUserService;
         this.userService = userService;
@@ -150,6 +159,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.permissionGroupService = permissionGroupService;
         this.configService = configService;
         this.userUtils = userUtils;
+        this.tenantService = tenantService;
     }
 
     /**
@@ -164,7 +174,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public List<String> transformEnvContent(String envContent, Map<String, String> changes) {
         final Set<String> variablesNotInWhitelist = new HashSet<>(changes.keySet());
+        final Set<String> tenantConfigWhitelist = allowedTenantConfiguration();
+
+        // We remove all the variables that aren't defined in our env variable whitelist or in the TenantConfiguration
+        // class. This is because the configuration can be saved either in the .env file or the tenant collection
         variablesNotInWhitelist.removeAll(VARIABLE_WHITELIST);
+        variablesNotInWhitelist.removeAll(tenantConfigWhitelist);
 
         if (!variablesNotInWhitelist.isEmpty()) {
             throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
@@ -231,49 +246,49 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.empty();
     }
 
-    /**
-     * This function iterates over all the changes and checks if any of the changes contains configuration variables.
-     * This function operates under the assumption that any changes being sent by the client will either have
-     * configuration variable changes or .env variable changes.
-     *
-     * @param changes The changes that the user would like to make
-     * @return boolean
-     */
-    private boolean doChangesContainConfigNames(Map<String, String> changes) {
-        return changes.keySet().stream()
-                .anyMatch(key -> EnumUtils.isValidEnum(ConfigNames.class, key));
+    private Set<String> allowedTenantConfiguration() {
+        Field[] fields = TenantConfiguration.class.getDeclaredFields();
+        return Arrays.stream(fields)
+                .map(field -> {
+                    JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
+                    return jsonProperty.value();
+                }).collect(Collectors.toSet());
+    }
+
+    private void setConfigurationByKey(TenantConfiguration tenantConfiguration, String key, String value) {
+        Field[] fields = tenantConfiguration.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
+            if (jsonProperty != null && jsonProperty.value().equals(key)) {
+                try {
+                    field.setAccessible(true);
+                    field.set(tenantConfiguration, value);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        // Write the changes to the tenant collection in configuration field
+        return Flux.fromStream(changes.entrySet().stream())
+                .map(map -> {
+                    String key = map.getKey();
+                    String value = map.getValue();
+                    setConfigurationByKey(tenantConfiguration, key, value);
+                    return map;
+                })
+                .then(Mono.just(tenantConfiguration))
+                .flatMap(updatedTenantConfig -> tenantService.updateTenantConfiguration(tenantId, tenantConfiguration));
     }
 
     @Override
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
-        // For configuration variables, save the variables to the config collection instead of .env file
-        // We ideally want to migrate all variables from .env file to the config collection for better scalability
-        // Currently, we assume that we will either get changes pertaining either to configuration variables or env variables
-        if (doChangesContainConfigNames(changes)) {
-            return verifyCurrentUserIsSuper()
-                    .flatMap(user -> validateConfigChanges(user, changes).thenReturn(user))
-                    .flatMap(user -> {
-                        // Write the changes to the config collection
-                        return Flux.fromStream(changes.entrySet().stream())
-                                .filter(map -> EnumUtils.isValidEnum(ConfigNames.class, map.getKey()))
-                                .flatMap(map -> {
-                                    String key = map.getKey();
-                                    String value = map.getValue();
-                                    // The configuration variables will be a JSON object of the form { "value": <actual value> }
-                                    Map<String, String> configMap = Map.of("value", value);
-                                    Config config = new Config(new JSONObject(configMap), key);
-                                    return configService.save(config);
-                                })
-                                .collectList()
-                                // TODO: Currently we aren't sending original variables to the analytics
-                                .thenReturn(sendAnalyticsEvent(user, Map.of(), changes))
-                                .thenReturn(new EnvChangesResponseDTO(false));
-                    });
-        }
-
-        // This flow is pertinent for any variables that need to change in the .env file
-        return verifyCurrentUserIsSuper()
-                .flatMap(user -> validateChanges(user, changes).thenReturn(user))
+        // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
+        return verifyCurrentUserIsSuper().
+                flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
                     // Write the changes to the env file.
                     final String originalContent;
@@ -295,7 +310,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return Mono.error(e);
                     }
 
-                    return sendAnalyticsEvent(user, originalVariables, changes).thenReturn(originalVariables);
+                    // For configuration variables, save the variables to the config collection instead of .env file
+                    // We ideally want to migrate all variables from .env file to the config collection for better scalability
+                    // Write the changes to the tenant collection in configuration field
+                    return updateTenantConfiguration(user.getTenantId(), changes)
+                            .then(sendAnalyticsEvent(user, originalVariables, changes))
+                            .thenReturn(originalVariables);
                 })
                 .flatMap(originalValues -> {
                     Mono<Void> dependentTasks = Mono.empty();
@@ -522,26 +542,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
                     }
 
-                    // Add the variables from the config collection to be returned to the client
-                    List<String> configList = EnumUtils.getEnumList(ConfigNames.class)
-                            .stream()
-                            .map(config -> config.name())
-                            .collect(Collectors.toList());
+                    // Add the variables from the tenant configuration to be returned to the client
+                    Mono<Tenant> tenantMono = tenantService.findById(user.getTenantId(), MANAGE_TENANT);
 
-                    Mono<Map<String, String>> configMapMono;
-
-                    if (!CollectionUtils.isNullOrEmpty(configList)) {
-                        configMapMono = configService.getByNames(configList)
-                                .collectMap(config -> config.getName(), config -> config.getConfig().getAsString("value"));
-                    } else {
-                        configMapMono = Mono.just(new HashMap<>());
-                    }
-
-                    return Mono.zip(Mono.justOrEmpty(envKeyValueMap), configMapMono)
+                    return Mono.zip(Mono.justOrEmpty(envKeyValueMap), tenantMono)
                             .map(tuple -> {
                                 Map<String, String> envFileMap = tuple.getT1();
-                                Map<String, String> configMap = tuple.getT2();
-
+                                Tenant tenant = tuple.getT2();
+                                Map<String, String> configMap = objectMapper.convertValue(tenant.getTenantConfiguration(), new TypeReference<>() {
+                                });
                                 Map<String, String> envMap = new HashMap<>();
                                 envMap.putAll(envFileMap);
                                 envMap.putAll(configMap);

@@ -15,12 +15,14 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -71,6 +73,9 @@ public class EnvManagerTest {
     @MockBean
     private UserUtils userUtils;
 
+    @Autowired
+    private TenantService tenantService;
+
     EnvManager envManager;
 
     @Before
@@ -88,7 +93,8 @@ public class EnvManagerTest {
                 fileUtils,
                 permissionGroupService,
                 configService,
-                userUtils);
+                userUtils,
+                tenantService);
     }
 
     @Test
@@ -312,7 +318,7 @@ public class EnvManagerTest {
         Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
 
         // create a temp file for docker env
-        File file = File.createTempFile( "envmanager-test-docker-file", "env");
+        File file = File.createTempFile("envmanager-test-docker-file", "env");
         file.deleteOnExit();
 
         Mockito.when(commonConfig.getEnvFilePath()).thenReturn(file.getAbsolutePath());

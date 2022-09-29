@@ -8,14 +8,11 @@ import com.appsmith.server.domains.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 
 public interface ConfigServiceCE {
 
     Mono<Config> getByName(String name);
-
-    Flux<Config> getByNames(List<String> names);
 
     Mono<Config> updateByName(Config config);
 

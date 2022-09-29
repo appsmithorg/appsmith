@@ -7,11 +7,13 @@ import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +37,11 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           FileUtils fileUtils,
                           PermissionGroupService permissionGroupService,
                           ConfigService configService,
-                          UserUtils userUtils) {
+                          UserUtils userUtils,
+                          TenantService tenantService) {
 
-            super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
-                    emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                    userUtils);
+        super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
+                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
+                userUtils, tenantService);
     }
 }
