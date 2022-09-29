@@ -1518,7 +1518,6 @@ public class AuditLogServiceTest {
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         String pluginId = pluginRepository.findByPackageName("restapi-plugin").block().getId();
-        ;
         datasource.setPluginId(pluginId);
 
         return datasourceService.create(datasource).block();
