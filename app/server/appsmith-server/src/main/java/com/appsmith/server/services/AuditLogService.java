@@ -38,4 +38,6 @@ public interface AuditLogService {
      * @return String resource type name
      */
     String getResourceType(Object resource);
+
+    Mono<List<String>> getAllUsers();
 }

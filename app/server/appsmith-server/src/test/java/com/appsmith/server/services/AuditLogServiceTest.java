@@ -275,6 +275,19 @@ public class AuditLogServiceTest {
 
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllUsers_allUsers_success() {
+        Mono<List<String>> usersMono = auditLogService.getAllUsers();
+
+        StepVerifier
+                .create(usersMono)
+                .assertNext(users -> {
+                    assertThat(users).containsAll(List.of("api_user", "anonymousUser"));
+                })
+                .verifyComplete();
+    }
+
     private MultiValueMap<String, String> getAuditLogRequest(String emails, String events, String resourceType, String resourceId, String sortOrder, String cursor, String numberOfDays) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (emails != null && !emails.isEmpty()) {

@@ -269,6 +269,11 @@ public class AuditLogServiceImpl implements AuditLogService {
         });
     }
 
+    @Override
+    public Mono<List<String>> getAllUsers() {
+        return userRepository.getAllUserEmail().collectList();
+    }
+
      /**
      * @param auditLog AuditLog domain object
      * @param event Corresponding AnalyticEvent
