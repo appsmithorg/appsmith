@@ -143,7 +143,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage("Failed to execute actions during page load"); //When Confirmation is NO
+    agHelper.ValidateToastMessage(`${jsName + ".getEmployee"} was cancelled`);
     table.WaitForTableEmpty();
     agHelper.RefreshPage();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
@@ -152,7 +152,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    // agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });
@@ -318,7 +318,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       );
       agHelper.ClickButton("No");
       agHelper.WaitUntilToastDisappear(
-        "Failed to execute actions during page load",
+        `${jsName + ".callTrump"} was cancelled`,
       ); //When Confirmation is NO validate error toast!
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
@@ -368,8 +368,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       jsEditor._dialogBody((jsName as string) + ".callTrump"),
     );
     agHelper.ClickButton("No");
-    agHelper.AssertContains("Failed to execute actions during page load");
-
+    agHelper.AssertContains(`${jsName + ".callTrump"} was cancelled`);
     ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);

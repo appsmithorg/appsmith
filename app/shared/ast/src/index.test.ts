@@ -1,4 +1,4 @@
-import { extractInfoFromCode } from "../src/index";
+import { extractIdentifierInfoFromCode } from "../src/index";
 import { parseJSObjectWithAST } from "../src/jsObject";
 
 describe("getAllIdentifiers", () => {
@@ -303,7 +303,7 @@ describe("getAllIdentifiers", () => {
 
     // commenting to trigger test shared workflow action
     cases.forEach((perCase) => {
-      const { references } = extractInfoFromCode(
+      const { references } = extractIdentifierInfoFromCode(
         perCase.script,
         2,
         perCase.invalidIdentifiers

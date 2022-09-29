@@ -433,7 +433,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(deletedApplication -> {
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.APPLICATION, deletedApplication
+                    );
+                    final Map<String, Object> data = Map.of(
+                            FieldName.EVENT_DATA, eventData
+                    );
+
+                    return analyticsService.sendDeleteEvent(deletedApplication, data);
+                });
     }
 
     @Override
@@ -836,7 +846,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
 
                     Mono<PageDTO> archivedPageMono = newPageMono
-                            .flatMap(analyticsService::sendDeleteEvent)
+                            .flatMap(newPage -> {
+                                final Map<String, Object> eventData = Map.of(
+                                        FieldName.APP_MODE, ApplicationMode.EDIT.toString()
+                                );
+                                final Map<String, Object> data = Map.of(
+                                        FieldName.EVENT_DATA, eventData
+                                );
+
+                                return analyticsService.sendDeleteEvent(newPage, data);
+                            })
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
                     /**
@@ -1028,6 +1047,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("isManual", defaultIfNull(isPublishedManually, ""));
                     extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
 
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APPLICATION, application,
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString()
+                    );
+                    extraProperties.put(FieldName.EVENT_DATA, eventData);
+
                     return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);
                 });
     }
@@ -1072,6 +1097,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return applicationRepository
                             .setPages(application.getId(), pages)
+                            .flatMap(updateResult -> sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
@@ -1120,7 +1146,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     final Map<String, Object> eventData = Map.of(
                             FieldName.SOURCE_APPLICATION, sourceApplication,
                             FieldName.APPLICATION, application,
-                            FieldName.WORKSPACE, workspace
+                            FieldName.WORKSPACE, workspace,
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString()
                     );
 
                     final Map<String, Object> data = Map.of(
@@ -1141,12 +1168,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return NewPage
      */
     private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
-        if (!viewMode) {
-            return Mono.empty();
-        }
-
+        String view = viewMode ? ApplicationMode.EDIT.toString() : ApplicationMode.PUBLISHED.toString();
         final Map<String, Object> eventData = Map.of(
-                FieldName.PAGE, newPage
+                FieldName.PAGE, newPage,
+                FieldName.APP_MODE, view
         );
 
         final Map<String, Object> data = Map.of(
@@ -1154,5 +1179,24 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         );
 
         return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);
+    }
+
+    private Mono<Application> sendPageOrderAnalyticsEvent(Application application, String pageId, int order, String branchName) {
+        final Map<String, Object> eventData = Map.of(
+                FieldName.APPLICATION, application,
+                FieldName.APP_MODE, ApplicationMode.EDIT.toString()
+        );
+
+        final Map<String, Object> data = Map.of(
+                FieldName.APPLICATION_ID, application.getId(),
+                FieldName.WORKSPACE_ID, application.getWorkspaceId(),
+                FieldName.PAGE_ID, pageId,
+                FieldName.PAGE_ORDER, order,
+                FieldName.EVENT_DATA, eventData,
+                FieldName.BRANCH_NAME, defaultIfNull(branchName, "")
+        );
+
+        return analyticsService.sendObjectEvent(AnalyticsEvents.PAGE_REORDER, application, data);
+
     }
 }

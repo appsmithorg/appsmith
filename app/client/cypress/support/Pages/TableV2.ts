@@ -75,10 +75,14 @@ export class TableV2 {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown";
   private _downloadBtn = ".t--table-download-btn";
   private _downloadOption = ".t--table-download-data-option";
+  private _tableWidgetV2 = ".t--widget-tablewidgetv2";
+  private _propertyPaneBackBtn = ".t--property-pane-back-btn";
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
     "']/ancestor::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+  _columnSettingsV2 = (columnName: string) =>
+    `.t--property-pane-view .tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id=${columnName}] .t--edit-column-btn`;
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
 
@@ -301,6 +305,16 @@ export class TableV2 {
     this.agHelper.GetNClick(this._columnSettings(columnName));
     this.agHelper.SelectDropdownList("Column Type", newDataType);
     this.agHelper.ValidateNetworkStatus("@updateLayout");
+  }
+
+  public ChangeColumnTypeV2(columnName: string, newDataType: columnTypeValues) {
+    cy.get(this._tableWidgetV2)
+      .click()
+      .then(() => {
+        cy.get(this._columnSettingsV2(columnName)).click();
+        this.agHelper.SelectDropdownList("Column Type", newDataType);
+        cy.get(this._propertyPaneBackBtn).click();
+      });
   }
 
   public AssertURLColumnNavigation(

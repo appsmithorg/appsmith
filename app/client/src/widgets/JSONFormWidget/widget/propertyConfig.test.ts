@@ -10,7 +10,7 @@ describe(".generatePanelPropertyConfig", () => {
   it("ACTION_SELECTOR control field should not have customJSControl and have additionalAutoComplete", (done) => {
     const panelConfig = generatePanelPropertyConfig(1);
 
-    panelConfig?.children.forEach((section) => {
+    panelConfig?.children?.forEach((section) => {
       if ("sectionName" in section) {
         section.children?.forEach((property) => {
           if ("propertyName" in property) {
