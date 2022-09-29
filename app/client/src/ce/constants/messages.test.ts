@@ -144,7 +144,7 @@ describe("messages without input", () => {
     },
     {
       key: "REMOTE_URL_INPUT_PLACEHOLDER",
-      value: "git@example.com:user/repo.git",
+      value: "git@example.com:user/repository.git",
     },
     { key: "COPIED_SSH_KEY", value: "Copied SSH key" },
     {
@@ -262,11 +262,11 @@ describe("messages without input", () => {
     {
       key: "ERROR_GIT_AUTH_FAIL",
       value:
-        "Please make sure that regenerated SSH key is added and has write access to the repo.",
+        "Please make sure that regenerated SSH key is added and has write access to the repository.",
     },
     {
       key: "ERROR_GIT_INVALID_REMOTE",
-      value: "Remote repo doesn't exist or is unreachable.",
+      value: "Either the remote repository doesn't exist or is unreachable.",
     },
     {
       key: "CHANGES_ONLY_USER",

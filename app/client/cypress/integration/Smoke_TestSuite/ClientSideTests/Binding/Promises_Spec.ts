@@ -357,7 +357,13 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
     agHelper.ClickButton("Submit");
-    agHelper.Sleep(1000);
-    agHelper.ValidateToastMessage("Today's quote for You");
+    agHelper
+      .GetNAssertContains(
+        locator._toastMsg,
+        /Today's quote for You|Unable to fetch quote for/g,
+      )
+      .then(($ele: string | JQuery<HTMLElement>) =>
+        agHelper.AssertElementLength($ele, 1),
+      );
   });
 });

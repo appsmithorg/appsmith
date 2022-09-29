@@ -59,14 +59,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Autowired
     public NewPageServiceCEImpl(Scheduler scheduler,
-                              Validator validator,
-                              MongoConverter mongoConverter,
-                              ReactiveMongoTemplate reactiveMongoTemplate,
-                              NewPageRepository repository,
-                              AnalyticsService analyticsService,
-                              ApplicationService applicationService,
-                              UserDataService userDataService,
-                              ResponseUtils responseUtils) {
+                                Validator validator,
+                                MongoConverter mongoConverter,
+                                ReactiveMongoTemplate reactiveMongoTemplate,
+                                NewPageRepository repository,
+                                AnalyticsService analyticsService,
+                                ApplicationService applicationService,
+                                UserDataService userDataService,
+                                ResponseUtils responseUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
@@ -223,7 +223,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(application);
                 }).flatMap(application -> {
-                    if(markApplicationAsRecentlyAccessed) {
+                    if (markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
                         return userDataService.updateLastUsedAppAndWorkspaceList(application)
                                 .thenReturn(application);
@@ -243,8 +243,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         applicationPages = application.getPages();
                     }
 
-                    for (ApplicationPage applicationPage:applicationPages)
-                    {
+                    for (ApplicationPage applicationPage : applicationPages) {
                         if (Boolean.TRUE.equals(applicationPage.getIsDefault())) {
                             defaultPageId = applicationPage.getId();
                         }
@@ -264,7 +263,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 })
                 .flatMapMany(pageIds -> repository.findAllByIds(pageIds, READ_PAGES))
                 .collectList()
-                .flatMap( pagesFromDb -> Mono.zip(
+                .flatMap(pagesFromDb -> Mono.zip(
                         Mono.just(pagesFromDb),
                         defaultPageIdMono,
                         applicationMono
@@ -278,14 +277,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     Map<String, Integer> pagesOrder = new HashMap<>();
                     Map<String, Integer> publishedPagesOrder = new HashMap<>();
 
-                    if(Boolean.TRUE.equals(view)) {
-                        for (int i = 0; i < publishedPages.size(); i++)
-                        {
+                    if (Boolean.TRUE.equals(view)) {
+                        for (int i = 0; i < publishedPages.size(); i++) {
                             publishedPagesOrder.put(publishedPages.get(i).getId(), i);
                         }
                     } else {
-                        for (int i = 0; i < pages.size(); i++)
-                        {
+                        for (int i = 0; i < pages.size(); i++) {
                             pagesOrder.put(pages.get(i).getId(), i);
                         }
                     }
@@ -323,7 +320,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         }
                         pageNameIdDTOList.add(pageNameIdDTO);
                     }
-                    if(Boolean.TRUE.equals(view)) {
+                    if (Boolean.TRUE.equals(view)) {
                         Collections.sort(pageNameIdDTOList,
                                 Comparator.comparing(item -> publishedPagesOrder.get(item.getId())));
                     } else {
@@ -445,7 +442,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(dbPage -> {
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
-                    if(!StringUtils.isEmpty(page.getName())) {
+                    if (!StringUtils.isEmpty(page.getName())) {
                         dbPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(page.getName()));
                     }
                     return this.update(pageId, dbPage);
@@ -502,9 +499,9 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
 
-        if (StringUtils.isEmpty(defaultPageId)) {
+        if (!StringUtils.hasText(defaultPageId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
-        } else if (StringUtils.isEmpty(branchName)) {
+        } else if (!StringUtils.hasText(branchName)) {
             return this.findById(defaultPageId, permission)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
@@ -518,8 +515,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
-        if (StringUtils.isEmpty(branchName)) {
-            if (StringUtils.isEmpty(defaultPageId)) {
+        if (!StringUtils.hasText(branchName)) {
+            if (!StringUtils.hasText(defaultPageId)) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
             return Mono.just(defaultPageId);
@@ -547,7 +544,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
                 )
                 .map(newPage -> {
-                    if(newPage.getDefaultResources() != null) {
+                    if (newPage.getDefaultResources() != null) {
                         return newPage.getDefaultResources().getApplicationId();
                     } else {
                         return newPage.getApplicationId();
@@ -570,18 +567,19 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
      * If Application ID is present, it'll fetch all pages of that application in the provided mode.
      * if Page ID is present, it'll fetch all pages of the corresponding Application.
      * If both IDs are present, it'll use the Application ID only and ignore the Page ID
+     *
      * @param applicationId Id of the application
-     * @param pageId id of a page
-     * @param branchName name of the current branch
-     * @param mode In which mode it's in
+     * @param pageId        id of a page
+     * @param branchName    name of the current branch
+     * @param mode          In which mode it's in
      * @return List of ApplicationPagesDTO
      */
     @Override
     public Mono<ApplicationPagesDTO> findApplicationPages(String applicationId, String pageId, String branchName, ApplicationMode mode) {
         boolean isViewMode = (mode == ApplicationMode.PUBLISHED);
-        if(StringUtils.hasLength(applicationId)) {
+        if (StringUtils.hasLength(applicationId)) {
             return findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, isViewMode, true);
-        } else if(StringUtils.hasLength(pageId)) {
+        } else if (StringUtils.hasLength(pageId)) {
             return findRootApplicationIdFromNewPage(branchName, pageId)
                     .flatMap(rootApplicationId -> findApplicationPagesByApplicationIdViewModeAndBranch(rootApplicationId, branchName, isViewMode, true))
                     ;
