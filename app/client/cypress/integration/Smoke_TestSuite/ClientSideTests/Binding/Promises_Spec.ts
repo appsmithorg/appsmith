@@ -357,6 +357,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
     agHelper.ClickButton("Submit");
+    agHelper.Sleep(1000);
     agHelper
       .GetNAssertContains(
         locator._toastMsg,
