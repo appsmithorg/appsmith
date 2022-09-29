@@ -9,7 +9,7 @@ describe("Property configuration search", () => {
   };
   const config: PropertyPaneConfig[] = [
     {
-      sectionName: "A",
+      sectionName: "Section One",
       children: [
         {
           label: "Disable Invalid Forms",
@@ -49,7 +49,7 @@ describe("Property configuration search", () => {
       ],
     },
     {
-      sectionName: "B",
+      sectionName: "Section Two",
       children: [
         {
           label: "Button Color",
@@ -92,7 +92,7 @@ describe("Property configuration search", () => {
     const result = searchProperty(config, "animate");
     expect(result).toEqual([
       {
-        sectionName: "A",
+        sectionName: "Section One",
         children: [
           {
             label: "Animate Loading",
@@ -103,102 +103,63 @@ describe("Property configuration search", () => {
       },
     ]);
   });
-  // it("Validates search order for multiple matching items", () => {
-  //   let result = searchProperty(config, "visible");
-  //   expect(result).toEqual([
-  //     {
-  //       sectionName: "A",
-  //       children: [
-  //         {
-  //           label: "Visible",
-  //           propertyName: "isVisible",
-  //           ...commonProperties,
-  //         },
-  //         {
-  //           label: "Disable Invalid Forms",
-  //           propertyName: "disabledWhenInvalid",
-  //           ...commonProperties,
-  //         },
-  //       ],
-  //     },
-  //   ]);
-  //   result = searchProperty(config, "disable");
-  //   expect(result).toEqual([
-  //     {
-  //       sectionName: "A",
-  //       children: [
-  //         {
-  //           label: "Disable Invalid Forms",
-  //           propertyName: "disabledWhenInvalid",
-  //           ...commonProperties,
-  //         },
-  //         {
-  //           label: "Visible",
-  //           propertyName: "isVisible",
-  //           ...commonProperties,
-  //         },
-  //       ],
-  //     },
-  //   ]);
-  // });
-  // it("Validates search order for multiple matching items from multiple sections", () => {
-  //   const result = searchProperty(config, "button");
-  //   expect(result).toEqual([
-  //     {
-  //       sectionName: "B",
-  //       children: [
-  //         {
-  //           label: "Button Color",
-  //           propertyName: "buttonColor",
-  //           ...commonProperties,
-  //         },
-  //         {
-  //           label: "Button Variant",
-  //           propertyName: "buttonVariant",
-  //           ...commonProperties,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       sectionName: "A",
-  //       children: [
-  //         {
-  //           label: "Reset Button Label",
-  //           propertyName: "resetButtonLabel",
-  //           ...commonProperties,
-  //         },
-  //         {
-  //           label: "Submit Button Label",
-  //           propertyName: "submitButtonLabel",
-  //           ...commonProperties,
-  //         },
-  //       ],
-  //     },
-  //   ]);
-  // });
-  // it("Validates search order for deeply nested items", () => {
-  //   const result = searchProperty(config, "icon");
-  //   expect(result).toEqual([
-  //     {
-  //       sectionName: "B",
-  //       children: [
-  //         {
-  //           sectionName: "Icon",
-  //           children: [
-  //             {
-  //               label: "Icon",
-  //               propertyName: "icon",
-  //               ...commonProperties,
-  //             },
-  //             {
-  //               label: "Icon Align",
-  //               propertyName: "iconAlign",
-  //               ...commonProperties,
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //   ]);
-  // });
+  it("Validates search for a section", () => {
+    const result = searchProperty(config, "Section One");
+    expect(result).toEqual(config.slice(0, 1));
+  });
+  it("Validates search order for multiple matching items from multiple sections", () => {
+    const result = searchProperty(config, "button");
+    expect(result).toEqual([
+      {
+        sectionName: "Section Two",
+        children: [
+          {
+            label: "Button Color",
+            propertyName: "buttonColor",
+            ...commonProperties,
+          },
+          {
+            label: "Button Variant",
+            propertyName: "buttonVariant",
+            ...commonProperties,
+          },
+        ],
+      },
+      {
+        sectionName: "Section One",
+        children: [
+          {
+            label: "Reset Button Label",
+            propertyName: "resetButtonLabel",
+            ...commonProperties,
+          },
+          {
+            label: "Submit Button Label",
+            propertyName: "submitButtonLabel",
+            ...commonProperties,
+          },
+        ],
+      },
+    ]);
+  });
+  it("Validates search order for deeply nested items", () => {
+    const result = searchProperty(config, "placement");
+    expect(result).toEqual([
+      {
+        sectionName: "Section Two",
+        children: [
+          {
+            sectionName: "Icon",
+            children: [
+              {
+                label: "Placement",
+                propertyName: "placement",
+                ...commonProperties,
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
 });

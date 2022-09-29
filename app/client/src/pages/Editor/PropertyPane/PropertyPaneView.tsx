@@ -254,36 +254,47 @@ function PropertyPaneView(
               placeholder="Search for controls, labels etc"
               variant={SearchVariant.BACKGROUND}
             />
-            <PropertyPaneTab
-              contentComponent={
-                isContentConfigAvailable ? (
-                  <PropertyControlsGenerator
-                    config={WidgetFactory.getWidgetPropertyPaneContentConfig(
-                      widgetProperties.type,
-                    )}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={EditorTheme.LIGHT}
-                    type={widgetProperties.type}
-                  />
-                ) : null
-              }
-              styleComponent={
-                isStyleConfigAvailable ? (
-                  <PropertyControlsGenerator
-                    config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
-                      widgetProperties.type,
-                    )}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={EditorTheme.LIGHT}
-                    type={widgetProperties.type}
-                  />
-                ) : null
-              }
-            />
+            {searchText.length > 0 ? (
+              <PropertyControlsGenerator
+                config={WidgetFactory.getWidgetPropertyPaneSearchConfig(
+                  widgetProperties.type,
+                )}
+                id={widgetProperties.widgetId}
+                panel={panel}
+                searchQuery={searchText}
+                theme={EditorTheme.LIGHT}
+                type={widgetProperties.type}
+              />
+            ) : (
+              <PropertyPaneTab
+                contentComponent={
+                  isContentConfigAvailable ? (
+                    <PropertyControlsGenerator
+                      config={WidgetFactory.getWidgetPropertyPaneContentConfig(
+                        widgetProperties.type,
+                      )}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ) : null
+                }
+                styleComponent={
+                  isStyleConfigAvailable ? (
+                    <PropertyControlsGenerator
+                      config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                        widgetProperties.type,
+                      )}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ) : null
+                }
+              />
+            )}
           </>
         ) : (
           <PropertyControlsGenerator
@@ -292,7 +303,6 @@ function PropertyPaneView(
             )}
             id={widgetProperties.widgetId}
             panel={panel}
-            searchQuery={searchText}
             theme={EditorTheme.LIGHT}
             type={widgetProperties.type}
           />

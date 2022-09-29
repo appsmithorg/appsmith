@@ -16,10 +16,11 @@ export type PropertyPaneSectionConfig = {
   sectionName: string | ((props: WidgetProps, propertyPath: string) => string);
   id?: string;
   children: PropertyPaneConfig[];
-  collapsible?: boolean;
+  collapsible?: boolean; // Indicates whether the section could be collapsed or not
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
+  tag?: string; // Used to show a tag right after the section name
 };
 
 export type PropertyHookUpdates = {
