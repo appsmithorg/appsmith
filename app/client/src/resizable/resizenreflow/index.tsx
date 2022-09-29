@@ -508,10 +508,8 @@ export function ReflowResizable(props: ResizableProps) {
         width:
           props.isWrapper ||
           (props.useAutoLayout &&
-            !(
-              props.direction === LayoutDirection.Horizontal &&
-              props.responsiveBehavior === ResponsiveBehavior.Hug
-            ))
+            props.direction === LayoutDirection.Vertical &&
+            props.responsiveBehavior === ResponsiveBehavior.Fill)
             ? "auto"
             : widgetWidth,
         height: props.isWrapper ? "auto" : widgetHeight,

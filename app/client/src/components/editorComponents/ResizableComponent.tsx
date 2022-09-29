@@ -67,14 +67,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
 
-  const {
-    alignItems,
-    direction,
-    disabledResizeHandles,
-    useAutoLayout,
-  } = useContext(AutoLayoutContext || null);
   const isHorizontallyStretched =
-    direction === LayoutDirection.Vertical && alignItems === AlignItems.Stretch;
+    props.direction === LayoutDirection.Vertical &&
+    props.alignItems === AlignItems.Stretch;
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -112,7 +107,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     // if (props.widgetName.toLowerCase().includes("button"))
     //   console.log(`#### ${props.widgetName} : Initial dimensions`);
     setComponentWidth(
-      useAutoLayout && isHorizontallyStretched
+      props.useAutoLayout && isHorizontallyStretched
         ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
         : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
             2 * props.paddingOffset,
@@ -121,13 +116,13 @@ export const ResizableComponent = memo(function ResizableComponent(
       (props.bottomRow - props.topRow) * props.parentRowSpace -
         2 * props.paddingOffset,
     );
-  }, [useAutoLayout, direction, alignItems]);
+  }, [props.useAutoLayout, props.direction, props.alignItems]);
 
   useEffect(() => {
     // if (props.widgetName.toLowerCase().includes("button"))
     //   console.log(`#### ${props.widgetName} : Manual resize`);
     setComponentWidth(
-      useAutoLayout && isHorizontallyStretched
+      props.useAutoLayout && isHorizontallyStretched
         ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
         : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
             2 * props.paddingOffset,
@@ -141,7 +136,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   useEffect(() => {
     // if (props.widgetName.toLowerCase().includes("button"))
     //   console.log(`#### ${props.widgetName} : Parent resize`);
-    if (!useAutoLayout) {
+    if (!props.useAutoLayout) {
       setComponentWidth(
         (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
           2 * props.paddingOffset,
@@ -157,7 +152,7 @@ export const ResizableComponent = memo(function ResizableComponent(
         );
       }
     }
-  }, [props.parentColumnSpace, props.parentRowSpace, useAutoLayout]);
+  }, [props.parentColumnSpace, props.parentRowSpace, props.useAutoLayout]);
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -331,11 +326,11 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottomLeft: BottomLeftHandleStyles,
     };
     let handlesToOmit = get(props, "disabledResizeHandles", []);
-    if (disabledResizeHandles && disabledResizeHandles.length)
-      handlesToOmit = [...handlesToOmit, ...disabledResizeHandles];
+    // if (disabledResizeHandles && disabledResizeHandles.length)
+    //   handlesToOmit = [...handlesToOmit, ...disabledResizeHandles];
     handlesToOmit = [...handlesToOmit, ...disabledHorizontalHandles];
     return omit(allHandles, handlesToOmit);
-  }, [props, disabledResizeHandles, disabledHorizontalHandles]);
+  }, [props, disabledHorizontalHandles]);
 
   const isEnabled: boolean =
     !isDragging &&
@@ -383,7 +378,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       responsiveBehavior={props.responsiveBehavior}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
       updateBottomRow={updateBottomRow}
-      useAutoLayout={useAutoLayout}
+      useAutoLayout={props.useAutoLayout}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
       zWidgetId={props.widgetId}

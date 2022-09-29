@@ -9,7 +9,7 @@ import {
 import { DropTargetComponent } from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getCanvasClassName } from "utils/generators";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
   AlignItems,

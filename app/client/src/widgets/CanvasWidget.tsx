@@ -12,9 +12,7 @@ import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { CanvasWidgetStructure } from "./constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import {
-  AlignItems,
   Alignment,
-  JustifyContent,
   Overflow,
   Positioning,
   ResponsiveBehavior,
@@ -24,7 +22,6 @@ import ContainerComponent, { FlexBox } from "./ContainerWidget/component";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { AutoLayoutContext } from "utils/autoLayoutContext";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -66,7 +63,7 @@ class CanvasWidget extends ContainerWidget {
     if (!childWidgetData) return null;
 
     const childWidget = { ...childWidgetData };
-
+    console.log("#### child widget", childWidget);
     const snapSpaces = this.getSnapSpaces();
     childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
     childWidget.parentRowSpace = snapSpaces.snapRowSpace;
@@ -143,20 +140,7 @@ class CanvasWidget extends ContainerWidget {
           useAutoLayout={this.state.useAutoLayout}
           widgetId={this.props.widgetId}
         >
-          <AutoLayoutContext.Provider
-            value={{
-              useAutoLayout: this.state.useAutoLayout,
-              direction: this.state.direction,
-              justifyContent: JustifyContent.FlexStart,
-              alignItems: AlignItems.FlexStart,
-              overflow:
-                props.widgetName === "MainContainer"
-                  ? Overflow.Auto
-                  : Overflow.NoWrap,
-            }}
-          >
-            {this.renderChildren()}
-          </AutoLayoutContext.Provider>
+          {this.renderChildren()}
         </FlexBox>
       </ContainerComponent>
     );

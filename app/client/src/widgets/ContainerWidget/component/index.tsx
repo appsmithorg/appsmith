@@ -28,6 +28,7 @@ import {
 } from "utils/layoutPropertiesUtils";
 import { useSelector } from "store";
 import { getWidgets } from "sagas/selectors";
+import AutoLayoutLayer from "components/designSystems/appsmith/AutoLayoutLayer";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -158,10 +159,77 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
 }
 
 export function FlexBox(props: FlexBoxProps) {
+  // const allWidgets = useSelector(getWidgets);
   const layoutProps = useMemo(
     () => getLayoutProperties(props.direction, props.alignment, props.spacing),
     [props.direction, props.alignment, props.spacing],
   );
+  const renderChildren = () => {
+    if (!props.children) return null;
+    if (!props.useAutoLayout) return props.children;
+    const flexLayers: any[] = [
+      // {
+      //   children: [
+      //     {
+      //       id: "2f5yim088g",
+      //       align: "start",
+      //     },
+      //     {
+      //       id: "92hs8bgv4h",
+      //       align: "start",
+      //     },
+      //   ],
+      // },
+      // {
+      //   children: [
+      //     {
+      //       id: "crfmj4atrz",
+      //       align: "end",
+      //     },
+      //   ],
+      // },
+      {
+        children: [
+          {
+            id: "tbp7meiwtq",
+            align: "end",
+          },
+        ],
+        hasFillChild: true,
+      },
+    ];
+    const map: any = {};
+    if (isArray(props.children)) {
+      for (const child of props.children) {
+        map[(child as JSX.Element).props?.widgetId] = child;
+      }
+    }
+    return flexLayers.map((layer: any, index: number) => {
+      if (!layer.children || !layer.children.length) return null;
+      const start = [],
+        center = [],
+        end = [];
+      for (const child of layer.children) {
+        if (layer.hasFillChild) {
+          start.push(map[child.id]);
+          continue;
+        }
+        if (child.align === "end") end.push(map[child.id]);
+        else if (child.align === "center") center.push(map[child.id]);
+        else start.push(map[child.id]);
+      }
+      return (
+        <AutoLayoutLayer
+          center={null}
+          direction={props.direction}
+          end={null}
+          hasFillChild={layer.hasFillChild}
+          key={index}
+          start={start}
+        />
+      );
+    });
+  };
   return (
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
@@ -170,7 +238,7 @@ export function FlexBox(props: FlexBoxProps) {
       stretchHeight={props.stretchHeight}
       useAutoLayout={props.useAutoLayout}
     >
-      {props.children}
+      <>{renderChildren()}</>
     </FlexContainer>
   );
 }
