@@ -11,10 +11,10 @@ import HightlightedCode from "../../HighlightedCode";
 import { Skin } from "../../../../constants/DefaultTheme";
 import { DropdownOption } from "../../../constants";
 import React from "react";
-import { SelectorView } from "../viewComponents/SelectorView/SelectorView";
+import { SelectorView } from "../viewComponents/SelectorView";
 import { KeyValueView } from "../viewComponents/KeyValueView";
-import { TextView } from "../viewComponents/TextView/TextView";
-import { TabView } from "../viewComponents/TabView/TabView";
+import { TextView } from "../viewComponents/TextView";
+import { TabView } from "../viewComponents/TabView";
 import { FIELD_CONFIGS } from "../FieldConfig";
 import { APPSMITH_FUNCTION_CONFIG } from "../AppsmithFunctionConfig";
 
