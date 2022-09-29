@@ -17,6 +17,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitDefaultCommitMessage;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -2429,6 +2430,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                 "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
                 "isSystemGenerated", defaultIfNull(isSystemGenerated, "")
         ));
+        final Map<String, Object> eventData = Map.of(
+                FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                FieldName.APPLICATION, application
+        );
+        analyticsProps.put(FieldName.EVENT_DATA, eventData);
         return sessionUserService.getCurrentUser()
                 .map(user -> {
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);

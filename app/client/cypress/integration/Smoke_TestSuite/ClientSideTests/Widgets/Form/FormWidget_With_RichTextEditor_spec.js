@@ -29,10 +29,11 @@ describe("RichTextEditor Widget Functionality in Form", function() {
     cy.testJsontext("defaultvalue", "");
 
     cy.wait(500);
-    cy.get(
-      formWidgetsPage.richTextEditorWidget +
-        " div[data-testid='rte-container'] > div",
-    ).should("have.css", "border", "1px solid rgb(242, 43, 43)");
+    cy.get(formWidgetsPage.richTextEditorWidget + " .tox.tox-tinymce").should(
+      "have.css",
+      "border",
+      "1px solid rgb(217, 25, 33)",
+    );
 
     cy.get(".t--draggable-formbuttonwidget button").should("be.disabled");
   });
