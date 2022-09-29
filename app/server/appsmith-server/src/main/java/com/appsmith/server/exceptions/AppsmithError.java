@@ -25,9 +25,9 @@ public enum AppsmithError {
     USER_DOESNT_BELONG_TO_WORKSPACE(400, 4010, "User {0} does not belong to the workspace with id {1}",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "No datasource configuration found. Please configure it and try again.",
-            AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid",  ErrorType.DATASOURCE_CONFIGURATION_ERROR, null),
+            AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid", ErrorType.DATASOURCE_CONFIGURATION_ERROR, null),
     INVALID_ACTION_COLLECTION(400, 4038, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
-            AppsmithErrorAction.DEFAULT, "Collection configuration is invalid",  ErrorType.CONFIGURATION_ERROR, null),
+            AppsmithErrorAction.DEFAULT, "Collection configuration is invalid", ErrorType.CONFIGURATION_ERROR, null),
     INVALID_ACTION(400, 4012, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
             AppsmithErrorAction.DEFAULT, "Action configuration is invalid", ErrorType.CONFIGURATION_ERROR, null),
     INVALID_DATASOURCE(400, 4013, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
@@ -61,11 +61,11 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR, null),
     INVALID_PASSWORD_RESET(400, 4020, "Cannot find an outstanding reset password request for this email. Please initiate a request via 'forgot password' " +
             "button to reset your password", AppsmithErrorAction.DEFAULT, null, null, null),
-    INVALID_PASSWORD_LENGTH(400, 4037, "Password length should be between {0} and {1}" , AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    INVALID_PASSWORD_LENGTH(400, 4037, "Password length should be between {0} and {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR, null),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access", AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR, null),
-    DUPLICATE_KEY(409, 4024, "Unexpected state : Duplicate key error. Message : {0}. Please reach out to Appsmith customer support to report this",
+    DUPLICATE_KEY(409, 4024, "Unexpected state: Duplicate key error. Message: {0}. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this email {0}. Please sign in instead.",
             AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
@@ -79,22 +79,22 @@ public enum AppsmithError {
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     INVALID_LOGIN_METHOD(401, 4030, "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_CONFIGURATION(400, 4031, "Git configuration is invalid. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
-    INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH Key is not configured properly. Did you forget to add SSH key to remote? Can you please try again by reconfiguring the SSH key with write access", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, ErrorReferenceDocUrl.GIT_DEPLOY_KEY.getDocUrl()),
-    INVALID_GIT_REPO(400, 4033, "The remote repo is not empty. Please create a new empty repo and configure the SSH keys. " +
-            "If you want to clone from remote repo and build application, please use import application from git option.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
+    INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH key is not configured correctly. Did you forget to add the SSH key to your remote repository? Please try again by reconfiguring the SSH key with write access.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, ErrorReferenceDocUrl.GIT_DEPLOY_KEY.getDocUrl()),
+    INVALID_GIT_REPO(400, 4033, "The remote repository is not empty. Please create a new empty repository and configure the SSH keys. " +
+            "If you wish to clone and build an application from an existing remote repository, please use the \"Import from a Git repository\" option in the home page.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     DEFAULT_RESOURCES_UNAVAILABLE(400, 4034, "Unexpected state. Default resources are unavailable for {0} with id {1}. Please reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.BAD_REQUEST, null),
     GIT_MERGE_FAILED_REMOTE_CHANGES(406, 4036, "Remote is ahead of local by {0} commits on branch {1}. Please pull remote changes first and try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_UPSTREAM_CHANGES.getDocUrl()),
     GIT_MERGE_FAILED_LOCAL_CHANGES(406, 4037, "There are uncommitted changes present in your local branch {0}. Please commit them first and try again", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
-    REMOVE_LAST_WORKSPACE_ADMIN_ERROR(400, 4038, "The last admin can not be removed from the workspace", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    REMOVE_LAST_WORKSPACE_ADMIN_ERROR(400, 4038, "The last admin cannot be removed from the workspace", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_CRUD_PAGE_REQUEST(400, 4039, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH(400, 4040, "This operation is not supported for remote branch {0}. Please use local branches only to proceed", AppsmithErrorAction.DEFAULT, "Unsupported Operation!", ErrorType.BAD_REQUEST, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
-    REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Please try again later.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +
             "downloading it. Check the jar location & try again.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
-    PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin Execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint",
+    PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint",
             AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR, null),
     PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "[{0}] Unable to load datasource form configuration. Details: {1}.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
@@ -177,5 +177,7 @@ public enum AppsmithError {
         return this.errorAction;
     }
 
-    public String getErrorType() { return  this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 }
