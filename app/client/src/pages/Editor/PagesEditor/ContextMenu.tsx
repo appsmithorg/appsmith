@@ -245,7 +245,6 @@ function ContextMenu(props: Props) {
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
             color={Colors.GREY_9}
-            disabled={!canManagePages}
             height={16}
             onClick={noop}
             width={16}
