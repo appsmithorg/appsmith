@@ -49,7 +49,6 @@ import {
   Size,
   Text,
   TextType,
-  Icon,
   TextProps,
   DropdownOption,
 } from "design-system";
@@ -62,7 +61,6 @@ import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 import { fetchWorkspace } from "actions/workspaceActions";
-import { SubTextPosition } from "components/constants";
 import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
