@@ -79,7 +79,7 @@ public class AstServiceCEImpl implements AstServiceCE {
      * {
      *   references: ["aPostAction.data", "anotherPostAction.data"],
      *   functionalParams: ["ignoredAction1"],
-     *   variables: ["ignoredAction2"]
+     *   variables: ["ignoredAction2", "a", "b", "c"]
      */
     @NoArgsConstructor
     @AllArgsConstructor
