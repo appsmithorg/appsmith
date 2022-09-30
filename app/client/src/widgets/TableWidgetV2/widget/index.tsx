@@ -836,6 +836,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
+          variant={this.props.variant}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
           width={componentWidth}

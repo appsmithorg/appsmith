@@ -9,7 +9,7 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
-import { ColumnTypes, EditableCell } from "../constants";
+import { ColumnTypes, EditableCell, TableVariant } from "../constants";
 import { useCallback } from "react";
 
 export interface ColumnMenuOptionProps {
@@ -85,6 +85,7 @@ interface ReactTableComponentProps {
   isEditableCellValid?: boolean;
   borderColor?: string;
   borderWidth?: number;
+  variant?: TableVariant;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -129,6 +130,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     triggerRowSelection,
     unSelectAllRow,
     updatePageNo,
+    variant,
     widgetId,
     widgetName,
     width,
@@ -310,6 +312,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updatePageNo={updatePageNo}
+      variant={variant}
       widgetId={widgetId}
       widgetName={widgetName}
       width={width}
@@ -362,6 +365,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
     equal(prev.editableCell, next.editableCell) &&
-    prev.isEditableCellValid === next.isEditableCellValid
+    prev.isEditableCellValid === next.isEditableCellValid &&
+    prev.variant === next.variant
   );
 });

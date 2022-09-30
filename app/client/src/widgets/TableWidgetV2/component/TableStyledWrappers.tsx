@@ -17,6 +17,7 @@ import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import { TableVariant } from "../constants";
 
 const OFFSET_WITHOUT_HEADER = 40;
 const OFFSET_WITH_HEADER = 80;
@@ -36,6 +37,7 @@ export const TableWrapper = styled.div<{
   borderColor?: string;
   borderWidth?: number;
   isResizingColumn?: boolean;
+  variant?: TableVariant;
 }>`
   width: 100%;
   height: 100%;
@@ -100,11 +102,16 @@ export const TableWrapper = styled.div<{
     .th,
     .td {
       margin: 0;
-      border-bottom: ${true
-        ? `1px solid var(--wds-color-border-onaccent)`
-        : `1px solid transparent`};
+      border-bottom: ${(props) =>
+        props.variant === "DEFAULT" ||
+        props.variant === undefined ||
+        props.variant === "VARIANT3"
+          ? `1px solid var(--wds-color-border-onaccent)`
+          : `1px solid transparent`};
       border-right: ${(props) =>
-        false || props.isResizingColumn
+        props.variant === "DEFAULT" ||
+        props.variant === undefined ||
+        props.isResizingColumn
           ? `1px solid var(--wds-color-border-onaccent)`
           : `1px solid transparent`};
       position: relative;

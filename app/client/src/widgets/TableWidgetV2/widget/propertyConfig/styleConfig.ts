@@ -28,6 +28,29 @@ export default [
           },
         ],
       },
+      {
+        propertyName: "variant",
+        helpText: "Selects the variant",
+        label: "Variants",
+        controlType: "DROP_DOWN",
+        defaultValue: "DEFAULT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            label: "Default",
+            value: "DEFAULT",
+          },
+          {
+            label: "Without borders",
+            value: "VARIANT2",
+          },
+          {
+            label: "Horizonal borders only",
+            value: "VARIANT3",
+          },
+        ],
+      },
     ],
   },
   {

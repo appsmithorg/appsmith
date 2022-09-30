@@ -80,7 +80,16 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
   isEditableCellValid: boolean;
+  variant?: TableVariant;
 }
+
+export enum TableVariantTypes {
+  DEFAULT = "DEFAULT",
+  VARIANT2 = "VARIANT2",
+  VARIANT3 = "VARIANT3",
+}
+
+export type TableVariant = keyof typeof TableVariantTypes;
 
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
 

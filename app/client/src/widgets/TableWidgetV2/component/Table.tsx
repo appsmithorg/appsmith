@@ -33,7 +33,7 @@ import {
   renderHeaderCheckBoxCell,
 } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
-import { EditableCell } from "../constants";
+import { EditableCell, TableVariant } from "../constants";
 
 interface TableProps {
   width: number;
@@ -87,6 +87,7 @@ interface TableProps {
   borderColor?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
+  variant?: TableVariant;
 }
 
 const defaultColumn = {
@@ -244,6 +245,7 @@ export function Table(props: TableProps) {
       isResizingColumn={isResizingColumn.current}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
+      variant={props.variant}
       width={props.width}
     >
       {isHeaderVisible && (
