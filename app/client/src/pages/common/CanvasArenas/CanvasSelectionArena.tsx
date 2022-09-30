@@ -363,11 +363,11 @@ export function CanvasSelectionArena({
           slidingArenaRef.current.style.zIndex = "";
           slidingArenaRef.current.style.cursor = "";
           if (isDrawingModeEnabled && isDrawing) {
-            const rows = Math.ceil(height / snapRowSpace);
-            const topRow = Math.ceil(top / snapRowSpace);
+            const rows = Math.floor(height / snapRowSpace);
+            const topRow = Math.floor(top / snapRowSpace);
 
-            const columns = Math.ceil(width / snapColumnSpace);
-            const leftColumn = Math.ceil(left / snapColumnSpace);
+            const columns = Math.floor(width / snapColumnSpace);
+            const leftColumn = Math.floor(left / snapColumnSpace);
             dispatch(
               drawWidget({
                 rows,
