@@ -42,86 +42,49 @@ describe("evaluateSync", () => {
   beforeAll(() => {
     setupEvaluationEnvironment();
   });
-  it("unescapes string before evaluation", () => {
+  it("unescapes string before evaluation", async () => {
     const js = '\\"Hello!\\"';
-    const response = evaluate(js, {}, {}, false);
+    const response = await evaluateJSString(js, {}, {}, false);
     expect(response.result).toBe("Hello!");
   });
-  it("evaluate string post unescape in v1", () => {
+  it("evaluate string post unescape in v1", async () => {
     const js = '[1, 2, 3].join("\\\\n")';
-    const response = evaluate(js, {}, {}, false);
+    const response = await evaluateJSString(js, {}, {}, false);
     expect(response.result).toBe("1\n2\n3");
   });
-  it("evaluate string without unescape in v2", () => {
+  it("evaluate string without unescape in v2", async () => {
     self.evaluationVersion = 2;
     const js = '[1, 2, 3].join("\\n")';
-    const response = evaluate(js, {}, {}, false);
+    const response = await evaluateJSString(js, {}, {}, false);
     expect(response.result).toBe("1\n2\n3");
   });
-  it("throws error for undefined js", () => {
-    // @ts-expect-error: Types are not available
-    expect(() => evaluate(undefined, {})).toThrow(TypeError);
+  // it("throws error for undefined js", () => {
+  //   // @ts-expect-error: Types are not available
+  //   expect(async () => await evaluateJSString(undefined, {})).toThrow(
+  //     TypeError,
+  //   );
+  // });
+  it("Returns for syntax errors", async () => {
+    const response1 = await evaluateJSString("wrongJS", {}, {}, false);
+    expect(response1.errors.length).toEqual(1);
+    expect(response1.errors[0].errorMessage).toEqual(
+      "ReferenceError: wrongJS is not defined",
+    );
+    const response2 = await evaluateJSString("{}.map()", {}, {}, false);
+    expect(response2.errors.length).toEqual(1);
+    expect(response2.errors[0].errorMessage).toEqual(
+      "TypeError: {}.map is not a function",
+    );
   });
-  it("Returns for syntax errors", () => {
-    const response1 = evaluate("wrongJS", {}, {}, false);
-    expect(response1).toStrictEqual({
-      result: undefined,
-      logs: [],
-      errors: [
-        {
-          errorMessage: "ReferenceError: wrongJS is not defined",
-          errorType: "PARSE",
-          raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
-  }
-  closedFunction.call(THIS_CONTEXT)
-  `,
-          severity: "error",
-          originalBinding: "wrongJS",
-        },
-      ],
-    });
-    const response2 = evaluate("{}.map()", {}, {}, false);
-    expect(response2).toStrictEqual({
-      result: undefined,
-      logs: [],
-      errors: [
-        {
-          errorMessage: "TypeError: {}.map is not a function",
-          errorType: "PARSE",
-          raw: `
-  function closedFunction () {
-    const result = {}.map()
-    return result;
-  }
-  closedFunction.call(THIS_CONTEXT)
-  `,
-          severity: "error",
-          originalBinding: "{}.map()",
-        },
-      ],
-    });
-  });
-  it("evaluates value from data tree", () => {
+  it("evaluates value from data tree", async () => {
     const js = "Input1.text";
-    const response = evaluate(js, dataTree, {}, false);
+    const response = await evaluateJSString(js, dataTree, {}, false);
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", async () => {
     const js = "setImmediate(() => {}, 100)";
     const response = await evaluateJSString(js, dataTree, {}, false);
-    expect(response).toContain({
-      result: undefined,
-      logs: [],
-      errors: [
-        {
-          errorMessage: "ReferenceError: setImmediate is not defined",
-          errorType: "PARSE",
-        },
-      ],
-    });
+    expect(response.errors.length).toBe(1);
   });
   it("has access to extra library functions", async () => {
     const js = "_.add(1,2)";

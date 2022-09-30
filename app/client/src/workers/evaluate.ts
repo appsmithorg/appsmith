@@ -250,6 +250,14 @@ export function evaluateJSString(
 
     const executionScript = getEvalScript(sanitizeScript(code), evalArguments);
 
+    if (!executionScript) {
+      return {
+        errors: [],
+        result: undefined,
+        triggers: [],
+      };
+    }
+
     Object.assign(self, GLOBAL_DATA);
 
     try {
@@ -517,6 +525,7 @@ export function isFunctionAsync(
 }
 
 function getEvalScript(code: string, evalArgs: any) {
+  if (code === "") return code;
   if (evalArgs?.length > 0) code = `(${code}).apply(THIS_CONTEXT, ARGUMENTS)`;
   return `new Promise((resolve, reject) => {
     try {
