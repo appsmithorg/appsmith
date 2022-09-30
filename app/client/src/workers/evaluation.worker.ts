@@ -16,10 +16,7 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
-import evaluate, {
-  evaluateJSString,
-  setupEvaluationEnvironment,
-} from "workers/evaluate";
+import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
@@ -206,7 +203,10 @@ ctx.addEventListener(
               });
               console.error(error);
             }
-            dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
+            dataTree = await getSafeToRenderDataTree(
+              unevalTree,
+              widgetTypeConfigMap,
+            );
             unEvalUpdates = [];
           }
           return {
@@ -292,22 +292,6 @@ ctx.addEventListener(
           replayMap[entityId ?? CANVAS].clearLogs();
           return replayResult;
         }
-        case EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS: {
-          const { functionCall } = requestData;
-          if (!dataTreeEvaluator) {
-            return true;
-          }
-          const evalTree = dataTreeEvaluator.evalTree;
-          const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-          const { errors, logs, result } = evaluate(
-            functionCall,
-            evalTree,
-            resolvedFunctions,
-            false,
-            undefined,
-          );
-          return { errors, logs, result };
-        }
         case EVAL_WORKER_ACTIONS.EXECUTE_JS_STRING: {
           const { functionCall } = requestData;
           if (!dataTreeEvaluator) {
@@ -315,7 +299,7 @@ ctx.addEventListener(
           }
           const evalTree = dataTreeEvaluator.evalTree;
           const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-          const { errors, logs, result } = await evaluateJSString(
+          const { errors, logs, result } = await evaluate(
             functionCall,
             evalTree,
             resolvedFunctions,
@@ -329,7 +313,7 @@ ctx.addEventListener(
           const evalTree = dataTreeEvaluator?.evalTree;
           if (!evalTree) return {};
           // TODO find a way to do this for snippets
-          return evaluateJSString(expression, evalTree, {}, isTrigger);
+          return evaluate(expression, evalTree, {}, isTrigger);
         case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
           const { entity, entityId, entityType } = requestData;
           const replayObject = replayMap[entityId];

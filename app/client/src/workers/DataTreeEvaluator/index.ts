@@ -53,11 +53,7 @@ import {
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import {
-  EvalResult,
-  EvaluateContext,
-  evaluateJSString,
-} from "workers/evaluate";
+import evaluate, { EvalResult, EvaluateContext } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import {
   Severity,
@@ -178,7 +174,7 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = getValidatedTree(evaluatedTree);
+    this.evalTree = await getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = klona(localUnEvalTree);
@@ -669,7 +665,7 @@ export default class DataTreeEvaluator {
         }
         if (isWidget(entity) && !isATriggerPath) {
           if (propertyPath) {
-            let parsedValue = this.validateAndParseWidgetProperty({
+            let parsedValue = await this.validateAndParseWidgetProperty({
               fullPropertyPath,
               widget: entity,
               currentTree,
@@ -950,7 +946,7 @@ export default class DataTreeEvaluator {
     context?: EvaluateContext,
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
-    return evaluateJSString(
+    return evaluate(
       jsSnippets[0] || userScript,
       dataTree,
       resolvedFunctions,
@@ -972,7 +968,7 @@ export default class DataTreeEvaluator {
     skipUserLogsOperations = false,
   ): Promise<EvalResult> {
     try {
-      return evaluateJSString(
+      return evaluate(
         js,
         data,
         resolvedFunctions,
@@ -996,7 +992,7 @@ export default class DataTreeEvaluator {
     }
   }
 
-  validateAndParseWidgetProperty({
+  async validateAndParseWidgetProperty({
     currentTree,
     evalPropertyValue,
     fullPropertyPath,
@@ -1008,7 +1004,7 @@ export default class DataTreeEvaluator {
     currentTree: DataTree;
     evalPropertyValue: any;
     unEvalPropertyValue: string;
-  }): any {
+  }) {
     const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
     if (isPathADynamicTrigger(widget, propertyPath)) {
       // TODO find a way to validate triggers
@@ -1016,7 +1012,12 @@ export default class DataTreeEvaluator {
     }
     const validation = widget.validationPaths[propertyPath];
 
-    const { isValid, messages, parsed, transformed } = validateWidgetProperty(
+    const {
+      isValid,
+      messages,
+      parsed,
+      transformed,
+    } = await validateWidgetProperty(
       validation,
       evalPropertyValue,
       widget,
@@ -1053,7 +1054,7 @@ export default class DataTreeEvaluator {
   }
 
   // validates the user input saved as action property based on a validationConfig
-  validateActionProperty(
+  async validateActionProperty(
     fullPropertyPath: string,
     action: DataTreeAction,
     currentTree: DataTree,
@@ -1063,7 +1064,7 @@ export default class DataTreeEvaluator {
   ) {
     if (evalPropertyValue && validationConfig) {
       // runs VALIDATOR function and returns errors
-      const { isValid, messages } = validateActionProperty(
+      const { isValid, messages } = await validateActionProperty(
         validationConfig,
         evalPropertyValue,
       );

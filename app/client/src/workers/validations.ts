@@ -54,7 +54,7 @@ function getPropertyEntry(
   }
 }
 
-function validatePlainObject(
+async function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
   props: Record<string, unknown>,
@@ -63,12 +63,11 @@ function validatePlainObject(
   if (config.params?.allowedKeys) {
     let _valid = true;
     const _messages: string[] = [];
-    config.params.allowedKeys.forEach((entry) => {
+    for (const entry of config.params.allowedKeys) {
       const ignoreCase = !!entry.params?.ignoreCase;
       const entryName = getPropertyEntry(value, entry.name, ignoreCase);
-
       if (value.hasOwnProperty(entryName)) {
-        const { isValid, messages, parsed } = validate(
+        const { isValid, messages, parsed } = await validate(
           entry,
           value[entryName],
           props,
@@ -88,7 +87,7 @@ function validatePlainObject(
         _valid = false;
         _messages.push(`Missing required key: ${entryName}`);
       }
-    });
+    }
     if (_valid) {
       return {
         isValid: true,
@@ -107,7 +106,7 @@ function validatePlainObject(
   };
 }
 
-function validateArray(
+async function validateArray(
   config: ValidationConfig,
   value: unknown[],
   props: Record<string, unknown>,
@@ -208,8 +207,8 @@ function validateArray(
   }
 
   // Loop
-  value.every((entry, index) => {
-    // Validate for allowed values
+  for (let index = 0; index < value.length; index++) {
+    const entry = value[index];
     if (shouldVerifyAllowedValues && !allowedValues.has(entry)) {
       _messages.push(`Value is not allowed in this array: ${entry}`);
       _isValid = false;
@@ -218,7 +217,7 @@ function validateArray(
     // validate using validation config
     if (shouldValidateChildren && childrenValidationConfig) {
       // Validate this entry
-      const childValidationResult = validate(
+      const childValidationResult = await validate(
         childrenValidationConfig,
         entry,
         props,
@@ -237,10 +236,42 @@ function validateArray(
     // Bail out, if the error count threshold has been overcome
     // This way, debugger will not have to render too many errors
     if (_messages.length >= VALIDATION_ERROR_COUNT_THRESHOLD && !_isValid) {
-      return false;
+      break;
     }
-    return true;
-  });
+  }
+  // value.every((entry, index) => {
+  //   // Validate for allowed values
+  //   if (shouldVerifyAllowedValues && !allowedValues.has(entry)) {
+  //     _messages.push(`Value is not allowed in this array: ${entry}`);
+  //     _isValid = false;
+  //   }
+
+  //   // validate using validation config
+  //   if (shouldValidateChildren && childrenValidationConfig) {
+  //     // Validate this entry
+  //     const childValidationResult = await validate(
+  //       childrenValidationConfig,
+  //       entry,
+  //       props,
+  //       `${propertyPath}[${index}]`,
+  //     );
+
+  //     // If invalid, append to messages
+  //     if (!childValidationResult.isValid) {
+  //       _isValid = false;
+  //       childValidationResult.messages?.forEach((message) =>
+  //         _messages.push(`Invalid entry at index: ${index}. ${message}`),
+  //       );
+  //     }
+  //   }
+
+  //   // Bail out, if the error count threshold has been overcome
+  //   // This way, debugger will not have to render too many errors
+  //   if (_messages.length >= VALIDATION_ERROR_COUNT_THRESHOLD && !_isValid) {
+  //     return false;
+  //   }
+  //   return true;
+  // });
 
   return {
     isValid: _isValid,
@@ -292,13 +323,13 @@ function validateObjectValues(obj: any): any {
 }
 
 //TODO: parameter props may not be in use
-export const validate = (
+export const validate = async (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
   propertyPath = "",
-): ValidationResponse => {
-  const _result = VALIDATORS[config.type as ValidationTypes](
+): Promise<ValidationResponse> => {
+  const _result = await VALIDATORS[config.type as ValidationTypes](
     config,
     value,
     props,
@@ -488,18 +519,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
   },
   // TODO(abhinav): The original validation does not make sense fix this.
-  [ValidationTypes.REGEX]: (
+  [ValidationTypes.REGEX]: async (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
     propertyPath: string,
-  ): ValidationResponse => {
-    const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.TEXT](
-      config,
-      value,
-      props,
-      propertyPath,
-    );
+  ): Promise<ValidationResponse> => {
+    const { isValid, messages, parsed } = await VALIDATORS[
+      ValidationTypes.TEXT
+    ](config, value, props, propertyPath);
 
     if (!isValid) {
       return {
@@ -647,12 +675,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     return { isValid, parsed };
   },
-  [ValidationTypes.OBJECT]: (
+  [ValidationTypes.OBJECT]: async (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
     propertyPath: string,
-  ): ValidationResponse => {
+  ): Promise<ValidationResponse> => {
     if (
       value === undefined ||
       value === null ||
@@ -704,12 +732,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       };
     }
   },
-  [ValidationTypes.ARRAY]: (
+  [ValidationTypes.ARRAY]: async (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
     propertyPath: string,
-  ): ValidationResponse => {
+  ): Promise<ValidationResponse> => {
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || [],
@@ -749,7 +777,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       try {
         const _value = JSON.parse(value);
         if (Array.isArray(_value)) {
-          const result = validateArray(config, _value, props, propertyPath);
+          const result = await validateArray(
+            config,
+            _value,
+            props,
+            propertyPath,
+          );
           return result;
         }
       } catch (e) {
@@ -824,18 +857,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     return invalidResponse;
   },
 
-  [ValidationTypes.NESTED_OBJECT_ARRAY]: (
+  [ValidationTypes.NESTED_OBJECT_ARRAY]: async (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
     propertyPath: string,
-  ): ValidationResponse => {
-    let response: ValidationResponse = {
-      isValid: false,
-      parsed: config.params?.default || [],
-      messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
-    };
-    response = VALIDATORS.ARRAY(config, value, props, propertyPath);
+  ): Promise<ValidationResponse> => {
+    let response = await VALIDATORS.ARRAY(config, value, props, propertyPath);
 
     if (!response.isValid) {
       return response;
@@ -918,12 +946,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     return result;
   },
-  [ValidationTypes.FUNCTION]: (
+  [ValidationTypes.FUNCTION]: async (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
     propertyPath: string,
-  ): ValidationResponse => {
+  ): Promise<ValidationResponse> => {
     const invalidResponse = {
       isValid: false,
       parsed: undefined,
@@ -931,7 +959,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(
+        const { result } = await evaluate(
           config.params.fnString,
           {},
           {},
@@ -1011,12 +1039,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
    * For more info: https://github.com/appsmithorg/appsmith/pull/9396
    *
    */
-  [ValidationTypes.TABLE_PROPERTY]: (
+  [ValidationTypes.TABLE_PROPERTY]: async (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
     propertyPath: string,
-  ): ValidationResponse => {
+  ): Promise<ValidationResponse> => {
     if (!config.params?.type)
       return {
         isValid: false,
@@ -1025,7 +1053,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       };
 
     // Validate when JS mode is disabled
-    const result = VALIDATORS[config.params.type as ValidationTypes](
+    const result = await VALIDATORS[config.params.type as ValidationTypes](
       config.params as ValidationConfig,
       value,
       props,
@@ -1037,7 +1065,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const resultValue = [];
     if (_.isArray(value)) {
       for (const item of value) {
-        const result = VALIDATORS[config.params.type](
+        const result = await VALIDATORS[config.params.type](
           config.params as ValidationConfig,
           item,
           props,

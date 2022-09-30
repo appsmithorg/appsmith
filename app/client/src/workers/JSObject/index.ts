@@ -4,7 +4,7 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { evaluateJSString, isFunctionAsync } from "workers/evaluate";
+import evaluate, { isFunctionAsync } from "workers/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -100,7 +100,7 @@ export async function saveResolvedFunctionsAndJSUpdates(
       for (const parsedElement of parsedObject) {
         if (isTypeOfFunction(parsedElement.type)) {
           try {
-            const { result } = await evaluateJSString(
+            const { result } = await evaluate(
               parsedElement.value,
               unEvalDataTree,
               {},

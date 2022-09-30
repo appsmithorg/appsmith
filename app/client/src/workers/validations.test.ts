@@ -21,7 +21,7 @@ const DUMMY_WIDGET: WidgetProps = {
 };
 
 describe("Validate Validators", () => {
-  it("correctly validates text", () => {
+  it("correctly validates text", async () => {
     const validation = {
       type: ValidationTypes.TEXT,
       params: {
@@ -81,13 +81,14 @@ describe("Validate Validators", () => {
         ],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(validation, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates text with regex match", () => {
+  it("correctly validates text with regex match", async () => {
     const validation = {
       type: ValidationTypes.TEXT,
       params: {
@@ -125,12 +126,13 @@ describe("Validate Validators", () => {
         parsed: "app.appsmith.com",
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(validation, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
-  it("correctly uses the expected message", () => {
+  it("correctly uses the expected message", async () => {
     const validation = {
       type: ValidationTypes.TEXT,
       params: {
@@ -173,13 +175,14 @@ describe("Validate Validators", () => {
         parsed: "app.appsmith.com",
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(validation, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates text when required is set to false", () => {
+  it("correctly validates text when required is set to false", async () => {
     const validation = {
       type: ValidationTypes.TEXT,
       params: {
@@ -194,13 +197,14 @@ describe("Validate Validators", () => {
         parsed: "abc",
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(validation, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates strict text", () => {
+  it("correctly validates strict text", async () => {
     const validation = {
       type: ValidationTypes.TEXT,
       params: {
@@ -229,13 +233,14 @@ describe("Validate Validators", () => {
         ],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(validation, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates image url", () => {
+  it("correctly validates image url", async () => {
     const config = {
       type: ValidationTypes.IMAGE_URL,
       params: {
@@ -278,13 +283,14 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates number when required is true", () => {
+  it("correctly validates number when required is true", async () => {
     const config = {
       type: ValidationTypes.NUMBER,
       params: {
@@ -339,13 +345,14 @@ describe("Validate Validators", () => {
         messages: ["This value is required"],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates number when required is false", () => {
+  it("correctly validates number when required is false", async () => {
     const config = {
       type: ValidationTypes.NUMBER,
       params: {
@@ -370,13 +377,14 @@ describe("Validate Validators", () => {
         parsed: -8,
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates boolean when required is true", () => {
+  it("correctly validates boolean when required is true", async () => {
     const config = {
       type: ValidationTypes.BOOLEAN,
       params: {
@@ -429,13 +437,14 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates boolean when required is false", () => {
+  it("correctly validates boolean when required is false", async () => {
     const config = {
       type: ValidationTypes.BOOLEAN,
       params: {
@@ -450,13 +459,14 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates object", () => {
+  it("correctly validates object", async () => {
     const config = {
       type: ValidationTypes.OBJECT,
       params: {
@@ -540,13 +550,14 @@ describe("Validate Validators", () => {
         messages: [`Missing required key: key1`],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates array with allowed values", () => {
+  it("correctly validates array with allowed values", async () => {
     const inputs = [
       ["a", "b", "c"],
       ["m", "n", "b"],
@@ -598,13 +609,14 @@ describe("Validate Validators", () => {
         ],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates array with allowed values and default value", () => {
+  it("correctly validates array with allowed values and default value", async () => {
     const inputs = [
       ["a", "b", "c"],
       ["m", "n", "b"],
@@ -657,13 +669,14 @@ describe("Validate Validators", () => {
         ],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly limits the number of validation errors in array validation", () => {
+  it("correctly limits the number of validation errors in array validation", async () => {
     const input = [
       "a",
       "b",
@@ -711,11 +724,11 @@ describe("Validate Validators", () => {
       ],
     };
 
-    const result = validate(config, input, DUMMY_WIDGET);
+    const result = await validate(config, input, DUMMY_WIDGET);
     expect(result).toStrictEqual(expected);
   });
 
-  it("correctly validates array when required is true", () => {
+  it("correctly validates array when required is true", async () => {
     const inputs = [
       ["a", "b", "c"],
       ["m", "n", "b"],
@@ -824,13 +837,14 @@ describe("Validate Validators", () => {
         messages: [],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates array when required is false", () => {
+  it("correctly validates array when required is false", async () => {
     const inputs = [""];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -851,13 +865,14 @@ describe("Validate Validators", () => {
         parsed: [],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates array with specific object children and required is true", () => {
+  it("correctly validates array with specific object children and required is true", async () => {
     const inputs = [
       [{ label: 123, value: 234 }],
       `[{"label": 123, "value": 234}]`,
@@ -938,13 +953,14 @@ describe("Validate Validators", () => {
         ],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates array with specific object children and required is false", () => {
+  it("correctly validates array with specific object children and required is false", async () => {
     const inputs = [""];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -978,13 +994,14 @@ describe("Validate Validators", () => {
         parsed: [],
       },
     ];
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates date iso string when required is true", () => {
+  it("correctly validates date iso string when required is true", async () => {
     const defaultLocalDate = moment().toISOString(true);
     const defaultDate = moment().toISOString();
     const inputs = [
@@ -1034,13 +1051,14 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates date iso string when required is false", () => {
+  it("correctly validates date iso string when required is false", async () => {
     const defaultDate = moment().toISOString();
     const inputs = [""];
 
@@ -1059,14 +1077,15 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
       expect(result).not.toStrictEqual(defaultDate);
-    });
+    }
   });
 
-  it("correctly validates object array when required is true", () => {
+  it("correctly validates object array when required is true", async () => {
     const inputs = [
       [
         { apple: 1 },
@@ -1159,13 +1178,14 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates object array when required is false", () => {
+  it("correctly validates object array when required is false", async () => {
     const inputs = [""];
 
     const config = {
@@ -1183,13 +1203,14 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates object array when required is false", () => {
+  it("correctly validates object array when required is false", async () => {
     const inputs = [[]];
 
     const config = {
@@ -1207,13 +1228,14 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
 
-  it("correctly validates safe URL", () => {
+  it("correctly validates safe URL", async () => {
     const config = {
       type: ValidationTypes.SAFE_URL,
       params: {
@@ -1248,12 +1270,13 @@ describe("Validate Validators", () => {
       },
     ];
 
-    inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
-    });
+    }
   });
-  it("correctly validates array when default is given", () => {
+  it("correctly validates array when default is given", async () => {
     const inputs = [undefined, null, ""];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -1267,13 +1290,14 @@ describe("Validate Validators", () => {
       isValid: true,
       parsed: [],
     };
-    inputs.forEach((input) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected);
-    });
+    }
   });
 
-  it("correctly validates uniqueness of keys in array objects", () => {
+  it("correctly validates uniqueness of keys in array objects", async () => {
     const config = {
       type: ValidationTypes.ARRAY,
       params: {
@@ -1316,11 +1340,11 @@ describe("Validate Validators", () => {
       ],
     };
 
-    const result = validate(config, input, DUMMY_WIDGET);
+    const result = await validate(config, input, DUMMY_WIDGET);
     expect(result).toStrictEqual(expected);
   });
 
-  it("correctly validates TableProperty", () => {
+  it("correctly validates TableProperty", async () => {
     const inputs = [
       "a",
       ["a", "b"],
@@ -1363,10 +1387,11 @@ describe("Validate Validators", () => {
         messages: ["Disallowed value: x"],
       },
     ];
-    inputs.forEach((input, i) => {
-      const result = validate(config, input, DUMMY_WIDGET);
-      expect(result).toStrictEqual(expected[i]);
-    });
+    for (let index = 0; index < inputs.length; index++) {
+      const input = inputs[index];
+      const result = await validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    }
   });
 });
 

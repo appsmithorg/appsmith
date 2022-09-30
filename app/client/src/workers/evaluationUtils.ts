@@ -488,7 +488,7 @@ export const getImmediateParentsOfPropertyPaths = (
   return Array.from(parents);
 };
 
-export function validateWidgetProperty(
+export async function validateWidgetProperty(
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
@@ -503,7 +503,7 @@ export function validateWidgetProperty(
   return validate(config, value, props, propertyPath);
 }
 
-export function validateActionProperty(
+export async function validateActionProperty(
   config: ValidationConfig,
   value: unknown,
 ) {
@@ -516,22 +516,24 @@ export function validateActionProperty(
   return validate(config, value, {}, "");
 }
 
-export function getValidatedTree(tree: DataTree) {
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
+export async function getValidatedTree(tree: DataTree) {
+  for (const entityKey of Object.keys(tree)) {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
     }
     const parsedEntity = { ...entity };
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+    for (const [property, validation] of Object.entries(
+      entity.validationPaths,
+    )) {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { isValid, messages, parsed, transformed } = validateWidgetProperty(
-        validation,
-        value,
-        entity,
-        property,
-      );
+      const {
+        isValid,
+        messages,
+        parsed,
+        transformed,
+      } = await validateWidgetProperty(validation, value, entity, property);
       _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
         ? parsed
@@ -564,9 +566,9 @@ export function getValidatedTree(tree: DataTree) {
           }),
         );
       }
-    });
-    return { ...tree, [entityKey]: parsedEntity };
-  }, tree);
+    }
+  }
+  return tree;
 }
 
 export const getAllPaths = (
@@ -612,36 +614,38 @@ export const trimDependantChangePaths = (
   return trimmedPaths;
 };
 
-export function getSafeToRenderDataTree(
+export async function getSafeToRenderDataTree(
   tree: DataTree,
   widgetTypeConfigMap: WidgetTypeConfigMap,
 ) {
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
+  for (const entityKey of Object.keys(tree)) {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
     }
     const safeToRenderEntity = { ...entity };
     // Set user input values to their parsed values
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+    for (const [property, validation] of Object.entries(
+      entity.validationPaths,
+    )) {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed } = validateWidgetProperty(
+      const { parsed } = await validateWidgetProperty(
         validation,
         value,
         entity,
         property,
       );
       _.set(safeToRenderEntity, property, parsed);
-    });
+    }
     // Set derived values to undefined or else they would go as bindings
     Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
       (property) => {
         _.set(safeToRenderEntity, property, undefined);
       },
     );
-    return { ...tree, [entityKey]: safeToRenderEntity };
-  }, tree);
+  }
+  return tree;
 }
 
 export const addErrorToEntityProperty = (

@@ -30,7 +30,7 @@ export type Validator = (
   value: unknown,
   props: Record<string, unknown>,
   propertyPath: string,
-) => ValidationResponse;
+) => ValidationResponse | Promise<ValidationResponse>;
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
 

@@ -1,6 +1,5 @@
 import evaluate, {
   setupEvaluationEnvironment,
-  evaluateJSString,
   isFunctionAsync,
 } from "workers/evaluate";
 import {
@@ -44,33 +43,33 @@ describe("evaluate synchronous code", () => {
   });
   it("unescapes string before evaluation", async () => {
     const js = '\\"Hello!\\"';
-    const response = await evaluateJSString(js, {}, {}, false);
+    const response = await evaluate(js, {}, {}, false);
     expect(response.result).toBe("Hello!");
   });
   it("evaluate string post unescape in v1", async () => {
     const js = '[1, 2, 3].join("\\\\n")';
-    const response = await evaluateJSString(js, {}, {}, false);
+    const response = await evaluate(js, {}, {}, false);
     expect(response.result).toBe("1\n2\n3");
   });
   it("evaluate string without unescape in v2", async () => {
     self.evaluationVersion = 2;
     const js = '[1, 2, 3].join("\\n")';
-    const response = await evaluateJSString(js, {}, {}, false);
+    const response = await evaluate(js, {}, {}, false);
     expect(response.result).toBe("1\n2\n3");
   });
   // it("throws error for undefined js", () => {
   //   // @ts-expect-error: Types are not available
-  //   expect(async () => await evaluateJSString(undefined, {})).toThrow(
+  //   expect(async () => await evaluate(undefined, {})).toThrow(
   //     TypeError,
   //   );
   // });
   it("Returns for syntax errors", async () => {
-    const response1 = await evaluateJSString("wrongJS", {}, {}, false);
+    const response1 = await evaluate("wrongJS", {}, {}, false);
     expect(response1.errors.length).toEqual(1);
     expect(response1.errors[0].errorMessage).toEqual(
       "ReferenceError: wrongJS is not defined",
     );
-    const response2 = await evaluateJSString("{}.map()", {}, {}, false);
+    const response2 = await evaluate("{}.map()", {}, {}, false);
     expect(response2.errors.length).toEqual(1);
     expect(response2.errors[0].errorMessage).toEqual(
       "TypeError: {}.map is not a function",
@@ -78,44 +77,37 @@ describe("evaluate synchronous code", () => {
   });
   it("evaluates value from data tree", async () => {
     const js = "Input1.text";
-    const response = await evaluateJSString(js, dataTree, {}, false);
+    const response = await evaluate(js, dataTree, {}, false);
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", async () => {
     const js = "setImmediate(() => {}, 100)";
-    const response = await evaluateJSString(js, dataTree, {}, false);
+    const response = await evaluate(js, dataTree, {}, false);
     expect(response.errors.length).toBe(1);
   });
   it("has access to extra library functions", async () => {
     const js = "_.add(1,2)";
-    const response = await evaluateJSString(js, dataTree, {}, false);
+    const response = await evaluate(js, dataTree, {}, false);
     expect(response.result).toBe(3);
   });
   it("evaluates functions with callback data", async () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = await evaluateJSString(
-      js,
-      dataTree,
-      {},
-      false,
-      {},
-      callbackData,
-    );
+    const response = await evaluate(js, dataTree, {}, false, {}, callbackData);
     expect(response.result).toBe("test1");
   });
   it("handles EXPRESSIONS with new lines", async () => {
     let js = "\n";
-    let response = await evaluateJSString(js, dataTree, {}, false);
+    let response = await evaluate(js, dataTree, {}, false);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = await evaluateJSString(js, dataTree, {}, false);
+    response = await evaluate(js, dataTree, {}, false);
     expect(response.errors.length).toBe(0);
   });
   it("handles TRIGGERS with new lines", async () => {
     let js = "\n";
-    let response = await evaluateJSString(
+    let response = await evaluate(
       js,
       dataTree,
       {},
@@ -126,19 +118,12 @@ describe("evaluate synchronous code", () => {
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = await evaluateJSString(
-      js,
-      dataTree,
-      {},
-      false,
-      undefined,
-      undefined,
-    );
+    response = await evaluate(js, dataTree, {}, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("handles ANONYMOUS_FUNCTION with new lines", async () => {
     let js = "\n";
-    let response = await evaluateJSString(
+    let response = await evaluate(
       js,
       dataTree,
       {},
@@ -149,20 +134,13 @@ describe("evaluate synchronous code", () => {
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = await evaluateJSString(
-      js,
-      dataTree,
-      {},
-      false,
-      undefined,
-      undefined,
-    );
+    response = await evaluate(js, dataTree, {}, false, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("has access to this context", async () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
-    const response = await evaluateJSString(js, dataTree, {}, false, {
+    const response = await evaluate(js, dataTree, {}, false, {
       thisContext,
     });
     expect(response.result).toBe("test");
@@ -173,7 +151,7 @@ describe("evaluate synchronous code", () => {
   it("has access to additional global context", async () => {
     const js = "contextVariable";
     const globalContext = { contextVariable: "test" };
-    const response = await evaluateJSString(js, dataTree, {}, false, {
+    const response = await evaluate(js, dataTree, {}, false, {
       globalContext,
     });
     expect(response.result).toBe("test");
@@ -185,7 +163,7 @@ describe("evaluate asynchronous code", () => {
   it("runs and completes", async () => {
     const js = "(() => new Promise((resolve) => { resolve(123) }))()";
     self.postMessage = jest.fn();
-    const response = await evaluateJSString(js, {}, {}, true, {}, []);
+    const response = await evaluate(js, {}, {}, true, {}, []);
     expect(response).toEqual({
       errors: [],
       logs: [],
@@ -197,7 +175,7 @@ describe("evaluate asynchronous code", () => {
     jest.restoreAllMocks();
     const js = "(() => new Promise((resolve) => { randomKeyword }))()";
     self.postMessage = jest.fn();
-    const response = await evaluateJSString(js, {}, {}, true, {});
+    const response = await evaluate(js, {}, {}, true, {});
     expect(response).toEqual({
       errors: [
         {

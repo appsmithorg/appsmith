@@ -94,6 +94,7 @@ import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { LogObject, UserLogObject } from "workers/UserLog";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { ValidationResponse } from "constants/WidgetValidation";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -540,7 +541,12 @@ export function* evaluateArgumentSaga(action: any) {
       (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
     if (workerResponse.result) {
-      const validation = validate({ type }, workerResponse.result, {}, "");
+      const validation: ValidationResponse = yield validate(
+        { type },
+        workerResponse.result,
+        {},
+        "",
+      );
       if (!validation.isValid)
         validation.messages?.map((message) => {
           lintErrors.unshift({

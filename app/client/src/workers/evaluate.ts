@@ -10,7 +10,6 @@ import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
-import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs, { LogObject } from "./UserLog";
 
@@ -223,7 +222,7 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
-export function evaluateJSString(
+export default function evaluateJSString(
   code: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
