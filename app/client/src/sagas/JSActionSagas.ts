@@ -39,13 +39,12 @@ import {
   JS_ACTION_COPY_SUCCESS,
   ERROR_JS_ACTION_COPY_FAIL,
   JS_ACTION_DELETE_SUCCESS,
-  JS_ACTION_CREATED_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import PageApi, { FetchPageResponse } from "api/PageApi";
+import PageApi, { FetchPageResponse, PageLayout } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { ApiResponse } from "api/ApiResponses";
@@ -56,6 +55,7 @@ import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -94,10 +94,6 @@ export function* createJSCollectionSaga(
       AnalyticsUtil.logEvent("JS_OBJECT_CREATED", {
         name: actionName,
         from: actionPayload.payload.from,
-      });
-      Toaster.show({
-        text: createMessage(JS_ACTION_CREATED_SUCCESS, actionName),
-        variant: Variant.success,
       });
 
       AppsmithConsole.info({
@@ -372,6 +368,9 @@ export function* refactorJSObjectName(
       } else {
         yield put(fetchJSCollectionsForPage(pageId));
       }
+      checkAndLogErrorsIfCyclicDependency(
+        (refactorResponse.data as PageLayout).layoutOnLoadActionErrors,
+      );
     }
   }
 }

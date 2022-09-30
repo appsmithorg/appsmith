@@ -10,7 +10,6 @@ import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { Def } from "tern";
-import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget/widget";
 
 const isVisible = {
   "!type": "bool",
@@ -275,13 +274,11 @@ export const entityDefinitions = {
     isDisabled: "bool",
     recaptchaToken: "string",
   },
-  BUTTON_GROUP_WIDGET: (widget: ButtonGroupWidgetProps) => {
-    return {
-      "!doc":
-        "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
-      "!url": "https://docs.appsmith.com/widget-reference/button-group",
-      groupButtons: generateTypeDef(widget.groupButtons),
-    };
+  BUTTON_GROUP_WIDGET: {
+    "!doc":
+      "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
+    "!url": "https://docs.appsmith.com/widget-reference/button-group",
+    isVisible: isVisible,
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -647,6 +644,35 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/reference/widgets/document-viewer",
     isVisible: isVisible,
     docUrl: "string",
+  },
+  NUMBER_SLIDER_WIDGET: {
+    "!doc":
+      "Number slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "number",
+  },
+  CATEGORY_SLIDER_WIDGET: {
+    "!doc":
+      "Category slider widget is used to capture user feedback from a range of categories",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "string",
+  },
+  RANGE_SLIDER_WIDGET: {
+    "!doc":
+      "Range slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    start: "number",
+    end: "number",
+  },
+  CODE_SCANNER_WIDGET: {
+    "!doc": "Scan a Code",
+    "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    value: "string",
   },
 };
 

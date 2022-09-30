@@ -73,13 +73,14 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   transientTableData: {
     [key: string]: Record<string, string>;
   };
-  editableCell: EditableCell;
+  editableCell?: EditableCell;
   primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
   isEditableCellValid: boolean;
+  selectColumnFilterText?: Record<string, string>;
 }
 
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
@@ -103,6 +104,7 @@ export enum ColumnTypes {
   SELECT = "select",
   EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -113,6 +115,8 @@ export enum ReadOnlyColumnTypes {
   VIDEO = "video",
   DATE = "date",
   CHECKBOX = "checkbox",
+  SWITCH = "switch",
+  SELECT = "select",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
@@ -135,6 +139,7 @@ export type OnColumnEventArgs = {
   triggerPropertyName: string;
   eventType: EventType;
   row?: Record<string, unknown>;
+  additionalData?: Record<string, unknown>;
 };
 
 export const ICON_NAMES = Object.keys(IconNames).map(

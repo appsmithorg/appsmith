@@ -5,6 +5,7 @@ const {
   AggregateHelper: agHelper,
   ApiPage,
   CommonLocators,
+  DataSources,
   EntityExplorer,
   JSEditor: jsEditor,
 } = ObjectsRegistry;
@@ -12,7 +13,7 @@ const {
 const jsObjectBody = `export default {
 	myVar1: [],
 	myVar2: {},
-	myFun1(){
+	myFun1(){   
 
 	},
 	myFun2: async () => {
@@ -39,24 +40,49 @@ describe("Autocomplete tests", () => {
 
     // 1. Button group widget autocomplete verification
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ButtonGroup1.");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "groupButtons");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "isVisible");
+    agHelper.GetNClickByContains(CommonLocators._hints, "isVisible");
     agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "groupButtons");
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "groupButton1");
-    agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "groupButton1");
 
     // 2. Document view widget autocomplete verification
-
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
+
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
     agHelper.GetNAssertElementText(CommonLocators._hints, "docUrl");
     agHelper.Sleep();
     agHelper.GetNClickByContains(CommonLocators._hints, "docUrl");
   });
 
-  it("2. Bug #15568 Verify browser JavaScript APIs in autocomplete ", () => {
+  it("2. Check for bindings not available in other page", () => {
+    // dependent on above case: 1st page should have DocumentViewer widget
+    EntityExplorer.AddNewPage();
+
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    // focus on 5th line
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "D");
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "docUrl",
+      "not.have.text",
+    );
+    agHelper.TypeText(
+      CommonLocators._codeMirrorTextArea,
+      "ocumentViewer.docUrl",
+    );
+  });
+
+  it("3. Bug #15568 Verify browser JavaScript APIs in autocomplete ", () => {
     // Using same js object
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     // focus on 5th line
@@ -106,32 +132,21 @@ describe("Autocomplete tests", () => {
         test.haveOrNotHave ? "have.text" : "not.have.text",
       );
       agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
-
-      //const deleteCharCount = (JSAPIsToTest[index - 1]?.type || " ").length;
-      // cy.get(CommonLocators._codeMirrorTextArea)
-      //   .focus()
-      //   // remove previously typed code
-      //   .type(deleteCharCount ? "{backspace}".repeat(deleteCharCount) : " ")
-      //   .wait(20)
-      //   .type(test.type);
     });
-    //EntityExplorer.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?", true);
   });
 
-  it("3. JSObject this. autocomplete", () => {
+  it("4. JSObject this. autocomplete", () => {
     // Using same js object
-    //agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     // focus on 5th line
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "this.");
 
     ["myFun2()", "myVar1", "myVar2"].forEach((element, index) => {
       agHelper.AssertContains(element);
-      //cy.get(`.CodeMirror-hints > :nth-child(${index + 1})`).contains(element);
     });
   });
 
-  it("4. Api data with array of object autocompletion test", () => {
+  it("5. Api data with array of object autocompletion test", () => {
     ApiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
     agHelper.Sleep(2000);
     ApiPage.RunAPI();
@@ -149,7 +164,7 @@ describe("Autocomplete tests", () => {
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "mail");
   });
 
-  it("5. Local variables & complex data autocompletion test", () => {
+  it("6. Local variables & complex data autocompletion test", () => {
     // Using same js object
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     const users = [
@@ -199,5 +214,66 @@ describe("Autocomplete tests", () => {
       "Delete",
       "Are you sure?",
     );
+  });
+
+  it("7. Autocompletion for bindings inside array and objects", () => {
+    DataSources.CreateDataSource("Mongo", true, false);
+    cy.get("@dsName").then(($dsName) => {
+      DataSources.CreateNewQueryInDS(($dsName as unknown) as string);
+      DataSources.ValidateNSelectDropdown(
+        "Commands",
+        "Find Document(s)",
+        "Insert Document(s)",
+      );
+
+      cy.xpath(CommonLocators._inputFieldByName("Documents")).then(
+        ($field: any) => {
+          agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
+
+          cy.wrap($field)
+            .find(".CodeMirror")
+            .find("textarea")
+            .parents(".CodeMirror")
+            .first()
+            .then((ins: any) => {
+              const input = ins[0].CodeMirror;
+              input.focus();
+              cy.wait(200);
+              cy.get(CommonLocators._codeMirrorTextArea)
+                .eq(1)
+                .focus()
+                .type(
+                  "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
+                )
+                .type(".");
+
+              agHelper.GetNAssertElementText(
+                CommonLocators._hints,
+                "geolocation",
+              );
+
+              cy.get(".t--close-editor").click();
+            });
+        },
+      );
+    });
+  });
+
+  it("8. Multiple binding in single line", () => {
+    DataSources.CreateDataSource("Postgres", true, false);
+    cy.get("@dsName").then(($dsName) => {
+      DataSources.CreateNewQueryInDS(
+        ($dsName as unknown) as string,
+        "SELECT * FROM worldCountryInfo where {{appsmith.store}} {{appsmith}}",
+      );
+
+      cy.get(CommonLocators._codeMirrorTextArea)
+        .eq(0)
+        .focus()
+        .type("{downArrow}{leftArrow}{leftArrow}");
+
+      agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
+      agHelper.GetNAssertElementText(CommonLocators._hints, "geolocation");
+    });
   });
 });

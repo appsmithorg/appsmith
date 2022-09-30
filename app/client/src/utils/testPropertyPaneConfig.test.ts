@@ -45,6 +45,14 @@ function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
       )}]`;
   }
 
+  if (controls.includes(_config.controlType) && _config.isJSConvertible) {
+    return `${
+      _config.propertyName
+    }: No need of setting isJSConvertible since users can write JS inside [${controls.join(
+      " | ",
+    )}]`;
+  }
+
   if (_config.validation !== undefined) {
     const res = validateValidationStructure(_config.validation);
     if (res !== true) return `${_config.propertyName}: ${res}`;
@@ -56,8 +64,20 @@ function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
     }
   }
   if (_config.panelConfig) {
-    const res = validatePropertyPaneConfig(_config.panelConfig.children);
-    if (res !== true) return `${_config.propertyName}.${res}`;
+    if (_config.panelConfig.children) {
+      const res = validatePropertyPaneConfig(_config.panelConfig.children);
+      if (res !== true) return `${_config.propertyName}.${res}`;
+    }
+    if (_config.panelConfig.contentChildren) {
+      const res = validatePropertyPaneConfig(
+        _config.panelConfig.contentChildren,
+      );
+      if (res !== true) return `${_config.propertyName}.${res}`;
+    }
+    if (_config.panelConfig.styleChildren) {
+      const res = validatePropertyPaneConfig(_config.panelConfig.styleChildren);
+      if (res !== true) return `${_config.propertyName}.${res}`;
+    }
   }
   return true;
 }
@@ -75,9 +95,11 @@ function validateValidationStructure(
   }
   return true;
 }
+
 const isNotFloat = (n: any) => {
   return Number(n) === n && n % 1 === 0;
 };
+
 describe("Tests all widget's propertyPane config", () => {
   beforeAll(() => {
     registerWidgets();
@@ -86,10 +108,17 @@ describe("Tests all widget's propertyPane config", () => {
     const [widget, config]: any = widgetAndConfig;
     it(`Checks ${widget.getWidgetType()}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
-      const validatedPropertyPaneConfig = validatePropertyPaneConfig(
-        propertyPaneConfig,
+      expect(validatePropertyPaneConfig(propertyPaneConfig)).toStrictEqual(
+        true,
       );
-      expect(validatedPropertyPaneConfig).toStrictEqual(true);
+      const propertyPaneContentConfig = widget.getPropertyPaneContentConfig();
+      expect(
+        validatePropertyPaneConfig(propertyPaneContentConfig),
+      ).toStrictEqual(true);
+      const propertyPaneStyleConfig = widget.getPropertyPaneStyleConfig();
+      expect(validatePropertyPaneConfig(propertyPaneStyleConfig)).toStrictEqual(
+        true,
+      );
     });
     it(`Check if ${widget.getWidgetType()}'s dimensions are always integers`, () => {
       expect(isNotFloat(config.defaults.rows)).toBe(true);

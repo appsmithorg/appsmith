@@ -54,6 +54,7 @@ import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
@@ -235,18 +236,23 @@ public class DatabaseChangelog {
     }
 
     public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
-        for (Workspace workspace : mongockTemplate.findAll(Workspace.class)) {
+        Query queryToFetchAllWorkspaceIds = new Query();
+        /* Filter in only those workspaces that don't have the plugin installed */
+        queryToFetchAllWorkspaceIds.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
+        /* Only read the workspace id and leave out other fields */
+        queryToFetchAllWorkspaceIds.fields().include(fieldName(QWorkspace.workspace.id));
+        List<Workspace> workspacesWithOnlyId = mongockTemplate.find(queryToFetchAllWorkspaceIds, Workspace.class);
+        for (Workspace workspaceWithId : workspacesWithOnlyId) {
+            Workspace workspace =
+                    mongockTemplate.findOne(query(where(fieldName(QWorkspace.workspace.id)).is(workspaceWithId.getId())),
+                    Workspace.class);
+
             if (CollectionUtils.isEmpty(workspace.getPlugins())) {
                 workspace.setPlugins(new HashSet<>());
             }
 
-            final Set<String> installedPlugins = workspace.getPlugins()
-                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
-
-            if (!installedPlugins.contains(pluginId)) {
-                workspace.getPlugins()
-                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
-            }
+            workspace.getPlugins()
+                    .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
 
             mongockTemplate.save(workspace);
         }
@@ -4816,7 +4822,7 @@ public class DatabaseChangelog {
      * @param action
      * @return true / false
      */
-    private boolean hasUnpublishedActionConfiguration(NewAction action) {
+    public boolean hasUnpublishedActionConfiguration(NewAction action) {
         ActionDTO unpublishedAction = action.getUnpublishedAction();
         if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
             return false;
@@ -4831,7 +4837,7 @@ public class DatabaseChangelog {
      * @param mongockTemplate
      * @return action
      */
-    private NewAction fetchActionUsingId(String actionId, MongockTemplate mongockTemplate) {
+    public static NewAction fetchActionUsingId(String actionId, MongockTemplate mongockTemplate) {
         final NewAction action =
                 mongockTemplate.findOne(query(where(fieldName(QNewAction.newAction.id)).is(actionId)), NewAction.class);
         return action;
@@ -4842,7 +4848,7 @@ public class DatabaseChangelog {
      * @param plugin
      * @return query
      */
-    private Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
+    public static Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
         Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
         Criteria isNotDeleted = where("deleted").ne(true);
         return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));

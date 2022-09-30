@@ -34,7 +34,7 @@
 
 1. For run mode, you can use CLI args. Example: To run the entire `Smoke_TestSuite`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/*/*"`
 
-1. If you need help with writing the tests, their syntax or flow, cypress [getting started docs](https://docs.cypress.io/guides/getting-started/writing-your-first-test.html) is a great starting point.
+1. If you need help with writing the tests, their syntax or flow, cypress [getting started docs](https://docs.cypress.io/guides/core-concepts/introduction-to-cypress#What-you-ll-learn) is a great starting point.
 
 ## A word about env variables in Cypress tests
 

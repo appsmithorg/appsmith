@@ -8,7 +8,6 @@ import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
-  SelectColumnOptionsValidations,
   showByColumnType,
   uniqueColumnAliasValidation,
   updateColumnLevelEditability,
@@ -61,12 +60,20 @@ export default {
           value: ColumnTypes.TEXT,
         },
         {
+          label: "Switch",
+          value: ColumnTypes.SWITCH,
+        },
+        {
           label: "URL",
           value: ColumnTypes.URL,
         },
         {
           label: "Video",
           value: ColumnTypes.VIDEO,
+        },
+        {
+          label: "Select",
+          value: ColumnTypes.SELECT,
         },
       ],
       updateHook: composePropertyUpdateHook([
@@ -150,6 +157,8 @@ export default {
           ColumnTypes.VIDEO,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
+          ColumnTypes.SELECT,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -276,25 +285,6 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
-      },
-    },
-    {
-      propertyName: "selectOptions",
-      helpText: "Options to be shown on the select dropdown",
-      label: "Select Options",
-      controlType: "INPUT_TEXT",
-      isJSConvertible: false,
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fnString: SelectColumnOptionsValidations.toString(),
-        },
-      },
-      isTriggerProperty: false,
-      dependencies: ["primaryColumns"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
       },
     },
     {
