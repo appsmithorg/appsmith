@@ -17,6 +17,7 @@ import {
   Icon,
   IconSize,
   Size,
+  Toaster,
   Text,
   TextType,
   TooltipComponent,
@@ -60,7 +61,7 @@ import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "components/ads";
+import { Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";

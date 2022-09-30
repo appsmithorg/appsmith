@@ -14,7 +14,7 @@ import { ScrollIndicator } from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { TooltipComponent as Tooltip } from "design-system";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";

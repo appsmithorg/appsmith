@@ -29,7 +29,7 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { Workspaces } from "constants/workspaceConstants";
 import {
