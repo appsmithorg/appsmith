@@ -8,19 +8,30 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.BaseService;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+
+import javax.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 
-public class TenantServiceCEImpl implements TenantServiceCE {
-
-    private final TenantRepository tenantRepository;
+public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
     private String tenantId = null;
 
-    public TenantServiceCEImpl(TenantRepository tenantRepository) {
-        this.tenantRepository = tenantRepository;
+    public TenantServiceCEImpl(Scheduler scheduler,
+                               Validator validator,
+                               MongoConverter mongoConverter,
+                               ReactiveMongoTemplate reactiveMongoTemplate,
+                               TenantRepository repository,
+                               AnalyticsService analyticsService) {
+
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 
     @Override
@@ -31,7 +42,7 @@ public class TenantServiceCEImpl implements TenantServiceCE {
             return Mono.just(tenantId);
         }
 
-        return tenantRepository.findBySlug(FieldName.DEFAULT)
+        return repository.findBySlug(FieldName.DEFAULT)
                 .map(Tenant::getId)
                 .map(tenantId -> {
                     // Set the cache value before returning.
@@ -42,18 +53,18 @@ public class TenantServiceCEImpl implements TenantServiceCE {
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return tenantRepository.findById(tenantId, MANAGE_TENANT)
+        return repository.findById(tenantId, MANAGE_TENANT)
                 .flatMap(tenant -> {
                     TenantConfiguration oldtenantConfiguration = tenant.getTenantConfiguration();
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldtenantConfiguration);
                     tenant.setTenantConfiguration(oldtenantConfiguration);
-                    return tenantRepository.updateById(tenantId, tenant, MANAGE_TENANT);
+                    return repository.updateById(tenantId, tenant, MANAGE_TENANT);
                 });
     }
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
-        return tenantRepository.findById(tenantId, permission)
+        return repository.findById(tenantId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
 }
