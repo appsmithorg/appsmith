@@ -1,6 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import inputData from "../../../../support/Objects/mySqlData";
-const isEqual = require("lodash/isEqual");
 
 let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
