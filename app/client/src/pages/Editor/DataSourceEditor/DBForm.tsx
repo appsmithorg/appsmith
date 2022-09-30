@@ -171,7 +171,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                   APPSMITH_IP_ADDRESSES,
                 )}  on your database instance to connect to it. `}</span>
                 <a onClick={this.openOmnibarReadMore}>
-                  {"Read more "}
+                  {"Learn more "}
                   <StyledOpenDocsIcon icon="document-open" />
                 </a>
               </CollapsibleHelp>

@@ -125,6 +125,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -339,6 +340,8 @@ export function* fetchPublishedPageSaga(
       yield call(setDataUrl);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      // resize main canvas
+      resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
       // Update the canvas
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
