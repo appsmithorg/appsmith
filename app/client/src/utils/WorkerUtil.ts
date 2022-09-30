@@ -1,4 +1,4 @@
-import { cancelled, delay, put, spawn, take } from "redux-saga/effects";
+import { cancelled, delay, put, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
