@@ -330,7 +330,9 @@ export function CanvasSelectionArena({
           // bring the canvas to the top layer
           stickyCanvasRef.current.style.zIndex = "2";
           slidingArenaRef.current.style.zIndex = "2";
-          slidingArenaRef.current.style.cursor = "default";
+          if (!isDrawingModeEnabled) {
+            slidingArenaRef.current.style.cursor = "default";
+          }
         }
       };
 

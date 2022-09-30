@@ -74,7 +74,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const isDrawing = useSelector(
+  const isDrawingModeEnabled = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDrawing,
   );
 
@@ -104,7 +104,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { deselectAll, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
   const showDragLayer =
-    (isDragging && draggedOn === props.widgetId) || isResizing || isDrawing;
+    (isDragging && draggedOn === props.widgetId) ||
+    isResizing ||
+    isDrawingModeEnabled;
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -193,6 +195,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         style={{
           height,
           boxShadow,
+          cursor: isDrawingModeEnabled ? "crosshair" : "default",
         }}
       >
         {props.children}
