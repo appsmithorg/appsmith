@@ -228,61 +228,12 @@ describe("GracefulWorkerService", () => {
       requestData,
     );
     const handlers = await duplexRequest.toPromise();
-    expect(handlers).toHaveProperty("requestChannel");
-    expect(handlers).toHaveProperty("responseChannel");
+    expect(handlers).toHaveProperty("isFinishedChannel");
     expect(MockWorker.instance.postMessage).toBeCalledWith({
       method,
       requestData,
       requestId: expect.stringContaining(method),
     });
-  });
-
-  test("duplex request channel handler", async () => {
-    const w = new GracefulWorkerService(MockWorker);
-    await runSaga({}, w.start);
-    const mockChannel = (name = "mock") => ({
-      name,
-      take: jest.fn(),
-      put: jest.fn(),
-      flush: jest.fn(),
-      close: jest.fn(),
-    });
-    const workerChannel = channel();
-    const mockRequestChannel = mockChannel("request");
-    const mockResponseChannel = mockChannel("response");
-    runSaga(
-      {},
-      // @ts-expect-error: type mismatch
-      w.duplexRequestHandler,
-      workerChannel,
-      mockRequestChannel,
-      mockResponseChannel,
-    );
-
-    let randomRequestCount = Math.floor(Math.random() * 10);
-
-    for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
-      workerChannel.put({
-        responseData: {
-          test: randomRequestCount,
-        },
-      });
-      expect(mockRequestChannel.put).toBeCalledWith({
-        requestData: {
-          test: randomRequestCount,
-        },
-      });
-    }
-
-    workerChannel.put({
-      responseData: {
-        finished: true,
-      },
-    });
-
-    expect(mockResponseChannel.put).toBeCalledWith({ finished: true });
-
-    expect(mockRequestChannel.close).toBeCalled();
   });
 
   test("duplex response channel handler", async () => {
@@ -294,42 +245,27 @@ describe("GracefulWorkerService", () => {
       expect(MockWorker.instance).toBeDefined();
       return;
     }
-    const mockChannel = (name = "mock") => ({
-      name,
-      take: jest.fn(),
-      put: jest.fn(),
-      flush: jest.fn(),
-      close: jest.fn(),
-    });
-    const mockWorkerChannel = mockChannel("worker");
-    const responseChannel = channel();
+    const mainThreadResponseChannel = channel();
     const workerRequestId = "testID";
     runSaga(
       {},
       // @ts-expect-error: type mismatch
       w.duplexResponseHandler,
-      workerRequestId,
-      mockWorkerChannel,
-      responseChannel,
+      mainThreadResponseChannel,
     );
     MockWorker.instance.postMessage = jest.fn();
 
     let randomRequestCount = Math.floor(Math.random() * 10);
 
     for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
-      responseChannel.put({
+      mainThreadResponseChannel.put({
         test: randomRequestCount,
+        requestId: workerRequestId,
       });
       expect(MockWorker.instance.postMessage).toBeCalledWith({
         test: randomRequestCount,
         requestId: workerRequestId,
       });
     }
-
-    responseChannel.put({
-      finished: true,
-    });
-
-    expect(mockWorkerChannel.close).toBeCalled();
   });
 });

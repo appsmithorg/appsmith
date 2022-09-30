@@ -18,13 +18,13 @@ import { StyledToastContainer } from "components/ads/Toast";
 import localStorage from "utils/localStorage";
 import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
+import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
+import AppErrorBoundary from "AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
-import AppErrorBoundary from "./AppErrorBoundry";
-import GlobalStyles from "globalStyles";
 appInitializer();
 
 function App() {
