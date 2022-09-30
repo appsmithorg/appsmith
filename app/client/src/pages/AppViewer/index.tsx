@@ -45,6 +45,7 @@ import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { checkContainersForDynamicHeightUpdate } from "actions/dynamicHeightActions";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -245,6 +246,7 @@ function AppViewer(props: Props) {
           syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
           triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
           updateWidgetDynamicHeight: updateWidgetDynamicHeightCallback,
+          checkContainersForDynamicHeight: checkContainersForDynamicHeightUpdate,
         }}
       >
         <WidgetGlobaStyles

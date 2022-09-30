@@ -165,10 +165,11 @@ export const selectURLSlugs = createSelector(
   },
 );
 
-export const getRenderMode = (state: AppState) =>
-  state.entities.app.mode === APP_MODE.EDIT
-    ? RenderModes.CANVAS
-    : RenderModes.PAGE;
+export const getRenderMode = (state: AppState) => {
+  if (state.ui.editor.isPreviewMode) return RenderModes.PREVIEW;
+  else if (state.entities.app.mode === APP_MODE.EDIT) return RenderModes.CANVAS;
+  else return RenderModes.PAGE;
+};
 
 export const getViewModePageList = createSelector(
   getPageList,
@@ -210,8 +211,9 @@ export const getCanvasHeightOffset = (
   props: WidgetProps,
 ) => {
   const config = state.entities.widgetConfig.config[widgetType];
-  if (config.canvasHeightOffset) return config.canvasHeightOffset(props);
-  else return 0;
+  let offset = 0;
+  if (config.canvasHeightOffset) offset = config.canvasHeightOffset(props);
+  return offset;
 };
 
 export const getWidgetCards = createSelector(

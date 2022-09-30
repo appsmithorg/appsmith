@@ -12,7 +12,6 @@ import {
   PositionTypes,
   RenderMode,
   RenderModes,
-  WidgetHeightLimits,
   WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
@@ -41,7 +40,11 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
+import {
+  getWidgetMaxDynamicHeight,
+  getWidgetMinDynamicHeight,
+  isDynamicHeightEnabledForWidget,
+} from "./WidgetUtils";
 import DynamicHeightOverlay, {
   DynamicHeightOverlayStyle,
 } from "components/editorComponents/DynamicHeightOverlay";
@@ -189,7 +192,11 @@ abstract class BaseWidget<
         shouldUpdate,
       );
       let paddedHeight = height + WIDGET_PADDING * 2;
-      if (this.props.renderMode === RenderModes.PAGE && height === 0) {
+      if (
+        (this.props.renderMode === RenderModes.PAGE ||
+          this.props.renderMode === RenderModes.PREVIEW) &&
+        height === 0
+      ) {
         paddedHeight = 0;
       }
       shouldUpdate && updateWidgetDynamicHeight(widgetId, paddedHeight);
@@ -216,19 +223,15 @@ abstract class BaseWidget<
     // Run the following pieces of code only if dynamic height is enabled
     if (!isDynamicHeightEnabled) return false;
 
-    const maxDynamicHeightInRows =
-      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
-      this.props.maxDynamicHeight > 0
-        ? this.props.maxDynamicHeight
-        : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+    const maxDynamicHeightInRows = getWidgetMaxDynamicHeight(this.props);
 
-    let minDynamicHeightInRows =
-      this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
-      this.props.minDynamicHeight > 0
-        ? this.props.minDynamicHeight
-        : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+    let minDynamicHeightInRows = getWidgetMinDynamicHeight(this.props);
 
-    if (this.props.renderMode === RenderModes.PAGE && expectedHeight === 0) {
+    if (
+      (this.props.renderMode === RenderModes.PAGE ||
+        this.props.renderMode === RenderModes.PREVIEW) &&
+      expectedHeight === 0
+    ) {
       minDynamicHeightInRows = 0;
     }
     // If current height is less than the expected height
@@ -530,6 +533,7 @@ abstract class BaseWidget<
 
       // return this.getCanvasView();
       case RenderModes.PAGE:
+      case RenderModes.PREVIEW:
         content = this.getWidgetComponent();
         if (this.props.isVisible) {
           content = this.addErrorBoundary(content);
