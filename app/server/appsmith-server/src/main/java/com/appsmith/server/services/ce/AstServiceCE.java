@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Set;
 
 public interface AstServiceCE {
 
@@ -12,9 +12,10 @@ public interface AstServiceCE {
      * for references
      * In case the AST service returns with an error, throw an exception that propagates to the layout error messages,
      * to let the user know that their on page load actions have not been updated.
-     * @param bindingValue    : The mustache binding value string to be analyzed
-     * @param evalVersion     : The evaluated value version of the current app to be used while AST parsing
+     *
+     * @param bindingValue : The mustache binding value string to be analyzed
+     * @param evalVersion  : The evaluated value version of the current app to be used while AST parsing
      * @return A mono of list of strings that represent all valid global references in the binding string
      */
-    Mono<List<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion);
+    Mono<Set<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion);
 }

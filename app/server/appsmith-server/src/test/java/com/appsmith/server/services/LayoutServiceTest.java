@@ -820,31 +820,31 @@ public class LayoutServiceTest {
 
 
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aGetAction.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aGetAction.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aGetAction.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostAction.data.users.name", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aPostAction.data.users.name"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostAction.data.users.name"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("anotherPostAction.run()", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("anotherPostAction.run"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("anotherPostAction.run"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.anAsyncCollectionActionWithoutCall.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithoutCall.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.aSyncCollectionActionWithoutCall.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithoutCall.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithCall()", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.anAsyncCollectionActionWithCall"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithCall"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithCall()", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.aSyncCollectionActionWithCall"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithCall"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.data()", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection2.data()", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection2.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection2.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction1.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("hiddenAction1.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction1.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction2.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("hiddenAction2.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction2.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction4.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("hiddenAction4.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction4.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction5.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("hiddenAction5.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction5.data"))));
 
         StepVerifier
                 .create(testMono)
@@ -931,7 +931,7 @@ public class LayoutServiceTest {
 
 
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("\"anIgnoredAction.data:\" + aGetAction.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aGetAction.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aGetAction.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
                         "(function(ignoredAction1){\n" +
                                 "\tlet a = ignoredAction1.data\n" +
@@ -941,33 +941,33 @@ public class LayoutServiceTest {
                                 "\t// ignoredAction4.data\n" +
                                 "\treturn aPostAction.data\n" +
                                 "})(anotherPostAction.data)", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aPostAction.data", "anotherPostAction.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostAction.data", "anotherPostAction.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostActionWithAutoExec.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aPostActionWithAutoExec.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostActionWithAutoExec.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aDBAction.data[0].irrelevant", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aDBAction.data[0].irrelevant"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aDBAction.data[0].irrelevant"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("anotherDBAction.data.optional", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("anotherDBAction.data.optional"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("anotherDBAction.data.optional"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aTableAction.data.child", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aTableAction.data.child"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aTableAction.data.child"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.anAsyncCollectionActionWithoutCall.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithoutCall.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.aSyncCollectionActionWithoutCall.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithoutCall.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithCall()", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.anAsyncCollectionActionWithCall"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithCall"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithCall()", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("Collection.aSyncCollectionActionWithCall"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithCall"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction4.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("hiddenAction4.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction4.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction2.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("hiddenAction2.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction2.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction1.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("hiddenAction1.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction1.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostTertiaryAction.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aPostTertiaryAction.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostTertiaryAction.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostSecondaryAction.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("aPostSecondaryAction.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostSecondaryAction.data"))));
         StepVerifier
                 .create(testMono)
                 .assertNext(layout -> {

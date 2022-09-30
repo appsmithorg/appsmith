@@ -341,7 +341,7 @@ public class MustacheHelper {
      * @param types
      * @return
      */
-    public static Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Flux<Tuple2<String, List<String>>> bindingAndPossibleReferencesFlux, int types) {
+    public static Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Flux<Tuple2<String, Set<String>>> bindingAndPossibleReferencesFlux, int types) {
 
         return bindingAndPossibleReferencesFlux.collect(HashMap::new, (map, tuple) -> {
             String bindingValue = tuple.getT1();

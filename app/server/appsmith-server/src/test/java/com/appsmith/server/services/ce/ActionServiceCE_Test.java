@@ -2720,11 +2720,11 @@ public class ActionServiceCE_Test {
                 });
 
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("paginatedApi.data"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.prev", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("paginatedApi.data.prev"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.prev"))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.next", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new ArrayList<>(Set.of("paginatedApi.data.next"))));
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.next"))));
 
         StepVerifier
                 .create(testMono)

@@ -378,10 +378,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Set<String> bindings, int types, int evalVersion) {
-        Flux<Tuple2<String, List<String>>> findingToReferencesFlux =
+        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
                 Flux.fromIterable(bindings)
                         .flatMap(bindingValue -> {
-                            Mono<List<String>> possibleReferencesFromDynamicBinding = astService.getPossibleReferencesFromDynamicBinding(bindingValue, evalVersion);
+                            Mono<Set<String>> possibleReferencesFromDynamicBinding = astService.getPossibleReferencesFromDynamicBinding(bindingValue, evalVersion);
                             return Mono.zip(Mono.just(bindingValue), possibleReferencesFromDynamicBinding);
                         });
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);

@@ -15,8 +15,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class AstServiceCEImpl implements AstServiceCE {
     private final InstanceConfig instanceConfig;
 
     @Override
-    public Mono<List<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion) {
+    public Mono<Set<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion) {
         if (!StringUtils.hasLength(bindingValue)) {
             return Mono.empty();
         }
@@ -35,7 +35,7 @@ public class AstServiceCEImpl implements AstServiceCE {
         // If RTS server is not accessible for this instance, it means that this is a slim container set up
         // Proceed with assuming that all words need to be processed as possible entity references
         if (Boolean.FALSE.equals(instanceConfig.getIsRtsAccessible())) {
-            return Mono.just(new ArrayList<>(MustacheHelper.getPossibleParentsOld(bindingValue)));
+            return Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue)));
         }
 
         return WebClientUtils.create(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/single-script-data")
@@ -66,28 +66,28 @@ public class AstServiceCEImpl implements AstServiceCE {
 
     /**
      * Consider the following binding:
-     *   ( function(ignoredAction1) {
-     *     let a = ignoredAction1.data
-     *     let ignoredAction2 = { data: "nothing" }
-     *     let b = ignoredAction2.data
-     *     let c = "ignoredAction3.data"
-     *     // ignoredAction4.data
-     *     return aPostAction.data
-     *   } )(anotherPostAction.data)
+     * ( function(ignoredAction1) {
+     * let a = ignoredAction1.data
+     * let ignoredAction2 = { data: "nothing" }
+     * let b = ignoredAction2.data
+     * let c = "ignoredAction3.data"
+     * // ignoredAction4.data
+     * return aPostAction.data
+     * } )(anotherPostAction.data)
      * <p/>
      * The values in the returned instance of GetIdentifiersResponseDetails will be:
      * {
-     *   references: ["aPostAction.data", "anotherPostAction.data"],
-     *   functionalParams: ["ignoredAction1"],
-     *   variables: ["ignoredAction2", "a", "b", "c"]
+     * references: ["aPostAction.data", "anotherPostAction.data"],
+     * functionalParams: ["ignoredAction1"],
+     * variables: ["ignoredAction2", "a", "b", "c"]
      */
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter
     @Setter
     static class GetIdentifiersResponseDetails {
-        List<String> references;
-        List<String> functionalParams;
-        List<String> variables;
+        Set<String> references;
+        Set<String> functionalParams;
+        Set<String> variables;
     }
 }
