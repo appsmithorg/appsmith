@@ -266,6 +266,7 @@ export function Table(props: TableProps) {
               backgroundColor={Colors.WHITE}
               serverSidePaginationEnabled={props.serverSidePaginationEnabled}
               tableSizes={tableSizes}
+              variant={props.variant}
               width={props.width}
             >
               <TableHeader
