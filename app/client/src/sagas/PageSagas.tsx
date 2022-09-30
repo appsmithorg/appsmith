@@ -547,7 +547,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
     if (
       !isPermitted(
-        currentPage?.userPermissions || [""],
+        currentPage?.userPermissions || [],
         PERMISSION_TYPE.MANAGE_PAGES,
       )
     ) {

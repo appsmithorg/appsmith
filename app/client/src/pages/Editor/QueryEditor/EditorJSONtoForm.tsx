@@ -509,15 +509,15 @@ export function EditorJSONtoForm(props: Props) {
   );
   const { pageId } = useParams<ExplorerURLParams>();
   const isChangePermitted = isPermitted(
-    currentActionConfig?.userPermissions || [""],
+    currentActionConfig?.userPermissions || [],
     PERMISSION_TYPE.MANAGE_ACTIONS,
   );
   const isExecutePermitted = isPermitted(
-    currentActionConfig?.userPermissions || [""],
+    currentActionConfig?.userPermissions || [],
     PERMISSION_TYPE.EXECUTE_ACTIONS,
   );
   const isDeletePermitted = isPermitted(
-    currentActionConfig?.userPermissions || [""],
+    currentActionConfig?.userPermissions || [],
     PERMISSION_TYPE.DELETE_ACTIONS,
   );
 

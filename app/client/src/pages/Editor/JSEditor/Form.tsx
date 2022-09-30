@@ -219,15 +219,15 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 
   const isChangePermitted = isPermitted(
-    currentJSCollection?.userPermissions || [""],
+    currentJSCollection?.userPermissions || [],
     PERMISSION_TYPE.MANAGE_ACTIONS,
   );
   const isExecutePermitted = isPermitted(
-    currentJSCollection?.userPermissions || [""],
+    currentJSCollection?.userPermissions || [],
     PERMISSION_TYPE.EXECUTE_ACTIONS,
   );
   const isDeletePermitted = isPermitted(
-    currentJSCollection?.userPermissions || [""],
+    currentJSCollection?.userPermissions || [],
     PERMISSION_TYPE.DELETE_ACTIONS,
   );
 
