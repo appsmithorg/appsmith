@@ -1,5 +1,5 @@
 import React from "react";
-import { CommonComponentProps, Classes } from "components/ads/common";
+import { Classes, CommonComponentProps } from "components/ads/common";
 import {
   Menu,
   MenuDivider,
@@ -9,14 +9,17 @@ import {
   TooltipComponent,
 } from "design-system";
 import styled from "styled-components";
-import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
-  getOnSelectAction,
+  Classes as BlueprintClasses,
+  PopperModifiers,
+  Position,
+} from "@blueprintjs/core";
+import {
   DropdownOnSelectActions,
+  getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
-import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE } from "constants/routes";
 import { Colors } from "constants/Colors";
 import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
@@ -35,6 +38,7 @@ const StyledMenuItem = styled(MenuItem)`
     width: 18px;
     height: 18px;
     fill: ${Colors.GRAY};
+
     path {
       fill: ${Colors.GRAY};
     }
@@ -56,6 +60,7 @@ const UserInformation = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.profileDropdown.userName};
     }
@@ -66,6 +71,7 @@ const UserInformation = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.profileDropdown.name};
     }
@@ -73,6 +79,7 @@ const UserInformation = styled.div`
 
   .user-image {
     margin-right: ${(props) => props.theme.spaces[4]}px;
+
     div {
       cursor: default;
     }
