@@ -1,15 +1,27 @@
-const homePage = require("../../../../locators/HomePage");
-const widgetLocators = require("../../../../locators/Widgets.json");
-const explorer = require("../../../../locators/explorerlocators.json");
+import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const homePage = ObjectsRegistry.HomePage;
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("MaintainContext&Focus", function() {
   it("Import the test application", () => {
-    // TODO
-    // Temp search app
-    cy.get(homePage.homeIcon).click({ force: true });
-    cy.SearchApp("ContextSwitching");
-    cy.get("#loading").should("not.exist");
+    homePage.NavigateToHome();
+    homePage.ImportApp("ContextSwitching.json");
+    cy.wait("@importNewApplication").then((interception) => {
+      agHelper.Sleep();
+      const { isPartialImport } = interception.response.body.data;
+      if (isPartialImport) {
+        // should reconnect modal
+        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
+          force: true,
+        });
+        cy.wait(2000);
+      } else {
+        homePage.AssertImportToast();
+      }
+    });
   });
   it("Focus on different entities", () => {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
