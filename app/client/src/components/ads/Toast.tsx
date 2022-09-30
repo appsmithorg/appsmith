@@ -11,7 +11,6 @@ import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 import * as log from "loglevel";
 
 export type ToastProps = ToastOptions &
@@ -27,7 +26,7 @@ export type ToastProps = ToastOptions &
       type: ReduxActionType;
       payload: any;
     };
-    showDebugButton?: boolean;
+    showDebugButton?: any;
     hideProgressBar?: boolean;
     hideActionElementSpace?: boolean;
     width?: string;
@@ -138,10 +137,6 @@ const ToastTextWrapper = styled.div`
   min-width: 0;
 `;
 
-const StyledDebugButton = styled(DebugButton)`
-  margin-left: auto;
-`;
-
 const StyledActionText = styled(Text)`
   color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
   cursor: pointer;
@@ -186,9 +181,9 @@ export function ToastComponent(
             </StyledActionText>
           )}
           {props.variant === Variant.danger && props.showDebugButton ? (
-            <StyledDebugButton
-              className="t--toast-debug-button"
-              source={"TOAST"}
+            <props.showDebugButton.component
+              {...props.showDebugButton.componentProps}
+              style={{ marginLeft: "auto" }}
             />
           ) : null}
         </ToastTextWrapper>
