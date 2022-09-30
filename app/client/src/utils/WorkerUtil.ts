@@ -3,6 +3,7 @@ import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
 import WebpackWorker from "worker-loader!";
+// import { executeDynamicTriggerRequest } from "sagas/EvaluationsSaga";
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -50,13 +51,15 @@ export class GracefulWorkerService {
 
   private readonly _workerClass: typeof WebpackWorker;
 
+  public mainThreadRequestChannel: Channel<any>;
+  public mainThreadResponseChannel: Channel<any>;
+
   constructor(workerClass: typeof WebpackWorker) {
     this.shutdown = this.shutdown.bind(this);
     this.start = this.start.bind(this);
     this.request = this.request.bind(this);
     this._broker = this._broker.bind(this);
     this.duplexRequest = this.duplexRequest.bind(this);
-    this.duplexRequestHandler = this.duplexRequestHandler.bind(this);
     this.duplexResponseHandler = this.duplexResponseHandler.bind(this);
 
     // Do not buffer messages on this channel
@@ -64,6 +67,8 @@ export class GracefulWorkerService {
     this._isReady = false;
     this._channels = new Map<string, Channel<any>>();
     this._workerClass = workerClass;
+    this.mainThreadRequestChannel = channel();
+    this.mainThreadResponseChannel = channel();
   }
 
   /**
@@ -77,6 +82,10 @@ export class GracefulWorkerService {
     // Inform all pending requests that we're good to go!
     this._isReady = true;
     yield put(this._readyChan, true);
+    yield spawn(this.duplexResponseHandler, this.mainThreadResponseChannel);
+    return {
+      mainThreadRequestChannel: this.mainThreadRequestChannel,
+    };
   }
 
   /**
@@ -96,6 +105,8 @@ export class GracefulWorkerService {
     this._evaluationWorker.removeEventListener("message", this._broker);
     this._evaluationWorker.terminate();
     this._evaluationWorker = undefined;
+    this.mainThreadRequestChannel.close();
+    this.mainThreadResponseChannel.close();
   }
 
   /**
@@ -182,29 +193,8 @@ export class GracefulWorkerService {
     const workerRequestId = `${method}__${_.uniqueId()}`;
     // The worker channel is the main channel
     // where the web worker messages will get posted
-    const workerChannel = channel();
-    this._channels.set(workerRequestId, workerChannel);
-    // The main thread will listen to the
-    // request channel where it will get worker messages
-    const mainThreadRequestChannel = channel();
-    // The main thread will respond back on the
-    // response channel which will be relayed to the worker
-    const mainThreadResponseChannel = channel();
-
-    // We spawn both the main thread request and response handler
-    yield spawn(
-      this.duplexRequestHandler,
-      workerChannel,
-      mainThreadRequestChannel,
-      mainThreadResponseChannel,
-    );
-    yield spawn(
-      this.duplexResponseHandler,
-      workerRequestId,
-      workerChannel,
-      mainThreadResponseChannel,
-    );
-
+    const isFinishedChannel = channel();
+    this._channels.set(workerRequestId, isFinishedChannel);
     // And post the first message to the worker
     this._evaluationWorker.postMessage({
       method,
@@ -214,75 +204,27 @@ export class GracefulWorkerService {
 
     // Returning these channels to the main thread so that they can listen and post on it
     return {
-      responseChannel: mainThreadResponseChannel,
-      requestChannel: mainThreadRequestChannel,
+      isFinishedChannel: isFinishedChannel,
     };
   }
 
-  *duplexRequestHandler(
-    workerChannel: Channel<any>,
-    requestChannel: Channel<any>,
-    responseChannel: Channel<any>,
-  ) {
+  *duplexResponseHandler(mainThreadResponseChannel: Channel<any>) {
     if (!this._evaluationWorker) return;
     try {
-      let keepAlive = true;
-      while (keepAlive) {
-        // Wait for a message from the worker
-        const workerResponse: {
-          responseData: {
-            finished: unknown;
-          };
-        } = yield take(workerChannel);
-        const { responseData } = workerResponse;
-        // post that message to the request channel so the main thread can read it
-        requestChannel.put({ requestData: responseData });
-        // If we get a finished flag, the worker is requesting to end the request
-        if (responseData.finished) {
-          keepAlive = false;
-          // Relay the finished flag to the response channel as well
-          responseChannel.put({
-            finished: true,
-          });
-        }
-      }
-    } catch (e) {
-      log.error(e);
-    } finally {
-      // Cleanup
-      requestChannel.close();
-    }
-  }
-
-  *duplexResponseHandler(
-    workerRequestId: string,
-    workerChannel: Channel<any>,
-    responseChannel: Channel<any>,
-  ) {
-    if (!this._evaluationWorker) return;
-    try {
-      let keepAlive = true;
+      const keepAlive = true;
       while (keepAlive) {
         // Wait for the main thread to respond back after a request
-        const response: { finished: unknown } = yield take(responseChannel);
-        // If we get a finished flag, the worker is requesting to end the request
-        if (response.finished) {
-          keepAlive = false;
-          continue;
-        }
+        const response: { finished: unknown; requestId: string } = yield take(
+          mainThreadResponseChannel,
+        );
         // send response to worker
         this._evaluationWorker.postMessage({
           ...response,
-          requestId: workerRequestId,
+          requestId: response.requestId,
         });
       }
     } catch (e) {
       log.error(e);
-    } finally {
-      // clean up everything
-      responseChannel.close();
-      workerChannel.close();
-      this._channels.delete(workerRequestId);
     }
   }
 
@@ -290,12 +232,28 @@ export class GracefulWorkerService {
     if (!event || !event.data) {
       return;
     }
-    const { requestId, responseData, timeTaken } = event.data;
+    const { promisified, requestId, responseData, timeTaken } = event.data;
     const ch = this._channels.get(requestId);
     // Channel could have been deleted if the request gets cancelled before the WebWorker can respond.
     // In that case, we want to drop the request.
-    if (ch) {
-      ch.put({ responseData, timeTaken });
+    if (promisified) {
+      if (responseData.finished) {
+        if (ch) {
+          ch.put({ requestData: responseData, timeTaken, requestId });
+          this._channels.delete(requestId);
+        }
+      } else {
+        this.mainThreadRequestChannel.put({
+          requestData: responseData,
+          timeTaken,
+          requestId,
+          mainThreadResponseChannel: this.mainThreadResponseChannel,
+        });
+      }
+    } else {
+      if (ch) {
+        ch.put({ responseData, timeTaken, requestId });
+      }
     }
   }
 }
