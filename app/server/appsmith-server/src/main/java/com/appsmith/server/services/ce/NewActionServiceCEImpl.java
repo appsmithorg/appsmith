@@ -657,6 +657,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // This is a nested datasource. Return as is.
                     return Mono.justOrEmpty(action.getDatasource());
                 })
+                .flatMap(datasourceService::getValidDatasourceMono)
                 .cache();
 
         Mono<Plugin> pluginMono = datasourceMono

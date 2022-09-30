@@ -183,6 +183,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
+    public Mono<Datasource> getValidDatasourceMono(Datasource datasource) {
+        return Mono.just(datasource);
+    }
+
+    @Override
     public Mono<Datasource> update(String id, Datasource datasource) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
