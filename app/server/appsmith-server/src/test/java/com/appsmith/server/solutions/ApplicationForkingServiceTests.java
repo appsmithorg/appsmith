@@ -340,9 +340,9 @@ public class ApplicationForkingServiceTests {
                         newPage.getUnpublishedPage()
                                 .getLayouts()
                                 .forEach(layout -> {
-                                            assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                            assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                                             layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                                assertThat(dslActionDTOS).hasSize(2);
+                                                assertThat(dslActionDTOS).hasSize(1);
                                                 dslActionDTOS.forEach(actionDTO -> {
                                                     assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                                     if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {

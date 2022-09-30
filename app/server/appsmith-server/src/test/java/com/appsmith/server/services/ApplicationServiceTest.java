@@ -2,10 +2,12 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -20,13 +22,11 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -1736,9 +1736,9 @@ public class ApplicationServiceTest {
                         newPage.getUnpublishedPage()
                                 .getLayouts()
                                 .forEach(layout -> {
-                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                                     layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                        assertThat(dslActionDTOS).hasSize(2);
+                                        assertThat(dslActionDTOS).hasSize(1);
                                         dslActionDTOS.forEach(actionDTO -> {
                                             assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                             if (StringUtils.hasLength(actionDTO.getCollectionId())) {
@@ -2072,9 +2072,9 @@ public class ApplicationServiceTest {
                         newPage.getUnpublishedPage()
                                 .getLayouts()
                                 .forEach(layout -> {
-                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                                     layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                        assertThat(dslActionDTOS).hasSize(2);
+                                        assertThat(dslActionDTOS).hasSize(1);
                                         dslActionDTOS.forEach(actionDTO -> {
                                             assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                             if (StringUtils.hasLength(actionDTO.getCollectionId())) {

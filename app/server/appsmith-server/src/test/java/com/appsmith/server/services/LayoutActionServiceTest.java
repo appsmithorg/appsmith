@@ -359,10 +359,13 @@ public class LayoutActionServiceTest {
                 .create(resultMono)
                 .assertNext(page -> {
                     assertThat(page.getLayouts()).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
-                    Set<DslActionDTO> dslActionDTOS = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
-                    assertThat(dslActionDTOS).hasSize(2);
-                    assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "jsObject.jsFunction"));
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(2);
+                    Set<DslActionDTO> dslActionDTOS1 = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
+                    assertThat(dslActionDTOS1).hasSize(1);
+                    assertThat(dslActionDTOS1.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("jsObject.jsFunction"));
+                    Set<DslActionDTO> dslActionDTOS2 = page.getLayouts().get(0).getLayoutOnLoadActions().get(1);
+                    assertThat(dslActionDTOS2).hasSize(1);
+                    assertThat(dslActionDTOS2.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1"));
                 })
                 .verifyComplete();
     }

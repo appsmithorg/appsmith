@@ -809,7 +809,7 @@ public class LayoutServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO testPage = new PageDTO();
-        testPage.setName("ActionsExecuteOnLoad Test Page1");
+        testPage.setName("ActionsExecuteOnLoad Test Page1 Universal");
 
         Application app = new Application();
         app.setName("newApplication-updateLayoutValidPageId-TestWithAst-Universal");
