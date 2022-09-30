@@ -1,5 +1,5 @@
 import React from "react";
-import { formValueSelector, change } from "redux-form";
+import { formValueSelector } from "redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
@@ -13,8 +13,6 @@ import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
-import history from "utils/history";
-import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
@@ -88,11 +86,6 @@ class DynamicTextControl extends BaseControl<
 
 export interface DynamicTextFieldProps extends ControlProps {
   actionName: string;
-  createTemplate: (
-    template: any,
-    formName: string,
-    configProperty: string,
-  ) => any;
   pluginId: string;
   responseType: string;
   placeholderText?: string;
@@ -115,20 +108,4 @@ const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => ({
-  createTemplate: (template: any, formName: string, configProperty: string) => {
-    const params = getQueryParams();
-    if (params.showTemplate) {
-      params.showTemplate = "false";
-    }
-    history.replace({
-      ...window.location,
-      search: convertObjectToQueryParams(params),
-    });
-    dispatch(
-      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
-    );
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(DynamicTextControl);
+export default connect(mapStateToProps)(DynamicTextControl);

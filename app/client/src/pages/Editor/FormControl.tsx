@@ -104,7 +104,7 @@ function FormControl(props: FormControlProps) {
   }
 
   const createTemplate = (
-    template: any,
+    template: string,
     formName: string,
     configProperty: string,
   ) => {
@@ -148,7 +148,7 @@ function FormControl(props: FormControlProps) {
           >
             {showTemplate && !convertFormToRaw ? (
               <TemplateMenu
-                createTemplate={(templateString: any) =>
+                createTemplate={(templateString: string) =>
                   createTemplate(
                     templateString,
                     props?.formName,
