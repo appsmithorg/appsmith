@@ -95,6 +95,8 @@ import { LogObject, UserLogObject } from "workers/UserLog";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { ValidationResponse } from "constants/WidgetValidation";
+import isEmpty from "lodash/isEmpty";
+import { UncaughtPromiseError } from "./ActionExecution/errorUtils";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -286,14 +288,13 @@ export function* evaluateAndExecuteDynamicTrigger(
     );
   }
   yield call(evalErrorHandler, errors);
-  // if (!isEmpty(errors)) {
-  //   if (
-  //     errors[0].errorMessage !==
-  //     "UncaughtPromiseRejection: User cancelled action execution"
-  //   ) {
-  //     throw new UncaughtPromiseError(errors[0].errorMessage);
-  //   }
-  // }
+  if (isEmpty(errors)) return;
+  if (
+    errors[0].errorMessage !==
+    "UncaughtPromiseRejection: User cancelled action execution"
+  ) {
+    throw new UncaughtPromiseError(errors[0].errorMessage);
+  }
 }
 
 export function* clearEvalCache() {
