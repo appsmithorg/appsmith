@@ -305,13 +305,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
-                .flatMap(unsavedDatasource -> repository.save(unsavedDatasource).map(savedDatasource -> {
-                    // datasource.pluginName is a transient field. It was set by validateDatasource method
-                    // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                    savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                    return savedDatasource;
-                })
-                );
+                .flatMap(unsavedDatasource -> {
+                    return repository.save(unsavedDatasource)
+                            .map(savedDatasource -> {
+                                // datasource.pluginName is a transient field. It was set by validateDatasource method
+                                // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                                savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                                return savedDatasource;
+                            });
+                });
     }
 
     /**
