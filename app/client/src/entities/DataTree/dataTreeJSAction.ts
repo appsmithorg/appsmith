@@ -7,8 +7,6 @@ import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
-const reg = /this\./g;
-
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
 ): DataTreeJSAction => {
