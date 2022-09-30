@@ -77,7 +77,11 @@ async function run() {
     }
 
   } catch (err) {
-    errorCode = 1;
+    let errorCode = 1;
+    if(err == Constants.S3_UPLOAD_FAILED_ERROR_MSG){ // Fail safe if aws credentials are not configured, so that watchtower hook continues execution
+      errorCode = 0;
+    }
+    
     await logger.backup_error(err.stack);
 
     if (command_args.includes('--error-mail')) {
