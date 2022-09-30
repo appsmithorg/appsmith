@@ -17,5 +17,6 @@
       "@utils/*": ["./src/utils/*"]
     }
   },
+  "exclude": ["jest.config.js", "src/test"],
   "lib": ["es2015"]
 }
