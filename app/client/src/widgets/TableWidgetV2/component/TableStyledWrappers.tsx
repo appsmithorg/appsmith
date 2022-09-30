@@ -180,6 +180,8 @@ export const TableWrapper = styled.div<{
     }
   }
   .hidden-header {
+    opacity: 0.6;
+
     ${invisible};
   }
   .column-menu {
