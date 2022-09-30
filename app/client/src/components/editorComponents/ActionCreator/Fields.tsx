@@ -7,7 +7,7 @@ import {
 import DividerComponent from "widgets/DividerWidget/component";
 import { FieldType } from "./constants";
 import { FieldsProps } from "./types";
-import { Field } from "./Field/Field";
+import { Field } from "./Field";
 
 /**
  ******** Steps to add a new function *******
