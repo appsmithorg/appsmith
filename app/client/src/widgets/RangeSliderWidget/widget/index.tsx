@@ -48,10 +48,6 @@ class RangeSliderWidget extends BaseWidget<
   RangeSliderWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
-    return [...contentConfig, ...styleConfig];
-  }
-
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
