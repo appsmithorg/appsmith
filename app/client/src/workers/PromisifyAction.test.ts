@@ -65,7 +65,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           requestData: {
-            data: { resolve: "123" },
+            data: { resolve: ["123"] },
             success: true,
           },
           requestId,
@@ -116,7 +116,7 @@ describe("promise execution", () => {
         data: {
           requestData: {
             data: {
-              resolve: { reason: "wrongRequest" },
+              resolve: { reason: ["wrongRequest"] },
               success: false,
             },
           },
@@ -130,7 +130,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           requestData: {
-            data: { resolve: "testing" },
+            data: { resolve: ["testing"] },
             success: true,
           },
           method: "PROCESS_TRIGGER",
@@ -155,7 +155,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           requestData: {
-            data: { resolve: "testing" },
+            data: { resolve: ["testing"] },
             success: true,
           },
           method: "PROCESS_TRIGGER",

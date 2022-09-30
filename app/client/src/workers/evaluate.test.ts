@@ -1,6 +1,6 @@
 import evaluate, {
   setupEvaluationEnvironment,
-  evaluateAsync,
+  evaluateJSString,
   isFunctionAsync,
 } from "workers/evaluate";
 import {
@@ -109,128 +109,145 @@ describe("evaluateSync", () => {
     const response = evaluate(js, dataTree, {}, false);
     expect(response.result).toBe("value");
   });
-  it("disallows unsafe function calls", () => {
+  it("disallows unsafe function calls", async () => {
     const js = "setImmediate(() => {}, 100)";
-    const response = evaluate(js, dataTree, {}, false);
-    expect(response).toStrictEqual({
+    const response = await evaluateJSString(js, dataTree, {}, false);
+    expect(response).toContain({
       result: undefined,
       logs: [],
       errors: [
         {
-          errorMessage: "TypeError: setImmediate is not a function",
+          errorMessage: "ReferenceError: setImmediate is not defined",
           errorType: "PARSE",
-          raw: `
-  function closedFunction () {
-    const result = setImmediate(() => {}, 100)
-    return result;
-  }
-  closedFunction.call(THIS_CONTEXT)
-  `,
-          severity: "error",
-          originalBinding: "setImmediate(() => {}, 100)",
         },
       ],
     });
   });
-  it("has access to extra library functions", () => {
+  it("has access to extra library functions", async () => {
     const js = "_.add(1,2)";
-    const response = evaluate(js, dataTree, {}, false);
+    const response = await evaluateJSString(js, dataTree, {}, false);
     expect(response.result).toBe(3);
   });
-  it("evaluates functions with callback data", () => {
+  it("evaluates functions with callback data", async () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, {}, false, {}, callbackData);
+    const response = await evaluateJSString(
+      js,
+      dataTree,
+      {},
+      false,
+      {},
+      callbackData,
+    );
     expect(response.result).toBe("test1");
   });
-  it("handles EXPRESSIONS with new lines", () => {
+  it("handles EXPRESSIONS with new lines", async () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false);
+    let response = await evaluateJSString(js, dataTree, {}, false);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false);
+    response = await evaluateJSString(js, dataTree, {}, false);
     expect(response.errors.length).toBe(0);
   });
-  it("handles TRIGGERS with new lines", () => {
+  it("handles TRIGGERS with new lines", async () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    let response = await evaluateJSString(
+      js,
+      dataTree,
+      {},
+      false,
+      undefined,
+      undefined,
+    );
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    response = await evaluateJSString(
+      js,
+      dataTree,
+      {},
+      false,
+      undefined,
+      undefined,
+    );
     expect(response.errors.length).toBe(0);
   });
-  it("handles ANONYMOUS_FUNCTION with new lines", () => {
+  it("handles ANONYMOUS_FUNCTION with new lines", async () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    let response = await evaluateJSString(
+      js,
+      dataTree,
+      {},
+      false,
+      undefined,
+      undefined,
+    );
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    response = await evaluateJSString(
+      js,
+      dataTree,
+      {},
+      false,
+      undefined,
+      undefined,
+    );
     expect(response.errors.length).toBe(0);
   });
-  it("has access to this context", () => {
+  it("has access to this context", async () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, { thisContext });
+    const response = await evaluateJSString(js, dataTree, {}, false, {
+      thisContext,
+    });
     expect(response.result).toBe("test");
     // there should not be any error when accessing "this" variables
     expect(response.errors).toHaveLength(0);
   });
 
-  it("has access to additional global context", () => {
+  it("has access to additional global context", async () => {
     const js = "contextVariable";
     const globalContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, { globalContext });
+    const response = await evaluateJSString(js, dataTree, {}, false, {
+      globalContext,
+    });
     expect(response.result).toBe("test");
     expect(response.errors).toHaveLength(0);
   });
 });
 
-describe("evaluateAsync", () => {
+describe("evaluate asynchronous javascript", () => {
   it("runs and completes", async () => {
     const js = "(() => new Promise((resolve) => { resolve(123) }))()";
     self.postMessage = jest.fn();
-    await evaluateAsync(js, {}, "TEST_REQUEST", {});
-    expect(self.postMessage).toBeCalledWith({
-      requestId: "TEST_REQUEST",
-      promisified: true,
-      responseData: {
-        finished: true,
-        result: { errors: [], logs: [], result: 123, triggers: [] },
-      },
-      type: "PROCESS_TRIGGER",
+    const response = await evaluateJSString(js, {}, {}, true, {}, []);
+    expect(response).toEqual({
+      errors: [],
+      logs: [],
+      result: 123,
+      triggers: [],
     });
   });
   it("runs and returns errors", async () => {
     jest.restoreAllMocks();
     const js = "(() => new Promise((resolve) => { randomKeyword }))()";
     self.postMessage = jest.fn();
-    await evaluateAsync(js, {}, "TEST_REQUEST_1", {});
-    expect(self.postMessage).toBeCalledWith({
-      requestId: "TEST_REQUEST_1",
-      promisified: true,
-      responseData: {
-        finished: true,
-        result: {
-          errors: [
-            {
-              errorMessage: expect.stringContaining(
-                "randomKeyword is not defined",
-              ),
-              errorType: "PARSE",
-              originalBinding: expect.stringContaining("Promise"),
-              raw: expect.stringContaining("Promise"),
-              severity: "error",
-            },
-          ],
-          triggers: [],
-          result: undefined,
-          logs: [],
+    const response = await evaluateJSString(js, {}, {}, true, {});
+    expect(response).toEqual({
+      errors: [
+        {
+          errorMessage: expect.stringContaining("randomKeyword is not defined"),
+          errorType: "PARSE",
+          originalBinding: expect.stringContaining("Promise"),
+          raw: expect.stringContaining("Promise"),
+          severity: "error",
         },
-      },
-      type: "PROCESS_TRIGGER",
+      ],
+      triggers: [],
+      result: undefined,
+      logs: [],
     });
   });
 });

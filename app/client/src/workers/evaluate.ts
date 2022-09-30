@@ -138,7 +138,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     skipEntityFunctions,
   } = args;
 
-  const GLOBAL_DATA: Record<string, any> = {};
+  let GLOBAL_DATA: Record<string, any> = {};
 
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
@@ -146,7 +146,8 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   GLOBAL_DATA.THIS_CONTEXT = {};
   if (context) {
     if (context.thisContext) {
-      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
+      // GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
+      GLOBAL_DATA = { ...GLOBAL_DATA, ...context.thisContext };
     }
     if (context.globalContext) {
       Object.entries(context.globalContext).forEach(([key, value]) => {
@@ -174,20 +175,16 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
 
   if (isEmpty(resolvedFunctions)) return GLOBAL_DATA;
 
-  Object.keys(resolvedFunctions).forEach((datum: any) => {
-    const resolvedObject = resolvedFunctions[datum];
-    Object.keys(resolvedObject).forEach((key: any) => {
-      const dataTreeKey = GLOBAL_DATA[datum];
-      if (dataTreeKey) {
-        const data = dataTreeKey[key]?.data;
-        dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
-        dataTreeKey[key] = resolvedObject[key];
-        if (!!data) {
-          dataTreeKey[key]["data"] = data;
-        }
-      }
-    });
-  });
+  for (const jsEntityName of Object.keys(resolvedFunctions)) {
+    const jsEntityFunctions = resolvedFunctions[jsEntityName];
+    const entity = GLOBAL_DATA[jsEntityName];
+    if (!entity) continue;
+    for (const jsFunctionName of Object.keys(jsEntityFunctions)) {
+      const data = entity[jsFunctionName]?.data;
+      entity[jsFunctionName] = jsEntityFunctions[jsFunctionName];
+      if (data) entity[jsFunctionName].data = data;
+    }
+  }
   return GLOBAL_DATA;
 };
 
@@ -236,7 +233,8 @@ export function evaluateJSString(
   evalArguments?: Array<any>,
   skipLogsOperations = false,
 ): Promise<EvalResult> {
-  return (async function() {
+  return async function() {
+    resetWorkerGlobalScope();
     let result,
       logs: LogObject[] = [];
     const errors: EvaluationError[] = [];
@@ -282,7 +280,7 @@ export function evaluateJSString(
         triggers: Array.from(self.TRIGGER_COLLECTOR || []),
       };
     }
-  })();
+  }.call(self);
 }
 
 export default function evaluateSync(
@@ -519,7 +517,7 @@ export function isFunctionAsync(
 }
 
 function getEvalScript(code: string, evalArgs: any) {
-  if (evalArgs) code = `(${code}).apply(THIS_CONTEXT, ARGUMENTS)`;
+  if (evalArgs?.length > 0) code = `(${code}).apply(THIS_CONTEXT, ARGUMENTS)`;
   return `new Promise((resolve, reject) => {
     try {
       const result = ${code};
