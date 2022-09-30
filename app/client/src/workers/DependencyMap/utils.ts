@@ -163,12 +163,12 @@ export function listValidationDependencies(
 
     Object.entries(validationPaths).forEach(
       ([propertyPath, validationConfig]) => {
-        if (validationConfig.dependency) {
-          const dependencyArray = validationConfig.dependency.map(
-            (path) => `${entityName}${path}`,
+        if (validationConfig.dependencies) {
+          const dependencyArray = validationConfig.dependencies.map(
+            (path) => `${entityName}.${path}`,
           );
           validationDependency[
-            `${entityName}${propertyPath}`
+            `${entityName}.${propertyPath}`
           ] = dependencyArray;
         }
       },

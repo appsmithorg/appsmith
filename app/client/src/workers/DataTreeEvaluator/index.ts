@@ -176,7 +176,10 @@ export default class DataTreeEvaluator {
     const createDependencyEnd = performance.now();
     // Sort
     const sortDependenciesStart = performance.now();
-    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
+    this.sortedDependencies = this.sortDependencies({
+      dependencyMap,
+      validationDependencyMap,
+    });
     const sortDependenciesEnd = performance.now();
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
@@ -774,18 +777,31 @@ export default class DataTreeEvaluator {
   }
 
   sortDependencies(
-    dependencyMap: DependencyMap,
+    params: {
+      dependencyMap: DependencyMap;
+      validationDependencyMap: DependencyMap;
+    },
     diffs?: (DataTreeDiff | DataTreeDiff[])[],
   ): Array<string> {
+    /**
+     * dependencyTree : Array<[Node, dependentNode]>
+     *
+     *
+     */
+
     const dependencyTree: Array<[string, string]> = [];
-    Object.keys(dependencyMap).forEach((key: string) => {
-      if (dependencyMap[key].length) {
-        dependencyMap[key].forEach((dep) => dependencyTree.push([key, dep]));
+    Object.keys(params.dependencyMap).forEach((key: string) => {
+      if (params.dependencyMap[key].length) {
+        params.dependencyMap[key].forEach((dep) =>
+          dependencyTree.push([key, dep]),
+        );
       } else {
         // Set no dependency
         dependencyTree.push([key, ""]);
       }
     });
+
+    console.log("$$$-dependencyTree", dependencyTree, params);
 
     try {
       // sort dependencies and remove empty dependencies
@@ -816,11 +832,11 @@ export default class DataTreeEvaluator {
         context: {
           node,
           entityType,
-          dependencyMap,
+          dependencyMap: params.dependencyMap,
           diffs,
         },
       });
-      logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
+      logError("CYCLICAL DEPENDENCY MAP", params.dependencyMap);
       this.hasCyclicalDependency = true;
       throw new CrashingError((error as Error).message);
     }

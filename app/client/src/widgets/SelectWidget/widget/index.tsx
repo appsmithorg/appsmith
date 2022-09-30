@@ -184,6 +184,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependencies: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },

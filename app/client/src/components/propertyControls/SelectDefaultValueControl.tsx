@@ -13,13 +13,6 @@ import {
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
 
-export const getBindingTemplate = (widgetName: string) => {
-  const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;
-  const suffixTemplate = `))(${widgetName}.options, ${widgetName}.serverSideFiltering) }}`;
-
-  return { prefixTemplate, suffixTemplate };
-};
-
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
   const js = stringSegments
@@ -100,8 +93,7 @@ class SelectDefaultValueControl extends BaseControl<
     } = this.props;
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
-        const { widgetName } = this.props.widgetProperties;
-        return this.getInputComputedValue(propertyValue, widgetName);
+        return JSToString(propertyValue);
       }
 
       return propertyValue || defaultValue;
@@ -122,28 +114,6 @@ class SelectDefaultValueControl extends BaseControl<
     );
   }
 
-  getInputComputedValue = (propertyValue: string, widgetName: string) => {
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
-
-    const value = propertyValue.substring(
-      prefixTemplate.length,
-      propertyValue.length - suffixTemplate.length,
-    );
-
-    return JSToString(value);
-  };
-
-  getComputedValue = (value: string, widgetName: string) => {
-    const stringToEvaluate = stringToJS(value);
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
-
-    if (stringToEvaluate === "") {
-      return stringToEvaluate;
-    }
-
-    return `${prefixTemplate}${stringToEvaluate}${suffixTemplate}`;
-  };
-
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
     if (typeof event !== "string") {
@@ -152,11 +122,7 @@ class SelectDefaultValueControl extends BaseControl<
       value = event;
     }
     if (isString(value)) {
-      const output = this.getComputedValue(
-        value,
-        this.props.widgetProperties.widgetName,
-      );
-
+      const output = stringToJS(value);
       this.updateProperty(this.props.propertyName, output);
     } else {
       this.updateProperty(this.props.propertyName, value);
