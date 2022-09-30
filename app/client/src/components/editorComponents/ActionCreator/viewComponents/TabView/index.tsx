@@ -2,7 +2,7 @@ import { TabViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,
-} from "../../../../propertyControls/StyledControls";
+} from "components/propertyControls/StyledControls";
 import { Switcher } from "design-system";
 import React from "react";
 
