@@ -942,9 +942,7 @@ Cypress.Commands.add("DeleteModal", () => {
 
 Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   let pageId;
-  cy.get(pages.AddPage)
-    .first()
-    .click({ force: true });
+  cy.CreatePage();
   cy.wait("@createPage").then((xhr) => {
     expect(xhr.response.body.responseMeta.status).to.equal(201);
     if (pageName) {
@@ -956,9 +954,6 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
       cy.get(pages.editName).click({ force: true });
       cy.get(pages.editInput).type(pageName + "{enter}");
       cy.wrap(pageId).as("currentPageId");
-    }
-    if (navigateToCanvasPage) {
-      cy.get(generatePage.buildFromScratchActionCard).click();
     }
     cy.get("#loading").should("not.exist");
   });
