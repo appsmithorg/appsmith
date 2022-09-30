@@ -184,6 +184,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> update(String id, Datasource datasource) {
+        // since there was no datasource update differentiator between server invoked due to refresh token,
+        // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
+        return update(id, datasource, Boolean.FALSE);
+    }
+
+    public Mono<Datasource> update(String id, Datasource datasource, Boolean isServerRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -193,6 +199,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
@@ -204,9 +211,19 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
-                .flatMap(savedDatasource ->
-                        analyticsService.sendUpdateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
-                )
+                .flatMap(savedDatasource -> {
+
+                    // this key will present in the analytics as a diff b/w server and user invoked flows
+                    String isDatasourceUpdateServerInvokedKey = "isDatasourceUpdateServerInvoked";
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
+
+                    if (isServerRefreshedUpdate.equals(Boolean.TRUE)) {
+                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.TRUE);
+                    } else {
+                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.FALSE);
+                    }
+                    return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
+                })
                 .flatMap(this::populateHintMessages);
     }
 
@@ -287,15 +304,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
-                .flatMap(unsavedDatasource -> {
-
-                    return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                        return savedDatasource;
-                    });
-                });
+                .flatMap(unsavedDatasource -> repository.save(unsavedDatasource).map(savedDatasource -> {
+                    // datasource.pluginName is a transient field. It was set by validateDatasource method
+                    // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                    savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                    return savedDatasource;
+                })
+                );
     }
 
     /**
