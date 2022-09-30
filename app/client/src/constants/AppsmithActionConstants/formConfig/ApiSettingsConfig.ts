@@ -27,12 +27,6 @@ export default [
         label: "Smart JSON Substitution",
         configProperty: "actionConfiguration.pluginSpecifiedTemplates[0].value",
         controlType: "SWITCH",
-        // encrypted: true,
-        // isRequired: true,
-        // changesViewType: true,
-        // subtitle:
-        //   "Encode JSON Substitution JSON Substitution JSON Substitution JSON Substitution x-www-form-encoded",
-        // urlText: "https://appsmith.com",
         subtitle:
           "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
         initialValue: true,
