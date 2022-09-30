@@ -10,7 +10,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 
-describe("evaluateSync", () => {
+describe("evaluate synchronous code", () => {
   // @ts-expect-error: meta property not provided
   const widget: DataTreeWidget = {
     bottomRow: 0,
@@ -181,7 +181,7 @@ describe("evaluateSync", () => {
   });
 });
 
-describe("evaluate asynchronous javascript", () => {
+describe("evaluate asynchronous code", () => {
   it("runs and completes", async () => {
     const js = "(() => new Promise((resolve) => { resolve(123) }))()";
     self.postMessage = jest.fn();

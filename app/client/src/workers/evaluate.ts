@@ -138,7 +138,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     skipEntityFunctions,
   } = args;
 
-  let GLOBAL_DATA: Record<string, any> = {};
+  const GLOBAL_DATA: Record<string, any> = {};
 
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
@@ -146,8 +146,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   GLOBAL_DATA.THIS_CONTEXT = {};
   if (context) {
     if (context.thisContext) {
-      // GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
-      GLOBAL_DATA = { ...GLOBAL_DATA, ...context.thisContext };
+      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
     }
     if (context.globalContext) {
       Object.entries(context.globalContext).forEach(([key, value]) => {
@@ -233,7 +232,7 @@ export function evaluateJSString(
   evalArguments?: Array<any>,
   skipLogsOperations = false,
 ): Promise<EvalResult> {
-  return async function() {
+  return (async function() {
     resetWorkerGlobalScope();
     let result,
       logs: LogObject[] = [];
@@ -288,7 +287,7 @@ export function evaluateJSString(
         triggers: Array.from(self.TRIGGER_COLLECTOR || []),
       };
     }
-  }.call(self);
+  })();
 }
 
 export default function evaluateSync(
@@ -527,12 +526,12 @@ export function isFunctionAsync(
 function getEvalScript(code: string, evalArgs: any) {
   if (code === "") return code;
   if (evalArgs?.length > 0) code = `(${code}).apply(THIS_CONTEXT, ARGUMENTS)`;
-  return `new Promise((resolve, reject) => {
+  return `new Promise(function(resolve, reject) {
     try {
       const result = ${code};
       resolve(result);
     } catch(e) {
       reject(e);
     }
-  })`;
+  }.bind(THIS_CONTEXT))`;
 }

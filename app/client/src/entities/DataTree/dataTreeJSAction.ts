@@ -20,7 +20,6 @@ export const generateDataTreeJSAction = (
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
 
-  const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
   if (variables) {
@@ -58,7 +57,7 @@ export const generateDataTreeJSAction = (
     actionId: js.config.id,
     pluginType: js.config.pluginType,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body: removeThisReference,
+    body: js.config.body,
     meta: meta,
     bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
     reactivePaths: { ...bindingPaths },
