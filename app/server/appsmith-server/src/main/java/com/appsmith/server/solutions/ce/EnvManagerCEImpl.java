@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -246,6 +247,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.empty();
     }
 
+    /**
+     * This function returns a set of String based on the JsonProperty annotations in the TenantConfiguration class
+     *
+     * @return
+     */
     private Set<String> allowedTenantConfiguration() {
         Field[] fields = TenantConfiguration.class.getDeclaredFields();
         return Arrays.stream(fields)
@@ -255,6 +261,14 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 }).collect(Collectors.toSet());
     }
 
+    /**
+     * This function sets the value in the TenantConfiguration object based on the JsonProperty annotation of the field
+     * The key must be exactly equal to the json annotation
+     *
+     * @param tenantConfiguration
+     * @param key
+     * @param value
+     */
     private void setConfigurationByKey(TenantConfiguration tenantConfiguration, String key, String value) {
         Field[] fields = tenantConfiguration.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -269,6 +283,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             }
         }
     }
+
 
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
@@ -553,7 +568,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                 });
                                 Map<String, String> envMap = new HashMap<>();
                                 envMap.putAll(envFileMap);
-                                envMap.putAll(configMap);
+                                if (!CollectionUtils.isNullOrEmpty(configMap)) {
+                                    envMap.putAll(configMap);
+                                }
                                 return envMap;
                             });
                 });

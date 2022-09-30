@@ -5,5 +5,5 @@ import lombok.Data;
 
 @Data
 public class TenantConfiguration extends TenantConfigurationCE {
-    
+
 }

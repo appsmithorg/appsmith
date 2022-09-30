@@ -56,6 +56,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         return repository.findById(tenantId, MANAGE_TENANT)
                 .flatMap(tenant -> {
                     TenantConfiguration oldtenantConfiguration = tenant.getTenantConfiguration();
+                    if (oldtenantConfiguration == null) {
+                        oldtenantConfiguration = new TenantConfiguration();
+                    }
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldtenantConfiguration);
                     tenant.setTenantConfiguration(oldtenantConfiguration);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
@@ -66,5 +69,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
         return repository.findById(tenantId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
+    }
+
+    /*
+     *  For now, returning an empty tenantConfiguration object in this class. Will enhance this function once we
+     *  start saving other pertinent environment variables in the tenant collection
+     */
+    @Override
+    public Mono<TenantConfiguration> getTenantConfiguration() {
+        return Mono.just(new TenantConfiguration());
     }
 }

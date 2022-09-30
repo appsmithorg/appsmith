@@ -9,6 +9,7 @@ public class CustomTenantRepositoryImpl extends CustomTenantRepositoryCEImpl imp
     public CustomTenantRepositoryImpl(ReactiveMongoOperations mongoOperations,
                                       MongoConverter mongoConverter,
                                       CacheableRepositoryHelper cacheableRepositoryHelper) {
+
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }
