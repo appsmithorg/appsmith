@@ -262,7 +262,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
         eventList = eventList.stream().sorted().collect(Collectors.toList());
         auditLogFilterDTO.setEventName(eventList);
-        Mono<List<String>> userEmail = userRepository.getAllUserEmail().collectList();
+        Mono<List<String>> userEmail = tenantRepository.findBySlug(FieldName.DEFAULT)
+                .flatMap(tenant -> userRepository.getAllUserEmail(tenant.getId()).collectList());
         return userEmail.map(emailList -> {
            auditLogFilterDTO.setEmails(emailList);
            return auditLogFilterDTO;
@@ -271,7 +272,8 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     @Override
     public Mono<List<String>> getAllUsers() {
-        return userRepository.getAllUserEmail().collectList();
+        return tenantRepository.findBySlug(FieldName.DEFAULT)
+                .flatMap(tenant -> userRepository.getAllUserEmail(tenant.getId()).collectList());
     }
 
      /**
