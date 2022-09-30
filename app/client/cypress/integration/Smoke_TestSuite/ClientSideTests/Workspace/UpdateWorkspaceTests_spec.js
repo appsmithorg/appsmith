@@ -86,6 +86,9 @@ describe("Update Workspace", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(homePage.workspaceWebsiteInput).should("have.value", "demowebsite");
+    cy.get(homePage.workspaceWebsiteInput).should(
+      "have.value",
+      "demowebsite.com",
+    );
   });
 });
