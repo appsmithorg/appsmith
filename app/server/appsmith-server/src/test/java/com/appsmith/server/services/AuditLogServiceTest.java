@@ -1397,7 +1397,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogs.size()).isEqualTo(1);
                     assertThat(auditLogs.get(0).getEvent()).isEqualTo("page.updated");
                     assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(page.getId());
-                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(pageDTO.getName());
+                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo("testUpdate2");
                 })
                 .verifyComplete();
     }
@@ -1927,7 +1927,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogs.size()).isEqualTo(1);
                     assertThat(auditLogs.get(0).getEvent()).isEqualTo("query.updated");
                     assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(createdActionDTO.getId());
-                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(updateActionDTO.getName());
+                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo("AuditLogQueryUpdated2");
                 })
                 .verifyComplete();
     }
