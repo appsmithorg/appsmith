@@ -245,6 +245,7 @@ export function* evaluateActionBindings(
  * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
  * execution is returned to the worker where it can resolve/reject the current promise.
  */
+
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -258,7 +259,12 @@ export function* evaluateAndExecuteDynamicTrigger(
   const { errors, logs, triggers } = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-    { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
+    {
+      dataTree: unEvalTree,
+      dynamicTrigger,
+      callbackData,
+      globalContext,
+    },
   );
   yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
   yield call(
@@ -422,7 +428,9 @@ function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(worker.shutdown);
   yield call(worker.start);
+
   yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: {
     postEvalActions: Array<ReduxAction<unknown>>;

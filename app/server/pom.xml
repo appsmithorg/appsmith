@@ -26,6 +26,8 @@
         <skipDockerBuild>true</skipDockerBuild>
         <log4j2.version>2.17.1</log4j2.version>
         <h2.version>2.1.210</h2.version>
+        <testcontainers.version>1.17.3</testcontainers.version>
+        <mockito.version>4.4.0</mockito.version>
     </properties>
 
     <build>
@@ -58,11 +60,48 @@
                 <version>3.0.0-M5</version>
                 <dependencies>
                     <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit4</artifactId>
-                        <version>3.0.0-M5</version>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.6.2</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.junit.platform</groupId>
+                                <artifactId>junit-platform-commons</artifactId>
+                            </exclusion>
+                        </exclusions>
                     </dependency>
                 </dependencies>
+                <configuration>
+                    <!-- Allow JUnit to access the test classes -->
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.time=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>junit:junit</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 

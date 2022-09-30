@@ -47,7 +47,6 @@ type FormDialogComponentProps = {
   selected?: any;
   tabs?: any[];
   options?: any[];
-  links?: any[];
   placeholder?: string;
 };
 
@@ -137,7 +136,6 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         <Form
           {...props.customProps}
           applicationId={props.applicationId}
-          links={props.links}
           message={props.message}
           onCancel={() => setIsOpen(false)}
           placeholder={props.placeholder}

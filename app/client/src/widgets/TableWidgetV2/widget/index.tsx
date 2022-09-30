@@ -51,6 +51,7 @@ import {
   getSelectRowIndices,
   getCellProperties,
   isColumnTypeEditable,
+  getColumnType,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -58,7 +59,6 @@ import {
   CompactModeTypes,
   SortOrderTypes,
 } from "../component/Constants";
-import tablePropertyPaneConfig from "./propertyConfig";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -92,10 +92,6 @@ const defaultFilter = [
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
-
-  static getPropertyPaneConfig() {
-    return tablePropertyPaneConfig;
-  }
 
   static getPropertyPaneContentConfig() {
     return contentConfig;
@@ -417,11 +413,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           existingKeys: union(existingColumnIds, Object.keys(newTableColumns)),
         });
         // Create column properties for the new column
+        const columnType = getColumnType(tableData, columnKey);
         const columnProperties = getDefaultColumnProperties(
           columnKey,
           hashedColumnKey,
           index,
           this.props.widgetName,
+          false,
+          columnType,
         );
 
         newTableColumns[columnProperties.id] = {

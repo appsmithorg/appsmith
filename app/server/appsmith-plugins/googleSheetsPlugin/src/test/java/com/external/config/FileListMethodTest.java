@@ -5,19 +5,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class FileListMethodTest {
 
-    @Test(expected = AppsmithPluginException.class)
+    @Test
     public void testTransformExecutionResponse_missingJSON_throwsException() {
         ObjectMapper objectMapper = new ObjectMapper();
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
-        fileListMethod.transformExecutionResponse(null, null);
+        assertThrows(AppsmithPluginException.class, () -> {
+            fileListMethod.transformExecutionResponse(null, null);
+        });
     }
 
     @Test
@@ -28,14 +34,14 @@ public class FileListMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
         JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, null);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertEquals(0, result.size());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -46,14 +52,14 @@ public class FileListMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
         JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, null);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertEquals(0, result.size());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -64,14 +70,14 @@ public class FileListMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
         JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, null);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertTrue("Test".equalsIgnoreCase(result.get(0).get("name").asText()));
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertTrue("Test".equalsIgnoreCase(result.get(0).get("name").asText()));
     }
 
     @Test
@@ -81,16 +87,16 @@ public class FileListMethodTest {
         final String jsonString = "{\"key\":\"value\"}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileListMethod = new FileListMethod(objectMapper);
         JsonNode result = fileListMethod.transformTriggerResponse(jsonNode, methodConfig);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertTrue(result.isEmpty());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -100,18 +106,18 @@ public class FileListMethodTest {
         final String jsonString = "{\"files\":[{\"id\": \"testId\", \"name\": \"testName\"}]}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileListMethod = new FileListMethod(objectMapper);
         JsonNode result = fileListMethod.transformTriggerResponse(jsonNode, methodConfig);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
+        assertNotNull(result);
+        assertTrue(result.isArray());
         final ObjectNode expectedObjectNode = objectMapper.createObjectNode();
         expectedObjectNode.put("label", "testName");
         expectedObjectNode.put("value", "https://docs.google.com/spreadsheets/d/testId/edit");
-        Assert.assertEquals(expectedObjectNode, result.get(0));
+        assertEquals(expectedObjectNode, result.get(0));
     }
 }

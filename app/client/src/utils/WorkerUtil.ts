@@ -101,6 +101,7 @@ export class GracefulWorkerService {
     this._evaluationWorker.removeEventListener("message", this._broker);
     this._evaluationWorker.terminate();
     this._evaluationWorker = undefined;
+    this.requestsFromWorker.close();
   }
 
   /**
