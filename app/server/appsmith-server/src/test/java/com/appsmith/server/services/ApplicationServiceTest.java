@@ -1974,9 +1974,19 @@ public class ApplicationServiceTest {
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
                             layoutActionService.createSingleAction(action),
-                            layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
-                            Mono.just(application)
+                            Mono.just(application),
+                            Mono.just(testPage),
+                            Mono.just(layout)
                     );
+                })
+                .flatMap(tuple -> {
+                    PageDTO testPage = tuple.getT4();
+                    Layout layout = tuple.getT5();
+                    return Mono.zip(
+                            Mono.just(tuple.getT1()),
+                            Mono.just(tuple.getT2()),
+                            layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
+                            Mono.just(tuple.getT3()));
                 })
                 .flatMap(tuple -> {
                     List<String> pageIds = new ArrayList<>(), collectionIds = new ArrayList<>();
