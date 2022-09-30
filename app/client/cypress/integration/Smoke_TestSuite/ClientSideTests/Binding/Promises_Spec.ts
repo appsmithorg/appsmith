@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
@@ -10,7 +10,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate basic Promises", () => {
   it("1. Verify storeValue via .then via direct Promises", () => {
-    let date = new Date().toDateString();
+    const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
@@ -254,7 +254,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
 
   it("9. Bug 10150: Verify Promise.all via JSObjects", () => {
     deployMode.NavigateBacktoEditor();
-    let date = new Date().toDateString();
+    const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
@@ -337,24 +337,27 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
     );
     deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
-    agHelper.TypeText(locator._widgetInputSelector("inputwidgetv2"), "Update value")
+    agHelper.TypeText(
+      locator._widgetInputSelector("inputwidgetv2"),
+      "Update value",
+    );
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Test");
   });
 
-  //Skipping until this bug this is addressed!
-  it.skip("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
+  it("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     jsEditor.CreateJSObject(`const user = 'You';
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
-    ee.SelectEntityByName("Button1");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
     agHelper.ClickButton("Submit");
+    agHelper.Sleep(1000);
     agHelper
       .GetNAssertContains(
         locator._toastMsg,
