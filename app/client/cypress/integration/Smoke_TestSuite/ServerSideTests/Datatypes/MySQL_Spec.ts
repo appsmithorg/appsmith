@@ -57,11 +57,6 @@ describe("MySQL Datatype tests", function() {
     agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
 
-    query = inputData.query.deleteAllRecords;
-    ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
-    agHelper.RenameWithInPane("deleteAllRecords");
-    dataSources.EnterQuery(query);
-
     query = inputData.query.dropTable;
     ee.ActionTemplateMenuByEntityName(inputData.tableName, "DELETE");
     agHelper.RenameWithInPane("dropTable");
@@ -145,7 +140,6 @@ describe("MySQL Datatype tests", function() {
     ee.ExpandCollapseEntity("Queries/JS");
     [
       "createTable",
-      "deleteAllRecords",
       "dropTable",
       "insertRecord",
       "selectRecords",

@@ -184,7 +184,7 @@ const mySqlData = {
     ["abcdefghijklmnopqrstu"],
     ["abcdefghijk"],
     ["d"],
-    ["{", "["],
+    [],
   ],
   result: [
     ["1", "2", "3", "4", "5"],
@@ -236,8 +236,6 @@ const mySqlData = {
       {{InsertUmediumint.text}}, {{InsertSint.text}}, {{InsertUint.text}}, {{InsertBigint.text}}, {{InsertFloat.text}}, {{InsertDouble.text}}, 
       {{InsertDecimal.text}}, {{InsertDatetime.text}}, {{InsertTimestamp.text}}, {{InsertDate.text}}, {{InsertTime.text}}, 
       {{InsertYear.text}}, {{InsertVarchar.text ? InsertVarchar.text : null}}, {{InsertChar.text}}, {{InsertEnum.text}}, {{InsertBoolean.isSwitchedOn}}, {{InputJson.text}});`,
-    deleteRecord: `DELETE FROM mysqlDTs WHERE serialId ={{Table1.selectedRow.serialid}}`,
-    deleteAllRecords: `DELETE FROM mysqlDTs`,
     dropTable: `drop table mysqlDTs`,
   },
 };
