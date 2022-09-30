@@ -122,6 +122,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -142,6 +143,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -165,6 +167,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -183,6 +186,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -202,6 +206,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -227,6 +232,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -249,6 +255,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -270,6 +277,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -289,6 +297,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -317,6 +326,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -342,6 +352,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -363,6 +374,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -387,6 +399,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
