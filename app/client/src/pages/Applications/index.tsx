@@ -41,10 +41,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import Dialog from "components/ads/DialogComponent";
 import { User } from "constants/userConstants";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
-import {
-  CREATE_WORKSPACE_FORM_NAME,
-  inviteModalLinks,
-} from "@appsmith/constants/forms";
+import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -709,7 +706,6 @@ function ApplicationsSection(props: any) {
                   title={`Invite Users to ${workspace.name}`}
                 >
                   <Form
-                    links={inviteModalLinks}
                     message={createMessage(INVITE_USERS_MESSAGE)}
                     workspaceId={workspace.id}
                   />
@@ -735,7 +731,6 @@ function ApplicationsSection(props: any) {
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
                         canOutsideClickClose
-                        links={inviteModalLinks}
                         message={createMessage(INVITE_USERS_MESSAGE)}
                         placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                         title={`Invite Users to ${workspace.name}`}
