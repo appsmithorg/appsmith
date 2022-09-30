@@ -79,6 +79,10 @@ import { shouldBeDefined } from "utils/helpers";
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
 import store from "store";
+import {
+  createMessage,
+  ONBOARDING_SKIPPED_FIRST_TIME_USER,
+} from "@appsmith/constants/messages";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -403,7 +407,7 @@ function* endFirstTimeUserOnboardingSaga() {
     payload: "",
   });
   Toaster.show({
-    text: "Skipped First time user experience",
+    text: createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER),
     hideProgressBar: false,
     variant: Variant.success,
     dispatchableAction: {

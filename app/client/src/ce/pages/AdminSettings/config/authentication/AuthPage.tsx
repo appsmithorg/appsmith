@@ -12,7 +12,7 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { Callout, CalloutType } from "components/ads/CalloutV2";
+import { CalloutV2, CalloutType } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { Colors } from "constants/Colors";
 import { Button, Category, Icon, TooltipComponent } from "design-system";
@@ -208,7 +208,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>
                   {method.calloutBanner && (
-                    <Callout
+                    <CalloutV2
                       actionLabel={method.calloutBanner.actionLabel}
                       desc={method.calloutBanner.title}
                       type={method.calloutBanner.type}

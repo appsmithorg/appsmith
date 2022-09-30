@@ -1,85 +1,85 @@
-import { extractInfoFromCode } from '../src/index';
-import { parseJSObjectWithAST } from '../src/jsObject';
+import { extractIdentifierInfoFromCode } from "../src/index";
+import { parseJSObjectWithAST } from "../src/jsObject";
 
-describe('getAllIdentifiers', () => {
-  it('works properly', () => {
+describe("getAllIdentifiers", () => {
+  it("works properly", () => {
     const cases: { script: string; expectedResults: string[] }[] = [
       {
         // Entity reference
-        script: 'DirectTableReference',
-        expectedResults: ['DirectTableReference'],
+        script: "DirectTableReference",
+        expectedResults: ["DirectTableReference"],
       },
       {
         // One level nesting
-        script: 'TableDataReference.data',
-        expectedResults: ['TableDataReference.data'],
+        script: "TableDataReference.data",
+        expectedResults: ["TableDataReference.data"],
       },
       {
         // Deep nesting
-        script: 'TableDataDetailsReference.data.details',
-        expectedResults: ['TableDataDetailsReference.data.details'],
+        script: "TableDataDetailsReference.data.details",
+        expectedResults: ["TableDataDetailsReference.data.details"],
       },
       {
         // Deep nesting
-        script: 'TableDataDetailsMoreReference.data.details.more',
-        expectedResults: ['TableDataDetailsMoreReference.data.details.more'],
+        script: "TableDataDetailsMoreReference.data.details.more",
+        expectedResults: ["TableDataDetailsMoreReference.data.details.more"],
       },
       {
         // Deep optional chaining
-        script: 'TableDataOptionalReference.data?.details.more',
-        expectedResults: ['TableDataOptionalReference.data'],
+        script: "TableDataOptionalReference.data?.details.more",
+        expectedResults: ["TableDataOptionalReference.data"],
       },
       {
         // Deep optional chaining with logical operator
         script:
-          'TableDataOptionalWithLogical.data?.details.more || FallbackTableData.data',
+          "TableDataOptionalWithLogical.data?.details.more || FallbackTableData.data",
         expectedResults: [
-          'TableDataOptionalWithLogical.data',
-          'FallbackTableData.data',
+          "TableDataOptionalWithLogical.data",
+          "FallbackTableData.data",
         ],
       },
       {
         // null coalescing
-        script: 'TableDataOptionalWithLogical.data ?? FallbackTableData.data',
+        script: "TableDataOptionalWithLogical.data ?? FallbackTableData.data",
         expectedResults: [
-          'TableDataOptionalWithLogical.data',
-          'FallbackTableData.data',
+          "TableDataOptionalWithLogical.data",
+          "FallbackTableData.data",
         ],
       },
       {
         // Basic map function
-        script: 'Table5.data.map(c => ({ name: c.name }))',
-        expectedResults: ['Table5.data.map'],
+        script: "Table5.data.map(c => ({ name: c.name }))",
+        expectedResults: ["Table5.data.map"],
       },
       {
         // Literal property search
         script: "Table6['data']",
-        expectedResults: ['Table6'],
+        expectedResults: ["Table6"],
       },
       {
         // Deep literal property search
         script: "TableDataOptionalReference['data'].details",
-        expectedResults: ['TableDataOptionalReference'],
+        expectedResults: ["TableDataOptionalReference"],
       },
       {
         // Array index search
-        script: 'array[8]',
-        expectedResults: ['array[8]'],
+        script: "array[8]",
+        expectedResults: ["array[8]"],
       },
       {
         // Deep array index search
-        script: 'Table7.data[4]',
-        expectedResults: ['Table7.data[4]'],
+        script: "Table7.data[4]",
+        expectedResults: ["Table7.data[4]"],
       },
       {
         // Deep array index search
-        script: 'Table7.data[4].value',
-        expectedResults: ['Table7.data[4].value'],
+        script: "Table7.data[4].value",
+        expectedResults: ["Table7.data[4].value"],
       },
       {
         // string literal and array index search
         script: "Table['data'][9]",
-        expectedResults: ['Table'],
+        expectedResults: ["Table"],
       },
       {
         // array index and string literal search
@@ -88,29 +88,29 @@ describe('getAllIdentifiers', () => {
       },
       {
         // Index identifier search
-        script: 'Table8.data[row][name]',
-        expectedResults: ['Table8.data', 'row'],
+        script: "Table8.data[row][name]",
+        expectedResults: ["Table8.data", "row"],
       },
       {
         // Index identifier search with global
-        script: 'Table9.data[appsmith.store.row]',
-        expectedResults: ['Table9.data', 'appsmith.store.row'],
+        script: "Table9.data[appsmith.store.row]",
+        expectedResults: ["Table9.data", "appsmith.store.row"],
       },
       {
         // Index literal with further nested lookups
-        script: 'Table10.data[row].name',
-        expectedResults: ['Table10.data', 'row'],
+        script: "Table10.data[row].name",
+        expectedResults: ["Table10.data", "row"],
       },
       {
         // IIFE and if conditions
         script:
-          '(function(){ if(Table11.isVisible) { return Api1.data } else { return Api2.data } })()',
-        expectedResults: ['Table11.isVisible', 'Api1.data', 'Api2.data'],
+          "(function(){ if(Table11.isVisible) { return Api1.data } else { return Api2.data } })()",
+        expectedResults: ["Table11.isVisible", "Api1.data", "Api2.data"],
       },
       {
         // Functions and arguments
-        script: 'JSObject1.run(Api1.data, Api2.data)',
-        expectedResults: ['JSObject1.run', 'Api1.data', 'Api2.data'],
+        script: "JSObject1.run(Api1.data, Api2.data)",
+        expectedResults: ["JSObject1.run", "Api1.data", "Api2.data"],
       },
       {
         // IIFE - without braces
@@ -124,7 +124,7 @@ describe('getAllIdentifiers', () => {
           return obj[index]
       
       }()`,
-        expectedResults: ['Input1.text'],
+        expectedResults: ["Input1.text"],
       },
       {
         // IIFE
@@ -138,7 +138,7 @@ describe('getAllIdentifiers', () => {
           return obj[index]
       
       })()`,
-        expectedResults: ['Input2.text'],
+        expectedResults: ["Input2.text"],
       },
       {
         // arrow IIFE - without braces - will fail
@@ -166,19 +166,19 @@ describe('getAllIdentifiers', () => {
           return obj[index]
       
       })()`,
-        expectedResults: ['Input4.text'],
+        expectedResults: ["Input4.text"],
       },
       {
         // Direct object access
         script: `{ "a": 123 }[Input5.text]`,
-        expectedResults: ['Input5.text'],
+        expectedResults: ["Input5.text"],
       },
       {
         // Function declaration and default arguments
         script: `function run(apiData = Api1.data) {
           return apiData;
         }`,
-        expectedResults: ['Api1.data'],
+        expectedResults: ["Api1.data"],
       },
       {
         // Function declaration with arguments
@@ -197,7 +197,7 @@ describe('getAllIdentifiers', () => {
             row = row += 1;
           }
         }`,
-        expectedResults: ['Table12.data'],
+        expectedResults: ["Table12.data"],
       },
       {
         // function with variables
@@ -209,17 +209,17 @@ describe('getAllIdentifiers', () => {
             row = row += 1;
           }
         }`,
-        expectedResults: ['Table13.data'],
+        expectedResults: ["Table13.data"],
       },
       {
         // expression with arithmetic operations
         script: `Table14.data + 15`,
-        expectedResults: ['Table14.data'],
+        expectedResults: ["Table14.data"],
       },
       {
         // expression with logical operations
         script: `Table15.data || [{}]`,
-        expectedResults: ['Table15.data'],
+        expectedResults: ["Table15.data"],
       },
       // JavaScript built in classes should not be valid identifiers
       {
@@ -229,7 +229,7 @@ describe('getAllIdentifiers', () => {
           const randomNumber = Math.random();
           return Promise.all([firstApiRun, secondApiRun])
         }()`,
-        expectedResults: ['Api1.run', 'Api2.run'],
+        expectedResults: ["Api1.run", "Api2.run"],
       },
       // Global dependencies should not be valid identifiers
       {
@@ -251,7 +251,7 @@ describe('getAllIdentifiers', () => {
           console.log(joinedName)
           return Api2.name
         }()`,
-        expectedResults: ['Api2.name'],
+        expectedResults: ["Api2.name"],
       },
       // identifiers and member expressions derived from params should not be valid identifiers
       {
@@ -274,19 +274,19 @@ describe('getAllIdentifiers', () => {
         script: `function(){
           return appsmith.user
         }()`,
-        expectedResults: ['appsmith.user'],
+        expectedResults: ["appsmith.user"],
       },
     ];
 
     cases.forEach((perCase) => {
-      const { references } = extractInfoFromCode(perCase.script, 2);
+      const { references } = extractIdentifierInfoFromCode(perCase.script, 2);
       expect(references).toStrictEqual(perCase.expectedResults);
     });
   });
 });
 
-describe('parseJSObjectWithAST', () => {
-  it('parse js object', () => {
+describe("parseJSObjectWithAST", () => {
+  it("parse js object", () => {
     const body = `{
 	myVar1: [],
 	myVar2: {},
@@ -299,25 +299,25 @@ describe('parseJSObjectWithAST', () => {
 }`;
     const parsedObject = [
       {
-        key: 'myVar1',
-        value: '[]',
-        type: 'ArrayExpression',
+        key: "myVar1",
+        value: "[]",
+        type: "ArrayExpression",
       },
       {
-        key: 'myVar2',
-        value: '{}',
-        type: 'ObjectExpression',
+        key: "myVar2",
+        value: "{}",
+        type: "ObjectExpression",
       },
       {
-        key: 'myFun1',
-        value: '() => {}',
-        type: 'ArrowFunctionExpression',
+        key: "myFun1",
+        value: "() => {}",
+        type: "ArrowFunctionExpression",
         arguments: [],
       },
       {
-        key: 'myFun2',
-        value: 'async () => {}',
-        type: 'ArrowFunctionExpression',
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
         arguments: [],
       },
     ];
@@ -325,7 +325,7 @@ describe('parseJSObjectWithAST', () => {
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
 
-  it('parse js object with literal', () => {
+  it("parse js object with literal", () => {
     const body = `{
 	myVar1: [],
 	myVar2: {
@@ -340,25 +340,25 @@ describe('parseJSObjectWithAST', () => {
 }`;
     const parsedObject = [
       {
-        key: 'myVar1',
-        value: '[]',
-        type: 'ArrayExpression',
+        key: "myVar1",
+        value: "[]",
+        type: "ArrayExpression",
       },
       {
-        key: 'myVar2',
+        key: "myVar2",
         value: '{\n  "a": "app"\n}',
-        type: 'ObjectExpression',
+        type: "ObjectExpression",
       },
       {
-        key: 'myFun1',
-        value: '() => {}',
-        type: 'ArrowFunctionExpression',
+        key: "myFun1",
+        value: "() => {}",
+        type: "ArrowFunctionExpression",
         arguments: [],
       },
       {
-        key: 'myFun2',
-        value: 'async () => {}',
-        type: 'ArrowFunctionExpression',
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
         arguments: [],
       },
     ];
@@ -366,7 +366,7 @@ describe('parseJSObjectWithAST', () => {
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
 
-  it('parse js object with variable declaration inside function', () => {
+  it("parse js object with variable declaration inside function", () => {
     const body = `{
       myFun1: () => {
         const a = {
@@ -382,7 +382,7 @@ describe('parseJSObjectWithAST', () => {
     }`;
     const parsedObject = [
       {
-        key: 'myFun1',
+        key: "myFun1",
         value: `() => {
   const a = {
     conditions: [],
@@ -391,13 +391,13 @@ describe('parseJSObjectWithAST', () => {
     testFunc2: function () {}
   };
 }`,
-        type: 'ArrowFunctionExpression',
+        type: "ArrowFunctionExpression",
         arguments: [],
       },
       {
-        key: 'myFun2',
-        value: 'async () => {}',
-        type: 'ArrowFunctionExpression',
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
         arguments: [],
       },
     ];
@@ -405,7 +405,7 @@ describe('parseJSObjectWithAST', () => {
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
 
-  it('parse js object with params of all types', () => {
+  it("parse js object with params of all types", () => {
     const body = `{
       myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue()) => {
         //use async-await or promises
@@ -414,49 +414,49 @@ describe('parseJSObjectWithAST', () => {
 
     const parsedObject = [
       {
-        key: 'myFun2',
+        key: "myFun2",
         value:
           'async (a, b = Array(1, 2, 3), c = "", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue()) => {}',
-        type: 'ArrowFunctionExpression',
+        type: "ArrowFunctionExpression",
         arguments: [
           {
-            paramName: 'a',
+            paramName: "a",
             defaultValue: undefined,
           },
           {
-            paramName: 'b',
+            paramName: "b",
             defaultValue: undefined,
           },
           {
-            paramName: 'c',
+            paramName: "c",
             defaultValue: undefined,
           },
           {
-            paramName: 'd',
+            paramName: "d",
             defaultValue: undefined,
           },
           {
-            paramName: 'e',
+            paramName: "e",
             defaultValue: undefined,
           },
           {
-            paramName: 'f',
+            paramName: "f",
             defaultValue: undefined,
           },
           {
-            paramName: 'g',
+            paramName: "g",
             defaultValue: undefined,
           },
           {
-            paramName: 'h',
+            paramName: "h",
             defaultValue: undefined,
           },
           {
-            paramName: 'i',
+            paramName: "i",
             defaultValue: undefined,
           },
           {
-            paramName: 'j',
+            paramName: "j",
             defaultValue: undefined,
           },
         ],
