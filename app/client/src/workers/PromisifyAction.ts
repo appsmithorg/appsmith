@@ -169,7 +169,7 @@ function handleResponseFromMainThread(
     });
     Object.assign(self, globalData);
     if (success) {
-      resolve(data.resolve);
+      resolve.apply(self, data.resolve);
     } else {
       reject(data.reason);
     }
