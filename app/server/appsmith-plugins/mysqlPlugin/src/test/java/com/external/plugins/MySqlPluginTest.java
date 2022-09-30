@@ -21,12 +21,13 @@ import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,19 +44,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
+@Testcontainers
 public class MySqlPluginTest {
 
     MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
-    @ClassRule
+    @Container
     public static MySQLContainer mySQLContainer = new MySQLContainer(
             DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
@@ -63,7 +65,7 @@ public class MySqlPluginTest {
             .withDatabaseName("test_db");
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
-    @ClassRule
+    @Container
     public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer(
             DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("root")
@@ -79,7 +81,7 @@ public class MySqlPluginTest {
     private static String database;
     private static DatasourceConfiguration dsConfig;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         address = mySQLContainer.getContainerIpAddress();
         port = mySQLContainer.getFirstMappedPort();
@@ -170,7 +172,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 
@@ -185,7 +187,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 
@@ -254,7 +256,7 @@ public class MySqlPluginTest {
                         .add("CREATE USER 'mysql'@'%';\n" +
                                 "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;\n" +
                                 "FLUSH PRIVILEGES;")
-                        )
+                )
                 .flatMapMany(batch -> Flux.from(batch.execute()))
                 .blockLast(); //wait until completion of all the queries
 
@@ -276,7 +278,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
 
         /* Expect no error */
@@ -302,7 +304,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
 
         /* Expect no error */
@@ -533,9 +535,9 @@ public class MySqlPluginTest {
         Mono.from(ConnectionFactories.get(ob.build()).create())
                 .map(connection ->
                         connection.createBatch()
-                            .add("create table test_real_types(id int, c_float float, c_double double, c_real real)")
-                            .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
-                            .add("insert into test_real_types values (2, 11.123, 13.123, 15.123)")
+                                .add("create table test_real_types(id int, c_float float, c_double double, c_real real)")
+                                .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
+                                .add("insert into test_real_types values (2, 11.123, 13.123, 15.123)")
                 )
                 .flatMapMany(batch -> Flux.from(batch.execute()))
                 .blockLast(); //wait until completion of all the queries
@@ -605,10 +607,10 @@ public class MySqlPluginTest {
         Mono.from(ConnectionFactories.get(ob.build()).create())
                 .map(connection ->
                         connection.createBatch()
-                            .add("create table test_boolean_type(id int, c_boolean boolean)")
-                            .add("insert into test_boolean_type values (1, True)")
-                            .add("insert into test_boolean_type values (2, True)")
-                            .add("insert into test_boolean_type values (3, False)")
+                                .add("create table test_boolean_type(id int, c_boolean boolean)")
+                                .add("insert into test_boolean_type values (1, True)")
+                                .add("insert into test_boolean_type values (2, True)")
+                                .add("insert into test_boolean_type values (3, False)")
                 )
                 .flatMapMany(batch -> Flux.from(batch.execute()))
                 .blockLast(); //wait until completion of all the queries
@@ -704,7 +706,7 @@ public class MySqlPluginTest {
 
                     // Check if '?' is replaced by $i.
                     assertEquals("SELECT id FROM users WHERE id = $1 limit 1 offset $2;",
-                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
 
                     // Check 1st prepared statement parameter
                     PsParameterDTO expectedPsParam1 = new PsParameterDTO("1", "INTEGER");

@@ -1462,6 +1462,15 @@ Cypress.Commands.add("editTableCell", (x, y) => {
   ).should("exist");
 });
 
+Cypress.Commands.add("editTableSelectCell", (x, y) => {
+  cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
+    .invoke("show")
+    .click({ force: true });
+  cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .select-button`).should(
+    "exist",
+  );
+});
+
 Cypress.Commands.add("makeColumnEditable", (column) => {
   cy.get(
     `[data-rbd-draggable-id="${column}"] .t--card-checkbox input+span`,

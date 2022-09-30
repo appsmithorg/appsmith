@@ -50,15 +50,6 @@
             <version>5.13.0.202109080827-r</version>
         </dependency>
 
-
-        <!-- Test Dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit.junit.ssh -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
@@ -76,7 +67,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.1.0</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
