@@ -80,7 +80,7 @@ class LayoutWrapperWidget extends ContainerWidget {
       <DropTargetComponent
         {...canvasProps}
         {...this.getSnapSpaces()}
-        direction={this.state.direction}
+        direction={this.props.direction}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
       >
         {this.renderAsContainerComponent(canvasProps)}
@@ -102,7 +102,7 @@ class LayoutWrapperWidget extends ContainerWidget {
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.state.direction;
+    childWidget.direction = this.props.direction;
     childWidget.justifyContent = this.props.justifyContent;
     childWidget.alignItems = this.props.alignItems;
 
@@ -134,7 +134,7 @@ class LayoutWrapperWidget extends ContainerWidget {
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={this.state.direction}
+              direction={this.props.direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
@@ -163,7 +163,7 @@ class LayoutWrapperWidget extends ContainerWidget {
         <AutoLayoutContext.Provider
           value={{
             useAutoLayout: this.state.useAutoLayout,
-            direction: this.state.direction,
+            direction: this.props.direction,
             justifyContent: JustifyContent.FlexStart,
             alignItems: AlignItems.FlexStart,
             overflow:
@@ -174,7 +174,8 @@ class LayoutWrapperWidget extends ContainerWidget {
         >
           <LayoutWrapper
             alignment={this.props.alignment || Alignment.Left}
-            direction={this.state.direction}
+            direction={this.props.direction}
+            flexLayers={[]}
             overflow={Overflow.NoWrap}
             spacing={this.props.spacing || Spacing.None}
             stretchHeight={stretchFlexBox}

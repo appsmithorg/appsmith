@@ -42,7 +42,7 @@ import {
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
-import FlexComponent from "components/designSystems/appsmith/FlexComponent";
+import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 
 /***
  * BaseWidget

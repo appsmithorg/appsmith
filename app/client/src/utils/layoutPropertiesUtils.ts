@@ -63,7 +63,7 @@ export const verticalAlignment: { [key in Alignment]: LayoutProperties } = {
 };
 
 export function getLayoutProperties(
-  direction: LayoutDirection,
+  direction: LayoutDirection = LayoutDirection.Horizontal,
   alignment: Alignment,
   spacing: Spacing,
 ): LayoutProperties {

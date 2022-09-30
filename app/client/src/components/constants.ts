@@ -171,7 +171,7 @@ export enum Overflow {
   Auto = "auto",
 }
 
-export enum LayoutWrapperType {
+export enum FlexLayerAlignment {
   Start = "start",
   Center = "center",
   End = "end",

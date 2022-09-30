@@ -3,7 +3,7 @@ import { useSelector } from "store";
 
 import {
   LayoutDirection,
-  LayoutWrapperType,
+  FlexLayerAlignment,
   ResponsiveBehavior,
 } from "components/constants";
 import { isArray, isNaN } from "lodash";
@@ -19,7 +19,7 @@ export interface Highlight {
   y: number;
   height: number;
   width: number;
-  wrapperType: LayoutWrapperType;
+  wrapperType: FlexLayerAlignment;
 }
 
 export interface AutoLayoutHighlightProps {
@@ -35,7 +35,7 @@ export interface AutoLayoutHighlightProps {
 
 export interface DropPositionPayload {
   index: number;
-  wrapperType: LayoutWrapperType;
+  wrapperType: FlexLayerAlignment;
 }
 
 const BASE_OFFSET_SIZE = 100;
@@ -99,55 +99,55 @@ export const useAutoLayoutHighlights = ({
   };
 
   const initialOffsets: Record<
-    LayoutWrapperType,
+    FlexLayerAlignment,
     Record<LayoutDirection, Highlight>
   > = {
-    [LayoutWrapperType.Start]: {
+    [FlexLayerAlignment.Start]: {
       [LayoutDirection.Vertical]: {
         x: 0,
         y: 8,
         width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
         height: OFFSET_WIDTH,
-        wrapperType: LayoutWrapperType.Start,
+        wrapperType: FlexLayerAlignment.Start,
       },
       [LayoutDirection.Horizontal]: {
         x: 8,
         y: 0,
         width: OFFSET_WIDTH,
         height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
-        wrapperType: LayoutWrapperType.Start,
+        wrapperType: FlexLayerAlignment.Start,
       },
     },
-    [LayoutWrapperType.Center]: {
+    [FlexLayerAlignment.Center]: {
       [LayoutDirection.Vertical]: {
         x: 0,
         y: getContainerDimensions()?.height / 2,
         width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
         height: OFFSET_WIDTH,
-        wrapperType: LayoutWrapperType.Center,
+        wrapperType: FlexLayerAlignment.Center,
       },
       [LayoutDirection.Horizontal]: {
         x: getContainerDimensions()?.width / 2,
         y: 0,
         width: OFFSET_WIDTH,
         height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
-        wrapperType: LayoutWrapperType.Center,
+        wrapperType: FlexLayerAlignment.Center,
       },
     },
-    [LayoutWrapperType.End]: {
+    [FlexLayerAlignment.End]: {
       [LayoutDirection.Vertical]: {
         x: 0,
         y: getContainerDimensions()?.bottom,
         width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
         height: OFFSET_WIDTH,
-        wrapperType: LayoutWrapperType.End,
+        wrapperType: FlexLayerAlignment.End,
       },
       [LayoutDirection.Horizontal]: {
         x: getContainerDimensions()?.right,
         y: 0,
         width: OFFSET_WIDTH,
         height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
-        wrapperType: LayoutWrapperType.End,
+        wrapperType: FlexLayerAlignment.End,
       },
     },
   };
@@ -155,11 +155,11 @@ export const useAutoLayoutHighlights = ({
   // Create and add an initial offset for an empty canvas
   const getInitialOffset = (
     isWrapper: boolean,
-    wrapperType: LayoutWrapperType = LayoutWrapperType.Start,
+    wrapperType: FlexLayerAlignment = FlexLayerAlignment.Start,
   ): Highlight => {
     const dir: LayoutDirection = direction || LayoutDirection.Horizontal;
     if (isWrapper) return initialOffsets[wrapperType][dir];
-    return initialOffsets[LayoutWrapperType.Start][dir];
+    return initialOffsets[FlexLayerAlignment.Start][dir];
   };
   // Get DOM element for a given widgetId
   const getDomElement = (widgetId: string): any =>
@@ -203,7 +203,7 @@ export const useAutoLayoutHighlights = ({
   const getOffset = (
     rect: DOMRect,
     flexOffsetTop: number,
-    wrapperType: LayoutWrapperType,
+    wrapperType: FlexLayerAlignment,
     isFinal?: boolean,
   ): Highlight => {
     let mOffset: Highlight;
@@ -339,9 +339,9 @@ export const useAutoLayoutHighlights = ({
           center: string[] = [],
           end: string[] = [];
         offsetChildren.forEach((each) => {
-          if (allWidgets[each]?.wrapperType === LayoutWrapperType.Center)
+          if (allWidgets[each]?.wrapperType === FlexLayerAlignment.Center)
             center.push(each);
-          else if (allWidgets[each]?.wrapperType === LayoutWrapperType.End)
+          else if (allWidgets[each]?.wrapperType === FlexLayerAlignment.End)
             end.push(each);
           else start.push(each);
         });
@@ -349,19 +349,19 @@ export const useAutoLayoutHighlights = ({
           start,
           flexOffsetTop,
           true,
-          LayoutWrapperType.Start,
+          FlexLayerAlignment.Start,
         );
         const arr2: Highlight[] = evaluateOffsets(
           center,
           flexOffsetTop,
           true,
-          LayoutWrapperType.Center,
+          FlexLayerAlignment.Center,
         );
         const arr3: Highlight[] = evaluateOffsets(
           end,
           flexOffsetTop,
           true,
-          LayoutWrapperType.End,
+          FlexLayerAlignment.End,
         );
         temp = [...arr1, ...arr2, ...arr3];
       } else
@@ -369,7 +369,7 @@ export const useAutoLayoutHighlights = ({
           offsetChildren,
           flexOffsetTop,
           false,
-          LayoutWrapperType.Start,
+          FlexLayerAlignment.Start,
         );
       offsets = [...offsets, ...temp];
 
@@ -385,7 +385,7 @@ export const useAutoLayoutHighlights = ({
     arr: string[],
     flexOffsetTop: number,
     isWrapper: boolean,
-    wrapperType: LayoutWrapperType,
+    wrapperType: FlexLayerAlignment,
   ): Highlight[] => {
     let res: Highlight[] = [];
     const siblings: DOMRect[] = [];
@@ -502,10 +502,10 @@ export const useAutoLayoutHighlights = ({
 
   const getDropPosition = (index: number): number => {
     if (isNaN(index)) return 0;
-    const wrapperType: LayoutWrapperType =
-      offsets[index]?.wrapperType || LayoutWrapperType.Start;
-    if (wrapperType === LayoutWrapperType.Center) return index - 1;
-    if (wrapperType === LayoutWrapperType.End) return index - 2;
+    const wrapperType: FlexLayerAlignment =
+      offsets[index]?.wrapperType || FlexLayerAlignment.Start;
+    if (wrapperType === FlexLayerAlignment.Center) return index - 1;
+    if (wrapperType === FlexLayerAlignment.End) return index - 2;
     return index;
   };
 

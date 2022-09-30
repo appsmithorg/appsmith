@@ -42,8 +42,6 @@ export class ContainerWidget extends BaseWidget<
     super(props);
     this.state = {
       useAutoLayout: false,
-      direction: LayoutDirection.Horizontal,
-      isMobile: false,
     };
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
@@ -278,7 +276,9 @@ export class ContainerWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
+    return {
+      direction: `{{ this.positioning === "vertical" ? "Vertical" : "Horizontal" }}`,
+    };
   }
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
@@ -311,10 +311,6 @@ export class ContainerWidget extends BaseWidget<
     else
       this.setState({
         useAutoLayout: true,
-        direction:
-          this.props.positioning === Positioning.Horizontal
-            ? LayoutDirection.Horizontal
-            : LayoutDirection.Vertical,
       });
   };
 
@@ -381,7 +377,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.parentId = this.props.widgetId;
     // Pass layout controls to children
     childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.state.direction;
+    childWidget.direction = this.props.direction;
     childWidget.positioning = this.props.positioning;
     childWidget.alignment = this.props.alignment;
     childWidget.spacing = this.props.spacing;
@@ -444,6 +440,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   positioning?: Positioning;
   alignment?: Alignment;
   spacing?: Spacing;
+  direction?: LayoutDirection;
   removeWrappers?: (id: string) => void;
   addWrappers?: (id: string, direction: LayoutDirection) => void;
   updateWrappers?: (id: string, direction: LayoutDirection) => void;
@@ -451,8 +448,6 @@ export interface ContainerWidgetProps<T extends WidgetProps>
 
 export interface ContainerWidgetState extends WidgetState {
   useAutoLayout: boolean;
-  direction: LayoutDirection;
-  isMobile: boolean;
 }
 
 export default connect(null, mapDispatchToProps)(ContainerWidget);

@@ -9,7 +9,7 @@ import {
 } from "constants/WidgetConstants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
-import { checkIsDropTarget } from "./PositionedContainer";
+import { checkIsDropTarget } from "../PositionedContainer";
 import { useSelector } from "store";
 import { snipingModeSelector } from "selectors/editorSelectors";
 

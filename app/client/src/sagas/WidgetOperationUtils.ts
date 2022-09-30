@@ -57,7 +57,7 @@ import {
   Alignment,
   ButtonBoxShadowTypes,
   LayoutDirection,
-  LayoutWrapperType,
+  FlexLayerAlignment,
   Spacing,
 } from "components/constants";
 import {
@@ -1849,7 +1849,7 @@ export function* addAndWrapWidget(
   addChildPayload?: WidgetAddChild,
   direction = LayoutDirection.Horizontal,
   isWrapper = false,
-  wrapperType = LayoutWrapperType.Start,
+  wrapperType = FlexLayerAlignment.Start,
 ) {
   let widgets = { ...allWidgets };
   const widgetId: string = childId || addChildPayload?.newWidgetId || "";

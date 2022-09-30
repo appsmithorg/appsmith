@@ -35,7 +35,7 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   LayoutDirection,
-  LayoutWrapperType,
+  FlexLayerAlignment,
   ResponsiveBehavior,
 } from "components/constants";
 import {
@@ -410,7 +410,7 @@ function* autolayoutReorderSaga(
     movedWidgets: string[];
     index: number;
     parentId: string;
-    wrapperType: LayoutWrapperType;
+    wrapperType: FlexLayerAlignment;
     direction: LayoutDirection;
   }>,
 ) {
@@ -452,7 +452,7 @@ function* reorderAutolayoutChildren(params: {
   index: number;
   parentId: string;
   allWidgets: CanvasWidgetsReduxState;
-  wrapperType: LayoutWrapperType;
+  wrapperType: FlexLayerAlignment;
   direction: LayoutDirection;
 }) {
   const {
@@ -525,14 +525,14 @@ function* updateMovedWidgets(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
-  wrapperType: LayoutWrapperType,
+  wrapperType: FlexLayerAlignment,
   direction: LayoutDirection,
 ) {
   let widgets = { ...allWidgets };
   if (!movedWidgets || !widgets)
     return { newMovedWidgets: movedWidgets, updatedWidgets: widgets };
   const stateParent = widgets[parentId];
-  if (stateParent.isWrapper) {
+  if (stateParent.isWrapper || true) {
     // If widgets are being dropped in a wrapper,
     // then updated the wrapper type and return'
     let hasFillChild = false;
@@ -550,7 +550,7 @@ function* updateMovedWidgets(
       for (const each of movedWidgets) {
         widgets[each] = {
           ...widgets[each],
-          wrapperType: LayoutWrapperType.Start,
+          wrapperType: FlexLayerAlignment.Start,
         };
       }
     }
@@ -587,7 +587,7 @@ function* addWidgetAndReorderSaga(
     newWidget: WidgetAddChild;
     index: number;
     parentId: string;
-    wrapperType: LayoutWrapperType;
+    wrapperType: FlexLayerAlignment;
     direction: LayoutDirection;
   }>,
 ) {
@@ -633,7 +633,7 @@ function* addAutoLayoutChild(
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const stateParent: FlattenedWidgetProps = allWidgets[parentId];
 
-  if (stateParent?.isWrapper) {
+  if (stateParent?.isWrapper || true) {
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
       getUpdateDslAfterCreatingChild,
       {

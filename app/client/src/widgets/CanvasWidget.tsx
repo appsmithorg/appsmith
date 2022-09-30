@@ -18,10 +18,43 @@ import {
   ResponsiveBehavior,
   Spacing,
 } from "components/constants";
-import ContainerComponent, { FlexBox } from "./ContainerWidget/component";
+import ContainerComponent from "./ContainerWidget/component";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
+import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+
+const flexLayers: any[] = [
+  {
+    children: [
+      {
+        id: "2f5yim088g",
+        align: "start",
+      },
+      {
+        id: "92hs8bgv4h",
+        align: "start",
+      },
+    ],
+  },
+  {
+    children: [
+      {
+        id: "crfmj4atrz",
+        align: "end",
+      },
+    ],
+  },
+  {
+    children: [
+      {
+        id: "tbp7meiwtq",
+        align: "end",
+      },
+    ],
+    hasFillChild: true,
+  },
+];
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -63,7 +96,7 @@ class CanvasWidget extends ContainerWidget {
     if (!childWidgetData) return null;
 
     const childWidget = { ...childWidgetData };
-    console.log("#### child widget", childWidget);
+
     const snapSpaces = this.getSnapSpaces();
     childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
     childWidget.parentRowSpace = snapSpaces.snapRowSpace;
@@ -73,7 +106,7 @@ class CanvasWidget extends ContainerWidget {
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.state.direction;
+    childWidget.direction = this.props.direction;
     childWidget.justifyContent = this.props.justifyContent;
     childWidget.alignItems = this.props.alignItems;
 
@@ -105,7 +138,7 @@ class CanvasWidget extends ContainerWidget {
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={this.state.direction}
+              direction={this.props.direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
@@ -131,9 +164,10 @@ class CanvasWidget extends ContainerWidget {
           widgetType={this.props.type}
         />
         {/* without the wrapping div onClick events are triggered twice */}
-        <FlexBox
+        <FlexBoxComponent
           alignment={this.props.alignment || Alignment.Left}
-          direction={this.state.direction}
+          direction={this.props.direction}
+          flexLayers={flexLayers || []}
           overflow={Overflow.NoWrap}
           spacing={this.props.spacing || Spacing.None}
           stretchHeight={stretchFlexBox}
@@ -141,7 +175,7 @@ class CanvasWidget extends ContainerWidget {
           widgetId={this.props.widgetId}
         >
           {this.renderChildren()}
-        </FlexBox>
+        </FlexBoxComponent>
       </ContainerComponent>
     );
   }

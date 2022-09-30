@@ -34,7 +34,7 @@ import ContainerJumpMetrics from "./ContainerJumpMetric";
 import {
   AlignItems,
   LayoutDirection,
-  LayoutWrapperType,
+  FlexLayerAlignment,
 } from "components/constants";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
@@ -280,7 +280,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const updateChildrenPositions = (
     index: number,
     drawingBlocks: WidgetDraggingBlock[],
-    wrapperType: LayoutWrapperType,
+    wrapperType: FlexLayerAlignment,
   ): void => {
     if (isNewWidget)
       addNewWidgetToAutoLayout(index, drawingBlocks, wrapperType);
@@ -299,7 +299,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const addNewWidgetToAutoLayout = (
     index: number,
     drawingBlocks: WidgetDraggingBlock[],
-    wrapperType: LayoutWrapperType,
+    wrapperType: FlexLayerAlignment,
   ) => {
     logContainerJumpOnDrop();
     const blocksToUpdate = drawingBlocks.map((each) => {
