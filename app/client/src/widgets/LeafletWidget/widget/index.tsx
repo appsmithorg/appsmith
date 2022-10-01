@@ -25,6 +25,29 @@ class LeafletWidget extends BaseWidget<LeafletWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            propertyName: "url",
+            label: "URL for Tile Layer",
+            helpText:
+              "Url for maptiles, ensure you comply with any usage policy.",
+            controlType: "INPUT_TEXT",
+            defaultValue: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSconvertible: true,
+          },
+          {
+            propertyName: "attribution",
+            label: "Attribution",
+            helpText:
+              "It is a moral duty of data users to give credit where credit is due.",
+            controlType: "INPUT_TEXT",
+            defaultValue:
+              "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSconvertible: true,
+          },
+          {
             propertyName: "mapCenter",
             label: "Initial location",
             isJSConvertible: true,
@@ -123,16 +146,16 @@ class LeafletWidget extends BaseWidget<LeafletWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
-            propertyName: "enablePickLocation",
-            label: "Enable pick location",
-            helpText: "Allows a user to pick their location",
+            propertyName: "enableCreateMarker",
+            label: "Create new marker",
+            helpText: "Allows users to mark locations on the map",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
           },
           {
-            propertyName: "enableCreateMarker",
-            label: "Create new marker",
+            propertyName: "enableReplaceMarker",
+            label: "Replace existing marker",
             helpText: "Allows users to mark locations on the map",
             controlType: "SWITCH",
             isBindProperty: false,
@@ -245,6 +268,7 @@ class LeafletWidget extends BaseWidget<LeafletWidgetProps, WidgetState> {
     return {
       markers: "defaultMarkers",
       center: "mapCenter",
+      tiles: "url",
     };
   }
   static getMetaPropertiesMap(): Record<string, any> {
@@ -262,10 +286,15 @@ class LeafletWidget extends BaseWidget<LeafletWidgetProps, WidgetState> {
     const marker = { lat, long, title: "" };
 
     const markers = [];
-    (this.props.markers || []).forEach((m: MarkerProps) => {
-      markers.push(m);
-    });
-    markers.push(marker);
+    if (this.props.enableReplaceMarker) {
+      marker.title = this.props.defaultMarkers[0].title;
+      markers.push(marker);
+    } else {
+      (this.props.markers || []).forEach((m: MarkerProps) => {
+        markers.push(m);
+      });
+      markers.push(marker);
+    }
     this.props.updateWidgetMetaProperty("markers", markers);
     this.props.updateWidgetMetaProperty("selectedMarker", marker, {
       triggerPropertyName: "onCreateMarker",
@@ -312,21 +341,28 @@ class LeafletWidget extends BaseWidget<LeafletWidgetProps, WidgetState> {
     return (
       <LeafletComponent
         allowZoom={this.props.allowZoom}
+        attribution={this.props.attribution}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         center={this.getCenter()}
+        clickedMarkerCentered={this.props.clickedMarkerCentered}
+        defaultMarkers={this.props.defaultMarkers}
+        enableCreateMarker={this.props.enableCreateMarker}
         enableDrag={this.props.enableDrag}
         enablePickLocation={false}
+        enableReplaceMarker={this.props.enableReplaceMarker}
         lat={this.props.lat}
         long={this.props.long}
         mapCenter={this.getCenter()}
         markerText={this.props.markerText}
+        markers={this.props.markers}
         saveMarker={this.onCreateMarker}
         selectMarker={this.onMarkerClick}
         selectedMarker={this.props.selectedMarker}
         unselectMarker={this.unselectMarker}
         updateCenter={this.updateCenter}
         updateMarker={this.updateMarker}
+        url={this.props.url}
         widgetId={this.props.widgetId}
         zoom={this.props.zoom}
       />

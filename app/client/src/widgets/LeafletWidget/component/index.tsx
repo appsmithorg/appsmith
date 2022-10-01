@@ -11,15 +11,16 @@ import {
   useMapEvents,
 } from "react-leaflet";
 
-import { LatLng } from "leaflet";
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
-import { Icon } from "leaflet";
+import { Icon, LatLngExpression } from "leaflet";
 import { MarkerProps } from "../constants";
 
 export interface LeafletComponentProps {
   lat: number;
   long: number;
   zoom: number;
+  attribution: string;
+  url: string;
   markerText: string;
   enableDrag: (e: any) => void;
   allowZoom: boolean;
@@ -43,6 +44,9 @@ export interface LeafletComponentProps {
   };
   onMarkerClick?: string;
   onCreateMarker?: string;
+  enableCreateMarker: boolean;
+  enableReplaceMarker: boolean;
+  clickedMarkerCentered?: boolean;
   updateCenter: (lat: number, long: number) => void;
   updateMarker: (lat: number, long: number, index: number) => void;
   saveMarker: (lat: number, long: number) => void;
@@ -78,23 +82,37 @@ const LeafletWrapper = styled.div<{
     margin-right: 10px !important;`
       : ""}
 `;
-function LocationMarker() {
-  const [position, setPosition] = useState<LatLng>();
+
+function AddMarker(props: LeafletComponentProps) {
+  const [position, setPosition] = useState([
+    props.center?.lat,
+    props.center?.long,
+  ] as LatLngExpression);
   const map = useMapEvents({
-    click() {
-      map.locate();
-    },
-    locationfound(e) {
+    click(e) {
+      if (props.enableCreateMarker) {
+        props.saveMarker(e.latlng.lat, e.latlng.lng);
+      }
       setPosition(e.latlng);
-      map.flyTo(e.latlng, map.getZoom());
     },
   });
 
-  return position !== undefined ? (
-    <Marker position={position}>
+  map.flyTo(position, map.getZoom());
+
+  return position === null ? null : (
+    <Marker
+      icon={
+        new Icon({
+          iconUrl: markerIconPng,
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+        })
+      }
+      position={position}
+    >
       <Popup>You are here</Popup>
     </Marker>
-  ) : null;
+  );
 }
 
 const MyLeafLetComponent = (props: any) => {
@@ -125,13 +143,21 @@ const MyLeafLetComponent = (props: any) => {
       style={{ height: "100%", width: "100%" }}
       zoom={props.zoom}
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <TileLayer attribution={props.attribution} url={props.url} />
       {Array.isArray(props.markers) &&
         props.markers.map((marker: MarkerProps, index: number) => (
           <Marker
+            eventHandlers={{
+              click: () => {
+                if (props.clickedMarkerCentered) {
+                  setMapCenter({
+                    ...marker,
+                    lng: marker.long,
+                  });
+                }
+                props.selectMarker(marker.lat, marker.long, marker.title);
+              },
+            }}
             icon={
               new Icon({
                 iconUrl: markerIconPng,
@@ -140,12 +166,13 @@ const MyLeafLetComponent = (props: any) => {
               })
             }
             key={index}
-            position={{ lat: Number(marker.lat), lng: Number(marker.long) }}
+            position={[Number(marker.lat), Number(marker.long)]}
             title={marker.title}
           >
             <Popup>{props.markerText}</Popup>
           </Marker>
         ))}
+      <AddMarker {...props} />
     </MapContainer>
   );
 };

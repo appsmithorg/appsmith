@@ -12,10 +12,10 @@ export const CONFIG = {
     rows: 10,
     columns: 10,
     version: 1,
-    lat: 51.505,
-    long: -0.09,
+    lat: -19.55,
+    long: 169.27,
     zoom: 13,
-    markerText: "A CSS3 popup",
+    markerText: "Vanuatu",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
