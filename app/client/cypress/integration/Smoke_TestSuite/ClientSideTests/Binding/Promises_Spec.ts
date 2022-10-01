@@ -304,7 +304,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       showAlert("In func3")
       return "func3"
     },
-    runAny: async () => {
+    runAny: async function() {
       return Promise.any([this.func2(), this.func3(), this.func1()]).then((value) => showAlert("Resolved promise is:" + value))
     }
     }`,
