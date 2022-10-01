@@ -566,6 +566,7 @@ export async function getValidatedTree(tree: DataTree) {
           }),
         );
       }
+      tree[entityKey] = parsedEntity;
     }
   }
   return tree;
