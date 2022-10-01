@@ -283,7 +283,7 @@ export default function evaluateJSString(
         result,
         errors,
         logs,
-        triggers: Array.from(self.TRIGGER_COLLECTOR || []),
+        triggers: [],
       };
     }
   })();
@@ -302,7 +302,11 @@ export function isFunctionAsync(
       IS_ASYNC: false,
     };
     //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      dataTree,
+      undefined,
+      undefined,
+    );
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
@@ -351,9 +355,6 @@ export function isFunctionAsync(
         } else {
           const returnValue = userFunction();
           if (!!returnValue && returnValue instanceof Promise) {
-            self.IS_ASYNC = true;
-          }
-          if (self.TRIGGER_COLLECTOR.length) {
             self.IS_ASYNC = true;
           }
         }

@@ -43,7 +43,7 @@ function messageEventListener(
 ) {
   return async (e: MessageEvent) => {
     const startTime = performance.now();
-    const { method, requestData, requestId } = e.data;
+    const { method, requestData, requestId, requestOrigin } = e.data;
     if (method) {
       const responseData = await fn(method, requestData, requestId);
       if (responseData) {
@@ -52,6 +52,7 @@ function messageEventListener(
           ctx.postMessage({
             requestId,
             responseData,
+            requestOrigin,
             timeTaken: (endTime - startTime).toFixed(2),
           });
         } catch (e) {

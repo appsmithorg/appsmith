@@ -179,3 +179,13 @@ function handleResponseFromMainThread(
   }
   return responseHandler;
 }
+
+export function executeTriggerOnMainThread(trigger: ActionDescription) {
+  ctx.postMessage({
+    requestOrigin: RequestOrigin.Worker,
+    data: {
+      trigger,
+      errors: [],
+    },
+  });
+}

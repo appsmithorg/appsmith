@@ -633,35 +633,39 @@ export function* setAppVersionOnWorkerSaga(action: {
   });
 }
 
+function* processErrorsAndExecuteTriggers(action: any) {
+  const { requestData, requestId, requestOrigin } = action as any;
+  yield call(evalErrorHandler, requestData?.errors || []);
+  if (requestData?.trigger?.length === 0) return;
+  log.debug({ trigger: requestData.trigger });
+  const responsePayload: any = { data: {} };
+  try {
+    const response: unknown = yield call(
+      executeActionTriggers,
+      requestData.trigger,
+      EventType.ON_JS_FUNCTION_EXECUTE,
+      {},
+    );
+    responsePayload.data.resolve = response;
+    responsePayload.success = true;
+  } catch (e) {
+    responsePayload.data.reason = { message: (e as any).message };
+    responsePayload.success = false;
+  }
+  if (!requestId) return;
+  yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+    responsePayload,
+    requestOrigin,
+    requestId,
+  );
+}
+
 function* listenToEventsFromWorkerSaga() {
   while (true) {
     const action: unknown = yield take(worker.requestsFromWorker);
-    const { requestData, requestId, requestOrigin } = action as any;
-    yield call(evalErrorHandler, requestData?.errors || []);
-    if (requestData.trigger) {
-      log.debug({ trigger: requestData.trigger });
-      const responsePayload: any = { data: {} };
-      try {
-        const response: unknown = yield call(
-          executeActionTriggers,
-          requestData.trigger,
-          EventType.ON_JS_FUNCTION_EXECUTE,
-          {},
-        );
-        responsePayload.data.resolve = response;
-        responsePayload.success = true;
-      } catch (e) {
-        responsePayload.data.reason = { message: (e as any).message };
-        responsePayload.success = false;
-      }
-      yield call(
-        worker.request,
-        EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-        responsePayload,
-        requestOrigin,
-        requestId,
-      );
-    }
+    yield fork(processErrorsAndExecuteTriggers, action);
   }
 }
 

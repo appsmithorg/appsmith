@@ -7,7 +7,10 @@ import {
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import { talkToMainThread } from "workers/PromisifyAction";
+import {
+  executeTriggerOnMainThread,
+  talkToMainThread,
+} from "workers/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
 import { createGlobalData } from "./evaluate";
@@ -327,7 +330,6 @@ export const enhanceDataTreeWithFunctions = (
               funcName,
               pusher.bind(
                 {
-                  TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
                   REQUEST_ID: requestId,
                 },
                 func,
@@ -341,7 +343,6 @@ export const enhanceDataTreeWithFunctions = (
         name,
         pusher.bind(
           {
-            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
             REQUEST_ID: requestId,
           },
           funcOrFuncCreator,
@@ -368,7 +369,7 @@ export const enhanceDataTreeWithFunctions = (
  *
  * **/
 export const pusher = function(
-  this: { TRIGGER_COLLECTOR: ActionDescription[]; REQUEST_ID: string },
+  this: { REQUEST_ID: string },
   action: ActionDispatcherWithExecutionType,
   ...args: any[]
 ) {
@@ -380,7 +381,7 @@ export const pusher = function(
   } as ActionDescription;
 
   if (executionType && executionType === ExecutionType.TRIGGER) {
-    this.TRIGGER_COLLECTOR.push(actionPayload);
+    return executeTriggerOnMainThread(actionPayload);
   } else if (executionType === ExecutionType.PROMISE) {
     return talkToMainThread(actionPayload);
   } else {

@@ -30,7 +30,6 @@ describe("Add functions", () => {
       logBlackList: {},
     },
   };
-  self.TRIGGER_COLLECTOR = [];
   const dataTreeWithFunctions = createGlobalData({
     dataTree,
     resolvedFunctions: {},
@@ -55,54 +54,65 @@ describe("Add functions", () => {
     expect(
       dataTreeWithFunctions.action1.run(onSuccess, onError, actionParams),
     ).toBe(undefined);
-    expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
-    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
-      payload: {
-        actionId: "123",
-        onError: '() => "failure"',
-        onSuccess: '() => "success"',
-        params: {
-          param1: "value1",
+    expect(workerEventMock).lastCalledWith({
+      requestOrigin: RequestOrigin.Worker,
+      data: {
+        errors: [],
+        trigger: {
+          payload: {
+            actionId: "123",
+            onError: '() => "failure"',
+            onSuccess: '() => "success"',
+            params: {
+              param1: "value1",
+            },
+          },
+          type: "RUN_PLUGIN_ACTION",
         },
       },
-      type: "RUN_PLUGIN_ACTION",
     });
-
-    self.TRIGGER_COLLECTOR.pop();
 
     // Old syntax works with one undefined value
     expect(
       dataTreeWithFunctions.action1.run(onSuccess, undefined, actionParams),
     ).toBe(undefined);
-    expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
-    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
-      payload: {
-        actionId: "123",
-        onError: undefined,
-        onSuccess: '() => "success"',
-        params: {
-          param1: "value1",
+    expect(workerEventMock).lastCalledWith({
+      requestOrigin: RequestOrigin.Worker,
+      data: {
+        errors: [],
+        trigger: {
+          payload: {
+            actionId: "123",
+            onError: undefined,
+            onSuccess: '() => "success"',
+            params: {
+              param1: "value1",
+            },
+          },
+          type: "RUN_PLUGIN_ACTION",
         },
       },
-      type: "RUN_PLUGIN_ACTION",
     });
-
-    self.TRIGGER_COLLECTOR.pop();
 
     expect(
       dataTreeWithFunctions.action1.run(undefined, onError, actionParams),
     ).toBe(undefined);
-    expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
-    expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
-      payload: {
-        actionId: "123",
-        onError: '() => "failure"',
-        onSuccess: undefined,
-        params: {
-          param1: "value1",
+    expect(workerEventMock).lastCalledWith({
+      requestOrigin: RequestOrigin.Worker,
+      data: {
+        errors: [],
+        trigger: {
+          payload: {
+            actionId: "123",
+            onError: '() => "failure"',
+            onSuccess: undefined,
+            params: {
+              param1: "value1",
+            },
+          },
+          type: "RUN_PLUGIN_ACTION",
         },
       },
-      type: "RUN_PLUGIN_ACTION",
     });
 
     workerEventMock.mockReturnValue({
@@ -399,33 +409,37 @@ describe("Add functions", () => {
     expect(dataTreeWithFunctions.setInterval(callback, interval, id)).toBe(
       undefined,
     );
-    expect(self.TRIGGER_COLLECTOR).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
+    expect(workerEventMock).lastCalledWith({
+      requestOrigin: RequestOrigin.Worker,
+      data: {
+        errors: [],
+        trigger: {
           payload: {
             callback: '() => "test"',
             id: "myInterval",
             interval: 5000,
           },
           type: "SET_INTERVAL",
-        }),
-      ]),
-    );
+        },
+      },
+    });
   });
 
   it("clearInterval works", () => {
     const id = "myInterval";
 
     expect(dataTreeWithFunctions.clearInterval(id)).toBe(undefined);
-    expect(self.TRIGGER_COLLECTOR).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
+    expect(workerEventMock).lastCalledWith({
+      requestOrigin: RequestOrigin.Worker,
+      data: {
+        errors: [],
+        trigger: {
           payload: {
             id: "myInterval",
           },
           type: "CLEAR_INTERVAL",
-        }),
-      ]),
-    );
+        },
+      },
+    });
   });
 });

@@ -68,7 +68,7 @@ export class GracefulWorkerService {
     this._isReady = false;
     this._channels = new Map<string, Channel<any>>();
     this._workerClass = workerClass;
-    this.requestsFromWorker = channel(buffers.fixed(100));
+    this.requestsFromWorker = channel(buffers.expanding(100));
   }
 
   /**
