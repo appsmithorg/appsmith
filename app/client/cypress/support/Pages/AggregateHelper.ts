@@ -249,7 +249,7 @@ export class AggregateHelper {
     aliasName: string,
     expectedRes = true,
   ) {
-    cy.wait(aliasName).should(
+    cy.get(aliasName).should(
       "have.nested.property",
       "response.body.data.isExecutionSuccess",
       expectedRes,
