@@ -274,9 +274,13 @@ ctx.addEventListener(
         }
         case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
           const { property, props, validation, value } = requestData;
-          return removeFunctions(
-            validateWidgetProperty(validation, value, props, property),
+          const validatedProperty = await validateWidgetProperty(
+            validation,
+            value,
+            props,
+            property,
           );
+          return removeFunctions(validatedProperty);
         }
         case EVAL_WORKER_ACTIONS.UNDO: {
           const { entityId } = requestData;
