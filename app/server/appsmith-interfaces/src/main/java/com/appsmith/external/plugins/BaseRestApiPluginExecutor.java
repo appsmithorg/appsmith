@@ -10,7 +10,7 @@ import com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.InitUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.SmartSubstitutionUtils;
-import com.appsmith.external.helpers.restApiUtils.helpers.TriggerUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.RestApiActivateUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.URIUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -36,7 +36,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     protected SmartSubstitutionUtils smartSubstitutionUtils;
     protected URIUtils uriUtils;
     protected DatasourceUtils datasourceUtils;
-    protected TriggerUtils triggerUtils;
+    protected RestApiActivateUtils restApiActivateUtils;
     protected InitUtils initUtils;
     protected HeaderUtils headerUtils;
     protected HintMessageUtils hintMessageUtils;
@@ -51,7 +51,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
         this.dataUtils = new DataUtils();
         this.smartSubstitutionUtils = new SmartSubstitutionUtils();
         this.uriUtils = new URIUtils();
-        this.triggerUtils = new TriggerUtils();
+        this.restApiActivateUtils = new RestApiActivateUtils();
         this.initUtils = new InitUtils();
         this.headerUtils = new HeaderUtils();
         this.datasourceUtils = new DatasourceUtils();

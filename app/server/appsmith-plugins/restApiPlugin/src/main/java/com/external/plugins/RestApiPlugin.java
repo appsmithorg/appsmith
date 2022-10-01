@@ -148,7 +148,7 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
+            WebClient.Builder webClientBuilder = restApiActivateUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
@@ -171,11 +171,11 @@ public class RestApiPlugin extends BasePlugin {
             Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
                     encodeParamsToggle,
                     httpMethod);
-            WebClient client = triggerUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+            WebClient client = restApiActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+            return restApiActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper, hintMessages, errorResult, requestCaptureFilter);
         }
 
