@@ -57,12 +57,12 @@ public class RestApiActivateUtils {
 
     public static HeaderUtils headerUtils = new HeaderUtils();
 
-    public Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
-                                                             Object requestBody,
-                                                             ActionExecutionRequest actionExecutionRequest,
-                                                             ObjectMapper objectMapper, Set<String> hintMessages,
-                                                             ActionExecutionResult errorResult,
-                                                             RequestCaptureFilter requestCaptureFilter) {
+    public Mono<ActionExecutionResult> activateApiCall(WebClient client, HttpMethod httpMethod, URI uri,
+                                                       Object requestBody,
+                                                       ActionExecutionRequest actionExecutionRequest,
+                                                       ObjectMapper objectMapper, Set<String> hintMessages,
+                                                       ActionExecutionResult errorResult,
+                                                       RequestCaptureFilter requestCaptureFilter) {
         return httpCall(client, httpMethod, uri, requestBody, 0)
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(stringResponseEntity -> {

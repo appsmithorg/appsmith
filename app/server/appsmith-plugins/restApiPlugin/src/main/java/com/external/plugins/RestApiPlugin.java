@@ -174,8 +174,8 @@ public class RestApiPlugin extends BasePlugin {
             WebClient client = restApiActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
-            /* Triggering the actual REST API call */
-            return restApiActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+            /* Activating the actual REST API call */
+            return restApiActivateUtils.activateApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper, hintMessages, errorResult, requestCaptureFilter);
         }
 

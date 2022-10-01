@@ -268,9 +268,9 @@ public class GraphQLPlugin extends BasePlugin {
             WebClient client = restApiActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
-            /* Triggering the actual REST API call */
+            /* Activating the actual REST API call */
             Set<String> hintMessages = new HashSet<>();
-            return restApiActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+            return restApiActivateUtils.activateApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);
         }
