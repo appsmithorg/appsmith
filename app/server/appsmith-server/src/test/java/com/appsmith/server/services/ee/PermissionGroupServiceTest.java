@@ -27,6 +27,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
@@ -169,7 +170,8 @@ public class PermissionGroupServiceTest {
 
         StepVerifier.create(listMono)
                 .assertNext(list -> {
-                    assertThat(list.size()).isEqualTo(4);
+                    // 3 default roles per user (user@test, api_user, and new user created in setup) + 1 super admin role
+                    assertThat(list.size()).isEqualTo(10);
 
                     // Assert that instance admin roles are returned
                     assertThat(list.stream()
@@ -181,19 +183,16 @@ public class PermissionGroupServiceTest {
                     // Assert that workspace roles are returned
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
+                            .collect(Collectors.toSet()))
+                            .hasSize(3);
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
+                            .collect(Collectors.toSet()))
+                            .hasSize(3);
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
+                            .collect(Collectors.toSet()))
+                            .hasSize(3);
                 })
                 .verifyComplete();
 
