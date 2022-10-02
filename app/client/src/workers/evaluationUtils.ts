@@ -519,9 +519,7 @@ export async function validateActionProperty(
 export async function getValidatedTree(tree: DataTree) {
   for (const entityKey of Object.keys(tree)) {
     const entity = tree[entityKey] as DataTreeWidget;
-    if (!isWidget(entity)) {
-      return tree;
-    }
+    if (!isWidget(entity)) continue;
     const parsedEntity = { ...entity };
     for (const [property, validation] of Object.entries(
       entity.validationPaths,
