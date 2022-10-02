@@ -886,6 +886,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         {shouldPaginate &&
           (serverSidePaginationEnabled ? (
             <ServerSideListPagination
+              accentColor={this.props.accentColor}
+              borderRadius={this.props.borderRadius}
+              boxShadow={this.props.boxShadow}
+              disabled={false && this.props.renderMode === RenderModes.CANVAS}
               nextPageClick={() => this.onPageChange(pageNo + 1)}
               pageNo={this.props.pageNo}
               prevPageClick={() => this.onPageChange(pageNo - 1)}
