@@ -274,18 +274,18 @@ export default function evaluateJSString(
     } finally {
       logs = userLogs.flushLogs(skipLogsOperations);
       for (const entity in GLOBAL_DATA) {
-        if (GLOBAL_DATA.hasOwnProperty(entity)) {
+        if (Object.prototype.hasOwnProperty.call(GLOBAL_DATA, entity)) {
           // @ts-expect-error: Types are not available
           delete self[entity];
         }
       }
-      return {
-        result,
-        errors,
-        logs,
-        triggers: [],
-      };
     }
+    return {
+      result,
+      errors,
+      logs,
+      triggers: [],
+    };
   })();
 }
 

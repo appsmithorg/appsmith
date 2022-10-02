@@ -96,7 +96,10 @@ import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { ValidationResponse } from "constants/WidgetValidation";
 import isEmpty from "lodash/isEmpty";
-import { UncaughtPromiseError } from "./ActionExecution/errorUtils";
+import {
+  logActionExecutionError,
+  UncaughtPromiseError,
+} from "./ActionExecution/errorUtils";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -319,10 +322,12 @@ export function* executeFunction(
 
   const { errors, logs, result } = response;
 
+  if (errors?.length > 0) logActionExecutionError(errors[0].errorMessage);
+
   yield call(
     storeLogs,
     logs,
-    collectionName + "." + action.name,
+    `${collectionName}.${action.name}`,
     ENTITY_TYPE.JSACTION,
     collectionId,
   );

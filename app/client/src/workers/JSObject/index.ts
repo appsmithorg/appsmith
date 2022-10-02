@@ -33,7 +33,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
     const entity = localUnEvalTree[jsEntity];
     const parsedBody = jsUpdates[jsEntity].parsedBody;
     if (!isJSAction(entity)) continue;
-    if (!!parsedBody) {
+    if (parsedBody) {
       //add/delete/update functions from dataTree
       localUnEvalTree = updateJSCollectionInUnEvalTree(
         parsedBody,
@@ -96,7 +96,7 @@ export async function saveResolvedFunctionsAndJSUpdates(
     });
     const actions: any = [];
     const variables: any = [];
-    if (!!parsedObject) {
+    if (parsedObject) {
       for (const parsedElement of parsedObject) {
         if (isTypeOfFunction(parsedElement.type)) {
           try {
@@ -109,7 +109,7 @@ export async function saveResolvedFunctionsAndJSUpdates(
               undefined,
               true,
             );
-            if (!!result) {
+            if (result) {
               let params: Array<{ key: string; value: unknown }> = [];
 
               if (parsedElement.arguments) {
@@ -176,7 +176,7 @@ export async function saveResolvedFunctionsAndJSUpdates(
         type: EvalErrorTypes.PARSE_JS_ERROR,
         context: {
           entity: entity,
-          propertyPath: entity.name + ".body",
+          propertyPath: `${entity.name}.body`,
         },
         message: "Start object with export default",
       };
