@@ -9,6 +9,7 @@ import {
   getGenerateCRUDEnabledPluginMap,
   getIsFetchingSinglePluginForm,
   getDatasourcesStructure,
+  getNumberOfEntitiesInCurrentPage,
 } from "selectors/entitiesSelector";
 
 import { Datasource } from "entities/Datasource";
@@ -181,7 +182,12 @@ function GeneratePageForm() {
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
-  const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
+  const numberOfEntities = useSelector(getNumberOfEntitiesInCurrentPage);
+  const currentMode = useRef(
+    numberOfEntities > 0
+      ? GENERATE_PAGE_MODE.NEW
+      : GENERATE_PAGE_MODE.REPLACE_EMPTY,
+  );
 
   const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] = useState<
     string
