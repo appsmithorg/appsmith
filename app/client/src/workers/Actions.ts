@@ -29,6 +29,7 @@ declare global {
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
+    testIfAsync?: boolean;
   }
 }
 

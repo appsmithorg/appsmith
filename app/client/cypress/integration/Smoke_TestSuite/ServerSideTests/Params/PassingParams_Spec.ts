@@ -1,7 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let jsName: any, dsName: any;
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,

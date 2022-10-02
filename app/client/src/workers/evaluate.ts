@@ -353,8 +353,13 @@ export function isFunctionAsync(
           // functions declared with an async keyword
           self.IS_ASYNC = true;
         } else {
+          //Find a way to get rid of this
+          self.testIfAsync = true;
           const returnValue = userFunction();
           if (!!returnValue && returnValue instanceof Promise) {
+            self.IS_ASYNC = true;
+          }
+          if (self.TRIGGER_COLLECTOR.length) {
             self.IS_ASYNC = true;
           }
         }
@@ -369,6 +374,7 @@ export function isFunctionAsync(
       // @ts-expect-error: Types are not available
       delete self[key];
     });
+    self.TRIGGER_COLLECTOR = [];
     return isAsync;
   })();
 }
