@@ -36,7 +36,7 @@ describe("Bug #15283 - Correctly parses JS Function", () => {
         labels: {
             filterText: "Expected result"
         },
-            testFun: (searchText)=>{
+            testFun: function(searchText) {
                 const filterText = searchText ?? (this.labels?.filterText + "s" || '');
   	return filterText;
             }
