@@ -3,7 +3,9 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -35,8 +37,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 NewActionRepository newActionRepository,
-                                 VariableReplacementService variableReplacementService) {
+                                 NewActionRepository newActionRepository, VariableReplacementService variableReplacementService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, pluginService, pluginExecutorHelper, policyGenerator,
@@ -46,8 +47,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
     }
 
     @Override
-    public Mono<Datasource> getValidDatasourceMono(Datasource datasource) {
-        return super.getValidDatasourceMono(datasource)
+    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
+        return super.getValidDatasourceFromActionMono(actionDTO, aclPermission)
                 .flatMap(datasource1 -> {
                     Mono<AppsmithDomain> datasourceConfigurationMono = this.variableReplacementService
                             .replaceAll(datasource1.getDatasourceConfiguration());
