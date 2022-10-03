@@ -436,6 +436,50 @@ public class WorkspaceServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    void validUpdateCorrectWorkspace() {
+        Workspace workspace = new Workspace();
+        workspace.setName("Test Update Name 2");
+        workspace.setDomain("example2.com");
+        workspace.setWebsite("https://example.com");
+        workspace.setSlug("test-update-name-2");
+
+        Workspace otherWorkspace = new Workspace();
+        otherWorkspace.setName("Test Update Name 3");
+        otherWorkspace.setDomain("example3.com");
+        otherWorkspace.setWebsite("https://example.com");
+        otherWorkspace.setSlug("test-update-name-3");
+
+        final Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+
+        final Mono<Workspace> createOtherWorkspace = workspaceService.create(otherWorkspace);
+
+        final Mono<Tuple2<Workspace, Workspace>> updateWorkspace = Mono.zip(createWorkspace, createOtherWorkspace)
+                .flatMap(t -> {
+                    final Workspace changes = new Workspace();
+                    changes.setId(t.getT2().getId());
+                    changes.setDomain("abc.com");
+                    return workspaceService.update(t.getT1().getId(), changes)
+                            .zipWhen(updatedWorkspace ->
+                                    workspaceRepository.findById(t.getT2().getId(), READ_WORKSPACES)
+                                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, t.getT2().getId())))
+                            );
+                });
+
+        StepVerifier.create(updateWorkspace)
+                .assertNext(tuple -> {
+                    final Workspace t = tuple.getT1();
+                    final Workspace other = tuple.getT2();
+
+                    assertThat(t.getName()).isEqualTo("Test Update Name 2");
+                    assertThat(t.getDomain()).isEqualTo("abc.com");
+
+                    assertThat(other.getName()).isEqualTo("Test Update Name 3");
+                })
+                .verifyComplete();
+    }
+
     /**
      * This test tests for updating the workspace with an empty name.
      * The workspace name should not be empty.
