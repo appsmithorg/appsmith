@@ -132,14 +132,14 @@ const expected = {
 
 function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
-    const allProps = props.fields?.getAll();
-    if (!!allProps) {
-      if (props.fields.length < 2 && props.pushFields) {
-        for (let i = props.fields.length; i < 2; i += 1) {
-          props.fields.push({ key: "", value: "" });
-        }
+    // const allProps = props.fields?.getAll();
+    // if (!!allProps) {
+    if (props.fields.length < 2 && props.pushFields) {
+      for (let i = props.fields.length; i < 2; i += 1) {
+        props.fields.push({ key: "", value: "" });
       }
     }
+    // }
   }, [props.fields, props.pushFields]);
 
   return (
