@@ -13,7 +13,7 @@ import {
   scrollbarOnHoverCSS,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
-import { hideScrollbar, invisible } from "constants/DefaultTheme";
+import { darken, hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
@@ -72,7 +72,6 @@ export const TableWrapper = styled.div<{
     position: relative;
     display: table;
     width: 100%;
-    background: red;
     ${hideScrollbar};
     .thead,
     .tbody {
@@ -94,6 +93,11 @@ export const TableWrapper = styled.div<{
       &.selected-row {
         background: ${({ accentColor }) =>
           `${lightenColor(accentColor)}`} !important;
+
+        &:hover {
+          background: ${({ accentColor }) =>
+            `${lightenColor(accentColor, 0.9)}`} !important;
+        }
       }
       &:hover {
         background: var(--wds-color-bg-hover) !important;
@@ -103,13 +107,13 @@ export const TableWrapper = styled.div<{
     .td {
       margin: 0;
       border-bottom: ${(props) =>
-        props.variant === "DEFAULT" ||
+        props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
-        props.variant === "VARIANT3"
+        props.variant === TableVariantTypes.VARIANT3
           ? `1px solid var(--wds-color-border-onaccent)`
           : `1px solid transparent`};
       border-right: ${(props) =>
-        props.variant === "DEFAULT" ||
+        props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
         props.isResizingColumn
           ? `1px solid var(--wds-color-border-onaccent)`
@@ -387,6 +391,11 @@ export const CellWrapper = styled.div<{
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
   background: ${(props) => props.cellBackground};
+
+  &:hover, .selected-row & {
+    background: ${(props) =>
+      props.cellBackground ? darkenColor(props.cellBackground, 5) : ""};
+  }
   font-size: ${(props) => props.textSize};
 
   padding: ${(props) =>
