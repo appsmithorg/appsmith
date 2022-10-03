@@ -13,9 +13,9 @@ import {
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
 
-export const getBindingTemplate = (widgetName: string) => {
-  const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;
-  const suffixTemplate = `))(${widgetName}.options, ${widgetName}.serverSideFiltering) }}`;
+export const getBindingTemplate = () => {
+  const prefixTemplate = "";
+  const suffixTemplate = "";
 
   return { prefixTemplate, suffixTemplate };
 };
@@ -27,7 +27,7 @@ export const stringToJS = (string: string): string => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
       } else {
-        return `\`${segment}\``;
+        return segment;
       }
     })
     .join(" + ");
@@ -100,8 +100,7 @@ class SelectDefaultValueControl extends BaseControl<
     } = this.props;
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
-        const { widgetName } = this.props.widgetProperties;
-        return this.getInputComputedValue(propertyValue, widgetName);
+        return this.getInputComputedValue(propertyValue);
       }
 
       return propertyValue || defaultValue;
@@ -122,8 +121,8 @@ class SelectDefaultValueControl extends BaseControl<
     );
   }
 
-  getInputComputedValue = (propertyValue: string, widgetName: string) => {
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
+  getInputComputedValue = (propertyValue: string) => {
+    const { prefixTemplate, suffixTemplate } = getBindingTemplate();
 
     const value = propertyValue.substring(
       prefixTemplate.length,
@@ -133,9 +132,9 @@ class SelectDefaultValueControl extends BaseControl<
     return JSToString(value);
   };
 
-  getComputedValue = (value: string, widgetName: string) => {
+  getComputedValue = (value: string) => {
     const stringToEvaluate = stringToJS(value);
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
+    const { prefixTemplate, suffixTemplate } = getBindingTemplate();
 
     if (stringToEvaluate === "") {
       return stringToEvaluate;
@@ -152,10 +151,7 @@ class SelectDefaultValueControl extends BaseControl<
       value = event;
     }
     if (isString(value)) {
-      const output = this.getComputedValue(
-        value,
-        this.props.widgetProperties.widgetName,
-      );
+      const output = this.getComputedValue(value);
 
       this.updateProperty(this.props.propertyName, output);
     } else {

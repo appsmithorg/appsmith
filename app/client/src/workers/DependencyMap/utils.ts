@@ -157,14 +157,12 @@ export function listValidationDependencies(
 ): DependencyMap {
   const validationDependency: DependencyMap = {};
   if (isWidget(entity)) {
-    const widget = entity;
-
-    const { validationPaths } = widget;
+    const { validationPaths } = entity;
 
     Object.entries(validationPaths).forEach(
       ([propertyPath, validationConfig]) => {
-        if (validationConfig.dependencies) {
-          const dependencyArray = validationConfig.dependencies.map(
+        if (validationConfig.dependentPaths) {
+          const dependencyArray = validationConfig.dependentPaths.map(
             (path) => `${entityName}.${path}`,
           );
           validationDependency[

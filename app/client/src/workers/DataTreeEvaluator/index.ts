@@ -44,7 +44,7 @@ import {
   overrideWidgetProperties,
   getAllPaths,
 } from "workers/evaluationUtils";
-import _ from "lodash";
+import _, { get } from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
 import {
@@ -86,12 +86,14 @@ import {
 import { lintTree } from "workers/Lint";
 import { isJSObjectFunction } from "workers/JSObject/utils";
 
+type SortedDependencies = Array<string>;
+
 export default class DataTreeEvaluator {
   /**
    * dependencyMap: Maintains map of <PATH, list of paths that re-evaluates on the evaluation of the PATH>
    */
   dependencyMap: DependencyMap = {};
-  sortedDependencies: Array<string> = [];
+  sortedDependencies: SortedDependencies = [];
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
@@ -119,7 +121,8 @@ export default class DataTreeEvaluator {
    * Maintains dependency of paths to re-validate on evaluation of particular property path.
    */
   validationDependencyMap: DependencyMap = {};
-
+  sortedValidationDependencies: SortedDependencies = [];
+  inverseValidationDependencyMap: DependencyMap = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -177,9 +180,19 @@ export default class DataTreeEvaluator {
     // Sort
     const sortDependenciesStart = performance.now();
     this.sortedDependencies = this.sortDependencies(dependencyMap);
+    this.sortedValidationDependencies = this.sortDependencies(
+      validationDependencyMap,
+    );
     const sortDependenciesEnd = performance.now();
     // Inverse
-    this.inverseDependencyMap = this.getInverseDependencyTree();
+    this.inverseDependencyMap = this.getInverseDependencyTree({
+      dependencyMap,
+      sortedDependencies: this.sortedDependencies,
+    });
+    this.inverseValidationDependencyMap = this.getInverseDependencyTree({
+      dependencyMap: validationDependencyMap,
+      sortedDependencies: this.sortedValidationDependencies,
+    });
 
     // Evaluate
     const evaluateStart = performance.now();
@@ -674,30 +687,28 @@ export default class DataTreeEvaluator {
           }
           if (isWidget(entity) && !isATriggerPath) {
             if (propertyPath) {
-              let parsedValue = this.validateAndParseWidgetProperty({
+              const parsedValue = this.validateAndParseWidgetProperty({
                 fullPropertyPath,
                 widget: entity,
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
               });
-              const overwriteObj = overrideWidgetProperties({
-                entity,
-                propertyPath,
-                value: parsedValue,
-                currentTree,
-                evalMetaUpdates,
-              });
 
-              if (overwriteObj && overwriteObj.overwriteParsedValue) {
-                parsedValue = overwriteObj.newValue;
-              }
-              _.set(currentTree, fullPropertyPath, parsedValue);
+              this.setParsedValue({
+                currentTree,
+                entity,
+                evalMetaUpdates,
+                fullPropertyPath,
+                parsedValue,
+                propertyPath,
+              });
 
               this.reValidateWidgetDependentProperty({
                 fullPropertyPath,
                 widget: entity,
                 currentTree,
+                evalMetaUpdates,
               });
 
               return currentTree;
@@ -787,10 +798,7 @@ export default class DataTreeEvaluator {
   ): Array<string> {
     /**
      * dependencyTree : Array<[Node, dependentNode]>
-     *
-     *
      */
-
     const dependencyTree: Array<[string, string]> = [];
     Object.keys(dependencyMap).forEach((key: string) => {
       if (dependencyMap[key].length) {
@@ -1069,18 +1077,78 @@ export default class DataTreeEvaluator {
     return parsed;
   }
 
+  setParsedValue({
+    currentTree,
+    entity,
+    evalMetaUpdates,
+    fullPropertyPath,
+    parsedValue,
+    propertyPath,
+  }: {
+    currentTree: DataTree;
+    entity: DataTreeWidget;
+    evalMetaUpdates: EvalMetaUpdates;
+    fullPropertyPath: string;
+    parsedValue: unknown;
+    propertyPath: string;
+  }) {
+    const overwriteObj = overrideWidgetProperties({
+      entity,
+      propertyPath,
+      value: parsedValue,
+      currentTree,
+      evalMetaUpdates,
+    });
+
+    if (overwriteObj && overwriteObj.overwriteParsedValue) {
+      parsedValue = overwriteObj.newValue;
+    }
+    // setting parseValue in dataTree
+    _.set(currentTree, fullPropertyPath, parsedValue);
+  }
+
   reValidateWidgetDependentProperty({
     currentTree,
+    evalMetaUpdates,
     fullPropertyPath,
     widget,
   }: {
     currentTree: DataTree;
     fullPropertyPath: string;
     widget: DataTreeWidget;
+    evalMetaUpdates: EvalMetaUpdates;
   }) {
-    /**
-     *
-     */
+    if (this.inverseValidationDependencyMap[fullPropertyPath]) {
+      const pathsToRevalidate = this.inverseValidationDependencyMap[
+        fullPropertyPath
+      ];
+      pathsToRevalidate.forEach((fullPath) => {
+        const parsedValue = this.validateAndParseWidgetProperty({
+          fullPropertyPath: fullPath,
+          widget,
+          currentTree,
+          evalPropertyValue: get(currentTree, fullPath),
+          unEvalPropertyValue: (get(
+            this.oldUnEvalTree,
+            fullPath,
+          ) as unknown) as string,
+        });
+        this.setParsedValue({
+          parsedValue,
+          currentTree,
+          entity: widget,
+          fullPropertyPath: fullPath,
+          propertyPath: getEntityNameAndPropertyPath(fullPath).propertyPath,
+          evalMetaUpdates,
+        });
+      });
+      // remove error if valid property
+      console.log("$$$", {
+        pathsToRevalidate,
+        fullPropertyPath,
+        inverseValidationDependencyMap: this.inverseValidationDependencyMap,
+      });
+    }
   }
 
   // validates the user input saved as action property based on a validationConfig
@@ -1206,22 +1274,28 @@ export default class DataTreeEvaluator {
     return _.difference(completeSortOrder, removedPaths);
   }
 
-  getInverseDependencyTree(): DependencyMap {
-    const inverseDag: DependencyMap = {};
-    this.sortedDependencies.forEach((propertyPath) => {
-      const incomingEdges: Array<string> = this.dependencyMap[propertyPath];
+  getInverseDependencyTree(
+    params = {
+      dependencyMap: this.dependencyMap,
+      sortedDependencies: this.sortedDependencies,
+    },
+  ): DependencyMap {
+    const { dependencyMap, sortedDependencies } = params;
+    const inverseDependencyMap: DependencyMap = {};
+    sortedDependencies.forEach((propertyPath) => {
+      const incomingEdges: Array<string> = dependencyMap[propertyPath];
       if (incomingEdges) {
         incomingEdges.forEach((edge) => {
-          const node = inverseDag[edge];
+          const node = inverseDependencyMap[edge];
           if (node) {
             node.push(propertyPath);
           } else {
-            inverseDag[edge] = [propertyPath];
+            inverseDependencyMap[edge] = [propertyPath];
           }
         });
       }
     });
-    return inverseDag;
+    return inverseDependencyMap;
   }
 
   evaluateActionBindings(
