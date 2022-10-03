@@ -8,9 +8,6 @@ export * from "./DialogComponent";
 
 export { DroppableComponent } from "./DraggableListComponent";
 
-export { default as EditableText } from "./EditableText";
-export * from "./EditableText";
-
 export { default as FilePicker } from "./FilePicker";
 export * from "./FilePicker";
 

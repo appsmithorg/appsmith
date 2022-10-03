@@ -31,6 +31,8 @@ import {
   Button,
   Category,
   ColorSelector,
+  EditableText,
+  EditInteractionKind,
   IconPositions,
   Icon,
   IconSelector,
@@ -39,16 +41,13 @@ import {
   MenuDivider,
   MenuItem,
   MenuItemProps,
+  SavingState,
   Size,
   Toaster,
   Text,
   TextType,
   TooltipComponent,
 } from "design-system";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,

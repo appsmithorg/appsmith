@@ -50,11 +50,14 @@ import {
   AppIconCollection,
   Button,
   Category,
+  EditableText,
+  EditInteractionKind,
   Icon,
   IconName,
   IconSize,
   Menu,
   MenuItem,
+  SavingState,
   Size,
   Text,
   TextType,
@@ -71,10 +74,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { notEmptyValidator } from "design-system";
 import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";

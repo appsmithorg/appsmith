@@ -1,9 +1,13 @@
-import EditableText, { EditableTextProps, SavingState } from "./EditableText";
+import {
+  EditableText,
+  EditableTextProps,
+  SavingState,
+  Toaster,
+} from "design-system";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Variant } from "./common";
-import { Toaster } from "design-system";
 import {
   createMessage,
   ERROR_EMPTY_APPLICATION_NAME,
