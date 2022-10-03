@@ -67,7 +67,7 @@ const StyledInputGroup = styled(InputGroup)<{
   border-radius: ${(props) => props.borderRadius || "0"};
   color: var(--wds-color-text);
   height: 32px;
-  width: 150px;
+  width: 120px;
   margin-left: 10px;
   overflow: hidden;
 
@@ -575,7 +575,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
           {index === 0 ? "Where" : OperatorTypes[props.operator]}
         </LabelWrapper>
       )}
-      <DropdownWrapper width={150}>
+      <DropdownWrapper width={120}>
         <RenderOptions
           borderRadius={props.borderRadius}
           className="t--table-filter-columns-dropdown"

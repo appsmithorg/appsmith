@@ -141,6 +141,10 @@ export const TableWrapper = styled.div<{
       }
     }
 
+    .th {
+      font-size: 14px;
+    }
+
     .thead:hover .th {
       border-right: 1px solid var(--wds-color-border-onaccent);
     }
