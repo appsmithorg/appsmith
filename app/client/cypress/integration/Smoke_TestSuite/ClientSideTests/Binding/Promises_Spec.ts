@@ -178,7 +178,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   });
 
   it("7. Verify maintaining context via direct Promises", () => {
-    //deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnListDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
