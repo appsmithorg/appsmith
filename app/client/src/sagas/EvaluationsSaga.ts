@@ -662,6 +662,8 @@ function* processErrorsAndExecuteTriggers(action: any) {
     responsePayload.data.reason = { message: (e as any).message };
     responsePayload.success = false;
   }
+  if (responsePayload.data.reason?.message)
+    logActionExecutionError(responsePayload.data.reason?.message);
   if (!requestId) return;
   yield call(
     worker.request,
