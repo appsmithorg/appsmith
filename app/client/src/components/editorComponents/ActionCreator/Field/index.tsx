@@ -33,7 +33,8 @@ export function Field(props: FieldProps) {
   const { field } = props;
   const fieldType = field.field;
   const fieldConfig = FIELD_CONFIGS[fieldType];
-  if (!fieldConfig) return;
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  if (!fieldConfig) return <></>;
   let viewElement: JSX.Element | null = null;
   const view = views[fieldConfig.view];
   const label = APPSMITH_FUNCTION_CONFIG[fieldType].label(props);

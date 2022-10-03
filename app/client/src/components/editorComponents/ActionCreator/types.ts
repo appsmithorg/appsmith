@@ -61,7 +61,7 @@ export type ActionCreatorProps = {
 export type FieldProps = {
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   value: string;
-  field: { field: FieldType; value: string; label: string; index: number };
+  field: { field: FieldType; value?: string; label?: string; index?: number };
   label?: string;
   widgetOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
