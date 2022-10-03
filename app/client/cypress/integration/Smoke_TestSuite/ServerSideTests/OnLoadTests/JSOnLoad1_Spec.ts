@@ -538,7 +538,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     // agHelper.AssertElementPresence(jsEditor._dialogBody("getCountry"));
     // agHelper.ClickButton("No");
 
-    agHelper.WaitUntilToastDisappear('The action "getBooks" has failed');
+    agHelper.WaitUntilToastDisappear("getBooks was cancelled");
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("Yes");
