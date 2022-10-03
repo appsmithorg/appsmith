@@ -21,6 +21,7 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
+import { checkContainersForDynamicHeightUpdate } from "actions/dynamicHeightActions";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -50,6 +51,7 @@ export type EditorContextType = {
     propertyValue: any,
   ) => void;
   updateWidgetDynamicHeight?: (widgetId: string, height: number) => void;
+  checkContainersForDynamicHeight?: () => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -60,6 +62,7 @@ type EditorContextProviderProps = EditorContextType & {
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
     batchUpdateWidgetProperty,
+    checkContainersForDynamicHeight,
     children,
     deleteWidgetProperty,
     disableDrag,
@@ -86,6 +89,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
       updateWidgetDynamicHeight,
       triggerEvalOnMetaUpdate,
+      checkContainersForDynamicHeight,
     }),
     [
       executeAction,
@@ -98,6 +102,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
       updateWidgetDynamicHeight,
       triggerEvalOnMetaUpdate,
+      checkContainersForDynamicHeight,
     ],
   );
   return (
@@ -127,6 +132,7 @@ const mapDispatchToProps = {
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   updateWidgetDynamicHeight: updateWidgetDynamicHeightAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
+  checkContainersForDynamicHeight: checkContainersForDynamicHeightUpdate,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

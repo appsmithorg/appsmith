@@ -33,6 +33,7 @@ import {
 import {
   getCanvasHeightOffset,
   getOccupiedSpacesGroupedByParentCanvas,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import {
   getCanvasLevelMap,
@@ -49,7 +50,7 @@ import {
   getWidgetMinDynamicHeight,
   isDynamicHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
-import { getWidgets } from "./selectors";
+import { getWidgetMetaProps, getWidgets } from "./selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 
@@ -65,6 +66,7 @@ import { APP_MODE } from "entities/App";
 export function* updateWidgetDynamicHeightSaga() {
   const updates = dynamicHeightUpdateWidgets;
   const start = performance.now();
+  const isPreviewMode: boolean = yield select(previewModeSelector);
 
   log.debug(
     "Dynamic height: Computing debounced: ",
@@ -104,7 +106,10 @@ export function* updateWidgetDynamicHeightSaga() {
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
       // In case of a widget going invisible in view mode
-      if (updates[widgetId] === 0 && appMode === APP_MODE.PUBLISHED) {
+      if (
+        updates[widgetId] === 0 &&
+        (appMode === APP_MODE.PUBLISHED || isPreviewMode)
+      ) {
         minDynamicHeightInPixels = 0;
       }
 
@@ -635,6 +640,7 @@ function* generateTreeForDynamicHeightComputations(
 
 export function* dynamicallyUpdateContainersSaga() {
   const start = performance.now();
+  log.debug("Dynamic Height: Checking containers");
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
     stateWidgets,
@@ -662,6 +668,24 @@ export function* dynamicallyUpdateContainersSaga() {
           isDynamicHeightEnabledForWidget(parentContainerWidget) ||
           parentContainerWidget.bottomRow === parentContainerWidget.topRow
         ) {
+          // Todo: Abstraction leak (abhinav): This is an abstraction leak
+          // I don't have a better solution right now.
+          // What we're trying to acheive is to skip the canvas which
+          // is not currently visible in the tabs widget.
+          if (parentContainerWidget.type === "TABS_WIDGET") {
+            const tabsMeta:
+              | { selectedTabWidgetId: string }
+              | undefined = yield select(
+              getWidgetMetaProps,
+              parentContainerWidget.widgetId,
+            );
+            if (
+              tabsMeta &&
+              tabsMeta.selectedTabWidgetId !== canvasWidget.widgetId
+            ) {
+              continue;
+            }
+          }
           let maxBottomRow =
             parentContainerWidget.bottomRow - parentContainerWidget.topRow;
           if (
@@ -672,6 +696,7 @@ export function* dynamicallyUpdateContainersSaga() {
               parentContainerWidget.height /
               GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
           }
+
           if (
             Array.isArray(canvasWidget.children) &&
             canvasWidget.children.length > 0

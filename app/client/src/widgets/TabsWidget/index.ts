@@ -10,7 +10,7 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   canvasHeightOffset: (props: WidgetProps): number =>
-    props.showTabs === true ? 4 : 0,
+    props.shouldShowTabs === true ? 4 : 0,
   features: {
     dynamicHeight: true,
   },

@@ -222,6 +222,11 @@ class TabsWidget extends BaseWidget<
     ];
   }
 
+  callDynamicHeightUpdates = () => {
+    const { checkContainersForDynamicHeight } = this.context;
+    checkContainersForDynamicHeight();
+  };
+
   onTabChange = (tabWidgetId: string) => {
     this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
       triggerPropertyName: "onTabSelected",
@@ -230,6 +235,7 @@ class TabsWidget extends BaseWidget<
         type: EventType.ON_TAB_CHANGE,
       },
     });
+    setTimeout(this.callDynamicHeightUpdates, 0);
   };
 
   static getDerivedPropertiesMap() {
