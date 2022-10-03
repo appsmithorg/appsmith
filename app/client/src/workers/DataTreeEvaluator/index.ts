@@ -695,7 +695,15 @@ export default class DataTreeEvaluator {
               if (overwriteObj && overwriteObj.overwriteParsedValue) {
                 parsedValue = overwriteObj.newValue;
               }
-              return _.set(currentTree, fullPropertyPath, parsedValue);
+              _.set(currentTree, fullPropertyPath, parsedValue);
+
+              this.reValidateWidgetDependentProperty({
+                fullPropertyPath,
+                widget: entity,
+                currentTree,
+              });
+
+              return currentTree;
             }
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           } else if (isATriggerPath) {
@@ -801,26 +809,7 @@ export default class DataTreeEvaluator {
       }
     });
 
-    const validationDependencyTree: Array<[string, string]> = [];
-    Object.keys(params.validationDependencyMap).forEach((key: string) => {
-      if (params.validationDependencyMap[key].length) {
-        params.validationDependencyMap[key].forEach((dep) =>
-          validationDependencyTree.push([key, dep]),
-        );
-      } else {
-        // Set no dependency
-        validationDependencyTree.push([key, ""]);
-      }
-    });
-
-    console.log("$$$", {
-      dependencyTree,
-      ...params,
-      validationDependencyTree,
-    });
-
     try {
-      // sort dependencies and remove empty dependencies
       return toposort(dependencyTree)
         .reverse()
         .filter((d) => !!d);
@@ -1086,6 +1075,20 @@ export default class DataTreeEvaluator {
     }
 
     return parsed;
+  }
+
+  reValidateWidgetDependentProperty({
+    currentTree,
+    fullPropertyPath,
+    widget,
+  }: {
+    currentTree: DataTree;
+    fullPropertyPath: string;
+    widget: DataTreeWidget;
+  }) {
+    /**
+     *
+     */
   }
 
   // validates the user input saved as action property based on a validationConfig
