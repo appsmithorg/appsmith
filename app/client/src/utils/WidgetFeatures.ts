@@ -156,8 +156,6 @@ function updateMinMaxDynamicHeight(
     });
   }
 
-  console.log("updateMinMaxDynamicHeight", props);
-
   if (props.type === "TEXT_WIDGET") {
     updates.push({
       propertyPath: "overflow",
