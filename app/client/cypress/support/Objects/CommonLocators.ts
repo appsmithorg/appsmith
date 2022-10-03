@@ -136,9 +136,9 @@ export class CommonLocators {
   _lintWarningElement = "span.CodeMirror-lint-mark-warning";
   _codeEditorWrapper = ".unfocused-code-editor";
   _datePicker = (date: number) =>
-    "//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" +
+    "(//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" +
     date +
-    "']";
+    "'])[last()]";
   _inputWidgetValueField = (fieldName: string, input: boolean = true) =>
     `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
       input ? "input" : "textarea"

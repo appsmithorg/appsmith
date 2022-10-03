@@ -136,7 +136,7 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      locator = selector.startsWith("//")
+      locator = selector.startsWith("//") || selector.startsWith("(//")
         ? cy.xpath(selector, { timeout: timeout })
         : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
@@ -455,10 +455,7 @@ export class AggregateHelper {
     force = false,
     waitTimeInterval = 500,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator
+    return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
       .click({ force: force })
