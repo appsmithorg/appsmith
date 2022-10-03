@@ -183,7 +183,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
-      "https://api.jikan.moe/v3/search/anime?q={{this.params.name}}",
+      "https://api.jikan.moe/v4/anime?q=={{this.params.name}}",
       "GetAnime",
       30000,
     );
