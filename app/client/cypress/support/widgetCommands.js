@@ -573,14 +573,10 @@ Cypress.Commands.add(
       .first()
       .then((ins) => {
         const input = ins[0].CodeMirror;
-        try {
-          expect(input.hasFocus()).to.be.true;
-          const editorCursor = input.getCursor();
-          expect(editorCursor.ch).to.equal(cursor.ch);
-          expect(editorCursor.line).to.equal(cursor.line);
-        } catch (e) {
-          cy.log(e);
-        }
+        expect(input.hasFocus()).to.be.true;
+        const editorCursor = input.getCursor();
+        expect(editorCursor.ch).to.equal(cursor.ch);
+        expect(editorCursor.line).to.equal(cursor.line);
       });
   },
 );

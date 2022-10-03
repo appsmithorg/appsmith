@@ -38,27 +38,35 @@ describe("MaintainContext&Focus", function() {
     cy.get('[data-cy="t--tab-PARAMS"]').click();
     cy.focusCodeInput(apiwidget.queryKey, {
       line: 0,
-      ch: 2,
+      ch: 0,
     });
+    cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("Rest_Api_2");
     cy.wait(1000);
     cy.contains(".react-tabs__tab", "Headers").click();
     cy.updateCodeInput(apiwidget.headerValue, "test");
-
-    cy.SearchEntityandOpen("S3_Query");
-    cy.wait(1000);
-    cy.focusCodeInput(".t--actionConfiguration.formData.bucket.data", {
+    cy.focusCodeInput(apiwidget.headerValue, {
       line: 0,
-      ch: 1,
+      ch: 4,
     });
+    cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("SQL_Query");
     cy.wait(1000);
-    cy.focusCodeInput(".t--actionConfiguration.body", {
+    cy.focusCodeInput(".t--actionConfiguration\\.body", {
       line: 0,
       ch: 10,
     });
+    cy.wait("@saveAction");
+
+    cy.SearchEntityandOpen("S3_Query");
+    cy.wait(1000);
+    cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data", {
+      line: 0,
+      ch: 1,
+    });
+    cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("JSObject1");
     cy.wait(1000);
@@ -66,6 +74,7 @@ describe("MaintainContext&Focus", function() {
       line: 5,
       ch: 4,
     });
+    cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("JSObject2");
     cy.wait(1000);
@@ -73,13 +82,22 @@ describe("MaintainContext&Focus", function() {
       line: 2,
       ch: 3,
     });
+    cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("Mongo_Query");
     cy.wait(1000);
     cy.updateCodeInput(
-      ".t--actionConfiguration.formData.collection.data",
+      ".t--actionConfiguration\\.formData\\.collection\\.data",
       "TestCollection",
     );
+    cy.focusCodeInput(
+      ".t--actionConfiguration\\.formData\\.collection\\.data",
+      {
+        line: 0,
+        ch: 14,
+      },
+    );
+    cy.wait("@saveAction");
   });
   it("Check for focus on entities", () => {
     cy.get(`.t--entity-name:contains("Page1")`).click();
@@ -101,35 +119,35 @@ describe("MaintainContext&Focus", function() {
     });
 
     cy.SearchEntityandOpen("Rest_Api_1");
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration.queryParameters[0].value.0",
-      {
-        line: 0,
-        ch: 4,
-      },
-    );
+    cy.assertCursorOnCodeInput(apiwidget.queryKey, {
+      line: 0,
+      ch: 0,
+    });
 
     cy.SearchEntityandOpen("Rest_Api_2");
     cy.contains(".react-tabs__tab", "Headers").should(
       "have.class",
       "react-tabs__tab--selected",
     );
-    cy.assertCursorOnCodeInput(".t--actionConfiguration.headers[0].key.0", {
+    cy.assertCursorOnCodeInput(apiwidget.headerValue, {
       line: 0,
-      ch: 2,
-    });
-
-    cy.SearchEntityandOpen("S3_Query");
-    cy.assertCursorOnCodeInput(".t--actionConfiguration.formData.bucket.data", {
-      line: 0,
-      ch: 2,
+      ch: 4,
     });
 
     cy.SearchEntityandOpen("SQL_Query");
-    cy.assertCursorOnCodeInput(".t--actionConfiguration.body", {
+    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
       line: 0,
       ch: 10,
     });
+
+    cy.SearchEntityandOpen("S3_Query");
+    cy.assertCursorOnCodeInput(
+      ".t--actionConfiguration\\.formData\\.bucket\\.data",
+      {
+        line: 0,
+        ch: 1,
+      },
+    );
 
     cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor", {
@@ -145,7 +163,7 @@ describe("MaintainContext&Focus", function() {
 
     cy.SearchEntityandOpen("Mongo_Query");
     cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration.formData.collection.data",
+      ".t--actionConfiguration\\.formData\\.collection\\.data",
       {
         line: 0,
         ch: 14,
