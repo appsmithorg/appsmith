@@ -825,7 +825,7 @@ jobs:
       # Download failed_spec list for all jobs
       - uses: actions/download-artifact@v2
         if: needs.ui-test.result
-        id: download
+        id: download_fat
         with:
           name: failed-spec-fat
           path: ~/failed_spec_fat
