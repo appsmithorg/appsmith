@@ -4,10 +4,11 @@ import styled from "styled-components";
 import { noop } from "lodash";
 
 import { CommonComponentProps } from "./common";
-import EditableTextSubComponent, {
+import {
+  EditableTextSubComponent,
   EditInteractionKind,
   SavingState,
-} from "./EditableTextSubComponent";
+} from "design-system";
 
 export { EditInteractionKind, SavingState };
 

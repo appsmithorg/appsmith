@@ -6,8 +6,7 @@ import { Classes as Popover2Classes, Popover2 } from "@blueprintjs/popover2";
 import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
-import { Icon, IconSize, Toaster } from "design-system";
-import { SavingState } from "components/ads/EditableTextSubComponent";
+import { Icon, IconSize, SavingState, Toaster } from "design-system";
 import { EditInteractionKind } from "components/ads/EditableText";
 import { CommonComponentProps, ThemeProp } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";

@@ -11,11 +11,6 @@ export { DroppableComponent } from "./DraggableListComponent";
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
 
-export { default as EditableTextSubComponent } from "./EditableTextSubComponent";
-export * from "./EditableTextSubComponent";
-
-export { default as EditableTextWrapper } from "./EditableTextSubComponent";
-
 export { default as FilePicker } from "./FilePicker";
 export * from "./FilePicker";
 
