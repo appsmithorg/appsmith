@@ -306,7 +306,6 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
       agHelper.WaitUntilToastDisappear("Quotes was cancelled");
-      aza;
 
       //Another for API called via JS callQuotes()
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
