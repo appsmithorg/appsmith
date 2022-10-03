@@ -792,11 +792,9 @@ export default class DataTreeEvaluator {
      */
 
     const dependencyTree: Array<[string, string]> = [];
-    Object.keys(params.dependencyMap).forEach((key: string) => {
-      if (params.dependencyMap[key].length) {
-        params.dependencyMap[key].forEach((dep) =>
-          dependencyTree.push([key, dep]),
-        );
+    Object.keys(dependencyMap).forEach((key: string) => {
+      if (dependencyMap[key].length) {
+        dependencyMap[key].forEach((dep) => dependencyTree.push([key, dep]));
       } else {
         // Set no dependency
         dependencyTree.push([key, ""]);
