@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isString } from "lodash";
+import _ from "lodash";
 import {
   DataTree,
   ENTITY_TYPE,
@@ -179,6 +179,7 @@ export type EditorProps = EditorStyleProps &
     isReadOnly?: boolean;
     isRawView?: boolean;
     isJSObject?: boolean;
+    containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
   };
@@ -349,7 +350,20 @@ class CodeEditor extends Component<Props, State> {
     return true;
   }
 
+  //Debounce editor refresh request as container resizing triggers many change events.
+  debounceEditorRefresh = _.debounce(async () => {
+    this.editor.refresh();
+  }, 100);
+
   componentDidUpdate(prevProps: Props): void {
+    if (
+      prevProps.containerHeight &&
+      this.props.containerHeight &&
+      prevProps.containerHeight < this.props.containerHeight
+    ) {
+      //Refresh editor when the container height is increased.
+      this.debounceEditorRefresh();
+    }
     this.editor.operation(() => {
       if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
@@ -359,7 +373,7 @@ class CodeEditor extends Component<Props, State> {
       const previousInputValue = getInputValue(prevProps.input.value);
 
       if (!!inputValue || inputValue === "") {
-        if (inputValue !== editorValue && isString(inputValue)) {
+        if (inputValue !== editorValue && _.isString(inputValue)) {
           this.editor.setValue(inputValue);
           this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
         } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {

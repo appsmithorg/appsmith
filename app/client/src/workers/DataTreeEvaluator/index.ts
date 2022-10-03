@@ -59,6 +59,7 @@ import {
   Severity,
   SourceEntity,
   ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
+  UserLogObject,
 } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
 import { JSUpdate } from "utils/JSPaneUtils";
@@ -79,7 +80,6 @@ import {
   parseJSActions,
 } from "workers/JSObject";
 import { lintTree } from "workers/Lint";
-import { UserLogObject } from "workers/UserLog";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
