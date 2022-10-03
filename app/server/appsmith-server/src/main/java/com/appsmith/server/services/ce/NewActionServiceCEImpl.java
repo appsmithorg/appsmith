@@ -645,18 +645,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // 3. Instantiate the implementation class based on the query type
 
         Mono<Datasource> datasourceMono = actionDTOMono
-                .flatMap(action -> {
-                    // Global datasource requires us to fetch the datasource from DB.
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                        FieldName.DATASOURCE,
-                                        action.getDatasource().getId())));
-                    }
-
-                    // This is a nested datasource. Return as is.
-                    return Mono.justOrEmpty(action.getDatasource());
-                })
+                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO, EXECUTE_DATASOURCES))
                 .cache();
 
         Mono<Plugin> pluginMono = datasourceMono
