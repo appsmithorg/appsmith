@@ -829,11 +829,11 @@ export default class DataTreeEvaluator {
         context: {
           node,
           entityType,
-          dependencyMap: params.dependencyMap,
+          dependencyMap,
           diffs,
         },
       });
-      logError("CYCLICAL DEPENDENCY MAP", params.dependencyMap);
+      logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
       this.hasCyclicalDependency = true;
       throw new CrashingError((error as Error).message);
     }
