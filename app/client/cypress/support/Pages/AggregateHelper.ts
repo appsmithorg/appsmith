@@ -455,7 +455,7 @@ export class AggregateHelper {
     force = false,
     waitTimeInterval = 500,
   ) {
-    const locator = selector.startsWith("//")
+    const locator = selector.startsWith("//") || selector.startsWith("(//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
