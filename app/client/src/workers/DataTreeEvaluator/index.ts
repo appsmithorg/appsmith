@@ -801,7 +801,23 @@ export default class DataTreeEvaluator {
       }
     });
 
-    console.log("$$$-dependencyTree", dependencyTree, params);
+    const validationDependencyTree: Array<[string, string]> = [];
+    Object.keys(params.validationDependencyMap).forEach((key: string) => {
+      if (params.validationDependencyMap[key].length) {
+        params.validationDependencyMap[key].forEach((dep) =>
+          validationDependencyTree.push([key, dep]),
+        );
+      } else {
+        // Set no dependency
+        validationDependencyTree.push([key, ""]);
+      }
+    });
+
+    console.log("$$$", {
+      dependencyTree,
+      ...params,
+      validationDependencyTree,
+    });
 
     try {
       // sort dependencies and remove empty dependencies
