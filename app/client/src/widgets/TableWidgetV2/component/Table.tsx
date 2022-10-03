@@ -227,7 +227,7 @@ export function Table(props: TableProps) {
 
   const shouldUseVirtual =
     !props.columns.some(
-      (column) => column.columnProperties.allowCellWrapping,
+      (column) => !!column.columnProperties.allowCellWrapping,
     ) && props.serverSidePaginationEnabled;
 
   return (
