@@ -292,10 +292,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   }
   yield call(evalErrorHandler, errors);
   if (isEmpty(errors)) return;
-  if (
-    errors[0].errorMessage !==
-    "UncaughtPromiseRejection: User cancelled action execution"
-  ) {
+  if (errors[0].errorMessage !== "undefined: User cancelled action execution") {
     throw new UncaughtPromiseError(errors[0].errorMessage);
   }
 }
@@ -322,8 +319,6 @@ export function* executeFunction(
 
   const { errors, logs, result } = response;
 
-  if (errors?.length > 0) logActionExecutionError(errors[0].errorMessage);
-
   yield call(
     storeLogs,
     logs,
@@ -339,6 +334,12 @@ export function* executeFunction(
     action,
     errors,
   );
+
+  if (
+    errors?.length > 0 &&
+    errors[0].errorMessage !== "undefined: User cancelled action execution"
+  )
+    logActionExecutionError(errors[0].errorMessage);
 
   return { result, isDirty: !!errors.length };
 }

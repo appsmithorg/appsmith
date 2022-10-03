@@ -436,12 +436,12 @@ describe("JSObjects OnLoad Actions tests", function() {
           return Math.floor(
             Math.random() * (max - min) + min)
         },
-        getId: async () => {
+        getId: async function() {
           this.between(1, 12);
           return Promise.resolve(this.between(1, 12)).then(res=> res)
         },
-        callBooks: async ()=>{
-          //getId confimation expected but does not appear due to Bug 13646
+        callBooks: async function() {
+          //getId confirmation expected but does not appear due to Bug 13646
           let bookId = await this.getId();
           await getBooks.run({id: bookId});
         },
