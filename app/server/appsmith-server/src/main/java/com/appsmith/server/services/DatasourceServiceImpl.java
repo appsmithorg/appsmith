@@ -37,7 +37,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 NewActionRepository newActionRepository, VariableReplacementService variableReplacementService) {
+                                 NewActionRepository newActionRepository, 
+                                 VariableReplacementService variableReplacementService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, pluginService, pluginExecutorHelper, policyGenerator,
