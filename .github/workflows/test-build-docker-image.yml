@@ -1447,7 +1447,7 @@ jobs:
       # Download failed_spec_fat list for all fat container jobs
       - uses: actions/download-artifact@v2
         if: needs.fat-container-test.result
-        id: download
+        id: download_fat
         with:
           name: failed-spec-fat
           path: ~/failed_spec_fat
