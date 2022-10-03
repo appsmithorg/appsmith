@@ -1,4 +1,4 @@
-import React, { CSSProperties, useContext } from "react";
+import React, { CSSProperties, Key, useContext } from "react";
 import { Row as ReactTableRowType } from "react-table";
 import { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
@@ -18,6 +18,7 @@ export function Row(props: RowType) {
     borderRadius,
     multiRowSelection,
     prepareRow,
+    primaryColumnId,
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
@@ -34,13 +35,18 @@ export function Row(props: RowType) {
   const isRowSelected = multiRowSelection
     ? selectedRowIndices.includes(props.row.index)
     : props.row.index === selectedRowIndex;
+
+  const key =
+    (primaryColumnId && (props.row.original[primaryColumnId] as Key)) ||
+    props.index;
+
   return (
     <div
       {...rowProps}
       className={`tr ${isRowSelected ? "selected-row" : ""} ${props.className ||
         ""}`}
       data-rowindex={props.index}
-      key={props.index}
+      key={key}
       onClick={(e) => {
         props.row.toggleRowSelected();
         selectTableRow?.(props.row);

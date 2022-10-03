@@ -1,5 +1,6 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
+import fastdom from "fastdom";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import { CellAlignment, VerticalAlignment } from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
@@ -39,13 +40,15 @@ function useToolTip(
   const [showTooltip, updateToolTip] = useState(false);
 
   useEffect(() => {
-    const element = ref.current?.querySelector("div") as HTMLDivElement;
+    fastdom.measure(() => {
+      const element = ref.current?.querySelector("div") as HTMLDivElement;
 
-    if (element && element.offsetWidth < element.scrollWidth) {
-      updateToolTip(true);
-    } else {
-      updateToolTip(false);
-    }
+      if (element && element.offsetWidth < element.scrollWidth) {
+        updateToolTip(true);
+      } else {
+        updateToolTip(false);
+      }
+    });
   }, [children, ref.current]);
 
   return showTooltip && children ? (

@@ -23,6 +23,7 @@ type BodyContextType = {
   columns: ReactTableColumnProps[];
   width: number;
   rows: ReactTableRowType<Record<string, unknown>>[];
+  primaryColumnId?: string;
 };
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -34,6 +35,7 @@ export const BodyContext = React.createContext<BodyContextType>({
   columns: [],
   width: 0,
   rows: [],
+  primaryColumnId: "",
 });
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
@@ -116,6 +118,7 @@ export const TableBody = React.forwardRef(
       columns,
       multiRowSelection,
       prepareRow,
+      primaryColumnId,
       rows,
       selectedRowIndex,
       selectedRowIndices,
@@ -132,6 +135,7 @@ export const TableBody = React.forwardRef(
           borderRadius,
           multiRowSelection,
           prepareRow,
+          primaryColumnId,
           selectTableRow,
           selectedRowIndex,
           selectedRowIndices,

@@ -83,6 +83,7 @@ interface TableProps {
   boxShadow?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
+  primaryColumnId?: string;
 }
 
 const defaultColumn = {
@@ -226,9 +227,10 @@ export function Table(props: TableProps) {
   );
 
   const shouldUseVirtual =
+    props.serverSidePaginationEnabled &&
     !props.columns.some(
       (column) => !!column.columnProperties.allowCellWrapping,
-    ) && props.serverSidePaginationEnabled;
+    );
 
   return (
     <TableWrapper
@@ -372,6 +374,7 @@ export function Table(props: TableProps) {
               multiRowSelection={!!props.multiRowSelection}
               pageSize={props.pageSize}
               prepareRow={prepareRow}
+              primaryColumnId={props.primaryColumnId}
               ref={tableBodyRef}
               rows={subPage}
               selectTableRow={props.selectTableRow}
