@@ -39,14 +39,13 @@ function useToolTip(
   const [showTooltip, updateToolTip] = useState(false);
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      const element = ref.current?.querySelector("div") as HTMLDivElement;
-      if (element && element.offsetWidth < element.scrollWidth) {
-        updateToolTip(true);
-      } else {
-        updateToolTip(false);
-      }
-    });
+    const element = ref.current?.querySelector("div") as HTMLDivElement;
+
+    if (element && element.offsetWidth < element.scrollWidth) {
+      updateToolTip(true);
+    } else {
+      updateToolTip(false);
+    }
   }, [children, ref.current]);
 
   return showTooltip && children ? (

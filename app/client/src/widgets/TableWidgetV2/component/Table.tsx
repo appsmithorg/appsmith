@@ -21,7 +21,6 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
-  MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -31,9 +30,8 @@ import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
-import { DEFAULT_COLUMN_WIDTH, EditableCell } from "../constants";
+import { EditableCell } from "../constants";
 import { TableBody } from "./TableBody";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 interface TableProps {
   width: number;
@@ -358,10 +356,11 @@ export function Table(props: TableProps) {
                   props.columns,
                   props.width,
                   subPage,
-                  prepareRow,
                   props.multiRowSelection,
                   props.accentColor,
                   props.borderRadius,
+                  {},
+                  prepareRow,
                 )}
             </div>
             <TableBody
@@ -370,7 +369,7 @@ export function Table(props: TableProps) {
               columns={props.columns}
               getTableBodyProps={getTableBodyProps}
               height={props.height}
-              multiRowSelection={props.multiRowSelection}
+              multiRowSelection={!!props.multiRowSelection}
               pageSize={props.pageSize}
               prepareRow={prepareRow}
               ref={tableBodyRef}

@@ -433,8 +433,8 @@ export const CellWrapper = styled.div<{
 
 export const CellCheckboxWrapper = styled(CellWrapper)<{
   isChecked?: boolean;
-  accentColor: string;
-  borderRadius: string;
+  accentColor?: string;
+  borderRadius?: string;
 }>`
   justify-content: center;
   width: ${MULTISELECT_CHECKBOX_WIDTH}px;

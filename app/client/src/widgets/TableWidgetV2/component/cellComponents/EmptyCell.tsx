@@ -9,11 +9,11 @@ export const renderEmptyRows = (
   columns: ReactTableColumnProps[],
   tableWidth: number,
   page: Row<Record<string, unknown>>[],
-  prepareRow: (row: Row<Record<string, unknown>>) => void,
   multiRowSelection = false,
   accentColor: string,
   borderRadius: string,
   style?: CSSProperties,
+  prepareRow?: (row: Row<Record<string, unknown>>) => void,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
 
@@ -21,7 +21,7 @@ export const renderEmptyRows = (
     const row = page[0];
 
     return rows.map((item: string, index: number) => {
-      prepareRow(row);
+      prepareRow?.(row);
       const rowProps = {
         ...row.getRowProps(),
         style: {
