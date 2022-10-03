@@ -89,7 +89,7 @@ export enum TableVariantTypes {
   VARIANT3 = "VARIANT3",
 }
 
-export type TableVariant = keyof typeof TableVariantTypes | undefined;
+export type TableVariant = keyof typeof TableVariantTypes;
 
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
 

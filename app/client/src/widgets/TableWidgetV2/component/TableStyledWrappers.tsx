@@ -96,7 +96,7 @@ export const TableWrapper = styled.div<{
 
         &:hover {
           background: ${({ accentColor }) =>
-            `${lightenColor(accentColor, 0.9)}`} !important;
+            `${lightenColor(accentColor, "0.9")}`} !important;
         }
       }
       &:hover {
@@ -549,7 +549,7 @@ export const TableHeaderInnerWrapper = styled.div<{
   width: number;
   tableSizes: TableSizes;
   backgroundColor?: Color;
-  variant?: TableVariantTypes;
+  variant?: TableVariant;
 }>`
   position: relative;
   display: flex;
