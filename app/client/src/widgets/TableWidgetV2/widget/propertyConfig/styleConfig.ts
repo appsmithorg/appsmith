@@ -28,29 +28,6 @@ export default [
           },
         ],
       },
-      {
-        propertyName: "variant",
-        helpText: "Selects the variant",
-        label: "Variants",
-        controlType: "DROP_DOWN",
-        defaultValue: "DEFAULT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        options: [
-          {
-            label: "Default",
-            value: "DEFAULT",
-          },
-          {
-            label: "Without borders",
-            value: "VARIANT2",
-          },
-          {
-            label: "Horizonal borders only",
-            value: "VARIANT3",
-          },
-        ],
-      },
     ],
   },
   {
@@ -198,6 +175,29 @@ export default [
   {
     sectionName: "Border and Shadow",
     children: [
+      {
+        propertyName: "variant",
+        helpText: "Selects the variant",
+        label: "Cel borders",
+        controlType: "DROP_DOWN",
+        defaultValue: "DEFAULT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            label: "Default",
+            value: "DEFAULT",
+          },
+          {
+            label: "Without borders",
+            value: "VARIANT2",
+          },
+          {
+            label: "Horizonal borders only",
+            value: "VARIANT3",
+          },
+        ],
+      },
       {
         propertyName: "borderRadius",
         label: "Border Radius",
