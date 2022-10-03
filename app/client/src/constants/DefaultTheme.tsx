@@ -2996,7 +2996,7 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
-  actionsBottomTabInitialHeight: "250px",
+  actionsBottomTabInitialHeight: "32vh",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

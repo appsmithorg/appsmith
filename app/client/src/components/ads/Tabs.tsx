@@ -392,6 +392,7 @@ export function TabComponent(
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
           setSelectedIndex(index);
+          !isExpanded && handleContainerResize();
         }}
         selectedIndex={props.selectedIndex}
       >
