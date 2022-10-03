@@ -1334,7 +1334,7 @@ public class AuditLogServiceTest {
                 .assertNext(auditLogs -> {
                     // Since page will be updated automatically when it is created, there will be two updated events
                     // We are specifically looking for the second event which is the update triggered by the test case
-                    assertThat(auditLogs.size()).isEqualTo(2);
+                    assertThat(auditLogs.size()).isEqualTo(1);
                     AuditLog auditLog = auditLogs.get(0);
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.updated");

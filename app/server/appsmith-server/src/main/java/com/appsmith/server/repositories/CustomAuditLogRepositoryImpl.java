@@ -80,7 +80,7 @@ public class CustomAuditLogRepositoryImpl extends BaseAppsmithRepositoryImpl<Aud
     }
 
     @Override
-    public Mono<Long> updateAuditLogByEventNameUserAndTimeStamp(String eventName, String userEmail, long time, String name, int timeLimit) {
+    public Mono<Long> updateAuditLogByEventNameUserAndTimeStamp(String eventName, String userEmail, String resourceId, long time, String name, int timeLimit) {
         Update update = new Update();
         update.set(fieldName(QAuditLog.auditLog.timestamp), new Date(time)).set(fieldName(QAuditLog.auditLog.resource) + "." + fieldName(QAuditLog.auditLog.resource.name), name);
 
@@ -89,6 +89,7 @@ public class CustomAuditLogRepositoryImpl extends BaseAppsmithRepositoryImpl<Aud
         query.addCriteria(where(fieldName(QAuditLog.auditLog.event)).is(eventName));
         query.addCriteria(where(fieldName(QAuditLog.auditLog.user) + "." + fieldName(QAuditLog.auditLog.user.email)).is(userEmail));
         query.addCriteria(where(fieldName(QAuditLog.auditLog.timestamp)).gte(new Date(lastUpdatedTimeCriteria)));
+        query.addCriteria(where(fieldName(QAuditLog.auditLog.resource) + "." + fieldName(QAuditLog.auditLog.resource.id)).is(resourceId));
 
         return mongoOperations.updateFirst(query, update, AuditLog.class)
                 .map(UpdateResult::getModifiedCount);

@@ -223,17 +223,22 @@ public class AuditLogServiceImpl implements AuditLogService {
                     Because of the auto save there would be too many entries in AuditLog collection with updated events.
                     The latest event of the same type is updated given that it is the same user who is performing these actions
                     */
-                    if(isUpdatedEvent(resourceName, actionName)) {
-                        return repository.updateAuditLogByEventNameUserAndTimeStamp(eventName, auditLog1.getUser().getEmail(), Instant.now().toEpochMilli(), auditLog1.getResource().getName(), UPDATE_TIME_LIMIT_SECS)
-                                .flatMap(matchCounters -> {
-                                    if(matchCounters > 0) {
-                                        return Mono.just(auditLog1);
-                                    }
-                                    return repository.save(auditLog1);
-                                });
-                    } else {
-                        return repository.save(auditLog1);
+                    if (isUpdatedEvent(resourceName, actionName)) {
+                        return repository.updateAuditLogByEventNameUserAndTimeStamp(
+                                eventName,
+                                auditLog1.getUser().getEmail(),
+                                auditLog1.getResource().getId(),
+                                Instant.now().toEpochMilli(),
+                                auditLog1.getResource().getName(),
+                                UPDATE_TIME_LIMIT_SECS
+                        ).flatMap(matchCounters -> {
+                            if (matchCounters > 0) {
+                                return Mono.just(auditLog1);
+                            }
+                            return repository.save(auditLog1);
+                        });
                     }
+                    return repository.save(auditLog1);
                 }) // TODO: Needs to be scheduled in separate thread
                 .onErrorResume(throwable -> {
                     log.error(LOG_EVENT_ERROR, throwable.getMessage());

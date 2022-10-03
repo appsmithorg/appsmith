@@ -12,5 +12,5 @@ public interface CustomAuditLogRepository extends AppsmithRepository<AuditLog> {
 
     Flux<AuditLog> getAuditLog(boolean isDate, Date startDate, Date endDate, List<String> events, List<String> emails, String resourceType, String resourceId, int sortOrder, String cursor, int recordLimit, AclPermission aclPermission);
 
-    Mono<Long> updateAuditLogByEventNameUserAndTimeStamp(String eventName, String userEmail, long time, String name, int timeLimit);
+    Mono<Long> updateAuditLogByEventNameUserAndTimeStamp(String eventName, String userEmail, String resourceId, long time, String name, int timeLimit);
 }
