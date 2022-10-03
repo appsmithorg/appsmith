@@ -191,20 +191,20 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
-  "name": {{ GetAnime.data.results[0].title }},
-"img": {{ GetAnime.data.results[0].image_url }},
-"synopsis": {{ GetAnime.data.results[0].synopsis }}
+        "name": {{ GetAnime.data.data[0].title }},
+      "img": {{GetAnime.data.data[0].images.jpg.image_url}},
+      "synopsis": {{ GetAnime.data.data[0].synopsis }}
+            },
+      {
+        "name": {{ GetAnime.data.data[3].title }},
+        "img": {{GetAnime.data.data[3].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.data.data[3].synopsis }}
       },
-{
-  "name": {{ GetAnime.data.results[3].title }},
-  "img": {{ GetAnime.data.results[3].image_url }},
-  "synopsis": {{ GetAnime.data.results[3].synopsis }}
-},
-{
-  "name": {{ GetAnime.data.results[2].title }},
-  "img": {{ GetAnime.data.results[2].image_url }},
-  "synopsis": {{ GetAnime.data.results[2].synopsis }}
-}]`,
+      {
+        "name": {{ GetAnime.data.data[2].title }},
+        "img": {{GetAnime.data.data[2].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.data.data[2].synopsis }}
+      }]`,
     );
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
