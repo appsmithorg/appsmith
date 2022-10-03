@@ -62,11 +62,11 @@ ff4j:
           - name: weight
             value: 1
 
-    - uid: PROPERTY_PANE_GROUPING
+    - uid: TEMPLATES_PHASE_2
       enable: true
-      description: Group the properties into content & style tab also adds search option in property pane
+      description: Allow importing particular pages from templates in existing apps
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emails
-            value: aswath+test_grouping@appsmith.com
+            value: appsmith.com,moolya.com

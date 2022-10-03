@@ -19,7 +19,6 @@ import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -31,18 +30,17 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -63,8 +61,10 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -123,7 +123,7 @@ public class ActionCollectionServiceTest {
 
     String workspaceId;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
@@ -183,7 +183,7 @@ public class ActionCollectionServiceTest {
         datasource.setPluginId(installedJsPlugin.getId());
     }
 
-    @After
+    @AfterEach
     @WithUserDetails(value = "api_user")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
@@ -310,7 +310,7 @@ public class ActionCollectionServiceTest {
 
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
-                    Assert.assertEquals(
+                    assertEquals(
                             "testCollection1.newTestAction1()",
                             actionCollection.getUnpublishedCollection().getBody()
                     );
@@ -321,7 +321,7 @@ public class ActionCollectionServiceTest {
 
         StepVerifier.create(actionMono)
                 .assertNext(action -> {
-                    Assert.assertEquals(
+                    assertEquals(
                             "testCollection1.newTestAction1()",
                             action.getUnpublishedAction().getActionConfiguration().getBody()
                     );
@@ -388,7 +388,7 @@ public class ActionCollectionServiceTest {
 
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
-                    Assert.assertEquals(
+                    assertEquals(
                             "Api1.run()",
                             actionCollection.getUnpublishedCollection().getBody()
                     );
@@ -399,7 +399,7 @@ public class ActionCollectionServiceTest {
 
         StepVerifier.create(actionMono)
                 .assertNext(action -> {
-                    Assert.assertEquals(
+                    assertEquals(
                             "Api1.run()",
                             action.getUnpublishedAction().getActionConfiguration().getBody()
                     );
@@ -570,11 +570,11 @@ public class ActionCollectionServiceTest {
 
                     final ActionCollectionViewDTO actionCollectionViewDTO = viewModeCollections.get(0);
                     final List<ActionDTO> actions = actionCollectionViewDTO.getActions();
-                    Assert.assertFalse(actions.isEmpty());
+                    assertFalse(actions.isEmpty());
                     final ActionDTO actionDTO = actions.get(0);
-                    Assert.assertFalse(actionDTO.getExecuteOnLoad());
-                    Assert.assertFalse(actionDTO.getUserSetOnLoad());
-                    Assert.assertFalse(actionDTO.getConfirmBeforeExecute());
+                    assertFalse(actionDTO.getExecuteOnLoad());
+                    assertFalse(actionDTO.getUserSetOnLoad());
+                    assertFalse(actionDTO.getConfirmBeforeExecute());
                 })
                 .verifyComplete();
     }

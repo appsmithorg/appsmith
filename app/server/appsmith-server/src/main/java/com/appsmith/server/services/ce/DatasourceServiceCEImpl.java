@@ -15,6 +15,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -180,6 +181,19 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     datasource.getMessages().addAll(datasourceHintMessages);
                     return Mono.just(datasource);
                 });
+    }
+
+    @Override
+    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
+        // Global datasource requires us to fetch the datasource from DB.
+        if (actionDTO.getDatasource() != null && actionDTO.getDatasource().getId() != null) {
+            return this.findById(actionDTO.getDatasource().getId(), aclPermission)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                            FieldName.DATASOURCE,
+                            actionDTO.getDatasource().getId())));
+        }
+        // This is a nested datasource. Return as is.
+        return Mono.justOrEmpty(actionDTO.getDatasource());
     }
 
     @Override

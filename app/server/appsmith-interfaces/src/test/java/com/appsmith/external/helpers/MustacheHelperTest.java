@@ -7,7 +7,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import org.assertj.core.api.AbstractCollectionAssert;
 import org.assertj.core.api.ObjectAssert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;

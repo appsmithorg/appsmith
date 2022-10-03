@@ -7,12 +7,12 @@ import {
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
-import { Severity } from "entities/AppsmithConsole";
+import { LogObject, Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import userLogs, { LogObject } from "./UserLog";
+import userLogs from "./UserLog";
 
 export type EvalResult = {
   result: any;
@@ -62,6 +62,21 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   closedFunction.call(THIS_CONTEXT);
   `,
 };
+
+const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
+  acc[key] = true;
+  return acc;
+}, {} as any);
+
+function resetWorkerGlobalScope() {
+  for (const key of Object.keys(self)) {
+    if (topLevelWorkerAPIs[key]) continue;
+    if (key === "evaluationVersion") continue;
+    if (extraLibraries.find((lib) => lib.accessor === key)) continue;
+    // @ts-expect-error: Types are not available
+    delete self[key];
+  }
+}
 
 export const getScriptType = (
   evalArgumentsExist = false,
@@ -232,6 +247,7 @@ export default function evaluateSync(
   skipLogsOperations = false,
 ): EvalResult {
   return (function() {
+    resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
@@ -305,6 +321,7 @@ export async function evaluateAsync(
   evalArguments?: Array<any>,
 ) {
   return (async function() {
+    resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
     let logs;

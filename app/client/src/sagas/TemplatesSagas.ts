@@ -32,15 +32,9 @@ import { APP_MODE } from "entities/App";
 import { getPageList } from "selectors/entitiesSelector";
 import {
   executePageLoadActions,
-  fetchActionsForPage,
-  fetchActionsForPageError,
-  fetchActionsForPageSuccess,
+  fetchActions,
 } from "actions/pluginActionActions";
-import {
-  fetchJSCollectionsForPage,
-  fetchJSCollectionsForPageError,
-  fetchJSCollectionsForPageSuccess,
-} from "actions/jsActionActions";
+import { fetchJSCollections } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -180,21 +174,21 @@ function* getTemplateSaga(action: ReduxAction<string>) {
   }
 }
 
-function* postPageAdditionSaga(pageId: string) {
+function* postPageAdditionSaga(applicationId: string) {
   const afterActionsFetch: boolean = yield failFastApiCalls(
     [
-      fetchActionsForPage(pageId),
-      fetchJSCollectionsForPage(pageId),
+      fetchActions({ applicationId }, []),
+      fetchJSCollections({ applicationId }),
       fetchDatasources(),
     ],
     [
-      fetchActionsForPageSuccess([]).type,
-      fetchJSCollectionsForPageSuccess([]).type,
+      ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
     ],
     [
-      fetchActionsForPageError().type,
-      fetchJSCollectionsForPageError().type,
+      ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
       ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
     ],
   );
@@ -257,11 +251,7 @@ function* forkTemplateToApplicationSaga(
       );
 
       // Fetch the actions/jsobjects of the new set of pages that have been added
-      for (const i in newPages) {
-        if (newPages.hasOwnProperty(i)) {
-          yield call(postPageAdditionSaga, newPages[i].pageId);
-        }
-      }
+      yield call(postPageAdditionSaga, applicationId);
 
       if (response.data.isPartialImport) {
         yield put(
