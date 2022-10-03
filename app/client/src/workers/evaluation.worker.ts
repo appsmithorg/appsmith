@@ -246,6 +246,7 @@ ctx.addEventListener(
             dataTree,
             dynamicTrigger,
             globalContext,
+            triggerMeta,
           } = requestData;
           if (!dataTreeEvaluator) {
             return { triggers: [], errors: [] };
@@ -261,6 +262,7 @@ ctx.addEventListener(
             {
               globalContext,
             },
+            triggerMeta,
           );
         }
         case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
@@ -308,8 +310,7 @@ ctx.addEventListener(
             functionCall,
             evalTree,
             resolvedFunctions,
-            true,
-            undefined,
+            { enableAppsmithFunctions: true },
           );
           return { errors, logs, result };
         }
@@ -318,7 +319,12 @@ ctx.addEventListener(
           const evalTree = dataTreeEvaluator?.evalTree;
           if (!evalTree) return {};
           // TODO find a way to do this for snippets
-          return evaluate(expression, evalTree, {}, isTrigger);
+          return evaluate(
+            expression,
+            evalTree,
+            {},
+            { enableAppsmithFunctions: isTrigger },
+          );
         case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
           const { entity, entityId, entityType } = requestData;
           const replayObject = replayMap[entityId];

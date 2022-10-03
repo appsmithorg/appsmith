@@ -80,6 +80,7 @@ import {
   parseJSActions,
 } from "workers/JSObject";
 import { lintTree } from "workers/Lint";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -944,16 +945,16 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
+    triggerMeta?: TriggerMeta,
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
-    return evaluate(
-      jsSnippets[0] || userScript,
-      dataTree,
-      resolvedFunctions,
-      true,
+    return evaluate(jsSnippets[0] || userScript, dataTree, resolvedFunctions, {
+      skipLogsOperations: false,
+      triggerMeta,
+      enableAppsmithFunctions: true,
       context,
-      callbackData,
-    );
+      evalArguments: callbackData,
+    });
   }
 
   // Paths are expected to have "{name}.{path}" signature
@@ -968,15 +969,12 @@ export default class DataTreeEvaluator {
     skipUserLogsOperations = false,
   ): Promise<EvalResult> {
     try {
-      return evaluate(
-        js,
-        data,
-        resolvedFunctions,
-        createGlobalData,
-        contextData,
-        callbackData,
-        skipUserLogsOperations,
-      );
+      return evaluate(js, data, resolvedFunctions, {
+        enableAppsmithFunctions: createGlobalData,
+        context: contextData,
+        evalArguments: callbackData,
+        skipLogsOperations: skipUserLogsOperations,
+      });
     } catch (error) {
       return {
         result: undefined,

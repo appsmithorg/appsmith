@@ -104,10 +104,10 @@ export async function saveResolvedFunctionsAndJSUpdates(
               parsedElement.value,
               unEvalDataTree,
               {},
-              true,
-              undefined,
-              undefined,
-              true,
+              {
+                enableAppsmithFunctions: true,
+                skipLogsOperations: true,
+              },
             );
             if (result) {
               let params: Array<{ key: string; value: unknown }> = [];

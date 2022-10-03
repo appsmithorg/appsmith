@@ -36,6 +36,7 @@ export type LogObject = {
   timestamp: string;
   id: string;
   severity: Severity;
+  source?: { entityName?: string; entityId?: string };
 };
 
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;

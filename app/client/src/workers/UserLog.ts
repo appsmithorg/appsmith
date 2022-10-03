@@ -2,8 +2,11 @@ import { uuid4 } from "@sentry/utils";
 import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 class UserLog {
+  private source: { entityName?: string; entityId?: string } = {};
+
   constructor() {
     this.initiate();
   }
@@ -17,7 +20,7 @@ class UserLog {
         table.call(this, args);
         const parsed = this.parseLogs("table", args);
         if (parsed) {
-          this.logs.push(parsed);
+          this.logs.push({ ...parsed, source: this.source });
         }
         return;
       },
@@ -148,6 +151,14 @@ class UserLog {
   }
   public resetLogs() {
     this.logs = [];
+  }
+  public initializeSource(triggerMeta?: TriggerMeta) {
+    this.source = {};
+    if (!triggerMeta) return this.source;
+    this.source = {
+      entityName: triggerMeta.source?.name || triggerMeta.triggerPropertyName,
+      entityId: triggerMeta.source?.id,
+    };
   }
 }
 

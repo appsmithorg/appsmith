@@ -963,9 +963,10 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           config.params.fnString,
           {},
           {},
-          false,
-          undefined,
-          [value, props, _, moment, propertyPath],
+          {
+            enableAppsmithFunctions: false,
+            evalArguments: [value, props, _, moment, propertyPath],
+          },
         );
         return result;
       } catch (e) {

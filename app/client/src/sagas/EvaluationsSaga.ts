@@ -273,6 +273,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       dynamicTrigger,
       callbackData,
       globalContext,
+      triggerMeta,
     },
   );
   yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);

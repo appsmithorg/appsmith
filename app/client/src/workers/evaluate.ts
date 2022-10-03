@@ -12,6 +12,7 @@ import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 export type EvalResult = {
   result: any;
@@ -222,16 +223,25 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
-export default function evaluateJSString(
+export default function evaluate(
   code: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
-  enableAppsmithFunctions: boolean,
-  context?: EvaluateContext,
-  evalArguments?: Array<any>,
-  skipLogsOperations = false,
+  options: {
+    enableAppsmithFunctions: boolean;
+    context?: EvaluateContext;
+    evalArguments?: Array<any>;
+    skipLogsOperations?: boolean;
+    triggerMeta?: TriggerMeta;
+  },
 ): Promise<EvalResult> {
   return (async function() {
+    const {
+      context,
+      enableAppsmithFunctions,
+      evalArguments,
+      skipLogsOperations = false,
+    } = options;
     resetWorkerGlobalScope();
     let result,
       logs: LogObject[] = [];
