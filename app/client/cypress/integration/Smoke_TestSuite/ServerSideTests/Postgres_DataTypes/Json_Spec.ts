@@ -446,8 +446,6 @@ describe("Json & JsonB Datatype tests", function() {
     );
     agHelper.GetNClick(locator._datePicker(5));
     agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
-
-    agHelper.PressEscape();
     deployMode.SelectJsonFormMultiSelect("Genres", [
       "Fiction",
       "Thriller",
