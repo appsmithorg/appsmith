@@ -39,8 +39,8 @@ export type FormTextFieldProps = {
   hideErrorMessage?: boolean;
 };
 
-function FormTextField(props: FormTextFieldProps) {
+function ReduxFormTextField(props: FormTextFieldProps) {
   return <Field component={renderComponent} {...props} asyncControl />;
 }
 
-export default FormTextField;
+export default ReduxFormTextField;
