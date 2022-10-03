@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Variant } from "./common";
-import { Toaster } from "./Toast";
+import { Toaster } from "design-system";
 import {
   createMessage,
   ERROR_EMPTY_APPLICATION_NAME,
@@ -38,7 +38,7 @@ const Container = styled.div<{
     ${(props) =>
       !props.isEditing
         ? `
-      border-bottom-style: solid; 
+      border-bottom-style: solid;
       border-bottom-width: 1px;
       width: fit-content;
       max-width: 194px;

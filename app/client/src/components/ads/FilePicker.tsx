@@ -12,10 +12,10 @@ import {
   IconSize,
   Text,
   TextType,
+  Toaster,
   TooltipComponent,
 } from "design-system";
 import { Classes, Variant } from "./common";
-import { Toaster } from "./Toast";
 import {
   createMessage,
   ERROR_FILE_TOO_LARGE,
