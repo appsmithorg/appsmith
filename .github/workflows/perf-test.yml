@@ -142,6 +142,8 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
         run: |
           ls -l
           ls -l scripts/
