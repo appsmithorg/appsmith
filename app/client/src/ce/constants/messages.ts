@@ -407,8 +407,6 @@ export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying ${actionName}`;
 export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
   `${actionName} deleted successfully`;
-export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} created successfully`;
 export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} moved to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
@@ -456,7 +454,8 @@ export const IMPORT_APPLICATION_MODAL_LABEL = () =>
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
-export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
+export const IMPORT_APP_FROM_GIT_TITLE = () =>
+  "Import from Git repository (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
@@ -521,10 +520,7 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a data table";
-
-export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
-  "Start with a simple CRUD UI and customize it";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -644,7 +640,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
-  "git@example.com:user/repo.git";
+  "git@example.com:user/repository.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
@@ -708,8 +704,8 @@ export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
-export const OPEN_REPO = () => "OPEN REPO";
-export const CONNECTING_REPO = () => "Connecting to Git repo";
+export const OPEN_REPO = () => "OPEN REPOSITORY";
+export const CONNECTING_REPO = () => "Connecting to Git repository";
 export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
@@ -779,9 +775,9 @@ export const DELETE_BRANCH_WARNING_DEFAULT = (defaultBranchName: string) =>
 
 // GIT ERRORS begin
 export const ERROR_GIT_AUTH_FAIL = () =>
-  "Please make sure that regenerated SSH key is added and has write access to the repo.";
+  "Please make sure that regenerated SSH key is added and has write access to the repository.";
 export const ERROR_GIT_INVALID_REMOTE = () =>
-  "Remote repo doesn't exist or is unreachable.";
+  "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
 
 // JS Snippets
@@ -831,7 +827,8 @@ export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
 export const ONBOARDING_CHECKLIST_BANNER_BODY = () =>
   "You can carry on here, or explore the homepage to see how your projects are stored.";
 export const ONBOARDING_CHECKLIST_BANNER_BUTTON = () => "Explore homepage";
-
+export const ONBOARDING_SKIPPED_FIRST_TIME_USER = () =>
+  "Skipped onboarding tour";
 export const ONBOARDING_CHECKLIST_HEADER = () => "👋 Welcome to Appsmith!";
 export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
@@ -1165,6 +1162,8 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
+export const PAGE = () => "Page";
+export const PAGES = () => "Pages";
 
 // Entity explorer
 export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
@@ -1184,7 +1183,7 @@ export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
 export const SELECT_WORKSPACE = () => "Select Workspace";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
-export const FORK_THIS_TEMPLATE = () => "Fork this template";
+export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
@@ -1197,14 +1196,24 @@ export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Industry";
+export const INDUSTRY = () => "Use Case";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
-export const WIDGET_USED = () => "Widgets Used";
+export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
 export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
 export const FILTERS = () => "FILTERS";
+export const TEMPLATE_CARD_TITLE = () => "Start from a template";
+export const TEMPLATE_CARD_DESCRIPTION = () =>
+  "Create app from template by selecting pages";
+export const FILTER_SELECTALL = () => "Select all";
+export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
+export const FORKING_TEMPLATE = () => "Setting up the template";
+export const FETCHING_TEMPLATES = () => "Loading template details";
+export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
+
+export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -1236,6 +1245,13 @@ export const CLEAN_URL_UPDATE = {
 };
 
 export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+
+export const CREATE_PAGE = () => "New Blank Page";
+export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
+export const GENERATE_PAGE = () => "Generate page from data table";
+export const GENERATE_PAGE_DESCRIPTION = () =>
+  "Start app with a simple CRUD UI and customize it";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

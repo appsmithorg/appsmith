@@ -57,6 +57,10 @@ export default {
           value: ColumnTypes.TEXT,
         },
         {
+          label: "Select",
+          value: ColumnTypes.SELECT,
+        },
+        {
           label: "Switch",
           value: ColumnTypes.SWITCH,
         },
@@ -151,6 +155,7 @@ export default {
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
           ColumnTypes.SWITCH,
+          ColumnTypes.SELECT,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
