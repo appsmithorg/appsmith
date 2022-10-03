@@ -699,10 +699,7 @@ export const updateDependencyMap = ({
   if (didUpdateDependencyMap) {
     // This is being called purely to test for new circular dependencies that might have been added
     dataTreeEvalRef.sortedDependencies = dataTreeEvalRef.sortDependencies(
-      {
-        dependencyMap: dataTreeEvalRef.dependencyMap,
-        validationDependencyMap: dataTreeEvalRef.validationDependencyMap,
-      },
+      dataTreeEvalRef.dependencyMap,
       translatedDiffs,
     );
     dataTreeEvalRef.inverseDependencyMap = dataTreeEvalRef.getInverseDependencyTree();

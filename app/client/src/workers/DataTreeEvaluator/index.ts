@@ -176,10 +176,7 @@ export default class DataTreeEvaluator {
     const createDependencyEnd = performance.now();
     // Sort
     const sortDependenciesStart = performance.now();
-    this.sortedDependencies = this.sortDependencies({
-      dependencyMap,
-      validationDependencyMap,
-    });
+    this.sortedDependencies = this.sortDependencies(dependencyMap);
     const sortDependenciesEnd = performance.now();
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
@@ -785,10 +782,7 @@ export default class DataTreeEvaluator {
   }
 
   sortDependencies(
-    params: {
-      dependencyMap: DependencyMap;
-      validationDependencyMap: DependencyMap;
-    },
+    dependencyMap: DependencyMap,
     diffs?: (DataTreeDiff | DataTreeDiff[])[],
   ): Array<string> {
     /**
