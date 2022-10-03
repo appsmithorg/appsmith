@@ -52,9 +52,9 @@ export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_CUSTOM_PATH}${VIEWER_FORK_PATH}`)(pathName) ||
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
 export const matchGeneratePagePath = (pathName: string) =>
-  match(`${BUILDER_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
-  match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
-  match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_PATH}`)(pathName);
+  match(`${BUILDER_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
+  match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
+  match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
