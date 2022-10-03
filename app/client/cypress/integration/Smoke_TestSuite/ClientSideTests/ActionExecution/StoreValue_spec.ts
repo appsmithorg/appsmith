@@ -43,6 +43,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(

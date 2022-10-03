@@ -98,6 +98,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
         return newCount == releaseNodesCache.size() ? ((newCount - 1) + "+") : String.valueOf(newCount);
     }
 
+    @Override
     public String getReleasedVersion() {
         final String version = projectProperties.getVersion();
 
@@ -110,6 +111,11 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
         }
 
         return releaseNodesCache.get(0).getTagName();
+    }
+
+    @Override
+    public String getRunningVersion() {
+        return projectProperties.getVersion();
     }
 
     /**
