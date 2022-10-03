@@ -63,7 +63,6 @@ function AppInviteUsersForm(props: any) {
     fetchCurrentWorkspace,
     isChangingViewAccess,
     isFetchingApplication,
-    links,
   } = props;
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
@@ -125,7 +124,6 @@ function AppInviteUsersForm(props: any) {
       {canInviteToWorkspace && (
         <WorkspaceInviteUsersForm
           isApplicationInvite
-          links={links}
           workspaceId={props.workspaceId}
         />
       )}
