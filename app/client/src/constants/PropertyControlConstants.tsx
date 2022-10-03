@@ -33,7 +33,7 @@ export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
   panelIdPropertyName: string;
-  children: PropertyPaneConfig[];
+  children?: PropertyPaneConfig[];
   contentChildren?: PropertyPaneConfig[];
   styleChildren?: PropertyPaneConfig[];
   updateHook: (
@@ -50,7 +50,7 @@ export type PropertyPaneControlConfig = {
   // Serves in the tooltip
   helpText?: string;
   //Dynamic text serves below the property pane inputs
-  helperText?: ((props: WidgetProps) => string) | string;
+  helperText?: ((props: any) => string) | string;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;

@@ -3,7 +3,11 @@ import { parseJSObjectWithAST } from "../src/jsObject";
 
 describe("getAllIdentifiers", () => {
   it("works properly", () => {
-    const cases: { script: string; expectedResults: string[] }[] = [
+    const cases: Array<{
+      script: string;
+      expectedResults: string[];
+      invalidIdentifiers?: Record<string, unknown>;
+    }> = [
       {
         // Entity reference
         script: "DirectTableReference",
@@ -85,11 +89,18 @@ describe("getAllIdentifiers", () => {
         // array index and string literal search
         script: "Array[9]['data']",
         expectedResults: [],
+        invalidIdentifiers: {
+          Array: true,
+        },
       },
       {
         // Index identifier search
         script: "Table8.data[row][name]",
         expectedResults: ["Table8.data", "row"],
+        // name is a global scoped variable
+        invalidIdentifiers: {
+          name: true,
+        },
       },
       {
         // Index identifier search with global
@@ -230,6 +241,10 @@ describe("getAllIdentifiers", () => {
           return Promise.all([firstApiRun, secondApiRun])
         }()`,
         expectedResults: ["Api1.run", "Api2.run"],
+        invalidIdentifiers: {
+          Math: true,
+          Promise: true,
+        },
       },
       // Global dependencies should not be valid identifiers
       {
@@ -239,6 +254,10 @@ describe("getAllIdentifiers", () => {
           return {flattenedNames, time: moment()}
         }()`,
         expectedResults: [],
+        invalidIdentifiers: {
+          _: true,
+          moment: true,
+        },
       },
       // browser Apis should not be valid identifiers
       {
@@ -252,6 +271,10 @@ describe("getAllIdentifiers", () => {
           return Api2.name
         }()`,
         expectedResults: ["Api2.name"],
+        invalidIdentifiers: {
+          Object: true,
+          console: true,
+        },
       },
       // identifiers and member expressions derived from params should not be valid identifiers
       {
@@ -278,8 +301,13 @@ describe("getAllIdentifiers", () => {
       },
     ];
 
+    // commenting to trigger test shared workflow action
     cases.forEach((perCase) => {
-      const { references } = extractIdentifierInfoFromCode(perCase.script, 2);
+      const { references } = extractIdentifierInfoFromCode(
+        perCase.script,
+        2,
+        perCase.invalidIdentifiers
+      );
       expect(references).toStrictEqual(perCase.expectedResults);
     });
   });

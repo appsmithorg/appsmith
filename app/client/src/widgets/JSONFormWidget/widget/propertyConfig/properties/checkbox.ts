@@ -7,58 +7,6 @@ import {
 } from "../helper";
 
 const PROPERTIES = {
-  general: [
-    {
-      propertyName: "defaultValue",
-      label: "Default Selected",
-      helpText: "Sets the default checked state of the field",
-      controlType: "SWITCH",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      validation: { type: ValidationTypes.BOOLEAN },
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
-      dependencies: ["schema", "sourceData"],
-    },
-    {
-      propertyName: "alignWidget",
-      helpText: "Sets the alignment of the field",
-      label: "Alignment",
-      controlType: "DROP_DOWN",
-      options: [
-        {
-          label: "Left",
-          value: "LEFT",
-        },
-        {
-          label: "Right",
-          value: "RIGHT",
-        },
-      ],
-      isBindProperty: true,
-      isTriggerProperty: false,
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
-      dependencies: ["schema"],
-    },
-  ],
-  actions: [
-    {
-      helpText: "Triggers an action when the check state is changed",
-      propertyName: "onCheckChange",
-      label: "onCheckChange",
-      controlType: "ACTION_SELECTOR",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
-      additionalAutoComplete: getAutocompleteProperties,
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
-      dependencies: ["schema"],
-    },
-  ],
   content: {
     data: [
       {
@@ -74,6 +22,21 @@ const PROPERTIES = {
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
         dependencies: ["schema", "sourceData"],
+      },
+    ],
+    events: [
+      {
+        helpText: "Triggers an action when the check state is changed",
+        propertyName: "onCheckChange",
+        label: "onCheckChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
+        dependencies: ["schema"],
       },
     ],
     label: [

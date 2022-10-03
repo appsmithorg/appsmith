@@ -19,6 +19,7 @@
         <java.version>11</java.version>
         <ff4j.version>1.8.11</ff4j.version>
         <org.modelmapper.version>2.4.4</org.modelmapper.version>
+        <jmh.version>1.35</jmh.version>
     </properties>
 
     <repositories>
@@ -184,21 +185,30 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
+        <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- dependency for mock webserver to mock external API calls during test -->
         <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>3.14.9</version>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-engine</artifactId>
+            <scope>test</scope>
         </dependency>
+
+        <!-- For junit5 parameterised test support -->
         <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>mockwebserver</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Only required to run junit5 test from IDE -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -245,6 +255,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <!-- Exclude JUnit 4 -->
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -259,8 +276,21 @@
         <dependency>
             <groupId>com.segment.analytics.java</groupId>
             <artifactId>analytics</artifactId>
-            <version>2.1.1</version>
+            <version>3.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.squareup.okio/okio-jvm -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.sentry</groupId>
             <artifactId>sentry-spring-boot-starter</artifactId>
@@ -269,10 +299,12 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
+            <version>${mockito.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jgrapht</groupId>
@@ -305,6 +337,31 @@
             <groupId>com.appsmith</groupId>
             <artifactId>reactiveCaching</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver3 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver3</artifactId>
+            <version>${mockwebserver.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

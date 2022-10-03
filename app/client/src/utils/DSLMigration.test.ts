@@ -15,6 +15,7 @@ import * as inputCurrencyMigration from "./migrations/CurrencyInputWidgetMigrati
 import * as radioGroupMigration from "./migrations/RadioGroupWidget";
 import * as propertyPaneMigrations from "./migrations/PropertyPaneMigrations";
 import * as themingMigration from "./migrations/ThemingMigrations";
+import * as mapChartReskinningMigrations from "./migrations/MapChartReskinningMigrations";
 import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { originalDSLForDSLMigrations } from "./testDSLs";
 
@@ -612,6 +613,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 62,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: mapChartReskinningMigrations,
+        functionName: "migrateMapChartWidgetReskinningData",
+      },
+    ],
+    version: 63,
   },
 ];
 
