@@ -178,7 +178,7 @@ export default [
       {
         propertyName: "variant",
         helpText: "Selects the variant",
-        label: "Cel borders",
+        label: "Cell borders",
         controlType: "DROP_DOWN",
         defaultValue: "DEFAULT",
         isBindProperty: true,
