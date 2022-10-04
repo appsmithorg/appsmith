@@ -10,7 +10,7 @@ import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
-import { AclWrapper } from "./components";
+import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -187,6 +187,13 @@ export function GroupListing() {
           <Listing
             columns={columns}
             data={data}
+            emptyState={
+              searchValue ? (
+                <EmptySearchResult />
+              ) : (
+                <EmptyDataState page="groups" />
+              )
+            }
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}

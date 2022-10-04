@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
-import { createMessage, ACTIVE_ROLES } from "@appsmith/constants/messages";
+import { createMessage, ACTIVE_ENTITIES } from "@appsmith/constants/messages";
 import { ActiveAllGroupsProps } from "./types";
 
 let container: any = null;
@@ -39,6 +39,7 @@ const props: ActiveAllGroupsProps = {
       name: "App Viewer",
     },
   ],
+  entityName: "group",
   removedActiveGroups: [],
   addedAllGroups: [],
   onRemoveGroup: jest.fn(),
@@ -62,7 +63,9 @@ describe("<ActiveAllGroupsList />", () => {
   it("should render Active Roles as title by default, if there is no title given", () => {
     renderComponent();
     const title = screen.getByTestId("t--active-groups-title");
-    expect(title).toHaveTextContent(createMessage(ACTIVE_ROLES));
+    expect(title).toHaveTextContent(
+      createMessage(ACTIVE_ENTITIES, props.entityName),
+    );
   });
   it("should render the given title", () => {
     const { getByTestId } = render(

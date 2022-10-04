@@ -127,7 +127,13 @@ export function* fetchAclGroupSagaById(
         type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_SUCCESS,
         payload: {
           ...data,
-          allRoles: response[1].data,
+          allRoles: Array.isArray(response[1].data)
+            ? response[1].data.filter((all) => {
+                return data?.roles?.every((active: any) => {
+                  return active.id !== all.id;
+                });
+              })
+            : [],
         },
       });
     } else {

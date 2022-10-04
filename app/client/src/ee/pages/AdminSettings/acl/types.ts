@@ -47,6 +47,7 @@ export type ActiveAllGroupsProps = {
   removedActiveGroups: Array<any>;
   onAddGroup?: (group: any) => void;
   onRemoveGroup: (group: any) => void;
+  entityName: string;
 };
 
 export type GroupProps = BaseAclProps & {
@@ -76,6 +77,7 @@ export type ListingProps = {
   listMenuItems: MenuItemProps[];
   keyAccessor: string;
   isLoading: boolean;
+  emptyState?: JSX.Element;
 };
 
 export type PageHeaderProps = {

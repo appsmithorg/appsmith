@@ -13,7 +13,7 @@ import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
-import { AclWrapper } from "./components";
+import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
@@ -40,10 +40,6 @@ export const CellContainer = styled.div`
   .user-icons {
     margin-right 8px;
     cursor: initial;
-
-    span {
-      color: var(--appsmith-color-black-0);
-    }
   }
 `;
 
@@ -347,6 +343,13 @@ export function UserListing() {
             columns={columns}
             data={data}
             data-testid="acl-user-listing"
+            emptyState={
+              searchValue ? (
+                <EmptySearchResult />
+              ) : (
+                <EmptyDataState page="users" />
+              )
+            }
             isLoading={isLoading}
             keyAccessor="userId"
             listMenuItems={listMenuItems}

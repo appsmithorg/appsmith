@@ -87,7 +87,14 @@ const ListingWrapper = styled.div`
 `;
 
 export function Listing(props: ListingProps) {
-  const { columns, data = [], isLoading, keyAccessor, listMenuItems } = props;
+  const {
+    columns,
+    data = [],
+    emptyState,
+    isLoading,
+    keyAccessor,
+    listMenuItems,
+  } = props;
 
   const updatedColumns = [
     ...columns,
@@ -175,6 +182,7 @@ export function Listing(props: ListingProps) {
         data-testid="listing-table"
         isLoading={isLoading}
         loaderComponent={<Loader />}
+        noDataComponent={emptyState}
       />
     </ListingWrapper>
   );
