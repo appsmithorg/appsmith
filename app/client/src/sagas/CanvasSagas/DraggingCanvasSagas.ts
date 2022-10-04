@@ -60,6 +60,7 @@ export function* getCanvasSizeAfterWidgetMove(
       movedWidgetsBottomRow,
       canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
       occupiedSpacesByChildren,
+      canvasWidgetId,
     );
     const rowsToPersist = Math.max(
       canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,

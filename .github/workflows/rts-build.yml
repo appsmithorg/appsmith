@@ -135,6 +135,13 @@ jobs:
           echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           yarn build
 
+      # Set status = failure
+      - name: Set result as failed if there are build failures
+        if: failure()
+        run: |
+          echo "::set-output name=run_result::failed" > ~/run_result
+          exit 1;
+
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
         uses: actions/cache@v2

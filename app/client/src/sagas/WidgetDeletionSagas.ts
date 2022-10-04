@@ -11,7 +11,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { CANVAS_MIN_HEIGHT, GridDefaults } from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
@@ -27,6 +27,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
+  resizeCanvasToLowestWidget,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
@@ -38,6 +39,8 @@ import {
 } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
+import { getMainCanvasProps } from "selectors/editorSelectors";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -172,8 +175,24 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       otherWidgetsToDelete.map((widgets) => widgets.widgetId),
     );
 
-    // Note: mutates finalWidgets
-    resizeCanvasToLowestWidget(finalWidgets, parentId);
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    let mainCanvasMinHeight;
+    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+      const mainCanvasProps: MainCanvasReduxState = yield select(
+        getMainCanvasProps,
+      );
+      mainCanvasMinHeight = mainCanvasProps?.height;
+    }
+
+    if (parentId && finalWidgets[parentId]) {
+      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
+        finalWidgets,
+        parentId,
+        finalWidgets[parentId].bottomRow,
+        mainCanvasMinHeight,
+      );
+    }
+
     return {
       finalWidgets,
       otherWidgetsToDelete,
@@ -277,7 +296,23 @@ function* deleteAllSelectedWidgetsSaga(
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
 
-    resizeCanvasToLowestWidget(finalWidgets, parentId);
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    let mainCanvasMinHeight;
+    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+      const mainCanvasProps: MainCanvasReduxState = yield select(
+        getMainCanvasProps,
+      );
+      mainCanvasMinHeight = mainCanvasProps?.height;
+    }
+
+    if (parentId && finalWidgets[parentId]) {
+      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
+        finalWidgets,
+        parentId,
+        finalWidgets[parentId].bottomRow,
+        mainCanvasMinHeight,
+      );
+    }
 
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(generateDynamicHeightComputationTree(true));
@@ -342,42 +377,6 @@ function* postDelete(
       });
     });
   }
-}
-
-/**
- * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
- * @param finalWidgets
- * @param parentId
- */
-function resizeCanvasToLowestWidget(
-  finalWidgets: CanvasWidgetsReduxState,
-  parentId: string | undefined,
-) {
-  if (!parentId) return;
-
-  if (
-    !finalWidgets[parentId] ||
-    finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
-  ) {
-    return;
-  }
-
-  let lowestBottomRow = Math.ceil(
-    CANVAS_MIN_HEIGHT / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
-  const childIds = finalWidgets[parentId].children || [];
-
-  // find the lowest row
-  childIds.forEach((cId) => {
-    const child = finalWidgets[cId];
-
-    if (child.bottomRow > lowestBottomRow) {
-      lowestBottomRow = child.bottomRow;
-    }
-  });
-  finalWidgets[parentId].bottomRow =
-    (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 }
 
 export default function* widgetDeletionSagas() {

@@ -586,6 +586,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         options={options}
         placeholder={this.props.placeholderText}
         ref={this.contentRef}
+        resetFilterTextOnClose={!this.props.serverSideFiltering}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
         value={this.props.selectedOptionValue}

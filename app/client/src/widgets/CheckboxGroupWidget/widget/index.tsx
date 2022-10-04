@@ -522,7 +522,6 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   getPageView() {
-    console.log("CheckboxGroupComponentLog", this.props.selectedValues);
     return (
       <CheckboxGroupComponent
         accentColor={this.props.accentColor}
