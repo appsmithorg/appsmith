@@ -24,7 +24,6 @@ import {
 } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import { createWorker } from "utils/WorkerUtil";
 import {
   EvalError,
   EVAL_WORKER_ACTIONS,
@@ -108,12 +107,15 @@ import {
   UpdateDependencyRequestData,
   UpdateDependencyResponseData,
 } from "workers/Evaluation/types";
-import { lintTreeSaga } from "./LintingSagas";
+import { lintTreeSaga, lintWorker } from "./LintingSagas";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-const evalWorker = createWorker(
-  new URL("workers/Evaluation/evaluation.worker.ts", import.meta.url),
+const evalWorker = new GracefulWorkerService(
+  new Worker(
+    new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
+  ),
 );
 
 export type EvalTreePayload = {
@@ -666,7 +668,9 @@ function getPostEvalActions(
 function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(evalWorker.shutdown);
+  yield call(lintWorker.shutdown);
   const { mainThreadRequestChannel } = yield call(evalWorker.start);
+  yield call(lintWorker.start);
 
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
   yield spawn(executeDynamicTriggerRequest, mainThreadRequestChannel);

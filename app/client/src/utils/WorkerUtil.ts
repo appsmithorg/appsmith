@@ -256,8 +256,3 @@ export class GracefulWorkerService {
     }
   }
 }
-
-export function createWorker(scriptURL: URL) {
-  const workerClass = new Worker(scriptURL);
-  return new GracefulWorkerService(workerClass);
-}

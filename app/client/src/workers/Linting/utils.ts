@@ -74,7 +74,7 @@ export function getlintErrorsFromTree(
       fullPropertyPath,
     ) as unknown) as string;
     // remove all lint errors from path
-    set(lintTreeErrors, fullPropertyPath, []);
+    set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
 
     // We are only interested in paths that require linting
     if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
@@ -88,7 +88,7 @@ export function getlintErrorsFromTree(
       fullPropertyPath,
       GLOBAL_DATA_WITHOUT_FUNCTIONS,
     );
-    set(lintTreeErrors, fullPropertyPath, lintErrors);
+    set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
   });
 
   if (triggerPaths.size || bindingPathsRequiringFunctions.size) {
@@ -111,15 +111,14 @@ export function getlintErrorsFromTree(
           fullPropertyPath,
         ) as unknown) as string;
         // remove all lint errors from path
-        set(lintTreeErrors, fullPropertyPath, []);
+        set(lintTreeErrors, `["${fullPropertyPath}"]`, []);
         const lintErrors = lintBindingPath(
           unEvalPropertyValue,
           entity,
           fullPropertyPath,
           GLOBAL_DATA_WITH_FUNCTIONS,
         );
-        lintTreeErrors[fullPropertyPath] = lintErrors;
-        set(lintTreeErrors, fullPropertyPath, lintErrors);
+        set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
       });
     }
 
@@ -133,13 +132,13 @@ export function getlintErrorsFromTree(
           triggerPath,
         ) as unknown) as string;
         // remove all lint errors from path
-        set(lintTreeErrors, triggerPath, []);
+        set(lintTreeErrors, `["${triggerPath}"]`, []);
         const lintErrors = lintTriggerPath(
           unEvalPropertyValue,
           entity,
           GLOBAL_DATA_WITH_FUNCTIONS,
         );
-        set(lintTreeErrors, triggerPath, lintErrors);
+        set(lintTreeErrors, `["${triggerPath}"]`, lintErrors);
       });
     }
   }
