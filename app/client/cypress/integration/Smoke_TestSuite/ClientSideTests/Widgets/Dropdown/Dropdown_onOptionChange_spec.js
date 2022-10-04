@@ -6,10 +6,15 @@ const dsl = require("../../../../../fixtures/newFormDsl.json");
 const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-
+var appId = " ";
 describe("Dropdown Widget Functionality", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
+  before(() => {
+    cy.addDsl(dsl,appId);
     cy.wait(3000);
   });
 

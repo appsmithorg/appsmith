@@ -4,10 +4,15 @@ const dsl = require("../../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pages = require("../../../../locators/Pages.json");
+var appId = " ";
 
 describe("Moustache test Functionality", function() {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+  });
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
   it("Moustache test Functionality", function() {
     cy.openPropertyPane("textwidget");

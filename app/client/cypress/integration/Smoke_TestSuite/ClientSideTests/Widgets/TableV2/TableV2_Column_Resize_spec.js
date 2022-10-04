@@ -3,10 +3,13 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2ResizedColumnsDsl.json");
+var appId = " ";
 
 describe("Table Widget V2 Functionality with Hidden and Resized Columns", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Table Widget Functionality with Hidden and Resized Columns", function() {

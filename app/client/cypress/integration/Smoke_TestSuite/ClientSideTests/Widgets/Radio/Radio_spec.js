@@ -2,10 +2,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
+var appId = " ";
 
 describe("Radio Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Radio Widget Functionality", function() {
     cy.openPropertyPane("radiogroupwidget");

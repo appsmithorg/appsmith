@@ -4,10 +4,13 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Chart Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

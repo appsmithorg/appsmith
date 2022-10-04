@@ -1,8 +1,11 @@
 const dsl = require("../../../../fixtures/TextTabledsl.json");
+var appId = " ";
 
 describe("Property pane connections error state", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Check if the connection shows an error state when a connection has an error", function() {

@@ -34,6 +34,8 @@ function clearOptionsProperty() {
 }
 
 describe("JSONForm RadioGroup Field", () => {
+
+  
   beforeEach(() => {
     cy.addDsl(dslWithoutSchema);
 

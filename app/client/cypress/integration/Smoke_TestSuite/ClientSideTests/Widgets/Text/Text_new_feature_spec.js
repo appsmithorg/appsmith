@@ -2,10 +2,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/textDsl.json");
+var appId = " ";
 
 describe("Text Widget color/font/alignment Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

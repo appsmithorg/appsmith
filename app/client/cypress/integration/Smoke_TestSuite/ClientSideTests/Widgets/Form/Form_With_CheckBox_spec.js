@@ -2,10 +2,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/formWidgetdsl.json");
+var appId = " ";
 
 describe("Checkbox Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Checkbox Functionality To Check required toggle for form", function() {

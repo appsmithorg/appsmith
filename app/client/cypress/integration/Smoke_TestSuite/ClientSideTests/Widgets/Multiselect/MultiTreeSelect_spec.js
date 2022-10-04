@@ -1,9 +1,12 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+var appId = " ";
 
 describe("Multi Tree Select Widget", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Add new widget", () => {

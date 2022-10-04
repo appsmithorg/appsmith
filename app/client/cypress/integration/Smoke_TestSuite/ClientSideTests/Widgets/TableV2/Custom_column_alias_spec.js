@@ -15,8 +15,10 @@ const data = [
 ];
 
 describe("Custom column alias functionality", () => {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. should test that custom column has alias property", () => {

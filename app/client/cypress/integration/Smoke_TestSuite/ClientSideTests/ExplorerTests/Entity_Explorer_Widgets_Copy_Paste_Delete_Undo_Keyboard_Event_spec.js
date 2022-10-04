@@ -3,12 +3,14 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWithInputdsl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+var appId = " ";
 let ee = ObjectsRegistry.EntityExplorer;
 
 const pageid = "MyPage";
 before(() => {
-  cy.addDsl(dsl);
+  appId = localStorage.getItem("applicationId");
+  cy.log("appID:"+appId);
+  cy.addDsl(dsl, appId);
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function() {

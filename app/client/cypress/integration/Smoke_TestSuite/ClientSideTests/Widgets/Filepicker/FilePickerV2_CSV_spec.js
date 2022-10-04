@@ -1,12 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/filePickerTableDSL.json");
-
+var appId = " ";
 const widgetName = "filepickerwidgetv2";
 const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value`;
 
 describe("File picker widget v2", () => {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Parse CSV data to table Widget", () => {

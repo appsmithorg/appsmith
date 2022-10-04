@@ -2,10 +2,13 @@ const dsl = require("../../../../fixtures/autocomp.json");
 const pages = require("../../../../locators/Pages.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+var appId = " ";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
   it("opens autocomplete for bindings", () => {
     cy.openPropertyPane("buttonwidget");

@@ -1,9 +1,12 @@
 const dsl = require("../../../../../fixtures/modalScroll.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Modal Widget Functionality", function() {
   before(() => {
-    cy.addDsl(dsl);
+    cy. appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
     cy.wait(7000);
   });
 

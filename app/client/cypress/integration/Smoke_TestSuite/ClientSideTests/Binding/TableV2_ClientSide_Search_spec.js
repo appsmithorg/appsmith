@@ -1,8 +1,11 @@
 const dsl = require("../../../../fixtures/TableV2ClientSearch.json");
+var appId = " ";
 
 describe("Test Create Api and Bind to Table widget V2", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Validate onSearchTextChanged function is called when configured for search text", function() {

@@ -2,10 +2,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
+var appId = " ";
 
 describe("Image Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Image Widget Functionality", function() {

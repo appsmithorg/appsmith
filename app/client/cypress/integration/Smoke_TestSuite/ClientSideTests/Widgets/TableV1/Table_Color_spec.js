@@ -1,10 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Table Widget property pane feature validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Test to validate text color and text background", function() {

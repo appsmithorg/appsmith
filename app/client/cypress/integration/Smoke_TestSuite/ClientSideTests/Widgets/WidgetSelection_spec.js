@@ -1,8 +1,11 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
+var appId = " ";
 
 describe("Widget Selection", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Multi Select widgets using cmd + click", function() {

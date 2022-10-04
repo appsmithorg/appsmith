@@ -4,21 +4,25 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
+var appId = " ";
 
-describe("PgAdmin Clone App", function() {
+describe("PgAdmin Clone App", function () {
   let workspaceId;
   let newWorkspaceName;
   let appname;
   let datasourceName;
 
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
+
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("Add dsl and authenticate datasource", function() {
+  it("Add dsl and authenticate datasource", function () {
     // authenticating datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
@@ -31,7 +35,7 @@ describe("PgAdmin Clone App", function() {
     });
   });
 
-  it("Create queries", function() {
+  it("Create queries", function () {
     cy.NavigateToQueryEditor();
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
@@ -150,7 +154,7 @@ describe("PgAdmin Clone App", function() {
     cy.get(appPage.dropdownChevronLeft).click();
   });
 
-  it("Add new table", function() {
+  it("Add new table", function () {
     const uuid = () => Cypress._.random(0, 1e6);
     const id = uuid();
     const Table = `table${id}`;
@@ -184,7 +188,7 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.closeButton).click();
   });
 
-  it("View and Delete table", function() {
+  it("View and Delete table", function () {
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button
     cy.xpath(appPage.viewButton)

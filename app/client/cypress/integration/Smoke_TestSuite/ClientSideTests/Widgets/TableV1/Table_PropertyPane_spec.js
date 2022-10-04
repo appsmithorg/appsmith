@@ -3,10 +3,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableNewDslWithPagination.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+var appId = " ";
 
 describe("Table Widget property pane feature validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   // To be done:

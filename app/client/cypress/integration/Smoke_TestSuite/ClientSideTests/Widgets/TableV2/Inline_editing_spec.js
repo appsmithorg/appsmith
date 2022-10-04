@@ -2,12 +2,18 @@ const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
+var appId = " ";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
+
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. should check that edit check box is present in the columns list", () => {
@@ -669,8 +675,14 @@ describe("Table widget inline editing functionality", () => {
 });
 
 describe("Table widget inline editing functionality with Text wrapping functionality", () => {
+
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl,appId);
   });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {

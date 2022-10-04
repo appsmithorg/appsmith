@@ -4,6 +4,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableAndChart.json");
 const pages = require("../../../../locators/Pages.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
+var appId = " ";
 
 describe("Text-Table Binding Functionality", function() {
   const updateData = `[
@@ -20,8 +21,10 @@ describe("Text-Table Binding Functionality", function() {
     "y": 32000
   }
 ]`;
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Update table data and assert", function() {
     cy.openPropertyPane("tablewidget");

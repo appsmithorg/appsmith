@@ -2,10 +2,13 @@ const dsl = require("../../../../../fixtures/buttondsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Button Widget Functionality - Validate tooltip visibility", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Validate show/hide tooltip feature on normal button", function() {

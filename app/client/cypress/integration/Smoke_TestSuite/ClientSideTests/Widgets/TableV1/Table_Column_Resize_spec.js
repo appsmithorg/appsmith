@@ -1,9 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../../fixtures/tableResizedColumnsDsl.json");
+var appId = " ";
 
 describe("Table Widget Functionality with Hidden and Resized Columns", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Table Widget Functionality with Hidden and Resized Columns", function() {

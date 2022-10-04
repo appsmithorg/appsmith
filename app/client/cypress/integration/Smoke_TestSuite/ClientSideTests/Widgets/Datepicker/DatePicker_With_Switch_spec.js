@@ -3,10 +3,13 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/datepicker_switchDsl.json");
 const dayjs = require("dayjs");
+var appId = " ";
 
 describe("Switch Widget within Form widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Switch Widget Functionality check with success message", function() {
     cy.openPropertyPane("switchwidget");

@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/buttonRecaptchaDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+var appId = " ";
 
 const locator = ObjectsRegistry.CommonLocators,
   ee = ObjectsRegistry.EntityExplorer,
@@ -9,7 +10,9 @@ const locator = ObjectsRegistry.CommonLocators,
 
 describe("Binding the Button widget with Text widget using Recpatcha v3", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
 
   it.only("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function() {

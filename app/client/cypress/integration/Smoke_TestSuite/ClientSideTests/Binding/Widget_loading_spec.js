@@ -4,12 +4,14 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const testdata = require("../../../../fixtures/testdata.json");
-
+var appId = " ";
 let datasourceName;
 
 describe("Binding the multiple widgets and validating default data", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

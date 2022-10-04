@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
+var appId = " ";
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = ".t--property-pane-back-btn";
 
@@ -78,7 +78,9 @@ function removeCustomField() {
 
 describe("JSON Form Hidden fields", () => {
   before(() => {
-    cy.addDsl(dslWithSchema);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dslWithSchema,appId);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
   });

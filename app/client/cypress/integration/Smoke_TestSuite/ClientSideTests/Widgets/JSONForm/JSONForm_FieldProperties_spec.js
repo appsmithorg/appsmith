@@ -1,14 +1,19 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
-
+var appId = " ";
 const fieldPrefix = ".t--jsonformfield";
 
 describe("Text Field Property Control", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+
+  before(() => {
     const schema = {
       name: "John",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -104,10 +109,15 @@ describe("Text Field Property Control", () => {
 
 describe("Checkbox Field Property Control", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+
+  before(() => {
     const schema = {
       check: false,
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("check");
@@ -145,10 +155,14 @@ describe("Checkbox Field Property Control", () => {
 
 describe("Switch Field Property Control", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  before(() => {
     const schema = {
       switch: true,
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("switch");
@@ -188,10 +202,14 @@ describe("Switch Field Property Control", () => {
 
 describe("Select Field Property Control", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  before(() => {
     const schema = {
       state: "Karnataka",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("state");
@@ -238,10 +256,14 @@ describe("Select Field Property Control", () => {
 
 describe("Multi-Select Field Property Control", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  before(() => {
     const schema = {
       hobbies: [],
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("hobbies");
@@ -284,10 +306,14 @@ describe("Multi-Select Field Property Control", () => {
 
 describe("Radio group Field Property Control", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  before(() => {
     const sourceData = {
       radio: "Y",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.openFieldConfiguration("radio");

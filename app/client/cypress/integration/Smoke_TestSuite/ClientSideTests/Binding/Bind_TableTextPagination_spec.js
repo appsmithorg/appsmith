@@ -2,12 +2,14 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiPage from "../../../../locators/ApiEditor";
+var appId = " ";
 
 describe("Test Create Api and Bind to Table widget", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);  
   });
-
   it("Test_Add Paginate with Table Page No and Execute the Api", function() {
     cy.wait(30000);
     /**Create an Api1 of Paginate with Table Page No */

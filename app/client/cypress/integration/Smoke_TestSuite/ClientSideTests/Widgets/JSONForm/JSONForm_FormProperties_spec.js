@@ -3,7 +3,7 @@ const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.jso
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
-
+var appId = " ";
 const backBtn = ".t--property-pane-back-btn";
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
@@ -12,7 +12,9 @@ const submitButtonStylesSection =
 
 describe("JSON Form Widget Form Bindings", () => {
   before(() => {
-    cy.addDsl(dslWithSchema);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dslWithSchema,appId);
   });
 
   it("should have all the fields under field configuration", () => {
@@ -118,7 +120,7 @@ describe("JSON Form Widget Form Bindings", () => {
   });
 
   it("Should set isValid to false on first load when form is invalid", () => {
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
 
     const schema = {
       name: "",
@@ -142,7 +144,7 @@ describe("JSON Form Widget Form Bindings", () => {
   });
 
   it("Should set isValid to false on reset when form is invalid", () => {
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
 
     const schema = {
       name: "",

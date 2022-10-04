@@ -6,12 +6,15 @@ const dsl = require("../../../../fixtures/basicTabledsl.json");
 const pages = require("../../../../locators/Pages.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const tabname = "UpdatedTab";
+var appId = " ";
 
 describe("Tab widget test", function() {
   const apiName = "Table1";
   const tableName = "Table";
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Rename API with table widget name validation test", function() {

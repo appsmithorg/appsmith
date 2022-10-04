@@ -6,9 +6,11 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const fieldPrefix = ".t--jsonformfield";
-
+var appId = " ";
 describe("JSONForm select field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     const schema = {
       object: {
         select: "GREEN",
@@ -19,7 +21,7 @@ describe("JSONForm select field", () => {
         },
       ],
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("object");
@@ -70,6 +72,8 @@ describe("JSONForm select field", () => {
 });
 
 describe("JSONForm multiselect field", () => {
+  appId = localStorage.getItem("applicationId");
+  cy.log("appID:"+appId);
   before(() => {
     const schema = {
       object: {
@@ -81,7 +85,7 @@ describe("JSONForm multiselect field", () => {
         },
       ],
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("object");

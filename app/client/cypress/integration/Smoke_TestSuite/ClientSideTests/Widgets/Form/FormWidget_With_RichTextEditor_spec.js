@@ -1,10 +1,13 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formWithRTEDsl.json");
+var appId = " ";
 
 describe("RichTextEditor Widget Functionality in Form", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

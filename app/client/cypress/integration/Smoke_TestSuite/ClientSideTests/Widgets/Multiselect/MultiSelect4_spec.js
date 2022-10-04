@@ -1,6 +1,7 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+var appId = " ";
 
 const defaultValue = `[
         {
@@ -10,8 +11,10 @@ const defaultValue = `[
       ]`;
 
 describe("MultiSelect Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   beforeEach(() => {
     cy.wait(7000);

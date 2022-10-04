@@ -4,12 +4,14 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
-
+var appId = " ";
 describe("Container Widget Functionality", function() {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl,appId);
     cy.wait(5000);
   });
 

@@ -1,8 +1,11 @@
 const dsl = require("../../../../../fixtures/chartCustomDataDsl.json");
+var appId = " ";
 
 describe("Chart Widget Functionality around custom chart data", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. change chart type to custom chart", function() {

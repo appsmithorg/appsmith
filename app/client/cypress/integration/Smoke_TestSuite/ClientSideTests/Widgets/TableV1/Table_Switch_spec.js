@@ -4,10 +4,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/swtchTableDsl.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+var appId = " ";
 
 describe("Table Widget and Switch binding Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Table Widget Data validation with Switch ON", function() {

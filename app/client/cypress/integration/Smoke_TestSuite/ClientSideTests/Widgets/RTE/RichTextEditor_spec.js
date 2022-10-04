@@ -32,8 +32,10 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
 };
 
 describe("RichTextEditor Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

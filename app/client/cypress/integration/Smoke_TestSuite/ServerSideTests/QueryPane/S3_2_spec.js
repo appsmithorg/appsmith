@@ -6,10 +6,14 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
-
+var appId = " ";
 let datasourceName;
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+  });
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -224,8 +228,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("4. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
-    cy.addDsl(dsl);
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.addDsl(dsl, appId);
+    cy.wait(3000); //dsl to settle!    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.getEntityName().then((entity) => {
       cy.wrap(entity).as("entity");
     });

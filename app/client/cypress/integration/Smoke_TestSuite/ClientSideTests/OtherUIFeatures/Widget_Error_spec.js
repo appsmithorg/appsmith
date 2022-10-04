@@ -2,12 +2,15 @@ const dsl = require("../../../../fixtures/buttondsl.json");
 const debuggerLocators = require("../../../../locators/Debugger.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Widget error state", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Check widget error state", function() {
     cy.openPropertyPane("buttonwidget");

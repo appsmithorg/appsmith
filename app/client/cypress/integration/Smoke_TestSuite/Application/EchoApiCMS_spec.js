@@ -3,11 +3,15 @@ const apiwidget = require("../../../locators/apiWidgetslocator.json");
 import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
 const commonlocators = require("../../../locators/commonlocators.json");
+var appId = " ";
+
 describe("Content Management System App", function() {
   let repoName;
 
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl,appId);
   });
   beforeEach(() => {
     cy.startRoutesForDatasource();

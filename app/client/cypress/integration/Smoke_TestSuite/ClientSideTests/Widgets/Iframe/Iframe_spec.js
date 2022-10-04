@@ -1,8 +1,11 @@
 const dsl = require("../../../../../fixtures/IframeDsl.json");
+var appId = " ";
 
 describe("Iframe Widget functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   const getIframeBody = () => {

@@ -2,11 +2,14 @@ const dsl = require("../../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+var appId = " ";
 
 describe("API Panel Test Functionality", function() {
   let datasourceName;
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   beforeEach(() => {
     cy.startRoutesForDatasource();

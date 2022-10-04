@@ -1,9 +1,12 @@
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+var appId = " ";
 
 describe("Table Widget empty row color validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Validate cell background of columns", function() {

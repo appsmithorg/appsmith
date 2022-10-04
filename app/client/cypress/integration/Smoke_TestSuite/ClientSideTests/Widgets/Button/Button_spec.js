@@ -2,12 +2,14 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
-
+var appId = " ";
 const iconAlignmentProperty = ".t--property-control-position";
 
 describe("Button Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

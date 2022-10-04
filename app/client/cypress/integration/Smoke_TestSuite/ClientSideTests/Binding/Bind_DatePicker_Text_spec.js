@@ -3,13 +3,16 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const pages = require("../../../../locators/Pages.json");
+var appId = " ";
 
 describe("Binding the Datepicker and Text Widget", function() {
   let nextDay;
   let dateDp2;
 
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("DatePicker-Text, Validate selectedDate functionality", function() {

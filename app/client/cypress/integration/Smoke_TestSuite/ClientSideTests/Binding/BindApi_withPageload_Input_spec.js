@@ -3,10 +3,13 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Binding the API with pageOnLoad and input Widgets", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Will load an api on load", function() {

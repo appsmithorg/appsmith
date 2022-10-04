@@ -1,11 +1,14 @@
 const dsl = require("../../../../../fixtures/listRegression3Dsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Binding the list widget with text widget", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Validate text widget data based on changes in list widget Data3", function() {

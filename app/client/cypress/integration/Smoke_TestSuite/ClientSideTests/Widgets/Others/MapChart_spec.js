@@ -2,10 +2,13 @@ const commonLocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/MapChartDsl.json");
+var appId = " ";
 
 describe("Map Chart Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

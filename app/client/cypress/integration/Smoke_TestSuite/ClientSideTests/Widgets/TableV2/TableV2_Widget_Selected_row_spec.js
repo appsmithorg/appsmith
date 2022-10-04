@@ -1,8 +1,10 @@
 const dsl = require("../../../../../fixtures/tableV2AndTextDsl.json");
 
 describe("Table Widget v2 property pane feature validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Table widget v2 new menu button column should not deselect row", function() {

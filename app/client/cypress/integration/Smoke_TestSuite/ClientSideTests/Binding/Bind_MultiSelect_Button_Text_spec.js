@@ -3,6 +3,7 @@
 const dsl = require("../../../../fixtures/defaultMetadataDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+var appId = " ";
 
 import {
   WIDGET,
@@ -29,7 +30,9 @@ const widgetsToTest = {
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset action`, function() {
     before(() => {
-      cy.addDsl(dsl);
+      appId = localStorage.getItem("applicationId");
+      cy.log("appID:" + appId);
+      cy.addDsl(dsl, appId);    
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, function() {

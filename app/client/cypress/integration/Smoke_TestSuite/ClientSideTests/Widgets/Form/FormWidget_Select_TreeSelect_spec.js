@@ -1,10 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/formSelectTreeselectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+var appId = " ";
 
 describe("Form Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Validate Select and TreeSelect Widget", function() {
     cy.get(widgetsPage.formButtonWidget)

@@ -1,9 +1,12 @@
 const dsl = require("../../../../fixtures/jsonFormDslWithSchema.json");
 const { ObjectsRegistry } = require("../../../../support/Objects/Registry");
+var appId = " ";
 
 describe("Property pane js enabled field", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Ensure text is visible for js enabled field when a section is collapsed by default", function() {

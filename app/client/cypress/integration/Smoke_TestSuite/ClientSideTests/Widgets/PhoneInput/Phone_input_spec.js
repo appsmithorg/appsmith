@@ -1,12 +1,14 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-
+var appId = " ";
 const widgetName = "phoneinputwidget";
 const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Phone input widget - ", () => {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Add new dropdown widget", () => {

@@ -2,10 +2,13 @@ const dsl = require("../../../../fixtures/debuggerTableDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const debuggerLocators = require("../../../../locators/Debugger.json");
 const testdata = require("../../../../fixtures/testdata.json");
+var appId = " ";
 
 describe("Check debugger logs state when there are onPageLoad actions", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Check debugger logs state when there are onPageLoad actions", function() {
     cy.openPropertyPane("tablewidget");

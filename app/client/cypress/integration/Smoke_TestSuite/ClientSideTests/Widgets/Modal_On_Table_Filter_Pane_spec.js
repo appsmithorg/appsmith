@@ -1,9 +1,15 @@
 const dsl = require("../../../../fixtures/modalOnTableFilterPaneDsl.json");
 const widgets = require("../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Modal Widget Functionality", function() {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
 
   it("Close the opened filter pane of the table", () => {

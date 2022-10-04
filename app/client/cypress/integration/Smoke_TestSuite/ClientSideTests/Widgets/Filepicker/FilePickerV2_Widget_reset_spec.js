@@ -2,10 +2,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/filePickerV2_reset_check_dsl.json");
 const Layoutpage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Checkbox Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Check if the uploaded data reset when tab switch in the TabsWidget", () => {

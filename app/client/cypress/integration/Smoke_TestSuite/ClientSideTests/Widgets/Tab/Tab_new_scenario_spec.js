@@ -1,10 +1,13 @@
 const Layoutpage = require("../../../../../locators/Layout.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tabsWithWidgetDsl.json");
+var appId = " ";
 
 describe("Tab widget test", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function() {
     cy.openPropertyPane("tabswidget");

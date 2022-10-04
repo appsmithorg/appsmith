@@ -3,10 +3,13 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+var appId = " ";
 
 describe("API Panel Test Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
   it("Test Search API fetaure", function() {
     cy.log("Login Successful");

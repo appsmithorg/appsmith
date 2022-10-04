@@ -5,10 +5,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Table Widget property pane feature validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Test to validate table pagination is disabled", function() {

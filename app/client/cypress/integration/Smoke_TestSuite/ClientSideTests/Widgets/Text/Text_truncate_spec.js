@@ -2,8 +2,10 @@ const dsl = require("../../../../../fixtures/textNewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Text Widget Truncate Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Check default overflow property is No overflow", function() {

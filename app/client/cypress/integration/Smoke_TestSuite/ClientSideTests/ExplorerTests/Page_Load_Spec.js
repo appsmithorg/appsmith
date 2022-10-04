@@ -1,18 +1,20 @@
 const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Page Load tests", () => {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
     cy.CreatePage();
-
     cy.get("h2").contains("Drag and drop a widget here");
   });
 
   it("1. Published page loads correctly", () => {
     //add page within page
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
     // Update the text to be asserted later
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");

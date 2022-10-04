@@ -2,10 +2,16 @@ const dsl = require("../../../../fixtures/ModalDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const widgets = require("../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Modal Widget Functionality", function() {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Add new Modal", () => {

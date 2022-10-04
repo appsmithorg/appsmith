@@ -4,12 +4,15 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
+var appId = " ";
 
 describe("Undo/Redo functionality", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("checks undo/redo for new widgets", function() {

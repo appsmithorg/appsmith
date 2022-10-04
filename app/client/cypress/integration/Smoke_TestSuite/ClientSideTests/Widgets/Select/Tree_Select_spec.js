@@ -1,10 +1,13 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+var appId = " ";
 
 describe("Tree Select Widget", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Add new widget", () => {

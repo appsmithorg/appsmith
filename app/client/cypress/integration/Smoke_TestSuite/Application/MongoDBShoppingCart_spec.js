@@ -3,13 +3,16 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 const formControls = require("../../../locators/FormControl.json");
+var appId = " ";
 
 let repoName;
 describe("Shopping cart App", function() {
   let datasourceName;
 
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl,appId);
   });
   beforeEach(() => {
     cy.startRoutesForDatasource();

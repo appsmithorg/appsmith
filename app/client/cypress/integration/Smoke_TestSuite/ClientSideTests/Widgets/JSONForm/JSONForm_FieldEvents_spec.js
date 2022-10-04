@@ -7,15 +7,19 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 
 const fieldPrefix = ".t--jsonformfield";
-
+var appId = " ";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Radio Group Field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  before(() => {
     const schema = {
       answer: "Y",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("answer");
@@ -45,10 +49,15 @@ describe("Radio Group Field", () => {
 
 describe("Multiselect Field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  
+  before(() => {
     const schema = {
       colors: ["BLUE"],
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
@@ -82,10 +91,15 @@ describe("Multiselect Field", () => {
 
 describe("Select Field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+
+  before(() => {
     const schema = {
       color: "BLUE",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("color");
@@ -120,10 +134,15 @@ describe("Select Field", () => {
 
 describe("Input Field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+
+  before(() => {
     const schema = {
       name: "John",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
@@ -149,10 +168,14 @@ describe("Input Field", () => {
 
 describe("Checkbox Field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  before(() => {
     const schema = {
       agree: true,
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("agree");
@@ -183,10 +206,15 @@ describe("Checkbox Field", () => {
 
 describe("Switch Field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+
+  before(() => {
     const schema = {
       agree: true,
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
@@ -212,10 +240,14 @@ describe("Switch Field", () => {
 
 describe("Date Field", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+  before(() => {
     const schema = {
       dob: "20/12/1992",
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();

@@ -1,13 +1,15 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const themelocators = require("../../../../../locators/ThemeLocators.json");
-
+var appId = " ";
 const widgetName = "currencyinputwidget";
 const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Currency widget - ", () => {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Add new dropdown widget", () => {

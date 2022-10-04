@@ -1,9 +1,12 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/defaultTableDsl.json");
+var appId = " ";
 
 describe("Table Widget property pane deafult feature validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Verify default table row Data", function() {

@@ -1,13 +1,18 @@
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
+var appId = " ";
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const backBtn = ".t--property-pane-back-btn";
 
 describe("JSON Form Widget Form Bindings", () => {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
+
   beforeEach(() => {
-    cy.addDsl(dslWithSchema);
+    cy.addDsl(dslWithSchema,appId);
   });
 
   it("updates formData when field value changes", () => {

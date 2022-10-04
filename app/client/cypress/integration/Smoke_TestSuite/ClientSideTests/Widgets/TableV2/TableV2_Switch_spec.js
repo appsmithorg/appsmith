@@ -1,9 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../../fixtures/swtchTableV2Dsl.json");
+var appId = " ";
 
 describe("Table Widget V2 and Switch binding Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Table Widget V2 Data validation with Switch ON", function() {

@@ -1,14 +1,18 @@
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-
+var appId = " ";
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget AutoGenerate Disabled", () => {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    });
   it("generates fields with valid source data json", () => {
     const formDsl = JSON.parse(
       JSON.stringify(jsonFormDslWithSchemaAndWithoutSourceData),
     );
 
-    cy.addDsl(formDsl);
+    cy.addDsl(formDsl,appId);
 
     cy.openPropertyPane("jsonformwidget");
 
@@ -128,7 +132,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
       JSON.stringify(jsonFormDslWithSchemaAndWithoutSourceData),
     );
 
-    cy.addDsl(formDsl);
+    cy.addDsl(formDsl,appId);
 
     cy.openPropertyPane("jsonformwidget");
 

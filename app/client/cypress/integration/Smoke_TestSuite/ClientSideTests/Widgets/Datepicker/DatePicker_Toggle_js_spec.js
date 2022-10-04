@@ -1,10 +1,13 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

@@ -13,6 +13,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const agHelper = ObjectsRegistry.AggregateHelper;
 const pageid = "MyPage";
 let queryName;
+var appId = " ";
 
 /*
 Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
@@ -26,7 +27,9 @@ Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 
 describe("Cyclic Dependency Informational Error Messagaes", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
     cy.wait(3000); //dsl to settle!
   });
 

@@ -3,10 +3,13 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Dropdown Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Add new dropdown widget", () => {

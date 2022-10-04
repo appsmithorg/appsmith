@@ -2,12 +2,19 @@ const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+var appId = " ";
 
 const propPane = ObjectsRegistry.PropertyPane;
 
 describe("Table widget inline editing validation functionality", () => {
+
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. should check that validation only appears when editable enabled", () => {

@@ -1,11 +1,14 @@
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonText = require("../../../../../fixtures/jsonTextDsl.json");
-
+var appId = " "
 describe("Verify syntax to create Datpicker field type", () => {
+  
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     const schema = { Key: "20/03/1992" };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -20,8 +23,10 @@ describe("Verify syntax to create Datpicker field type", () => {
 
 describe("Verify syntax to boolean type", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     const schema = { Key: true };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -34,8 +39,10 @@ describe("Verify syntax to boolean type", () => {
 
 describe("Verify syntax to create email type", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     const schema = { Key: "Value@mail.com" };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -48,8 +55,10 @@ describe("Verify syntax to create email type", () => {
 
 describe("Verify syntax for Text type", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     const schema = { Key: "value" };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -62,12 +71,14 @@ describe("Verify syntax for Text type", () => {
 
 describe("Verify mandatory field check and also submit button active/inactive", () => {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     const schema = {
       name: "John",
       date_of_birth: "20/02/1990",
       employee_id: 1001,
     };
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
@@ -98,7 +109,9 @@ describe("Verify mandatory field check and also submit button active/inactive", 
 
 describe("Verify property name change with json/text widget binding", () => {
   before(() => {
-    cy.addDsl(jsonText);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(jsonText,appId);
     cy.openPropertyPane("jsonformwidget");
   });
 

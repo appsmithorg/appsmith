@@ -1,9 +1,16 @@
 const dsl = require("../../../../../fixtures/Table/TextWrappingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+var appId = " ";
 
 describe("Table Widget text wrapping functionality", function() {
+  
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. should check that cell is not wrapped when cell wrapping is disabled", () => {

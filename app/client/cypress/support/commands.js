@@ -576,7 +576,7 @@ Cypress.Commands.add("generateUUID", () => {
   return id.split("-")[0];
 });
 
-Cypress.Commands.add("addDsl", (dsl) => {
+Cypress.Commands.add("addDsl", (dsl,appId) => {
   let currentURL;
   let pageid;
   let layoutId;
@@ -592,16 +592,12 @@ Cypress.Commands.add("addDsl", (dsl) => {
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
       const respBody = JSON.stringify(response.body);
       layoutId = JSON.parse(respBody).data.layouts[0].id;
-      const appId = localStorage.getItem("applicationId");
+      cy.log("appid:"+appId);
       // Dumping the DSL to the created page
       cy.request(
         "PUT",
-        "api/v1/layouts/" +
-          layoutId +
-          "/pages/" +
-          pageid +
-          "?applicationId=" +
-          appId,
+        "api/v1/layouts/" + layoutId + "/pages/" + pageid,"?applicationId=" +
+        appId,
         dsl,
       ).then((response) => {
         cy.log(response.body);

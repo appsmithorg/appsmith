@@ -3,8 +3,10 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 import { seconds, testTimeout } from "../../../../../support/timeout";
 
 describe("Table widget edge case scenario testing", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Check if the selectedRowIndices does not contain 2d array", function() {

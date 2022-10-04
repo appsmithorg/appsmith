@@ -1,8 +1,11 @@
 const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
+var appId = " ";
 
 describe("JS Toggle tests", () => {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("switches the toggle to Button widget", () => {

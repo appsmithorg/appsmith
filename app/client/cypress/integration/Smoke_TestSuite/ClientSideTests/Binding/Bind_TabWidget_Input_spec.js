@@ -1,10 +1,13 @@
 const dsl = require("../../../../fixtures/tabInputDsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+var appId = " ";
 
 describe("Binding the input Widget with tab Widget", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Input widget test with default value from tab widget", function() {

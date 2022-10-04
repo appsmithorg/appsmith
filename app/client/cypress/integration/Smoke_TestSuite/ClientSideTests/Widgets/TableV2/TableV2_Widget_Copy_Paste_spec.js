@@ -2,13 +2,15 @@ const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
+var appId = " ";
 
-before(() => {
-  cy.addDsl(dsl);
-});
-
-describe("Test Suite to validate copy/paste table Widget V2", function() {
-  it("1. Copy paste table widget and valdiate application status", function() {
+describe("Test Suite to validate copy/paste table Widget V2", function () {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
+  });
+  it("1. Copy paste table widget and valdiate application status", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("tablewidgetv2");
     cy.widgetText(
@@ -44,7 +46,7 @@ describe("Test Suite to validate copy/paste table Widget V2", function() {
       .trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
-    cy.get(apiwidget.propertyList).then(function($lis) {
+    cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(17);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");

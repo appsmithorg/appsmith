@@ -1,13 +1,16 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/multiSelectedRowUpdationTableV2Dsl.json");
+var appId = " ";
 
 /* 
 Selected row stays selected after data updation
 if the primary column value isn't updated.
 */
 describe("Table Widget V2 row multi select validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Test multi select column shows when enableMultirowselection is true", function() {

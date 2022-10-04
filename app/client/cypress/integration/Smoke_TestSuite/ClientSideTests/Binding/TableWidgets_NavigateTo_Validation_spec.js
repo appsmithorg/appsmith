@@ -4,15 +4,18 @@ const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
+var appId = " ";
 
 describe("Table Widget and Navigate to functionality validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2);
+    cy.addDsl(dsl2, appId);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.CheckAndUnfoldEntityItem("Pages");

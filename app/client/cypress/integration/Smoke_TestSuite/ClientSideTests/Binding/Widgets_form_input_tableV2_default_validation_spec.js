@@ -1,10 +1,13 @@
 const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+var appId = " ";
 
 describe("Binding the multiple input Widget", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Input widget test with default value from table widget v2", function() {

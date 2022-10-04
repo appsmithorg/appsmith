@@ -8,10 +8,13 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor;
 const newPage = "TableTest";
+var appId = " ";
 
-describe("JSEditor tests", function() {
+describe("JSEditor tests", function () {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
   beforeEach(() => {
     cy.startServerAndRoutes();

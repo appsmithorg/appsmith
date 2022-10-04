@@ -1,10 +1,13 @@
 const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dynamicInput = require("../../../../locators/DynamicInput.json");
+var appId = " ";
 
 describe("Binding prompt", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Show binding prompt when there are no bindings in the editor", () => {

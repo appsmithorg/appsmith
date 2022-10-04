@@ -5,10 +5,13 @@ const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
 const appPage = require("../../../../locators/PgAdminlocators.json");
+var appId = " ";
 
 describe("GlobalSearch", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

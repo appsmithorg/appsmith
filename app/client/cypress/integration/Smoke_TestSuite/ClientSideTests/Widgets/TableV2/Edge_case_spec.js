@@ -1,10 +1,16 @@
 const dsl = require("../../../../../fixtures/tableV2WithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-
+var appId = " ";
 describe("Table widget v2 edge case scenario testing", function() {
+
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Check if the selectedRowIndices does not contain 2d array", function() {

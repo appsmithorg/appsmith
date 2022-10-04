@@ -3,10 +3,13 @@ const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Chart Widget Functionality around custom chart feature", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   beforeEach(() => {

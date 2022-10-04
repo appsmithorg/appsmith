@@ -1,10 +1,13 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const themeLocator = require("../../../../../locators/ThemeLocators.json");
 const dsl = require("../../../../../fixtures/filePickerV2WidgetReskinDsl.json");
+var appId = " ";
 
 describe("Checkbox Widget Functionality", function() {
-  before(() => {
-    cy.addDsl(dsl);
+   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Elements inside upload modal should follow theme border radius", () => {

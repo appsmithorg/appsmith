@@ -12,7 +12,9 @@ describe("Export application as a JSON file", function() {
   let appname;
 
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dsl, appId);
     cy.wait(5000);
   });
 

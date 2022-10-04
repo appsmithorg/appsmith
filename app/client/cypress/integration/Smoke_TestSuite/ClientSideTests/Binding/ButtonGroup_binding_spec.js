@@ -1,12 +1,14 @@
 const dsl = require("../../../../fixtures/buttonGroupDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
+var appId = " ";
 
 describe("Widget Grouping", function() {
   before(() => {
-    cy.addDsl(dsl);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+    cy.addDsl(dsl, appId);
   });
-
   it("Button widgets widget on click info message valdiation ", function() {
     cy.get(".t--buttongroup-widget button")
       .contains("Add")

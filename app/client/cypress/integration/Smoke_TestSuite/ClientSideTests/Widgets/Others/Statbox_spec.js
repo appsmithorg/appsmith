@@ -2,10 +2,16 @@ const dsl = require("../../../../../fixtures/StatboxDsl.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const data = require("../../../../../fixtures/example.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+var appId = " ";
 
 describe("Statbox Widget Functionality", function() {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
+
   beforeEach(() => {
-    cy.addDsl(dsl);
+    cy.addDsl(dsl, appId);
   });
 
   it("1. Open Existing Statbox from created Widgets list", () => {
