@@ -37,6 +37,7 @@ export type PanelConfig = {
   children?: PropertyPaneConfig[];
   contentChildren?: PropertyPaneConfig[];
   styleChildren?: PropertyPaneConfig[];
+  searchConfig?: PropertyPaneConfig[]; // A combination of contentChildren and contentChildren which will be used to display search results
   updateHook: (
     props: any,
     propertyPath: string,

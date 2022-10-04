@@ -1,26 +1,87 @@
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "./generators";
 import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
+
+// TODO(aswathkk): Cleanup all the identifiers
+export function manipulateOnlyFirst(config: readonly PropertyPaneConfig[]) {
+  return config.map((configItem) => {
+    if ((configItem as PropertyPaneSectionConfig).sectionName) {
+      const obj = {
+        ...configItem,
+      };
+      if (configItem.children) {
+        obj.children = manipulateOnlyFirst(configItem.children);
+      }
+      return obj;
+    } else if ((configItem as PropertyPaneControlConfig).controlType) {
+      const controlConfig = configItem as PropertyPaneControlConfig;
+      if (controlConfig.panelConfig) {
+        return {
+          ...controlConfig,
+          panelConfig: {
+            ...controlConfig.panelConfig,
+            searchConfig: generatePropertyPaneSearchConfig(
+              controlConfig.panelConfig?.contentChildren ?? [],
+              controlConfig.panelConfig?.styleChildren ?? [],
+            ),
+          },
+        };
+      }
+      return controlConfig;
+    }
+    return configItem;
+  });
+}
+
+// TODO(aswathkk): Cleanup all the identifiers
+function manipulate(
+  config: readonly PropertyPaneConfig[],
+  tag: string,
+): PropertyPaneConfig[] {
+  return config.map((configItem) => {
+    if ((configItem as PropertyPaneSectionConfig).sectionName) {
+      // const sectionConfig: PropertyPaneSectionConfig = configItem as PropertyPaneSectionConfig;
+      const obj = {
+        ...configItem,
+        collapsible: false,
+        tag,
+      };
+      if (configItem.children) {
+        obj.children = manipulate(configItem.children, tag);
+      }
+      return obj;
+    } else if ((configItem as PropertyPaneControlConfig).controlType) {
+      const controlConfig = configItem as PropertyPaneControlConfig;
+      if (controlConfig.panelConfig) {
+        return {
+          ...controlConfig,
+          panelConfig: {
+            ...controlConfig.panelConfig,
+            searchConfig: generatePropertyPaneSearchConfig(
+              controlConfig.panelConfig?.contentChildren ?? [],
+              controlConfig.panelConfig?.styleChildren ?? [],
+            ),
+          },
+        };
+      }
+      return controlConfig;
+    }
+    return configItem;
+  });
+}
 
 export function generatePropertyPaneSearchConfig(
   contentConfig: readonly PropertyPaneConfig[],
   styleConfig: readonly PropertyPaneConfig[],
 ) {
   return [
-    ...contentConfig.map((x) => ({
-      ...x,
-      tag: "CONTENT",
-      collapsible: false,
-    })),
-    ...styleConfig.map((x) => ({
-      ...x,
-      tag: "STYLE",
-      collapsible: false,
-    })),
+    ...manipulate(contentConfig, "CONTENT"),
+    ...manipulate(styleConfig, "STYLE"),
   ];
 }
 

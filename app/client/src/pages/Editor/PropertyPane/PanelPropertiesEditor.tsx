@@ -100,11 +100,15 @@ export function PanelPropertiesEditor(
       }
       const contentChildren = [...panelConfig.contentChildren];
       const styleChildren = [...panelConfig.styleChildren];
+      const searchConfig = [...(panelConfig.searchConfig || [])];
       return {
         content: path
           ? updateConfigPaths(contentChildren, path)
           : contentChildren,
         style: path ? updateConfigPaths(styleChildren, path) : styleChildren,
+        searchConfig: path
+          ? updateConfigPaths(searchConfig, path)
+          : searchConfig,
       };
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
@@ -175,10 +179,7 @@ export function PanelPropertiesEditor(
           {searchText.length > 0 ? (
             <PanelWrapper>
               <PropertyControlsGenerator
-                config={[
-                  ...panelConfigsWithStyleAndContent.content,
-                  ...panelConfigsWithStyleAndContent.style,
-                ]}
+                config={panelConfigsWithStyleAndContent.searchConfig}
                 id={widgetProperties.widgetId}
                 panel={panel}
                 searchQuery={searchText}

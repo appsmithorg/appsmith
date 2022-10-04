@@ -41,7 +41,7 @@ function Section(props: SectionProps) {
   const { config, generatorProps, sectionConfig } = props;
   const sectionRef = useRef<HTMLDivElement>(null);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
-  const [hidden, setHidden] = useState(false);
+  // const [hidden, setHidden] = useState(false);
 
   const isSectionHidden =
     sectionConfig.hidden &&
@@ -53,16 +53,31 @@ function Section(props: SectionProps) {
       )
     : sectionConfig.sectionName;
 
-  useEffect(() => {
-    if (sectionRef.current?.childElementCount === 0) {
-      // Fix issue where the section is not hidden when it has no children
-      setHidden(true);
-    } else {
-      setHidden(false);
-    }
-  }, [generatorProps.searchQuery]);
+  // Find if all the properties are hidden. If so, hide the section
 
-  return hidden ? null : (
+  console.log("bla", sectionName, isSectionHidden);
+
+  // useEffect(() => {
+  //   // setTimeout(() => {
+  //   console.log(
+  //     "bla effect ff",
+  //     generatorProps.searchQuery,
+  //     sectionRef.current,
+  //     sectionRef.current?.childElementCount,
+  //   );
+  //   if (
+  //     sectionRef.current === null ||
+  //     sectionRef.current?.childElementCount === 0
+  //   ) {
+  //     // Fix issue where the section is not hidden when it has no children
+  //     setHidden(true);
+  //   } else {
+  //     setHidden(false);
+  //   }
+  //   // }, 0);
+  // }, [generatorProps.searchQuery]);
+
+  return (
     <Boxed
       key={config.id + generatorProps.id}
       show={sectionName !== "General" && generatorProps.type === "TABLE_WIDGET"}
@@ -132,6 +147,8 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
     props.searchQuery &&
     props.searchQuery.length > 0 &&
     searchResults.length === 0;
+
+  console.log("bla", props.searchQuery, props.config, searchResults);
 
   return isSearchResultEmpty ? (
     <EmptySearchResult />

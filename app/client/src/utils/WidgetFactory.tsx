@@ -11,6 +11,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
+  manipulateOnlyFirst,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
 
@@ -112,8 +113,12 @@ class WidgetFactory {
           enhancedPropertyPaneConfig,
         );
 
-        const finalPropertyPaneConfig = addPropertyConfigIds(
+        const propertyPaneConfigWithIds = addPropertyConfigIds(
           serializablePropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = manipulateOnlyFirst(
+          propertyPaneConfigWithIds,
         );
 
         this.propertyPaneContentConfigsMap.set(
@@ -132,8 +137,12 @@ class WidgetFactory {
           enhancedPropertyPaneConfig,
         );
 
-        const finalPropertyPaneConfig = addPropertyConfigIds(
+        const propertyPaneConfigWithIds = addPropertyConfigIds(
           serializablePropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = manipulateOnlyFirst(
+          propertyPaneConfigWithIds,
         );
 
         this.propertyPaneStyleConfigsMap.set(

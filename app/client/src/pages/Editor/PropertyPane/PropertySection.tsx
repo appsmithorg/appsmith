@@ -16,6 +16,13 @@ const SectionTitleWrapper = styled.div`
   cursor: pointer;
 `;
 
+const Label = styled.div`
+  font-size: 11px;
+  background: ${Colors.GRAY_100};
+  color: ${Colors.GRAY_600};
+  padding: 2px 4px;
+`;
+
 const SectionTitle = styled.span`
   color: ${Colors.GRAY_800};
   font-size: ${(props) => props.theme.fontSizes[3]}px;
@@ -38,6 +45,9 @@ const SectionWrapper = styled.div`
     margin-top: 8px;
     &:first-of-type {
       margin-top: 0;
+    }
+    ${Label} {
+      display: none;
     }
   }
 
@@ -67,13 +77,6 @@ const StyledIcon = styled(Icon)`
   svg path {
     fill: ${Colors.GRAY_700};
   }
-`;
-
-export const Label = styled.div`
-  font-size: 11px;
-  background: ${Colors.GRAY_100};
-  color: ${Colors.GRAY_600};
-  padding: 2px 4px;
 `;
 
 type PropertySectionProps = {
