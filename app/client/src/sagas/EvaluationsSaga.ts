@@ -145,6 +145,7 @@ function* startEvaluationProcess(
     unevalTree,
     widgetTypeConfigMap,
   };
+  const appMode: APP_MODE = yield select(getAppMode);
   log.debug({ unevalTree });
   const {
     evalOrder,
@@ -166,12 +167,15 @@ function* startEvaluationProcess(
     updatedUnevalTree,
     jsUpdates,
     unEvalUpdates,
+    unevalTree,
   });
-  // Linting
-  yield spawn(lintTreeSaga, {
-    pathsToLint: lintOrder,
-    unEvalTree: updatedUnevalTree,
-  });
+  if (appMode === APP_MODE.EDIT) {
+    // Linting
+    yield spawn(lintTreeSaga, {
+      pathsToLint: lintOrder,
+      unEvalTree: updatedUnevalTree,
+    });
+  }
 }
 
 function* evaluateTreeSaga(arg: {
@@ -184,6 +188,7 @@ function* evaluateTreeSaga(arg: {
   updatedUnevalTree: DataTree;
   jsUpdates: Record<string, JSUpdate>;
   unEvalUpdates: DataTreeDiff[];
+  unevalTree: DataTree;
 }) {
   const {
     allActionValidationConfig,
@@ -191,6 +196,7 @@ function* evaluateTreeSaga(arg: {
     jsUpdates,
     postEvalActions,
     shouldReplay = true,
+    unevalTree,
     unEvalUpdates,
     updatedUnevalTree,
   } = arg;
@@ -273,7 +279,7 @@ function* evaluateTreeSaga(arg: {
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
-      updatedUnevalTree,
+      unevalTree,
       updatedDataTree,
       evalOrder,
       isCreateFirstTree,
@@ -665,9 +671,12 @@ function getPostEvalActions(
 function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(evalWorker.shutdown);
-  yield call(lintWorker.shutdown);
   const { mainThreadRequestChannel } = yield call(evalWorker.start);
-  yield call(lintWorker.start);
+  const appMode: APP_MODE = yield select(getAppMode);
+  if (appMode === APP_MODE.EDIT) {
+    yield call(lintWorker.shutdown);
+    yield call(lintWorker.start);
+  }
 
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
   yield spawn(executeDynamicTriggerRequest, mainThreadRequestChannel);

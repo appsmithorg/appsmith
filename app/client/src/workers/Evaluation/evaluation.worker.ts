@@ -112,7 +112,6 @@ function eventRequestHandler({
       let evalMetaUpdates: EvalMetaUpdates = [];
       try {
         if (isFirstTree) {
-          replayMap = replayMap || {};
           replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
           dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
           const dataTreeResponse = dataTreeEvaluator.createFirstTree(
@@ -316,6 +315,7 @@ function eventRequestHandler({
       try {
         if (!dataTreeEvaluator) {
           isFirstTree = true;
+          replayMap = replayMap || {};
           dataTreeEvaluator = new DataTreeEvaluator(
             widgetTypeConfigMap,
             allActionValidationConfig,
