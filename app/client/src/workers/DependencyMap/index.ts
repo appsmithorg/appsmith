@@ -732,7 +732,7 @@ export const updateDependencyMap = ({
       translatedDiffs,
     );
 
-    dataTreeEvalRef.inverseDependencyMap = dataTreeEvalRef.getInverseDependencyTree(
+    dataTreeEvalRef.inverseValidationDependencyMap = dataTreeEvalRef.getInverseDependencyTree(
       {
         dependencyMap: dataTreeEvalRef.validationDependencyMap,
         sortedDependencies: dataTreeEvalRef.sortedValidationDependencies,
