@@ -43,6 +43,7 @@ import {
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
   getAllPaths,
+  removeErrorsFromEntityProperty,
 } from "workers/evaluationUtils";
 import _, { get } from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -1072,8 +1073,10 @@ export default class DataTreeEvaluator {
           };
         }) ?? [];
       addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
+    } else {
+      // if valid then remove already present error
+      removeErrorsFromEntityProperty(currentTree, fullPropertyPath);
     }
-
     return parsed;
   }
 

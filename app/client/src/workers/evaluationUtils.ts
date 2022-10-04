@@ -671,6 +671,31 @@ export const addErrorToEntityProperty = (
   return dataTree;
 };
 
+export const removeErrorsFromEntityProperty = (
+  dataTree: DataTree,
+  fullPropertyPath: string,
+) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+    fullPropertyPath,
+  );
+  if (propertyPath) {
+    const existingLintErrors = (_.get(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      [],
+    ) as EvaluationError[]).filter(
+      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
+    );
+
+    _.set(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      existingLintErrors,
+    );
+  }
+  return dataTree;
+};
+
 export const removeLintErrorsFromEntityProperty = (
   dataTree: DataTree,
   fullPropertyPath: string,
