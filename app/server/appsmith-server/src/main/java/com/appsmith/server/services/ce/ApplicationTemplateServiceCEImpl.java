@@ -250,6 +250,15 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         }
     }
 
+    /**
+     * Merge Template API is slow today because these needs to communicate with ImportExport Service, CloudService and/or serialise and de-serialise the
+     * application. This process takes time and the client may cancel the request. This leads to the flow getting stopped
+     * midway producing corrupted states.
+     * We use the synchronous sink to ensure that even though the client may have cancelled the flow, git operations should
+     * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. synchronous sink does
+     * not take subscription cancellations into account. This means that even if the subscriber has cancelled its
+     * subscription, the create method still generates its event.
+     */
     @Override
     public Mono<ApplicationImportDTO> mergeTemplateWithApplication(String templateId,
                                                                    String applicationId,
@@ -260,6 +269,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .flatMap(applicationJson ->{
                     if (branchName != null) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " does not exists in local - " + branchName)))
                                 .flatMap(application -> importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, application.getId(), branchName, applicationJson, pagesToImport));
                     }
                     return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);
