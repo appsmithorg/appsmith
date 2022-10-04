@@ -150,6 +150,7 @@ export const updateDependencyMap = ({
 }): UpdateDependencyMap => {
   const diffCalcStart = performance.now();
   let didUpdateDependencyMap = false;
+  let didUpdateValidationDependencyMap = false;
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
   const extraPathsToLint = new Set<string>();
@@ -218,8 +219,10 @@ export const updateDependencyMap = ({
                 },
               );
             }
-            // For widgets, we need to update the triggerfield dependencyMap
+
             if (isWidget(entity)) {
+              // For widgets,
+              // we need to update the triggerField dependencyMap and validation dependencyMap
               const triggerFieldDependencies = listTriggerFieldDependencies(
                 entity,
                 entityName,
@@ -258,6 +261,13 @@ export const updateDependencyMap = ({
                   });
                 },
               );
+
+              // update validation dependencies
+              dataTreeEvalRef.validationDependencyMap = {
+                ...dataTreeEvalRef.validationDependencyMap,
+                ...listValidationDependencies(entity, entityName),
+              };
+              didUpdateValidationDependencyMap = true;
             }
           }
           // Either a new entity or a new property path has been added. Go through the list of invalid references and
@@ -389,6 +399,16 @@ export const updateDependencyMap = ({
                 delete dataTreeEvalRef.triggerFieldDependencyMap[triggerDep];
                 delete dataTreeEvalRef.invalidReferencesMap[triggerDep];
               });
+
+              // remove validation dependencies
+              const validationDependencies = listValidationDependencies(
+                entity,
+                entityName,
+              );
+              Object.keys(validationDependencies).forEach((validationDep) => {
+                delete dataTreeEvalRef.validationDependencyMap[validationDep];
+              });
+              didUpdateValidationDependencyMap = true;
             }
           }
           // Either an existing entity or an existing property path has been deleted. Update the global dependency map
@@ -704,6 +724,22 @@ export const updateDependencyMap = ({
     );
     dataTreeEvalRef.inverseDependencyMap = dataTreeEvalRef.getInverseDependencyTree();
   }
+
+  if (didUpdateValidationDependencyMap) {
+    // This is being called purely to test for new circular dependencies that might have been added
+    dataTreeEvalRef.sortedValidationDependencies = dataTreeEvalRef.sortDependencies(
+      dataTreeEvalRef.validationDependencyMap,
+      translatedDiffs,
+    );
+
+    dataTreeEvalRef.inverseDependencyMap = dataTreeEvalRef.getInverseDependencyTree(
+      {
+        dependencyMap: dataTreeEvalRef.validationDependencyMap,
+        sortedDependencies: dataTreeEvalRef.sortedValidationDependencies,
+      },
+    );
+  }
+
   const updateChangedDependenciesStop = performance.now();
   dataTreeEvalRef.logs.push({
     diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
