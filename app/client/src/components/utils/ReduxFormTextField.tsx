@@ -5,6 +5,7 @@ import {
   WrappedFieldInputProps,
 } from "redux-form";
 import { TextInput, InputType } from "design-system";
+
 import { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system";
 
