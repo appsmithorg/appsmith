@@ -43,11 +43,9 @@ describe("JsEditor bottom bar", () => {
 });
 
 describe("Query bottom bar", () => {
-  let mockDBName;
   it("should be collapsable", () => {
     dataSources.createMockDB("Users").then((dbName) => {
-      mockDBName = dbName;
-      dataSources.CreateQuery(mockDBName);
+      dataSources.CreateQuery(dbName);
       dataSources.isBottomPaneOpen();
 
       dataSources.closeBottomPane();
@@ -58,7 +56,7 @@ describe("Query bottom bar", () => {
 
       // clean up
       dataSources.DeleteQuery("Query1");
-      dataSources.DeleteDatasouceFromActiveTab(mockDBName);
+      dataSources.DeleteDatasouceFromActiveTab(dbName);
     });
   });
 });
