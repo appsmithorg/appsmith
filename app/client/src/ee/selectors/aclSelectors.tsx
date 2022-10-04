@@ -7,4 +7,6 @@ export const getSelectedUser = (state: AppState) => state.acl.selectedUser;
 export const getSelectedGroup = (state: AppState) => state.acl.selectedGroup;
 export const getSelectedRole = (state: AppState) => state.acl.selectedRole;
 export const getAclIsLoading = (state: AppState) => state.acl.isLoading;
+export const getRolesForInvite = (state: AppState) =>
+  state.acl.inviteOptions.roles;
 export const getAclIsSaving = (state: AppState) => state.acl.isSaving;

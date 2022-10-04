@@ -20,6 +20,8 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { deleteAclUser, getUserById } from "@appsmith/actions/aclActions";
 import {
+  ACL_INVITE_MODAL_MESSAGE,
+  ACL_INVITE_MODAL_TITLE,
   createMessage,
   DELETE_USER,
   SHOW_LESS_GROUPS,
@@ -29,6 +31,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAclIsLoading,
   getAllAclUsers,
+  getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
 import { BaseAclProps, UserProps } from "./types";
@@ -90,6 +93,7 @@ export function UserListing() {
   const aclUsers = useSelector(getAllAclUsers);
   const selectedUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
+  const inviteViaRoles = useSelector(getRolesForInvite);
 
   const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -119,7 +123,7 @@ export function UserListing() {
             data-testid="acl-user-listing-link"
             to={adminSettingsCategoryUrl({
               category: SettingCategories.USER_LISTING,
-              selected: cellProps.cell.row.original.userId,
+              selected: cellProps.cell.row.original.id,
             })}
           >
             <CellContainer data-testid="user-listing-userCell">
@@ -143,7 +147,6 @@ export function UserListing() {
       accessor: "roles",
       Cell: function RoleCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
-
         return (
           <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
@@ -160,31 +163,31 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.roles[0].name}
-                {cellProps.cell.row.values.roles[0].name.length < 40 ? (
+                {cellProps.cell.row.values.roles?.[0].name}
+                {cellProps.cell.row.values.roles?.[0].name.length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.roles[1].name}
-                    {cellProps.cell.row.values.roles.length > 2 && (
+                    , {cellProps.cell.row.values.roles?.[1].name}
+                    {cellProps.cell.row.values.roles?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.roles.length - 2,
+                          cellProps.cell.row.values.roles?.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.roles.length > 1 && (
+                  cellProps.cell.row.values.roles?.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.roles.length - 1,
+                        cellProps.cell.row.values?.roles.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -200,7 +203,6 @@ export function UserListing() {
       accessor: "groups",
       Cell: function GroupCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
-
         return (
           <CellContainer data-testid="user-listing-groupCell">
             {showAllGroups ? (
@@ -217,31 +219,31 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.groups[0].name}
-                {cellProps.cell.row.values.groups[0].name.length < 40 ? (
+                {cellProps.cell.row.values.groups?.[0].name}
+                {cellProps.cell.row.values.groups?.[0].name.length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.groups[1].name}
-                    {cellProps.cell.row.values.groups.length > 2 && (
+                    , {cellProps.cell.row.values.groups?.[1].name}
+                    {cellProps.cell.row.values.groups?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.groups.length - 2,
+                          cellProps.cell.row.values.groups?.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.groups.length > 1 && (
+                  cellProps.cell.row.values.groups?.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.groups.length - 1,
+                        cellProps.cell.row.values.groups?.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -259,9 +261,9 @@ export function UserListing() {
       label: "edit",
       className: "edit-menu-item",
       icon: "edit-underline",
-      onSelect: (e: React.MouseEvent, userId: string) => {
-        if (userId) {
-          history.push(`/settings/users/${userId}`);
+      onSelect: (e: React.MouseEvent, id: string) => {
+        if (id) {
+          history.push(`/settings/users/${id}`);
         }
       },
       text: "Edit",
@@ -288,8 +290,60 @@ export function UserListing() {
     },
   ];
 
+  const tabs = [
+    {
+      key: "via-roles",
+      title: "via roles",
+      component: WorkspaceInviteUsersForm,
+      options: inviteViaRoles.map((role: any) => ({
+        label: role.name,
+        value: role.id,
+        id: role.id,
+      })),
+      customProps: {
+        isAclFlow: true,
+        disableEmailSetup: true,
+        disableManageUsers: true,
+        disableUserList: true,
+        isMultiSelectDropdown: true,
+      },
+    },
+    {
+      key: "via-groups",
+      title: "via groups",
+      component: WorkspaceInviteUsersForm,
+      options: [
+        {
+          label: "Administrator",
+          value: "1",
+          id: "1",
+        },
+        {
+          label: "App Viewer",
+          value: "2",
+          id: "2",
+        },
+        {
+          label: "Developer",
+          value: "3",
+          id: "3",
+        },
+      ],
+      customProps: {
+        isAclFlow: true,
+        disableEmailSetup: true,
+        disableManageUsers: true,
+        disableUserList: true,
+        isMultiSelectDropdown: true,
+      },
+    },
+  ];
+
   const onButtonClick = () => {
     setShowModal(true);
+    dispatch({
+      type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
+    });
   };
 
   const onSearch = debounce((search: string) => {
@@ -310,7 +364,7 @@ export function UserListing() {
   const onDeleteHandler = (userId: string) => {
     dispatch(deleteAclUser(userId));
     const updatedData = data.filter((user) => {
-      return user.userId !== userId;
+      return user.id !== userId;
     });
     setData(updatedData);
     Toaster.show({
@@ -351,23 +405,18 @@ export function UserListing() {
               )
             }
             isLoading={isLoading}
-            keyAccessor="userId"
+            keyAccessor="id"
             listMenuItems={listMenuItems}
           />
           <FormDialogComponent
             Form={WorkspaceInviteUsersForm}
             canOutsideClickClose
-            customProps={{
-              isAclFlow: true,
-              disableEmailSetup: true,
-              disableManageUsers: true,
-              disableUserList: true,
-              isMultiSelectDropdown: true,
-            }}
             data-testid="acl-user-listing-form"
             isOpen={showModal}
+            message={createMessage(ACL_INVITE_MODAL_MESSAGE)}
             onClose={() => setShowModal(false)}
-            title={`Invite Users`}
+            tabs={tabs}
+            title={createMessage(ACL_INVITE_MODAL_TITLE)}
             trigger
           />
         </>

@@ -56,4 +56,23 @@ export const userReducers = {
     users: action.payload,
     isLoading: false,
   }),
+  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE_ERROR]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE_SUCCESS]: (
+    state: any,
+    action: any,
+  ) => ({
+    ...state,
+    inviteOptions: {
+      ...state.inviteOptions,
+      roles: action.payload,
+    },
+    isLoading: false,
+  }),
 };

@@ -92,20 +92,18 @@ export type PageHeaderProps = {
   onEditTitle?: (name: string) => void;
 };
 
-export type UserProps = {
+export type UserProps = BaseAclProps & {
   isChangingRole: boolean;
   isDeleting: boolean;
-  name: string;
   groups: BaseAclProps[];
   roles: BaseAclProps[];
   username: string;
-  userId: string;
   roleName?: string;
 };
 
 export type UserEditProps = {
   selectedUser: UserProps;
-  onDelete: (userId: string) => void;
+  onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
 };

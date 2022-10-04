@@ -167,7 +167,7 @@ export function UserEdit(props: UserEditProps) {
 
   const onDeleteHandler = () => {
     if (showConfirmationText) {
-      props.onDelete(selectedUser.userId);
+      props.onDelete(selectedUser.id);
       history.push(`/settings/users`);
     } else {
       setShowOptions(true);

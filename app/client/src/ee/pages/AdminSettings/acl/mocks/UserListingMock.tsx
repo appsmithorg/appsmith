@@ -23,7 +23,7 @@ export const allUsers: UserProps[] = [
       { id: "3", name: "HR_Admin-PG" },
     ],
     username: "techak@appsmith.com",
-    userId: "123",
+    id: "123",
   },
   {
     isChangingRole: false,
@@ -39,7 +39,7 @@ export const allUsers: UserProps[] = [
       { id: "3", name: "HR_Admin-PG" },
     ],
     username: "sangy@appsmith.com",
-    userId: "456",
+    id: "456",
   },
   {
     isChangingRole: false,
@@ -55,6 +55,6 @@ export const allUsers: UserProps[] = [
       { id: "3", name: "HR_Admin-PG" },
     ],
     username: "sangy123@appsmith.com",
-    userId: "789",
+    id: "789",
   },
 ];
