@@ -445,6 +445,7 @@ describe("Json & JsonB Datatype tests", function() {
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
     agHelper.GetNClick(locator._datePicker(5));
+    agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect("Genres", [
       "Fiction",
       "Thriller",
@@ -472,6 +473,7 @@ describe("Json & JsonB Datatype tests", function() {
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
     agHelper.GetNClick(locator._datePicker(15));
+    agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect("Genres", [
       "Productivity",
       "Reference",
@@ -497,6 +499,7 @@ describe("Json & JsonB Datatype tests", function() {
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
     agHelper.GetNClick(locator._datePicker(15));
+    agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect("Genres", ["Fiction", "Spirituality"]);
 
     agHelper.ClickButton("Insert");
@@ -521,6 +524,7 @@ describe("Json & JsonB Datatype tests", function() {
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
     agHelper.GetNClick(locator._datePicker(25));
+    agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
     deployMode.SelectJsonFormMultiSelect(
       "Genres",
       ["Fiction", "Thriller", "Horror"],
@@ -653,6 +657,8 @@ describe("Json & JsonB Datatype tests", function() {
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
     agHelper.GetNClick(locator._datePicker(16));
+    agHelper.GetNClick(deployMode._jsonFieldName("Genres"));
+
     deployMode.SelectJsonFormMultiSelect("Genres", [
       "Marketing & Sales",
       "Self-Help",

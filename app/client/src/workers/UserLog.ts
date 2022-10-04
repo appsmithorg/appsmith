@@ -1,82 +1,7 @@
 import { uuid4 } from "@sentry/utils";
-import { Severity, SourceEntity } from "entities/AppsmithConsole";
+import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
+import { klona } from "klona/lite";
 import moment from "moment";
-
-export type Methods =
-  | "log"
-  | "debug"
-  | "info"
-  | "warn"
-  | "error"
-  | "table"
-  | "clear"
-  | "time"
-  | "timeEnd"
-  | "count"
-  | "assert";
-
-export type UserLogObject = { logObject: LogObject[]; source: SourceEntity };
-
-// Type of the log object
-export type LogObject = {
-  method: Methods | "result";
-  data: any[];
-  timestamp: string;
-  id: string;
-  severity: Severity;
-};
-
-const truncate = (input: string, suffix = "", truncLen = 100) => {
-  try {
-    if (!!input) {
-      return input.length > truncLen
-        ? `${input.substring(0, truncLen)}...${suffix}`
-        : input;
-    } else {
-      return "";
-    }
-  } catch (error) {
-    return `Invalid log: ${JSON.stringify(error)}`;
-  }
-};
-
-// Converts the data from the log object to a string
-export function createLogTitleString(data: any[]) {
-  try {
-    // convert mixed array to string
-    return data.reduce((acc, curr) => {
-      // curr can be a string or an object
-      if (typeof curr === "boolean") {
-        return `${acc} ${curr}`;
-      }
-      if (curr === null || curr === undefined) {
-        return `${acc} undefined`;
-      }
-      if (curr instanceof Promise) {
-        return `${acc} Promise ${curr.constructor.name}`;
-      }
-      if (typeof curr === "string") {
-        return `${acc} ${truncate(curr)}`;
-      }
-      if (typeof curr === "number") {
-        return `${acc} ${truncate(curr.toString())}`;
-      }
-      if (typeof curr === "function") {
-        return `${acc} func() ${curr.name}`;
-      }
-      if (typeof curr === "object") {
-        let suffix = "}";
-        if (Array.isArray(curr)) {
-          suffix = "]";
-        }
-        return `${acc} ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
-      }
-      acc = `${acc} -`;
-    }, "");
-  } catch (error) {
-    return `Error in parsing log: ${JSON.stringify(error)}`;
-  }
-}
 
 class UserLog {
   constructor() {
@@ -160,7 +85,9 @@ class UserLog {
     let returnData = [];
 
     try {
-      returnData = data.map((item: any) => {
+      // cloning the object to avoid mutation
+      const dataObject = klona(data);
+      returnData = dataObject.map((item: any) => {
         if (typeof item === "object") {
           return this.replaceFunctionWithNamesFromObjects(item);
         }
