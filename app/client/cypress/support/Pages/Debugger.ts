@@ -2,7 +2,6 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export class Debugger {
   public agHelper = ObjectsRegistry.AggregateHelper;
-  public commonLocators = ObjectsRegistry.CommonLocators;
 
   public readonly locators = {
     _debuggerIcon: ".t--debugger svg",
