@@ -31,7 +31,6 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -45,7 +44,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -398,6 +396,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> update(String id, Workspace resource) {
+        // Ensure the resource has the same ID as from the parameter.
+        resource.setId(id);
+
         Mono<Workspace> findWorkspaceMono = repository.findById(id, MANAGE_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
@@ -491,7 +492,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Mono<List<PermissionGroupInfoDTO>> permissionGroupInfoDTOListMono = permissionGroupInfoFlux.collectList()
                 .map(list -> {
                     PermissionGroupInfoDTO[] permissionGroupInfoDTOArray = new PermissionGroupInfoDTO[3];
-                    
+
                     // populate array with admin at index 0, developer at index 1 and viewer at index 2
                     list.forEach(item -> {
                         if(item.getName().startsWith(FieldName.ADMINISTRATOR)) {
