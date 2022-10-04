@@ -52,10 +52,7 @@ const TooltipContent = styled.div`
     justify-content: flex-start;
     padding: 0;
     margin-top: 4px;
-
-    &:hover {
-      text-decoration: underline;
-    }
+    text-decoration: underline;
   }
 
   .tooltip-text {
@@ -168,7 +165,11 @@ function RadioFieldWrapper(
                     }
                     position={Position.RIGHT}
                   >
-                    <IconWrapper className="icon" size={IconSize.MEDIUM}>
+                    <IconWrapper
+                      className="icon"
+                      fillColor="var(--ads-color-black-470)"
+                      size={IconSize.MEDIUM}
+                    >
                       {item.tooltip.icon}
                     </IconWrapper>
                   </Popover2>

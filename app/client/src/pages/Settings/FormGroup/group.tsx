@@ -26,6 +26,7 @@ import { Colors } from "constants/Colors";
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
 import { useDispatch } from "react-redux";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 type GroupProps = {
   name?: string;
@@ -67,10 +68,12 @@ const GroupBody = styled.div`
     .tag-input .${Classes.TAG} {
       color: #575757;
       background-color: #e7e7e7;
+      ${(props) => getTypographyByKey(props, "h5")}
     }
 
     .tag-input .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
       border: 1.2px solid ${Colors.GRAY_400};
+      border-color: var(--appsmith-color-black-900);
     }
   }
 `;
