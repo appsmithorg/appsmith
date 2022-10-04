@@ -1145,12 +1145,6 @@ export default class DataTreeEvaluator {
           evalMetaUpdates,
         });
       });
-      // remove error if valid property
-      console.log("$$$", {
-        pathsToRevalidate,
-        fullPropertyPath,
-        inverseValidationDependencyMap: this.inverseValidationDependencyMap,
-      });
     }
   }
 
