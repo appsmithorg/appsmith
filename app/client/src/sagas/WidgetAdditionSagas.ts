@@ -23,11 +23,7 @@ import {
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import {
-  addAndWrapWidget,
-  getParentBottomRowAfterAddingWidget,
-  WrappedWidgetPayload,
-} from "./WidgetOperationUtils";
+import { getParentBottomRowAfterAddingWidget } from "./WidgetOperationUtils";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
@@ -40,7 +36,6 @@ import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { LayoutDirection } from "components/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -324,80 +319,6 @@ export function* getUpdateDslAfterCreatingChild(
     widgets,
   );
   return updatedWidgets;
-}
-
-export function* getUpdateDslAfterCreatingAutoLayoutChild(
-  addChildPayload: WidgetAddChild,
-  direction: LayoutDirection,
-) {
-  // console.log(addChildPayload);
-  // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
-  const { widgetId: parentId } = addChildPayload;
-  // Get the current parent widget whose child will be the new widget.
-  // console.log("State parent");
-  // console.log(stateParent);
-  // const parent = Object.assign({}, stateParent);
-  // Get all the widgets from the canvasWidgetsReducer
-  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  let widgets = Object.assign({}, stateWidgets);
-  // console.log(widgets);
-
-  const res: WrappedWidgetPayload = yield call(
-    addAndWrapWidget,
-    widgets,
-    parentId,
-    undefined,
-    addChildPayload,
-    direction,
-  );
-  widgets = res.widgets;
-
-  // Update container - canvas relationship
-  yield put({
-    type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
-    payload: {
-      widgetId: res.wrapperId,
-      type: "LAYOUT_WRAPPER_WIDGET",
-    },
-  });
-
-  const parent = widgets[parentId];
-  const wrapper = widgets[res.wrapperId];
-  const child = widgets[addChildPayload.newWidgetId];
-
-  const parentBottomRow = getParentBottomRowAfterAddingWidget(parent, wrapper);
-  widgets[parent.widgetId] = {
-    ...parent,
-    bottomRow: parentBottomRow,
-  };
-
-  // console.log(widgets);
-  AppsmithConsole.info({
-    text: "Widget was created",
-    source: {
-      type: ENTITY_TYPE.WIDGET,
-      id: child.widgetId,
-      name: child.widgetName,
-    },
-  });
-  yield put({
-    type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
-    payload: {
-      widgetId: child.widgetId,
-      type: addChildPayload.type,
-    },
-  });
-  // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
-  // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
-  // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
-    traverseTreeAndExecuteBlueprintChildOperations,
-    parent,
-    addChildPayload.newWidgetId,
-    widgets,
-  );
-  // console.log(updatedWidgets);
-  return { widgets: updatedWidgets, containerId: wrapper.widgetId };
 }
 
 /**

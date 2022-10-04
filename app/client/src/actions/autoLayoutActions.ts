@@ -13,14 +13,3 @@ export const addWrappers = (parentId: string, direction: LayoutDirection) => ({
     direction,
   },
 });
-
-export const updateWrappers = (
-  parentId: string,
-  direction: LayoutDirection,
-) => ({
-  type: ReduxActionTypes.UPDATE_WRAPPER_DIMENSIONS,
-  payload: {
-    parentId,
-    direction,
-  },
-});

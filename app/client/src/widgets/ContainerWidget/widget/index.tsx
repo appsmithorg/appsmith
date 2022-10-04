@@ -28,11 +28,7 @@ import {
   generateResponsiveBehaviorConfig,
 } from "utils/layoutPropertiesUtils";
 import { connect } from "react-redux";
-import {
-  addWrappers,
-  removeWrappers,
-  updateWrappers,
-} from "actions/autoLayoutActions";
+import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -420,8 +416,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   removeWrappers: (id: string) => dispatch(removeWrappers(id)),
   addWrappers: (id: string, direction: LayoutDirection) =>
     dispatch(addWrappers(id, direction)),
-  updateWrappers: (id: string, direction: LayoutDirection) =>
-    dispatch(updateWrappers(id, direction)),
 });
 
 export interface ContainerWidgetProps<T extends WidgetProps>
@@ -436,7 +430,6 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   direction?: LayoutDirection;
   removeWrappers?: (id: string) => void;
   addWrappers?: (id: string, direction: LayoutDirection) => void;
-  updateWrappers?: (id: string, direction: LayoutDirection) => void;
 }
 
 export interface ContainerWidgetState extends WidgetState {

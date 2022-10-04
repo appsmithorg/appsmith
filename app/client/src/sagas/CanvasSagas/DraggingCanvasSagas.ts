@@ -26,10 +26,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
-import {
-  getUpdateDslAfterCreatingAutoLayoutChild,
-  getUpdateDslAfterCreatingChild,
-} from "sagas/WidgetAdditionSagas";
+import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -38,11 +35,7 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "components/constants";
-import {
-  addAndWrapWidget,
-  purgeEmptyWrappers,
-  WrappedWidgetPayload,
-} from "../WidgetOperationUtils";
+import { purgeEmptyWrappers } from "../WidgetOperationUtils";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 export type WidgetMoveParams = {
@@ -573,67 +566,6 @@ function updateAutoLayoutLayers(
   return updatedWidgets;
 }
 
-function* updateMovedWidgets(
-  movedWidgets: string[],
-  allWidgets: CanvasWidgetsReduxState,
-  parentId: string,
-  wrapperType: FlexLayerAlignment,
-  direction: LayoutDirection,
-) {
-  let widgets = { ...allWidgets };
-  if (!movedWidgets || !widgets)
-    return { newMovedWidgets: movedWidgets, updatedWidgets: widgets };
-  const stateParent = widgets[parentId];
-  if (stateParent.isWrapper || true) {
-    // If widgets are being dropped in a wrapper,
-    // then updated the wrapper type and return'
-    let hasFillChild = false;
-    for (const each of movedWidgets) {
-      if (widgets[each].responsiveBehavior === ResponsiveBehavior.Fill) {
-        hasFillChild = true;
-        break;
-      }
-      widgets[each] = {
-        ...widgets[each],
-        wrapperType,
-      };
-    }
-    if (hasFillChild) {
-      for (const each of movedWidgets) {
-        widgets[each] = {
-          ...widgets[each],
-          wrapperType: FlexLayerAlignment.Start,
-        };
-      }
-    }
-    return { newMovedWidgets: movedWidgets, updatedWidgets: widgets };
-  }
-  const newMovedWidgets: string[] = [];
-  for (const each of movedWidgets) {
-    const widget = widgets[each];
-    if (!widget) continue;
-    if (widget.isWrapper) {
-      newMovedWidgets.push(each);
-      continue;
-    }
-
-    const res: WrappedWidgetPayload = yield call(
-      addAndWrapWidget,
-      widgets,
-      parentId,
-      each,
-      undefined,
-      direction,
-      stateParent?.isWrapper || false,
-      wrapperType,
-    );
-
-    widgets = res.widgets;
-    newMovedWidgets.push(res.wrapperId);
-  }
-  return { newMovedWidgets, updatedWidgets: widgets };
-}
-
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
     newWidget: WidgetAddChild;
@@ -678,40 +610,6 @@ function* addWidgetAndReorderSaga(
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
     // console.error(e);
-  }
-}
-
-function* addAutoLayoutChild(
-  newWidget: WidgetAddChild,
-  parentId: string,
-  direction: LayoutDirection,
-) {
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const stateParent: FlattenedWidgetProps = allWidgets[parentId];
-
-  if (stateParent?.isWrapper || true) {
-    const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
-      getUpdateDslAfterCreatingChild,
-      {
-        ...newWidget,
-        widgetId: parentId,
-      },
-    );
-    return { widgets: updatedWidgetsOnAddition };
-  } else {
-    const updatedWidgetsOnAddition: {
-      widgets: CanvasWidgetsReduxState;
-      containerId?: string;
-    } = yield call(
-      getUpdateDslAfterCreatingAutoLayoutChild,
-      {
-        ...newWidget,
-        widgetId: parentId,
-      },
-      direction,
-    );
-
-    return updatedWidgetsOnAddition;
   }
 }
 
