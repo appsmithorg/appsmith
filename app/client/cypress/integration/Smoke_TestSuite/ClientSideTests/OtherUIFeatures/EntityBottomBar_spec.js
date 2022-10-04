@@ -34,7 +34,7 @@ describe("Api bottom bar", () => {
 
 describe("JsEditor bottom bar", () => {
   it("should be collapsable", () => {
-    jsEditor.CreateJSObject();
+    jsEditor.NavigateToNewJSEditor();
     jsEditor.ToggleResponsePane();
     cy.get(jsEditor._bottomPaneContainer)
       .invoke("height")
