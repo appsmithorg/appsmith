@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
 import org.springframework.util.MultiValueMap;
@@ -38,4 +39,12 @@ public interface AuditLogService {
      * @return String resource type name
      */
     String getResourceType(Object resource);
+
+    /**
+     * To get user displayable event name from AuditLogEvents.Events
+     *
+     * @param eventName AuditLogEvents.Events
+     * @return displayable event name
+     */
+    String getAuditLogEventName(AuditLogEvents.Events eventName);
 }

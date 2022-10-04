@@ -337,20 +337,42 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * To validate the ASC sort order of Audit Log events
+     */
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withFiltersAscOrder_Success() {
-        MultiValueMap<String, String> params = getAuditLogRequest(null, null, null, null, "1", null, null);
+        Workspace workspace = new Workspace();
+        workspace.setName("AuditLogTestWorkspace");
+        Workspace updateWorkspace = new Workspace();
+        updateWorkspace.setName("AuditLogTestWorkspaceUpdated");
+        String resourceType = auditLogService.getResourceType(workspace);
 
+        // Create, update and delete workspace sequentially to verify sort order
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        Workspace updatedWorkspace = workspaceService.update(createdWorkspace.getId(), updateWorkspace).block();
+        workspaceService.archiveById(createdWorkspace.getId()).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, null, resourceType, createdWorkspace.getId(), "1", null, null);
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isNotEqualTo(0);
-                    assertThat(auditLogs.get(0).getEvent()).isEqualTo(AuditLogEvents.Events.WORKSPACE_CREATED.toString().toLowerCase().replace("_", "."));
-                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(workspaceName);
-                    assertThat(auditLogs.get(0).getResource().getType()).isEqualTo(auditLogService.getResourceType(new Workspace()));
-                    assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(workspaceId);
+                    assertThat(auditLogs.size()).isEqualTo(3);
+                    // Validate each events
+                    assertThat(auditLogs.get(0).getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKSPACE_CREATED));
+                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(workspace.getName());
+
+                    assertThat(auditLogs.get(1).getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKSPACE_UPDATED));
+                    assertThat(auditLogs.get(1).getResource().getName()).isEqualTo(updateWorkspace.getName());
+
+                    assertThat(auditLogs.get(2).getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKSPACE_DELETED));
+                    assertThat(auditLogs.get(2).getResource().getName()).isEqualTo(updatedWorkspace.getName());
+
+                    // Validate time difference and common properties
                     for (int i = 1; i < auditLogs.size(); i++) {
+                        assertThat(auditLogs.get(i).getResource().getType()).isEqualTo(auditLogService.getResourceType(new Workspace()));
+                        assertThat(auditLogs.get(i).getResource().getId()).isEqualTo(createdWorkspace.getId());
                         assertThat(auditLogs.get(i).getTimestamp()).isAfterOrEqualTo(auditLogs.get(i - 1).getTimestamp());
                     }
                 })
@@ -2679,6 +2701,51 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
+                    assertThat(auditLog.getInvitedUsers()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    // Test case to validate workspace created on signup have user detail
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_userSignedUpWorkspaceCreatedHasUserInfo_success() {
+        User user = new User();
+        user.setEmail("auditlogsignupuserworkspace@xyz.com");
+        user.setName("AuditLog User");
+        user.setPassword("AuditLogUserPassword");
+
+        User createdUser = signupAndLoginUser(user).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", null, null, null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    // We are looking for the first event since Audit Logs sort order is DESC
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("workspace.created");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+
+                    // User validation
+                    assertThat(auditLog.getUser().getId()).isEqualTo(createdUser.getId());
+                    assertThat(auditLog.getUser().getEmail()).isEqualTo(createdUser.getEmail());
+                    assertThat(auditLog.getUser().getName()).isEqualTo(createdUser.getName());
+                    //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
+
+                    // Metadata validation
+                    //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
+                    assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    // Misc. fields validation
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+                    assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
                 })
                 .verifyComplete();
