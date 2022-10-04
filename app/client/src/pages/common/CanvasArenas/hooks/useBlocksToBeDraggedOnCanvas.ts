@@ -293,6 +293,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           parentId: widgetId,
           wrapperType,
           direction,
+          isNewLayer: false,
         },
       });
   };

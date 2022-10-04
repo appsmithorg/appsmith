@@ -543,27 +543,44 @@ function updateAutoLayoutLayers(
     });
   }
   const newLayer: FlexLayer = { children: layerChildren, hasFillChild };
-  // console.log("#### canvas id", parentId);
-  // console.log("#### newLayer", newLayer);
+  console.log("#### canvas id", parentId);
+  console.log("#### newLayer", newLayer);
   const flexLayers = canvas.flexLayers || [];
-  const pos = index > flexLayers.length ? flexLayers.length : index;
-  // console.log("#### index", index);
-  // console.log("#### pos", pos);
+  const filteredLayers = isNewLayer
+    ? flexLayers
+    : filterLayers(flexLayers, movedWidgets);
+  console.log("#### filteredLayers", filteredLayers);
+  const pos = index > filteredLayers.length ? filteredLayers.length : index;
+  console.log("#### index", index);
+  console.log("#### pos", pos);
   const updatedCanvas = {
     ...canvas,
     flexLayers: [
-      ...flexLayers.slice(0, pos),
+      ...filteredLayers.slice(0, pos),
       newLayer,
-      ...flexLayers.slice(pos),
+      ...filteredLayers.slice(pos),
     ],
   };
   const updatedWidgets = {
     ...widgets,
     [parentId]: updatedCanvas,
   };
-  // console.log("#### updated flex layers", updatedCanvas.flexLayers);
-  // console.log("#### widgets", updatedWidgets);
+  console.log("#### updated flex layers", updatedCanvas.flexLayers);
+  console.log("#### widgets", updatedWidgets);
   return updatedWidgets;
+}
+
+function filterLayers(
+  layers: FlexLayer[],
+  movedWidgets: string[],
+): FlexLayer[] {
+  const filteredLayers = layers.filter((layer) => {
+    const children = layer.children.filter((child) => {
+      return movedWidgets.indexOf(child.id) === -1;
+    });
+    return children.length > 0;
+  });
+  return filteredLayers;
 }
 
 function* addWidgetAndReorderSaga(
