@@ -25,6 +25,7 @@ describe("Linting of entity properties", () => {
         console.log(Api1.${invalidProperty})
     }()}}`,
     );
+    cy.wait(200);
     propPane.UpdatePropertyFieldValue("Label", `{{Api1.${invalidProperty}}}`);
     cy.get(locator._lintErrorElement)
       .should("have.length", 2)
@@ -59,6 +60,7 @@ describe("Linting of entity properties", () => {
         console.log(JSObject1.${invalidProperty})
     }()}}`,
     );
+    cy.wait(200);
     propPane.UpdatePropertyFieldValue(
       "Label",
       `{{JSObject1.${invalidProperty}}}`,
