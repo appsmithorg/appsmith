@@ -167,7 +167,7 @@ class CanvasWidget extends ContainerWidget {
         <FlexBoxComponent
           alignment={this.props.alignment || Alignment.Left}
           direction={this.props.direction}
-          flexLayers={flexLayers || []}
+          flexLayers={this.props.flexLayers || flexLayers || []}
           overflow={Overflow.NoWrap}
           spacing={this.props.spacing || Spacing.None}
           stretchHeight={stretchFlexBox}

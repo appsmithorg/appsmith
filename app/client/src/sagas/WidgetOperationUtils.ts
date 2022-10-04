@@ -59,12 +59,14 @@ import {
   LayoutDirection,
   FlexLayerAlignment,
   Spacing,
+  ResponsiveBehavior,
 } from "components/constants";
 import {
   generateChildWidgets,
   GeneratedWidgetPayload,
 } from "./WidgetAdditionSagas";
 import { WidgetAddChild } from "actions/pageActions";
+import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1720,33 +1722,7 @@ export function purgeChildWrappers(
   const canvasId = container.children ? container.children[0] : "";
   let parent = widgets[canvasId];
   if (!parent) return widgets;
-  const wrapperChildren = parent.children?.filter(
-    (each) => widgets[each] && widgets[each].isWrapper,
-  );
-
-  if (!wrapperChildren || !wrapperChildren.length) return widgets;
-  parent = {
-    ...parent,
-    children: [
-      ...(parent.children || []).filter(
-        (each) => wrapperChildren.indexOf(each) === -1,
-      ),
-    ],
-  };
-  wrapperChildren.forEach((each) => {
-    const wrapper = widgets[each];
-    const children = wrapper.children || [];
-    if (children.length) {
-      children.forEach((child) => {
-        parent = {
-          ...parent,
-          children: [...(parent.children || []), child],
-        };
-        widgets[child] = { ...widgets[child], parentId: canvasId };
-      });
-    }
-    delete widgets[each];
-  });
+  parent = { ...parent, flexLayers: [] };
   widgets[canvasId] = parent;
   return widgets;
 }
@@ -1754,9 +1730,8 @@ export function purgeChildWrappers(
 export function* wrapChildren(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
-  direction: LayoutDirection,
 ) {
-  let widgets = { ...allWidgets };
+  const widgets = { ...allWidgets };
   const container = widgets[containerId];
   if (!container) return widgets;
   const canvasId = container.children ? container.children[0] : "";
@@ -1765,30 +1740,19 @@ export function* wrapChildren(
   const children = parent.children || [];
   if (!children.length) return widgets;
 
-  // Remove current children from the parent
-  parent = {
-    ...parent,
-    children: [],
-  };
-  /**
-   * Generate new wrappers
-   * and wrap each child in its own wrapper
-   */
+  const flexLayers: FlexLayer[] = [];
+
   for (const each of children) {
     const child = widgets[each];
-    if (!child || child.isWrapper) continue;
-    // Create new wrapper
-    const res: WrappedWidgetPayload = yield call(
-      addAndWrapWidget,
-      widgets,
-      canvasId,
-      each,
-      undefined,
-      direction,
-      false,
-    );
-    widgets = res.widgets;
+    if (!child) continue;
+    flexLayers.push({
+      children: [{ id: child.widgetId, align: FlexLayerAlignment.Start }],
+      hasFillChild:
+        child.responsiveBehavior === ResponsiveBehavior.Fill || false,
+    });
   }
+  parent = { ...parent, flexLayers };
+  widgets[canvasId] = parent;
   return widgets;
 }
 

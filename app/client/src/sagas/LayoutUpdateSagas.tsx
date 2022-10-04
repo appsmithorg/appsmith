@@ -45,13 +45,12 @@ function* removeChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
 function* addChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
   try {
     const start = performance.now();
-    const { direction, parentId } = actionPayload.payload;
+    const { parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       wrapChildren,
       allWidgets,
       parentId,
-      direction,
     );
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("empty wrapper removal took", performance.now() - start, "ms");
