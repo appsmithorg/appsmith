@@ -54,7 +54,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                                             ReleaseNotesService releaseNotesService,
                                             ImportExportApplicationService importExportApplicationService,
                                             AnalyticsService analyticsService,
-                                            UserDataService userDataService, ApplicationService applicationService) {
+                                            UserDataService userDataService,
+                                            ApplicationService applicationService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importExportApplicationService = importExportApplicationService;
@@ -251,11 +252,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     /**
-     * Merge Template API is slow today because these needs to communicate with ImportExport Service, CloudService and/or serialise and de-serialise the
+     * Merge Template API is slow today because it needs to communicate with ImportExport Service, CloudService and/or serialise and de-serialise the
      * application. This process takes time and the client may cancel the request. This leads to the flow getting stopped
      * midway producing corrupted states.
      * We use the synchronous sink to ensure that even though the client may have cancelled the flow, git operations should
-     * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. synchronous sink does
+     * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. Synchronous sink does
      * not take subscription cancellations into account. This means that even if the subscriber has cancelled its
      * subscription, the create method still generates its event.
      */
