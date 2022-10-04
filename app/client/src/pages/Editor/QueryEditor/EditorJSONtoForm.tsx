@@ -769,7 +769,7 @@ export function EditorJSONtoForm(props: Props) {
 
   const responseTabs = [
     {
-      key: "Response",
+      key: "response",
       title: "Response",
       panelComponent: (
         <ResponseContentWrapper>

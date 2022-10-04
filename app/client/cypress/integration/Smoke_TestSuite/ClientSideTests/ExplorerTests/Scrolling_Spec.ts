@@ -1,11 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let ee = ObjectsRegistry.EntityExplorer,
+const ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators,
-  mockDBNameUsers: any,
-  mockDBNameMovies: any;
+  locator = ObjectsRegistry.CommonLocators;
+let mockDBNameUsers: any, mockDBNameMovies: any;
 
 describe("Entity explorer context menu should hide on scrolling", function() {
   it("1. Bug #15474 - Entity explorer menu must close on scroll", function() {
@@ -13,16 +12,12 @@ describe("Entity explorer context menu should hide on scrolling", function() {
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ExpandCollapseEntity("Datasources");
     agHelper.ContainsNClick("Dependencies");
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Users"));
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBNameUsers = $createdMock.response?.body.data.name;
+    dataSources.createMockDB("Users").then((dbName) => {
+      mockDBNameUsers = dbName;
       dataSources.CreateQuery(mockDBNameUsers);
     });
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Movies"));
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBNameMovies = $createdMock.response?.body.data.name;
+    dataSources.createMockDB("Movies").then((dbName) => {
+      mockDBNameMovies = dbName;
       dataSources.CreateQuery(mockDBNameMovies);
     });
     ee.ExpandCollapseEntity("public.users");

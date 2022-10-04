@@ -2,18 +2,27 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export class Debugger {
   public agHelper = ObjectsRegistry.AggregateHelper;
-  public locator = ObjectsRegistry.CommonLocators;
+  public commonLocators = ObjectsRegistry.CommonLocators;
 
-  public readonly _debuggerTabsContainer = ".t--debugger-tabs-container";
-  public readonly _closeDebuggerButton = ".t--close-debugger";
+  public readonly locators = {
+    _debuggerIcon: ".t--debugger svg",
+    _debuggerTabsContainer: ".t--debugger-tabs-container",
+    _closeDebuggerButton: ".t--close-debugger",
+  };
 
-  OpenDebugger() {
-    cy.get(this.locator._debuggerIcon).click();
+  Open() {
+    this.agHelper.GetNClick(this.locators._debuggerIcon);
   }
 
-  CloseDebugger() {
-    cy.get(this._debuggerTabsContainer)
-      .find(this._closeDebuggerButton)
-      .click();
+  isOpen() {
+    this.agHelper.AssertElementExist(this.locators._debuggerTabsContainer);
+  }
+
+  Close() {
+    this.agHelper.GetNClick(this.locators._closeDebuggerButton);
+  }
+
+  isClosed() {
+    this.agHelper.AssertElementAbsence(this.locators._debuggerTabsContainer);
   }
 }

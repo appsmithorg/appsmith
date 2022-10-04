@@ -1,16 +1,14 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources;
 let mockDBName: any;
 
 describe("Validate Mock Query Active Ds querying & count", () => {
   it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Movies"));
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBName = $createdMock.response?.body.data.name;
+    dataSources.createMockDB("Movies").then((dbName) => {
+      mockDBName = dbName;
 
       dataSources.CreateQuery(mockDBName);
       dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
@@ -58,11 +56,8 @@ describe("Validate Mock Query Active Ds querying & count", () => {
   });
 
   it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Users"));
-
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBName = $createdMock.response?.body.data.name;
+    dataSources.createMockDB("Users").then((dbName) => {
+      mockDBName = dbName;
       dataSources.CreateQuery(mockDBName);
       agHelper.GetNClick(dataSources._templateMenuOption("Select"));
       dataSources.RunQueryNVerifyResponseViews(10);

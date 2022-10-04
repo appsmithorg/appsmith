@@ -13,6 +13,10 @@ export class DataSources {
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
 
+  private readonly bottomPaneHeight =
+    (Cypress.config().viewportHeight * 32) / 100 - 1;
+  private readonly TAB_MIN_HEIGHT = 36 - 1;
+
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
@@ -217,6 +221,14 @@ export class DataSources {
     cy.get(this._newDatabases).should("be.visible");
   }
 
+  createMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._mockDB(dbName));
+    return cy
+      .wait("@getMockDb")
+      .then(($createdMock) => $createdMock.response?.body.data.name);
+  }
+
   public FillPostgresDSForm(
     shouldAddTrailingSpaces = false,
     username = "",
@@ -404,6 +416,11 @@ export class DataSources {
         cy.get(this._createQuery).click({ force: true });
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
+  }
+
+  DeleteQuery(queryName: string) {
+    this.ee.ExpandCollapseEntity("Queries/JS");
+    this.ee.ActionContextMenuByEntityName(queryName, "Delete", "Are you sure?");
   }
 
   public ValidateNSelectDropdown(
@@ -661,9 +678,22 @@ export class DataSources {
     this.agHelper.GetNClick(this._queryResponse("QUERY"));
   }
 
-  public ToggleResponsePane() {
-    cy.get(this._bottomPaneContainer)
-      .find(this.locator._bottomPaneCollapseIcon)
-      .click();
+  openResponseTab() {
+    this.agHelper.GetNClick(this.locator._responseTab);
+  }
+
+  closeBottomPane() {
+    this.agHelper.GetNClick(this.locator._bottomPaneCollapseIcon);
+  }
+
+  isBottomPaneOpen() {
+    this.agHelper.AssertHeight(
+      this._bottomPaneContainer,
+      this.bottomPaneHeight,
+    );
+  }
+
+  isBottomPaneClosed() {
+    this.agHelper.AssertHeight(this._bottomPaneContainer, this.TAB_MIN_HEIGHT);
   }
 }

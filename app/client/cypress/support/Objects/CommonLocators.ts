@@ -52,6 +52,8 @@ export class CommonLocators {
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
   _debuggerIcon = ".t--debugger svg";
+  _debuggerCloseButton = ".t--close-debugger";
+  _debuggerTabsContainer = ".t--debugger-tabs-container";
   _errorTab = "[data-cy=t--tab-ERROR]";
   _responseTab = "[data-cy=t--tab-response]";
   _debugErrorMsg = ".t--debugger-message";
