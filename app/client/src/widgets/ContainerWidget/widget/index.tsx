@@ -297,7 +297,7 @@ export class ContainerWidget extends BaseWidget<
     super.componentDidUpdate(prevProps);
     if (this.props.positioning !== prevProps.positioning) {
       this.updatePositioningInformation();
-      this.updateWrappers(prevProps);
+      this.updateWrappers();
     }
   }
 
@@ -314,26 +314,19 @@ export class ContainerWidget extends BaseWidget<
       });
   };
 
-  updateWrappers = (prevProps: ContainerWidgetProps<any>): void => {
-    if (this.props.positioning === Positioning.Fixed) {
-      this.props.removeWrappers &&
-        this.props.removeWrappers(this.props.widgetId);
-    } else if (prevProps.positioning === Positioning.Fixed) {
+  updateWrappers = (): void => {
+    if (this.props.positioning === Positioning.Vertical) {
       this.props.addWrappers &&
         this.props.addWrappers(
           this.props.widgetId,
-          this.props.positioning === Positioning.Horizontal
+          (this.props.positioning as Positioning) === Positioning.Horizontal
             ? LayoutDirection.Horizontal
             : LayoutDirection.Vertical,
         );
-    } else
-      this.props.updateWrappers &&
-        this.props.updateWrappers(
-          this.props.widgetId,
-          this.props.positioning === Positioning.Horizontal
-            ? LayoutDirection.Horizontal
-            : LayoutDirection.Vertical,
-        );
+    } else {
+      this.props.removeWrappers &&
+        this.props.removeWrappers(this.props.widgetId);
+    }
   };
 
   getSnapSpaces = () => {

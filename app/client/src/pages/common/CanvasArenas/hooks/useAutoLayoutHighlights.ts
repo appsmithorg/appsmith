@@ -308,7 +308,7 @@ export const useAutoLayoutHighlights = ({
       const blocks = getDraggedBlocks();
 
       if (!blocks || !blocks.length) return [];
-
+      // console.log("#### blocks: ", blocks);
       /**
        * update dimensions of the current canvas
        * and break out of the function if returned value is false.
@@ -321,11 +321,12 @@ export const useAutoLayoutHighlights = ({
       // Get all children of current dragging canvas
       const canvasChildren = canvas.children || [];
       const offsetChildren = canvasChildren.filter((each) => {
-        if (canvas.isWrapper) return blocks.indexOf(each) === -1;
-        const children = allWidgets[each].children?.filter(
-          (item) => blocks.indexOf(item) === -1,
-        );
-        return isArray(children) && children.length > 0;
+        return blocks.indexOf(each) === -1;
+        // if (canvas.isWrapper) return blocks.indexOf(each) === -1;
+        // const children = allWidgets[each].children?.filter(
+        //   (item) => blocks.indexOf(item) === -1,
+        // );
+        // return isArray(children) && children.length > 0;
       });
       // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
       // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);

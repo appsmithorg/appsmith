@@ -24,38 +24,6 @@ import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionA
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
-const flexLayers: any[] = [
-  {
-    children: [
-      {
-        id: "2f5yim088g",
-        align: "start",
-      },
-      {
-        id: "92hs8bgv4h",
-        align: "start",
-      },
-    ],
-  },
-  {
-    children: [
-      {
-        id: "crfmj4atrz",
-        align: "end",
-      },
-    ],
-  },
-  {
-    children: [
-      {
-        id: "tbp7meiwtq",
-        align: "end",
-      },
-    ],
-    hasFillChild: true,
-  },
-];
-
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
     return [];
@@ -167,7 +135,7 @@ class CanvasWidget extends ContainerWidget {
         <FlexBoxComponent
           alignment={this.props.alignment || Alignment.Left}
           direction={this.props.direction}
-          flexLayers={this.props.flexLayers || flexLayers || []}
+          flexLayers={this.props.flexLayers || []}
           overflow={Overflow.NoWrap}
           spacing={this.props.spacing || Spacing.None}
           stretchHeight={stretchFlexBox}
