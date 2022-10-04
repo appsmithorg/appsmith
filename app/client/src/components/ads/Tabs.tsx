@@ -330,7 +330,7 @@ export function TabComponent(
       setSelectedIndex(props.selectedIndex);
   }, [props.selectedIndex]);
 
-  const handleContainerResize = () => {
+  const toggleCollapse = () => {
     if (!isCollapsibleTabComponent(props)) return;
     const { containerRef, expandedHeight } = props;
     if (containerRef?.current && expandedHeight) {
@@ -382,7 +382,7 @@ export function TabComponent(
         <CollapseIconWrapper>
           <Icon
             name={isExpanded ? "expand-more" : "expand-less"}
-            onClick={handleContainerResize}
+            onClick={toggleCollapse}
             size={IconSize.XXXXL}
           />
         </CollapseIconWrapper>
@@ -392,7 +392,7 @@ export function TabComponent(
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
           setSelectedIndex(index);
-          !isExpanded && handleContainerResize();
+          !isExpanded && toggleCollapse();
         }}
         selectedIndex={props.selectedIndex}
       >
