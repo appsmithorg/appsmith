@@ -15,6 +15,7 @@ import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
@@ -75,6 +76,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -159,6 +163,9 @@ public class AuditLogServiceTest {
     @Autowired
     PluginRepository pluginRepository;
 
+    @Autowired
+    CommonConfig commonConfig;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -172,10 +179,17 @@ public class AuditLogServiceTest {
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
-    public void setup() {
+    public void setup() throws IOException {
 
         // Run the tests only if Audit Logs is enabled on the instance
         assumeTrue(isAuditLogEnabled);
+
+        // If the env file does not exist NoSuchFileException will be thrown from some of the test cases
+        // We create empty file to handle this situation primarily in CI
+        Path envFilePath = Path.of(commonConfig.getEnvFilePath());
+        if (!Files.exists(envFilePath)) {
+            Files.createFile(envFilePath);
+        }
 
         if (StringUtils.isEmpty(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
@@ -2311,7 +2325,6 @@ public class AuditLogServiceTest {
     // Test case to validate instance setting update - GitHubAuth event and contents
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_GitHubAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "",
@@ -2322,9 +2335,6 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name(), "testClientSecret"
         );
-
-        // Clean env before testing
-        envManager.applyChanges(emptyEnvChanges).block();
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2406,7 +2416,6 @@ public class AuditLogServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_GoogleAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "",
@@ -2417,9 +2426,6 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), "testClientSecret"
         );
-
-        // Clean env before testing
-        envManager.applyChanges(emptyEnvChanges).block();
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2501,7 +2507,6 @@ public class AuditLogServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_OIDCAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "",
@@ -2512,9 +2517,6 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_OIDC_CLIENT_SECRET.name(), "testClientSecret"
         );
-
-        // Clean env before testing
-        envManager.applyChanges(emptyEnvChanges).block();
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2596,7 +2598,6 @@ public class AuditLogServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_SAMLAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_SSO_SAML_ENABLED.name(), "false"
@@ -2606,10 +2607,8 @@ public class AuditLogServiceTest {
                 APPSMITH_SSO_SAML_ENABLED.name(), "true"
         );
 
-        // Clean env before testing
+        // Test adding configuration
         envManager.applyChanges(nonEmptyEnvChanges).block();
-
-        envManager.applyChanges(emptyEnvChanges).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null);
 
@@ -2631,7 +2630,7 @@ public class AuditLogServiceTest {
 
                     // Instance setting validation
                     assertThat(auditLog.getAuthentication().getMode()).isEqualTo(FieldName.SAML);
-                    assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Removed");
+                    assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Added");
 
                     // Metadata validation
                     //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
@@ -2647,8 +2646,8 @@ public class AuditLogServiceTest {
                 })
                 .verifyComplete();
 
-        // Test adding configuration
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+        // Test removing configuration
+        envManager.applyChanges(emptyEnvChanges).block();
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2668,7 +2667,7 @@ public class AuditLogServiceTest {
 
                     // Instance setting validation
                     assertThat(auditLog.getAuthentication().getMode()).isEqualTo(FieldName.SAML);
-                    assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Added");
+                    assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Removed");
 
                     // Metadata validation
                     //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
