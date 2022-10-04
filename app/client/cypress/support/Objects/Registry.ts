@@ -11,7 +11,7 @@ import { PropertyPane } from "../Pages/PropertyPane";
 import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
-
+import { Debugger } from "../Pages/Debugger";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -109,13 +109,21 @@ export class ObjectsRegistry {
     }
     return ObjectsRegistry.gitSync__;
   }
-  
+
   private static fakerHelper__: FakerHelper;
   static get FakerHelper(): FakerHelper {
     if (ObjectsRegistry.fakerHelper__ === undefined) {
       ObjectsRegistry.fakerHelper__ = new FakerHelper();
     }
     return ObjectsRegistry.fakerHelper__;
+  }
+
+  private static Debugger__: Debugger;
+  static get Debugger(): Debugger {
+    if (ObjectsRegistry.Debugger__ === undefined) {
+      ObjectsRegistry.Debugger__ = new Debugger();
+    }
+    return ObjectsRegistry.Debugger__;
   }
 }
 
@@ -130,7 +138,7 @@ export const initLocalstorageRegistry = () => {
 declare namespace Cypress {
   namespace Cypress {
     interface Chainable {
-      TypeTab: (shiftKey: Boolean, ctrlKey: boolean) => void;
+      TypeTab: (shiftKey: boolean, ctrlKey: boolean) => void;
     }
   }
 }

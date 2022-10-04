@@ -379,7 +379,7 @@ export function TabComponent(
       vertical={props.vertical}
     >
       {isCollapsibleTabComponent(props) && (
-        <CollapseIconWrapper>
+        <CollapseIconWrapper className="t--tabs-collapse-icon">
           <Icon
             name={isExpanded ? "expand-more" : "expand-less"}
             onClick={toggleCollapse}

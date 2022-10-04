@@ -29,6 +29,7 @@ export class JSEditor {
   _runButton = "button.run-js-action";
   _settingsTab = ".tab-title:contains('Settings')";
   _codeTab = ".tab-title:contains('Code')";
+  public readonly _bottomPaneContainer = ".t--js-editor-bottom-pane-container";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
@@ -349,6 +350,12 @@ export class JSEditor {
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
     this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
+  }
+
+  public ToggleResponsePane() {
+    cy.get(this._bottomPaneContainer)
+      .find(this.locator._bottomPaneCollapseIcon)
+      .click();
   }
 
   //#endregion

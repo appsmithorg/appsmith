@@ -73,7 +73,11 @@ function DebuggerTabs(props: DebuggerTabsProps) {
   const onClose = () => dispatch(showDebugger(false));
 
   return (
-    <Container onClick={stopEventPropagation} ref={panelRef}>
+    <Container
+      className="t--debugger-tabs-container"
+      onClick={stopEventPropagation}
+      ref={panelRef}
+    >
       <Resizer panelRef={panelRef} />
       <EntityBottomTabs
         defaultIndex={props.defaultIndex}

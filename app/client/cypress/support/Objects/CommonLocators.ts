@@ -139,7 +139,7 @@ export class CommonLocators {
     "(//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" +
     date +
     "'])[last()]";
-  _inputWidgetValueField = (fieldName: string, input: boolean = true) =>
+  _inputWidgetValueField = (fieldName: string, input = true) =>
     `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
@@ -154,4 +154,5 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
 }

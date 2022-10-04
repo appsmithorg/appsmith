@@ -313,7 +313,10 @@ function JSResponseView(props: Props) {
   ];
 
   return (
-    <ResponseContainer ref={panelRef}>
+    <ResponseContainer
+      className="t--js-editor-bottom-pane-container"
+      ref={panelRef}
+    >
       <Resizer panelRef={panelRef} />
       <TabbedViewWrapper>
         <EntityBottomTabs

@@ -1035,7 +1035,10 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <TabbedViewContainer ref={panelRef}>
+            <TabbedViewContainer
+              className="t--query-bottom-pane-container"
+              ref={panelRef}
+            >
               <Resizable
                 openResizer={isRunning}
                 panelRef={panelRef}

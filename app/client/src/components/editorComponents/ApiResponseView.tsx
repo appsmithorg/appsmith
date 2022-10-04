@@ -527,7 +527,7 @@ function ApiResponseView(props: Props) {
   ];
 
   return (
-    <ResponseContainer ref={panelRef}>
+    <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
       <Resizer
         openResizer={isRunning}
         panelRef={panelRef}

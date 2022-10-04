@@ -29,6 +29,7 @@ export class DataSources {
   private _testDs = ".t--test-datasource";
   private _saveDs = ".t--save-datasource";
   private _datasourceCard = ".t--datasource";
+  public readonly _bottomPaneContainer = ".t--query-bottom-pane-container";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
@@ -658,5 +659,11 @@ export class DataSources {
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
     this.agHelper.GetNClick(this._queryResponse("QUERY"));
+  }
+
+  public ToggleResponsePane() {
+    cy.get(this._bottomPaneContainer)
+      .find(this.locator._bottomPaneCollapseIcon)
+      .click();
   }
 }

@@ -3,6 +3,7 @@ export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
 
+  public readonly _bottomPaneContainer = ".t--api-bottom-pane-container";
   private _createapi = ".t--createBlankApiCard";
   private _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
@@ -222,7 +223,7 @@ export class ApiPage {
       | "Response"
       | "Errors"
       | "Logs"
-      | "Inspect entity"
+      | "Inspect entity",
   ) {
     this.agHelper.PressEscape();
     this.agHelper.GetNClick(this._visibleTextSpan(tabName), 0, true);
@@ -282,5 +283,11 @@ export class ApiPage {
     cy.get(this._paginationTypeLabels)
       .eq(index)
       .click({ force: true });
+  }
+
+  public ToggleResponsePane() {
+    cy.get(this._bottomPaneContainer)
+      .find(this.locator._bottomPaneCollapseIcon)
+      .click();
   }
 }
