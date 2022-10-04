@@ -28,4 +28,5 @@ export function* lintTreeSaga({
   );
 
   yield put(setLintingErrors(errors));
+  // TO-DO Update lint errors in the debugger
 }
