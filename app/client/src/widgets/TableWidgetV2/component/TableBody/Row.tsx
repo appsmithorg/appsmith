@@ -15,6 +15,7 @@ type RowType = {
 export function Row(props: RowType) {
   const {
     accentColor,
+    addNewRowInProgress,
     borderRadius,
     multiRowSelection,
     prepareRow,
@@ -40,11 +41,15 @@ export function Row(props: RowType) {
     (primaryColumnId && (props.row.original[primaryColumnId] as Key)) ||
     props.index;
 
+  if (!addNewRowInProgress) {
+    rowProps["role"] = "button";
+  }
+
   return (
     <div
       {...rowProps}
       className={`tr ${isRowSelected ? "selected-row" : ""} ${props.className ||
-        ""}`}
+        ""} ${addNewRowInProgress && props.index === 0 ? "new-row" : ""}`}
       data-rowindex={props.index}
       key={key}
       onClick={(e) => {
@@ -52,7 +57,6 @@ export function Row(props: RowType) {
         selectTableRow?.(props.row);
         e.stopPropagation();
       }}
-      role="button"
     >
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}

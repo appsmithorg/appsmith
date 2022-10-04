@@ -33,7 +33,18 @@ export enum InlineEditingSaveOptions {
   CUSTOM = "CUSTOM",
 }
 
-export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
+interface AddNewRowProps {
+  addNewRowInProgress: boolean;
+  allowAddNewRow: boolean;
+  onAddNewRowSave: string;
+  onAddNewRowDiscard: string;
+  defaultNewRow: Record<string, unknown>;
+}
+export interface TableWidgetProps
+  extends WidgetProps,
+    WithMeta,
+    TableStyles,
+    AddNewRowProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
@@ -79,9 +90,12 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
-  isEditableCellValid: boolean;
   variant?: TableVariant;
+  isEditableCellsValid: Record<string, boolean>;
   selectColumnFilterText?: Record<string, string>;
+  addNewRowInProgress: boolean;
+  newRow: Record<string, unknown>;
+  firstEditableColumnIdByOrder: string;
 }
 
 export enum TableVariantTypes {
@@ -127,6 +141,13 @@ export enum ReadOnlyColumnTypes {
   SWITCH = "switch",
   SELECT = "select",
 }
+
+export const ActionColumnTypes = [
+  ColumnTypes.BUTTON,
+  ColumnTypes.ICON_BUTTON,
+  ColumnTypes.MENU_BUTTON,
+  ColumnTypes.EDIT_ACTIONS,
+];
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
 

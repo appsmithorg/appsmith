@@ -1,30 +1,44 @@
 import React from "react";
 import SelectComponent from "widgets/SelectWidget/component";
 import { DropdownOption } from "widgets/SelectWidget/constants";
-import { CellAlignment, TABLE_SIZES, VerticalAlignment } from "../Constants";
+import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import styled from "constants/DefaultTheme";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
 
+const PADDING_OFFSET = 8;
+
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
   height: number;
+  isNewRow: boolean;
 }>`
   &&& {
-    width: 100%;
+    width: ${(props) =>
+      props.isNewRow ? `calc(100% - ${PADDING_OFFSET}px)` : "100%"};
 
     .bp3-control-group {
-      height: ${(props) => props.height}px;
+      height: ${(props) => {
+        return props.isNewRow
+          ? `${props.height - PADDING_OFFSET}px`
+          : `${props.height}px`;
+      }};
 
       & > :only-child {
         border-radius: 0;
       }
 
       & button.bp3-button {
+        border-color: #fff;
         padding: 0 9px;
-        min-height: 30px;
+        min-height: ${(props) => {
+          return props.isNewRow
+            ? `${props.height - PADDING_OFFSET}px`
+            : `${props.height}px`;
+        }};
+        border-radius: 3px;
       }
     }
 
@@ -36,16 +50,16 @@ const StyledSelectComponent = styled(SelectComponent)<{
 
 const StyledCellWrapper = styled(CellWrapper)`
   padding: 0px;
+  justify-content: center;
 `;
 
-type SelectProps = {
+type SelectProps = BaseCellComponentProps & {
   alias: string;
   accentColor: string;
-  compactMode: string;
+  autoOpen: boolean;
   columnType: string;
   borderRadius: string;
   options: DropdownOption[];
-  isCellVisible: boolean;
   onFilterChange: (
     text: string,
     rowIndex: number,
@@ -61,17 +75,9 @@ type SelectProps = {
   ) => void;
   value: string;
   width: number;
-  isHidden: boolean;
   isEditable: boolean;
   tableWidth: number;
   isCellEditable?: boolean;
-  allowCellWrapping?: boolean;
-  horizontalAlignment?: CellAlignment;
-  verticalAlignment?: VerticalAlignment;
-  textColor?: string;
-  fontStyle?: string;
-  cellBackground?: string;
-  textSize?: string;
   isCellEditMode?: boolean;
   disabledEditIcon: boolean;
   hasUnsavedChanges?: boolean;
@@ -91,6 +97,8 @@ type SelectProps = {
   resetFilterTextOnClose?: boolean;
   onOptionSelectActionString?: string;
   onFilterChangeActionString?: string;
+  disabledEditIconMessage: string;
+  isNewRow: boolean;
 };
 
 /*
@@ -101,21 +109,25 @@ export const SelectCell = (props: SelectProps) => {
     accentColor,
     alias,
     allowCellWrapping,
+    autoOpen,
     borderRadius,
     cellBackground,
     columnType,
     compactMode,
     disabledEditIcon,
+    disabledEditIconMessage,
     filterText,
     fontStyle,
     hasUnsavedChanges,
     horizontalAlignment,
     isCellEditable,
     isCellEditMode,
+    isCellDisabled,
     isCellVisible,
     isEditable,
     isFilterable = false,
     isHidden,
+    isNewRow,
     onFilterChange,
     onItemSelect,
     onFilterChangeActionString,
@@ -183,6 +195,7 @@ export const SelectCell = (props: SelectProps) => {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         onClick={onClick}
@@ -200,7 +213,8 @@ export const SelectCell = (props: SelectProps) => {
           hideCancelIcon
           isFilterable={isFilterable}
           isLoading={false}
-          isOpen
+          isNewRow={isNewRow}
+          isOpen={autoOpen}
           isValid
           labelText=""
           onClose={onClose}
@@ -228,9 +242,11 @@ export const SelectCell = (props: SelectProps) => {
         columnType={columnType}
         compactMode={compactMode}
         disabledEditIcon={disabledEditIcon}
+        disabledEditIconMessage={disabledEditIconMessage}
         fontStyle={fontStyle}
         hasUnsavedChanges={hasUnsavedChanges}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellEditMode={isCellEditMode}
         isCellEditable={isCellEditable}
         isCellVisible={isCellVisible}

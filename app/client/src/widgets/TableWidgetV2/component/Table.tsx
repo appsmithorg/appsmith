@@ -13,7 +13,7 @@ import {
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import TableHeader from "./TableHeader";
+import TableHeader from "./header";
 import { Classes } from "@blueprintjs/core";
 import {
   ReactTableColumnProps,
@@ -21,6 +21,7 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
+  AddNewRowActions,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -80,13 +81,18 @@ interface TableProps {
   delimiter: string;
   accentColor: string;
   borderRadius: string;
-  boxShadow?: string;
+  boxShadow: string;
   borderWidth?: number;
   borderColor?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
   variant?: TableVariant;
   primaryColumnId?: string;
+  addNewRowInProgress: boolean;
+  allowAddNewRow: boolean;
+  onAddNewRow: () => void;
+  onAddNewRowAction: (type: AddNewRowActions) => void;
+  disabledAddNewRowSave: boolean;
 }
 
 const defaultColumn = {
@@ -246,6 +252,7 @@ export function Table(props: TableProps) {
   return (
     <TableWrapper
       accentColor={props.accentColor}
+      addNewRowInProgress={props.addNewRowInProgress}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
       borderColor={props.borderColor}
       borderRadius={props.borderRadius}
@@ -283,18 +290,24 @@ export function Table(props: TableProps) {
             >
               <TableHeader
                 accentColor={props.accentColor}
+                addNewRowInProgress={props.addNewRowInProgress}
+                allowAddNewRow={props.allowAddNewRow}
                 applyFilter={props.applyFilter}
                 borderRadius={props.borderRadius}
                 boxShadow={props.boxShadow}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
+                disableAddNewRow={!!props.editableCell.column}
+                disabledAddNewRowSave={props.disabledAddNewRowSave}
                 filters={props.filters}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}
                 isVisiblePagination={props.isVisiblePagination}
                 isVisibleSearch={props.isVisibleSearch}
                 nextPageClick={props.nextPageClick}
+                onAddNewRow={props.onAddNewRow}
+                onAddNewRowAction={props.onAddNewRowAction}
                 pageCount={pageCount}
                 pageNo={props.pageNo}
                 pageOptions={pageOptions}
@@ -383,6 +396,7 @@ export function Table(props: TableProps) {
             </div>
             <TableBody
               accentColor={props.accentColor}
+              addNewRowInProgress={props.addNewRowInProgress}
               borderRadius={props.borderRadius}
               columns={props.columns}
               getTableBodyProps={getTableBodyProps}
