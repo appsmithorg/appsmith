@@ -276,8 +276,21 @@
         <dependency>
             <groupId>com.segment.analytics.java</groupId>
             <artifactId>analytics</artifactId>
-            <version>2.1.1</version>
+            <version>3.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.squareup.okio/okio-jvm -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.sentry</groupId>
             <artifactId>sentry-spring-boot-starter</artifactId>
@@ -341,8 +354,14 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver3</artifactId>
-            <version>5.0.0-alpha.10</version>
+            <version>${mockwebserver.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
