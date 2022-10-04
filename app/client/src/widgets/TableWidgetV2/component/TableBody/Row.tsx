@@ -87,8 +87,36 @@ export const EmptyRows = (props: {
     width,
   } = useContext(BodyContext);
 
+  return (
+    <>
+      {renderEmptyRows(
+        props.rowCount,
+        columns,
+        width,
+        rows,
+        multiRowSelection,
+        accentColor,
+        borderRadius,
+        props.style,
+        prepareRow,
+      )}
+    </>
+  );
+};
+
+export const EmptyRow = (props: { style?: CSSProperties }) => {
+  const {
+    accentColor,
+    borderRadius,
+    columns,
+    multiRowSelection,
+    prepareRow,
+    rows,
+    width,
+  } = useContext(BodyContext);
+
   return renderEmptyRows(
-    props.rowCount,
+    1,
     columns,
     width,
     rows,

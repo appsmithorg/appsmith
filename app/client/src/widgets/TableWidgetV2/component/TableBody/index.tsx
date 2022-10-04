@@ -6,7 +6,7 @@ import {
 } from "react-table";
 import { FixedSizeList, ListChildComponentProps, areEqual } from "react-window";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EmptyRows, Row } from "./Row";
+import { EmptyRows, EmptyRow, Row } from "./Row";
 import { ReactTableColumnProps, TableSizes } from "../Constants";
 
 type BodyContextType = {
@@ -54,7 +54,7 @@ const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
       />
     );
   } else {
-    return <EmptyRows rowCount={1} style={style} />;
+    return <EmptyRow style={style} />;
   }
 }, areEqual);
 
