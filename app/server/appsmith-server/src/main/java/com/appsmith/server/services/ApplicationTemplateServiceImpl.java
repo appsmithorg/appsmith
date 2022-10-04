@@ -14,7 +14,8 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                                           ReleaseNotesService releaseNotesService,
                                           ImportExportApplicationService importExportApplicationService,
                                           AnalyticsService analyticsService,
-                                          UserDataService userDataService) {
-        super(cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService);
+                                          UserDataService userDataService,
+                                          ApplicationService applicationService) {
+        super(cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService, applicationService);
     }
 }

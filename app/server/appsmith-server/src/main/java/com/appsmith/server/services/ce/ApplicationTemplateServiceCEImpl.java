@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -35,9 +36,10 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -46,17 +48,19 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ImportExportApplicationService importExportApplicationService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
+    private final ApplicationService applicationService;
 
     public ApplicationTemplateServiceCEImpl(CloudServicesConfig cloudServicesConfig,
                                             ReleaseNotesService releaseNotesService,
                                             ImportExportApplicationService importExportApplicationService,
                                             AnalyticsService analyticsService,
-                                            UserDataService userDataService) {
+                                            UserDataService userDataService, ApplicationService applicationService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importExportApplicationService = importExportApplicationService;
         this.analyticsService = analyticsService;
         this.userDataService = userDataService;
+        this.applicationService = applicationService;
     }
 
     @Override
@@ -252,12 +256,20 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                                                                    String organizationId,
                                                                    String branchName,
                                                                    List<String> pagesToImport) {
-        return getApplicationJsonFromTemplate(templateId)
-                .flatMap(applicationJson -> importExportApplicationService.mergeApplicationJsonWithApplication(
-                        organizationId, applicationId, branchName, applicationJson, pagesToImport)
-                )
+        Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
+                .flatMap(applicationJson ->{
+                    if (branchName != null) {
+                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+                                .flatMap(application -> importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, application.getId(), branchName, applicationJson, pagesToImport));
+                    }
+                    return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);
+                })
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application)
                 );
+
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 }

@@ -52,6 +52,9 @@ public class ApplicationTemplateServiceTest {
     @MockBean
     private AnalyticsService analyticsService;
 
+    @MockBean
+    private ApplicationService applicationService;
+
     private static MockWebServer mockCloudServices;
 
     @BeforeAll
@@ -73,7 +76,7 @@ public class ApplicationTemplateServiceTest {
         Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
 
         applicationTemplateService = new ApplicationTemplateServiceImpl(
-                cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService
+                cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService, applicationService
         );
     }
 
