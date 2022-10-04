@@ -138,13 +138,14 @@ function* startEvaluationProcess(
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
-  const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
   // Update dependency
   const updateDependencyRequestData: UpdateDependencyRequestData = {
     allActionValidationConfig,
-    unEvalTree,
+    unevalTree,
     widgetTypeConfigMap,
   };
+  log.debug({ unevalTree });
   const {
     evalOrder,
     jsUpdates,
@@ -158,6 +159,7 @@ function* startEvaluationProcess(
   );
   // Eval
   yield spawn(evaluateTreeSaga, {
+    allActionValidationConfig,
     postEvalActions,
     shouldReplay,
     evalOrder,
@@ -173,6 +175,9 @@ function* startEvaluationProcess(
 }
 
 function* evaluateTreeSaga(arg: {
+  allActionValidationConfig: {
+    [actionId: string]: ActionValidationConfigMap;
+  };
   postEvalActions?: Array<AnyReduxAction>;
   shouldReplay?: boolean;
   evalOrder: string[];
@@ -181,6 +186,7 @@ function* evaluateTreeSaga(arg: {
   unEvalUpdates: DataTreeDiff[];
 }) {
   const {
+    allActionValidationConfig,
     evalOrder,
     jsUpdates,
     postEvalActions,
@@ -188,17 +194,8 @@ function* evaluateTreeSaga(arg: {
     unEvalUpdates,
     updatedUnevalTree,
   } = arg;
-  const allActionValidationConfig: {
-    [actionId: string]: ActionValidationConfigMap;
-  } = yield select(getAllActionValidationConfig);
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
-
-  log.debug({ unevalTree });
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.DATA_TREE_EVALUATION,
-  );
 
   const evalTreeRequestData: EvalTreeRequestData = {
     evalOrder,
@@ -276,7 +273,7 @@ function* evaluateTreeSaga(arg: {
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
-      unevalTree,
+      updatedUnevalTree,
       updatedDataTree,
       evalOrder,
       isCreateFirstTree,

@@ -310,7 +310,7 @@ function eventRequestHandler({
 
       const {
         allActionValidationConfig,
-        unEvalTree,
+        unevalTree,
         widgetTypeConfigMap,
       } = requestData as UpdateDependencyRequestData;
       try {
@@ -321,7 +321,7 @@ function eventRequestHandler({
             allActionValidationConfig,
           );
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-            unEvalTree,
+            unevalTree,
           );
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
@@ -344,7 +344,7 @@ function eventRequestHandler({
             );
           }
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-            unEvalTree,
+            unevalTree,
           );
           isFirstTree = true;
           evalOrder = setupFirstTreeResponse.evalOrder;
@@ -354,7 +354,7 @@ function eventRequestHandler({
         } else {
           isFirstTree = false;
           const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
-            unEvalTree,
+            unevalTree,
           );
           evalOrder = setupUpdateTreeResponse.evalOrder;
           lintOrder = setupUpdateTreeResponse.lintOrder;

@@ -22,7 +22,7 @@ export interface UpdateDependencyRequestData {
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   };
-  unEvalTree: DataTree;
+  unevalTree: DataTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
 }
 
