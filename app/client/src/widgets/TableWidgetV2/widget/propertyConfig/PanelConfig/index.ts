@@ -13,6 +13,7 @@ import TextFormatting from "./TextFormatting";
 import Color from "./Color";
 import BorderAndShadow from "./BorderAndShadow";
 import Validations from "./Validation";
+import Select from "./Select";
 
 export default {
   editableTitle: true,
@@ -26,6 +27,7 @@ export default {
     Validations,
     SaveButtonProperties,
     DiscardButtonproperties,
+    Select,
     Events,
   ],
   styleChildren: [
