@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
@@ -63,40 +65,13 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction) {
         return super.getValidActionForExecution(executeActionDTO, actionId, newAction)
                 .flatMap(validAction -> {
-
-                    // Find all the variables which must be substituted before
-                    Set<String> variables = AngularHelper.extractAngularKeysFromFields(validAction.getActionConfiguration());
-
-                    if (variables.isEmpty()) {
-                        // Nothing to do here.
-                        return Mono.just(validAction);
-                    }
-
-                    Map<String, String> replacementMap = new HashMap<>();
-
-                    return Flux.fromIterable(variables)
-                            .flatMap(variable -> {
-                                Mono<String> replacedValueMono = variableReplacementService.replaceValue(variable).cache();
-
-                                return replacedValueMono
-                                        .map(value -> Boolean.TRUE)
-                                        .switchIfEmpty(Mono.just(Boolean.FALSE))
-                                        .flatMap(bool -> {
-                                            // We have successfully managed to find a replacement for the variable
-                                            if (bool.equals(Boolean.TRUE)) {
-                                                return replacedValueMono
-                                                        .map(value -> {
-                                                            replacementMap.put(variable, value);
-                                                            return Boolean.TRUE;
-                                                        });
-                                            }
-
-                                            return Mono.just(Boolean.FALSE);
-                                        });
-                            })
-                            .then(Mono.just(replacementMap))
-                            .map(finalMap -> AngularHelper.renderFieldValues(validAction, finalMap));
-
+                    Mono<AppsmithDomain> actionConfigurationMono = this.variableReplacementService
+                            .replaceAll(validAction.getActionConfiguration());
+                    return actionConfigurationMono.flatMap(
+                            configuration -> {
+                                validAction.setActionConfiguration((ActionConfiguration) configuration);
+                                return Mono.just(validAction);
+                            });
                 });
     }
 

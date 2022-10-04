@@ -8,7 +8,12 @@ import { Toaster, Variant } from "components/ads";
 import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
-import { AclWrapper, AppsmithIcon } from "./components";
+import {
+  AclWrapper,
+  AppsmithIcon,
+  EmptyDataState,
+  EmptySearchResult,
+} from "./components";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { RoleAddEdit } from "./RoleAddEdit";
@@ -186,6 +191,13 @@ export function RolesListing() {
           <Listing
             columns={columns}
             data={data}
+            emptyState={
+              searchValue ? (
+                <EmptySearchResult />
+              ) : (
+                <EmptyDataState page="roles" />
+              )
+            }
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}

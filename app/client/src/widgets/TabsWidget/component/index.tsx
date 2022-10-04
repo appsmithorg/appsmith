@@ -22,6 +22,9 @@ interface TabsComponentProps extends ComponentProps {
   shouldShowTabs: boolean;
   borderRadius: string;
   boxShadow?: string;
+  borderWidth?: number;
+  borderColor?: string;
+  accentColor?: string;
   primaryColor: string;
   onTabChange: (tabId: string) => void;
   tabs: Array<{
@@ -63,6 +66,9 @@ const TabsContainerWrapper = styled.div<{
   ref: RefObject<HTMLDivElement>;
   borderRadius: string;
   boxShadow?: string;
+  borderWidth?: number;
+  borderColor?: string;
+  backgroundColor?: string;
 }>`
   position: relative;
   display: flex;
@@ -73,8 +79,12 @@ const TabsContainerWrapper = styled.div<{
   align-items: center;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  border-width: ${(props) => props.borderWidth}px;
+  border-color: ${(props) => props.borderColor || "transparent"};
+  background-color: ${(props) =>
+    props.backgroundColor || "var(--wds-color-bg)"};
+  border-style: solid;
   overflow: hidden;
-  background: white;
 `;
 
 const ChildrenWrapper = styled.div<ChildrenWrapperProps>`
@@ -84,7 +94,6 @@ const ChildrenWrapper = styled.div<ChildrenWrapperProps>`
       ? CHILDREN_WRAPPER_HEIGHT_WITH_TABS
       : CHILDREN_WRAPPER_HEIGHT_WITHOUT_TABS};
   width: 100%;
-  background: ${(props) => props.theme.colors.builderBodyBG};
 `;
 
 const ScrollableCanvasWrapper = styled.div<
@@ -147,8 +156,7 @@ const Container = styled.div`
       stroke: ${(props) => props.theme.colors.header.tabText};
     }
   }
-  border-bottom: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
+  border-bottom: 1px solid var(--wds-color-border-onaccent);
 `;
 
 const ScrollBtnContainer = styled.div<{ visible: boolean }>`
@@ -254,7 +262,10 @@ function TabsComponent(props: TabsComponentProps) {
 
   return (
     <TabsContainerWrapper
+      backgroundColor={props.backgroundColor}
+      borderColor={props.borderColor}
       borderRadius={props.borderRadius}
+      borderWidth={props.borderWidth}
       boxShadow={props.boxShadow}
       ref={tabContainerRef}
     >
@@ -268,6 +279,8 @@ function TabsComponent(props: TabsComponentProps) {
             <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
           </ScrollBtnContainer>
           <PageTabs
+            accentColor={props.accentColor}
+            backgroundColor={props.backgroundColor}
             measuredTabsRef={measuredTabsRef}
             selectedTabWidgetId={props.selectedTabWidgetId}
             setShowScrollArrows={setShowScrollArrows}

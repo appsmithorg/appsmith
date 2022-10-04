@@ -209,11 +209,12 @@ export function UserEdit(props: UserEditProps) {
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={userGroups}
-          activeOnly
+          allGroups={[]}
+          entityName="group"
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveUserGroups}
           searchValue={searchValue}
-          title="Active Groups"
+          title={`${selectedUser.name}'s Groups`}
         />
       ),
     },
@@ -224,10 +225,12 @@ export function UserEdit(props: UserEditProps) {
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissionGroups}
-          activeOnly
+          allGroups={[]}
+          entityName="role"
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActivePermissionGroups}
           searchValue={searchValue}
+          title={`${selectedUser.name}'s Roles`}
         />
       ),
     },

@@ -17,6 +17,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Flux;
@@ -35,7 +36,7 @@ import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static java.lang.Boolean.TRUE;
 
-
+@Slf4j
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
         implements PermissionGroupServiceCE {
 
@@ -69,7 +70,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
-        return super.create(permissionGroup)
+        return repository.save(permissionGroup)
                 .map(pg -> {
                     Set<Permission> permissions = new HashSet<>(Optional.ofNullable(pg.getPermissions()).orElse(Set.of()));
                     // Permission to unassign self is always given

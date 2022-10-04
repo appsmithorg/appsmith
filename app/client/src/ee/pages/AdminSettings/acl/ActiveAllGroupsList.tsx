@@ -1,14 +1,16 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import { ContentWrapper } from "./components";
 import { HighlightText } from "design-system";
 import {
   createMessage,
-  ACTIVE_ROLES,
-  ALL_ROLES,
+  ACTIVE_ENTITIES,
+  ALL_ENTITIES,
   NO_ROLES_MESSAGE,
+  ADD_ENTITY,
+  REMOVE_ENTITY,
 } from "@appsmith/constants/messages";
 import { ActiveAllGroupsProps } from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
@@ -32,6 +34,7 @@ const Title = styled.span`
   letter-spacing: -0.461538px;
   color: var(--appsmith-color-black-700);
   margin: 0 8px;
+  text-transform: capitalize;
 `;
 
 const EachGroup = styled.div`
@@ -100,6 +103,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
     activeOnly,
     addedAllGroups,
     allGroups,
+    entityName,
     onAddGroup,
     onRemoveGroup,
     removedActiveGroups,
@@ -116,7 +120,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             size={IconSize.XXXL}
           />
           <Title data-testid="t--active-groups-title">
-            {props.title ?? createMessage(ACTIVE_ROLES)}
+            {props.title ?? createMessage(ACTIVE_ENTITIES, entityName)}
           </Title>
         </TitleWrapper>
         {activeGroups && activeGroups.length > 0 ? (
@@ -133,7 +137,16 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                 }}
               >
                 <Icon fillColor={Colors.ERROR_600} name="minus" />
-                <HighlightText highlight={searchValue} text={group.name} />
+                <TooltipComponent
+                  content={createMessage(REMOVE_ENTITY, entityName)}
+                  disabled={removedGroup}
+                  hoverOpenDelay={0}
+                  minWidth={"180px"}
+                  openOnTargetFocus={false}
+                  position="right"
+                >
+                  <HighlightText highlight={searchValue} text={group.name} />
+                </TooltipComponent>
               </EachGroup>
             );
           })
@@ -151,7 +164,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
               name="group-2-line"
               size={IconSize.XXXXL}
             />
-            <Title>{createMessage(ALL_ROLES)}</Title>
+            <Title>{createMessage(ALL_ENTITIES, entityName)}</Title>
           </TitleWrapper>
           {allGroups?.map((group: any) => {
             const addedGroup = addedAllGroups
@@ -167,7 +180,16 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                 }}
               >
                 <Icon fillColor={Colors.GREEN} name="plus" />
-                <HighlightText highlight={searchValue} text={group.name} />
+                <TooltipComponent
+                  content={createMessage(ADD_ENTITY, entityName)}
+                  disabled={addedGroup}
+                  hoverOpenDelay={0}
+                  minWidth={"180px"}
+                  openOnTargetFocus={false}
+                  position="right"
+                >
+                  <HighlightText highlight={searchValue} text={group.name} />
+                </TooltipComponent>
               </EachGroup>
             );
           })}

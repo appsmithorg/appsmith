@@ -20,6 +20,7 @@ jobs:
 
       # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
       - name: Sync release branch from community repo
+        id: merge_step
         run: |
           git remote add community https://github.com/appsmithorg/appsmith.git
           git config user.email "automated@github.com"
@@ -52,5 +53,12 @@ jobs:
           SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
           SLACK_ICON: https://github.com/appsmithorg/appsmith-ce/app/client/public/favicon-orange.ico
           SLACK_TITLE: Sync Workflow failed on EE repo
-          SLACK_MESSAGE: ":alert: The sync workflow has failed to merge code from the release branch of CE repository to the release branch of EE repository. Please check ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} for details."
+          SLACK_MESSAGE: |
+            :alert: The sync workflow has failed to merge code from the release branch of CE repository
+            to the release branch of EE repository. Please check
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            for details. Output:
+            ```
+            ${{join(steps.merge_step.outputs.*, '\n')}}
+            ```
           SLACK_USERNAME: appsmith-bot

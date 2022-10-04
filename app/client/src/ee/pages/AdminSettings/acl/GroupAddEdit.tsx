@@ -370,6 +370,7 @@ export function GroupAddEdit(props: GroupEditProps) {
           activeGroups={permissions.roles}
           addedAllGroups={addedAllGroups}
           allGroups={permissions.allRoles}
+          entityName="role"
           onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveGroups}
