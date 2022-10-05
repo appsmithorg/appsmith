@@ -54,7 +54,7 @@ export type Setting = ControlType & {
   category?: string;
   controlSubType?: SettingSubtype;
   format?: (value: string) => any;
-  normalize?: (value: any) => any;
+  parse?: (value: any) => any;
   helpText?: string;
   label?: string;
   name?: string;

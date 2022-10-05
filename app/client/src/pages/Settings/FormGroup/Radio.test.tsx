@@ -30,7 +30,7 @@ const setting: Setting = {
   format: (value) => {
     return { value };
   },
-  normalize: (value) => {
+  parse: (value) => {
     return value.value;
   },
 };

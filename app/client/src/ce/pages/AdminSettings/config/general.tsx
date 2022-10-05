@@ -12,6 +12,8 @@ import {
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system";
 import QuestionFillIcon from "remixicon-react/QuestionFillIcon";
+import localStorage from "utils/localStorage";
+import isUndefined from "lodash/isUndefined";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "APPSMITH_INSTANCE_NAME",
@@ -134,15 +136,17 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       };
     }
   },
-  normalize: (value: { value: string; additionalData?: any }) => {
+  parse: (value: { value: string; additionalData?: any }) => {
     if (value.value === "ALLOW_EMBEDDING_EVERYWHERE") {
       return "*";
     } else if (value.value === "DISABLE_EMBEDDING_EVERYWHERE") {
       return "'none'";
     } else {
-      return value.additionalData
-        ? value.additionalData.replaceAll(",", " ")
-        : "";
+      const sources = isUndefined(value.additionalData)
+        ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
+        : value.additionalData.replaceAll(",", " ");
+      localStorage.setItem("ALLOWED_FRAME_ANCESTORS", sources);
+      return sources;
     }
   },
 };

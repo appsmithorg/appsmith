@@ -210,7 +210,7 @@ export default function RadioField({ setting }: RadioGroupProps) {
         {...controlTypeProps}
         format={setting.format}
         name={setting.name}
-        normalize={setting.normalize}
+        parse={setting.parse}
       />
     </FormGroup>
   );
