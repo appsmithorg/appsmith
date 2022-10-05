@@ -1459,7 +1459,7 @@ jobs:
       
       # Incase for any fat-container job failure, create combined failed spec
       - name: "combine all specs for fat"
-        if: needs.ui-test.result != 'success'
+        if: needs.fat-container-test.result != 'success'
         run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat
 
       # Force save the failed spec list into a cache
