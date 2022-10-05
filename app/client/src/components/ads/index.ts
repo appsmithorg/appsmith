@@ -19,5 +19,3 @@ export * from "./Table";
 // export * from "./Tabs"; conflict on names
 
 export { default as UserProfileImagePicker } from "./UserProfileImagePicker";
-
-export { default as JSToggleButton } from "./JSToggleButtonComponent";

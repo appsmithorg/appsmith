@@ -57,6 +57,7 @@ import {
   IconSize,
   Menu,
   MenuItem,
+  notEmptyValidator,
   SavingState,
   Size,
   Text,
@@ -74,7 +75,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import { notEmptyValidator } from "design-system";
 import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -84,11 +84,11 @@ import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers"
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
   createMessage,
-  NO_APPS_FOUND,
-  WORKSPACES_HEADING,
-  SEARCH_APPS,
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
+  NO_APPS_FOUND,
+  SEARCH_APPS,
+  WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
