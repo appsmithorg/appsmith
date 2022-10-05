@@ -148,7 +148,7 @@ function eventRequestHandler({
 
         dataTreeEvaluator.clearLogs();
       } catch (error) {
-        console.error("Yes, ERROR IN EVAL_TREE", error);
+        console.error("ERROR IN EVAL_TREE", error);
         if (dataTreeEvaluator !== undefined) {
           errors = dataTreeEvaluator.errors;
           logs = dataTreeEvaluator.logs;
@@ -366,7 +366,7 @@ function eventRequestHandler({
           unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
         }
       } catch (error) {
-        console.error("Yes, ERROR IN UPDATING DEPENDENCY", error);
+        console.error("ERROR IN UPDATING DEPENDENCY", error);
         unEvalUpdates = [];
         evalOrder = [];
         lintOrder = [];
