@@ -13,7 +13,7 @@ export class Debugger {
     errorCount: ".t--debugger-count",
     clearLogs: ".t--debugger-clear-logs",
     logMessageOccurence: ".t--debugger-log-message-occurence",
-    errorMessage: ".t--debugger-message",
+    debuggerMessage: ".t--debugger-message",
     contextMenuItem: ".t--debugger-contextual-menuitem",
     debuggerLabel: "span.debugger-label",
   };
@@ -77,15 +77,15 @@ export class Debugger {
 
   visibleErrorMessagesCount(count: number) {
     if (count > 0) {
-      this.agHelper.AssertElementVisible(this.locators.errorMessage);
-      this.agHelper.AssertElementLength(this.locators.errorMessage, count);
+      this.agHelper.AssertElementVisible(this.locators.debuggerMessage);
+      this.agHelper.AssertElementLength(this.locators.debuggerMessage, count);
     } else {
-      this.agHelper.AssertElementAbsence(this.locators.errorMessage);
+      this.agHelper.AssertElementAbsence(this.locators.debuggerMessage);
     }
   }
 
   clickErrorMessage(index?: number) {
-    this.agHelper.GetNClick(this.locators.errorMessage, index);
+    this.agHelper.GetNClick(this.locators.debuggerMessage, index);
   }
 
   isContextMenuItemVisible() {
@@ -101,7 +101,7 @@ export class Debugger {
         expect($text).to.eq(label);
       });
     this.agHelper
-      .GetText(this.locators.errorMessage, "text", 0)
+      .GetText(this.locators.debuggerMessage, "text", 0)
       .then(($text) => {
         expect($text).to.contains(message);
       });
