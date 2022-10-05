@@ -50,6 +50,7 @@ import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath, matchGeneratePagePath } from "constants/routes";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -78,6 +79,7 @@ type Props = {
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
+  exitDrawingMode: () => void;
 };
 
 @HotkeysTarget
@@ -281,6 +283,7 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.closeTableFilterProppane();
             e.preventDefault();
             this.props.setPreviewModeAction(false);
+            this.props.exitDrawingMode();
           }}
         />
         <Hotkey
@@ -417,6 +420,15 @@ const mapDispatchToProps = (dispatch: any) => {
     showCommitModal: () =>
       dispatch(
         setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+      ),
+    exitDrawingMode: () =>
+      dispatch(
+        dispatch({
+          type: ReduxActionTypes.SET_WIDGET_DRAWING,
+          payload: {
+            isDrawing: false,
+          },
+        }),
       ),
   };
 };

@@ -169,6 +169,13 @@ function* drawWidgetSaga(
     type: ReduxActionTypes.WIDGET_ADD_CHILD,
     payload: widgetPayload,
   });
+
+  yield put({
+    type: ReduxActionTypes.SET_WIDGET_DRAWING,
+    payload: {
+      isDrawing: false,
+    },
+  });
 }
 
 export default function* selectionCanvasSagas() {
