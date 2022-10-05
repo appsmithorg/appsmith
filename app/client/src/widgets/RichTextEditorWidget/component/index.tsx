@@ -6,8 +6,9 @@ import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 
 import { Colors } from "constants/Colors";
-import { LabelWithTooltip, labelLayoutStyles } from "design-system";
+import { labelLayoutStyles } from "design-system";
 import { isMacOs } from "utils/AppsmithUtils";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{
   borderRadius: string;
@@ -82,6 +83,7 @@ const RichtextEditorComponent = React.forwardRef<
   const {
     compactMode,
     isDisabled,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -145,6 +147,7 @@ const RichtextEditorComponent = React.forwardRef<
           disabled={isDisabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           position={labelPosition}
           text={labelText}
           width={labelWidth}
