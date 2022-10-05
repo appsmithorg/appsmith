@@ -883,7 +883,7 @@ export class AggregateHelper {
 
   public GetNAssertContains(
     selector: ElementType,
-    text: string | RegExp,
+    text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
   ) {
     return this.GetElement(selector)

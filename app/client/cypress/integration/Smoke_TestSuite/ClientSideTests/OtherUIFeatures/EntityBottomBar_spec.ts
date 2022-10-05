@@ -9,9 +9,9 @@ const {
 
 describe("Debugger bottom bar", () => {
   it("should be closable", () => {
-    debuggerHelper.Open();
+    debuggerHelper.clickDebuggerIcon();
     debuggerHelper.isOpen();
-    debuggerHelper.Close();
+    debuggerHelper.close();
     debuggerHelper.isClosed();
   });
 });
