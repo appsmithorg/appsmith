@@ -1,10 +1,25 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
+import { WIDGET } from "../../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const ee = ObjectsRegistry.EntityExplorer;
 
 describe("Entity explorer tests related to widgets and validation", function() {
   beforeEach(() => {
     cy.addDsl(dsl);
+  });
+
+  it("Widgets visibility in widget pane", function() {
+    ee.NavigateToSwitcher("widgets");
+    cy.get("[data-cy='widget-sidebar-scrollable-wrapper']").scrollTo("bottom");
+    cy.get(ee.locator._widgetPageIcon(WIDGET.VIDEO))
+      .first()
+      .should("be.visible");
+    ee.PinUnpinEntityExplorer(true);
+    cy.get(ee.locator._widgetPageIcon(WIDGET.VIDEO))
+      .first()
+      .should("be.visible");
   });
 
   it("Widget edit/delete/copy to clipboard validation", function() {
