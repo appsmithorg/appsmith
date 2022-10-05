@@ -6,7 +6,7 @@ import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
 import { Tab, TabList, Tabs } from "react-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
-import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
+import { setSelectedPropertyTabIndex } from "actions/propertyPaneActions";
 
 const StyledTabComponent = styled(TabComponent)`
   height: auto;

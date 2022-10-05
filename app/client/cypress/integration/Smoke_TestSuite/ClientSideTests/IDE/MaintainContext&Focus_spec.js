@@ -27,61 +27,42 @@ describe("MaintainContext&Focus", function() {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
     cy.SearchEntityandOpen("Text1");
-    cy.focusCodeInput(".t--property-control-text", { line: 0, ch: 3 });
+    cy.focusCodeInput(".t--property-control-text");
 
     cy.SearchEntityandOpen("Graphql_Query");
     cy.contains(".react-tabs__tab", "Body").click();
-    cy.focusCodeInput(".t--graphql-query-editor", { line: 1, ch: 10 });
+    cy.focusCodeInput(".t--graphql-query-editor");
 
     cy.SearchEntityandOpen("Rest_Api_1");
     cy.wait(1000);
     cy.get('[data-cy="t--tab-PARAMS"]').click();
-    cy.focusCodeInput(apiwidget.queryKey, {
-      line: 0,
-      ch: 0,
-    });
+    cy.focusCodeInput(apiwidget.queryKey);
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("Rest_Api_2");
     cy.wait(1000);
     cy.contains(".react-tabs__tab", "Headers").click();
     cy.updateCodeInput(apiwidget.headerValue, "test");
-    cy.focusCodeInput(apiwidget.headerValue, {
-      line: 0,
-      ch: 4,
-    });
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("SQL_Query");
     cy.wait(1000);
-    cy.focusCodeInput(".t--actionConfiguration\\.body", {
-      line: 0,
-      ch: 10,
-    });
+    cy.focusCodeInput(".t--actionConfiguration\\.body");
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("S3_Query");
     cy.wait(1000);
-    cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data", {
-      line: 0,
-      ch: 1,
-    });
+    cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data");
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("JSObject1");
     cy.wait(1000);
-    cy.focusCodeInput(".js-editor", {
-      line: 5,
-      ch: 4,
-    });
+    cy.focusCodeInput(".js-editor");
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("JSObject2");
     cy.wait(1000);
-    cy.focusCodeInput(".js-editor", {
-      line: 2,
-      ch: 3,
-    });
+    cy.focusCodeInput(".js-editor");
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("Mongo_Query");
@@ -90,84 +71,48 @@ describe("MaintainContext&Focus", function() {
       ".t--actionConfiguration\\.formData\\.collection\\.data",
       "TestCollection",
     );
-    cy.focusCodeInput(
-      ".t--actionConfiguration\\.formData\\.collection\\.data",
-      {
-        line: 0,
-        ch: 14,
-      },
-    );
     cy.wait("@saveAction");
   });
   it("Check for focus on entities", () => {
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
-    cy.assertCursorOnCodeInput(".t--property-control-text", {
-      ch: 3,
-      line: 0,
-    });
+    cy.assertCursorOnCodeInput(".t--property-control-text");
 
     cy.SearchEntityandOpen("Graphql_Query");
     cy.contains(".react-tabs__tab", "Body").should(
       "have.class",
       "react-tabs__tab--selected",
     );
-    cy.assertCursorOnCodeInput(".t--graphql-query-editor", {
-      line: 1,
-      ch: 10,
-    });
+    cy.assertCursorOnCodeInput(".t--graphql-query-editor");
 
     cy.SearchEntityandOpen("Rest_Api_1");
-    cy.assertCursorOnCodeInput(apiwidget.queryKey, {
-      line: 0,
-      ch: 0,
-    });
+    cy.assertCursorOnCodeInput(apiwidget.queryKey);
 
     cy.SearchEntityandOpen("Rest_Api_2");
     cy.contains(".react-tabs__tab", "Headers").should(
       "have.class",
       "react-tabs__tab--selected",
     );
-    cy.assertCursorOnCodeInput(apiwidget.headerValue, {
-      line: 0,
-      ch: 4,
-    });
+    cy.assertCursorOnCodeInput(apiwidget.headerValue);
 
     cy.SearchEntityandOpen("SQL_Query");
-    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
-      line: 0,
-      ch: 10,
-    });
+    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body");
 
     cy.SearchEntityandOpen("S3_Query");
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
-      {
-        line: 0,
-        ch: 1,
-      },
     );
 
     cy.SearchEntityandOpen("JSObject1");
-    cy.assertCursorOnCodeInput(".js-editor", {
-      line: 5,
-      ch: 4,
-    });
+    cy.assertCursorOnCodeInput(".js-editor");
 
     cy.SearchEntityandOpen("JSObject2");
-    cy.assertCursorOnCodeInput(".js-editor", {
-      line: 2,
-      ch: 3,
-    });
+    cy.assertCursorOnCodeInput(".js-editor");
 
     cy.SearchEntityandOpen("Mongo_Query");
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
-      {
-        line: 0,
-        ch: 14,
-      },
     );
   });
 });

@@ -2,10 +2,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  CursorPosition,
-  EvaluatedPopupState,
-} from "reducers/uiReducers/editorContextReducer";
+import { EvaluatedPopupState } from "reducers/uiReducers/editorContextReducer";
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { generatePropertyKey } from "utils/editorContextUtils";
@@ -38,22 +35,21 @@ function* generateKeyAndSetFocusablePropertyFieldSaga(
  * This method appends the PageId along with the focusable propertyPath
  * @param action
  */
-function* generateKeyAndSetCursorPosition(
+function* generateKeyAndSetFocusableEditor(
   action: ReduxAction<{
     key: string | undefined;
-    cursorPosition: CursorPosition;
   }>,
 ) {
   const currentPageId: string = yield select(getCurrentPageId);
 
-  const { cursorPosition, key } = action.payload;
+  const { key } = action.payload;
 
   const propertyFieldKey = generatePropertyKey(key, currentPageId);
 
   if (propertyFieldKey) {
     yield put({
-      type: ReduxActionTypes.SET_CODE_EDITOR_CURSOR_POSITION,
-      payload: { key: propertyFieldKey, cursorPosition },
+      type: ReduxActionTypes.SET_CODE_EDITOR_FOCUS,
+      payload: { key: propertyFieldKey },
     });
   }
 }
@@ -89,8 +85,8 @@ export default function* editorContextSagas() {
       generateKeyAndSetFocusablePropertyFieldSaga,
     ),
     takeLatest(
-      ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_CURSOR_POSITION,
-      generateKeyAndSetCursorPosition,
+      ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_LAST_FOCUS,
+      generateKeyAndSetFocusableEditor,
     ),
     takeLatest(
       ReduxActionTypes.GENERATE_KEY_AND_SET_EVAL_POPUP_STATE,

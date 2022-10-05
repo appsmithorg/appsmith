@@ -3,7 +3,7 @@ import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
-  editor?.eachLine((line: CodeMirror.LineHandle) => {
+  editor.eachLine((line: CodeMirror.LineHandle) => {
     const lineNo = editor.getLineNumber(line) || 0;
     let match;
     while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(line.text)) != null) {

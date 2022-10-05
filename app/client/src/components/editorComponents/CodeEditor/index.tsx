@@ -100,9 +100,8 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { getCodeEditorCursorPosition } from "selectors/editorContextSelectors";
-import { CursorPosition } from "reducers/uiReducers/editorContextReducer";
-import { generateKeyAndSetCodeEditorCursorPosition } from "actions/editorContextActions";
+import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
+import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
@@ -338,9 +337,8 @@ class CodeEditor extends Component<Props, State> {
 
         this.lintCode(editor);
 
-        if (this.props.cursorPosition && shouldFocusOnPropertyControl()) {
+        if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
           editor.focus();
-          editor.setCursor(this.props.cursorPosition);
         }
       }.bind(this);
 
@@ -520,14 +518,15 @@ class CodeEditor extends Component<Props, State> {
         EditorModes.GRAPHQL_WITH_BINDING,
       ].includes(mode.name)
     ) {
-      this.editor?.setOption("matchBrackets", true);
+      this.editor.setOption("matchBrackets", true);
     } else {
-      this.editor?.setOption("matchBrackets", false);
+      this.editor.setOption("matchBrackets", false);
     }
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+
     if (!cm.state.completionActive) {
       updateCustomDef(this.props.additionalDynamicData);
 
@@ -543,13 +542,12 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = (cm: CodeMirror.Editor) => {
+  handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    this.editor?.setOption("matchBrackets", false);
+    this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
-    const { ch, line } = cm.getCursor();
-    this.props.setCursorPosition(this.props.dataTreePath, { line, ch });
+    this.props.setCodeEditorLastFocus(this.props.dataTreePath);
   };
 
   handleBeforeChange = (
@@ -975,17 +973,15 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  cursorPosition: getCodeEditorCursorPosition(state, props.dataTreePath || ""),
+  editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
-  setCursorPosition: (
-    key: string | undefined,
-    cursorPosition: CursorPosition,
-  ) => dispatch(generateKeyAndSetCodeEditorCursorPosition(key, cursorPosition)),
+  setCodeEditorLastFocus: (key: string | undefined) =>
+    dispatch(generateKeyAndSetCodeEditorLastFocus(key)),
 });
 
 export default Sentry.withProfiler(

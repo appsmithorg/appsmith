@@ -3,7 +3,10 @@ import styled from "styled-components";
 import { Icon, IconSize } from "design-system";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
-import { showDebugger } from "actions/debuggerActions";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import EntityDeps from "./EntityDependecies";
@@ -18,7 +21,6 @@ import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { getSelectedCanvasDebuggerTab } from "selectors/editorContextSelectors";
-import { setCanvasDebuggerSelectedTab } from "actions/editorContextActions";
 
 const TABS_HEADER_HEIGHT = 36;
 

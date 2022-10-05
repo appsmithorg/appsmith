@@ -16,12 +16,7 @@ import {
   getSelectedCanvasDebuggerTab,
   getSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
-import {
-  setAllPropertySectionState,
-  setCanvasDebuggerSelectedTab,
-  setFocusableField,
-  setSelectedPropertyTabIndex,
-} from "actions/editorContextActions";
+import { setFocusableField } from "actions/editorContextActions";
 import { getSelectedWidgets } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -47,6 +42,11 @@ import {
   setJsPaneResponsePaneHeight,
   setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
+import {
+  setAllPropertySectionState,
+  setSelectedPropertyTabIndex,
+} from "actions/propertyPaneActions";
+import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
