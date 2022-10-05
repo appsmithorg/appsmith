@@ -3,8 +3,6 @@ export * from "./Callout";
 
 export * from "./common";
 
-export { DroppableComponent } from "./DraggableListComponent";
-
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
 
@@ -26,5 +24,3 @@ export * from "./Table";
 export * from "./Toast";
 
 export { default as UserProfileImagePicker } from "./UserProfileImagePicker";
-
-export { default as JSToggleButton } from "./JSToggleButtonComponent";
