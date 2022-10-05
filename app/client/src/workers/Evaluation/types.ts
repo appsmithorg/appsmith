@@ -22,8 +22,11 @@ export interface UpdateDependencyRequestData {
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   };
+  theme: AppTheme;
+  widgets: CanvasWidgetsReduxState;
   unevalTree: DataTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
+  shouldReplay: boolean;
 }
 
 export interface UpdateDependencyResponseData {
@@ -42,8 +45,6 @@ export interface EvalTreeRequestData {
   };
   shouldReplay: boolean;
   unEvalUpdates: DataTreeDiff[];
-  theme: AppTheme;
-  widgets: CanvasWidgetsReduxState;
   widgetTypeConfigMap: WidgetTypeConfigMap;
 }
 

@@ -99,10 +99,8 @@ function eventRequestHandler({
         allActionValidationConfig,
         evalOrder,
         jsUpdates,
-        shouldReplay = true,
-        theme,
+        shouldReplay,
         unevalTree,
-        widgets,
         widgetTypeConfigMap,
       } = requestData as EvalTreeRequestData;
 
@@ -114,7 +112,6 @@ function eventRequestHandler({
       let evalMetaUpdates: EvalMetaUpdates = [];
       try {
         if (isFirstTree) {
-          replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
           dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
           const dataTreeResponse = dataTreeEvaluator.createFirstTree();
           dataTree = dataTreeResponse.evalTree;
@@ -129,9 +126,6 @@ function eventRequestHandler({
             );
           }
           dataTree = {};
-          if (shouldReplay) {
-            replayMap[CANVAS]?.update({ widgets, theme });
-          }
           const updateResponse = dataTreeEvaluator.updateDataTree(evalOrder);
           dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
           // evalMetaUpdates can have moment object as value which will cause DataCloneError
@@ -146,11 +140,15 @@ function eventRequestHandler({
         dataTreeEvaluator.clearErrors();
         logs = dataTreeEvaluator.logs;
         userLogs = dataTreeEvaluator.userLogs;
-        if (replayMap[CANVAS]?.logs)
-          logs = logs.concat(replayMap[CANVAS]?.logs);
-        replayMap[CANVAS]?.clearLogs();
+        if (shouldReplay) {
+          if (replayMap[CANVAS]?.logs)
+            logs = logs.concat(replayMap[CANVAS]?.logs);
+          replayMap[CANVAS]?.clearLogs();
+        }
+
         dataTreeEvaluator.clearLogs();
       } catch (error) {
+        console.error("Yes, ERROR IN EVAL_TREE", error);
         if (dataTreeEvaluator !== undefined) {
           errors = dataTreeEvaluator.errors;
           logs = dataTreeEvaluator.logs;
@@ -208,7 +206,7 @@ function eventRequestHandler({
         return { triggers: [], errors: [] };
       }
       const { evalOrder } = dataTreeEvaluator.setupUpdateTree(dataTree);
-      dataTreeEvaluator.evalAndValidateSubTree(evalOrder);
+      dataTreeEvaluator.updateDataTree(evalOrder);
       const evalTree = dataTreeEvaluator.evalTree;
       const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
@@ -308,13 +306,17 @@ function eventRequestHandler({
 
       const {
         allActionValidationConfig,
+        shouldReplay,
+        theme,
         unevalTree,
+        widgets,
         widgetTypeConfigMap,
       } = requestData as UpdateDependencyRequestData;
       try {
         if (!dataTreeEvaluator) {
           isFirstTree = true;
           replayMap = replayMap || {};
+          replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
           dataTreeEvaluator = new DataTreeEvaluator(
             widgetTypeConfigMap,
             allActionValidationConfig,
@@ -331,6 +333,9 @@ function eventRequestHandler({
             dataTreeEvaluator.setAllActionValidationConfig(
               allActionValidationConfig,
             );
+          }
+          if (shouldReplay) {
+            replayMap[CANVAS]?.update({ widgets, theme });
           }
           dataTreeEvaluator = new DataTreeEvaluator(
             widgetTypeConfigMap,
@@ -350,6 +355,9 @@ function eventRequestHandler({
           jsUpdates = setupFirstTreeResponse.jsUpdates;
         } else {
           isFirstTree = false;
+          if (shouldReplay) {
+            replayMap[CANVAS]?.update({ widgets, theme });
+          }
           const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
             unevalTree,
           );
@@ -358,6 +366,7 @@ function eventRequestHandler({
           unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
         }
       } catch (error) {
+        console.error("Yes, ERROR IN UPDATING DEPENDENCY", error);
         unEvalUpdates = [];
         evalOrder = [];
         lintOrder = [];

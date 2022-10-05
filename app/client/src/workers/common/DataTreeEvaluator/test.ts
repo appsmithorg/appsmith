@@ -8,7 +8,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DataTreeDiff } from "workers/Evaluation/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 // import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
-import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
+// import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
 import { parseJSActions } from "workers/Evaluation/JSObject";
 // import get from "lodash/get";
@@ -203,7 +203,7 @@ describe("DataTreeEvaluator", () => {
 
   describe("parseJsActions", () => {
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree({});
+      dataTreeEvaluator.createFirstTree();
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
@@ -219,9 +219,8 @@ describe("DataTreeEvaluator", () => {
   describe("array accessor dependency handling", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree(
-        nestedArrayAccessorCyclicDependency.initUnEvalTree,
-      );
+      dataTreeEvaluator.createFirstTree();
+      // nestedArrayAccessorCyclicDependency.initUnEvalTree,
     });
     describe("array of objects", () => {
       // when Text1.text has a binding Api1.data[2].id

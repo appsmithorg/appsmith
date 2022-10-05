@@ -133,15 +133,20 @@ export type EvalTreePayload = {
 
 function* startEvaluationProcess(
   postEvalActions?: Array<AnyReduxAction>,
-  shouldReplay?: boolean,
+  shouldReplay = true,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
   const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const theme: AppTheme = yield select(getSelectedAppTheme);
   // Update dependency
   const updateDependencyRequestData: UpdateDependencyRequestData = {
     allActionValidationConfig,
+    shouldReplay,
+    theme,
+    widgets,
     unevalTree,
     widgetTypeConfigMap,
   };
@@ -164,6 +169,8 @@ function* startEvaluationProcess(
     shouldReplay,
     evalOrder,
     jsUpdates,
+    theme,
+    widgets,
     unEvalUpdates,
     unevalTree,
   });
@@ -187,6 +194,8 @@ function* evaluateTreeSaga(arg: {
   jsUpdates: Record<string, JSUpdate>;
   unEvalUpdates: DataTreeDiff[];
   unevalTree: DataTree;
+  theme: AppTheme;
+  widgets: CanvasWidgetsReduxState;
 }) {
   const {
     allActionValidationConfig,
@@ -197,8 +206,6 @@ function* evaluateTreeSaga(arg: {
     unevalTree,
     unEvalUpdates,
   } = arg;
-  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const theme: AppTheme = yield select(getSelectedAppTheme);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     evalOrder,
@@ -207,8 +214,6 @@ function* evaluateTreeSaga(arg: {
     allActionValidationConfig,
     shouldReplay,
     unEvalUpdates,
-    theme,
-    widgets,
     widgetTypeConfigMap,
   };
 
