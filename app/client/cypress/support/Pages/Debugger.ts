@@ -1,7 +1,8 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
 export class Debugger {
-  public agHelper = ObjectsRegistry.AggregateHelper;
+  private agHelper = ObjectsRegistry.AggregateHelper;
+  private commonLocators = ObjectsRegistry.CommonLocators;
 
   public readonly locators = {
     debuggerIcon: ".t--debugger svg",
@@ -12,6 +13,9 @@ export class Debugger {
     errorCount: ".t--debugger-count",
     clearLogs: ".t--debugger-clear-logs",
     logMessageOccurence: ".t--debugger-log-message-occurence",
+    errorMessage: ".t--debugger-message",
+    contextMenuItem: ".t--debugger-contextual-menuitem",
+    debuggerLabel: "span.debugger-label",
   };
 
   clickDebuggerIcon(
@@ -43,8 +47,13 @@ export class Debugger {
     this.agHelper.GetNAssertContains(this.locators.logMessage, text);
   }
 
-  logStateContains(text: string) {
-    this.agHelper.GetNAssertContains(this.locators.logState, text);
+  logStateContains(text: string, index?: number) {
+    this.agHelper.GetNAssertContains(
+      this.locators.logState,
+      text,
+      "exist",
+      index,
+    );
   }
 
   isErrorCount(count: number) {
@@ -64,5 +73,37 @@ export class Debugger {
           count,
         )
       : this.agHelper.AssertElementAbsence(this.locators.logMessageOccurence);
+  }
+
+  visibleErrorMessagesCount(count: number) {
+    if (count > 0) {
+      this.agHelper.AssertElementVisible(this.locators.errorMessage);
+      this.agHelper.AssertElementLength(this.locators.errorMessage, count);
+    } else {
+      this.agHelper.AssertElementAbsence(this.locators.errorMessage);
+    }
+  }
+
+  clickErrorMessage(index?: number) {
+    this.agHelper.GetNClick(this.locators.errorMessage, index);
+  }
+
+  isContextMenuItemVisible() {
+    this.agHelper.AssertElementVisible(this.locators.contextMenuItem);
+  }
+
+  assertDebugError(label: string, message: string) {
+    this.clickDebuggerIcon();
+    this.agHelper.GetNClick(this.commonLocators._errorTab, 0, true, 0);
+    this.agHelper
+      .GetText(this.locators.debuggerLabel, "text", 0)
+      .then(($text) => {
+        expect($text).to.eq(label);
+      });
+    this.agHelper
+      .GetText(this.locators.errorMessage, "text", 0)
+      .then(($text) => {
+        expect($text).to.contains(message);
+      });
   }
 }

@@ -51,11 +51,8 @@ export class CommonLocators {
   _createNew = ".t--entity-add-btn.group.files";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
-  _debuggerIcon = ".t--debugger svg";
   _errorTab = "[data-cy=t--tab-ERROR]";
   _responseTab = "[data-cy=t--tab-response]";
-  _debugErrorMsg = ".t--debugger-message";
-  _debuggerLabel = "span.debugger-label";
   _modal = ".t--modal-widget";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
