@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
@@ -288,11 +286,7 @@ export default {
             try {
               computedValues = JSON.parse(column.computedValue);
             } catch (e) {
-              console.error(
-                e,
-                "Error parsing column computedValue: ",
-                column.computedValue,
-              );
+              /* do nothing */
             }
           } else if (_.isArray(column.computedValue)) {
             computedValues = column.computedValue;
