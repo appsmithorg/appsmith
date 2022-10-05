@@ -16,14 +16,13 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
+import { FilePickerV2, Text, TextType } from "design-system";
 import { Classes } from "@blueprintjs/core";
 import {
   SetProgress,
   UploadCallback,
   FileType,
 } from "components/ads/FilePicker";
-import FilePickerV2 from "components/ads/FilePickerV2";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useMediaQuery } from "react-responsive";
 

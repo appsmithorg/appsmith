@@ -18,10 +18,8 @@ import {
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
-import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system";
-import { Icon, IconSize } from "design-system";
+import { FilePickerV2, Icon, IconSize, Text, TextType } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";

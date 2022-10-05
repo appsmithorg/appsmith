@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { Button, Size } from "design-system";
+import { Button, FilePickerV2, Size } from "design-system";
 import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
 import { SetProgress, FileType } from "components/ads/FilePicker";
@@ -9,7 +9,6 @@ import { importApplication } from "actions/applicationActions";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "@appsmith/constants/messages";
-import FilePickerV2 from "components/ads/FilePickerV2";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 
 const ImportButton = styled(Button)<{ disabled?: boolean }>`
