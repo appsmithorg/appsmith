@@ -892,11 +892,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 log.debug("Archived {} actions and {} action collections for applicationId: {}", actions.size(), actionCollections.size(), application.getId());
                                 return application;
                             })
-                            .zipWith(archivedPageMono)
-                            .map(tuple -> {
-                                Application application = tuple.getT1();
-                                PageDTO pageDTO = tuple.getT2();
-                                log.debug("Archived pageId: {} for applicationId: {}", pageDTO.getId(), application.getId());
+                            .then(archivedPageMono)
+                            .map(pageDTO -> {
+                                log.debug("Archived pageId: {} for applicationId: {}", pageDTO.getId(), pageDTO.getApplicationId());
                                 return pageDTO;
                             })
                             .flatMap(pageDTO ->
