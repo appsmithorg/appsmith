@@ -1,9 +1,14 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { Button, FilePickerV2, Size } from "design-system";
+import {
+  Button,
+  FilePickerV2,
+  FileType,
+  SetProgress,
+  Size,
+} from "design-system";
 import { StyledDialog } from "./ForkModalStyles";
 import { useSelector } from "store";
-import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import { importApplication } from "actions/applicationActions";
 import { Toaster } from "components/ads/Toast";

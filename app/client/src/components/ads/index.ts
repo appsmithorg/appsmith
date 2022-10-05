@@ -16,9 +16,6 @@ export * from "./EditableTextSubComponent";
 
 export { default as EditableTextWrapper } from "./EditableTextSubComponent";
 
-export { default as FilePicker } from "./FilePicker";
-export * from "./FilePicker";
-
 export { default as Table } from "./Table";
 export * from "./Table";
 

@@ -1,7 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { useSelector } from "store";
-import { FileType, SetProgress } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import {
   importApplication,
@@ -19,7 +18,15 @@ import {
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { FilePickerV2, Icon, IconSize, Text, TextType } from "design-system";
+import {
+  FilePickerV2,
+  FileType,
+  Icon,
+  IconSize,
+  SetProgress,
+  Text,
+  TextType,
+} from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
