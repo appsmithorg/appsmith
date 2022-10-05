@@ -53,7 +53,6 @@ describe("Verify syntax to create email type", () => {
 
 describe("Verify syntax for Text type", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     const schema = { Key: "value" };
     cy.addDsl(dslWithoutSchema,appId);
