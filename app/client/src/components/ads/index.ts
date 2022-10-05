@@ -27,5 +27,3 @@ export * from "./Table";
 export * from "./Toast";
 
 export { default as UserProfileImagePicker } from "./UserProfileImagePicker";
-
-export { default as JSToggleButton } from "./JSToggleButtonComponent";
