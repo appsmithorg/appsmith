@@ -16,7 +16,6 @@ import {
   textGetter,
   textSetter,
 } from "./utils";
-import { NavigationTargetType } from "../../../sagas/ActionExecution/NavigateActionSaga";
 import store from "../../../store";
 import { getPageList } from "../../../selectors/entitiesSelector";
 import { ACTION_TRIGGER_REGEX } from "./regex";
@@ -318,7 +317,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     options: () => NAVIGATION_TARGET_FIELD_OPTIONS,
     defaultText: NAVIGATION_TARGET_FIELD_OPTIONS[0].label,
     getter: (value: any) => {
-      return enumTypeGetter(value, 2, NavigationTargetType.SAME_WINDOW);
+      return enumTypeGetter(value, 2, "SAME_WINDOW");
     },
     setter: (option: any, currentValue: string) => {
       return enumTypeSetter(option.value, currentValue, 2);
