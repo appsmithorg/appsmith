@@ -1,7 +1,9 @@
 import { setLintingErrors } from "actions/lintingActions";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { call, put } from "redux-saga/effects";
+import { JSUpdate } from "utils/JSPaneUtils";
 import { GracefulWorkerService } from "utils/WorkerUtil";
+import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
 import {
   LintTreeRequest,
   LintTreeResponse,
@@ -13,13 +15,23 @@ export const lintWorker = new GracefulWorkerService(
 );
 
 export function* lintTreeSaga({
+  jsUpdates,
   pathsToLint,
-  unEvalTree,
+  unevalTree,
 }: {
   pathsToLint: string[];
-  unEvalTree: DataTree;
+  jsUpdates: Record<string, JSUpdate>;
+  unevalTree: DataTree;
 }) {
-  const lintTreeRequestData: LintTreeRequest = { pathsToLint, unEvalTree };
+  const updatedUnevalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
+    jsUpdates,
+    unevalTree,
+  );
+  const lintTreeRequestData: LintTreeRequest = {
+    jsUpdates,
+    pathsToLint,
+    unevalTree: updatedUnevalTree,
+  };
 
   const { errors }: LintTreeResponse = yield call(
     lintWorker.request,

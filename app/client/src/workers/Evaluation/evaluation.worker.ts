@@ -36,6 +36,7 @@ import evaluate, {
   setupEvaluationEnvironment,
 } from "./evaluate";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "./JSObject";
 
 const CANVAS = "canvas";
 
@@ -97,14 +98,15 @@ function eventRequestHandler({
       const {
         allActionValidationConfig,
         evalOrder,
+        jsUpdates,
         shouldReplay = true,
         theme,
-        updatedUnevalTree,
+        unevalTree,
         widgets,
         widgetTypeConfigMap,
       } = requestData as EvalTreeRequestData;
 
-      let dataTree: DataTree = updatedUnevalTree;
+      let dataTree: DataTree = {};
       let errors: EvalError[] = [];
       let logs: any[] = [];
       let userLogs: UserLogObject[] = [];
@@ -114,9 +116,7 @@ function eventRequestHandler({
         if (isFirstTree) {
           replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
           dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-          const dataTreeResponse = dataTreeEvaluator.createFirstTree(
-            updatedUnevalTree,
-          );
+          const dataTreeResponse = dataTreeEvaluator.createFirstTree();
           dataTree = dataTreeResponse.evalTree;
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
@@ -164,7 +164,7 @@ function eventRequestHandler({
           console.error(error);
         }
         dataTree = getSafeToRenderDataTree(
-          updatedUnevalTree,
+          getUpdatedLocalUnEvalTreeAfterJSUpdates(jsUpdates, unevalTree),
           widgetTypeConfigMap,
         );
       }
@@ -304,7 +304,6 @@ function eventRequestHandler({
       let evalOrder: string[] = [];
       let lintOrder: string[] = [];
       let jsUpdates: Record<string, JSUpdate> = {};
-      let updatedUnevalTree: DataTree = {};
       let unEvalUpdates: DataTreeDiff[] = [];
 
       const {
@@ -326,7 +325,6 @@ function eventRequestHandler({
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
-          updatedUnevalTree = setupFirstTreeResponse.updatedUnevalTree;
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -350,7 +348,6 @@ function eventRequestHandler({
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
-          updatedUnevalTree = setupFirstTreeResponse.updatedUnevalTree;
         } else {
           isFirstTree = false;
           const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
@@ -371,7 +368,6 @@ function eventRequestHandler({
         lintOrder,
         jsUpdates,
         unEvalUpdates,
-        updatedUnevalTree,
       } as UpdateDependencyResponseData;
     }
     default: {

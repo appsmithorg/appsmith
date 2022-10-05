@@ -31,12 +31,11 @@ export interface UpdateDependencyResponseData {
   lintOrder: string[];
   jsUpdates: Record<string, JSUpdate>;
   unEvalUpdates: DataTreeDiff[];
-  updatedUnevalTree: DataTree;
 }
 
 export interface EvalTreeRequestData {
   evalOrder: string[];
-  updatedUnevalTree: DataTree;
+  unevalTree: DataTree;
   jsUpdates: Record<string, JSUpdate>;
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;

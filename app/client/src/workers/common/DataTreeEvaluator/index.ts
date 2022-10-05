@@ -126,7 +126,6 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
     lintOrder: string[];
-    updatedUnevalTree: DataTree;
   } {
     // Start setup
     // ****************************** Update localUneval
@@ -162,13 +161,13 @@ export default class DataTreeEvaluator {
     // ****************************** Create inverse dependencies
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
+    this.oldUnEvalTree = klona(localUnEvalTree);
 
     // ** End setup
     return {
       jsUpdates,
       evalOrder: this.sortedDependencies,
       lintOrder: this.sortedDependencies,
-      updatedUnevalTree: localUnEvalTree,
     };
   }
   /**
@@ -182,21 +181,18 @@ export default class DataTreeEvaluator {
    * @return {*}
    * @memberof DataTreeEvaluator
    */
-  createFirstTree(
-    localUnEvalTree: DataTree,
-  ): {
+  createFirstTree(): {
     evalTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
   } {
     // Evaluate
     const { evalMetaUpdates, evaluatedTree } = this.evaluateTree(
-      localUnEvalTree,
+      this.oldUnEvalTree,
       this.resolvedFunctions,
       this.sortedDependencies,
     );
     // Validate Widgets
     this.evalTree = getValidatedTree(evaluatedTree);
-    this.oldUnEvalTree = klona(localUnEvalTree);
     return {
       evalTree: this.evalTree,
       evalMetaUpdates,
