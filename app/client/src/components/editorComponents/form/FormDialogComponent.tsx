@@ -3,7 +3,7 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { Text, TextType, IconName, TabComponent, TabProp } from "design-system";
+import { IconName, TabComponent, TabProp, Text, TextType } from "design-system";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
