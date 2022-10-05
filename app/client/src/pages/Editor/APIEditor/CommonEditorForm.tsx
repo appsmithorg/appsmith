@@ -28,7 +28,7 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
