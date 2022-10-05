@@ -424,7 +424,7 @@ describe("DataTreeEvaluator", () => {
     ),
   };
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
-  evaluator.createFirstTree(unEvalTree);
+  evaluator.createFirstTree();
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
     const dependencyMap = evaluator.dependencyMap;

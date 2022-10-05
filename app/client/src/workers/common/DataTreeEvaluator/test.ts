@@ -140,13 +140,11 @@ describe("DataTreeEvaluator", () => {
 
   describe("test updateDependencyMap", () => {
     beforeEach(() => {
-      // @ts-expect-error: Types are not available
-      dataTreeEvaluator.createFirstTree(unEvalTree as DataTree);
+      dataTreeEvaluator.createFirstTree();
     });
 
     it("initial dependencyMap computation", () => {
-      // @ts-expect-error: Types are not available
-      dataTreeEvaluator.updateDataTree(unEvalTree as DataTree);
+      dataTreeEvaluator.updateDataTree([]);
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
         "Button2.text": ["Button1.text"],
@@ -377,8 +375,7 @@ describe("DataTreeEvaluator", () => {
   describe("lintTree", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
     beforeEach(() => {
-      // @ts-expect-error: Types are not available
-      dataTreeEvaluator.createFirstTree(lintingUnEvalTree as DataTree);
+      dataTreeEvaluator.createFirstTree();
     });
     it("Correctly lints tree", () => {
       // const getLintErrorsInEntityProperty = (
@@ -481,8 +478,7 @@ describe("DataTreeEvaluator", () => {
 
   describe("triggerfield dependency map", () => {
     beforeEach(() => {
-      // @ts-expect-error: Types are not available
-      dataTreeEvaluator.createFirstTree(lintingUnEvalTree as DataTree);
+      dataTreeEvaluator.createFirstTree();
     });
     it("Creates correct triggerFieldDependencyMap", () => {
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
