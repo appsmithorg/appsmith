@@ -4,7 +4,9 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.solutions.roles.RoleConfigurationView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,9 +28,12 @@ import java.util.List;
 public class PermissionGroupController {
 
     private final PermissionGroupService service;
+    private final RoleConfigurationView generateRoleViewsSolution;
 
-    public PermissionGroupController(PermissionGroupService service) {
+    public PermissionGroupController(PermissionGroupService service,
+                                     RoleConfigurationView generateRoleViewsSolution) {
         this.service = service;
+        this.generateRoleViewsSolution = generateRoleViewsSolution;
     }
 
     @GetMapping
@@ -58,5 +63,11 @@ public class PermissionGroupController {
         log.debug("Going to delete permission group with id: {}", id);
         return service.archiveById(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @GetMapping("/configure/{permissionGroupId}")
+    public Mono<ResponseDTO<RoleViewDTO>> getPermissionGroupConfiguration(@PathVariable String permissionGroupId) {
+        return service.findConfigurableRoleById(permissionGroupId)
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }

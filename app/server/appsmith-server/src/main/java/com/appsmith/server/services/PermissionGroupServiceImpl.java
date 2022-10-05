@@ -16,6 +16,8 @@ import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.PermissionGroupServiceCEImpl;
+import com.appsmith.server.solutions.roles.RoleConfigurationView;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -49,6 +51,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     private final TenantService tenantService;
     private final PolicyGenerator policyGenerator;
 
+    private final RoleConfigurationView roleConfigurationView;
+
     public PermissionGroupServiceImpl(Scheduler scheduler,
                                       Validator validator,
                                       MongoConverter mongoConverter,
@@ -59,7 +63,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       TenantService tenantService,
                                       UserRepository userRepository,
                                       PolicyUtils policyUtils,
-                                      ConfigRepository configRepository, ModelMapper modelMapper, PolicyGenerator policyGenerator) {
+                                      ConfigRepository configRepository,
+                                      ModelMapper modelMapper,
+                                      PolicyGenerator policyGenerator,
+                                      RoleConfigurationView roleConfigurationView) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 sessionUserService, tenantService, userRepository, policyUtils, configRepository);
@@ -67,6 +74,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         this.policyGenerator = policyGenerator;
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
+        this.roleConfigurationView = roleConfigurationView;
     }
 
     @Override
@@ -145,7 +153,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                 .filter(policy ->
                                         !policy.getPermission().equals(MANAGE_PERMISSION_GROUPS.getValue())
                                                 &&
-                                        !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue())
+                                                !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue())
                                 )
                                 .collect(Collectors.toSet());
                         permissionGroup1.setPolicies(policiesWithoutEditPermission);
@@ -202,4 +210,20 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 )
                 .map(tuple -> tuple.getT1());
     }
+
+    @Override
+    public Mono<RoleViewDTO> findConfigurableRoleById(String id) {
+        // The user should have atleast READ_PERMISSION_GROUPS permission to view the role. The edits would be allowed via
+        // MANAGE_PERMISSION_GROUPS permission.
+        return repository.findById(id, READ_PERMISSION_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
+                .flatMap(permissionGroup -> roleConfigurationView.getAllTabViews(permissionGroup.getId())
+                        .map(roleViewDTO -> {
+                            roleViewDTO.setId(permissionGroup.getId());
+                            roleViewDTO.setName(permissionGroup.getName());
+                            roleViewDTO.setUserPermissions(permissionGroup.getUserPermissions());
+                            return roleViewDTO;
+                        }));
+    }
+
 }

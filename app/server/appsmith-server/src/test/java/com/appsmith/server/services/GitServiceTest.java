@@ -41,6 +41,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -168,6 +169,8 @@ public class GitServiceTest {
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
             "with git to use version control service";
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
@@ -2979,6 +2982,26 @@ public class GitServiceTest {
         StepVerifier
                 .create(gitService.getApplicationCountWithPrivateRepo(localWorkspaceId))
                 .assertNext(limit -> assertThat(limit).isEqualTo(3))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllApplications() throws GitAPIException, IOException {
+        Application testApplication = new Application();
+        testApplication.setName("nonGitApplication");
+        testApplication.setWorkspaceId(workspaceId);
+        applicationPageService.createApplication(testApplication).block();
+
+
+        Mono<List<Application>> defaultApplicationsByWorkspaceIds = applicationRepository.findDefaultApplicationsByWorkspaceIds(Set.of(workspaceId))
+                .collectList();
+
+        StepVerifier.create(defaultApplicationsByWorkspaceIds)
+                .assertNext(applications -> {
+                    // We should assert that there is 1 git connected application (created during setup) & 1 non-git connected application
+                    assertThat(applications).hasSize(2);
+                })
                 .verifyComplete();
     }
 }

@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
+import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -25,5 +26,17 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     public Flux<UserGroup> findAllByTenantId(String tenantId, AclPermission aclPermission) {
         Criteria criteria = where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
         return queryAll(List.of(criteria), aclPermission);
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
+        Criteria criteria = where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
+        return queryAll(
+                List.of(criteria),
+                includeFields,
+                null,
+                null,
+                NO_RECORD_LIMIT
+        );
     }
 }

@@ -5,6 +5,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.ce.PermissionGroupServiceCE;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,4 +25,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Mono<PermissionGroup> findById(String id, AclPermission permission);
 
     Flux<PermissionGroup> findAllByAssignedToGroupIdsIn(Set<String> groupIds);
+
+    Mono<RoleViewDTO> findConfigurableRoleById(String id);
 }
