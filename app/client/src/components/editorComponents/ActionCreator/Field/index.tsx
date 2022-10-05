@@ -15,8 +15,7 @@ import { SelectorView } from "../viewComponents/SelectorView";
 import { KeyValueView } from "../viewComponents/KeyValueView";
 import { TextView } from "../viewComponents/TextView";
 import { TabView } from "../viewComponents/TabView";
-import { FIELD_CONFIGS } from "../FieldConfig";
-import { APPSMITH_FUNCTION_CONFIG } from "../AppsmithFunctionConfig";
+import { FIELD_CONFIG } from "../FieldConfig";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (
@@ -27,21 +26,23 @@ const views = {
   ),
   [ViewTypes.TEXT_VIEW]: (props: TextViewProps) => <TextView {...props} />,
   [ViewTypes.TAB_VIEW]: (props: TabViewProps) => <TabView {...props} />,
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  [ViewTypes.NO_VIEW]: () => <></>,
 };
 
 export function Field(props: FieldProps) {
   const { field } = props;
   const fieldType = field.field;
-  const fieldConfig = FIELD_CONFIGS[fieldType];
+  const fieldConfig = FIELD_CONFIG[fieldType];
   // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!fieldConfig) return <></>;
   let viewElement: JSX.Element | null = null;
-  const view = views[fieldConfig.view];
-  const label = APPSMITH_FUNCTION_CONFIG[fieldType].label(props);
+  const view = fieldConfig.view && views[fieldConfig.view];
+  const label = FIELD_CONFIG[fieldType].label(props);
   const getterFunction = fieldConfig.getter;
   const value = props.value;
-  const defaultText = APPSMITH_FUNCTION_CONFIG[fieldType].defaultText;
-  const options = APPSMITH_FUNCTION_CONFIG[fieldType].options(props);
+  const defaultText = FIELD_CONFIG[fieldType].defaultText;
+  const options = FIELD_CONFIG[fieldType].options(props);
 
   switch (fieldType) {
     case FieldType.ACTION_SELECTOR_FIELD:
@@ -50,15 +51,11 @@ export function Field(props: FieldProps) {
         label: label,
         get: getterFunction,
         set: (
-          value: string | DropdownOption,
+          value: TreeDropdownOption,
           defaultValue?: string,
           isUpdatedViaKeyboard = false,
         ) => {
-          const finalValueToSet = fieldConfig.setter(
-            value,
-            props.value,
-            defaultValue,
-          );
+          const finalValueToSet = fieldConfig.setter(value, "");
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: value,
@@ -109,14 +106,14 @@ export function Field(props: FieldProps) {
         label: label,
         get: getterFunction,
         set: (
-          value: string | DropdownOption,
+          value: TreeDropdownOption,
           defaultValue?: string,
           isUpdatedViaKeyboard = false,
         ) => {
           const finalValueToSet = fieldConfig.setter(
             value,
             props.value,
-            defaultValue,
+            isUpdatedViaKeyboard,
           );
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },

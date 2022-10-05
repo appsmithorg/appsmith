@@ -61,6 +61,7 @@ export const ViewTypes = {
   TEXT_VIEW: "TEXT_VIEW",
   BOOL_VIEW: "BOOL_VIEW",
   TAB_VIEW: "TAB_VIEW",
+  NO_VIEW: "NO_VIEW",
 };
 
 export const NAVIGATE_TO_TAB_OPTIONS = {

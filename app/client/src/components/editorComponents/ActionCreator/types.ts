@@ -84,6 +84,13 @@ export type AppsmithFunctionConfigValues = {
   label: (args: FieldProps) => string;
   defaultText: string;
   options: (args: FieldProps) => null | TreeDropdownOption[] | OptionListType;
+  getter: (arg1: string, arg2: number) => string;
+  setter: (
+    arg1: string | TreeDropdownOption,
+    arg2: string,
+    arg3?: number,
+  ) => string;
+  view: ViewType;
 };
 
 export type AppsmithFunctionConfigType = {

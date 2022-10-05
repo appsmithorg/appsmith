@@ -5,7 +5,7 @@ import { Field } from "./index";
 import { ThemeProvider } from "constants/DefaultTheme";
 import { lightTheme } from "selectors/themeSelectors";
 import { FieldType } from "../constants";
-import { APPSMITH_FUNCTION_CONFIG } from "../AppsmithFunctionConfig";
+import { FIELD_CONFIG } from "../FieldConfig";
 
 describe("Field component", () => {
   const commonProps = {
@@ -182,11 +182,8 @@ describe("Field component", () => {
         },
         value: value as string,
       };
-      const expectedLabel = APPSMITH_FUNCTION_CONFIG[field as FieldType].label(
-        props,
-      );
-      const expectedDefaultText =
-        APPSMITH_FUNCTION_CONFIG[field as FieldType].defaultText;
+      const expectedLabel = FIELD_CONFIG[field as FieldType].label(props);
+      const expectedDefaultText = FIELD_CONFIG[field as FieldType].defaultText;
       render(
         <ThemeProvider theme={lightTheme}>
           <Field {...props} />
