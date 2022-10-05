@@ -1,13 +1,14 @@
 const dynamicDSL = require("../../../../../fixtures/PhoneInputDynamic.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-
+var appId = " ";
 const widgetName = "phoneinputwidget";
 
 describe("Phone input widget - ", () => {
   before(() => {
-    cy.addDsl(dynamicDSL);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+    cy.addDsl(dynamicDSL,appId);
   });
-
   it("1. Should show empty dropdown for a typo", () => {
     cy.openPropertyPane(widgetName);
 

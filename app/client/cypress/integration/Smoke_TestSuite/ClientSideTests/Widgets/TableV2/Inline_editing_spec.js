@@ -676,11 +676,6 @@ describe("Table widget inline editing functionality", () => {
 
 describe("Table widget inline editing functionality with Text wrapping functionality", () => {
 
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-  });
-
   beforeEach(() => {
     cy.addDsl(dsl,appId);
   });

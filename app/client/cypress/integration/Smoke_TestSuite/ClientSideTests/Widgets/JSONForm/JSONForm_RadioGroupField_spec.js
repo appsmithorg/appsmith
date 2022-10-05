@@ -1,6 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
-
+var appId = " ";
 const fieldPrefix = ".t--jsonformfield";
 
 function selectAndValidateOption(selector, option, expectedFormData) {
@@ -34,11 +34,13 @@ function clearOptionsProperty() {
 }
 
 describe("JSONForm RadioGroup Field", () => {
-
-  
   beforeEach(() => {
-    cy.addDsl(dslWithoutSchema);
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
+  });
 
+  beforeEach(() => {
+    cy.addDsl(dslWithoutSchema,appId);
     // Bind formData to Text1 widget text property
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");

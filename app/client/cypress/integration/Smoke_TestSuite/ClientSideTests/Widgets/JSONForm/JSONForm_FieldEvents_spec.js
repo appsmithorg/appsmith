@@ -15,6 +15,7 @@ describe("Radio Group Field", () => {
     appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     });
+    
   before(() => {
     const schema = {
       answer: "Y",

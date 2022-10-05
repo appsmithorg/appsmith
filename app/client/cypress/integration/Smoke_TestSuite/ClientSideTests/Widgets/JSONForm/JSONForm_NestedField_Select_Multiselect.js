@@ -72,9 +72,9 @@ describe("JSONForm select field", () => {
 });
 
 describe("JSONForm multiselect field", () => {
-  appId = localStorage.getItem("applicationId");
-  cy.log("appID:"+appId);
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     const schema = {
       object: {
         multiselect: "GREEN",

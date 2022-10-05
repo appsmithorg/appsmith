@@ -1,13 +1,17 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jsonFormUnicodeDSLWithoutSourceData.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
+var appId = " ";
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = ".t--property-pane-back-btn";
 
 describe("JSON Form Widget Unicode keys", () => {
+  before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
+  });
   it("generates fields with valid source data json", () => {
-    cy.addDsl(dslWithoutSchema);
+    cy.addDsl(dslWithoutSchema,appId);
     const sourceData = {
       नाम: "John",
       суроға: {
@@ -64,7 +68,7 @@ describe("JSON Form Widget Unicode keys", () => {
   });
 
   it("modifies field when source data changes", () => {
-    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData);
+    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData,appId);
 
     const modifiedSourceData = {
       "पहला नाम": "John",
@@ -144,7 +148,7 @@ describe("JSON Form Widget Unicode keys", () => {
   });
 
   it("change in accessor updates formData", () => {
-    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData);
+    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData,appId);
     const sourceData = {
       नाम: "John",
       суроға: {

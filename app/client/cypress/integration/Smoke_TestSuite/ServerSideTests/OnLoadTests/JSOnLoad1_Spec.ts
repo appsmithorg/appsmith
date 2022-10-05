@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+var appId = " ";
 let dsName: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -14,8 +14,10 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:"+appId);
     cy.fixture("tablev1NewDsl").then((val: any) => {
-      agHelper.AddDsl(val);
+      agHelper.AddDsl(val,appId);
     });
   });
 
@@ -228,7 +230,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("9. Tc 60, 1912 - Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes!", () => {
     ee.SelectEntityByName("Page1");
     cy.fixture("JSApiOnLoadDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._widgetInCanvas("imagewidget"));
+      agHelper.AddDsl(val,appId, locator._widgetInCanvas("imagewidget"));
     });
 
     ee.ExpandCollapseEntity("Queries/JS");

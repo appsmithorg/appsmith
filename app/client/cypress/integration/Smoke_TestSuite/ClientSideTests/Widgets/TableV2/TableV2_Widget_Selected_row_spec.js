@@ -1,5 +1,5 @@
 const dsl = require("../../../../../fixtures/tableV2AndTextDsl.json");
-
+var appId = " ";
 describe("Table Widget v2 property pane feature validation", function() {
    before(() => {
     appId = localStorage.getItem("applicationId");

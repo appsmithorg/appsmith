@@ -1,6 +1,6 @@
 const dsl = require("../../../../../fixtures/textNewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-
+var appId = " ";
 describe("Text Widget Truncate Functionality", function() {
    before(() => {
     appId = localStorage.getItem("applicationId");

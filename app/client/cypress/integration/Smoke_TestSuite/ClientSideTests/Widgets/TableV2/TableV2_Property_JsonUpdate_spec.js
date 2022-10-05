@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
+var appId = " ";
 
 describe("Test Create Api and Bind to Table widget V2", function() {
    before(() => {

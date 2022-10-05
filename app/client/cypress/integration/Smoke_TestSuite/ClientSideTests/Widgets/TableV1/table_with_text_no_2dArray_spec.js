@@ -1,7 +1,7 @@
 const dsl = require("../../../../../fixtures/tableWithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { seconds, testTimeout } from "../../../../../support/timeout";
-
+var appId = " ";
 describe("Table widget edge case scenario testing", function() {
    before(() => {
     appId = localStorage.getItem("applicationId");

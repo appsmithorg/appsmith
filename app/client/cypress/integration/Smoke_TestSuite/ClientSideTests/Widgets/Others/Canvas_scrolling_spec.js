@@ -4,7 +4,7 @@ var appId = " ";
 
 describe("Modal Widget Functionality", function() {
   before(() => {
-    cy. appId = localStorage.getItem("applicationId");
+    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     cy.addDsl(dsl, appId);
     cy.wait(7000);

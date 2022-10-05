@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+var appId = " ";
 const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
@@ -12,10 +12,11 @@ describe("Navigate To feature", () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
     // create a new page
     ee.AddNewPage(); // page 2
-
+    appId = localStorage.getItem("applicationId");
+    cy.log("appID:" + appId);
     ee.SelectEntityByName("Page1");
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val, locator._spanButton("Submit"));
+      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPropertiesDropDown("onClick", "Navigate to");

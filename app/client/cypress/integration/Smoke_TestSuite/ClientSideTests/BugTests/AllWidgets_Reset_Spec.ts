@@ -1,7 +1,7 @@
 import testdata from "../../../../fixtures/testdata.json";
 import commonlocators from "../../../../locators/commonlocators.json";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+var appId = " ";
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   deployMode = ObjectsRegistry.DeployMode,
@@ -422,8 +422,10 @@ function filePickerWidgetAndReset() {
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset assertWidgetReset`, () => {
     before(() => {
+      appId = localStorage.getItem("applicationId");
+      cy.log("appID:"+appId);
       cy.fixture("defaultMetaDsl").then((val: any) => {
-        agHelper.AddDsl(val);
+        agHelper.AddDsl(val,appId);
       });
     });
 
