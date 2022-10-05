@@ -6211,10 +6211,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.25-alpha.7":
-  version "1.0.25-alpha.7"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.25-alpha.7.tgz#8d188bea0d0dcbc1b3a009affaef4add0384ee12"
-  integrity sha512-lHUfX4cPeCWqyKAX0QDi9VJxyXeClZGdCp5P/zbI30gZA4wb9f2hIk1QVJKMfMcf9NDPm6suBZITFFw8i3weEw==
+"design-system@npm:@appsmithorg/design-system@1.0.25-alpha.11":
+  version "1.0.25-alpha.11"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.25-alpha.11.tgz#08f566e7875214228592b08d2b7998aa3b0c5bf6"
+  integrity sha512-ECi2gxUC+E5B6lPhaL8bTao2y73CwMptrGXZgFmA1f1uqXlEmRfZL9Zvz0k7C+mHVKvLjmNGj6TxKcN3xWn2ug==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
@@ -6223,6 +6223,7 @@ depd@~1.1.2:
     react-router-dom "^6.3.0"
     react-table "^7.8.0"
     react-tabs "3.1.1"
+    react-toastify "^5.5.0"
     redux-form "8.2.6"
     remixicon-react "^1.0.0"
     tinycolor2 "^1.4.2"
