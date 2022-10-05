@@ -178,7 +178,7 @@ function SelectField({
           placeholder={schemaItem.placeholderText}
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
-          value={options[selectedOptionIndex]?.value}
+          value={options[selectedOptionIndex]?.value?.toString()}
           widgetId={fieldClassName}
           width={10}
         />
