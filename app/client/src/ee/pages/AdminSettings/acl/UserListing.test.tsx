@@ -39,6 +39,10 @@ function renderComponent() {
       selectedGroup: null,
       selectedUser: null,
       selectedRole: null,
+      inviteOptions: {
+        groups: [],
+        roles: [],
+      },
     },
   });
   return render(
@@ -62,9 +66,7 @@ describe("<UserListing />", () => {
     renderComponent();
     const userEditLink = await screen.queryAllByTestId("user-listing-userCell");
     await userEvent.click(userEditLink[0]);
-    expect(window.location.pathname).toBe(
-      `/settings/users/${allUsers[0].userId}`,
-    );
+    expect(window.location.pathname).toBe(`/settings/users/${allUsers[0].id}`);
   });
   it("should expand on show more and collapse on show less", () => {
     renderComponent();
@@ -104,7 +106,7 @@ describe("<UserListing />", () => {
     const editOption = document.getElementsByClassName("edit-menu-item");
     await userEvent.click(editOption[0]);
     expect(window.location.pathname).toEqual(
-      `/settings/users/${allUsers[0].userId}`,
+      `/settings/users/${allUsers[0].id}`,
     );
   });
   it("should delete the user when Delete menu option is clicked", async () => {
@@ -125,10 +127,10 @@ describe("<UserListing />", () => {
   });
   it("should render in custom url", async () => {
     render(<UserListing />, {
-      url: `/settings/users/${allUsers[0].userId}`,
+      url: `/settings/users/${allUsers[0].id}`,
     });
     expect(window.location.pathname).toEqual(
-      `/settings/users/${allUsers[0].userId}`,
+      `/settings/users/${allUsers[0].id}`,
     );
   });
 });

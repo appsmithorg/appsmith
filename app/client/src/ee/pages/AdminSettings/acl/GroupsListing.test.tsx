@@ -38,6 +38,10 @@ function renderComponent() {
       selectedGroup: null,
       selectedUser: null,
       selectedRole: null,
+      inviteOptions: {
+        groups: [],
+        roles: [],
+      },
     },
   });
   return render(

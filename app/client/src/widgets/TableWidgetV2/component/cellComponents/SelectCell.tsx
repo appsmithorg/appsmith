@@ -54,7 +54,7 @@ type SelectProps = {
     action?: string,
   ) => void;
   onItemSelect: (
-    value: string,
+    value: string | number,
     rowIndex: number,
     column: string,
     action?: string,

@@ -208,7 +208,7 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
   }
 }
 
-/*export function* cloneGroupSaga(action: ReduxAction<any>) {
+export function* cloneGroupSaga(action: ReduxAction<any>) {
   try {
     const response: ApiResponse = yield AclApi.cloneAclGroup(action.payload);
 
@@ -229,7 +229,7 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
       type: ReduxActionTypes.CLONE_ACL_GROUP_ERROR,
     });
   }
-}*/
+}
 
 export function* updateGroupNameSaga(action: ReduxAction<any>) {
   try {
@@ -379,6 +379,75 @@ export function* cloneRoleSaga(action: ReduxAction<any>) {
   }
 }
 
+export function* fetchRolesForInviteSaga() {
+  try {
+    const response: ApiResponse = yield AclApi.fetchRolesForInvite();
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE_ERROR,
+    });
+  }
+}
+
+export function* addUsersInGroupSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.addUsersInGroup(action.payload);
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.ADD_USERS_IN_GROUP_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.ADD_USERS_IN_GROUP_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.ADD_USERS_IN_GROUP_ERROR,
+    });
+  }
+}
+
+export function* removeUsersFromGroupSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.removeUsersFromGroup(
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP_ERROR,
+    });
+  }
+}
+
 export function* InitAclSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
@@ -395,9 +464,18 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
-      // takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
+      /*takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),*/
       takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
+      takeLatest(
+        ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
+        fetchRolesForInviteSaga,
+      ),
       takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
+      takeLatest(ReduxActionTypes.ADD_USERS_IN_GROUP, addUsersInGroupSaga),
+      takeLatest(
+        ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
+        removeUsersFromGroupSaga,
+      ),
     ]);
   }
 }

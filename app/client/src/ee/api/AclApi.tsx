@@ -45,6 +45,7 @@ export class AclApi extends Api {
   static users = "/v1/users";
   static roles = "/v1/roles";
   static userGroups = "/v1/user-groups";
+  static inviteViaRoles = "v1/roles/assign";
 
   static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.get(AclApi.users);
@@ -70,28 +71,23 @@ export class AclApi extends Api {
     // return Api.delete(AclApi.aclUsersURL, id);
     const response = Api.get(AclApi.users, "");
     const result = response.then((data) => {
-      const user = data.data.filter((user: any) => user?.userId !== id);
+      const user = data.data.filter((user: any) => user?.id !== id);
       return { responseMeta: { status: 200, success: true }, data: user };
     });
     return result;
   }
 
-  /*static cloneAclGroup(payload: any): Promise<ApiResponse> {
-    const response = Api.get(AclApi.userGroups);
+  static async cloneAclGroup(payload: any): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.userGroups);
     const clonedData = {
       ...payload,
-      id: uniqueId("ug"),
-      rolename: `Copy of ${payload.rolename}`,
+      id: uniqueId("pg"),
+      name: `Copy of ${payload.name}`,
     };
-    const result = response.then((data) => {
-      const updatedResponse = [...data.data, clonedData];
-      return {
-        responseMeta: { status: 200, success: true },
-        data: updatedResponse,
-      };
-    });
-    return result;
-  }*/
+    const updatedResponse = [...response.data, clonedData];
+    response.data = updatedResponse;
+    return response;
+  }
 
   /* Updated */
   static async fetchAclRoles(): Promise<AxiosPromise<ApiResponse>> {
@@ -142,6 +138,23 @@ export class AclApi extends Api {
     return response;
   }
 
+  static async addUsersInGroup(
+    payload: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.post(`${AclApi.userGroups}/invite`, payload);
+    return response;
+  }
+
+  static async removeUsersFromGroup(
+    payload: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.post(
+      `${AclApi.userGroups}/removeUsers`,
+      payload,
+    );
+    return response;
+  }
+
   /* to be re-checked*/
   static async fetchSingleRole(
     payload: FetchSingleDataPayload,
@@ -164,6 +177,11 @@ export class AclApi extends Api {
     };
     const updatedResponse = [...response.data, clonedData];
     response.data = updatedResponse;
+    return response;
+  }
+
+  static async fetchRolesForInvite(): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.inviteViaRoles);
     return response;
   }
 }

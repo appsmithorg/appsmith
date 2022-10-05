@@ -15,6 +15,7 @@ import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
@@ -76,6 +77,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -160,6 +164,9 @@ public class AuditLogServiceTest {
     @Autowired
     PluginRepository pluginRepository;
 
+    @Autowired
+    CommonConfig commonConfig;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -173,10 +180,17 @@ public class AuditLogServiceTest {
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
-    public void setup() {
+    public void setup() throws IOException {
 
         // Run the tests only if Audit Logs is enabled on the instance
         assumeTrue(isAuditLogEnabled);
+
+        // If the env file does not exist NoSuchFileException will be thrown from some of the test cases
+        // We create empty file to handle this situation primarily in CI
+        Path envFilePath = Path.of(commonConfig.getEnvFilePath());
+        if (!Files.exists(envFilePath)) {
+            Files.createFile(envFilePath);
+        }
 
         if (StringUtils.isEmpty(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
@@ -337,20 +351,42 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * To validate the ASC sort order of Audit Log events
+     */
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withFiltersAscOrder_Success() {
-        MultiValueMap<String, String> params = getAuditLogRequest(null, null, null, null, "1", null, null);
+        Workspace workspace = new Workspace();
+        workspace.setName("AuditLogTestWorkspace");
+        Workspace updateWorkspace = new Workspace();
+        updateWorkspace.setName("AuditLogTestWorkspaceUpdated");
+        String resourceType = auditLogService.getResourceType(workspace);
 
+        // Create, update and delete workspace sequentially to verify sort order
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        Workspace updatedWorkspace = workspaceService.update(createdWorkspace.getId(), updateWorkspace).block();
+        workspaceService.archiveById(createdWorkspace.getId()).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, null, resourceType, createdWorkspace.getId(), "1", null, null);
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
-                    assertThat(auditLogs.size()).isNotEqualTo(0);
-                    assertThat(auditLogs.get(0).getEvent()).isEqualTo(AuditLogEvents.Events.WORKSPACE_CREATED.toString().toLowerCase().replace("_", "."));
-                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(workspaceName);
-                    assertThat(auditLogs.get(0).getResource().getType()).isEqualTo(auditLogService.getResourceType(new Workspace()));
-                    assertThat(auditLogs.get(0).getResource().getId()).isEqualTo(workspaceId);
+                    assertThat(auditLogs.size()).isEqualTo(3);
+                    // Validate each events
+                    assertThat(auditLogs.get(0).getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKSPACE_CREATED));
+                    assertThat(auditLogs.get(0).getResource().getName()).isEqualTo(workspace.getName());
+
+                    assertThat(auditLogs.get(1).getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKSPACE_UPDATED));
+                    assertThat(auditLogs.get(1).getResource().getName()).isEqualTo(updateWorkspace.getName());
+
+                    assertThat(auditLogs.get(2).getEvent()).isEqualTo(auditLogService.getAuditLogEventName(AuditLogEvents.Events.WORKSPACE_DELETED));
+                    assertThat(auditLogs.get(2).getResource().getName()).isEqualTo(updatedWorkspace.getName());
+
+                    // Validate time difference and common properties
                     for (int i = 1; i < auditLogs.size(); i++) {
+                        assertThat(auditLogs.get(i).getResource().getType()).isEqualTo(auditLogService.getResourceType(new Workspace()));
+                        assertThat(auditLogs.get(i).getResource().getId()).isEqualTo(createdWorkspace.getId());
                         assertThat(auditLogs.get(i).getTimestamp()).isAfterOrEqualTo(auditLogs.get(i - 1).getTimestamp());
                     }
                 })
@@ -2403,7 +2439,6 @@ public class AuditLogServiceTest {
     // Test case to validate instance setting update - GitHubAuth event and contents
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_GitHubAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "",
@@ -2414,9 +2449,6 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name(), "testClientSecret"
         );
-
-        // Clean env before testing
-        envManager.applyChanges(emptyEnvChanges).block();
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2498,7 +2530,6 @@ public class AuditLogServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_GoogleAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "",
@@ -2509,9 +2540,6 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), "testClientSecret"
         );
-
-        // Clean env before testing
-        envManager.applyChanges(emptyEnvChanges).block();
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2593,7 +2621,6 @@ public class AuditLogServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_OIDCAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "",
@@ -2604,9 +2631,6 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_OIDC_CLIENT_SECRET.name(), "testClientSecret"
         );
-
-        // Clean env before testing
-        envManager.applyChanges(emptyEnvChanges).block();
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2688,7 +2712,6 @@ public class AuditLogServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled //TODO: Remove this once the CI error is fixed
     public void logEvent_InstanceSettingUpdated_SAMLAuth_success() {
         Map<String, String> emptyEnvChanges = Map.of(
                 APPSMITH_SSO_SAML_ENABLED.name(), "false"
@@ -2698,12 +2721,47 @@ public class AuditLogServiceTest {
                 APPSMITH_SSO_SAML_ENABLED.name(), "true"
         );
 
-        // Clean env before testing
+        // Test adding configuration
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
-        envManager.applyChanges(emptyEnvChanges).block();
-
         MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    // We are looking for the first event since Audit Logs sort order is DESC
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+
+                    // User validation
+                    assertThat(auditLog.getUser().getId()).isNotNull();
+                    assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
+                    assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
+                    //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
+
+                    // Instance setting validation
+                    assertThat(auditLog.getAuthentication().getMode()).isEqualTo(FieldName.SAML);
+                    assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Added");
+
+                    // Metadata validation
+                    //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
+                    assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    // Misc. fields validation
+                    assertThat(auditLog.getResource()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+                    assertThat(auditLog.getInvitedUsers()).isNull();
+                })
+                .verifyComplete();
+
+        // Test removing configuration
+        envManager.applyChanges(emptyEnvChanges).block();
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2738,9 +2796,21 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getInvitedUsers()).isNull();
                 })
                 .verifyComplete();
+    }
 
-        // Test adding configuration
-        envManager.applyChanges(nonEmptyEnvChanges).block();
+    // Test case to validate workspace created on signup have user detail
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_userSignedUpWorkspaceCreatedHasUserInfo_success() {
+        User user = new User();
+        user.setEmail("auditlogsignupuserworkspace@xyz.com");
+        user.setName("AuditLog User");
+        user.setPassword("AuditLogUserPassword");
+
+        User createdUser = signupAndLoginUser(user).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2749,18 +2819,14 @@ public class AuditLogServiceTest {
                     assertThat(auditLogs).isNotEmpty();
                     AuditLog auditLog = auditLogs.get(0);
 
-                    assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
+                    assertThat(auditLog.getEvent()).isEqualTo("workspace.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
 
                     // User validation
-                    assertThat(auditLog.getUser().getId()).isNotNull();
-                    assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
-                    assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
+                    assertThat(auditLog.getUser().getId()).isEqualTo(createdUser.getId());
+                    assertThat(auditLog.getUser().getEmail()).isEqualTo(createdUser.getEmail());
+                    assertThat(auditLog.getUser().getName()).isEqualTo(createdUser.getName());
                     //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
-
-                    // Instance setting validation
-                    assertThat(auditLog.getAuthentication().getMode()).isEqualTo(FieldName.SAML);
-                    assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Added");
 
                     // Metadata validation
                     //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
@@ -2768,10 +2834,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
 
                     // Misc. fields validation
-                    assertThat(auditLog.getResource()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
+                    assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
                 })
                 .verifyComplete();
