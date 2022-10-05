@@ -1075,8 +1075,8 @@ export function EditorJSONtoForm(props: Props) {
               {output && !!output.length && (
                 <ResultsCount>
                   <Text type={TextType.P3}>
-                    Result:&nbsp;
-                    <Text type={TextType.H5}>{`${output.length} Record${
+                    Result:
+                    <Text type={TextType.H5}>{` ${output.length} Record${
                       output.length > 1 ? "s" : ""
                     }`}</Text>
                   </Text>

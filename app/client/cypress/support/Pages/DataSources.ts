@@ -73,9 +73,7 @@ export class DataSources {
   _queryResponse = (responseType: string) =>
     "li[data-cy='t--tab-" + responseType + "']";
   _queryRecordResult = (recordCount: number) =>
-    "//div/span[text()='Result:']/span[contains(text(),'" +
-    recordCount +
-    " Record')]";
+    `//div/span[text()='Result:']/span[contains(text(),' ${recordCount} Record')]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
