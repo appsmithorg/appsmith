@@ -526,6 +526,15 @@ public class MssqlPlugin extends BasePlugin {
         }
     }
 
+    public static long getPort(Endpoint endpoint) {
+
+        if (endpoint.getPort() == null) {
+            return 1433L;
+        }
+
+        return endpoint.getPort();
+    }
+
     /**
      * This function is blocking in nature which connects to the database and creates a connection pool
      *
@@ -561,7 +570,7 @@ public class MssqlPlugin extends BasePlugin {
             urlBuilder
                     .append(endpoint.getHost())
                     .append(":")
-                    .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                    .append(getPort(endpoint))
                     .append(";");
         }
 

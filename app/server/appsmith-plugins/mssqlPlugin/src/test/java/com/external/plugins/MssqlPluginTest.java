@@ -148,6 +148,17 @@ public class MssqlPluginTest {
     }
 
     @Test
+    public void testDefaultPort() {
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(address);
+
+        long defaultPort = MssqlPlugin.getPort(endpoint);
+
+        assertEquals(1433L,defaultPort);
+    }
+
+    @Test
     public void testConnectMsSqlContainer() {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
