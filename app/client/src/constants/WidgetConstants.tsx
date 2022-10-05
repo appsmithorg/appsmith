@@ -136,6 +136,8 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+  level: true,
+  levelData: true,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {

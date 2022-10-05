@@ -209,6 +209,7 @@ export const getMetaCanvasWidget = (metaWidgetId: string) =>
 
 export const getMetaWidgetChildrenStructure = (
   parentWidgetId: string,
+  type: string,
   hasMetaWidgets = false,
 ) =>
   createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
@@ -218,7 +219,11 @@ export const getMetaWidgetChildrenStructure = (
 
     Object.values(metaCanvasWidgets).forEach(({ parentId, widgetId }) => {
       if (parentId === parentWidgetId) {
-        structure.push(denormalize(widgetId, metaCanvasWidgets));
+        structure.push(
+          denormalize(widgetId, metaCanvasWidgets, {
+            widgetTypeForHaltingRecursion: type,
+          }),
+        );
       }
     });
 

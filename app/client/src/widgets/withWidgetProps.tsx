@@ -62,7 +62,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     );
 
     const metaWidgetChildrenStructure = useSelector(
-      getMetaWidgetChildrenStructure(widgetId, hasMetaWidgets),
+      getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
       equal,
     );
 
@@ -81,6 +81,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
+    const widget = metaCanvasWidget || canvasWidget;
 
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
@@ -89,11 +90,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         }
 
         return evaluatedWidget
-          ? createCanvasWidget(
-              canvasWidget || metaCanvasWidget,
-              evaluatedWidget,
-            )
-          : createLoadingWidget(canvasWidget);
+          ? createCanvasWidget(widget, evaluatedWidget)
+          : createLoadingWidget(widget);
       })();
 
       widgetProps = { ...canvasWidgetProps };
