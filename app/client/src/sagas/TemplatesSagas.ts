@@ -1,12 +1,10 @@
 import {
   ApplicationPayload,
-  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call, select, take } from "redux-saga/effects";
-import { differenceBy } from "lodash";
 import TemplatesAPI, {
   ImportTemplateResponse,
   FetchTemplateResponse,
@@ -29,7 +27,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchApplication } from "actions/applicationActions";
 import { APP_MODE } from "entities/App";
-import { getPageList } from "selectors/entitiesSelector";
 import {
   executePageLoadActions,
   fetchActions,
@@ -42,6 +39,7 @@ import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { showReconnectDatasourceModal } from "actions/applicationActions";
+import { getAllPageIds } from "./selectors";
 
 function* getAllTemplatesSaga() {
   try {
@@ -230,7 +228,6 @@ function* forkTemplateToApplicationSaga(
       workspaceId,
       pagesToImport,
     );
-    const currentListOfPages: Page[] = yield select(getPageList);
     // To fetch the new set of pages after merging the template into the existing application
     yield put(
       fetchApplication({
@@ -241,17 +238,8 @@ function* forkTemplateToApplicationSaga(
     const isValid: boolean = yield validateResponse(response);
 
     if (isValid) {
-      const postImportPageList = response.data.application.pages.map((page) => {
-        return { pageId: page.id, ...page };
-      });
-      const newPages = differenceBy(
-        postImportPageList,
-        currentListOfPages,
-        "pageId",
-      );
-
-      // Fetch the actions/jsobjects of the new set of pages that have been added
       yield call(postPageAdditionSaga, applicationId);
+      const pages: string[] = yield select(getAllPageIds);
 
       if (response.data.isPartialImport) {
         yield put(
@@ -260,13 +248,13 @@ function* forkTemplateToApplicationSaga(
             unConfiguredDatasourceList:
               response.data.unConfiguredDatasourceList,
             workspaceId,
-            pageId: newPages[0].pageId,
+            pageId: pages[0],
           }),
         );
       }
       history.push(
         builderURL({
-          pageId: newPages[0].pageId,
+          pageId: pages[0],
         }),
       );
       yield put(showTemplatesModal(false));
