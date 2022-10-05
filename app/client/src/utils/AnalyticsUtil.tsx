@@ -289,6 +289,7 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
