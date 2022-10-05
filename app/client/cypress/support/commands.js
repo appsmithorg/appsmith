@@ -596,7 +596,7 @@ Cypress.Commands.add("addDsl", (dsl,appId) => {
       // Dumping the DSL to the created page
       cy.request(
         "PUT",
-        "api/v1/layouts/" + layoutId + "/pages/" + pageid,"?applicationId=" +
+        "api/v1/layouts/" + layoutId + "/pages/" + pageid + "?applicationId=" +
         appId,
         dsl,
       ).then((response) => {
