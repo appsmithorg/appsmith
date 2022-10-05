@@ -201,10 +201,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // since there was no datasource update differentiator between server invoked due to refresh token,
         // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
         // since the base controller uses the default method from CRUD interface, we are adding keys manually for the user invoked flow
-        return update(id, datasource, Boolean.FALSE);
+        return update(id, datasource, Boolean.TRUE);
     }
 
-    public Mono<Datasource> update(String id, Datasource datasource, Boolean isServerRefreshedUpdate) {
+    public Mono<Datasource> update(String id, Datasource datasource, Boolean isUserRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -229,13 +229,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(savedDatasource -> {
 
                     // this key will present in the analytics as a diff b/w server and user invoked flows
-                    String isDatasourceUpdateServerInvokedKey = "isDatasourceUpdateServerInvoked";
+                    String isDatasourceUpdateUserInvokedKey = "isDatasourceUpdateUserInvoked";
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
 
-                    if (isServerRefreshedUpdate.equals(Boolean.TRUE)) {
-                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.TRUE);
+                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
+                        analyticsProperties.put(isDatasourceUpdateUserInvokedKey, Boolean.TRUE);
                     } else {
-                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.FALSE);
+                        analyticsProperties.put(isDatasourceUpdateUserInvokedKey, Boolean.FALSE);
                     }
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
                 })
