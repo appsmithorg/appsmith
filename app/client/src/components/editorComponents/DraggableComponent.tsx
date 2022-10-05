@@ -60,13 +60,15 @@ export const canDrag = (
   props: any,
   isSnipingMode: boolean,
   isPreviewMode: boolean,
+  isDrawingEnabled: boolean,
 ) => {
   return (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !props?.dragDisabled &&
     !isSnipingMode &&
-    !isPreviewMode
+    !isPreviewMode &&
+    !isDrawingEnabled
   );
 };
 
@@ -120,17 +122,24 @@ function DraggableComponent(props: DraggableComponentProps) {
   const dragWrapperStyle: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "block",
   };
+
+  const isDrawingModeEnabled = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDrawing,
+  );
+
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {
-      opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
+      opacity: isDrawingModeEnabled
+        ? 1
+        : !isResizingOrDragging || isCurrentWidgetResizing
+        ? 0
+        : 1,
       position: "absolute",
       transform: `translate(-50%, -50%)`,
       top: "50%",
       left: "50%",
     };
-  }, [isResizingOrDragging, isCurrentWidgetResizing]);
-
-  const widgetBoundaries = <WidgetBoundaries style={dragBoundariesStyle} />;
+  }, [isResizingOrDragging, isCurrentWidgetResizing, isDrawingModeEnabled]);
 
   const classNameForTesting = `t--draggable-${props.type
     .split("_")
@@ -143,6 +152,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     props,
     isSnipingMode,
     isPreviewMode,
+    isDrawingModeEnabled,
   );
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
@@ -194,7 +204,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       style={dragWrapperStyle}
     >
       {shouldRenderComponent && props.children}
-      {widgetBoundaries}
+      <WidgetBoundaries style={dragBoundariesStyle} />
     </DraggableWrapper>
   );
 }

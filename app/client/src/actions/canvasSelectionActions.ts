@@ -55,14 +55,15 @@ export const selectAllWidgetsInAreaAction = (
   };
 };
 
-export const drawWidget = (dimensions: {
+export const drawWidget = (payload: {
   rows: number;
   columns: number;
   topRow: number;
   leftColumn: number;
+  widgetId: string;
 }): ReduxAction<any> => {
   return {
     type: ReduxActionTypes.DRAW_WIDGET,
-    payload: dimensions,
+    payload: payload,
   };
 };

@@ -146,22 +146,23 @@ function* drawWidgetSaga(
     columns: number;
     topRow: number;
     leftColumn: number;
+    widgetId: string;
   }>,
 ) {
   const widgetType: string | undefined = yield select(getSelectDrawWidget);
 
-  const widgetId = generateReactKey();
+  const newWidgetId = generateReactKey();
 
   const widgetPayload = {
     columns: drawWidgetAction.payload.columns,
     leftColumn: drawWidgetAction.payload.leftColumn,
-    newWidgetId: widgetId,
+    newWidgetId,
     parentColumnSpace: 10.046875,
     parentRowSpace: 10,
     rows: drawWidgetAction.payload.rows,
     topRow: drawWidgetAction.payload.topRow,
     type: widgetType,
-    widgetId: "0",
+    widgetId: drawWidgetAction.payload.widgetId,
   };
 
   yield put({

@@ -148,7 +148,10 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SET_WIDGET_DRAWING]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ isDrawing: boolean; type?: string }>,
+    action: ReduxAction<{
+      isDrawing: boolean;
+      type?: string;
+    }>,
   ) => {
     state.isDrawing = action.payload.isDrawing;
     state.drawingDetails.type = action.payload.type;

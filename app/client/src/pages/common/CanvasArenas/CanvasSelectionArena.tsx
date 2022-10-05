@@ -17,12 +17,15 @@ import {
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { XYCord } from "./hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
-import { getAbsolutePixels } from "utils/helpers";
+import { getAbsolutePixels, snapToGrid } from "utils/helpers";
 import {
   getSlidingCanvasName,
   getStickyCanvasName,
@@ -213,6 +216,25 @@ export function CanvasSelectionArena({
         }
       };
 
+      const getSnappedXY = (
+        parentColumnWidth: number,
+        parentRowHeight: number,
+        currentOffset: XYCord,
+        parentOffset: XYCord,
+      ) => {
+        // TODO(abhinav): There is a simpler math to use.
+        const [leftColumn, topRow] = snapToGrid(
+          parentColumnWidth,
+          parentRowHeight,
+          currentOffset.x - parentOffset.x,
+          currentOffset.y - parentOffset.y,
+        );
+        return {
+          X: leftColumn * parentColumnWidth,
+          Y: topRow * parentRowHeight,
+        };
+      };
+
       const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {
         if (stickyCanvasRef.current) {
           const strokeWidth = 1;
@@ -224,12 +246,40 @@ export function CanvasSelectionArena({
           );
           canvasCtx.setLineDash([5]);
           canvasCtx.strokeStyle = "rgba(125,188,255,1)";
-          canvasCtx.strokeRect(
-            selectionDimensions.left - strokeWidth - leftOffset,
-            selectionDimensions.top - strokeWidth - topOffset,
-            selectionDimensions.width + 2 * strokeWidth,
-            selectionDimensions.height + 2 * strokeWidth,
+
+          const snappedXY = getSnappedXY(
+            snapColumnSpace,
+            snapRowSpace,
+            {
+              x: selectionDimensions.left,
+              y: selectionDimensions.top,
+            },
+            {
+              x: 0,
+              y: 0,
+            },
           );
+
+          if (isDrawingModeEnabled) {
+            canvasCtx.strokeRect(
+              snappedXY.X - leftOffset - strokeWidth - CONTAINER_GRID_PADDING,
+              snappedXY.Y - topOffset - strokeWidth - CONTAINER_GRID_PADDING,
+
+              Math.round(
+                (selectionDimensions.width + strokeWidth) / snapColumnSpace,
+              ) * snapColumnSpace,
+              Math.round(
+                (selectionDimensions.height + strokeWidth) / snapRowSpace,
+              ) * snapRowSpace,
+            );
+          } else {
+            canvasCtx.strokeRect(
+              selectionDimensions.left - strokeWidth - leftOffset,
+              selectionDimensions.top - strokeWidth - topOffset,
+              selectionDimensions.width + 2 * strokeWidth,
+              selectionDimensions.height + 2 * strokeWidth,
+            );
+          }
           canvasCtx.fillStyle = "rgb(84, 132, 236, 0.06)";
           canvasCtx.fillRect(
             selectionDimensions.left - leftOffset,
@@ -376,6 +426,7 @@ export function CanvasSelectionArena({
                 columns,
                 topRow,
                 leftColumn,
+                widgetId,
               }),
             );
             isDrawing = false;
