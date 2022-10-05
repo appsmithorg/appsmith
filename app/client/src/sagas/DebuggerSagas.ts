@@ -13,6 +13,7 @@ import {
   ENTITY_TYPE,
   Log,
   LogActionPayload,
+  LogObject,
   LOG_CATEGORY,
 } from "entities/AppsmithConsole";
 import {
@@ -44,7 +45,10 @@ import {
   isAction,
   isWidget,
 } from "workers/evaluationUtils";
-import { getDependencyChain } from "components/editorComponents/Debugger/helpers";
+import {
+  createLogTitleString,
+  getDependencyChain,
+} from "components/editorComponents/Debugger/helpers";
 import {
   ACTION_CONFIGURATION_UPDATED,
   createMessage,
@@ -58,7 +62,6 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { LogObject, createLogTitleString } from "workers/UserLog";
 import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
 
 // Saga to format action request values to be shown in the debugger

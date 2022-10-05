@@ -223,15 +223,6 @@ export const LabelText = styled(Text)`
   letter-spacing: -0.24px;
 `;
 
-export const LeftIconWrapper = styled.span`
-  font-size: 20px;
-  line-height: 19px;
-  margin-right: 10px;
-  height: 100%;
-  position: relative;
-  top: 1px;
-`;
-
 export const StyledText = styled(Text)`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -512,7 +503,6 @@ function WorkspaceInviteUsersForm(props: any) {
               outline={false}
               placeholder="Select a role"
               removeSelectedOption={onRemoveOptions}
-              selected={selectedOption}
               showLabelOnly={isMultiSelectDropdown}
               size="small"
             />

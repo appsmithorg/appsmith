@@ -53,6 +53,8 @@ import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import TemplatesModal from "pages/Templates/TemplatesModal";
+import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -243,7 +245,9 @@ class Editor extends Component<Props> {
               <DisconnectGitModal />
               <GuidedTourModal />
               <RepoLimitExceededErrorModal />
+              <TemplatesModal />
               <ImportedApplicationSuccessModal />
+              <ReconnectDatasourceModal />
             </GlobalHotKeys>
           </div>
           <RequestConfirmationModal />
