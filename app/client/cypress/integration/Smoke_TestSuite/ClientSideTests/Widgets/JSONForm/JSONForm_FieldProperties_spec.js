@@ -108,11 +108,7 @@ describe("Text Field Property Control", () => {
 });
 
 describe("Checkbox Field Property Control", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-
+  
   before(() => {
     const schema = {
       check: false,
@@ -154,10 +150,6 @@ describe("Checkbox Field Property Control", () => {
 });
 
 describe("Switch Field Property Control", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
   before(() => {
     const schema = {
       switch: true,
@@ -201,10 +193,6 @@ describe("Switch Field Property Control", () => {
 });
 
 describe("Select Field Property Control", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
   before(() => {
     const schema = {
       state: "Karnataka",
@@ -256,10 +244,6 @@ describe("Select Field Property Control", () => {
 
 describe("Multi-Select Field Property Control", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-  before(() => {
     const schema = {
       hobbies: [],
     };
@@ -305,10 +289,6 @@ describe("Multi-Select Field Property Control", () => {
 });
 
 describe("Radio group Field Property Control", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
   before(() => {
     const sourceData = {
       radio: "Y",

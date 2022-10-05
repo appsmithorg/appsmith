@@ -23,7 +23,6 @@ describe("Verify syntax to create Datpicker field type", () => {
 
 describe("Verify syntax to boolean type", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     const schema = { Key: true };
     cy.addDsl(dslWithoutSchema,appId);
@@ -39,7 +38,6 @@ describe("Verify syntax to boolean type", () => {
 
 describe("Verify syntax to create email type", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     const schema = { Key: "Value@mail.com" };
     cy.addDsl(dslWithoutSchema,appId);
@@ -71,7 +69,6 @@ describe("Verify syntax for Text type", () => {
 
 describe("Verify mandatory field check and also submit button active/inactive", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     const schema = {
       name: "John",
@@ -109,7 +106,6 @@ describe("Verify mandatory field check and also submit button active/inactive", 
 
 describe("Verify property name change with json/text widget binding", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     cy.addDsl(jsonText,appId);
     cy.openPropertyPane("jsonformwidget");

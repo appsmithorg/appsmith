@@ -34,7 +34,7 @@ function clearOptionsProperty() {
 }
 
 describe("JSONForm RadioGroup Field", () => {
-  beforeEach(() => {
+  before(() => {
     appId = localStorage.getItem("applicationId");
     cy.log("appID:" + appId);
   });

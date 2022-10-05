@@ -66,10 +66,7 @@ describe("Git sync Bug #10773", function() {
 });
 
 describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-  });
+  
   it("Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -174,10 +171,6 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
   });
 });
 describe("Git synced app with JSObject", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-  });
   it("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
     cy.NavigateToHome();
     cy.createWorkspace();

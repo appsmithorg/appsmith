@@ -71,7 +71,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     cy.addDsl(datedsl, appId);
   });
@@ -107,7 +106,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     cy.addDsl(datedsl, appId);  });
 
@@ -159,7 +157,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     cy.addDsl(datedsl, appId);
     });

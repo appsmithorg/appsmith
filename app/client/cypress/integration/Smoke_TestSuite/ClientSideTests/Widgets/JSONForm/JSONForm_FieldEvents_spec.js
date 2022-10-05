@@ -15,7 +15,7 @@ describe("Radio Group Field", () => {
     appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
     });
-    
+
   before(() => {
     const schema = {
       answer: "Y",
@@ -50,14 +50,10 @@ describe("Radio Group Field", () => {
 
 describe("Multiselect Field", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-  
-  before(() => {
     const schema = {
       colors: ["BLUE"],
     };
+    cy.log("appID:"+appId);
     cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
@@ -92,14 +88,10 @@ describe("Multiselect Field", () => {
 
 describe("Select Field", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-
-  before(() => {
     const schema = {
       color: "BLUE",
     };
+    cy.log("appID:"+appId);
     cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
@@ -135,14 +127,10 @@ describe("Select Field", () => {
 
 describe("Input Field", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-
-  before(() => {
     const schema = {
       name: "John",
     };
+    cy.log("appID:"+appId);
     cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
@@ -169,13 +157,10 @@ describe("Input Field", () => {
 
 describe("Checkbox Field", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-  before(() => {
     const schema = {
       agree: true,
     };
+    cy.log("appID:"+appId);
     cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
@@ -206,15 +191,12 @@ describe("Checkbox Field", () => {
 });
 
 describe("Switch Field", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-
+ 
   before(() => {
     const schema = {
       agree: true,
     };
+    cy.log("appID:"+appId);
     cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
@@ -241,13 +223,10 @@ describe("Switch Field", () => {
 
 describe("Date Field", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
-  before(() => {
     const schema = {
       dob: "20/12/1992",
     };
+    cy.log("appID:"+appId);
     cy.addDsl(dslWithoutSchema,appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));

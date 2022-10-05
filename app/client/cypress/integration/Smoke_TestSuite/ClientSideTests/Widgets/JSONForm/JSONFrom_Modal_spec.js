@@ -43,7 +43,6 @@ describe("JSONForm in Modal", () => {
   before(() => {
     appId = localStorage.getItem("applicationId");
     cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
   });
   it("should show the JSONForm with default values from Table widget", () => {
     const tableData = [
