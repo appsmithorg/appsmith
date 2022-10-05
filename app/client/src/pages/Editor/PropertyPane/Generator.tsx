@@ -41,7 +41,7 @@ function Section(props: SectionProps) {
   const { config, generatorProps, sectionConfig } = props;
   const sectionRef = useRef<HTMLDivElement>(null);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
-  // const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   const isSectionHidden =
     sectionConfig.hidden &&
@@ -53,31 +53,19 @@ function Section(props: SectionProps) {
       )
     : sectionConfig.sectionName;
 
-  // Find if all the properties are hidden. If so, hide the section
+  useEffect(() => {
+    if (
+      sectionRef.current === null ||
+      sectionRef.current?.childElementCount === 0
+    ) {
+      // Fix issue where the section is not hidden when it has no children
+      setHidden(true);
+    } else {
+      setHidden(false);
+    }
+  }, [generatorProps.searchQuery]);
 
-  console.log("bla", sectionName, isSectionHidden);
-
-  // useEffect(() => {
-  //   // setTimeout(() => {
-  //   console.log(
-  //     "bla effect ff",
-  //     generatorProps.searchQuery,
-  //     sectionRef.current,
-  //     sectionRef.current?.childElementCount,
-  //   );
-  //   if (
-  //     sectionRef.current === null ||
-  //     sectionRef.current?.childElementCount === 0
-  //   ) {
-  //     // Fix issue where the section is not hidden when it has no children
-  //     setHidden(true);
-  //   } else {
-  //     setHidden(false);
-  //   }
-  //   // }, 0);
-  // }, [generatorProps.searchQuery]);
-
-  return (
+  return hidden ? null : (
     <Boxed
       key={config.id + generatorProps.id}
       show={sectionName !== "General" && generatorProps.type === "TABLE_WIDGET"}
@@ -142,23 +130,40 @@ const generatePropertyControl = (
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const searchResults = searchProperty(props.config, props.searchQuery);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isSearchResultEmpty, setIsSearchResultEmpty] = useState(false);
 
-  const isSearchResultEmpty =
-    props.searchQuery &&
-    props.searchQuery.length > 0 &&
-    searchResults.length === 0;
-
-  console.log("bla", props.searchQuery, props.config, searchResults);
+  useEffect(() => {
+    if (props.searchQuery) {
+      if (searchResults.length === 0) {
+        setIsSearchResultEmpty(true);
+      } else {
+        // Fix issue where blank screen is shown when search results are empty due to hidden controls
+        requestAnimationFrame(() => {
+          if (
+            wrapperRef.current === null ||
+            wrapperRef.current?.childElementCount === 0
+          ) {
+            setIsSearchResultEmpty(true);
+          } else {
+            setIsSearchResultEmpty(false);
+          }
+        });
+      }
+    } else {
+      setIsSearchResultEmpty(false);
+    }
+  }, [props.searchQuery]);
 
   return isSearchResultEmpty ? (
     <EmptySearchResult />
   ) : (
-    <>
+    <div ref={wrapperRef}>
       {generatePropertyControl(
         searchResults as readonly PropertyPaneConfig[],
         props,
       )}
-    </>
+    </div>
   );
 }
 

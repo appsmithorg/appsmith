@@ -101,14 +101,15 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
       );
     }
     const config = sectionOrControlConfig as PropertyPaneControlConfig;
-    if (
-      config.panelConfig &&
-      config.panelConfig.children &&
-      Array.isArray(config.panelConfig.children)
-    ) {
-      config.panelConfig.children = addPropertyConfigIds(
-        config.panelConfig.children,
-      );
+    if (config.panelConfig) {
+      if (
+        config.panelConfig.children &&
+        Array.isArray(config.panelConfig.children)
+      ) {
+        config.panelConfig.children = addPropertyConfigIds(
+          config.panelConfig.children,
+        );
+      }
 
       if (
         config.panelConfig.contentChildren &&
