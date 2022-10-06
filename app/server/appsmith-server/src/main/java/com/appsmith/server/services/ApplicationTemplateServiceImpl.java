@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -15,7 +16,8 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                                           ImportExportApplicationService importExportApplicationService,
                                           AnalyticsService analyticsService,
                                           UserDataService userDataService,
-                                          ApplicationService applicationService) {
-        super(cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService, applicationService);
+                                          ApplicationService applicationService,
+                                          ResponseUtils responseUtils) {
+        super(cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService, applicationService, responseUtils);
     }
 }

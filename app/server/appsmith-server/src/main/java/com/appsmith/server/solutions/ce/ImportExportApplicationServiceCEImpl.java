@@ -1534,16 +1534,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 Mono.just(importedActionCollectionId),
                                 actionCollectionService.save(existingActionCollection)
                         );
-                    } else if(importedApplication.getGitApplicationMetadata() != null && appendToApp) {
-                        // Merge template to application, we will be creating the new resources in the DB
-                        DefaultResources defaultResources = new DefaultResources();
-                        defaultResources.setApplicationId(importedApplication.getGitApplicationMetadata().getDefaultApplicationId());
-                        defaultResources.setBranchName(branchName);
-                        actionCollection.setDefaultResources(defaultResources);
-                        return Mono.zip(
-                                Mono.just(importedActionCollectionId),
-                                saveNewCollectionAndUpdateDefaultResources(actionCollection, branchName)
-                        );
                     } else if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
                         return actionCollectionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, actionCollection.getGitSyncId(), MANAGE_ACTIONS)

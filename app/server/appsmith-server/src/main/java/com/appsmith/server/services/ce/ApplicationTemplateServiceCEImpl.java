@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserDataService;
@@ -49,19 +50,22 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final ApplicationService applicationService;
+    private final ResponseUtils responseUtils;
 
     public ApplicationTemplateServiceCEImpl(CloudServicesConfig cloudServicesConfig,
                                             ReleaseNotesService releaseNotesService,
                                             ImportExportApplicationService importExportApplicationService,
                                             AnalyticsService analyticsService,
                                             UserDataService userDataService,
-                                            ApplicationService applicationService) {
+                                            ApplicationService applicationService,
+                                            ResponseUtils responseUtils) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importExportApplicationService = importExportApplicationService;
         this.analyticsService = analyticsService;
         this.userDataService = userDataService;
         this.applicationService = applicationService;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -277,7 +281,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 })
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application)
-                );
+                )
+                .map(applicationImportDTO -> {
+                    responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());
+                    return applicationImportDTO;
+                });
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
