@@ -274,7 +274,6 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .flatMap(applicationJson ->{
                     if (branchName != null) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " does not exists in local - " + branchName)))
                                 .flatMap(application -> importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, application.getId(), branchName, applicationJson, pagesToImport));
                     }
                     return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);
