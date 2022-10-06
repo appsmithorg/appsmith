@@ -874,12 +874,17 @@ export class AggregateHelper {
     selector: ElementType,
     text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
-    index = 0,
+    index?: number,
   ) {
-    return this.GetElement(selector)
-      .eq(index)
-      .contains(text)
-      .should(exists);
+    if (index)
+      return this.GetElement(selector)
+        .eq(index)
+        .contains(text)
+        .should(exists);
+    else
+      return this.GetElement(selector)
+        .contains(text)
+        .should(exists);
   }
 
   public ScrollTo(
