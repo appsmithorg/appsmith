@@ -40,6 +40,8 @@ public interface AuditLogService {
      */
     String getResourceType(Object resource);
 
+    Mono<List<String>> getAllUsers();
+
     /**
      * To get user displayable event name from AuditLogEvents.Events
      *

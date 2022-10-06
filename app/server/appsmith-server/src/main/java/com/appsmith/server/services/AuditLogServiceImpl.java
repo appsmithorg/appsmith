@@ -91,6 +91,12 @@ public class AuditLogServiceImpl implements AuditLogService {
     public static String DELIMITER = ",";
     public static String LOG_EVENT_ERROR = "Error while saving the Audit Logs";
     public static String FILTER_LOG_ERROR = "Error while fetching the Audit Logs";
+    public static int UPDATE_TIME_LIMIT_SECS = 300;
+
+    public static List<String> autoUpdateEventResources = List.of(
+            FieldName.PAGE,
+            FieldName.QUERY
+    );
 
     /**
      * To return all the Audit Logs
@@ -222,7 +228,29 @@ public class AuditLogServiceImpl implements AuditLogService {
                     auditLog.setUser(auditLogUserMetadata);
                     return auditLog;
                 })
-                .flatMap(repository::save) // TODO: Needs to be scheduled in separate thread
+                .flatMap(auditLog1 -> {
+                    /*
+                    Update events for Page, Actions are not logged as a new event instead the latest entry is updated with the time.
+                    Because of the auto save there would be too many entries in AuditLog collection with updated events.
+                    The latest event of the same type is updated given that it is the same user who is performing these actions
+                    */
+                    if (isUpdatedEvent(resourceName, actionName)) {
+                        return repository.updateAuditLogByEventNameUserAndTimeStamp(
+                                eventName,
+                                auditLog1.getUser().getEmail(),
+                                auditLog1.getResource().getId(),
+                                Instant.now().toEpochMilli(),
+                                auditLog1.getResource().getName(),
+                                UPDATE_TIME_LIMIT_SECS
+                        ).flatMap(matchCounters -> {
+                            if (matchCounters > 0) {
+                                return Mono.just(auditLog1);
+                            }
+                            return repository.save(auditLog1);
+                        });
+                    }
+                    return repository.save(auditLog1);
+                }) // TODO: Needs to be scheduled in separate thread
                 .onErrorResume(throwable -> {
                     log.error(LOG_EVENT_ERROR, throwable.getMessage());
                     return Mono.empty();
@@ -239,11 +267,18 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
         eventList = eventList.stream().sorted().collect(Collectors.toList());
         auditLogFilterDTO.setEventName(eventList);
-        Mono<List<String>> userEmail = userRepository.getAllUserEmail().collectList();
+        Mono<List<String>> userEmail = tenantRepository.findBySlug(FieldName.DEFAULT)
+                .flatMap(tenant -> userRepository.getAllUserEmail(tenant.getId()).collectList());
         return userEmail.map(emailList -> {
            auditLogFilterDTO.setEmails(emailList);
            return auditLogFilterDTO;
         });
+    }
+
+    @Override
+    public Mono<List<String>> getAllUsers() {
+        return tenantRepository.findBySlug(FieldName.DEFAULT)
+                .flatMap(tenant -> userRepository.getAllUserEmail(tenant.getId()).collectList());
     }
 
     /**
@@ -600,5 +635,9 @@ public class AuditLogServiceImpl implements AuditLogService {
                         policy.getPermissionGroups().contains(permissionGroupId))
                 .findFirst()
                 .isPresent();
+    }
+
+    private boolean isUpdatedEvent(String resource, String event) {
+        return FieldName.UPDATED.equals(event) && autoUpdateEventResources.contains(resource);
     }
 }

@@ -34,4 +34,10 @@ public class AuditLogController {
         return auditLogService.getAuditLogFilterData()
                 .map(auditLogFilterDTO ->  new ResponseDTO<>(HttpStatus.OK.value(), auditLogFilterDTO, null));
     }
+
+    @GetMapping("/filter/users")
+    public Mono<ResponseDTO<List<String>>> getAllUsers() {
+        return auditLogService.getAllUsers()
+                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
+    }
 }

@@ -5,6 +5,6 @@ import reactor.core.publisher.Flux;
 
 public interface CustomUserRepository extends CustomUserRepositoryCE {
 
-    Flux<String> getAllUserEmail();
+    Flux<String> getAllUserEmail(String defaultTenantId);
 
 }
