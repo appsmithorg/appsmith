@@ -2,16 +2,7 @@ package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Theme;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.*;
 import lombok.Getter;
 
 @Getter
@@ -116,7 +107,7 @@ public enum AclPermission {
     READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
-
+    MANAGE_ENVIRONMENT_VARIABLE("manage:environmentVariables", EnvironmentVariable.class),
     ;
 
 
