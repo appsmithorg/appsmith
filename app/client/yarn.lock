@@ -7376,6 +7376,13 @@ fast-xml-parser@^3.17.5:
   version "3.17.5"
   resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-3.17.5.tgz"
 
+fastdom@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/fastdom/-/fastdom-1.0.11.tgz#f22984f9df6b9a6081e5ce2e49cfb5525daf198a"
+  integrity sha512-jl9MwXDFxhg354W4E3s1UMsLh3HWFuVMQiRUlXpHckcHRXQvUe76yzBf1Z7b+x5Ci4TUJ1KmynI9alGUXG95IQ==
+  dependencies:
+    strictdom "^1.0.1"
+
 fastq@^1.6.0:
   version "1.13.0"
   resolved "https://registry.npmjs.org/fastq/-/fastq-1.13.0.tgz"
@@ -14261,6 +14268,11 @@ strict-event-emitter@^0.2.0:
   resolved "https://registry.npmjs.org/strict-event-emitter/-/strict-event-emitter-0.2.0.tgz"
   dependencies:
     events "^3.3.0"
+
+strictdom@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/strictdom/-/strictdom-1.0.1.tgz#189de91649f73d44d59b8432efa68ef9d2659460"
+  integrity sha512-cEmp9QeXXRmjj/rVp9oyiqcvyocWab/HaoN4+bwFeZ7QzykJD6L3yD4v12K1x0tHpqRqVpJevN3gW7kyM39Bqg==
 
 string-argv@^0.3.1:
   version "0.3.1"

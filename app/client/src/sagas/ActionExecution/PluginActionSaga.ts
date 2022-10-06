@@ -763,7 +763,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     let payload = EMPTY_RESPONSE;
     let isError = true;
-    const error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
+    let error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,
@@ -773,6 +773,10 @@ function* executePageLoadAction(pageAction: PageAction) {
       isError = executePluginActionResponse.isError;
     } catch (e) {
       log.error(e);
+
+      if (e instanceof UserCancelledActionExecutionError) {
+        error = createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name);
+      }
     }
 
     if (isError) {
