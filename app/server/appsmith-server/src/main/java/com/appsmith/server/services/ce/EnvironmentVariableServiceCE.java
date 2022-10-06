@@ -36,18 +36,8 @@ public interface EnvironmentVariableServiceCE extends CrudService<EnvironmentVar
 
     Mono<EnvironmentVariable> archiveById(String id);
 
-
-
     // Update
     Mono<EnvironmentVariable> update(String id,EnvironmentVariable envVariable);
-
-
-
-
-
-
-
-
 
 
 }

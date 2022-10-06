@@ -21,9 +21,6 @@ import java.util.Map;
 @Slf4j
 public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVariableRepository, EnvironmentVariable, String> implements EnvironmentVariableServiceCE {
 
-
-
-
     @Autowired
     public EnvironmentVariableServiceCEImpl(Scheduler scheduler,
                                             Validator validator,
@@ -34,7 +31,6 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
     }
-
 
     // read
     @Override
@@ -87,11 +83,4 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
         return super.update(id, envVariable);
     }
 
-
-
-
-
 }
-
-
-

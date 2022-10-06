@@ -2,7 +2,18 @@ package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.*;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.EnvironmentVariable;
+
 import lombok.Getter;
 
 @Getter
