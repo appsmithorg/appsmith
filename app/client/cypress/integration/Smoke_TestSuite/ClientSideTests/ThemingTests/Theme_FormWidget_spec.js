@@ -99,7 +99,7 @@ describe("Theme validation usecases", function() {
     cy.colorMouseover(0, "Primary Color");
     cy.validateColor(0, "#553DE9");
     cy.colorMouseover(1, "Background Color");
-    cy.validateColor(1, "#F6F6F6");
+    cy.validateColor(1, "#F8FAFC");
 
     cy.get(themelocator.inputColor).click({ force: true });
     cy.chooseColor(0, themelocator.greenColor);
