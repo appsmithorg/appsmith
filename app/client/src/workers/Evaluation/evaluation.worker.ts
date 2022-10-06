@@ -94,73 +94,82 @@ function eventRequestHandler({
     }
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
       const {
-        allActionValidationConfig,
         evalOrder,
         shouldReplay,
+        uncaughtError,
       } = requestData as EvalTreeRequestData;
-
       let dataTree: DataTree = {};
       let errors: EvalError[] = [];
       let logs: any[] = [];
       let userLogs: UserLogObject[] = [];
       let dependencies: DependencyMap = {};
       let evalMetaUpdates: EvalMetaUpdates = [];
-      let hasUncaughtError = false;
-      try {
-        if (isFirstTree) {
-          dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-          const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = dataTreeResponse.evalTree;
-          // We need to clean it to remove any possible functions inside the tree.
-          // If functions exist, it will crash the web worker
-          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
-        } else {
-          dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-          if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
-            dataTreeEvaluator.setAllActionValidationConfig(
-              allActionValidationConfig,
-            );
-          }
-          dataTree = {};
-          const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
-            evalOrder,
-          );
-          dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
-          // evalMetaUpdates can have moment object as value which will cause DataCloneError
-          // hence, stringify and parse to avoid such errors
-          evalMetaUpdates = JSON.parse(
-            JSON.stringify(updateResponse.evalMetaUpdates),
-          );
-        }
-        dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-        dependencies = dataTreeEvaluator.inverseDependencyMap;
-        errors = dataTreeEvaluator.errors;
-        dataTreeEvaluator.clearErrors();
-        logs = dataTreeEvaluator.logs;
-        userLogs = dataTreeEvaluator.userLogs;
-        if (shouldReplay) {
-          if (replayMap[CANVAS]?.logs)
-            logs = logs.concat(replayMap[CANVAS]?.logs);
-          replayMap[CANVAS]?.clearLogs();
-        }
-
-        dataTreeEvaluator.clearLogs();
-      } catch (error) {
-        hasUncaughtError = true;
-        console.error("ERROR IN EVAL_TREE", error);
+      let hasUncaughtError = !!uncaughtError;
+      if (hasUncaughtError) {
         if (dataTreeEvaluator !== undefined) {
           errors = dataTreeEvaluator.errors;
           logs = dataTreeEvaluator.logs;
           userLogs = dataTreeEvaluator.userLogs;
         }
-        if (!(error instanceof CrashingError)) {
+        if (!(uncaughtError instanceof CrashingError)) {
           errors.push({
             type: EvalErrorTypes.UNKNOWN_ERROR,
-            message: (error as Error).message,
+            message: (uncaughtError as Error).message,
           });
-          console.error(error);
+        }
+      } else {
+        try {
+          if (isFirstTree) {
+            dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
+            const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+            dataTree = dataTreeResponse.evalTree;
+            // We need to clean it to remove any possible functions inside the tree.
+            // If functions exist, it will crash the web worker
+            dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+          } else {
+            dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
+            dataTree = {};
+            const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
+              evalOrder,
+            );
+            dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
+            // evalMetaUpdates can have moment object as value which will cause DataCloneError
+            // hence, stringify and parse to avoid such errors
+            evalMetaUpdates = JSON.parse(
+              JSON.stringify(updateResponse.evalMetaUpdates),
+            );
+          }
+          dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
+          dependencies = dataTreeEvaluator.inverseDependencyMap;
+          errors = dataTreeEvaluator.errors;
+          dataTreeEvaluator.clearErrors();
+          logs = dataTreeEvaluator.logs;
+          userLogs = dataTreeEvaluator.userLogs;
+          if (shouldReplay) {
+            if (replayMap[CANVAS]?.logs)
+              logs = logs.concat(replayMap[CANVAS]?.logs);
+            replayMap[CANVAS]?.clearLogs();
+          }
+
+          dataTreeEvaluator.clearLogs();
+        } catch (error) {
+          hasUncaughtError = true;
+          console.error("ERROR IN EVAL_TREE", error);
+          if (dataTreeEvaluator !== undefined) {
+            errors = dataTreeEvaluator.errors;
+            logs = dataTreeEvaluator.logs;
+            userLogs = dataTreeEvaluator.userLogs;
+          }
+          if (!(error instanceof CrashingError)) {
+            errors.push({
+              type: EvalErrorTypes.UNKNOWN_ERROR,
+              message: (error as Error).message,
+            });
+            console.error(error);
+          }
         }
       }
+
       return {
         dataTree,
         dependencies,
@@ -299,6 +308,7 @@ function eventRequestHandler({
       let lintOrder: string[] = [];
       let jsUpdates: Record<string, JSUpdate> = {};
       let unEvalUpdates: DataTreeDiff[] = [];
+      let uncaughtError: unknown = false;
 
       const {
         allActionValidationConfig,
@@ -350,6 +360,11 @@ function eventRequestHandler({
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
         } else {
+          if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
+            dataTreeEvaluator.setAllActionValidationConfig(
+              allActionValidationConfig,
+            );
+          }
           isFirstTree = false;
           if (shouldReplay) {
             replayMap[CANVAS]?.update({ widgets, theme });
@@ -366,6 +381,7 @@ function eventRequestHandler({
         unEvalUpdates = [];
         evalOrder = [];
         lintOrder = [];
+        uncaughtError = error;
       }
 
       return {
@@ -373,6 +389,7 @@ function eventRequestHandler({
         lintOrder,
         jsUpdates,
         unEvalUpdates,
+        uncaughtError,
       } as UpdateDependencyResponseData;
     }
     default: {

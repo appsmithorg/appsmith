@@ -34,15 +34,14 @@ export interface UpdateDependencyResponseData {
   lintOrder: string[];
   jsUpdates: Record<string, JSUpdate>;
   unEvalUpdates: DataTreeDiff[];
+  uncaughtError: unknown;
 }
 
 export interface EvalTreeRequestData {
   evalOrder: string[];
-  allActionValidationConfig: {
-    [actionId: string]: ActionValidationConfigMap;
-  };
   shouldReplay: boolean;
   unEvalUpdates: DataTreeDiff[];
+  uncaughtError: unknown;
 }
 
 export interface EvalTreeResponseData {

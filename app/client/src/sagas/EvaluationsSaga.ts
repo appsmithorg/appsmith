@@ -160,6 +160,7 @@ function* startEvaluationProcess(
     evalOrder,
     jsUpdates,
     lintOrder,
+    uncaughtError,
     unEvalUpdates,
   }: UpdateDependencyResponseData = yield call(
     evalWorker.request,
@@ -168,7 +169,6 @@ function* startEvaluationProcess(
   );
   // Eval
   yield spawn(evaluateTreeSaga, {
-    allActionValidationConfig,
     postEvalActions,
     shouldReplay,
     evalOrder,
@@ -177,6 +177,7 @@ function* startEvaluationProcess(
     widgets,
     unEvalUpdates,
     unevalTree,
+    uncaughtError,
   });
   if (appMode === APP_MODE.EDIT) {
     // Linting
@@ -189,9 +190,6 @@ function* startEvaluationProcess(
 }
 
 function* evaluateTreeSaga(arg: {
-  allActionValidationConfig: {
-    [actionId: string]: ActionValidationConfigMap;
-  };
   postEvalActions?: Array<AnyReduxAction>;
   shouldReplay?: boolean;
   evalOrder: string[];
@@ -200,21 +198,22 @@ function* evaluateTreeSaga(arg: {
   unevalTree: DataTree;
   theme: AppTheme;
   widgets: CanvasWidgetsReduxState;
+  uncaughtError: unknown;
 }) {
   const {
-    allActionValidationConfig,
     evalOrder,
     jsUpdates,
     postEvalActions,
     shouldReplay = true,
+    uncaughtError,
     unevalTree,
     unEvalUpdates,
   } = arg;
 
   const evalTreeRequestData: EvalTreeRequestData = {
     evalOrder,
-    allActionValidationConfig,
     shouldReplay,
+    uncaughtError,
     unEvalUpdates,
   };
 
