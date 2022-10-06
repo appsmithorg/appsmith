@@ -173,6 +173,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
+    homePage.FilterApplication(appid, workspaceId);
     homePage.leaveWorkspace(workspaceId);
     homePage.LogOutviaAPI();
   });
@@ -181,6 +182,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
+    homePage.FilterApplication(appid, workspaceId);
     homePage.leaveWorkspace(workspaceId);
     homePage.LogOutviaAPI();
   });
