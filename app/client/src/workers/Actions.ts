@@ -266,6 +266,15 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
+  addMessageHandler: function(handler: (event: MessageEvent) => void) {
+    return {
+      type: ActionTriggerType.ADD_MESSAGE_HANDLER,
+      payload: {
+        handler: handler,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
 };
 
 export const enhanceDataTreeWithFunctions = (
