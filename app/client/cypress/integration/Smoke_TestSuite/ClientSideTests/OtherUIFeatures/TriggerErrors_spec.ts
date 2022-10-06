@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const dsl = require("../../../../fixtures/debuggerTableDsl.json");
-const _debugger = ObjectsRegistry.Debugger;
+const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Trigger errors in the debugger", function() {
   before(() => {
@@ -17,10 +17,10 @@ describe("Trigger errors in the debugger", function() {
     // Click on a row of the table widget
     cy.isSelectRow(1);
     cy.wait(5000);
-    _debugger.AssertErrorCount(2);
+    debuggerHelper.AssertErrorCount(2);
     // Fix code
     cy.testJsontext("onrowselected", "{{console.log('test')}}");
     cy.isSelectRow(1);
-    _debugger.AssertErrorCount(1);
+    debuggerHelper.AssertErrorCount(1);
   });
 });

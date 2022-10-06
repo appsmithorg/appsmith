@@ -11,7 +11,7 @@ import { PropertyPane } from "../Pages/PropertyPane";
 import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
-import { Debugger } from "../Pages/Debugger";
+import { DebuggerHelper } from "../Pages/DebuggerHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -118,12 +118,12 @@ export class ObjectsRegistry {
     return ObjectsRegistry.fakerHelper__;
   }
 
-  private static Debugger__: Debugger;
-  static get Debugger(): Debugger {
-    if (ObjectsRegistry.Debugger__ === undefined) {
-      ObjectsRegistry.Debugger__ = new Debugger();
+  private static DebuggerHelper__: DebuggerHelper;
+  static get DebuggerHelper(): DebuggerHelper {
+    if (ObjectsRegistry.DebuggerHelper__ === undefined) {
+      ObjectsRegistry.DebuggerHelper__ = new DebuggerHelper();
     }
-    return ObjectsRegistry.Debugger__;
+    return ObjectsRegistry.DebuggerHelper__;
   }
 }
 

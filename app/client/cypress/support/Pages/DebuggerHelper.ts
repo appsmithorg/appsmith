@@ -7,7 +7,7 @@ export enum PageType {
   JsEditor,
 }
 
-export class Debugger {
+export class DebuggerHelper {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private commonLocators = ObjectsRegistry.CommonLocators;
 

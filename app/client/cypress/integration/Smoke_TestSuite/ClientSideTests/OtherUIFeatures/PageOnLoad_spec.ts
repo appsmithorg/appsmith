@@ -3,7 +3,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const _debugger = ObjectsRegistry.Debugger;
+const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Check debugger logs state when there are onPageLoad actions", function() {
   before(() => {
@@ -20,8 +20,8 @@ describe("Check debugger logs state when there are onPageLoad actions", function
     cy.reload();
     // Wait for the debugger icon to be visible
     cy.get(".t--debugger").should("be.visible");
-    // _debugger.isErrorCount(0);
+    // debuggerHelper.isErrorCount(0);
     cy.wait("@postExecute");
-    _debugger.AssertErrorCount(1);
+    debuggerHelper.AssertErrorCount(1);
   });
 });

@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 
-const { Debugger: _debugger } = ObjectsRegistry;
+const { DebuggerHelper: debuggerHelper } = ObjectsRegistry;
 
 describe("Widget error state", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -25,10 +25,10 @@ describe("Widget error state", function() {
   });
 
   it("Check if the current value is shown in the debugger", function() {
-    _debugger.ClickDebuggerIcon();
+    debuggerHelper.ClickDebuggerIcon();
     cy.contains(".react-tabs__tab", "Errors").click();
 
-    _debugger.LogStateContains("Test");
+    debuggerHelper.LogStateContains("Test");
   });
 
   it("Switch to error tab when clicked on the debug button", function() {
@@ -45,23 +45,23 @@ describe("Widget error state", function() {
   });
 
   it("All errors should be expanded by default", function() {
-    _debugger.AssertVisibleErrorMessagesCount(2);
+    debuggerHelper.AssertVisibleErrorMessagesCount(2);
   });
 
   it("Recent errors are shown at the top of the list", function() {
     cy.testJsontext("label", "{{[]}}");
-    _debugger.LogStateContains("text", 0);
+    debuggerHelper.LogStateContains("text", 0);
   });
 
   it("Clicking on a message should open the search menu", function() {
-    _debugger.ClickErrorMessage(0);
-    _debugger.AssertContextMenuItemVisible();
+    debuggerHelper.ClickErrorMessage(0);
+    debuggerHelper.AssertContextMenuItemVisible();
   });
 
   it("Undoing widget deletion should show errors if present", function() {
     cy.deleteWidget();
-    _debugger.AssertVisibleErrorMessagesCount(0);
+    debuggerHelper.AssertVisibleErrorMessagesCount(0);
     cy.get("body").type(`{${modifierKey}}z`);
-    _debugger.AssertVisibleErrorMessagesCount(2);
+    debuggerHelper.AssertVisibleErrorMessagesCount(2);
   });
 });

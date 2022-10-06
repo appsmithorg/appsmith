@@ -7,7 +7,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane,
-  _debugger = ObjectsRegistry.Debugger;
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Validate API request body panel", () => {
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
@@ -164,7 +164,7 @@ describe("Validate API request body panel", () => {
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
-    _debugger.AssertDebugError(
+    debuggerHelper.AssertDebugError(
       "Execution failed with status 400 BAD_REQUEST",
       '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"',
     );

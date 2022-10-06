@@ -1,10 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { PageType } from "../../../../support/Pages/Debugger";
+import { PageType } from "../../../../support/Pages/DebuggerHelper";
 
 const {
   ApiPage: apiPage,
   DataSources: dataSources,
-  Debugger: debuggerHelper,
+  DebuggerHelper: debuggerHelper,
   JSEditor: jsEditor,
 } = ObjectsRegistry;
 
