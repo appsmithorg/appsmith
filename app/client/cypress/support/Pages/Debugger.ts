@@ -5,103 +5,103 @@ export class Debugger {
   private commonLocators = ObjectsRegistry.CommonLocators;
 
   public readonly locators = {
-    debuggerIcon: ".t--debugger svg",
-    tabsContainer: ".t--debugger-tabs-container",
-    closeButton: ".t--close-debugger",
-    logMessage: ".t--debugger-log-message",
-    logState: ".t--debugger-log-state",
-    errorCount: ".t--debugger-count",
-    clearLogs: ".t--debugger-clear-logs",
-    logMessageOccurence: ".t--debugger-log-message-occurence",
-    debuggerMessage: ".t--debugger-message",
-    contextMenuItem: ".t--debugger-contextual-menuitem",
-    debuggerLabel: "span.debugger-label",
+    _debuggerIcon: ".t--debugger svg",
+    _tabsContainer: ".t--debugger-tabs-container",
+    _closeButton: ".t--close-debugger",
+    _logMessage: ".t--debugger-log-message",
+    _logState: ".t--debugger-log-state",
+    _errorCount: ".t--debugger-count",
+    _clearLogs: ".t--debugger-clear-logs",
+    _logMessageOccurence: ".t--debugger-log-message-occurence",
+    _debuggerMessage: ".t--debugger-message",
+    _contextMenuItem: ".t--debugger-contextual-menuitem",
+    _debuggerLabel: "span.debugger-label",
   };
 
-  clickDebuggerIcon(
+  ClickDebuggerIcon(
     index?: number,
     force?: boolean,
     waitTimeInterval?: number,
   ) {
     this.agHelper.GetNClick(
-      this.locators.debuggerIcon,
+      this.locators._debuggerIcon,
       index,
       force,
       waitTimeInterval,
     );
   }
 
-  isOpen() {
-    this.agHelper.AssertElementExist(this.locators.tabsContainer);
+  AssertOpen() {
+    this.agHelper.AssertElementExist(this.locators._tabsContainer);
   }
 
   close() {
-    this.agHelper.GetNClick(this.locators.closeButton);
+    this.agHelper.GetNClick(this.locators._closeButton);
   }
 
-  isClosed() {
-    this.agHelper.AssertElementAbsence(this.locators.tabsContainer);
+  AssertClosed() {
+    this.agHelper.AssertElementAbsence(this.locators._tabsContainer);
   }
 
-  doesConsoleLogExist(text: string) {
-    this.agHelper.GetNAssertContains(this.locators.logMessage, text);
+  DoesConsoleLogExist(text: string) {
+    this.agHelper.GetNAssertContains(this.locators._logMessage, text);
   }
 
-  logStateContains(text: string, index?: number) {
+  LogStateContains(text: string, index?: number) {
     this.agHelper.GetNAssertContains(
-      this.locators.logState,
+      this.locators._logState,
       text,
       "exist",
       index,
     );
   }
 
-  isErrorCount(count: number) {
+  AssertErrorCount(count: number) {
     count > 0
-      ? this.agHelper.GetNAssertContains(this.locators.errorCount, count)
-      : this.agHelper.AssertElementAbsence(this.locators.errorCount);
+      ? this.agHelper.GetNAssertContains(this.locators._errorCount, count)
+      : this.agHelper.AssertElementAbsence(this.locators._errorCount);
   }
 
-  clearLogs() {
-    this.agHelper.GetNClick(this.locators.clearLogs);
+  ClearLogs() {
+    this.agHelper.GetNClick(this.locators._clearLogs);
   }
 
-  is_Consecutive_Console_Log_Count(count: number) {
+  Assert_Consecutive_Console_Log_Count(count: number) {
     count > 0
       ? this.agHelper.GetNAssertContains(
-          this.locators.logMessageOccurence,
+          this.locators._logMessageOccurence,
           count,
         )
-      : this.agHelper.AssertElementAbsence(this.locators.logMessageOccurence);
+      : this.agHelper.AssertElementAbsence(this.locators._logMessageOccurence);
   }
 
-  visibleErrorMessagesCount(count: number) {
+  AssertVisibleErrorMessagesCount(count: number) {
     if (count > 0) {
-      this.agHelper.AssertElementVisible(this.locators.debuggerMessage);
-      this.agHelper.AssertElementLength(this.locators.debuggerMessage, count);
+      this.agHelper.AssertElementVisible(this.locators._debuggerMessage);
+      this.agHelper.AssertElementLength(this.locators._debuggerMessage, count);
     } else {
-      this.agHelper.AssertElementAbsence(this.locators.debuggerMessage);
+      this.agHelper.AssertElementAbsence(this.locators._debuggerMessage);
     }
   }
 
-  clickErrorMessage(index?: number) {
-    this.agHelper.GetNClick(this.locators.debuggerMessage, index);
+  ClickErrorMessage(index?: number) {
+    this.agHelper.GetNClick(this.locators._debuggerMessage, index);
   }
 
-  isContextMenuItemVisible() {
-    this.agHelper.AssertElementVisible(this.locators.contextMenuItem);
+  AssertContextMenuItemVisible() {
+    this.agHelper.AssertElementVisible(this.locators._contextMenuItem);
   }
 
-  assertDebugError(label: string, message: string) {
-    this.clickDebuggerIcon();
+  AssertDebugError(label: string, message: string) {
+    this.ClickDebuggerIcon();
     this.agHelper.GetNClick(this.commonLocators._errorTab, 0, true, 0);
     this.agHelper
-      .GetText(this.locators.debuggerLabel, "text", 0)
+      .GetText(this.locators._debuggerLabel, "text", 0)
       .then(($text) => {
         expect($text).to.eq(label);
       });
     this.agHelper
-      .GetText(this.locators.debuggerMessage, "text", 0)
+      .GetText(this.locators._debuggerMessage, "text", 0)
       .then(($text) => {
         expect($text).to.contains(message);
       });

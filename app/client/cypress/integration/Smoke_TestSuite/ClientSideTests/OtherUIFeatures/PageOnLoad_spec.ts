@@ -22,6 +22,6 @@ describe("Check debugger logs state when there are onPageLoad actions", function
     cy.get(".t--debugger").should("be.visible");
     // _debugger.isErrorCount(0);
     cy.wait("@postExecute");
-    _debugger.isErrorCount(1);
+    _debugger.AssertErrorCount(1);
   });
 });

@@ -32,8 +32,8 @@ describe("Debugger logs", function() {
   it("1. Modifying widget properties should log the same", function() {
     ee.DragDropWidgetNVerify("buttonwidget", 200, 200);
     propPane.UpdatePropertyFieldValue("Label", "Test");
-    _debugger.clickDebuggerIcon(0, true, 0);
-    _debugger.logStateContains("Test");
+    _debugger.ClickDebuggerIcon(0, true, 0);
+    _debugger.LogStateContains("Test");
   });
 
   it("2. Reset debugger state", function() {
@@ -44,7 +44,7 @@ describe("Debugger logs", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.generateUUID().then((id) => {
       cy.CreateAppInFirstListedWorkspace(id);
-      _debugger.isErrorCount(0);
+      _debugger.AssertErrorCount(0);
     });
   });
 
@@ -54,12 +54,12 @@ describe("Debugger logs", function() {
     propPane.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
     agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
-    _debugger.clickDebuggerIcon();
-    _debugger.doesConsoleLogExist(logString);
+    _debugger.ClickDebuggerIcon();
+    _debugger.DoesConsoleLogExist(logString);
   });
 
   it("4. Console log on button click with arrow function IIFE", function() {
-    _debugger.clearLogs();
+    _debugger.ClearLogs();
     ee.SelectEntityByName("Button1");
     // Testing with normal log in iifee
     propPane.EnterJSContext(
@@ -69,11 +69,11 @@ describe("Debugger logs", function() {
         }) () }}`,
     );
     agHelper.ClickButton("Submit");
-    _debugger.doesConsoleLogExist(logString);
+    _debugger.DoesConsoleLogExist(logString);
   });
 
   it("5. Console log on button click with function keyword IIFE", function() {
-    _debugger.clearLogs();
+    _debugger.ClearLogs();
     ee.SelectEntityByName("Button1");
     // Testing with normal log in iifee
     propPane.EnterJSContext(
@@ -83,11 +83,11 @@ describe("Debugger logs", function() {
         } () }}`,
     );
     agHelper.ClickButton("Submit");
-    _debugger.doesConsoleLogExist(logString);
+    _debugger.DoesConsoleLogExist(logString);
   });
 
   it("6. Console log on button click with async function IIFE", function() {
-    _debugger.clearLogs();
+    _debugger.ClearLogs();
     // Testing with normal log in iifee
     ee.SelectEntityByName("Button1");
     propPane.EnterJSContext(
@@ -97,11 +97,11 @@ describe("Debugger logs", function() {
         }) () }}`,
     );
     agHelper.ClickButton("Submit");
-    _debugger.doesConsoleLogExist(logString);
+    _debugger.DoesConsoleLogExist(logString);
   });
 
   it("7. Console log on button click with mixed function IIFE", function() {
-    _debugger.clearLogs();
+    _debugger.ClearLogs();
     // Testing with normal log in iifee
     ee.SelectEntityByName("Button1");
     const logStringChild = generateTestLogString();
@@ -113,12 +113,12 @@ describe("Debugger logs", function() {
         } () }}`,
     );
     agHelper.ClickButton("Submit");
-    _debugger.doesConsoleLogExist(logString);
-    _debugger.doesConsoleLogExist(logStringChild);
+    _debugger.DoesConsoleLogExist(logString);
+    _debugger.DoesConsoleLogExist(logStringChild);
   });
 
   it("8. Console log grouping on button click", function() {
-    _debugger.clearLogs();
+    _debugger.ClearLogs();
     // Testing with normal log in iifee
     ee.SelectEntityByName("Button1");
     propPane.EnterJSContext(
@@ -132,12 +132,12 @@ describe("Debugger logs", function() {
         } () }}`,
     );
     agHelper.ClickButton("Submit");
-    _debugger.doesConsoleLogExist(logString);
-    _debugger.is_Consecutive_Console_Log_Count(5);
+    _debugger.DoesConsoleLogExist(logString);
+    _debugger.Assert_Consecutive_Console_Log_Count(5);
   });
 
   it("9. Console log grouping on button click with different log in between", function() {
-    _debugger.clearLogs();
+    _debugger.ClearLogs();
     // Testing with normal log in iifee
     ee.SelectEntityByName("Button1");
     propPane.EnterJSContext(
@@ -150,13 +150,13 @@ describe("Debugger logs", function() {
         } () }}`,
     );
     agHelper.ClickButton("Submit");
-    _debugger.doesConsoleLogExist(logString);
-    _debugger.doesConsoleLogExist(`Different ${logString}`);
-    _debugger.is_Consecutive_Console_Log_Count(2);
+    _debugger.DoesConsoleLogExist(logString);
+    _debugger.DoesConsoleLogExist(`Different ${logString}`);
+    _debugger.Assert_Consecutive_Console_Log_Count(2);
   });
 
   it("10. Console log grouping on button click from different source", function() {
-    _debugger.clearLogs();
+    _debugger.ClearLogs();
     // Testing with normal log in iifee
     ee.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
@@ -167,8 +167,8 @@ describe("Debugger logs", function() {
     agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
     agHelper.ClickButton("Submit2");
-    _debugger.doesConsoleLogExist(logString);
-    _debugger.is_Consecutive_Console_Log_Count(0);
+    _debugger.DoesConsoleLogExist(logString);
+    _debugger.Assert_Consecutive_Console_Log_Count(0);
   });
 
   it("11. Console log on text widget with normal moustache binding", function() {
@@ -185,8 +185,8 @@ describe("Debugger logs", function() {
     agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
     agHelper.AssertElementVisible(".t--debugger");
-    _debugger.clickDebuggerIcon();
-    _debugger.doesConsoleLogExist(logString);
+    _debugger.ClickDebuggerIcon();
+    _debugger.DoesConsoleLogExist(logString);
   });
 
   it("12. Console log in sync function", function() {
@@ -210,7 +210,7 @@ describe("Debugger logs", function() {
       },
     );
     agHelper.GetNClick(jsEditor._logsTab);
-    _debugger.doesConsoleLogExist(logString);
+    _debugger.DoesConsoleLogExist(logString);
   });
 
   it("13. Console log in async function", function() {
@@ -236,7 +236,7 @@ describe("Debugger logs", function() {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.GetNClick(jsEditor._logsTab);
-    _debugger.doesConsoleLogExist(logString);
+    _debugger.DoesConsoleLogExist(logString);
   });
 
   it("14. Console log after API succedes", function() {
@@ -273,8 +273,8 @@ describe("Debugger logs", function() {
     cy.get("@jsObjName").then((jsObjName) => {
       agHelper.GetNClick(jsEditor._runButton);
       agHelper.GetNClick(jsEditor._logsTab);
-      _debugger.doesConsoleLogExist(`${logString} Started`);
-      _debugger.doesConsoleLogExist(`${logString} Success`);
+      _debugger.DoesConsoleLogExist(`${logString} Started`);
+      _debugger.DoesConsoleLogExist(`${logString} Success`);
       ee.DragDropWidgetNVerify("textwidget", 200, 600);
       propPane.UpdatePropertyFieldValue("Text", `{{${jsObjName}.myFun1.data}}`);
       agHelper.GetNAssertElementText(
@@ -315,8 +315,8 @@ describe("Debugger logs", function() {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.GetNClick(jsEditor._logsTab);
-    _debugger.doesConsoleLogExist(`${logString} Started`);
-    _debugger.doesConsoleLogExist(`${logString} Failed`);
+    _debugger.DoesConsoleLogExist(`${logString} Started`);
+    _debugger.DoesConsoleLogExist(`${logString} Failed`);
   });
 
   it("16. Console log source inside nested function", function() {
@@ -340,8 +340,8 @@ describe("Debugger logs", function() {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.GetNClick(jsEditor._logsTab);
-    _debugger.doesConsoleLogExist(`Parent ${logString}`);
-    _debugger.doesConsoleLogExist(`Child ${logString}`);
+    _debugger.DoesConsoleLogExist(`Parent ${logString}`);
+    _debugger.DoesConsoleLogExist(`Child ${logString}`);
   });
 
   it("17. Console log grouping", function() {
@@ -368,8 +368,8 @@ describe("Debugger logs", function() {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.GetNClick(jsEditor._logsTab);
-    _debugger.doesConsoleLogExist(`${logString}`);
-    _debugger.is_Consecutive_Console_Log_Count(5);
+    _debugger.DoesConsoleLogExist(`${logString}`);
+    _debugger.Assert_Consecutive_Console_Log_Count(5);
   });
 
   // it("Api headers need to be shown as headers in logs", function() {

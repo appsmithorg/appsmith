@@ -25,10 +25,10 @@ describe("Widget error state", function() {
   });
 
   it("Check if the current value is shown in the debugger", function() {
-    _debugger.clickDebuggerIcon();
+    _debugger.ClickDebuggerIcon();
     cy.contains(".react-tabs__tab", "Errors").click();
 
-    _debugger.logStateContains("Test");
+    _debugger.LogStateContains("Test");
   });
 
   it("Switch to error tab when clicked on the debug button", function() {
@@ -45,23 +45,23 @@ describe("Widget error state", function() {
   });
 
   it("All errors should be expanded by default", function() {
-    _debugger.visibleErrorMessagesCount(2);
+    _debugger.AssertVisibleErrorMessagesCount(2);
   });
 
   it("Recent errors are shown at the top of the list", function() {
     cy.testJsontext("label", "{{[]}}");
-    _debugger.logStateContains("text", 0);
+    _debugger.LogStateContains("text", 0);
   });
 
   it("Clicking on a message should open the search menu", function() {
-    _debugger.clickErrorMessage(0);
-    _debugger.isContextMenuItemVisible();
+    _debugger.ClickErrorMessage(0);
+    _debugger.AssertContextMenuItemVisible();
   });
 
   it("Undoing widget deletion should show errors if present", function() {
     cy.deleteWidget();
-    _debugger.visibleErrorMessagesCount(0);
+    _debugger.AssertVisibleErrorMessagesCount(0);
     cy.get("body").type(`{${modifierKey}}z`);
-    _debugger.visibleErrorMessagesCount(2);
+    _debugger.AssertVisibleErrorMessagesCount(2);
   });
 });

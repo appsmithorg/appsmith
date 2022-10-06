@@ -164,7 +164,7 @@ describe("Validate API request body panel", () => {
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
-    _debugger.assertDebugError(
+    _debugger.AssertDebugError(
       "Execution failed with status 400 BAD_REQUEST",
       '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"',
     );

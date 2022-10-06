@@ -17,10 +17,10 @@ describe("Trigger errors in the debugger", function() {
     // Click on a row of the table widget
     cy.isSelectRow(1);
     cy.wait(5000);
-    _debugger.isErrorCount(2);
+    _debugger.AssertErrorCount(2);
     // Fix code
     cy.testJsontext("onrowselected", "{{console.log('test')}}");
     cy.isSelectRow(1);
-    _debugger.isErrorCount(1);
+    _debugger.AssertErrorCount(1);
   });
 });
