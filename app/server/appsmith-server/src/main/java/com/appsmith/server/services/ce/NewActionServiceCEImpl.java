@@ -27,6 +27,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -571,8 +572,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Datasource datasource = zippedData.getT2();
                     final NewAction newAction1 = zippedActions.getT2();
 
+                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.ACTION, newAction1
+                    );
+                    data.put(FieldName.EVENT_DATA, eventData);
+
                     return analyticsService
-                            .sendUpdateEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                            .sendUpdateEvent(newAction1, data)
                             .thenReturn(zippedActions.getT1());
 
                 });
@@ -636,18 +645,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // 3. Instantiate the implementation class based on the query type
 
         Mono<Datasource> datasourceMono = actionDTOMono
-                .flatMap(action -> {
-                    // Global datasource requires us to fetch the datasource from DB.
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                        FieldName.DATASOURCE,
-                                        action.getDatasource().getId())));
-                    }
-
-                    // This is a nested datasource. Return as is.
-                    return Mono.justOrEmpty(action.getDatasource());
-                })
+                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO, EXECUTE_DATASOURCES))
                 .cache();
 
         Mono<Plugin> pluginMono = datasourceMono
@@ -1017,6 +1015,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return result;
     }
 
+    /**
+     * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
+     * active before making the call to DB.
+     * @return
+     */
+    public Boolean isSendExecuteAnalyticsEvent() {
+        return analyticsService.isActive();
+    }
+
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
             NewAction action,
             ActionDTO actionDTO,
@@ -1025,14 +1032,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
-        // Since we're loading the application from DB *only* for analytics, we check if analytics is
-        // active before making the call to DB.
-        if (!analyticsService.isActive()) {
-            // This is to have consistency in how the AnalyticsService is being called.
-            // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
-            // from being sent to analytics provider if telemetry is disabled.
-            return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action)
-                    .then(Mono.empty());
+
+        if (!isSendExecuteAnalyticsEvent()) {
+            return Mono.empty();
         }
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;
@@ -1115,7 +1117,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             ),
                             "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
-                            "appMode", TRUE.equals(viewMode) ? "view" : "edit",
+                            "appMode", TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString(),
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample()
                     ));
@@ -1163,7 +1165,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
-                            FieldName.VIEW_MODE, viewMode,
+                            FieldName.APP_MODE, viewMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
                             FieldName.ACTION_EXECUTION_REQUEST, request,
@@ -1341,9 +1343,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.EVENT_DATA, eventData);
 
                                     return analyticsService
-                                            .sendArchiveEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendArchiveEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1364,9 +1372,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.EVENT_DATA, eventData);
 
                                     return analyticsService
-                                            .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendDeleteEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1806,9 +1820,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .flatMap(zippedActions -> {
                             final Datasource datasource = zippedActions.getT2();
                             final NewAction newAction1 = zippedActions.getT1();
+                            final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                            final Map<String, Object> eventData = Map.of(
+                                    FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                    FieldName.ACTION, newAction1
+                            );
+                            data.put(FieldName.EVENT_DATA, eventData);
 
                             return analyticsService
-                                    .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                    .sendDeleteEvent(newAction1, data)
                                     .thenReturn(zippedActions.getT1());
 
                         })

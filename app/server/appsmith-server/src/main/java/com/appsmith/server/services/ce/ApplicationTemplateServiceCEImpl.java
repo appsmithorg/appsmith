@@ -3,7 +3,9 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -63,7 +65,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .fromUriString(cloudServicesConfig.getBaseUrl())
                 .pathSegment("api/v1/app-templates", templateId, "similar")
                 .queryParams(params)
-                .queryParam("version", releaseNotesService.getReleasedVersion())
+                .queryParam("version", releaseNotesService.getRunningVersion())
                 .build();
 
         String apiUrl = uriComponents.toUriString();
@@ -87,7 +89,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance()
-                .queryParam("version", releaseNotesService.getReleasedVersion());
+                .queryParam("version", releaseNotesService.getRunningVersion());
 
         if (!CollectionUtils.isEmpty(templateIds)) {
             uriComponentsBuilder.queryParam("id", templateIds);
@@ -191,11 +193,20 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
                     applicationTemplate.setId(templateId);
-                    Map<String, Object> extraProperties = new HashMap<>();
-                    extraProperties.put("templateAppName", application.getName());
-                    return userDataService.addTemplateIdToLastUsedList(templateId).then(
-                            analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
-                    ).thenReturn(applicationImportDTO);
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.APPLICATION, application
+                    );
+
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, application.getWorkspaceId(),
+                            FieldName.TEMPLATE_APPLICATION_NAME, application.getName(),
+                            FieldName.EVENT_DATA, eventData
+                    );
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, data)
+                            .thenReturn(applicationImportDTO);
                 });
     }
 
@@ -203,7 +214,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates() {
         return userDataService.getForCurrentUser().flatMap(userData -> {
             List<String> templateIds = userData.getRecentlyUsedTemplateIds();
-            if(!CollectionUtils.isEmpty(templateIds)) {
+            if (!CollectionUtils.isEmpty(templateIds)) {
                 return getActiveTemplates(templateIds);
             }
             return Mono.empty();
@@ -236,10 +247,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<ApplicationImportDTO> mergeTemplateWithApplication(String templateId, String applicationId, String organizationId, String branchName, List<String> pagesToImport) {
+    public Mono<ApplicationImportDTO> mergeTemplateWithApplication(String templateId,
+                                                                   String applicationId,
+                                                                   String organizationId,
+                                                                   String branchName,
+                                                                   List<String> pagesToImport) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> importExportApplicationService.mergeApplicationJsonWithApplication(
-                        organizationId, applicationId, null, applicationJson, pagesToImport)
+                        organizationId, applicationId, branchName, applicationJson, pagesToImport)
                 )
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application)

@@ -49,11 +49,7 @@ import {
   Size,
   Text,
   TextType,
-  Icon,
-  IconSize,
-  SegmentHeader,
   TextProps,
-  TooltipComponent,
   DropdownOption,
 } from "design-system";
 import { Classes, Variant } from "components/ads/common";
@@ -65,8 +61,7 @@ import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 import { fetchWorkspace } from "actions/workspaceActions";
-import { SubTextPosition } from "components/constants";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 
@@ -228,160 +223,10 @@ export const LabelText = styled(Text)`
   letter-spacing: -0.24px;
 `;
 
-/*const LinksWrapper = styled.div`
-  &:before {
-    border-top: 1px solid var(--appsmith-color-black-200);
-    content: "";
-    position: absolute;
-    left: 12px;
-    right: 12px;
-  }
-`;*/
-
-export const LeftIconWrapper = styled.span`
-  font-size: 20px;
-  line-height: 19px;
-  margin-right: 10px;
-  height: 100%;
-  position: relative;
-  top: 1px;
-`;
-
-export const SelectedIcon = styled(Icon)<{ name: string }>`
-  margin-right: 6px;
-  & > div:first-child {
-    height: 18px;
-    width: 18px;
-    svg {
-      height: 18px;
-      width: 18px;
-      rect {
-        fill: ${(props) => props.theme.colors.dropdownIconBg};
-        rx: 0;
-      }
-      path {
-        fill: ${(props) => props.theme.colors.propertyPane.label};
-      }
-    }
-  }
-  svg {
-    ${(props) =>
-      props.name === "right-arrow" ? `transform: rotate(-45deg);` : ``}
-    path {
-      fill: ${(props) =>
-        props.fillColor
-          ? props.fillColor
-          : props.theme.colors.dropdown.selected.icon};
-    }
-  }
-`;
-
-export const StyledSubText = styled(Text)<{
-  showDropIcon?: boolean;
-  subTextPosition?: SubTextPosition;
-}>`
-  ${(props) =>
-    props.subTextPosition === SubTextPosition.BOTTOM
-      ? "margin-top: 3px"
-      : "margin-left: auto"};
-  &&& {
-    color: ${(props) => props.theme.colors.dropdown.menu.subText};
-  }
-  &.sub-text {
-    color: ${(props) => props.theme.colors.dropdown.selected.subtext};
-    text-align: end;
-    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
-  }
-`;
-
-export const OptionWrapper = styled.div<{
-  disabled?: boolean;
-  selected: boolean;
-  subTextPosition?: SubTextPosition;
-  selectedHighlightBg?: string;
-}>`
-  padding: ${(props) => props.theme.spaces[3] + 1}px
-    ${(props) => props.theme.spaces[5]}px;
-  ${(props) => (!props.disabled ? "cursor: pointer" : "")};
-  display: flex;
-  width: 100%;
-  min-height: 36px;
-  flex-direction: ${(props) =>
-    props.subTextPosition === SubTextPosition.BOTTOM ? "column" : "row"};
-  align-items: ${(props) =>
-    props.subTextPosition === SubTextPosition.BOTTOM ? "flex-start" : "center"};
-  background-color: ${(props) =>
-    props.selected
-      ? props.selectedHighlightBg || `var(--appsmith-color-black-200)`
-      : `initial`};
-  &&& svg {
-    rect {
-      fill: ${(props) => props.theme.colors.dropdownIconBg};
-    }
-  }
-  .bp3-popover-wrapper {
-    width: 100%;
-  }
-  .${Classes.TEXT} {
-    color: ${(props) =>
-      props.disabled
-        ? Colors.GRAY2
-        : props.selected
-        ? props.theme.colors.dropdown.menu.hoverText
-        : props.theme.colors.dropdown.menu.text};
-  }
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[5]}px;
-    svg {
-      path {
-        ${(props) =>
-          props.selected
-            ? `fill: ${props.theme.colors.dropdown.selected.icon}`
-            : `fill: ${props.theme.colors.dropdown.icon}`};
-      }
-    }
-  }
-  &:hover {
-    background-color: ${(props) => props.selectedHighlightBg || `initial`};
-    &&& svg {
-      rect {
-        fill: ${(props) => props.theme.colors.textOnDarkBG};
-      }
-    }
-    .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.dropdown.menu.hoverText};
-    }
-    ${StyledSubText} {
-      color: ${(props) => props.theme.colors.dropdown.menu.subText};
-    }
-    .${Classes.ICON} {
-      svg {
-        path {
-          fill: ${(props) => props.theme.colors.dropdown.hovered.icon};
-        }
-      }
-    }
-  }
-`;
-
 export const StyledText = styled(Text)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-`;
-
-export const LabelWrapper = styled.div<{ label?: string }>`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  span:last-child {
-    margin-top: ${(props) => props.theme.spaces[2] - 1}px;
-  }
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.dropdown.selected.text};
-    }
-  }
 `;
 
 export function TooltipWrappedText(
@@ -426,19 +271,7 @@ const validateFormValues = (values: {
     });
   }
 
-  if (
-    typeof values.roles === "undefined" &&
-    (typeof values.role === "undefined" || values.role?.trim().length === 0)
-  ) {
-    throw new SubmissionError({
-      _error: createMessage(INVITE_USERS_VALIDATION_ROLE_EMPTY),
-    });
-  }
-
-  if (
-    typeof values.role === "undefined" &&
-    (typeof values.roles === "undefined" || values.roles.length === 0)
-  ) {
+  if (typeof values.role === "undefined" || values.role.length === 0) {
     throw new SubmissionError({
       _error: createMessage(INVITE_USERS_VALIDATION_ROLE_EMPTY),
     });
@@ -451,18 +284,8 @@ const validate = (values: any) => {
     errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAILS_EMPTY);
   }
 
-  if (
-    typeof values.roles === "undefined" &&
-    (typeof values.role === "undefined" || values.role?.trim().length === 0)
-  ) {
+  if (typeof values.role === "undefined" || values.role.length === 0) {
     errors["role"] = createMessage(INVITE_USERS_VALIDATION_ROLE_EMPTY);
-  }
-
-  if (
-    typeof values.role === "undefined" &&
-    (typeof values.roles === "undefined" || values.roles.length === 0)
-  ) {
-    errors["roles"] = createMessage(INVITE_USERS_VALIDATION_ROLE_EMPTY);
   }
 
   if (values.users && values.users.length > 0) {
@@ -483,13 +306,10 @@ export const InviteButtonWidth = "88px";
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
-  const [selectedOption, setSelectedOption] = useState<any>({});
+  const [selectedOption, setSelectedOption] = useState<any[]>([]);
   const userRef = React.createRef<HTMLDivElement>();
+  const history = useHistory();
   const selectedId = props?.selected?.id;
-  const multiSelectDropdownOptions: Partial<DropdownOption>[] =
-    props.options && props.options.length > 0 && props.isMultiSelectDropdown
-      ? props.options
-      : [];
 
   const selected = useMemo(
     () =>
@@ -513,11 +333,9 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchCurrentWorkspace,
     fetchUser,
     handleSubmit,
-    isAclFlow = false,
     isApplicationInvite,
     isLoading,
     isMultiSelectDropdown = false,
-    links = [],
     message = "",
     placeholder = "",
     submitFailed,
@@ -525,8 +343,6 @@ function WorkspaceInviteUsersForm(props: any) {
     submitting,
     valid,
   } = props;
-
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
 
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
@@ -539,31 +355,30 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 
   useEffect(() => {
-    if (!isAclFlow) {
-      fetchUser(props.workspaceId);
-      fetchAllRoles(props.workspaceId);
-      fetchCurrentWorkspace(props.workspaceId);
-    }
+    fetchUser(props.workspaceId);
+    fetchAllRoles(props.workspaceId);
+    fetchCurrentWorkspace(props.workspaceId);
   }, [props.workspaceId, fetchUser, fetchAllRoles, fetchCurrentWorkspace]);
 
   useEffect(() => {
     if (selected) {
-      setSelectedItems([selected]);
+      setSelectedOption([selected]);
       props.initialize({
-        roles: [selected],
+        role: [selected],
       });
     }
   }, []);
 
-  const styledRoles = props.roles.map((role: any) => {
-    return {
-      id: role.id,
-      value: role.name,
-      label: role.description,
-    };
-  });
-
-  styledRoles.push(...links);
+  const styledRoles =
+    props.options && props.options.length > 0
+      ? props.options
+      : props.roles.map((role: any) => {
+          return {
+            id: role.id,
+            value: role.name,
+            label: role.description,
+          };
+        });
 
   const theme = useContext(ThemeContext);
 
@@ -590,12 +405,15 @@ function WorkspaceInviteUsersForm(props: any) {
     [allUsers, theme],
   );
 
-  const onSelect = (_value?: string, options?: any) => {
-    setSelectedItems(options);
+  const onSelect = (_value?: string, option?: any) => {
+    if (option.link) {
+      history.push(option.link);
+    }
+    setSelectedOption(isMultiSelectDropdown ? option : [option]);
   };
 
   const onRemoveOptions = (updatedItems: any) => {
-    setSelectedItems(updatedItems);
+    setSelectedOption(updatedItems);
   };
 
   const getLabel = (selectedOption: Partial<DropdownOption>[]) => {
@@ -624,151 +442,6 @@ function WorkspaceInviteUsersForm(props: any) {
     }
   };
 
-  const renderOption = ({
-    index,
-    option,
-    optionClickHandler,
-  }: {
-    index?: number;
-    option: DropdownOption | DropdownOption[];
-    optionClickHandler?: (dropdownOption: DropdownOption) => void;
-  }) => {
-    let isSelected = false;
-    if (props.isMultiSelect && Array.isArray(selected) && selected.length) {
-      isSelected = !!selected.find((selectedOption: any) =>
-        !Array.isArray(option) ? selectedOption.value === option.value : false,
-      );
-    } else {
-      isSelected =
-        !Array.isArray(option) && selected
-          ? selected.value === option.value
-          : false;
-    }
-    return !Array.isArray(option) && !option.isSectionHeader ? (
-      !option.link ? (
-        <TooltipComponent
-          content={
-            !!option.disabledTooltipText
-              ? option.disabledTooltipText
-              : "Action not supported"
-          }
-          disabled={!option.disabled}
-          key={`tootltip-${index}`}
-          styles={{
-            width: "100%",
-          }}
-        >
-          <OptionWrapper
-            aria-selected={isSelected}
-            className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
-            data-cy={`t--dropdown-option-${option?.label}`}
-            disabled={option.disabled}
-            key={index}
-            onClick={
-              // users should be able to unselect a selected option by clicking the option again.
-              isSelected && props.allowDeselection
-                ? () => props.removeSelectedOptionClickHandler(option)
-                : () => optionClickHandler?.(option)
-            }
-            role="option"
-            selected={
-              props.isMultiSelect ? props.highlightIndex === index : isSelected
-            }
-            selectedHighlightBg={props.selectedHighlightBg}
-            subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
-          >
-            {option.leftElement && (
-              <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
-            )}
-            {option.icon ? (
-              <SelectedIcon
-                fillColor={option?.iconColor}
-                hoverFillColor={option?.iconColor}
-                name={option.icon}
-                size={option.iconSize || IconSize.XL}
-              />
-            ) : null}
-            {props.showLabelOnly ? (
-              props.truncateOption ? (
-                <>
-                  <TooltipWrappedText
-                    label={option.label || ""}
-                    type={TextType.P1}
-                  />
-                  {option.hasCustomBadge && props.customBadge}
-                </>
-              ) : (
-                <>
-                  <Text type={TextType.P1}>{option.label}</Text>
-                  {option.hasCustomBadge && props.customBadge}
-                </>
-              )
-            ) : option.label && option.value ? (
-              <LabelWrapper className="label-container">
-                <Text type={TextType.H5}>{option.value}</Text>
-                <Text type={TextType.P1}>{option.label}</Text>
-              </LabelWrapper>
-            ) : props.truncateOption ? (
-              <TooltipWrappedText
-                label={option.value || ""}
-                type={TextType.P1}
-              />
-            ) : (
-              <Text type={TextType.P1}>{option.value}</Text>
-            )}
-            {option.subText ? (
-              <StyledSubText
-                subTextPosition={option.subTextPosition}
-                type={TextType.P3}
-              >
-                {option.subText}
-              </StyledSubText>
-            ) : null}
-          </OptionWrapper>
-        </TooltipComponent>
-      ) : (
-        <Link key={index} to={option.link || "/"}>
-          <OptionWrapper
-            className={`t--dropdown-link`}
-            data-cy={`t--dropdown-option-${option?.value}`}
-            disabled={option.disabled}
-            role="option"
-            selected={false}
-            selectedHighlightBg={props.selectedHighlightBg}
-            subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
-          >
-            {option.leftElement && (
-              <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
-            )}
-            {option.icon ? (
-              <SelectedIcon
-                fillColor={option?.iconColor}
-                hoverFillColor={option?.iconColor}
-                name={option.icon}
-                size={option.iconSize || IconSize.XL}
-              />
-            ) : null}
-            <Text type={TextType.P1}>{option.value}</Text>
-            {option.subText ? (
-              <StyledSubText
-                subTextPosition={option.subTextPosition}
-                type={TextType.P3}
-              >
-                {option.subText}
-              </StyledSubText>
-            ) : null}
-          </OptionWrapper>
-        </Link>
-      )
-    ) : (
-      <SegmentHeader
-        key={index}
-        style={{ paddingRight: theme.spaces[5] }}
-        title={!Array.isArray(option) && option.label ? option.label : ""}
-      />
-    );
-  };
-
   return (
     <WorkspaceInviteWrapper>
       <InviteModalStyles />
@@ -791,10 +464,11 @@ function WorkspaceInviteUsersForm(props: any) {
             .join(",");
           return inviteUsersToWorkspace(
             {
-              ...values,
+              ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
               users,
-              permissionGroupId: selectedOption.id,
-              workspaceId: props.workspaceId,
+              permissionGroupId: isMultiSelectDropdown
+                ? selectedOption.map((group: any) => group.id).join(",")
+                : selectedOption[0].id,
             },
             dispatch,
           );
@@ -815,36 +489,23 @@ function WorkspaceInviteUsersForm(props: any) {
               placeholder={placeholder || "Enter email address"}
               type="text"
             />
-            {isMultiSelectDropdown ? (
-              <SelectField
-                allowDeselection
-                disabled={!!selected}
-                isMultiSelect
-                labelRenderer={(selected: Partial<DropdownOption>[]) =>
-                  getLabel(selected)
-                }
-                name="roles"
-                onSelect={onSelect}
-                options={multiSelectDropdownOptions}
-                outline={false}
-                placeholder="Select a role"
-                removeSelectedOption={onRemoveOptions}
-                selected={selectedItems}
-                showLabelOnly
-                size="small"
-              />
-            ) : (
-              <SelectField
-                data-cy="t--invite-role-input"
-                name="role"
-                onSelect={(value, option) => setSelectedOption(option)}
-                options={styledRoles}
-                outline={false}
-                placeholder="Select a role"
-                renderOption={renderOption}
-                size="small"
-              />
-            )}
+            <SelectField
+              allowDeselection={isMultiSelectDropdown}
+              data-cy="t--invite-role-input"
+              disabled={props.disableDropdown}
+              isMultiSelect={isMultiSelectDropdown}
+              labelRenderer={(selected: Partial<DropdownOption>[]) =>
+                getLabel(selected)
+              }
+              name={"role"}
+              onSelect={(value, option) => onSelect(value, option)}
+              options={styledRoles}
+              outline={false}
+              placeholder="Select a role"
+              removeSelectedOption={onRemoveOptions}
+              showLabelOnly={isMultiSelectDropdown}
+              size="small"
+            />
           </div>
           <Button
             className="t--invite-user-btn"
@@ -977,7 +638,6 @@ export default connect(
       applicationId?: string;
       workspaceId?: string;
       isApplicationInvite?: boolean;
-      links?: any[];
     }
   >({
     validate,
