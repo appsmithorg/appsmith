@@ -58,10 +58,17 @@ export type ActionCreatorProps = {
   pageDropdownOptions: TreeDropdownOption[];
 };
 
+export type Field = {
+  field: FieldType;
+  value?: string;
+  label?: string;
+  index?: number;
+};
+
 export type FieldProps = {
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   value: string;
-  field: { field: FieldType; value?: string; label?: string; index?: number };
+  field: Field;
   label?: string;
   widgetOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
@@ -75,7 +82,7 @@ export type FieldProps = {
 };
 
 export type FieldsProps = Omit<FieldProps, "field"> & {
-  fields: any;
+  fields: Array<Field>;
 };
 
 export type OptionListType = { label: string; value: string; id: string };
