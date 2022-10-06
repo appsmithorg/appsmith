@@ -5,6 +5,7 @@ import {
   WrappedFieldInputProps,
 } from "redux-form";
 import { TextInput, InputType } from "design-system";
+
 import { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system";
 
@@ -39,8 +40,8 @@ export type FormTextFieldProps = {
   hideErrorMessage?: boolean;
 };
 
-function FormTextField(props: FormTextFieldProps) {
+function ReduxFormTextField(props: FormTextFieldProps) {
   return <Field component={renderComponent} {...props} asyncControl />;
 }
 
-export default FormTextField;
+export default ReduxFormTextField;
