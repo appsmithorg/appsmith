@@ -1,5 +1,8 @@
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { unEvalTree } from "workers/DataTreeEvaluator/mockData/mockUnEvalTree";
+import {
+  unEvalTree,
+  unEvalTreeWidgetSelectWidget,
+} from "workers/DataTreeEvaluator/mockData/mockUnEvalTree";
 import { DataTreeDiff } from "workers/evaluationUtils";
 import { updateDependencyMap } from ".";
 import ButtonWidget, {
@@ -8,6 +11,7 @@ import ButtonWidget, {
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 const widgetConfigMap = {};
 
@@ -91,5 +95,28 @@ describe("test updateDependencyMap", () => {
       Button2: ["Button2.text"],
       Button1: ["Button1.text"],
     });
+  });
+});
+
+describe("test validationDependencyMap", () => {
+  beforeAll(() => {
+    // @ts-expect-error: Types are not available
+    dataTreeEvaluator.createFirstTree(unEvalTreeWidgetSelectWidget as DataTree);
+  });
+
+  it("initial validation dependencyMap computation", () => {
+    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({
+      "Select2.defaultOptionValue": [
+        "Select2.serverSideFiltering",
+        "Select2.options",
+      ],
+    });
+  });
+
+  it("update validation dependencyMap computation", () => {
+    // @ts-expect-error: Types are not available
+    dataTreeEvaluator.updateDataTree(unEvalTree as DataTree);
+
+    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({});
   });
 });
