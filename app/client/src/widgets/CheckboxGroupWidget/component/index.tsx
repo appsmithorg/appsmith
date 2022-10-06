@@ -157,10 +157,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   borderRadius: string;
   maxDynamicHeight?: number;
 }
-const CheckboxGroupComponent = React.forwardRef<
-  HTMLDivElement,
-  CheckboxGroupComponentProps
->((props, ref) => {
+function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
     accentColor,
     borderRadius,
@@ -204,7 +201,6 @@ const CheckboxGroupComponent = React.forwardRef<
       data-testid="checkboxgroup-container"
       isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
-      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -267,8 +263,6 @@ const CheckboxGroupComponent = React.forwardRef<
       </InputContainer>
     </CheckboxGroupContainer>
   );
-});
-
-CheckboxGroupComponent.displayName = "CheckboxGroupComponent";
+}
 
 export default CheckboxGroupComponent;

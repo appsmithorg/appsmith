@@ -72,10 +72,6 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
       <CheckboxContainer
         isValid={isValid}
         noContainerPadding={this.props.noContainerPadding}
-        ref={this.props.innerRef}
-        style={
-          this.props.isDynamicHeightEnabled ? { height: "auto" } : undefined
-        }
       >
         <StyledCheckbox
           accentColor={this.props.accentColor || DEFAULT_BACKGROUND_COLOR}
@@ -121,7 +117,6 @@ export interface CheckboxComponentProps extends ComponentProps {
   label: string;
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
-  innerRef?: React.MutableRefObject<HTMLDivElement>;
   inputRef?: (el: HTMLInputElement | null) => any;
   accentColor: string;
   borderRadius: string;
@@ -132,11 +127,4 @@ export interface CheckboxComponentProps extends ComponentProps {
   labelStyle?: string;
 }
 
-export default React.forwardRef<HTMLDivElement, CheckboxComponentProps>(
-  (props, ref) => (
-    <CheckboxComponent
-      {...props}
-      innerRef={ref as React.MutableRefObject<HTMLDivElement>}
-    />
-  ),
-);
+export default CheckboxComponent;

@@ -11,19 +11,27 @@ const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
 interface DynamicHeightContainerProps {
   maxDynamicHeight: number;
   dynamicHeight: string;
+  onHeightUpdate: (height: number) => void;
 }
 
-function WithLimitsContainer({
+export default function DynamicHeightContainer({
   children,
+  dynamicHeight,
   maxDynamicHeight,
-}: PropsWithChildren<{ maxDynamicHeight: number }>) {
+  onHeightUpdate,
+}: PropsWithChildren<DynamicHeightContainerProps>) {
+  const isAutoHeightWithLimits =
+    dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+
   const [expectedHeight, setExpectedHeight] = useState(0);
 
   const ref = useRef<HTMLDivElement>(null);
 
   const observer = React.useRef(
     new ResizeObserver((entries) => {
-      setExpectedHeight(entries[0].contentRect.height);
+      const height = entries[0].contentRect.height;
+      setExpectedHeight(height);
+      onHeightUpdate(height);
     }),
   );
 
@@ -39,36 +47,27 @@ function WithLimitsContainer({
     };
   }, [observer]);
 
-  const expectedHeightInRows = Math.ceil(
-    expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
-
-  return (
-    <StyledDynamicHeightContainer
-      isOverflow={maxDynamicHeight < expectedHeightInRows}
-    >
-      <div ref={ref} style={{ height: "auto" }}>
-        {children}
-      </div>
-    </StyledDynamicHeightContainer>
-  );
-}
-
-export default function DynamicHeightContainer({
-  children,
-  dynamicHeight,
-  maxDynamicHeight,
-}: PropsWithChildren<DynamicHeightContainerProps>) {
-  const isAutoHeightWithLimits =
-    dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+  console.log("onHeightUpdate ResizeObserver");
 
   if (isAutoHeightWithLimits) {
+    const expectedHeightInRows = Math.ceil(
+      expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    );
+
     return (
-      <WithLimitsContainer maxDynamicHeight={maxDynamicHeight}>
-        {children}
-      </WithLimitsContainer>
+      <StyledDynamicHeightContainer
+        isOverflow={maxDynamicHeight < expectedHeightInRows}
+      >
+        <div ref={ref} style={{ height: "auto" }}>
+          {children}
+        </div>
+      </StyledDynamicHeightContainer>
     );
   }
 
-  return <div style={{ height: "auto" }}>{children}</div>;
+  return (
+    <div ref={ref} style={{ height: "auto" }}>
+      {children}
+    </div>
+  );
 }

@@ -8,7 +8,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -424,10 +423,6 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     });
   };
 
-  componentDidUpdate(prevProps: RateWidgetProps): void {
-    super.componentDidUpdate(prevProps);
-  }
-
   getPageView() {
     return (
       (this.props.rate || this.props.rate === 0) && (
@@ -437,14 +432,12 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           inactiveColor={this.props.inactiveColor}
           isAllowHalf={this.props.isAllowHalf}
           isDisabled={this.props.isDisabled}
-          isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isDisabled}
-          ref={this.contentRef}
           rightColumn={this.props.rightColumn}
           size={this.props.size}
           tooltips={this.props.tooltips}

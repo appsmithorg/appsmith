@@ -500,10 +500,15 @@ abstract class BaseWidget<
   };
 
   addDynamicHeightContainer = (content: ReactNode) => {
+    const onHeightUpdate = (height: number) => {
+      this.updateDynamicHeight(height);
+    };
+
     return (
       <DynamicHeightContainer
         dynamicHeight={this.props.dynamicHeight}
         maxDynamicHeight={this.props.maxDynamicHeight}
+        onHeightUpdate={onHeightUpdate}
       >
         {content}
       </DynamicHeightContainer>

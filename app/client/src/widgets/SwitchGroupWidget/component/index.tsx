@@ -159,6 +159,4 @@ export interface SwitchGroupComponentProps {
   maxDynamicHeight?: number;
 }
 
-SwitchGroupComponent.displayName = "SwitchGroupComponent";
-
 export default SwitchGroupComponent;

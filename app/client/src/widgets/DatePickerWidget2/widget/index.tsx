@@ -812,7 +812,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 
   componentDidUpdate(prevProps: DatePickerWidget2Props): void {
-    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultDate !== prevProps.defaultDate &&
       this.props.isDirty
@@ -852,7 +851,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}
-        ref={this.contentRef}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}

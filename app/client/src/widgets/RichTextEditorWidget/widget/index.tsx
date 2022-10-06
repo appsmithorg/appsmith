@@ -618,7 +618,6 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
@@ -674,7 +673,6 @@ class RichTextEditorWidget extends BaseWidget<
           labelWidth={this.getLabelWidth()}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
-          ref={this.contentRef}
           value={value}
           widgetId={this.props.widgetId}
         />

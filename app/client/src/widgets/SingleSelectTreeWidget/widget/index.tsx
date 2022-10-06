@@ -808,7 +808,6 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
       this.props.isDirty
@@ -856,7 +855,6 @@ class SingleSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        ref={this.contentRef}
         renderMode={this.props.renderMode}
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}

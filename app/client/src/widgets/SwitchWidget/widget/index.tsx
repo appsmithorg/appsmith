@@ -439,7 +439,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         accentColor={this.props.accentColor}
         alignWidget={this.props.alignWidget}
         isDisabled={this.props.isDisabled}
-        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
         isSwitchedOn={!!this.props.isSwitchedOn}
         key={this.props.widgetId}
@@ -449,7 +448,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         onChange={this.onChange}
-        ref={this.contentRef}
         widgetId={this.props.widgetId}
       />
     );
@@ -479,7 +477,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: SwitchWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultSwitchState !== prevProps.defaultSwitchState &&
       this.props.isDirty

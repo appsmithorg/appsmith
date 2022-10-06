@@ -82,7 +82,6 @@ class CurrencyInputComponent extends React.Component<
         onStep={this.props.onStep}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
-        ref={this.props.innerRef}
         showError={this.props.showError}
         stepSize={1}
         tooltip={this.props.tooltip}
@@ -98,17 +97,9 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
   decimals?: number;
-  innerRef?: React.RefObject<HTMLDivElement>;
   onCurrencyTypeChange: (code?: string) => void;
   onStep: (direction: number) => void;
   renderMode: string;
 }
 
-export default React.forwardRef<HTMLDivElement, CurrencyInputComponentProps>(
-  (props, ref) => (
-    <CurrencyInputComponent
-      {...props}
-      innerRef={ref as React.RefObject<HTMLDivElement>}
-    />
-  ),
-);
+export default CurrencyInputComponent;

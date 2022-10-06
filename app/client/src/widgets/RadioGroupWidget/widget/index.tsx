@@ -793,7 +793,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
       this.props.isDirty
@@ -844,7 +843,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         maxDynamicHeight={this.props.maxDynamicHeight}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
-        ref={this.contentRef}
         required={this.props.isRequired}
         selectedOptionValue={selectedOptionValue}
         widgetId={widgetId}
