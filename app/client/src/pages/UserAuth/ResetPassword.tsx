@@ -8,7 +8,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
 import FormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
+import FormTextField from "components/utils/ReduxFormTextField";
 import FormMessage, {
   MessageAction,
   FormMessageProps,
