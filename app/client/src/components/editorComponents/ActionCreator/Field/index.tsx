@@ -15,7 +15,7 @@ import { SelectorView } from "../viewComponents/SelectorView";
 import { KeyValueView } from "../viewComponents/KeyValueView";
 import { TextView } from "../viewComponents/TextView";
 import { TabView } from "../viewComponents/TabView";
-import { FIELD_CONFIG } from "../FieldConfig";
+import { FIELD_CONFIG } from "./FieldConfig";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (

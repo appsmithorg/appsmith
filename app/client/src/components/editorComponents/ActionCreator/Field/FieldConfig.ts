@@ -5,9 +5,9 @@ import {
   NAVIGATION_TARGET_FIELD_OPTIONS,
   RESET_CHILDREN_OPTIONS,
   ViewTypes,
-} from "./constants";
-import { ALERT_STYLE_OPTIONS } from "@appsmith/constants/messages";
-import { ActionType, AppsmithFunctionConfigType, FieldProps } from "./types";
+} from "../constants";
+import { ALERT_STYLE_OPTIONS } from "../../../../ce/constants/messages";
+import { ActionType, AppsmithFunctionConfigType, FieldProps } from "../types";
 import {
   enumTypeGetter,
   enumTypeSetter,
@@ -15,10 +15,10 @@ import {
   modalSetter,
   textGetter,
   textSetter,
-} from "./utils";
-import store from "../../../store";
-import { getPageList } from "../../../selectors/entitiesSelector";
-import { ACTION_TRIGGER_REGEX } from "./regex";
+} from "../utils";
+import store from "../../../../store";
+import { getPageList } from "../../../../selectors/entitiesSelector";
+import { ACTION_TRIGGER_REGEX } from "../regex";
 import { TreeDropdownOption } from "design-system";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
