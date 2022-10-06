@@ -84,6 +84,7 @@ interface Props {
   cellBackground?: string;
   textSize?: string;
   disablePadding?: boolean;
+  url?: string;
 }
 
 function LinkWrapper(props: Props) {
@@ -103,7 +104,7 @@ function LinkWrapper(props: Props) {
       isTextType
       onClick={(e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
-        window.open(props.title, "_blank");
+        window.open(props.url, "_blank");
       }}
       textColor={props.textColor}
       textSize={props.textSize}

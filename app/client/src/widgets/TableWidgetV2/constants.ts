@@ -81,6 +81,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   showInlineEditingOptionDropdown?: boolean;
   isEditableCellValid: boolean;
   variant?: TableVariant;
+  selectColumnFilterText?: Record<string, string>;
 }
 
 export enum TableVariantTypes {
@@ -124,6 +125,7 @@ export enum ReadOnlyColumnTypes {
   DATE = "date",
   CHECKBOX = "checkbox",
   SWITCH = "switch",
+  SELECT = "select",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
@@ -146,6 +148,7 @@ export type OnColumnEventArgs = {
   triggerPropertyName: string;
   eventType: EventType;
   row?: Record<string, unknown>;
+  additionalData?: Record<string, unknown>;
 };
 
 export const ICON_NAMES = Object.keys(IconNames).map(

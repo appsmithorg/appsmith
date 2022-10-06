@@ -97,6 +97,10 @@ export const getPageSavingError = (state: AppState) => {
 export const getLayoutOnLoadActions = (state: AppState) =>
   state.ui.editor.pageActions || [];
 
+export const getLayoutOnLoadIssues = (state: AppState) => {
+  return state.ui.editor.layoutOnLoadActionErrors || [];
+};
+
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;
 
@@ -588,3 +592,13 @@ export const getIsSavingEntity = (state: AppState) =>
 
 export const selectJSCollections = (state: AppState) =>
   state.entities.jsActions;
+
+export const showCanvasTopSectionSelector = createSelector(
+  getCanvasWidgets,
+  previewModeSelector,
+  (canvasWidgets, inPreviewMode) => {
+    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
+
+    return true;
+  },
+);

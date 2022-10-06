@@ -26,7 +26,7 @@ import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-import propertyPaneConfig, {
+import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
@@ -56,13 +56,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
   };
-
-  /**
-   * returns the property pane config of the widget
-   */
-  static getPropertyPaneConfig() {
-    return propertyPaneConfig;
-  }
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;

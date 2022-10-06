@@ -15,7 +15,6 @@ import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
-import { TEXT_SIZES } from "constants/WidgetConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;

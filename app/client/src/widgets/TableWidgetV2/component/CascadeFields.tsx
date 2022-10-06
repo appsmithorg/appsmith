@@ -183,6 +183,15 @@ const typeOperatorsMap: Record<ReadOnlyColumnTypes, DropdownOption[]> = {
     { label: "is checked", value: "isChecked", type: "" },
     { label: "is unchecked", value: "isUnChecked", type: "" },
   ],
+  [ColumnTypes.SELECT]: [
+    { label: "contains", value: "contains", type: "input" },
+    { label: "does not contain", value: "doesNotContain", type: "input" },
+    { label: "starts with", value: "startsWith", type: "input" },
+    { label: "ends with", value: "endsWith", type: "input" },
+    { label: "is exactly", value: "isExactly", type: "input" },
+    { label: "empty", value: "empty", type: "" },
+    { label: "not empty", value: "notEmpty", type: "" },
+  ],
 };
 
 const operatorOptions: DropdownOption[] = [
@@ -199,6 +208,7 @@ const columnTypeNameMap: Record<ReadOnlyColumnTypes, string> = {
   [ReadOnlyColumnTypes.URL]: "Url",
   [ReadOnlyColumnTypes.CHECKBOX]: "Check",
   [ReadOnlyColumnTypes.SWITCH]: "Check",
+  [ReadOnlyColumnTypes.SELECT]: "Text",
 };
 
 function RenderOption(props: { type: string; title: string; active: boolean }) {
@@ -318,7 +328,11 @@ type CascadeFieldProps = {
   operator: Operator;
   index: number;
   hasAnyFilters: boolean;
-  applyFilter: (filter: ReactTableFilter, index: number) => void;
+  applyFilter: (
+    filter: ReactTableFilter,
+    index: number,
+    isOperatorChange: boolean,
+  ) => void;
   removeFilter: (index: number) => void;
   accentColor: string;
   borderRadius: string;
@@ -335,6 +349,7 @@ type CascadeFieldState = {
   showDateInput: boolean;
   isDeleted: boolean;
   isUpdate: boolean;
+  isOperatorChange: boolean;
 };
 
 const getConditions = (props: CascadeFieldProps) => {
@@ -401,6 +416,7 @@ function calculateInitialState(props: CascadeFieldProps) {
     showDateInput: showDateInput,
     isDeleted: false,
     isUpdate: false,
+    isOperatorChange: false,
   };
 }
 
@@ -453,6 +469,7 @@ function CaseCaseFieldReducer(
         ...state,
         operator: action.payload,
         isUpdate: true,
+        isOperatorChange: true,
       };
     case CascadeFieldActionTypes.UPDATE_FILTER:
       const calculatedState = calculateInitialState(action.payload);
@@ -519,6 +536,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     condition,
     conditions,
     isDeleted,
+    isOperatorChange,
     isUpdate,
     operator,
     showConditions,
@@ -528,7 +546,11 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   } = state;
   useEffect(() => {
     if (!isDeleted && isUpdate) {
-      applyFilter({ operator, column, condition, value }, index);
+      applyFilter(
+        { operator, column, condition, value },
+        index,
+        isOperatorChange,
+      );
     } else if (isDeleted) {
       removeFilter(index);
     }
@@ -538,6 +560,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     condition,
     value,
     isDeleted,
+    isOperatorChange,
     isUpdate,
     index,
     applyFilter,

@@ -370,7 +370,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               });
             },
           }}
-          key={`editor_${props.isToolbarHidden}`}
+          key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
           onEditorChange={handleEditorChange}
           tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}

@@ -265,6 +265,7 @@ export const responseTabComponent = (
   return {
     [API_RESPONSE_TYPE_OPTIONS.JSON]: (
       <ReadOnlyEditor
+        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -278,6 +279,7 @@ export const responseTabComponent = (
     ),
     [API_RESPONSE_TYPE_OPTIONS.RAW]: (
       <ReadOnlyEditor
+        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{

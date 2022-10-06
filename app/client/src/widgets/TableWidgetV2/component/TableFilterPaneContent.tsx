@@ -20,6 +20,7 @@ import Button from "pages/AppViewer/AppViewerButton";
 import { ButtonVariantTypes } from "components/constants";
 
 import AddIcon from "remixicon-react/AddLineIcon";
+import { cloneDeep } from "lodash";
 
 const StyledPlusCircleIcon = styled(
   ControlIcons.ADD_CIRCLE_CONTROL as AnyStyledComponent,
@@ -203,10 +204,25 @@ function TableFilterPaneContent(props: TableFilterProps) {
           return (
             <CascadeFields
               accentColor={props.accentColor}
-              applyFilter={(filter: ReactTableFilter, index: number) => {
+              applyFilter={(
+                filter: ReactTableFilter,
+                index: number,
+                isOperatorChange: boolean,
+              ) => {
                 // here updated filters store in state, not in redux
-                const updatedFilters = filters ? [...filters] : [];
+                const updatedFilters = filters ? cloneDeep(filters) : [];
                 updatedFilters[index] = filter;
+                if (isOperatorChange) {
+                  /*
+                    This if-block updates the operator for all filters after
+                    second filter if the second filter operator is changed
+                  */
+                  let index = 2;
+                  while (index < updatedFilters.length) {
+                    updatedFilters[index].operator = updatedFilters[1].operator;
+                    index++;
+                  }
+                }
                 updateFilters(updatedFilters);
               }}
               borderRadius={props.borderRadius}
@@ -215,18 +231,22 @@ function TableFilterPaneContent(props: TableFilterProps) {
               condition={filter.condition}
               hasAnyFilters={hasAnyFilters}
               index={index}
-              key={index}
+              key={index + JSON.stringify(filter)}
               operator={
                 filters.length >= 2 ? filters[1].operator : filter.operator
               }
               removeFilter={(index: number) => {
-                if (index === 1 && filters.length > 2) {
-                  filters[2].operator = filters[1].operator;
+                const updatedFilters = cloneDeep(filters);
+                let newFilters: Array<ReactTableFilter> = [];
+                if (updatedFilters) {
+                  if (index === 1 && updatedFilters.length > 2) {
+                    updatedFilters[2].operator = updatedFilters[1].operator;
+                  }
+                  newFilters = [
+                    ...updatedFilters.slice(0, index),
+                    ...updatedFilters.slice(index + 1),
+                  ];
                 }
-                const newFilters = [
-                  ...filters.slice(0, index),
-                  ...filters.slice(index + 1),
-                ];
                 if (newFilters.length === 0) {
                   newFilters.push({ ...DEFAULT_FILTER });
                 }

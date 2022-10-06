@@ -62,6 +62,7 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
   justify-content: center;
   width: 100%;
   height: 100%;
+  cursor: pointer;
 
   ${({ renderMode }) =>
     renderMode === RenderModes.CANVAS &&
@@ -155,17 +156,30 @@ export const StyledButton = styled((props) => (
     }
 
     &:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
+      background: ${
+        buttonVariant !== ButtonVariantTypes.TERTIARY
+          ? "var(--wds-color-bg-disabled)"
+          : "transparent"
+      } !important;
+      color: var(--wds-color-text-disabled) !important;
       pointer-events: none;
     }
 
     &&:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      border-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
-      > span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+      border: ${
+        buttonVariant === ButtonVariantTypes.SECONDARY
+          ? "1px solid var(--wds-color-border-disabled)"
+          : "none"
+      } !important;
+      background: ${
+        buttonVariant !== ButtonVariantTypes.TERTIARY
+          ? "var(--wds-color-bg-disabled)"
+          : "transparent"
+      } !important;
+      color: var(--wds-color-text-disabled) !important;
+      
+      span {
+        color: var(--wds-color-text-disabled) !important;
       }
     }
 
