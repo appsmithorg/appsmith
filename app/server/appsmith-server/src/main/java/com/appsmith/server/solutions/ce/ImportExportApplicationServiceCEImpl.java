@@ -1066,9 +1066,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             existingActionCollections,
                             importedApplication,
                             branchName,
-                            pageNameMap, pluginMap,
+                            pageNameMap,
+                            pluginMap,
                             unpublishedCollectionIdToActionIdsMap,
-                            publishedCollectionIdToActionIdsMap
+                            publishedCollectionIdToActionIdsMap,
+                            appendToApp
                     )
                             .flatMap(tuple -> {
                                 final String importedActionCollectionId = tuple.getT1();
@@ -1473,7 +1475,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             Map<String, NewPage> pageNameMap,
             Map<String, String> pluginMap,
             Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
-            Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap) {
+            Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap,
+            boolean appendToApp) {
 
         final String workspaceId = importedApplication.getWorkspaceId();
         return Flux.fromIterable(importedActionCollectionList)
@@ -1530,6 +1533,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         return Mono.zip(
                                 Mono.just(importedActionCollectionId),
                                 actionCollectionService.save(existingActionCollection)
+                        );
+                    } else if(importedApplication.getGitApplicationMetadata() != null && appendToApp) {
+                        // Merge template to application, we will be creating the new resources in the DB
+                        DefaultResources defaultResources = new DefaultResources();
+                        defaultResources.setApplicationId(importedApplication.getGitApplicationMetadata().getDefaultApplicationId());
+                        defaultResources.setBranchName(branchName);
+                        actionCollection.setDefaultResources(defaultResources);
+                        return Mono.zip(
+                                Mono.just(importedActionCollectionId),
+                                saveNewCollectionAndUpdateDefaultResources(actionCollection, branchName)
                         );
                     } else if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
