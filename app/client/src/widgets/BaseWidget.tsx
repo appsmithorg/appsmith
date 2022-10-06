@@ -72,7 +72,6 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
-  contentRef = React.createRef<HTMLDivElement>();
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -274,20 +273,6 @@ abstract class BaseWidget<
     // If we reach this point, we don't have to change height
     return false;
   }
-
-  /* eslint-disable @typescript-eslint/no-empty-function */
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {
-    requestAnimationFrame(() => {
-      const expectedHeight = this.contentRef.current?.scrollHeight;
-      if (expectedHeight !== undefined) {
-        this.updateDynamicHeight(expectedHeight);
-      }
-    });
-  }
-
-  componentDidMount(): void {}
-  /* eslint-enable @typescript-eslint/no-empty-function */
 
   getComponentDimensions = () => {
     return this.calculateWidgetBounds(
@@ -501,7 +486,9 @@ abstract class BaseWidget<
 
   addDynamicHeightContainer = (content: ReactNode) => {
     const onHeightUpdate = (height: number) => {
-      this.updateDynamicHeight(height);
+      requestAnimationFrame(() => {
+        this.updateDynamicHeight(height);
+      });
     };
 
     return (

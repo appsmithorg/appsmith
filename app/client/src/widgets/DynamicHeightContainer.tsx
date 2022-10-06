@@ -47,8 +47,6 @@ export default function DynamicHeightContainer({
     };
   }, [observer]);
 
-  console.log("onHeightUpdate ResizeObserver");
-
   if (isAutoHeightWithLimits) {
     const expectedHeightInRows = Math.ceil(
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,

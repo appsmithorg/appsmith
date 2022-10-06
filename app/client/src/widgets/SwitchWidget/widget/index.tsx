@@ -10,7 +10,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
-import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
