@@ -302,7 +302,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   let disabledHorizontalHandles: string[] = [];
   if (
     props.useAutoLayout &&
-    props.direction === LayoutDirection.Horizontal &&
+    props.direction === LayoutDirection.Vertical &&
     props.responsiveBehavior === ResponsiveBehavior.Fill
   ) {
     disabledHorizontalHandles = [

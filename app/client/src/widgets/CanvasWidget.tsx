@@ -13,6 +13,7 @@ import { CanvasWidgetStructure } from "./constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import {
   Alignment,
+  LayoutDirection,
   Overflow,
   Positioning,
   ResponsiveBehavior,
@@ -136,7 +137,11 @@ class CanvasWidget extends ContainerWidget {
           alignment={this.props.alignment || Alignment.Left}
           direction={this.props.direction}
           flexLayers={this.props.flexLayers || []}
-          overflow={Overflow.NoWrap}
+          overflow={
+            this.props.direction === LayoutDirection.Horizontal
+              ? Overflow.Wrap
+              : Overflow.NoWrap
+          }
           spacing={this.props.spacing || Spacing.None}
           stretchHeight={stretchFlexBox}
           useAutoLayout={this.state.useAutoLayout}

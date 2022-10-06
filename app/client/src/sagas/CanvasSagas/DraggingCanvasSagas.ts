@@ -35,8 +35,10 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "components/constants";
-import { purgeEmptyWrappers } from "../WidgetOperationUtils";
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import {
+  FlexLayer,
+  LayerChild,
+} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -302,12 +304,8 @@ function* moveWidgetsSaga(
     ) {
       throw Error;
     }
-    /**
-     * Trim empty layout wrappers
-     * Caused by dragging a widget from auto layout to positioned container
-     */
-    const trimmedWidgets = purgeEmptyWrappers(updatedWidgetsOnMove);
-    yield put(updateAndSaveLayout(trimmedWidgets));
+
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
 
     const block = draggedBlocksToUpdate[0];
     const oldParentId = block.updateWidgetParams.payload.parentId;
@@ -405,19 +403,19 @@ function* autolayoutReorderSaga(
     index: number;
     isNewLayer: boolean;
     parentId: string;
-    wrapperType: FlexLayerAlignment;
+    alignment: FlexLayerAlignment;
     direction: LayoutDirection;
   }>,
 ) {
   const start = performance.now();
 
   const {
+    alignment,
     direction,
     index,
     isNewLayer,
     movedWidgets,
     parentId,
-    wrapperType,
   } = actionPayload.payload;
   // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
   // console.log(`#### parentId: ${parentId}`);
@@ -432,7 +430,7 @@ function* autolayoutReorderSaga(
         isNewLayer,
         parentId,
         allWidgets,
-        wrapperType,
+        alignment,
         direction,
       },
     );
@@ -450,17 +448,19 @@ function* reorderAutolayoutChildren(params: {
   isNewLayer: boolean;
   parentId: string;
   allWidgets: CanvasWidgetsReduxState;
-  wrapperType: FlexLayerAlignment;
+  alignment: FlexLayerAlignment;
   direction: LayoutDirection;
+  layerIndex?: number;
 }) {
   const {
+    alignment,
     allWidgets,
     direction,
     index,
     isNewLayer,
+    layerIndex,
     movedWidgets,
     parentId,
-    wrapperType,
   } = params;
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
@@ -494,17 +494,27 @@ function* reorderAutolayoutChildren(params: {
   }
   let updatedWidgets: CanvasWidgetsReduxState = Object.assign({}, widgets);
   if (direction === LayoutDirection.Vertical) {
-    updatedWidgets = updateAutoLayoutLayers(
-      selectedWidgets,
-      widgets,
-      parentId,
-      wrapperType,
-      isNewLayer,
-      index,
-    );
+    updatedWidgets = isNewLayer
+      ? addNewLayer(
+          selectedWidgets,
+          widgets,
+          parentId,
+          alignment,
+          isNewLayer,
+          index,
+        )
+      : updateExistingLayer(
+          selectedWidgets,
+          widgets,
+          parentId,
+          alignment,
+          index,
+          layerIndex || 0,
+        );
   }
+
   const items = [...(widgets[parentId].children || [])];
-  // remove moved widegts from children
+  // remove moved widgets from children
   const newItems = items.filter((item) => movedWidgets.indexOf(item) === -1);
   // calculate valid position for drop
   const pos = index > newItems.length ? newItems.length : index;
@@ -519,55 +529,117 @@ function* reorderAutolayoutChildren(params: {
   return updatedWidgets;
 }
 
-function updateAutoLayoutLayers(
+function addNewLayer(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
-  wrapperType: FlexLayerAlignment,
+  alignment: FlexLayerAlignment,
   isNewLayer: boolean,
   index: number,
 ) {
   const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
   const canvas = widgets[parentId];
   if (!canvas) return widgets;
-  let hasFillChild = false;
-  const layerChildren = [];
-  for (const id of movedWidgets) {
-    const widget = widgets[id];
-    if (!widget) continue;
-    if (widget.responsiveBehavior === ResponsiveBehavior.Fill)
-      hasFillChild = true;
-    layerChildren.push({
-      id,
-      align: wrapperType,
-    });
-  }
+
+  const { hasFillChild, layerChildren } = processLayerChildren(
+    movedWidgets,
+    allWidgets,
+    alignment,
+  );
+
   const newLayer: FlexLayer = { children: layerChildren, hasFillChild };
-  console.log("#### canvas id", parentId);
-  console.log("#### newLayer", newLayer);
+  // console.log("#### canvas id", parentId);
+  // console.log("#### newLayer", newLayer);
   const flexLayers = canvas.flexLayers || [];
-  const filteredLayers = isNewLayer
-    ? flexLayers
-    : filterLayers(flexLayers, movedWidgets);
-  console.log("#### filteredLayers", filteredLayers);
-  const pos = index > filteredLayers.length ? filteredLayers.length : index;
-  console.log("#### index", index);
-  console.log("#### pos", pos);
+  // console.log("#### filteredLayers", filteredLayers);
+  const pos = index > flexLayers.length ? flexLayers.length : index;
+  // console.log("#### index", index);
+  // console.log("#### pos", pos);
   const updatedCanvas = {
     ...canvas,
     flexLayers: [
-      ...filteredLayers.slice(0, pos),
+      ...flexLayers.slice(0, pos),
       newLayer,
-      ...filteredLayers.slice(pos),
+      ...flexLayers.slice(pos),
     ],
   };
   const updatedWidgets = {
     ...widgets,
     [parentId]: updatedCanvas,
   };
-  console.log("#### updated flex layers", updatedCanvas.flexLayers);
-  console.log("#### widgets", updatedWidgets);
+  // console.log("#### updated flex layers", updatedCanvas.flexLayers);
+  // console.log("#### widgets", updatedWidgets);
   return updatedWidgets;
+}
+
+function updateExistingLayer(
+  movedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  alignment: FlexLayerAlignment,
+  index: number,
+  layerIndex: number,
+): CanvasWidgetsReduxState {
+  const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
+  const canvas = widgets[parentId];
+  if (!canvas || !movedWidgets.length) return widgets;
+
+  const layers = canvas.flexLayers || [];
+  const filteredLayers: FlexLayer[] = filterLayers(layers, movedWidgets);
+
+  const { hasFillChild, layerChildren } = processLayerChildren(
+    movedWidgets,
+    allWidgets,
+    alignment,
+  );
+
+  let selectedLayer: FlexLayer = filteredLayers[layerIndex];
+  let childCount = 0;
+  filteredLayers.forEach((layer: FlexLayer, index: number) => {
+    if (index > layerIndex) return;
+    childCount += layer.children.length;
+  });
+  const pos = index - childCount;
+
+  selectedLayer = {
+    ...selectedLayer,
+    children: [
+      ...selectedLayer.children.slice(0, pos),
+      ...layerChildren,
+      ...selectedLayer.children.slice(pos),
+    ],
+  };
+
+  const updatedCanvas = {
+    ...canvas,
+    flexLayers: [
+      ...filteredLayers.slice(0, layerIndex),
+      selectedLayer,
+      ...filteredLayers.slice(layerIndex + 1),
+    ],
+  };
+
+  const updatedWidgets = { ...widgets, [parentId]: updatedCanvas };
+  return updatedWidgets;
+}
+
+function processLayerChildren(
+  movedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+  alignment: FlexLayerAlignment,
+): { hasFillChild: boolean; layerChildren: LayerChild[] } {
+  let hasFillChild = false;
+  const layerChildren = [];
+  if (movedWidgets && movedWidgets.length) {
+    for (const id of movedWidgets) {
+      const widget = allWidgets[id];
+      if (!widget) continue;
+      if (widget.responsiveBehavior === ResponsiveBehavior.Fill)
+        hasFillChild = true;
+      layerChildren.push({ id, align: alignment });
+    }
+  }
+  return { layerChildren, hasFillChild };
 }
 
 function filterLayers(
@@ -589,18 +661,20 @@ function* addWidgetAndReorderSaga(
     index: number;
     isNewLayer: boolean;
     parentId: string;
-    wrapperType: FlexLayerAlignment;
+    alignment: FlexLayerAlignment;
     direction: LayoutDirection;
+    layerIndex?: number;
   }>,
 ) {
   const start = performance.now();
   const {
+    alignment,
     direction,
     index,
     isNewLayer,
+    layerIndex,
     newWidget,
     parentId,
-    wrapperType,
   } = actionPayload.payload;
   try {
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
@@ -619,8 +693,9 @@ function* addWidgetAndReorderSaga(
         isNewLayer,
         parentId,
         allWidgets: updatedWidgetsOnAddition,
-        wrapperType,
+        alignment,
         direction,
+        layerIndex,
       },
     );
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));

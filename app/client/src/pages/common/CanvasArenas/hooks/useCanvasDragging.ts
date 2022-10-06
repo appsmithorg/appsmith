@@ -331,7 +331,7 @@ export const useCanvasDragging = (
               updateChildrenPositions(
                 pos.index,
                 currentRectanglesToDraw,
-                pos.wrapperType,
+                pos.alignment,
               );
             } else
               onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);

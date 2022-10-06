@@ -280,10 +280,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const updateChildrenPositions = (
     index: number,
     drawingBlocks: WidgetDraggingBlock[],
-    wrapperType: FlexLayerAlignment,
+    alignment: FlexLayerAlignment,
   ): void => {
-    if (isNewWidget)
-      addNewWidgetToAutoLayout(index, drawingBlocks, wrapperType);
+    if (isNewWidget) addNewWidgetToAutoLayout(index, drawingBlocks, alignment);
     else
       dispatch({
         type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
@@ -291,7 +290,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           index,
           movedWidgets: selectedWidgets,
           parentId: widgetId,
-          wrapperType,
+          alignment,
           direction,
           isNewLayer: false,
         },
@@ -300,7 +299,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const addNewWidgetToAutoLayout = (
     index: number,
     drawingBlocks: WidgetDraggingBlock[],
-    wrapperType: FlexLayerAlignment,
+    alignment: FlexLayerAlignment,
   ) => {
     logContainerJumpOnDrop();
     const blocksToUpdate = drawingBlocks.map((each) => {
@@ -323,12 +322,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
         updateWidgetParams,
       };
     });
-    // Add wrapperType to props of the new widget
+    // Add alignment to props of the new widget
     const widgetPayload = {
       ...blocksToUpdate[0]?.updateWidgetParams?.payload,
       props: {
         ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
-        wrapperType,
+        alignment,
       },
     };
     dispatch({
@@ -337,7 +336,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         index,
         newWidget: widgetPayload,
         parentId: widgetId,
-        wrapperType,
+        alignment,
         direction,
         isNewLayer: true,
       },

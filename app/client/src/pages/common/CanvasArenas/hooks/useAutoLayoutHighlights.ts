@@ -6,7 +6,7 @@ import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "components/constants";
-import { isArray, isNaN } from "lodash";
+import { isNaN } from "lodash";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 interface XYCord {
@@ -19,7 +19,7 @@ export interface Highlight {
   y: number;
   height: number;
   width: number;
-  wrapperType: FlexLayerAlignment;
+  alignment: FlexLayerAlignment;
 }
 
 export interface AutoLayoutHighlightProps {
@@ -35,7 +35,7 @@ export interface AutoLayoutHighlightProps {
 
 export interface DropPositionPayload {
   index: number;
-  wrapperType: FlexLayerAlignment;
+  alignment: FlexLayerAlignment;
 }
 
 const BASE_OFFSET_SIZE = 100;
@@ -108,14 +108,14 @@ export const useAutoLayoutHighlights = ({
         y: 8,
         width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
         height: OFFSET_WIDTH,
-        wrapperType: FlexLayerAlignment.Start,
+        alignment: FlexLayerAlignment.Start,
       },
       [LayoutDirection.Horizontal]: {
         x: 8,
         y: 0,
         width: OFFSET_WIDTH,
         height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
-        wrapperType: FlexLayerAlignment.Start,
+        alignment: FlexLayerAlignment.Start,
       },
     },
     [FlexLayerAlignment.Center]: {
@@ -124,14 +124,14 @@ export const useAutoLayoutHighlights = ({
         y: getContainerDimensions()?.height / 2,
         width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
         height: OFFSET_WIDTH,
-        wrapperType: FlexLayerAlignment.Center,
+        alignment: FlexLayerAlignment.Center,
       },
       [LayoutDirection.Horizontal]: {
         x: getContainerDimensions()?.width / 2,
         y: 0,
         width: OFFSET_WIDTH,
         height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
-        wrapperType: FlexLayerAlignment.Center,
+        alignment: FlexLayerAlignment.Center,
       },
     },
     [FlexLayerAlignment.End]: {
@@ -140,14 +140,14 @@ export const useAutoLayoutHighlights = ({
         y: getContainerDimensions()?.bottom,
         width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
         height: OFFSET_WIDTH,
-        wrapperType: FlexLayerAlignment.End,
+        alignment: FlexLayerAlignment.End,
       },
       [LayoutDirection.Horizontal]: {
         x: getContainerDimensions()?.right,
         y: 0,
         width: OFFSET_WIDTH,
         height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
-        wrapperType: FlexLayerAlignment.End,
+        alignment: FlexLayerAlignment.End,
       },
     },
   };
@@ -155,10 +155,10 @@ export const useAutoLayoutHighlights = ({
   // Create and add an initial offset for an empty canvas
   const getInitialOffset = (
     isWrapper: boolean,
-    wrapperType: FlexLayerAlignment = FlexLayerAlignment.Start,
+    alignment: FlexLayerAlignment = FlexLayerAlignment.Start,
   ): Highlight => {
     const dir: LayoutDirection = direction || LayoutDirection.Horizontal;
-    if (isWrapper) return initialOffsets[wrapperType][dir];
+    if (isWrapper) return initialOffsets[alignment][dir];
     return initialOffsets[FlexLayerAlignment.Start][dir];
   };
   // Get DOM element for a given widgetId
@@ -203,7 +203,7 @@ export const useAutoLayoutHighlights = ({
   const getOffset = (
     rect: DOMRect,
     flexOffsetTop: number,
-    wrapperType: FlexLayerAlignment,
+    alignment: FlexLayerAlignment,
     isFinal?: boolean,
   ): Highlight => {
     let mOffset: Highlight;
@@ -225,7 +225,7 @@ export const useAutoLayoutHighlights = ({
         y: rect.top - valueToSubtract.y + valueToAdd.y,
         width: containerDimensions.width,
         height: OFFSET_WIDTH,
-        wrapperType,
+        alignment,
       };
     } else {
       mOffset = {
@@ -233,7 +233,7 @@ export const useAutoLayoutHighlights = ({
         y: rect.top - valueToSubtract.y + valueToAdd.y,
         height: rect.height,
         width: OFFSET_WIDTH,
-        wrapperType,
+        alignment,
       };
     }
     // console.log(`#### offset: ${JSON.stringify(mOffset)}`);
@@ -322,11 +322,6 @@ export const useAutoLayoutHighlights = ({
       const canvasChildren = canvas.children || [];
       const offsetChildren = canvasChildren.filter((each) => {
         return blocks.indexOf(each) === -1;
-        // if (canvas.isWrapper) return blocks.indexOf(each) === -1;
-        // const children = allWidgets[each].children?.filter(
-        //   (item) => blocks.indexOf(item) === -1,
-        // );
-        // return isArray(children) && children.length > 0;
       });
       // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
       // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
@@ -340,9 +335,9 @@ export const useAutoLayoutHighlights = ({
           center: string[] = [],
           end: string[] = [];
         offsetChildren.forEach((each) => {
-          if (allWidgets[each]?.wrapperType === FlexLayerAlignment.Center)
+          if (allWidgets[each]?.alignment === FlexLayerAlignment.Center)
             center.push(each);
-          else if (allWidgets[each]?.wrapperType === FlexLayerAlignment.End)
+          else if (allWidgets[each]?.alignment === FlexLayerAlignment.End)
             end.push(each);
           else start.push(each);
         });
@@ -386,7 +381,7 @@ export const useAutoLayoutHighlights = ({
     arr: string[],
     flexOffsetTop: number,
     isWrapper: boolean,
-    wrapperType: FlexLayerAlignment,
+    alignment: FlexLayerAlignment,
   ): Highlight[] => {
     let res: Highlight[] = [];
     const siblings: DOMRect[] = [];
@@ -401,7 +396,7 @@ export const useAutoLayoutHighlights = ({
         const rect: DOMRect = el.getBoundingClientRect();
         // console.log(`#### bounding rect: ${JSON.stringify(rect)}`);
         // Add a new offset using the current element's dimensions and position
-        res.push(getOffset(rect, flexOffsetTop, wrapperType, false));
+        res.push(getOffset(rect, flexOffsetTop, alignment, false));
         siblings.push(rect);
         siblingElements.push(el);
       });
@@ -415,13 +410,13 @@ export const useAutoLayoutHighlights = ({
           getOffset(
             siblings[siblings.length - 1],
             flexOffsetTop,
-            wrapperType,
+            alignment,
             true,
           ),
         );
       }
       res = [...new Set(res)];
-    } else res = [getInitialOffset(isWrapper, wrapperType)];
+    } else res = [getInitialOffset(isWrapper, alignment)];
     return res;
   };
 
@@ -503,10 +498,10 @@ export const useAutoLayoutHighlights = ({
 
   const getDropPosition = (index: number): number => {
     if (isNaN(index)) return 0;
-    const wrapperType: FlexLayerAlignment =
-      offsets[index]?.wrapperType || FlexLayerAlignment.Start;
-    if (wrapperType === FlexLayerAlignment.Center) return index - 1;
-    if (wrapperType === FlexLayerAlignment.End) return index - 2;
+    const alignment: FlexLayerAlignment =
+      offsets[index]?.alignment || FlexLayerAlignment.Start;
+    if (alignment === FlexLayerAlignment.Center) return index - 1;
+    if (alignment === FlexLayerAlignment.End) return index - 2;
     return index;
   };
 
@@ -514,14 +509,14 @@ export const useAutoLayoutHighlights = ({
     if (!isNaN(lastTranslatedIndex) && lastTranslatedIndex >= 0)
       return {
         index: getDropPosition(lastTranslatedIndex),
-        wrapperType: offsets[lastTranslatedIndex]?.wrapperType,
+        alignment: offsets[lastTranslatedIndex]?.alignment,
       };
     const pos = getHighlightPosition(null, val);
     if (!pos) return;
     const dropPos: number = offsets.indexOf(pos);
     return {
       index: getDropPosition(dropPos),
-      wrapperType: offsets[dropPos]?.wrapperType,
+      alignment: offsets[dropPos]?.alignment,
     };
   };
 

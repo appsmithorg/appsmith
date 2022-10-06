@@ -145,9 +145,9 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
         hasFillChild = true;
         break;
       }
-      if (widget?.wrapperType === FlexLayerAlignment.End)
+      if (widget?.alignment === FlexLayerAlignment.End)
         end.push(child as JSX.Element);
-      else if (widget?.wrapperType === FlexLayerAlignment.Center)
+      else if (widget?.alignment === FlexLayerAlignment.Center)
         center.push(child as JSX.Element);
       else start.push(child as JSX.Element);
     }

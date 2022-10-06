@@ -53,15 +53,7 @@ import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
-import {
-  Alignment,
-  ButtonBoxShadowTypes,
-  LayoutDirection,
-  FlexLayerAlignment,
-  Spacing,
-  ResponsiveBehavior,
-} from "components/constants";
-import { WidgetAddChild } from "actions/pageActions";
+import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 export interface CopiedWidgetGroup {
@@ -1680,34 +1672,6 @@ export function mergeDynamicPropertyPaths(
   return _.unionWith(a, b, (a, b) => a.key === b.key);
 }
 
-// TODO: check for performance in complex apps.
-export function purgeEmptyWrappers(allWidgets: CanvasWidgetsReduxState) {
-  const widgets = { ...allWidgets };
-  // Fetch all empty wrappers
-  const emptyWrappers = Object.values(widgets).filter(
-    (each) => each.isWrapper && (!each.children || !each.children?.length),
-  );
-  // Remove wrappers from their parents and then delete them.
-  emptyWrappers.forEach((each) => {
-    const parent = each.parentId ? widgets[each.parentId] : null;
-    if (
-      parent &&
-      parent.children &&
-      parent.children?.indexOf(each.widgetId) > -1
-    ) {
-      const updatedParent = {
-        ...parent,
-        children: [
-          ...(parent.children || []).filter((child) => child !== each.widgetId),
-        ],
-      };
-      widgets[parent.widgetId] = updatedParent;
-    }
-    delete widgets[each.widgetId];
-  });
-  return widgets;
-}
-
 export function purgeChildWrappers(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
@@ -1750,54 +1714,4 @@ export function* wrapChildren(
   parent = { ...parent, flexLayers };
   widgets[canvasId] = parent;
   return widgets;
-}
-
-export function getLayoutWrapperName(widgets: CanvasWidgetsReduxState): string {
-  const arr =
-    Object.values(widgets)
-      .filter((each) => each.type === "LAYOUT_WRAPPER_WIDGET")
-      .map((each) => each.widgetName.split("LayoutWrapper")[1])
-      .sort((a, b) => parseInt(b) - parseInt(a)) || [];
-  const suffix = arr.length > 0 ? parseInt(arr[0]) + 1 : 1;
-  return `LayoutWrapper${suffix}`;
-}
-
-export function getLayoutWrapperPayload(
-  widgets: CanvasWidgetsReduxState,
-  payload: Omit<
-    WidgetAddChild,
-    "newWidgetId" | "tabId" | "widgetName" | "type"
-  >,
-  direction: LayoutDirection = LayoutDirection.Vertical,
-  isWrapper = false,
-): WidgetAddChild {
-  // A horizontal wrapper should stretch to occupy the parent's entire width.
-  const shouldStretch = isWrapper
-    ? direction === LayoutDirection.Horizontal
-    : direction === LayoutDirection.Vertical;
-  return {
-    ...payload,
-    newWidgetId: generateReactKey(),
-    type: "LAYOUT_WRAPPER_WIDGET",
-    widgetName: getLayoutWrapperName(widgets),
-    props: {
-      containerStyle: "none",
-      canExtend: false,
-      detachFromLayout: true,
-      children: [],
-      alignment: Alignment.Left,
-      spacing: Spacing.None,
-      isWrapper: true,
-      backgroundColor: "transparent",
-      boxShadow: ButtonBoxShadowTypes.NONE,
-      borderStyle: "none",
-    },
-    columns: shouldStretch ? 64 : payload.columns + 1,
-    tabId: "0",
-  };
-}
-
-export interface WrappedWidgetPayload {
-  widgets: CanvasWidgetsReduxState;
-  wrapperId: string;
 }
