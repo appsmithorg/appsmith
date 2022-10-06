@@ -78,6 +78,10 @@ async function run() {
 
   } catch (err) {
     errorCode = 1;
+    if (err.message == Constants.S3_UPLOAD_FAILED_ERROR_MSG) { // Fail safe if aws credentials are not configured, so that watchtower hook continues execution
+      errorCode = 0;
+    }
+    
     await logger.backup_error(err.stack);
 
     if (command_args.includes('--error-mail')) {
@@ -149,13 +153,13 @@ async function createFinalArchive(destFolder, timestamp) {
   return archive;
 }
 
-async function postBackupCleanup(){
+async function postBackupCleanup() {
   console.log('Starting the cleanup task after taking a backup.');
   let backupArchivesLimit = process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT;
-  if(!backupArchivesLimit)
+  if (!backupArchivesLimit)
     backupArchivesLimit = 4;
   const backupFiles = await utils.listLocalBackupFiles();
-  while (backupFiles.length > backupArchivesLimit){
+  while (backupFiles.length > backupArchivesLimit) {
     const fileName = backupFiles.shift();
     await fsPromises.rm(Constants.BACKUP_PATH + '/' + fileName);
   }

@@ -65,7 +65,7 @@ async function uploadArchiveToS3Bucket(archivePath) {
     console.log('Uploading backup archive to S3 bucket completed.');
   }
   else {
-    throw new Error('Failed to upload archive: S3 credentials are not configured');
+    throw new Error(Constants.S3_UPLOAD_FAILED_ERROR_MSG);
   }
 }
 

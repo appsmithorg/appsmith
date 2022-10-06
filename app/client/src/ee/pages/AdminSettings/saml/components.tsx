@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { TooltipComponent as Tooltip, Text, TextType } from "design-system";
-import FormTextField from "components/ads/formFields/TextField";
+import FormTextField from "components/utils/ReduxFormTextField";
 import FormTextAreaField from "components/ads/formFields/TextAreaField";
 import { HelpIcons } from "icons/HelpIcons";
 import { createMessage } from "@appsmith/constants/messages";
