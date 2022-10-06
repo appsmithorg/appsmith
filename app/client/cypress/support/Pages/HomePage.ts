@@ -403,7 +403,6 @@ export class HomePage {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");
-      cy.pause()
       cy.get
       (this._optionsIcon).first()
       .click({ force: true });
