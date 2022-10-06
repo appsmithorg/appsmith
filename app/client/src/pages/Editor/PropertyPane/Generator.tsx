@@ -138,6 +138,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
       if (searchResults.length === 0) {
         setIsSearchResultEmpty(true);
       } else {
+        setIsSearchResultEmpty(false);
         // Fix issue where blank screen is shown when search results are empty due to hidden controls
         requestAnimationFrame(() => {
           if (
