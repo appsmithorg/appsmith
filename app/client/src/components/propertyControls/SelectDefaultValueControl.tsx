@@ -14,8 +14,8 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
 
 export const getBindingTemplate = () => {
-  const prefixTemplate = "";
-  const suffixTemplate = "";
+  const prefixTemplate = "{{ ((options, serverSideFiltering) => (";
+  const suffixTemplate = "))(select.options, select.serverSideFiltering) }}";
 
   return { prefixTemplate, suffixTemplate };
 };
@@ -122,25 +122,17 @@ class SelectDefaultValueControl extends BaseControl<
   }
 
   getInputComputedValue = (propertyValue: string) => {
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate();
-
-    const value = propertyValue.substring(
-      prefixTemplate.length,
-      propertyValue.length - suffixTemplate.length,
-    );
-
-    return JSToString(value);
+    return JSToString(propertyValue);
   };
 
   getComputedValue = (value: string) => {
     const stringToEvaluate = stringToJS(value);
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate();
 
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
 
-    return `${prefixTemplate}${stringToEvaluate}${suffixTemplate}`;
+    return stringToEvaluate;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
