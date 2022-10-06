@@ -555,6 +555,7 @@ function renderField(props: {
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
     case FieldType.COPY_TEXT_FIELD:
     case FieldType.CALLBACK_FUNCTION_FIELD:
+    case FieldType.MESSAGE_HANDLER_FIELD:
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:

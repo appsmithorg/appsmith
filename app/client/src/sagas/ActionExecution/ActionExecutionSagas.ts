@@ -69,6 +69,7 @@ export function* executeActionTriggers(
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
+  console.log("trigger type: " + trigger.type, trigger);
   switch (trigger.type) {
     case ActionTriggerType.RUN_PLUGIN_ACTION:
       response = yield call(
@@ -188,6 +189,7 @@ function* initiateActionTriggerExecution(
   // it will be created again while execution
   AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   try {
+    console.log("action:" + action);
     yield call(executeAppAction, action.payload);
     if (event.callback) {
       event.callback({ success: true });

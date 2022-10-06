@@ -266,11 +266,11 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  addMessageHandler: function(handler: (event: MessageEvent) => void) {
+  addMessageHandler: function(handler: Function) {
     return {
       type: ActionTriggerType.ADD_MESSAGE_HANDLER,
       payload: {
-        handler: handler,
+        handler: handler.toString(),
       },
       executionType: ExecutionType.TRIGGER,
     };

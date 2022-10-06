@@ -22,7 +22,8 @@ export function* addExecuteMessageHandler(
     if (!handler) {
       throw new TriggerFailureError("Message handler is empty.");
     }
-    window.addEventListener("message", handler);
+    const fn = new Function(handler) as (event: MessageEvent) => void;
+    window.addEventListener("message", fn);
   } catch (error) {
     logActionExecutionError(
       (error as Error).message,
