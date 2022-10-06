@@ -85,6 +85,8 @@ public class MssqlPlugin extends BasePlugin {
 
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
+    private static final long MS_SQL_DEFAULT_PORT = 1433L;
+
     public MssqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -529,7 +531,7 @@ public class MssqlPlugin extends BasePlugin {
     public static long getPort(Endpoint endpoint) {
 
         if (endpoint.getPort() == null) {
-            return 1433L;
+            return MS_SQL_DEFAULT_PORT;
         }
 
         return endpoint.getPort();
