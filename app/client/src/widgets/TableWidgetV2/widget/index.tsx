@@ -1841,7 +1841,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onOptionSelect = (
-    value: string,
+    value: string | number,
     rowIndex: number,
     column: string,
     action?: string,
