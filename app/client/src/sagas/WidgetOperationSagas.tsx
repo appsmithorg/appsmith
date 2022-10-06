@@ -728,6 +728,10 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     ];
     yield put(resetWidgetMetaProperty(childId, childWidget));
   }
+
+  (document.querySelector(
+    "#" + parentWidgetId + " .bp3-input",
+  ) as HTMLInputElement)?.focus();
 }
 
 function* updateCanvasSize(
