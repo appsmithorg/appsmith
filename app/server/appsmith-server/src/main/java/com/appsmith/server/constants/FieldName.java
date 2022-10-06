@@ -152,6 +152,7 @@ public class FieldName {
     public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
     public static final String LOGGED_IN = "logged_in";
     public static final String LOGGED_OUT = "logged_out";
