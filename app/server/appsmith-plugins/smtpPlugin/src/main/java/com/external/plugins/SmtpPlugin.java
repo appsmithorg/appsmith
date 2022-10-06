@@ -223,27 +223,27 @@ public class SmtpPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<DatasourceTestResult> testDatasource(Session connection) {
             log.debug("Going to test email datasource");
-            Mono<Session> sessionMono = datasourceCreate(datasourceConfiguration);
-            return sessionMono.map(session -> {
-                Set<String> invalids = new HashSet<>();
-                try {
-                    Transport transport = session.getTransport();
-                    if (transport != null) {
-                        transport.connect();
-                    }
-                    return invalids;
-                } catch (NoSuchProviderException e) {
-                    invalids.add("Unable to create underlying SMTP protocol. Please contact support");
-                } catch (AuthenticationFailedException e) {
-                    invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
-                } catch (MessagingException e) {
-                    e.printStackTrace();
-                    invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
-                }
-                return invalids;
-            }).map(DatasourceTestResult::new);
+            return Mono.fromCallable(() -> {
+                        Set<String> invalids = new HashSet<>();
+                        try {
+                            Transport transport = connection.getTransport();
+                            if (transport != null) {
+                                transport.connect();
+                            }
+                            return invalids;
+                        } catch (NoSuchProviderException e) {
+                            invalids.add("Unable to create underlying SMTP protocol. Please contact support");
+                        } catch (AuthenticationFailedException e) {
+                            invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
+                        } catch (MessagingException e) {
+                            log.debug(e.getMessage());
+                            invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
+                        }
+                        return invalids;
+                    })
+                    .map(DatasourceTestResult::new);
         }
 
     }
