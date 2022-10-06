@@ -1,8 +1,19 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
+export enum PageType {
+  Canvas,
+  API,
+  Query,
+  JsEditor,
+}
+
 export class Debugger {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private commonLocators = ObjectsRegistry.CommonLocators;
+
+  private readonly bottomPaneHeight =
+    (Cypress.config().viewportHeight * 32) / 100;
+  private readonly TAB_MIN_HEIGHT = 36;
 
   public readonly locators = {
     _debuggerIcon: ".t--debugger svg",
@@ -16,6 +27,11 @@ export class Debugger {
     _debuggerMessage: ".t--debugger-message",
     _contextMenuItem: ".t--debugger-contextual-menuitem",
     _debuggerLabel: "span.debugger-label",
+    _bottomPaneContainer: {
+      [PageType.API]: ".t--api-bottom-pane-container",
+      [PageType.Query]: ".t--query-bottom-pane-container",
+      [PageType.JsEditor]: ".t--js-editor-bottom-pane-container",
+    },
   };
 
   ClickDebuggerIcon(
@@ -31,16 +47,63 @@ export class Debugger {
     );
   }
 
-  AssertOpen() {
-    this.agHelper.AssertElementExist(this.locators._tabsContainer);
+  ClickResponseTab() {
+    this.agHelper.GetNClick(this.commonLocators._responseTab);
   }
 
-  close() {
-    this.agHelper.GetNClick(this.locators._closeButton);
+  Close(pageType: PageType) {
+    switch (pageType) {
+      case PageType.Canvas:
+        this.agHelper.GetNClick(this.locators._closeButton);
+        break;
+      case PageType.API:
+      case PageType.Query:
+      case PageType.JsEditor:
+        this.agHelper.GetNClick(this.commonLocators._bottomPaneCollapseIcon);
+        break;
+    }
   }
 
-  AssertClosed() {
-    this.agHelper.AssertElementAbsence(this.locators._tabsContainer);
+  AssertOpen(pageType: PageType) {
+    switch (pageType) {
+      case PageType.Canvas:
+        this.agHelper.AssertElementExist(this.locators._tabsContainer);
+        break;
+      case PageType.API:
+      case PageType.JsEditor:
+        this.agHelper.AssertHeight(
+          this.locators._bottomPaneContainer[pageType],
+          this.bottomPaneHeight,
+        );
+        break;
+      case PageType.Query:
+        this.agHelper.AssertHeight(
+          this.locators._bottomPaneContainer[pageType],
+          this.bottomPaneHeight - 1, // -1 to offset error
+        );
+        break;
+    }
+  }
+
+  AssertClosed(pageType: PageType) {
+    switch (pageType) {
+      case PageType.Canvas:
+        this.agHelper.AssertElementAbsence(this.locators._tabsContainer);
+        break;
+      case PageType.API:
+      case PageType.JsEditor:
+        this.agHelper.AssertHeight(
+          this.locators._bottomPaneContainer[pageType],
+          this.TAB_MIN_HEIGHT,
+        );
+        break;
+      case PageType.Query:
+        this.agHelper.AssertHeight(
+          this.locators._bottomPaneContainer[pageType],
+          this.TAB_MIN_HEIGHT - 1, // -1 to offset error
+        );
+        break;
+    }
   }
 
   DoesConsoleLogExist(text: string) {

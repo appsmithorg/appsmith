@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { PageType } from "../../../../support/Pages/Debugger";
 
 const {
   ApiPage: apiPage,
@@ -10,43 +11,43 @@ const {
 describe("Entity bottom bar", () => {
   it("1. debugger should be closable", () => {
     debuggerHelper.ClickDebuggerIcon();
-    debuggerHelper.AssertOpen();
-    debuggerHelper.close();
-    debuggerHelper.AssertClosed();
+    debuggerHelper.AssertOpen(PageType.Canvas);
+    debuggerHelper.Close(PageType.Canvas);
+    debuggerHelper.AssertClosed(PageType.Canvas);
   });
 
   it("2. api bottom pane should be collapsable", () => {
     apiPage.CreateApi();
-    apiPage.isBottomPaneOpen();
+    debuggerHelper.AssertOpen(PageType.API);
 
-    apiPage.closeBottomPane();
-    apiPage.isBottomPaneClosed();
+    debuggerHelper.Close(PageType.API);
+    debuggerHelper.AssertClosed(PageType.API);
 
-    apiPage.openResponseTab();
-    apiPage.isBottomPaneOpen();
+    debuggerHelper.ClickResponseTab();
+    debuggerHelper.AssertOpen(PageType.API);
   });
 
   it("3. jseditor bottom bar should be collapsable", () => {
     jsEditor.NavigateToNewJSEditor();
-    jsEditor.isBottomPaneOpen();
+    debuggerHelper.AssertOpen(PageType.JsEditor);
 
-    jsEditor.closeBottomPane();
-    jsEditor.isBottomPaneClosed();
+    debuggerHelper.Close(PageType.JsEditor);
+    debuggerHelper.AssertClosed(PageType.JsEditor);
 
-    jsEditor.openResponseTab();
-    jsEditor.isBottomPaneOpen();
+    debuggerHelper.ClickResponseTab();
+    debuggerHelper.AssertOpen(PageType.JsEditor);
   });
 
   it("4. query bottom bar should be collapsable", () => {
-    dataSources.createMockDB("Users").then((dbName) => {
+    dataSources.CreateMockDB("Users").then((dbName) => {
       dataSources.CreateQuery(dbName);
-      dataSources.isBottomPaneOpen();
+      debuggerHelper.AssertOpen(PageType.Query);
 
-      dataSources.closeBottomPane();
-      dataSources.isBottomPaneClosed();
+      debuggerHelper.Close(PageType.Query);
+      debuggerHelper.AssertClosed(PageType.Query);
 
-      dataSources.openResponseTab();
-      dataSources.isBottomPaneOpen();
+      debuggerHelper.ClickResponseTab();
+      debuggerHelper.AssertOpen(PageType.Query);
 
       // clean up
       dataSources.DeleteQuery("Query1");

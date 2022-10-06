@@ -3,7 +3,6 @@ export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
 
-  public readonly _bottomPaneContainer = ".t--api-bottom-pane-container";
   private _createapi = ".t--createBlankApiCard";
   private _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
@@ -43,9 +42,6 @@ export class ApiPage {
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
   _saveAsDS = ".t--store-as-datasource";
   _responseStatus = ".t--response-status-code";
-  private readonly bottomPaneHeight =
-    (Cypress.config().viewportHeight * 32) / 100;
-  private readonly TAB_MIN_HEIGHT = 36;
 
   CreateApi(
     apiName = "",
@@ -286,24 +282,5 @@ export class ApiPage {
     cy.get(this._paginationTypeLabels)
       .eq(index)
       .click({ force: true });
-  }
-
-  openResponseTab() {
-    this.agHelper.GetNClick(this.locator._responseTab);
-  }
-
-  closeBottomPane() {
-    this.agHelper.GetNClick(this.locator._bottomPaneCollapseIcon);
-  }
-
-  isBottomPaneOpen() {
-    this.agHelper.AssertHeight(
-      this._bottomPaneContainer,
-      this.bottomPaneHeight,
-    );
-  }
-
-  isBottomPaneClosed() {
-    this.agHelper.AssertHeight(this._bottomPaneContainer, this.TAB_MIN_HEIGHT);
   }
 }

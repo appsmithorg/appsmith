@@ -25,15 +25,10 @@ export class JSEditor {
   public ee = ObjectsRegistry.EntityExplorer;
   public propPane = ObjectsRegistry.PropertyPane;
 
-  private readonly bottomPaneHeight =
-    (Cypress.config().viewportHeight * 32) / 100;
-  private readonly TAB_MIN_HEIGHT = 36;
-
   //#region Element locators
   _runButton = "button.run-js-action";
   _settingsTab = ".tab-title:contains('Settings')";
   _codeTab = ".tab-title:contains('Code')";
-  public readonly _bottomPaneContainer = ".t--js-editor-bottom-pane-container";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
@@ -354,25 +349,6 @@ export class JSEditor {
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
     this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
-  }
-
-  openResponseTab() {
-    this.agHelper.GetNClick(this.locator._responseTab);
-  }
-
-  closeBottomPane() {
-    this.agHelper.GetNClick(this.locator._bottomPaneCollapseIcon);
-  }
-
-  isBottomPaneOpen() {
-    this.agHelper.AssertHeight(
-      this._bottomPaneContainer,
-      this.bottomPaneHeight,
-    );
-  }
-
-  isBottomPaneClosed() {
-    this.agHelper.AssertHeight(this._bottomPaneContainer, this.TAB_MIN_HEIGHT);
   }
 
   //#endregion
