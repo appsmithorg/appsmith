@@ -13,7 +13,7 @@ import {
   scrollbarOnHoverCSS,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
-import { darken, hideScrollbar, invisible } from "constants/DefaultTheme";
+import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
