@@ -47,7 +47,7 @@ export const TableIconWrapper = styled.div<{
   }
 
   span {
-    font-size: 14px;
+    font-size: 13px;
   }
 `;
 

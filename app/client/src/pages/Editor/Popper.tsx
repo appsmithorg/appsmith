@@ -32,6 +32,7 @@ export type PopperProps = {
   isDraggable?: boolean;
   disablePopperEvents?: boolean;
   cypressSelectorDragHandle?: string;
+  portalContainer?: Element;
   position?: {
     top: number;
     left: number;
@@ -190,6 +191,6 @@ export default (props: PopperProps) => {
         {props.children}
       </PopperWrapper>
     ),
-    document.body,
+    props.portalContainer ? props.portalContainer : document.body,
   );
 };

@@ -94,6 +94,7 @@ class TableFilterPane extends Component<Props> {
           onPositionChange={this.handlePositionUpdate}
           parentElement={boundaryParent}
           placement="top"
+          portalContainer={document.getElementById("art-board") || undefined}
           position={get(this.props, "metaProps.position") as PositionPropsInt}
           renderDragBlock={
             <DragBlock>
