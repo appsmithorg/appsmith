@@ -647,7 +647,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             shortcuts={false}
             timePrecision={TimePrecision.MINUTE}
             widgetId=""
-            withoutPortal
           />
         </DatePickerWrapper>
       ) : null}

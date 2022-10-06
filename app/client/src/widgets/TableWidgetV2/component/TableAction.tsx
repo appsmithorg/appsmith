@@ -36,7 +36,7 @@ export const TableIconWrapper = styled.div<{
     color: ${(props) => props.titleColor || Colors.GRAY};
   }
   position: relative;
-  margin-left: 5px;
+  margin-left: 8px;
   padding: 0 6px;
   &:hover {
     background: var(--wds-color-bg-hover);

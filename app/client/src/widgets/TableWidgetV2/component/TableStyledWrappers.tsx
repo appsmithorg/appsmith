@@ -274,7 +274,7 @@ export const PaginationWrapper = styled.div`
   width: 100%;
   justify-content: flex-end;
   align-items: center;
-  padding: 8px 20px;
+  padding: 8px;
   color: var(--wds-color-text-light);
 `;
 
