@@ -516,6 +516,142 @@ public class WorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void validUpdateWorkspaceValidEmail() {
+        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("Test Update Name");
+        workspace.setDomain("example.com");
+        workspace.setWebsite("https://example.com");
+        workspace.setSlug("test-update-name");
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
+        for (String validEmail: validEmails) {
+            Mono<Workspace> updateWorkspace = createWorkspace
+                    .flatMap(t -> {
+                        Workspace newWorkspace = new Workspace();
+                        newWorkspace.setEmail(validEmail);
+                        return workspaceService.update(t.getId(), newWorkspace);
+                    });
+            StepVerifier.create(updateWorkspace)
+                    .assertNext(t -> {
+                        assertThat(t).isNotNull();
+                        assertThat(t.getEmail()).isEqualTo(validEmail);
+                    })
+                    .verifyComplete();
+        }
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validUpdateWorkspaceInvalidEmail() {
+        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("Test Update Name");
+        workspace.setDomain("example.com");
+        workspace.setWebsite("https://example.com");
+        workspace.setSlug("test-update-name");
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        String[] invalidEmails = {"invalid@.com", "@invalid.com"};
+        for (String invalidEmail : invalidEmails) {
+            Mono<Workspace> updateWorkspace = createWorkspace
+                    .flatMap(t -> {
+                        Workspace newWorkspace = new Workspace();
+                        newWorkspace.setEmail(invalidEmail);
+                        return workspaceService.update(t.getId(), newWorkspace);
+                    });
+            StepVerifier.create(updateWorkspace)
+                    .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                            throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL)))
+                    .verify();
+        }
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validUpdateWorkspaceValidWebsite() {
+        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("Test Update Name");
+        workspace.setDomain("example.com");
+        workspace.setWebsite("https://example.com");
+        workspace.setSlug("test-update-name");
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        String[] validWebsites = {"https://www.valid.website.com", "http://www.valid.website.com",
+                "https://valid.website.com", "http://valid.website.com", "www.valid.website.com", "valid.website.com",
+                "valid-website.com", "valid.12345.com", "12345.com"};
+        for (String validWebsite: validWebsites) {
+            Mono<Workspace> updateWorkspace = createWorkspace
+                    .flatMap(t -> {
+                        Workspace newWorkspace = new Workspace();
+                        newWorkspace.setWebsite(validWebsite);
+                        return workspaceService.update(t.getId(), newWorkspace);
+                    });
+            StepVerifier.create(updateWorkspace)
+                    .assertNext(t -> {
+                        assertThat(t).isNotNull();
+                        assertThat(t.getWebsite()).isEqualTo(validWebsite);
+                    })
+                    .verifyComplete();
+        }
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validUpdateWorkspaceInvalidWebsite() {
+        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("Test Update Name");
+        workspace.setDomain("example.com");
+        workspace.setWebsite("https://example.com");
+        workspace.setSlug("test-update-name");
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace);
+        String[] invalidWebsites = {"htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www",
+                "www."};
+        for (String invalidWebsite : invalidWebsites) {
+            Mono<Workspace> updateWorkspace = createWorkspace
+                    .flatMap(t -> {
+                        Workspace newWorkspace = new Workspace();
+                        newWorkspace.setWebsite(invalidWebsite);
+                        return workspaceService.update(t.getId(), newWorkspace);
+                    });
+            StepVerifier.create(updateWorkspace)
+                    .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                            throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WEBSITE)))
+                    .verify();
+        }
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createDuplicateNameWorkspace() {
         Workspace firstWorkspace = new Workspace();
         firstWorkspace.setName("Really good org");
