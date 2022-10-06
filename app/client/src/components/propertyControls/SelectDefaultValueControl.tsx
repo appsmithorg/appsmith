@@ -13,11 +13,24 @@ import {
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
 
-export const getBindingTemplate = () => {
-  const prefixTemplate = "{{ ((options, serverSideFiltering) => (";
-  const suffixTemplate = "))(select.options, select.serverSideFiltering) }}";
-
+export const getBindingTemplate = (widgetName: string) => {
+  const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;
+  const suffixTemplate = `))(${widgetName}.options, ${widgetName}.serverSideFiltering) }}`;
   return { prefixTemplate, suffixTemplate };
+};
+
+export const removeTemplateFromJSBinding = (
+  string: string,
+  widgetName: string,
+) => {
+  const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;
+  const suffixTemplate = `))(${widgetName}.options, ${widgetName}.serverSideFiltering) }}`;
+  const concatenatedString = string.substring(
+    prefixTemplate.length,
+    string.length - prefixTemplate.length - suffixTemplate.length,
+  );
+
+  return JSToString(concatenatedString);
 };
 
 export const stringToJS = (string: string): string => {
