@@ -41,6 +41,7 @@ const modifiers: IPopoverSharedProps["modifiers"] = {
   preventOverflow: {
     enabled: true,
     boundariesElement: "viewport",
+    padding: 38,
   },
 };
 const Wrapper = styled.div`
