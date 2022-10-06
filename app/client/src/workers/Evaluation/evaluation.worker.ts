@@ -10,7 +10,6 @@ import {
 import {
   CrashingError,
   DataTreeDiff,
-  getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
@@ -36,7 +35,6 @@ import evaluate, {
   setupEvaluationEnvironment,
 } from "./evaluate";
 import { JSUpdate } from "utils/JSPaneUtils";
-import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "./JSObject";
 
 const CANVAS = "canvas";
 
@@ -98,10 +96,7 @@ function eventRequestHandler({
       const {
         allActionValidationConfig,
         evalOrder,
-        jsUpdates,
         shouldReplay,
-        unevalTree,
-        widgetTypeConfigMap,
       } = requestData as EvalTreeRequestData;
 
       let dataTree: DataTree = {};
@@ -110,10 +105,11 @@ function eventRequestHandler({
       let userLogs: UserLogObject[] = [];
       let dependencies: DependencyMap = {};
       let evalMetaUpdates: EvalMetaUpdates = [];
+      let hasUncaughtError = false;
       try {
         if (isFirstTree) {
           dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-          const dataTreeResponse = dataTreeEvaluator.createFirstTree();
+          const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
           dataTree = dataTreeResponse.evalTree;
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
@@ -126,7 +122,9 @@ function eventRequestHandler({
             );
           }
           dataTree = {};
-          const updateResponse = dataTreeEvaluator.updateDataTree(evalOrder);
+          const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
+            evalOrder,
+          );
           dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
           // evalMetaUpdates can have moment object as value which will cause DataCloneError
           // hence, stringify and parse to avoid such errors
@@ -148,6 +146,7 @@ function eventRequestHandler({
 
         dataTreeEvaluator.clearLogs();
       } catch (error) {
+        hasUncaughtError = true;
         console.error("ERROR IN EVAL_TREE", error);
         if (dataTreeEvaluator !== undefined) {
           errors = dataTreeEvaluator.errors;
@@ -161,10 +160,6 @@ function eventRequestHandler({
           });
           console.error(error);
         }
-        dataTree = getSafeToRenderDataTree(
-          getUpdatedLocalUnEvalTreeAfterJSUpdates(jsUpdates, unevalTree),
-          widgetTypeConfigMap,
-        );
       }
       return {
         dataTree,
@@ -174,6 +169,7 @@ function eventRequestHandler({
         userLogs,
         evalMetaUpdates,
         isCreateFirstTree: isFirstTree,
+        hasUncaughtError,
       } as EvalTreeResponseData;
     }
     case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -206,7 +202,7 @@ function eventRequestHandler({
         return { triggers: [], errors: [] };
       }
       const { evalOrder } = dataTreeEvaluator.setupUpdateTree(dataTree);
-      dataTreeEvaluator.updateDataTree(evalOrder);
+      dataTreeEvaluator.evalAndValidateSubTree(evalOrder);
       const evalTree = dataTreeEvaluator.evalTree;
       const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 

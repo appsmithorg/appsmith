@@ -96,7 +96,10 @@ import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { JSUpdate } from "utils/JSPaneUtils";
-import { DataTreeDiff } from "workers/Evaluation/evaluationUtils";
+import {
+  DataTreeDiff,
+  getSafeToRenderDataTree,
+} from "workers/Evaluation/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -109,6 +112,7 @@ import {
 } from "workers/Evaluation/types";
 import { lintTreeSaga, lintWorker } from "./LintingSagas";
 import { GracefulWorkerService } from "utils/WorkerUtil";
+import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -209,12 +213,9 @@ function* evaluateTreeSaga(arg: {
 
   const evalTreeRequestData: EvalTreeRequestData = {
     evalOrder,
-    jsUpdates,
-    unevalTree,
     allActionValidationConfig,
     shouldReplay,
     unEvalUpdates,
-    widgetTypeConfigMap,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -224,14 +225,22 @@ function* evaluateTreeSaga(arg: {
   );
 
   const {
-    dataTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
     logs,
     userLogs,
     isCreateFirstTree = false,
+    hasUncaughtError,
   } = workerResponse;
+  let { dataTree } = workerResponse;
+
+  if (hasUncaughtError) {
+    dataTree = getSafeToRenderDataTree(
+      getUpdatedLocalUnEvalTreeAfterJSUpdates(jsUpdates, unevalTree),
+      widgetTypeConfigMap,
+    );
+  }
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );

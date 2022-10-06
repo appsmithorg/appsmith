@@ -38,14 +38,11 @@ export interface UpdateDependencyResponseData {
 
 export interface EvalTreeRequestData {
   evalOrder: string[];
-  unevalTree: DataTree;
-  jsUpdates: Record<string, JSUpdate>;
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   };
   shouldReplay: boolean;
   unEvalUpdates: DataTreeDiff[];
-  widgetTypeConfigMap: WidgetTypeConfigMap;
 }
 
 export interface EvalTreeResponseData {
@@ -56,4 +53,5 @@ export interface EvalTreeResponseData {
   userLogs: UserLogObject[];
   evalMetaUpdates: EvalMetaUpdates;
   isCreateFirstTree: boolean;
+  hasUncaughtError: boolean;
 }
