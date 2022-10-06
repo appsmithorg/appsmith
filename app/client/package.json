@@ -53,6 +53,7 @@
     "exceljs-lightweight": "^1.14.0",
     "fast-deep-equal": "^3.1.3",
     "fast-xml-parser": "^3.17.5",
+    "fastdom": "^1.0.11",
     "flow-bin": "^0.148.0",
     "focus-trap-react": "^8.9.2",
     "fuse.js": "^3.4.5",
