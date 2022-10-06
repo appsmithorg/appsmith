@@ -189,7 +189,7 @@ export default [
             value: "DEFAULT",
           },
           {
-            label: "Without borders",
+            label: "No borders",
             value: "VARIANT2",
           },
           {
