@@ -7,17 +7,15 @@ const {
   JSEditor: jsEditor,
 } = ObjectsRegistry;
 
-describe("Debugger bottom bar", () => {
-  it("should be closable", () => {
+describe("Entity bottom bar", () => {
+  it("1. debugger should be closable", () => {
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.AssertOpen();
     debuggerHelper.close();
     debuggerHelper.AssertClosed();
   });
-});
 
-describe("Api bottom bar", () => {
-  it("should be collapsable", () => {
+  it("2. api bottom pane should be collapsable", () => {
     apiPage.CreateApi();
     apiPage.isBottomPaneOpen();
 
@@ -27,10 +25,8 @@ describe("Api bottom bar", () => {
     apiPage.openResponseTab();
     apiPage.isBottomPaneOpen();
   });
-});
 
-describe("JsEditor bottom bar", () => {
-  it("should be collapsable", () => {
+  it("3. jseditor bottom bar should be collapsable", () => {
     jsEditor.NavigateToNewJSEditor();
     jsEditor.isBottomPaneOpen();
 
@@ -40,10 +36,8 @@ describe("JsEditor bottom bar", () => {
     jsEditor.openResponseTab();
     jsEditor.isBottomPaneOpen();
   });
-});
 
-describe("Query bottom bar", () => {
-  it("should be collapsable", () => {
+  it("4. query bottom bar should be collapsable", () => {
     dataSources.createMockDB("Users").then((dbName) => {
       dataSources.CreateQuery(dbName);
       dataSources.isBottomPaneOpen();
