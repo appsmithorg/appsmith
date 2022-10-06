@@ -117,6 +117,9 @@ const fieldConfigs: FieldConfigs = {
         case AppsmithFunction.resetWidget:
           defaultParams = `"",true`;
           break;
+        case AppsmithFunction.addMessageHandler:
+          defaultParams = "(event) => { \n\t // add code here \n  }";
+          break;
         default:
           break;
       }
@@ -360,6 +363,15 @@ const fieldConfigs: FieldConfigs = {
       return enumTypeSetter(option.value, currentValue, 0);
     },
     view: ViewTypes.TAB_VIEW,
+  },
+  [FieldType.MESSAGE_HANDLER_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 0);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
   },
 };
 

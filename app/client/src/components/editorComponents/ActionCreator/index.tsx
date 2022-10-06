@@ -155,6 +155,7 @@ function getFieldFromValue(
   getParentValue?: (changeValue: string) => string,
   dataTree?: DataTree,
 ): any[] {
+  debugger;
   const fields: any[] = [];
   if (!value) {
     return [
