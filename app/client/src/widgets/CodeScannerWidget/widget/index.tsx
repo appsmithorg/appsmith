@@ -18,6 +18,12 @@ class CodeScannerWidget extends BaseWidget<
     return styleConfig;
   }
 
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      value: undefined,
+    };
+  }
+
   onCodeDetected = (value: string) => {
     this.props.updateWidgetMetaProperty("value", value, {
       triggerPropertyName: "onCodeDetected",
