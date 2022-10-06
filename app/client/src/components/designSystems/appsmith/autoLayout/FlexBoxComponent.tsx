@@ -108,8 +108,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
           direction={direction}
           end={end}
           hasFillChild={layer.hasFillChild}
+          index={index}
           key={index}
           start={start}
+          widgetId={props.widgetId}
         />
       );
     });

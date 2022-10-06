@@ -31,6 +31,7 @@ import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
 import {
   DropPositionPayload,
+  HighlightInfo,
   useAutoLayoutHighlights,
 } from "./useAutoLayoutHighlights";
 
@@ -115,7 +116,7 @@ export const useCanvasDragging = (
   // eslint-disable-next-line prefer-const
 
   const {
-    calculateHighlightOffsets,
+    calculateHighlights,
     cleanUpTempStyles,
     getDropInfo,
     highlightDropPosition,
@@ -130,7 +131,7 @@ export const useCanvasDragging = (
     widgetName,
   });
 
-  const offsets = calculateHighlightOffsets();
+  const highlights: HighlightInfo[] = calculateHighlights();
 
   if (!isDragging || !isCurrentDraggedCanvas) {
     cleanUpTempStyles();
@@ -586,7 +587,7 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
               isCurrentDraggedCanvas &&
-                offsets.length &&
+                highlights.length &&
                 highlightDropPosition(e);
               renderBlocks();
             }

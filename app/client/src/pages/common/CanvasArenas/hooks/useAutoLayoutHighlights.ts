@@ -1,13 +1,13 @@
 import { getWidgets } from "sagas/selectors";
 import { useSelector } from "store";
 
-import {
-  LayoutDirection,
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "components/constants";
+import { LayoutDirection, FlexLayerAlignment } from "components/constants";
 import { isNaN } from "lodash";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import {
+  FlexLayer,
+  LayerChild,
+} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 interface XYCord {
   x: number;
@@ -20,6 +20,17 @@ export interface Highlight {
   height: number;
   width: number;
   alignment: FlexLayerAlignment;
+}
+
+export interface HighlightInfo {
+  isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
+  index: number; // index of the child in props.children.
+  layerIndex?: number; // index of layer in props.flexLayers.
+  align: FlexLayerAlignment; // alignment of the child in the layer.
+  posX: number; // x position of the highlight.
+  posY: number; // y position of the highlight.
+  width: number; // width of the highlight.
+  height: number; // height of the highlight.
 }
 
 export interface AutoLayoutHighlightProps {
@@ -52,10 +63,10 @@ export const useAutoLayoutHighlights = ({
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
   const canvas = allWidgets[canvasId];
-  const isCanvasWrapper = canvas.isWrapper || false;
+  const layers: FlexLayer[] = canvas?.flexLayers || [];
   const isVertical = direction === LayoutDirection.Vertical;
 
-  let offsets: Highlight[] = [];
+  let highlights: HighlightInfo[] = [];
   let dragBlocksSize = 0;
   const siblingElements: any[] = [];
   let lastTranslatedIndex: number;
@@ -153,14 +164,13 @@ export const useAutoLayoutHighlights = ({
   };
 
   // Create and add an initial offset for an empty canvas
-  const getInitialOffset = (
-    isWrapper: boolean,
-    alignment: FlexLayerAlignment = FlexLayerAlignment.Start,
-  ): Highlight => {
-    const dir: LayoutDirection = direction || LayoutDirection.Horizontal;
-    if (isWrapper) return initialOffsets[alignment][dir];
-    return initialOffsets[FlexLayerAlignment.Start][dir];
-  };
+  // const getInitialOffset = (
+  //   alignment: FlexLayerAlignment = FlexLayerAlignment.Start,
+  // ): Highlight => {
+  //   const dir: LayoutDirection = direction || LayoutDirection.Horizontal;
+  //   if (false) return initialOffsets[alignment][dir];
+  //   return initialOffsets[FlexLayerAlignment.Start][dir];
+  // };
   // Get DOM element for a given widgetId
   const getDomElement = (widgetId: string): any =>
     document.querySelector(`.auto-layout-child-${widgetId}`);
@@ -200,236 +210,318 @@ export const useAutoLayoutHighlights = ({
     });
   };
 
-  const getOffset = (
-    rect: DOMRect,
-    flexOffsetTop: number,
-    alignment: FlexLayerAlignment,
-    isFinal?: boolean,
-  ): Highlight => {
-    let mOffset: Highlight;
-    // Remove the offsets of the canvas and the flex container.
-    const valueToSubtract = {
-      x: containerDimensions?.left,
-      y: containerDimensions?.top + flexOffsetTop,
-    };
-    // For the final offset, include the size of the last sibling and a margin.
-    const valueToAdd = isFinal
-      ? {
-          x: rect.width + 8,
-          y: isVertical ? rect.height + 8 : 0,
-        }
-      : { x: 0, y: 0 };
-    if (isVertical) {
-      mOffset = {
-        x: 0,
-        y: rect.top - valueToSubtract.y + valueToAdd.y,
-        width: containerDimensions.width,
-        height: OFFSET_WIDTH,
-        alignment,
-      };
-    } else {
-      mOffset = {
-        x: rect.left - valueToSubtract.x + valueToAdd.x,
-        y: rect.top - valueToSubtract.y + valueToAdd.y,
-        height: rect.height,
-        width: OFFSET_WIDTH,
-        alignment,
-      };
-    }
-    // console.log(`#### offset: ${JSON.stringify(mOffset)}`);
-    return mOffset;
-  };
-
-  // Get the nearest ancestor that is a wrapper, including itself.
-  const getNearestWrapperAncestor = (widgetId: string): string => {
-    const widget = allWidgets[widgetId];
-    if (widget?.isWrapper) return widgetId;
-    const parentId = widget?.parentId;
-    if (!parentId) return "";
-    return getNearestWrapperAncestor(parentId);
-  };
-
-  const isWrapperEmpty = (
-    widgetId: string,
-    draggedBlocks: string[],
-  ): boolean => {
-    const widget = allWidgets[widgetId];
-    if (!widget) return true;
-    const rest =
-      widget?.children?.filter((child) => draggedBlocks?.indexOf(child) == -1)
-        .length || 0;
-    return rest === 0;
-  };
-
-  const hideDraggedItems = (arr: string[]): void => {
-    arr?.forEach((each) => {
-      // Get the parent wrapper
-      const wrapperId = getNearestWrapperAncestor(each);
-      const isEmpty = isWrapperEmpty(wrapperId, arr);
-      let el;
-      if (wrapperId === canvasId) {
-        if (isEmpty) return;
-        el = getDomElement(each);
-      } else {
-        el = isEmpty ? getDomElement(wrapperId) : getDomElement(each);
+  // Hide the dragged children of the auto layout container
+  // to discount them from highlight calculation.
+  const hideDraggedItems = (draggedBlocks: string[]): void => {
+    draggedBlocks.forEach((id: string) => {
+      const el = getDomElement(id);
+      if (el) {
+        el.classList.add("auto-temp-no-display");
       }
-      /**
-       * If the wrapper is not the dragging canvas and is empty,
-       * then hide it,
-       * else hide the child element.
-       */
-      el?.classList?.add("auto-temp-no-display");
     });
   };
 
-  const hasFillChild = (arr: string[]): boolean => {
-    if (!arr || !arr.length) return false;
-    let flag = false;
-    for (const widgetId of arr) {
-      const widget = allWidgets[widgetId];
-      if (widget?.responsiveBehavior === ResponsiveBehavior.Fill) {
-        flag = true;
-        break;
-      }
-    }
-    return flag;
-  };
-
-  const calculateHighlightOffsets = (): Highlight[] => {
-    cleanUpTempStyles();
-    // console.log(
-    //   `#### ${widgetName} - ${isDragging} - ${isCurrentDraggedCanvas}`,
-    // );
+  const calculateHighlights = (): HighlightInfo[] => {
+    /**
+     * 1. Clean up temp styles.
+     * 2. Get the dragged blocks.
+     * 3. Discount dragged blocks and empty layers from the calculation.
+     * 4. hide the dragged blocks and empty layers.
+     */
+    cleanUpTempStyles(); // TODO: is this needed?
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
-      // console.log("#### START calculate highlight offsets");
-      // console.log(`#### canvas id: ${widgetId} : ${widgetName}`);
-      // calculate total drag size to translate siblings by
       calculateDragBlockSize();
-      const blocks = getDraggedBlocks();
-
-      if (!blocks || !blocks.length) return [];
-      // console.log("#### blocks: ", blocks);
+      const draggedBlocks = getDraggedBlocks();
+      if (!draggedBlocks || !draggedBlocks.length) return [];
       /**
        * update dimensions of the current canvas
        * and break out of the function if returned value is false.
        * That implies the container is null.
        */
       if (!updateContainerDimensions()) return [];
+      hideDraggedItems(draggedBlocks);
 
-      // Temporarily hide dragged children to discount them from offset calculation
-      hideDraggedItems(blocks);
-      // Get all children of current dragging canvas
-      const canvasChildren = canvas.children || [];
-      const offsetChildren = canvasChildren.filter((each) => {
-        return blocks.indexOf(each) === -1;
-      });
-      // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
-      // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
-      const flex = document.querySelector(`.flex-container-${canvasId}`);
-      const flexOffsetTop = (flex as any)?.offsetTop || 0;
-      let temp: Highlight[] = [];
-      const discardExtraWrappers: boolean =
-        hasFillChild(offsetChildren) || direction === LayoutDirection.Vertical;
-      if (canvas.isWrapper && !discardExtraWrappers) {
-        const start: string[] = [],
-          center: string[] = [],
-          end: string[] = [];
-        offsetChildren.forEach((each) => {
-          if (allWidgets[each]?.alignment === FlexLayerAlignment.Center)
-            center.push(each);
-          else if (allWidgets[each]?.alignment === FlexLayerAlignment.End)
-            end.push(each);
-          else start.push(each);
+      if (isVertical) {
+        highlights = generateContainerHighlights(layers, draggedBlocks);
+      } else {
+        const canvasChildren = canvas.children || [];
+        const offsetChildren = canvasChildren.filter((each) => {
+          return draggedBlocks.indexOf(each) === -1;
         });
-        const arr1: Highlight[] = evaluateOffsets(
-          start,
-          flexOffsetTop,
-          true,
-          FlexLayerAlignment.Start,
-        );
-        const arr2: Highlight[] = evaluateOffsets(
-          center,
-          flexOffsetTop,
-          true,
-          FlexLayerAlignment.Center,
-        );
-        const arr3: Highlight[] = evaluateOffsets(
-          end,
-          flexOffsetTop,
-          true,
-          FlexLayerAlignment.End,
-        );
-        temp = [...arr1, ...arr2, ...arr3];
-      } else
-        temp = evaluateOffsets(
-          offsetChildren,
-          flexOffsetTop,
-          false,
-          FlexLayerAlignment.Start,
-        );
-      offsets = [...offsets, ...temp];
-
-      if (!offsets || !offsets.length)
-        offsets = [getInitialOffset(isCanvasWrapper)];
-      // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
-      // console.log(`#### END calculate highlight offsets`);
-    }
-    return offsets;
-  };
-
-  const evaluateOffsets = (
-    arr: string[],
-    flexOffsetTop: number,
-    isWrapper: boolean,
-    alignment: FlexLayerAlignment,
-  ): Highlight[] => {
-    let res: Highlight[] = [];
-    const siblings: DOMRect[] = [];
-    if (arr && arr.length) {
-      // Get widget ids of all widgets being dragged
-      arr.forEach((each) => {
-        const el = getDomElement(each);
-        if (!el) return;
-
-        // console.log(`#### child: ${el.className}`);
-        // console.log(`#### offset parent: ${el.offsetParent.className}`);
-        const rect: DOMRect = el.getBoundingClientRect();
-        // console.log(`#### bounding rect: ${JSON.stringify(rect)}`);
-        // Add a new offset using the current element's dimensions and position
-        res.push(getOffset(rect, flexOffsetTop, alignment, false));
-        siblings.push(rect);
-        siblingElements.push(el);
-      });
-      /**
-       * If the dragged element has siblings,
-       * then add another offset at the end of the last sibling
-       * to demarcate the final drop position.
-       */
-      if (siblings.length) {
-        res.push(
-          getOffset(
-            siblings[siblings.length - 1],
-            flexOffsetTop,
-            alignment,
-            true,
-          ),
-        );
+        highlights = generateHighlightsForChildren(offsetChildren);
       }
-      res = [...new Set(res)];
-    } else res = [getInitialOffset(isWrapper, alignment)];
-    return res;
+    }
+    console.log("#### highlights: ", highlights);
+    return highlights;
   };
+
+  function generateHighlightsForChildren(children: string[]): HighlightInfo[] {
+    const arr: HighlightInfo[] = [];
+    const rects: DOMRect[] = [];
+    children.forEach((child, index) => {
+      const el = getDomElement(child);
+      const childRect: DOMRect = el.getBoundingClientRect();
+      rects.push(childRect);
+      arr.push({
+        isNewLayer: true,
+        index,
+        posX: childRect.x - containerDimensions?.left,
+        posY: childRect.y - containerDimensions?.top,
+        width: OFFSET_WIDTH,
+        height: childRect.height,
+        align: FlexLayerAlignment.Start,
+      });
+    });
+    // TODO: Add check for empty container.
+    const lastElRect: DOMRect = rects[rects.length - 1];
+    arr.push({
+      isNewLayer: true,
+      index: children.length,
+      posX: lastElRect.x - containerDimensions?.left + lastElRect.width,
+      posY: lastElRect.y - containerDimensions?.top,
+      width: OFFSET_WIDTH,
+      height: lastElRect.height,
+      align: FlexLayerAlignment.Start,
+    });
+    return arr;
+  }
+
+  function filterLayers(
+    flexLayers: FlexLayer[],
+    draggedBlocks: string[],
+  ): FlexLayer[] {
+    return flexLayers.filter((layer) => {
+      return layer.children?.some((each) => {
+        return draggedBlocks.indexOf(each.id) === -1;
+      });
+    });
+  }
+
+  function isEmptyLayer(layer: FlexLayer, draggedBlocks: string[]): boolean {
+    return (
+      layer.children?.length === 0 ||
+      !layer.children?.some((each) => {
+        return draggedBlocks.indexOf(each.id) === -1;
+      })
+    );
+  }
+
+  function generateContainerHighlights(
+    flexLayers: FlexLayer[],
+    draggedBlocks: string[],
+  ): HighlightInfo[] {
+    let childCount = 0;
+    let discardedLayers = 0;
+    let index = 0;
+    const arr: HighlightInfo[] = [];
+    const rects: DOMRect[] = [];
+    console.log("#### flexLayers: ", flexLayers);
+    for (const layer of flexLayers) {
+      if (isEmptyLayer(layer, draggedBlocks)) {
+        discardedLayers += 1;
+        continue;
+      }
+      const el = document.querySelector(
+        `.auto-layout-layer-${canvasId}-${index}`,
+      );
+      if (!el) {
+        discardedLayers += 1;
+        continue;
+      }
+      const rect: DOMRect = el.getBoundingClientRect();
+      rects.push(rect);
+      const info: HighlightInfo = {
+        isNewLayer: true,
+        index: childCount,
+        layerIndex: index - discardedLayers,
+        posX: 0,
+        posY: rect.y - containerDimensions?.top,
+        width: containerDimensions?.width,
+        height: OFFSET_WIDTH,
+        align: FlexLayerAlignment.Start,
+      };
+      arr.push(info);
+      arr.push(
+        ...generateHighlightsForLayer(
+          layer,
+          index - discardedLayers,
+          rect,
+          childCount,
+        ),
+      );
+      console.log("#### arr: ", arr);
+      index += 1;
+      childCount += layer.children?.length || 0;
+    }
+    console.log("#### rects: ", rects);
+    const lastElRect: DOMRect = rects[rects.length - 1];
+    arr.push({
+      isNewLayer: true,
+      index: childCount,
+      layerIndex: rects.length,
+      posX: 0,
+      posY: lastElRect.y + lastElRect.height - containerDimensions?.top,
+      width: containerDimensions?.width,
+      height: OFFSET_WIDTH,
+      align: FlexLayerAlignment.Start,
+    });
+    console.log("#### final arr: ", arr);
+    return arr;
+  }
+
+  function spreadLayer(layer: FlexLayer) {
+    const start: LayerChild[] = [],
+      center: LayerChild[] = [],
+      end: LayerChild[] = [];
+    layer.children.forEach((child: LayerChild) => {
+      if (layer.hasFillChild) {
+        start.push(child);
+        return;
+      }
+      if (child.align === FlexLayerAlignment.End) end.push(child);
+      else if (child.align === FlexLayerAlignment.Center) center.push(child);
+      else start.push(child);
+    });
+    return { start, center, end, hasFillChild: layer.hasFillChild };
+  }
+
+  function generateHighlightsForLayer(
+    layer: FlexLayer,
+    layerIndex: number,
+    layerRect: DOMRect,
+    childCount: number,
+  ): HighlightInfo[] {
+    const arr: HighlightInfo[] = [];
+    let curr: number = childCount;
+    const { center, end, hasFillChild, start } = spreadLayer(layer);
+    // process start sub wrapper.
+    arr.push(
+      ...getLayerHighlights(
+        start,
+        curr,
+        layerIndex,
+        FlexLayerAlignment.Start,
+        layerRect,
+      ),
+    );
+    if (!hasFillChild) {
+      // process center sub wrapper.
+      curr += start.length;
+      arr.push(
+        ...getLayerHighlights(
+          center,
+          curr,
+          layerIndex,
+          FlexLayerAlignment.Center,
+          layerRect,
+        ),
+      );
+      // process end sub wrapper.
+      curr += center.length;
+      arr.push(
+        ...getLayerHighlights(
+          end,
+          curr,
+          layerIndex,
+          FlexLayerAlignment.End,
+          layerRect,
+        ),
+      );
+    }
+    return arr;
+  }
+
+  function getLayerHighlights(
+    layer: LayerChild[],
+    childCount: number,
+    layerIndex: number,
+    align: FlexLayerAlignment,
+    layerRect: DOMRect,
+  ): HighlightInfo[] {
+    const arr: HighlightInfo[] = [];
+    if (!layer.length) {
+      arr.push(getInitialHighlight(childCount, align, layerIndex, layerRect));
+      return arr;
+    }
+    arr.push(...getHighlights(layer, childCount, align, layerIndex, layerRect));
+    return arr;
+  }
+
+  function getInitialHighlight(
+    childCount: number,
+    align: FlexLayerAlignment,
+    layerIndex: number,
+    rect: DOMRect,
+  ): HighlightInfo {
+    return {
+      isNewLayer: false,
+      index: childCount,
+      layerIndex,
+      align,
+      posX:
+        align === FlexLayerAlignment.Start
+          ? 0
+          : align === FlexLayerAlignment.Center
+          ? containerDimensions.width / 2
+          : containerDimensions?.width,
+      posY: rect.y - containerDimensions?.top,
+      width: OFFSET_WIDTH,
+      height: rect.height,
+    };
+  }
+
+  function getHighlights(
+    layer: LayerChild[],
+    childCount: number,
+    align: FlexLayerAlignment,
+    layerIndex: number,
+    rect: DOMRect,
+  ) {
+    const arr: HighlightInfo[] = [];
+    const childRects: DOMRect[] = [];
+    layer.forEach((child) => {
+      const el = getDomElement(child.id);
+      if (!el) return null;
+      const childRect: DOMRect = el?.getBoundingClientRect();
+      childRects.push(childRect);
+      // A highlight before each existing child.
+      arr.push({
+        isNewLayer: false,
+        index: childCount,
+        layerIndex,
+        align,
+        posX: childRect.left - containerDimensions?.left,
+        posY: childRect.y - containerDimensions?.top,
+        width: OFFSET_WIDTH,
+        height: childRect.height,
+      });
+      childCount += 1;
+    });
+    // A highlight after the last child.
+    const lastRect: DOMRect = childRects[childRects.length - 1];
+    arr.push({
+      isNewLayer: false,
+      index: childCount,
+      layerIndex,
+      align,
+      posX: lastRect.right - containerDimensions?.left,
+      posY: lastRect.y - containerDimensions?.top,
+      width: OFFSET_WIDTH,
+      height: lastRect.height,
+    });
+    return arr;
+  }
 
   /**
    * END AUTO LAYOUT OFFSET CALCULATION
    */
 
-  const translateSiblings = (position: Highlight): void => {
+  const translateSiblings = (position: HighlightInfo): void => {
     let dropIndex = 0;
     if (position)
-      dropIndex = offsets
-        ?.map((each) => `${each.x},${each.y}`)
-        .indexOf(`${position.x},${position.y}`);
+      dropIndex = highlights
+        ?.map((each) => `${each.posX},${each.posY}`)
+        .indexOf(`${position.posX},${position.posY}`);
     if (dropIndex === lastTranslatedIndex) return;
 
     lastTranslatedIndex = dropIndex;
@@ -453,16 +545,16 @@ export const useAutoLayoutHighlights = ({
 
   const highlightDropPosition = (e: any) => {
     if (!useAutoLayout) return;
-    const pos: Highlight | undefined = getHighlightPosition(e);
-    // console.log(`#### Highlight position: ${JSON.stringify(pos)}`);
+    const pos: HighlightInfo | undefined = getHighlightPosition(e);
+
     if (!pos) return;
     if (dropPositionRef && dropPositionRef.current) {
       dropPositionRef.current.style.opacity = "1";
-      dropPositionRef.current.style.top = (pos.y > 6 ? pos.y - 6 : 0) + "px";
+      dropPositionRef.current.style.top = (pos.posY || 0) + "px";
       dropPositionRef.current.style.left =
-        (pos.x > 6
+        (pos.posX > 6
           ? Math.min(
-              pos.x - 6,
+              pos.posX - 6,
               containerDimensions.left + containerDimensions.width - 6,
             )
           : 0) + "px";
@@ -473,11 +565,18 @@ export const useAutoLayoutHighlights = ({
     translateSiblings(pos);
   };
 
-  const getHighlightPosition = (e: any, val?: XYCord): Highlight => {
-    let base: Highlight[] = [];
-    if (!offsets || !offsets.length)
-      offsets = [getInitialOffset(isCanvasWrapper)];
-    base = offsets;
+  const getHighlightPosition = (e: any, val?: XYCord): HighlightInfo => {
+    let base: HighlightInfo[] = [];
+    if (!highlights || !highlights.length)
+      highlights = [
+        getInitialHighlight(0, FlexLayerAlignment.Start, 0, {
+          x: containerDimensions.left,
+          y: containerDimensions.top,
+          width: containerDimensions.width,
+          height: containerDimensions.height,
+        } as DOMRect),
+      ];
+    base = highlights;
 
     const pos: XYCord = {
       x: e?.offsetX || val?.x,
@@ -490,16 +589,16 @@ export const useAutoLayoutHighlights = ({
     return arr[0];
   };
 
-  const calculateDistance = (a: Highlight, b: XYCord): number => {
-    const x: number = a.x + a.width / 2 - b.x;
-    const y: number = a.y + a.height / 2 - b.y;
+  const calculateDistance = (a: HighlightInfo, b: XYCord): number => {
+    const x: number = a.posX + a.width / 2 - b.x;
+    const y: number = a.posY + a.height / 2 - b.y;
     return Math.abs(Math.sqrt(x * x + y * y));
   };
 
   const getDropPosition = (index: number): number => {
     if (isNaN(index)) return 0;
     const alignment: FlexLayerAlignment =
-      offsets[index]?.alignment || FlexLayerAlignment.Start;
+      highlights[index]?.align || FlexLayerAlignment.Start;
     if (alignment === FlexLayerAlignment.Center) return index - 1;
     if (alignment === FlexLayerAlignment.End) return index - 2;
     return index;
@@ -509,19 +608,19 @@ export const useAutoLayoutHighlights = ({
     if (!isNaN(lastTranslatedIndex) && lastTranslatedIndex >= 0)
       return {
         index: getDropPosition(lastTranslatedIndex),
-        alignment: offsets[lastTranslatedIndex]?.alignment,
+        alignment: highlights[lastTranslatedIndex]?.align,
       };
     const pos = getHighlightPosition(null, val);
     if (!pos) return;
-    const dropPos: number = offsets.indexOf(pos);
+    const dropPos: number = highlights.indexOf(pos);
     return {
       index: getDropPosition(dropPos),
-      alignment: offsets[dropPos]?.alignment,
+      alignment: highlights[dropPos]?.align,
     };
   };
 
   return {
-    calculateHighlightOffsets,
+    calculateHighlights,
     cleanUpTempStyles,
     getDropInfo,
     highlightDropPosition,

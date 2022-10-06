@@ -15,6 +15,8 @@ export interface AutoLayoutLayerProps {
   end?: ReactNode;
   direction: LayoutDirection;
   hasFillChild?: boolean;
+  index: number;
+  widgetId: string;
 }
 
 const LayoutLayerContainer = styled.div<{
@@ -66,7 +68,10 @@ function getInverseDirection(direction: LayoutDirection): LayoutDirection {
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   const flexDirection = getFlexDirection(getInverseDirection(props.direction));
   return (
-    <LayoutLayerContainer flexDirection={flexDirection}>
+    <LayoutLayerContainer
+      className={`auto-layout-layer-${props.widgetId}-${props.index}`}
+      flexDirection={flexDirection}
+    >
       <StartWrapper flexDirection={flexDirection}>{props.start}</StartWrapper>
       <CenterWrapper
         className={props.hasFillChild ? "no-display" : ""}
