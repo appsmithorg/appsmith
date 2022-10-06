@@ -27,8 +27,13 @@ export interface FlexBoxProps {
   flexLayers: FlexLayer[];
 }
 
+export interface LayerChild {
+  id: string;
+  align: FlexLayerAlignment;
+}
+
 export interface FlexLayer {
-  children: { id: string; align: FlexLayerAlignment }[];
+  children: LayerChild[];
   hasFillChild?: boolean;
 }
 
