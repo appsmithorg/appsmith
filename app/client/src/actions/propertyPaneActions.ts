@@ -17,7 +17,10 @@ export const bindDataToWidget = (payload: { widgetId: string }) => {
   };
 };
 
-export const setSnipingMode = (payload: boolean) => ({
+export const setSnipingMode = (payload: {
+  isActive: boolean;
+  bindTo?: string;
+}) => ({
   type: ReduxActionTypes.SET_SNIPING_MODE,
   payload,
 });
