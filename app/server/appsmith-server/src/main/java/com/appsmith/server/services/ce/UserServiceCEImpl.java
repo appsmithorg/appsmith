@@ -578,7 +578,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .thenReturn(user);
 
         return updateTenantLogoInParams(params)
-                .then(emailMono);
+                .then(Mono.defer(() -> emailMono));
     }
 
     @Override
@@ -669,8 +669,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                         "Appsmith: You have been added to a new workspace",
                                         USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
 
-                                return updateTenantLogoInParams(params).
-                                        then(emailMono)
+                                return updateTenantLogoInParams(params)
+                                        .then(Mono.defer(() -> emailMono))
                                         .thenReturn(existingUser);
                             })
                             .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));
@@ -733,7 +733,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     // We have sent out the emails. Just send back the saved user.
                     return updateTenantLogoInParams(params)
-                            .then(emailMono)
+                            .then(Mono.defer(() -> emailMono))
                             .thenReturn(createdUser);
                 });
     }
