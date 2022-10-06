@@ -168,7 +168,7 @@ function* startEvaluationProcess(
     updateDependencyRequestData,
   );
   // Eval
-  yield spawn(evaluateTreeSaga, {
+  yield fork(evaluateTreeSaga, {
     postEvalActions,
     shouldReplay,
     evalOrder,
@@ -181,7 +181,7 @@ function* startEvaluationProcess(
   });
   if (appMode === APP_MODE.EDIT) {
     // Linting
-    yield spawn(lintTreeSaga, {
+    yield fork(lintTreeSaga, {
       pathsToLint: lintOrder,
       jsUpdates,
       unevalTree,
