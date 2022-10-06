@@ -523,7 +523,7 @@ export class DataSources {
   }
 
   public RunQueryNVerifyResponseViews(
-    expectdRecordCount = 1,
+    expectedRecordsCount = 1,
     tableCheck = true,
   ) {
     this.RunQuery();
@@ -531,8 +531,12 @@ export class DataSources {
       this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
     this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
     this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+    this.CheckResponseRecordsCount(expectedRecordsCount);
+  }
+
+  public CheckResponseRecordsCount(expectedRecordCount: number) {
     this.agHelper.AssertElementVisible(
-      this._queryRecordResult(expectdRecordCount),
+      this._queryRecordResult(expectedRecordCount),
     );
   }
 
