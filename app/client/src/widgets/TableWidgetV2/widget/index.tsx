@@ -1698,7 +1698,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
             allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={this.props.borderRadius}
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
             compactMode={compactMode}

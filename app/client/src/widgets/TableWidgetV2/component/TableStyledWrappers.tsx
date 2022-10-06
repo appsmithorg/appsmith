@@ -349,6 +349,9 @@ export const ActionWrapper = styled.div<{ disabled: boolean }>`
 
 export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
   ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
+  align-items: center;
+  display: flex;
+}
 `;
 
 export const TableStyles = css<{
