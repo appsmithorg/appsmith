@@ -5,7 +5,7 @@ import { Field } from "./index";
 import { ThemeProvider } from "constants/DefaultTheme";
 import { lightTheme } from "selectors/themeSelectors";
 import { FieldType } from "../constants";
-import { FIELD_CONFIG } from "../FieldConfig";
+import { FIELD_CONFIG } from "./FieldConfig";
 
 describe("Field component", () => {
   const commonProps = {
