@@ -8,12 +8,11 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import PropertyPaneTitle from "../PropertyPaneTitle";
-import { SearchVariant } from "design-system";
-import { StyledSearchInput } from "./PropertyPaneView";
+import PropertyPaneTitle from "./PropertyPaneTitle";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
+import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
@@ -170,12 +169,7 @@ export function PanelPropertiesEditor(
       {panelConfigsWithStyleAndContent?.content ||
       panelConfigsWithStyleAndContent?.style ? (
         <>
-          <StyledSearchInput
-            fill
-            onChange={setSearchText}
-            placeholder="Search for controls, labels etc"
-            variant={SearchVariant.BACKGROUND}
-          />
+          <PropertyPaneSearchInput onTextChange={setSearchText} />
           {searchText.length > 0 ? (
             <PanelWrapper>
               <PropertyControlsGenerator

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
-import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
+import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./Generator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
@@ -28,28 +28,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import {
-  IconSize,
-  InputWrapper,
-  SearchInput,
-  SearchVariant,
-} from "design-system";
+import { IconSize } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
-import styled from "styled-components";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
-
-export const StyledSearchInput = React.memo(styled(SearchInput)`
-  position: sticky;
-  top: 46px;
-  z-index: 3;
-
-  ${InputWrapper} {
-    background: ${Colors.GRAY_50};
-    padding: 0 8px;
-    height: 32px;
-  }
-`);
+import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -247,13 +230,7 @@ function PropertyPaneView(
       >
         {isContentConfigAvailable || isStyleConfigAvailable ? (
           <>
-            <StyledSearchInput
-              className="propertyPaneSearch"
-              fill
-              onChange={setSearchText}
-              placeholder="Search for controls, labels etc"
-              variant={SearchVariant.BACKGROUND}
-            />
+            <PropertyPaneSearchInput onTextChange={setSearchText} />
             {searchText.length > 0 ? (
               <PropertyControlsGenerator
                 config={WidgetFactory.getWidgetPropertyPaneSearchConfig(

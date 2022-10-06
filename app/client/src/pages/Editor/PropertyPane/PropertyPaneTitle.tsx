@@ -133,16 +133,12 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         ["input", "textarea"].indexOf(
           document.activeElement?.tagName?.toLowerCase(),
         ) === -1
-      )
-        setTimeout(
-          () => {
-            document
-              .querySelector(".propertyPaneSearch input")
-              // @ts-expect-error: Focus
-              ?.focus();
-          },
-          200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
-        );
+      ) {
+        document
+          .querySelector(".t--property-pane-search-input-wrapper")
+          // @ts-expect-error: Focus
+          ?.focus();
+      }
     }
 
     return () => {
