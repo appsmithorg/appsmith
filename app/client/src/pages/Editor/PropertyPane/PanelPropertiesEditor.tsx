@@ -159,7 +159,7 @@ export function PanelPropertiesEditor(
   };
 
   return (
-    <div className="w-full overflow-y-auto">
+    <div className="w-full overflow-y-scroll h-full">
       <PanelHeader
         closePanel={closePanel}
         isEditable={panelConfig.editableTitle}
