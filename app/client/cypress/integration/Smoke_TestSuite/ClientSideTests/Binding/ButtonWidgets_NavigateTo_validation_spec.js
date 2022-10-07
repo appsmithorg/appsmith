@@ -3,7 +3,6 @@ const dsl = require("../../../../fixtures/buttondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-var appId = " ";
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function() {
   before(() => {

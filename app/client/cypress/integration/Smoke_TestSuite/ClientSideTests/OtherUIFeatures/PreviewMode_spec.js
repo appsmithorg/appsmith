@@ -1,13 +1,10 @@
 const dsl = require("../../../../fixtures/previewMode.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-var appId = " ";
 
 describe("Preview mode functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("checks entity explorer and property pane visiblity", function() {

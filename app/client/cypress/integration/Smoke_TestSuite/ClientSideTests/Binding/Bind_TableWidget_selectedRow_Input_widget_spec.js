@@ -3,12 +3,9 @@
 const dsl = require("../../../../fixtures/formInputTableDsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-var appId = " ";
 
 describe("Binding the table widget and input Widget", function() {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 

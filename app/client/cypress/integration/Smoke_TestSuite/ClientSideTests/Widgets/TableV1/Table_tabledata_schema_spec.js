@@ -2,11 +2,11 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 import homePage from "../../../../../locators/HomePage";
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tablev1NewDsl.json");
-var appId = " ";
+
 describe("Table Widget", function() {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;

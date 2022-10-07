@@ -2,15 +2,9 @@ const dsl = require("../../../fixtures/CMSdsl.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
-const commonlocators = require("../../../locators/commonlocators.json");
-//var appId = " ";
 
 describe("Content Management System App", function() {
-  let repoName;
-
   before(() => {
-    // appId = localStorage.getItem("applicationId");
-    // cy.log("appID:"+appId);
     cy.addDsl(dsl);
   });
   beforeEach(() => {

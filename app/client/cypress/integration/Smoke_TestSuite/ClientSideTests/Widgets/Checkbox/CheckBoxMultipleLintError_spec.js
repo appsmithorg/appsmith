@@ -1,12 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/snippetErrordsl.json");
-var appId = " ";
 
 describe("Linting warning validation with Checkbox widget", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   it("Linting warning validation", function() {
     cy.openPropertyPane("checkboxwidget");

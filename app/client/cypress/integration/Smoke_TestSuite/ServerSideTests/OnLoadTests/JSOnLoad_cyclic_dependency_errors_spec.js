@@ -13,7 +13,6 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const agHelper = ObjectsRegistry.AggregateHelper;
 const pageid = "MyPage";
 let queryName;
-var appId = " ";
 
 /*
 Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:

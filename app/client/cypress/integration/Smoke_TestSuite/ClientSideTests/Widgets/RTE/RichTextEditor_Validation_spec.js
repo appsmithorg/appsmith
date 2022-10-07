@@ -1,13 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formdsl1.json");
-var appId = " ";
 
 describe("RichTextEditor Widget Validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   beforeEach(() => {

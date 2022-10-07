@@ -7,7 +7,6 @@ const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/navigateToInputDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
-var appId = " ";
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function() {
   before(() => {

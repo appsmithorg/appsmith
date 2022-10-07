@@ -4,13 +4,10 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/formdsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-var appId = " ";
 
 describe("Form Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   it("Default Form text,  Reset and Close button Validation", function() {
     cy.get(widgetsPage.textWidget).should("be.visible");

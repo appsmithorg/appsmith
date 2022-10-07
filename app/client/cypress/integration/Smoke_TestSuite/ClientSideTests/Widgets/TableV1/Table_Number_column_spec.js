@@ -1,12 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../../fixtures/basicNumberDataTableDsl.json");
-var appId = " ";
 
 describe("Validate Table Widget Table Data", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check number key in table data convert table binding and header properly", function() {

@@ -4,17 +4,14 @@ import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
-var appId = " ";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
 let forkableAppUrl;
 
 describe("Fork application across workspaces", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check if the forked application has the same dsl as the original", function() {

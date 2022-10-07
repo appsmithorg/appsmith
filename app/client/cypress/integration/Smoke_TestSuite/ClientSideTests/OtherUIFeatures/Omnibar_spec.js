@@ -2,17 +2,15 @@ const omnibar = require("../../../../locators/Omnibar.json");
 const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-var appId = " ";
+
 let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
   const jsObjectName = "Omnibar2";
 
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Bug #15104 The Data is not displayed in Omnibar after clicking on learn more link from property pane", function() {

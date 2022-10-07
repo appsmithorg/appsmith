@@ -2,15 +2,13 @@ const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-var appId = " ";
 
 const propPane = ObjectsRegistry.PropertyPane;
 
 describe("Table widget inline editing validation functionality", () => {
-
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
 
   beforeEach(() => {

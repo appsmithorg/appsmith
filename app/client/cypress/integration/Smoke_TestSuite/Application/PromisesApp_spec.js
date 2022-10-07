@@ -1,24 +1,18 @@
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 const homePage = require("../../../locators/HomePage");
 const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
-const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const jsEditorLocators = require("../../../locators/JSEditor.json");
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor;
-const newPage = "TableTest";
-var appId = " ";
+let jsEditor = ObjectsRegistry.JSEditor;
 
 describe("JSEditor tests", function() {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
   beforeEach(() => {
     cy.startServerAndRoutes();
   });
+
   it("Testing promises with resetWidget, storeValue action and API call", () => {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("TC1api");

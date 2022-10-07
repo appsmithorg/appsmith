@@ -1,12 +1,9 @@
 const dsl = require("../../../../fixtures/debuggerTableDsl.json");
 const debuggerLocators = require("../../../../locators/Debugger.json");
-var appId = " ";
 
 describe("Trigger errors in the debugger", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   it("Trigger errors need to be shown in the errors tab", function() {
     cy.openPropertyPane("tablewidget");

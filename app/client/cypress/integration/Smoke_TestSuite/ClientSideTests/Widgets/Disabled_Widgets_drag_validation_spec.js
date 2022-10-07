@@ -1,12 +1,9 @@
 const dsl = require("../../../../fixtures/disabledWidgetsDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
-var appId = " ";
 
 describe("Disabled Widgets drag Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Should be able to drag disabled button", function() {

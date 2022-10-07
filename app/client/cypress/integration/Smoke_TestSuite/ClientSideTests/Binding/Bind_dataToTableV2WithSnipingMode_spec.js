@@ -1,10 +1,7 @@
 const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
-var appId = " ";
 
 describe("Test Create Api and Bind to Table widget V2", function() {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 

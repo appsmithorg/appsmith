@@ -1,13 +1,9 @@
 const dsl = require("../../../../fixtures/autocomp.json");
-const pages = require("../../../../locators/Pages.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-var appId = " ";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
   it("opens autocomplete for bindings", () => {

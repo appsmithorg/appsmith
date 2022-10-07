@@ -1,11 +1,8 @@
 const dsl = require("../../../../../fixtures/tabsWidgetDsl.json");
-var appId = " ";
 
 describe("Tab widget test duplicate tab name validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function() {
     cy.openPropertyPane("tabswidget");

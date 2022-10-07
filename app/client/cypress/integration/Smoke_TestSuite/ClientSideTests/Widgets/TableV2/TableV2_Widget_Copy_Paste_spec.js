@@ -2,7 +2,6 @@ const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
-var appId = " ";
 
 describe("Test Suite to validate copy/paste table Widget V2", function() {
   before(() => {

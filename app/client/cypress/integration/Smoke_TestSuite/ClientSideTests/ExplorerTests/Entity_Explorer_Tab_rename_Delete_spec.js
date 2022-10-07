@@ -6,14 +6,11 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tabdsl.json");
 const pages = require("../../../../locators/Pages.json");
 const tabname = "UpdatedTab";
-var appId = " ";
 
 describe("Tab widget test", function() {
   const tabname = "UpdatedTab";
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Tab Widget Functionality To rename Tabs from entity explorer", function() {

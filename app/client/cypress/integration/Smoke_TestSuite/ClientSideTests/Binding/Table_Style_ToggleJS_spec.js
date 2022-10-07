@@ -4,17 +4,14 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-var appId = " ";
 
 const propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table Widget property pane feature validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Table widget toggle test for text alignment", function() {

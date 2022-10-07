@@ -1,6 +1,5 @@
 const dsl = require("../../../../../fixtures/radioGroup_int_value_dsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-var appId = " ";
 
 function checkSelectedRadioValue(selector, value) {
   /**
@@ -12,10 +11,8 @@ function checkSelectedRadioValue(selector, value) {
 }
 
 describe("RadioGroup widget testing", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Radio widget check selection with value property as integer", function() {

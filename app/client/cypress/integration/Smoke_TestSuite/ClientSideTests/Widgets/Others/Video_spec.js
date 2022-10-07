@@ -4,13 +4,10 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/videoWidgetDsl.json");
 const pages = require("../../../../../locators/Pages.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-var appId = " ";
 
 describe("Video Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Video Widget play functionality validation", function() {

@@ -1,12 +1,12 @@
 const dynamicDSL = require("../../../../../fixtures/CurrencyInputDynamic.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-var appId = " ";
+
 const widgetName = "currencyinputwidget";
 
 describe("Currency input widget - ", () => {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
     cy.addDsl(dynamicDSL, appId);
   });
 

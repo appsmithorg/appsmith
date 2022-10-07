@@ -2,13 +2,10 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/audioWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-var appId = " ";
 
 describe("Audio Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Audio Widget play functionality validation", function() {

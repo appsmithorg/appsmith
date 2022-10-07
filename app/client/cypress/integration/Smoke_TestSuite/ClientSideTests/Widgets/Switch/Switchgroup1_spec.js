@@ -1,12 +1,9 @@
 const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-var appId = " ";
+
 describe("Switchgroup Widget Functionality", function() {
-  
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.wait(5000);
   });
 

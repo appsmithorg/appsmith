@@ -12,13 +12,10 @@ const data = [
     हिन्दी: "hindi",
   },
 ];
-var appId = " ";
 
 describe("Non ASCII character functionality", () => {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. should test that Non ASCII characters in the tableData are shown in the table column header", () => {

@@ -1,13 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2ColumnOrderDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-var appId = " ";
 
 describe("Table Widget V2 column order maintained on column change validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Table widget V2 column order should be maintained after reorder and new column should be at the end", function() {

@@ -6,7 +6,7 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
-var appId = " ";
+
 let datasourceName;
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {

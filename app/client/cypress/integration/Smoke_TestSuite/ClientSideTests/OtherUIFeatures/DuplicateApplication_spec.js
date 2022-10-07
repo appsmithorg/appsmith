@@ -1,15 +1,12 @@
 const dsl = require("../../../../fixtures/basicDsl.json");
 import homePage from "../../../../locators/HomePage";
-var appId = " ";
 
 let duplicateApplicationDsl;
 let parentApplicationDsl;
 
 describe("Duplicate application", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check whether the duplicate application has the same dsl as the original", function() {

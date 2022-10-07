@@ -1,6 +1,5 @@
 const dsl = require("../../../../fixtures/SimpleBinding.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-var appId = " ";
 
 describe("Binding the multiple widgets and validating default data", function() {
   before(() => {

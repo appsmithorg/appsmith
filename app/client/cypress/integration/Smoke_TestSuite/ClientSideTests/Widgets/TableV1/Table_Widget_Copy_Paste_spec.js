@@ -2,16 +2,12 @@ const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
-var appId = " ";
 
 describe("Test Suite to validate copy/paste table Widget", function() {
-
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
   });
-  
+
   it("Copy paste table widget and valdiate application status", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("tablewidget");

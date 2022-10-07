@@ -4,7 +4,7 @@ const dslTable = require("../../../../fixtures/apiTableDsl.json");
 const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-var appId = " ";
+
 let apiPage = ObjectsRegistry.ApiPage,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -13,10 +13,10 @@ let apiPage = ObjectsRegistry.ApiPage,
 describe("Rest Bugs tests", function() {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
   it("Bug 5550: Not able to run APIs in parallel", function() {
-    cy.addDsl(dslParallel,appId);
+    cy.addDsl(dslParallel, appId);
     cy.wait(8000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
 
@@ -153,7 +153,7 @@ describe("Rest Bugs tests", function() {
   });
 
   it("Bug 4775: No Cyclical dependency when Api returns an error", function() {
-    cy.addDsl(dslTable,appId);
+    cy.addDsl(dslTable, appId);
     cy.wait(5000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
     //Api 1

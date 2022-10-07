@@ -2,7 +2,7 @@ const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-var appId = " ";
+
 const propPane = ObjectsRegistry.PropertyPane;
 const data = [
   {
@@ -13,13 +13,10 @@ const data = [
     हिन्दी: "hindi",
   },
 ];
-var appId = " ";
 
 describe("Custom column alias functionality", () => {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. should test that custom column has alias property", () => {

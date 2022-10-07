@@ -4,14 +4,11 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPage from "../../../../locators/ApiEditor";
-var appId = " ";
 
 describe("Bind a button and Api usecase", function() {
   let apiData;
   let valueToTest;
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 

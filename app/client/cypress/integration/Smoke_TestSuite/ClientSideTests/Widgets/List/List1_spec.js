@@ -2,16 +2,14 @@ const dsl = require("../../../../../fixtures/listRegressionDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-var appId = " ";
+
 let propPane = ObjectsRegistry.PropertyPane;
 
 describe("Binding the list widget with text widget", function() {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Validate text widget data based on changes in list widget Data1", function() {

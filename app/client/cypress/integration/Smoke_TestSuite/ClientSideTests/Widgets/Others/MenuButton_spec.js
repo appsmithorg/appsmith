@@ -1,12 +1,9 @@
 const dsl = require("../../../../../fixtures/menuButtonDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-var appId = " ";
 
 describe("Menu Button Widget Functionality", () => {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Icon alignment should not change when changing the icon", () => {

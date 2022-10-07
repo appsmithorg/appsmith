@@ -1,12 +1,9 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const dsl = require("../../../../../fixtures/base64imagedsl.json");
-var appId = " ";
 
 describe("Image Widget Functionality with base64", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Image Widget Functionality Base64 validation", function() {

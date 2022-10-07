@@ -1,15 +1,15 @@
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-var appId = " ";
+
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form reset", () => {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
 
   beforeEach(() => {
-    cy.addDsl(dslWithSchema,appId);
+    cy.addDsl(dslWithSchema, appId);
   });
 
   it("updates formData when field value changes", () => {

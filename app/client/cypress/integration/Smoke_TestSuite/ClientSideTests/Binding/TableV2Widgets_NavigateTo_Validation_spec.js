@@ -4,13 +4,10 @@ const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-var appId = " ";
 
 describe("Table Widget V2 and Navigate to functionality validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Create MyPage and validate if its successfully created", function() {

@@ -1,13 +1,10 @@
 const dsl = require("../../../../../fixtures/EmptyListWidget.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-var appId = " ";
 
 describe("List Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("should validate that restricted widgets cannot be added to List", () => {

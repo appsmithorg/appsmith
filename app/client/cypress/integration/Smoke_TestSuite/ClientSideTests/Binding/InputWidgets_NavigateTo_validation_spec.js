@@ -7,7 +7,6 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
-var appId = " ";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function() {
   before(() => {

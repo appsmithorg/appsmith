@@ -3,17 +3,14 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const dsl = require("../../../../fixtures/SMTPTestdsl.json");
 let datasourceName;
-var appId = " ";
 
 describe("SMTP datasource test cases using ted", function() {
   let SMTPDatasourceName;
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Create and configure smtp datasource and query, binding widgets to query fields", function() {

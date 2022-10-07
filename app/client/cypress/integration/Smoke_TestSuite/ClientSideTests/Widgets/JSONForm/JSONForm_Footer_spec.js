@@ -1,13 +1,13 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-var appId = " ";
+
 describe("JSONForm Footer spec", () => {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
+    cy.log("appID:" + appId);
+  });
   it("1. sticks to the bottom when fixed footer is true and content is less", () => {
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema, appId);
     // add small source data
     const sourceData = {
       name: "John",
@@ -45,8 +45,8 @@ describe("JSONForm Footer spec", () => {
   });
 
   it("3. floats to the bottom when fixed footer is true and content overflows", () => {
-    cy.addDsl(dslWithSchema,appId);
-    cy.addDsl(dslWithSchema,appId);
+    cy.addDsl(dslWithSchema, appId);
+    cy.addDsl(dslWithSchema, appId);
     cy.wait(3000); //for dsl to settle
 
     cy.openPropertyPane("jsonformwidget");

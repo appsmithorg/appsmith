@@ -4,7 +4,6 @@ const dsl = require("../../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pages = require("../../../../locators/Pages.json");
-var appId = " ";
 
 describe("Moustache test Functionality", function() {
   before(() => {

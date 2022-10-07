@@ -2,17 +2,14 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/SwitchGroupWidgetDsl.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-var appId = " ";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer;
 
 describe("Switch Group Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   /*
   afterEach(() => {

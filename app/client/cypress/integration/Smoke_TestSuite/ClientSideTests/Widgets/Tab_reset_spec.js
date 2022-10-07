@@ -1,13 +1,10 @@
 const LayoutPage = require("../../../../locators/Layout.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tabsWidgetReset.json");
-var appId = " ";
 
 describe("Tabs widget resetting", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1.Reset the Tabs widget With the default value.", function() {

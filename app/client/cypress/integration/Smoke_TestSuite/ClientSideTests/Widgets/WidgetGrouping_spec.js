@@ -1,11 +1,8 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
-var appId = " ";
 
 describe("Widget Grouping", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Select widgets using cmd + click and group using cmd + G", function() {

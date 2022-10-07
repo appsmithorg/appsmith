@@ -1,12 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableNewDslWithPagination.json");
-var appId = " ";
 
 describe("Table Widget property pane feature validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Verify table column type changes effect on menuButton and iconButton", function() {

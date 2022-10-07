@@ -1,11 +1,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableV2TextPaginationDsl.json");
-var appId = " ";
 
 describe("Test Create Api and Bind to Table widget V2", function() {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
   it("1. Create an API and Execute the API and bind with Table", function() {

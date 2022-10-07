@@ -17,6 +17,14 @@ describe("Json & JsonB Datatype tests", function() {
     });
   });
 
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   //#region Json Datatype
 
   it("0. Importing App & setting theme", () => {

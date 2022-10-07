@@ -1,13 +1,10 @@
 const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-var appId = " ";
 
 describe("Page Load tests", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.CreatePage();
     cy.get("h2").contains("Drag and drop a widget here");
   });

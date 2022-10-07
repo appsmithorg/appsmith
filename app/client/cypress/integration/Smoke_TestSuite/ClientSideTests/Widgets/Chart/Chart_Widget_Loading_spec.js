@@ -1,13 +1,10 @@
 const dsl = require("../../../../../fixtures/ChartLoadingDsl.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
-var appId = " ";
 
 describe("Chart Widget Skeleton Loading Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Test case while reloading and on submission", function() {

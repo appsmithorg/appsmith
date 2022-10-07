@@ -1,11 +1,8 @@
 const dsl = require("../../../../../fixtures/ButtonGroup_MenuButton_Width_dsl.json");
-var appId = " ";
 
 describe("In a button group widget, menu button width", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("If target width is smaller than min-width, The menu button popover width should be set to minimum width", () => {

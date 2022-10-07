@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-var appId = " ";
+
 const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;
 const addButton = ".t--jsonformfield-array-add-btn";
@@ -10,11 +10,11 @@ const deleteButton = ".t--jsonformfield-array-delete-btn";
 describe("JSON Form Widget Array Field", () => {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
+    cy.log("appID:" + appId);
+  });
 
   it("can remove default items when default value changes from undefined to an array", () => {
-    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData,appId);
+    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData, appId);
 
     const sourceData = {
       name: "John",
@@ -61,7 +61,7 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("can add more items to the field", () => {
-    cy.addDsl(dslWithSchema,appId);
+    cy.addDsl(dslWithSchema, appId);
 
     cy.openPropertyPane("jsonformwidget");
 

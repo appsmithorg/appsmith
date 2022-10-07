@@ -1,12 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/dropDownWidget_reset_check_dsl.json");
-var appId = " ";
 
 describe("Dropdown Widget Check value does not reset on navigation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("check if the dropdown value does not change on navigation", function() {

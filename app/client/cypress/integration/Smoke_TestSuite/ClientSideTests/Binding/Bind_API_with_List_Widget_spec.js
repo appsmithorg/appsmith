@@ -3,14 +3,10 @@
 const dsl = require("../../../../fixtures/listwidgetdsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiPage from "../../../../locators/ApiEditor";
-var appId = " ";
 
 describe("Test Create Api and Bind to List widget", function() {
-  let apiData;
   let valueToTest;
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 

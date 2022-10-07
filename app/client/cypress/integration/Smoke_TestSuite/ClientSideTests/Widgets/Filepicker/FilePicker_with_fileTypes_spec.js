@@ -1,12 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/filepickerDsl.json");
-var appId = " ";
 
 describe("FilePicker Widget Functionality with different file types", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check file upload of type jpeg", function() {

@@ -1,11 +1,8 @@
 const dsl = require("../../../../fixtures/TextTabledsl.json");
-var appId = " ";
 
 describe("Property pane CTA to add an action", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check if CTA is shown when there is no action", function() {

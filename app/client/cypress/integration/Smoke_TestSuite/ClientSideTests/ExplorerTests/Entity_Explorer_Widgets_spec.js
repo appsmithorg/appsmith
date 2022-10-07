@@ -1,12 +1,11 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
-var appId = " ";
 
 describe("Entity explorer tests related to widgets and validation", function() {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
 
   beforeEach(() => {

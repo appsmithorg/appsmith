@@ -4,14 +4,12 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-var appId = " ";
+
 let ee = ObjectsRegistry.EntityExplorer;
 
 describe("App Theming funtionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   let themesSection = (sectionName, themeName) =>

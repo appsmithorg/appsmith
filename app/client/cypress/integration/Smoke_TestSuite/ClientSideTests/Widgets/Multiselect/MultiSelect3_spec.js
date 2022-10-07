@@ -1,13 +1,10 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/widgetPopupDsl.json");
-var appId = " ";
 
 describe("Dropdown Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Verify dropdown width of Select widgets and menu button", function() {

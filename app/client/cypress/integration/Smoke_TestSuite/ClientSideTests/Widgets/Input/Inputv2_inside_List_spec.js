@@ -2,13 +2,10 @@ const dsl = require("../../../../../fixtures/InputWidgetV2InsideListDSL.json");
 
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
-var appId = " ";
 
 describe("Input widget V2 - ", () => {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Validate input widget resets OnSubmit", () => {

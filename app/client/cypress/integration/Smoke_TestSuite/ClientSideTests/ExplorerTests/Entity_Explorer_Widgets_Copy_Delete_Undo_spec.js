@@ -2,12 +2,12 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWidgetdsl.json");
-var appId = " ";
+
 const pageid = "MyPage";
 
 before(() => {
   appId = localStorage.getItem("applicationId");
-  cy.log("appID:"+appId);
+  cy.log("appID:" + appId);
   cy.addDsl(dsl, appId);
 });
 

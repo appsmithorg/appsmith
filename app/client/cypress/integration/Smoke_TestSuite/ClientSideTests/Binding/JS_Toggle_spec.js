@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
-var appId = " ";
 
 describe("JS Toggle tests", () => {
   before(() => {

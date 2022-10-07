@@ -3,14 +3,11 @@ const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-var appId = " ";
 
 describe("Widget Copy paste", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("when non Layout widget is selected, it should place below the widget selected", function() {

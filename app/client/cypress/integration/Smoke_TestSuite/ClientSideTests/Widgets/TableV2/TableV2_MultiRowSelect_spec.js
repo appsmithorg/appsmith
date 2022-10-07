@@ -1,13 +1,10 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-var appId = " ";
 
 describe("Table Widget V2 row multi select validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Test multi select column shows when enable Multirowselection is true", function() {

@@ -1,12 +1,9 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
-var appId = " ";
 
 describe("Image Widget Validation Image Urls", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check default image src", function() {

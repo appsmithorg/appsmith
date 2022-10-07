@@ -4,18 +4,18 @@
 
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-var appId = " ";
+
 const onFilterUpdateJSBtn = ".t--property-control-onfilterupdate .t--js-toggle";
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSONForm Select field - filterText update action trigger ", () => {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
     const schema = {
       color: "GREEN",
     };
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema, appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("color");
@@ -55,13 +55,12 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
 });
 
 describe("JSONForm Multiselect field - filterText update action trigger ", () => {
-
   before(() => {
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
     const schema = {
       colors: ["GREEN", "BLUE"],
     };
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema, appId);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();

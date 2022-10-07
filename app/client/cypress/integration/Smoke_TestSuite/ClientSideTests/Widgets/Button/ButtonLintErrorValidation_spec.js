@@ -1,12 +1,9 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/buttonLintErrorDsl.json");
-var appId = " ";
 
 describe("Linting warning validation with button widget", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   it("Linting Error validation on mouseover and errorlog tab", function() {
     cy.openPropertyPane("buttonwidget");

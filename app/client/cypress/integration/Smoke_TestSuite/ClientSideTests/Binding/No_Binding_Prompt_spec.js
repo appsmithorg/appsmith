@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/inputdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dynamicInput = require("../../../../locators/DynamicInput.json");
-var appId = " ";
 
 describe("Binding prompt", function() {
   before(() => {

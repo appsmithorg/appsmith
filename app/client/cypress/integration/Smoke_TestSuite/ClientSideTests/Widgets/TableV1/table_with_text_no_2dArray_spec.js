@@ -1,12 +1,10 @@
 const dsl = require("../../../../../fixtures/tableWithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { seconds, testTimeout } from "../../../../../support/timeout";
-var appId = " ";
+
 describe("Table widget edge case scenario testing", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check if the selectedRowIndices does not contain 2d array", function() {

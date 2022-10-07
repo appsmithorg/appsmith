@@ -1,12 +1,9 @@
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const dsl = require("../../../../../fixtures/CameraDsl.json");
-var appId = " ";
 
 describe("Camera Widget", () => {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   beforeEach(() => {

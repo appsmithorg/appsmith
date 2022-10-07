@@ -1,11 +1,9 @@
 const dsl = require("../../../../../fixtures/slashcommandDsl.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
-var appId = " ";
+
 describe("Autocomplete using slash command and mustache tests", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Slash command and mustache autocomplete validation for button widget", function() {

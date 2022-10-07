@@ -1,6 +1,6 @@
 const jsonFormInModalDsl = require("../../../../../fixtures/jsonFormInModalDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
-var appId = " ";
+
 const fieldPrefix = ".t--jsonformfield";
 
 const checkFormModalValues = (value) => {
@@ -39,10 +39,9 @@ const checkFormModalValues = (value) => {
 };
 
 describe("JSONForm in Modal", () => {
-
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
   it("should show the JSONForm with default values from Table widget", () => {
     const tableData = [
@@ -65,7 +64,7 @@ describe("JSONForm in Modal", () => {
         action: "",
       },
     ];
-    cy.addDsl(jsonFormInModalDsl,appId);
+    cy.addDsl(jsonFormInModalDsl, appId);
 
     cy.PublishtheApp();
 

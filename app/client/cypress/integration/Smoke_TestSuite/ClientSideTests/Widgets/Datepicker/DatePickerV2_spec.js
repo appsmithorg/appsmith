@@ -1,13 +1,10 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/datePicker2dsl.json");
 const datedsl = require("../../../../../fixtures/datePickerdsl.json");
-var appId = " ";
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Datepicker default date validation with js binding", function() {
@@ -71,7 +68,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
     cy.addDsl(datedsl, appId);
   });
 
@@ -106,8 +103,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
-    cy.log("appID:"+appId);
-    cy.addDsl(datedsl, appId);  });
+    cy.log("appID:" + appId);
+    cy.addDsl(datedsl, appId);
+  });
 
   it("Datepicker default date validation with strings", function() {
     cy.openPropertyPane("datepickerwidget2");
@@ -157,9 +155,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
     cy.addDsl(datedsl, appId);
-    });
+  });
 
   it("Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");

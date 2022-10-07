@@ -4,12 +4,11 @@ let propPane = ObjectsRegistry.PropertyPane;
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-var appId = " ";
 
 describe("Table Widget V2 property pane feature validation", function() {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
 
   beforeEach(() => {

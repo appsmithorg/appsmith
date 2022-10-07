@@ -1,11 +1,8 @@
 const dsl = require("../../../../fixtures/deprecatedWidgets.json");
-var appId = " ";
 
 describe("Deprecation warning feature", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("should have deprecation warning on all the deprecated widgets", function() {

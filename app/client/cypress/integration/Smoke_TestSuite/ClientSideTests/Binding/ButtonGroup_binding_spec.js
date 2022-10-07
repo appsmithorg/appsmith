@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/buttonGroupDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-var appId = " ";
 
 describe("Widget Grouping", function() {
   before(() => {

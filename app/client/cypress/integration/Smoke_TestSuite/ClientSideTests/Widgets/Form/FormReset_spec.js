@@ -1,12 +1,9 @@
 const dsl = require("../../../../../fixtures/formResetDsl.json");
 import widgets from "../../../../../locators/Widgets.json";
-var appId = " ";
 
 describe("Form reset functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Resets the form", () => {

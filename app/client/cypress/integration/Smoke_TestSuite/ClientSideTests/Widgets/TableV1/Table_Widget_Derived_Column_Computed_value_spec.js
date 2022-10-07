@@ -4,13 +4,10 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 const pages = require("../../../../../locators/Pages.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-var appId = " ";
 
 describe("Table Widget property pane feature validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Test to add column", function() {

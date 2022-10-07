@@ -3,8 +3,8 @@ import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const commonlocators = require("../../../../locators/commonlocators.json");
 let HomePage = ObjectsRegistry.HomePage,
-agHelper = ObjectsRegistry.AggregateHelper;
-var appId = " ";
+  agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("Export application as a JSON file", function() {
   let workspaceId;
   let appid;
@@ -12,9 +12,7 @@ describe("Export application as a JSON file", function() {
   let appname;
 
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.wait(5000);
   });
 

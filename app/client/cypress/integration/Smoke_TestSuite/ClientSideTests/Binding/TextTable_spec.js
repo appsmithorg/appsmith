@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/TextTabledsl.json");
 const pages = require("../../../../locators/Pages.json");
-var appId = " ";
 
 describe("Text-Table Binding Functionality", function() {
   Cypress.on("uncaught:exception", (err, runnable) => {
@@ -11,10 +10,8 @@ describe("Text-Table Binding Functionality", function() {
     return false;
   });
 
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   it("Text-Table Binding Functionality For Id", function() {
     cy.openPropertyPane("tablewidget");

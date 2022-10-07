@@ -6,20 +6,14 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 
 let datasourceName;
 let currentUrl;
-var appId = " ";
 
 describe("Addwidget from Query and bind with other widgets", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-  });
-
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
   it("1. Create a query and populate response by choosing addWidget and validate in Table Widget & Bug 7413", () => {
-    cy.addDsl(dsl, appId);    
+    cy.addDsl(dsl);
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;

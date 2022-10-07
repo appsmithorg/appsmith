@@ -1,13 +1,10 @@
 const widgetsPage = require("../../locators/Widgets.json");
 const dsl = require("../../fixtures/tableNewDsl.json");
 const commonlocators = require("../../locators/commonlocators.json");
-var appId = " ";
 
 describe("prevent duplicate column name in table", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   //todo(yash/tolu/pawan) reverting this test for now

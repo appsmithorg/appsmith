@@ -3,13 +3,10 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const dsl = require("../../../../../fixtures/checkboxgroupDsl.json");
-var appId = " ";
 
 describe("Checkbox Group Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Checkbox Group Widget Functionality", function() {

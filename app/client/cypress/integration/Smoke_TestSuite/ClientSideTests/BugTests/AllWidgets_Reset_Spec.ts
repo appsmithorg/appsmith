@@ -1,7 +1,6 @@
 import testdata from "../../../../fixtures/testdata.json";
 import commonlocators from "../../../../locators/commonlocators.json";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-var appId = " ";
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   deployMode = ObjectsRegistry.DeployMode,
@@ -425,6 +424,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.fixture("defaultMetaDsl").then((val: any) => {
         agHelper.AddDsl(val);
       });
+    });
+
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
+
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {

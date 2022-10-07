@@ -1,13 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/textWidgetDsl.json");
-var appId = " ";
 
 describe("Text Widget Cell Background and Text Size Validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
   it("Change the cell background color", function() {
     cy.openPropertyPane("textwidget");

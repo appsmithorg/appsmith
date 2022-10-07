@@ -7,16 +7,14 @@ const pages = require("../../../../locators/Pages.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
-var appId = " ";
 
 describe("Entity explorer tests related to widgets and validation", function() {
-
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
   it("Add a widget to default page and verify the properties", function() {
-    cy.addDsl(dsl,appId);
+    cy.addDsl(dsl, appId);
     cy.OpenBindings("Text1");
     cy.get(explorer.property)
       .last()
@@ -30,7 +28,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
 
   it("Create another page and add another widget and verify properties", function() {
     cy.Createpage(pageid);
-    cy.addDsl(tdsl,appId);
+    cy.addDsl(tdsl, appId);
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.GlobalSearchEntity("Table1");

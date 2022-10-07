@@ -1,16 +1,15 @@
 const dsl = require("../../../../../fixtures/inputMaxCharDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-var appId = " ";
-describe("Input Widget Max Char Functionality", function() {
 
+describe("Input Widget Max Char Functionality", function() {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
   });
 
   beforeEach(() => {
-    cy.addDsl(dsl,appId);
+    cy.addDsl(dsl, appId);
   });
 
   it("Text Input maxChar shows error if defaultText longer", () => {

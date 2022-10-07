@@ -1,14 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-var appId = " ";
+
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget Field Change", () => {
   before(() => {
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dslWithSchema,appId);
-    });
+    cy.log("appID:" + appId);
+    cy.addDsl(dslWithSchema, appId);
+  });
   it("modifies field type text to number", () => {
     cy.openPropertyPane("jsonformwidget");
 

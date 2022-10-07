@@ -1,12 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../fixtures/tableV2WidgetCondnFormatDsl.json");
-var appId = " ";
 
 describe("Table Widget V2 condtional formatting to remain consistent", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. check the cell styles before and after sorting", function() {

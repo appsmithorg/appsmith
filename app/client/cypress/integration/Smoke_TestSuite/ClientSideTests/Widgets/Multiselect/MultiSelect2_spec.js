@@ -11,16 +11,13 @@ import {
   getWidgetSelector,
 } from "../../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-var appId = " ";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
 describe("MultiSelect Widget Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Selects value with invalid default value", () => {

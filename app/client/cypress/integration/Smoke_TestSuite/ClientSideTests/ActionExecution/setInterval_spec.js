@@ -2,13 +2,10 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-var appId = " ";
 
 describe("Test Create Api and Bind to Button widget", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl,appId);  
+    cy.addDsl(dsl);
   });
 
   it("Test_Add users api and execute api", function() {

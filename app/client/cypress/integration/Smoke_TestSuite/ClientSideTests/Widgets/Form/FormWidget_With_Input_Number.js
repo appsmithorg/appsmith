@@ -1,12 +1,9 @@
 const dsl = require("../../../../../fixtures/formWidgetWithInputValCheckDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-var appId = " ";
 
 describe("Form Widget with Input Functionality", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check if the default value of text input is 0", function() {

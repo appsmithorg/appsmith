@@ -2,13 +2,10 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../.././../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
-var appId = " ";
 
 describe("Table Widget Filtered Table Data in autocomplete", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Table Widget Functionality", function() {

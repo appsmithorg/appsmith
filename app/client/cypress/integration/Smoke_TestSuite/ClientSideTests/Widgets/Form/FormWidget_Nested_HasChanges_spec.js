@@ -1,11 +1,8 @@
 const dsl = require("../../../../../fixtures/formHasChangesDsl.json");
-var appId = " ";
 
 describe("Form Widget", () => {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("Check hasChanges meta property", () => {

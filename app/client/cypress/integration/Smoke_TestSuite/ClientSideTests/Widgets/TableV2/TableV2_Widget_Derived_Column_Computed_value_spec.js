@@ -1,12 +1,9 @@
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-var appId = " ";
 
 describe("Table Widget V2 property pane feature validation", function() {
-   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    cy.addDsl(dsl, appId);
+  before(() => {
+    cy.addDsl(dsl);
   });
 
   it("1. Test to add column", function() {

@@ -4,17 +4,11 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
-var appId = " ";
 
 describe("PgAdmin Clone App", function() {
-  let workspaceId;
-  let newWorkspaceName;
-  let appname;
   let datasourceName;
 
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 
