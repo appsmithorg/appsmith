@@ -427,10 +427,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
-        log.debug("Archiving pages, actions and actionCollections for applicationId: {}", application.getId());
-        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
-                .then(actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS))
+        log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
+        return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS)
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .then(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
                 .flatMap(deletedApplication -> {
@@ -883,14 +883,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
                             }).collectList();
 
-                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
+                    // Page is deleted only after other resources are deleted
+                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
                             .map(tuple -> {
-                                PageDTO page1 = tuple.getT1();
-                                List<ActionDTO> actions = tuple.getT2();
-                                final List<ActionCollectionDTO> actionCollections = tuple.getT3();
-                                Application application = tuple.getT4();
-                                log.debug("Archived pageId: {} , {} actions and {} action collections for applicationId: {}", page1.getId(), actions.size(), actionCollections.size(), application.getId());
-                                return page1;
+                                List<ActionDTO> actions = tuple.getT1();
+                                final List<ActionCollectionDTO> actionCollections = tuple.getT2();
+                                Application application = tuple.getT3();
+                                log.debug("Archived {} actions and {} action collections for applicationId: {}", actions.size(), actionCollections.size(), application.getId());
+                                return application;
+                            })
+                            .then(archivedPageMono)
+                            .map(pageDTO -> {
+                                log.debug("Archived pageId: {} for applicationId: {}", pageDTO.getId(), pageDTO.getApplicationId());
+                                return pageDTO;
                             })
                             .flatMap(pageDTO ->
                                     // save the last edit information as page is deleted from application
