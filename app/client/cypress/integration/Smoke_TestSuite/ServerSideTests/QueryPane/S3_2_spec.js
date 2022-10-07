@@ -10,10 +10,6 @@ const formControls = require("../../../../locators/FormControl.json");
 let datasourceName;
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
