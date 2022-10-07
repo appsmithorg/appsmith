@@ -837,7 +837,7 @@ export const getUpdatedRoute = (
         `${customSlug}`,
         `${params.customSlug}-`,
       );
-    } else {
+    } else if (params.applicationSlug && params.pageSlug) {
       updatedPath = updatedPath.replace(
         `${customSlug}`,
         `${params.applicationSlug}/${params.pageSlug}-`,
