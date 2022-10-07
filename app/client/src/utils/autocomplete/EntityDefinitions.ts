@@ -415,6 +415,23 @@ export const entityDefinitions = {
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
   }),
+  LIST_WIDGET_V2: (widget: any, extraDefsToDefine?: ExtraDef) => ({
+    "!doc":
+      "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+    "!url": "https://docs.appsmith.com/widget-reference/list",
+    backgroundColor: {
+      "!type": "string",
+      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    },
+    isVisible: isVisible,
+    gridGap: "number",
+    selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+    items: generateTypeDef(widget.items, extraDefsToDefine),
+    listData: generateTypeDef(widget.listData, extraDefsToDefine),
+    pageNo: generateTypeDef(widget.pageNo),
+    pageSize: generateTypeDef(widget.pageSize),
+    currentViewItems: generateTypeDef(widget.currentViewItems),
+  }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",
     "!url": "https://docs.appsmith.com/widget-reference/rate",
@@ -657,7 +674,7 @@ export const entityDefinitions = {
   },
 };
 
-/* 
+/*
   $__name__$ is just to reduce occurrences of global def showing up in auto completion for user as `$` is less commonly used as entityName/
 
   GLOBAL_DEFS are maintained to support definition for array of objects which currently aren't supported by our generateTypeDef.
