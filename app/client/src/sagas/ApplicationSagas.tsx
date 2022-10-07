@@ -362,13 +362,14 @@ export function* updateApplicationSaga(
         });
       }
       if (request.currentApp) {
-        yield put({
-          type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
-          payload: response.data,
-        });
-      }
-      if (request.icon) {
-        yield put(updateCurrentApplicationIcon(response.data.icon));
+        if (request.name)
+          yield put({
+            type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+            payload: response.data,
+          });
+        if (request.icon) {
+          yield put(updateCurrentApplicationIcon(response.data.icon));
+        }
       }
     }
   } catch (error) {
