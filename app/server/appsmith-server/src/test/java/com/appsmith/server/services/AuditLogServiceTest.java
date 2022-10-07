@@ -14,6 +14,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
@@ -37,6 +38,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -48,6 +50,7 @@ import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.UserSignup;
+import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -165,6 +168,9 @@ public class AuditLogServiceTest {
 
     @Autowired
     CommonConfig commonConfig;
+
+    @Autowired
+    CreateDBTablePageSolution createDBTablePageSolution;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -2837,6 +2843,129 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
+                    assertThat(auditLog.getAuthentication()).isNull();
+                    assertThat(auditLog.getInvitedUsers()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * To generate a CRUD page using Postgres
+     * @return Mono of created CRUD pageDTO
+     */
+    private Mono<PageDTO> createCrudPage() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutorFromPackageName(Mockito.anyString())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("Create-DB-Table-Page-Org");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("DB-Table-Page-Test-Application");
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
+
+        Plugin postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
+        // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where template table
+        // have more number of columns than the user provided table which leads to deleting the column names from action configuration
+        List<DatasourceStructure.Column> limitedColumns = List.of(
+                new DatasourceStructure.Column("id", "type1", null, true),
+                new DatasourceStructure.Column("field1.something", "VARCHAR(23)", null, false)
+        );
+        List<DatasourceStructure.Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("id")));
+        List<DatasourceStructure.Column> columns = List.of(
+                new DatasourceStructure.Column("id", "type1", null, true),
+                new DatasourceStructure.Column("field1.something", "VARCHAR(23)", null, false),
+                new DatasourceStructure.Column("field2", "type3", null, false),
+                new DatasourceStructure.Column("field3", "type4", null, false),
+                new DatasourceStructure.Column("field4", "type5", null, false)
+        );
+        List<DatasourceStructure.Table> tables = List.of(
+                new DatasourceStructure.Table(DatasourceStructure.TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
+                new DatasourceStructure.Table(DatasourceStructure.TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>())
+        );
+        CRUDPageResourceDTO crudPageResourceDTO = new CRUDPageResourceDTO();
+        DatasourceStructure structure = new DatasourceStructure();
+        Datasource testDatasource = new Datasource();
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        structure.setTables(tables);
+        testDatasource.setPluginId(postgreSQLPlugin.getId());
+        testDatasource.setWorkspaceId(createdWorkspace.getId());
+        testDatasource.setName("CRUD-Page-Table-DS");
+        testDatasource.setStructure(structure);
+        datasourceConfiguration.setUrl("http://test.com");
+        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasourceService.create(testDatasource).block();
+
+        crudPageResourceDTO.setTableName(testDatasource.getStructure().getTables().get(0).getName());
+        crudPageResourceDTO.setDatasourceId(testDatasource.getId());
+
+        crudPageResourceDTO.setApplicationId(createdApplication.getId());
+        PageDTO newPage = new PageDTO();
+        newPage.setApplicationId(createdApplication.getId());
+        newPage.setName("crud-admin-page");
+
+        return applicationPageService.createPage(newPage)
+                .flatMap(savedPage -> createDBTablePageSolution.createPageFromDBTable(savedPage.getId(), crudPageResourceDTO, ""))
+                .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
+    }
+
+    // To verify page and other resources are coming properly for CRUD page delete action for query event
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validateEvent_crudPageDeleteEvent_queryDeletedHasResourcesSet_Success() {
+        PageDTO createdPageDTO = createCrudPage().block();
+        List<NewAction> actionsList = newActionService.findByPageId(createdPageDTO.getId()).collectList().block();
+        NewAction createdAction = actionsList.get(0);
+
+        applicationPageService.deleteUnpublishedPage(createdPageDTO.getId()).block();
+
+        String resourceType = auditLogService.getResourceType(new NewAction());
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.deleted", resourceType, createdAction.getId(), null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    // We are looking for the first event since Audit Logs sort order is DESC
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("query.deleted");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+
+                    // Resource validation
+                    assertThat(auditLog.getResource().getId()).isEqualTo(createdAction.getId());
+                    assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
+                    assertThat(auditLog.getResource().getName()).isEqualTo(createdAction.getUnpublishedAction().getName());
+                    assertThat(auditLog.getResource().getExecutionStatus()).isNull();
+
+                    // Page validation
+                    assertThat(auditLog.getPage().getId()).isEqualTo(createdPageDTO.getId());
+                    assertThat(auditLog.getPage().getName()).isEqualTo(createdPageDTO.getName());
+
+                    // Application validation
+                    assertThat(auditLog.getApplication().getId()).isNotNull();
+                    assertThat(auditLog.getApplication().getName()).isNotNull();
+                    assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+
+                    // Workspace validation
+                    assertThat(auditLog.getWorkspace().getId()).isNotNull();
+                    assertThat(auditLog.getWorkspace().getName()).isNotNull();
+                    assertThat(auditLog.getWorkspace().getDestination()).isNull();
+
+                    // User validation
+                    assertThat(auditLog.getUser().getId()).isNotEmpty();
+                    assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
+                    assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
+                    //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
+
+                    // Metadata validation
+                    //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
+                    assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    // Misc. fields validation
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
                 })
