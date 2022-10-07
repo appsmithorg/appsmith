@@ -6,9 +6,9 @@ var appId = " ";
 describe("Test Create Api and Bind to Table widget V2", function() {
   let apiData;
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);  
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
   it("1. Test_Add users api and execute api", function() {
     cy.createAndFillApi(this.data.userApi, "/users");

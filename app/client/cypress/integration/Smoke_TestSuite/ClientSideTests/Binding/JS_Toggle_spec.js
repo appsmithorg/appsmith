@@ -3,9 +3,9 @@ var appId = " ";
 
 describe("JS Toggle tests", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("switches the toggle to Button widget", () => {

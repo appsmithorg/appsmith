@@ -7,9 +7,9 @@ var appId = " ";
 
 describe("Text-Chart Binding Functionality", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
   it("Text-Chart Binding Functionality View", function() {
     cy.openPropertyPane("textwidget");

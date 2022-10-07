@@ -5,9 +5,9 @@ var appId = " ";
 
 describe("Binding the Table and input Widget", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("1. Input widget test with default value from table widget", function() {

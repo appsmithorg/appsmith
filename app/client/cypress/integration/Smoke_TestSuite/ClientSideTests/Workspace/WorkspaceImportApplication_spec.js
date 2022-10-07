@@ -8,9 +8,9 @@ describe("Workspace Import Application", function() {
   let appname;
 
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
   it("Can Import Application from json", function() {
     cy.NavigateToHome();

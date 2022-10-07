@@ -58,11 +58,10 @@ export class AggregateHelper {
 
   public AddDsl(
     dsl: string,
-    appId: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let pageid: string;
-    let layoutId;
+    let pageid: string, layoutId, appId: string | null;
+    appId = localStorage.getItem("applicationId");
     cy.url().then((url) => {
       pageid = url
         .split("/")[5]

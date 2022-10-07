@@ -6,9 +6,9 @@ var appId = " ";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
   it("opens autocomplete for bindings", () => {
     cy.openPropertyPane("buttonwidget");

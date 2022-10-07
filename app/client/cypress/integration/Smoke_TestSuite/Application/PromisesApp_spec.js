@@ -10,11 +10,11 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 const newPage = "TableTest";
 var appId = " ";
 
-describe("JSEditor tests", function () {
+describe("JSEditor tests", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
   beforeEach(() => {
     cy.startServerAndRoutes();

@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-var appId = " ";
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
@@ -9,9 +8,13 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate API request body panel", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
@@ -92,7 +95,7 @@ describe("Validate API request body panel", () => {
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
     let imageNameToUpload = "ConcreteHouse.jpg";
     cy.fixture("multiPartFormDataDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId);
+      agHelper.AddDsl(val);
     });
 
     apiPage.CreateAndFillApi(

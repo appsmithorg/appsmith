@@ -10,9 +10,9 @@ describe("Binding the Datepicker and Text Widget", function() {
   let dateDp2;
 
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("DatePicker-Text, Validate selectedDate functionality", function() {

@@ -5,9 +5,9 @@ var appId = " ";
 
 describe("Binding prompt", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("Show binding prompt when there are no bindings in the editor", () => {

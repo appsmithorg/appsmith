@@ -10,9 +10,9 @@ describe("Bind a button and Api usecase", function() {
   let apiData;
   let valueToTest;
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("Add an API by binding a button in its header", function() {

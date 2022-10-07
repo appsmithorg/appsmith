@@ -5,9 +5,9 @@ var appId = " ";
 
 describe("Widget Grouping", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
   it("Button widgets widget on click info message valdiation ", function() {
     cy.get(".t--buttongroup-widget button")

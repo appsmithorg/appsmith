@@ -10,14 +10,18 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate basic Promises", () => {
 
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
   });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. Verify storeValue via .then via direct Promises", () => {
     const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
@@ -32,7 +36,7 @@ describe("Validate basic Promises", () => {
 
   it("2. Verify resolve & chaining via direct Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
@@ -55,7 +59,7 @@ describe("Validate basic Promises", () => {
 
   it("3. Verify Async Await in direct Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
     apiPage.CreateAndFillApi(
@@ -94,7 +98,7 @@ describe("Validate basic Promises", () => {
   it("4. Verify .then & .catch via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnImgDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
       "https://picsum.photos/200/300",
@@ -128,7 +132,7 @@ describe("Validate basic Promises", () => {
   it("5. Verify .then & .catch via JS Objects in Promises", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
       "https://favqs.com/api/qotd",
@@ -157,7 +161,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   it("6. Verify Promise.race via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
       "https://api.agify.io?name={{this.params.person}}",
@@ -185,7 +189,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   it("7. Verify maintaining context via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnListDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
       "https://api.jikan.moe/v4/anime?q={{this.params.name}}",
@@ -235,7 +239,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   it("8: Verify Promise.all via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
@@ -261,7 +265,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     deployMode.NavigateBacktoEditor();
     const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     jsEditor.CreateJSObject(`let allFuncs = [Genderize.run({ country: 'India' }),
 RandomUser.run(),
@@ -294,7 +298,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
   it("10. Verify Promises.any via direct JSObjects", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     jsEditor.CreateJSObject(
       `export default {
@@ -334,7 +338,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
   it("11. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((dsl: any) => {
-      agHelper.AddDsl(dsl,appId, locator._spanButton("Submit"));
+      agHelper.AddDsl(dsl, locator._spanButton("Submit"));
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
@@ -353,7 +357,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
   it("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,appId);
+      agHelper.AddDsl(val,);
     });
     jsEditor.CreateJSObject(`const user = 'You';
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);

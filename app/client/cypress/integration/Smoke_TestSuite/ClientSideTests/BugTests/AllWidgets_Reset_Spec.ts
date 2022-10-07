@@ -422,10 +422,8 @@ function filePickerWidgetAndReset() {
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset assertWidgetReset`, () => {
     before(() => {
-      appId = localStorage.getItem("applicationId");
-      cy.log("appID:"+appId);
       cy.fixture("defaultMetaDsl").then((val: any) => {
-        agHelper.AddDsl(val,appId);
+        agHelper.AddDsl(val);
       });
     });
 

@@ -7,9 +7,9 @@ var appId = " ";
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("Button widget with action navigate to page", function() {

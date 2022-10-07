@@ -9,9 +9,9 @@ describe("Test Create Api and Bind to List widget", function() {
   let apiData;
   let valueToTest;
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("Test_Add users api and execute api", function() {

@@ -7,9 +7,9 @@ var appId = " ";
 
 describe("Binding the API with pageOnLoad and input Widgets", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("1. Will load an api on load", function() {

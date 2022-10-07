@@ -11,9 +11,9 @@ var appId = " ";
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
+    cy.addDsl(dsl);
   });
 
   it("Table Widget Functionality with multiple page", function() {
@@ -24,7 +24,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
 
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2,appId);
+    cy.addDsl(dsl2, appId);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.CheckAndUnfoldEntityItem("Pages");
