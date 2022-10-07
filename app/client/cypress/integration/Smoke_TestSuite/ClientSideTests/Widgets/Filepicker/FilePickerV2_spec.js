@@ -29,7 +29,7 @@ describe("File picker widget v2", () => {
     cy.get(".t--widget-textwidget").should("contain", "true");
   });
 
-  it("Check if the uploaded data reset when back from query page", () => {
+  it("Check if the uploaded data does not reset when back from query page", () => {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
