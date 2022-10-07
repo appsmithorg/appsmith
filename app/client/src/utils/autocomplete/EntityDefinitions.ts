@@ -752,7 +752,7 @@ export const GLOBAL_FUNCTIONS = {
   addMessageHandler: {
     "!doc":
       "Add a handler for incoming message from parent host when page is embed as iframe",
-    "!type": "fn(callBack: fn, acceptedOrigin: string) -> void",
+    "!type": "fn(callback: fn, acceptedOrigin: string) -> void",
   },
 };
 

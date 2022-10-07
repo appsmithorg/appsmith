@@ -108,6 +108,10 @@ const fieldConfigs: FieldConfigs = {
         case AppsmithFunction.jsFunction:
           defaultArgs = option.args ? option.args : [];
           break;
+        case AppsmithFunction.addMessageHandler:
+          defaultParams =
+            "() => { \n\t // add code here \n}, https://dev.appsmith.com";
+          break;
         case AppsmithFunction.setInterval:
           defaultParams = "() => { \n\t // add code here \n}, 5000";
           break;
@@ -361,6 +365,15 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TAB_VIEW,
   },
+  [FieldType.ACCEPT_ORIGIN_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 1);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 function renderField(props: {
@@ -543,6 +556,7 @@ function renderField(props: {
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
     case FieldType.COPY_TEXT_FIELD:
     case FieldType.CALLBACK_FUNCTION_FIELD:
+    case FieldType.ACCEPT_ORIGIN_FIELD:
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:

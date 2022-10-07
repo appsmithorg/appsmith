@@ -5,7 +5,7 @@ import { call, take, spawn } from "redux-saga/effects";
 import { executeAppAction, TriggerMeta } from "./ActionExecutionSagas";
 
 interface MessageChannelPayload {
-  callbackString: string;
+  callback: string;
   callbackData: unknown;
   eventType: EventType;
   triggerMeta: TriggerMeta;
@@ -22,10 +22,10 @@ export function* addMessageHandlerSaga(
   const messageHandler = (event: MessageEvent) => {
     if (event.currentTarget !== window) return;
     if (event.type !== "message") return;
-    if (event.origin !== actionPayload.acceptedOrigin) return;
+    if (event.origin !== actionPayload.origin) return;
 
     messageChannel.put({
-      callbackString: actionPayload.callbackString,
+      callback: actionPayload.callback,
       callbackData: event.data,
       eventType,
       triggerMeta,
@@ -39,9 +39,9 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
   try {
     while (true) {
       const payload: MessageChannelPayload = yield take(channel);
-      const { callbackData, callbackString, eventType, triggerMeta } = payload;
+      const { callback, callbackData, eventType, triggerMeta } = payload;
       yield call(executeAppAction, {
-        dynamicString: callbackString,
+        dynamicString: callback,
         callbackData: [callbackData],
         event: { type: eventType },
         triggerPropertyName: triggerMeta.triggerPropertyName,

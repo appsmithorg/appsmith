@@ -400,7 +400,7 @@ function getFieldFromValue(
         field: FieldType.CALLBACK_FUNCTION_FIELD,
       },
       {
-        field: FieldType.ACCEPTED_ORIGIN_FIELD,
+        field: FieldType.ACCEPT_ORIGIN_FIELD,
       },
     );
   }

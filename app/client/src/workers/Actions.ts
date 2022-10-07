@@ -270,8 +270,8 @@ export const DATA_TREE_FUNCTIONS: Record<
     return {
       type: ActionTriggerType.ADD_MESSAGE_HANDLER,
       payload: {
-        acceptedOrigin: origin,
-        callbackString: callback.toString(),
+        origin: origin,
+        callback: callback.toString(),
       },
       executionType: ExecutionType.TRIGGER,
     };
