@@ -1173,7 +1173,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return NewPage
      */
     private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
-        String view = viewMode ? ApplicationMode.EDIT.toString() : ApplicationMode.PUBLISHED.toString();
+        String view = viewMode ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
         final Map<String, Object> eventData = Map.of(
                 FieldName.PAGE, newPage,
                 FieldName.APP_MODE, view
