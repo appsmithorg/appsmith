@@ -25,9 +25,8 @@ const PageNumberInputWrapper = styled(NumericInput)<{
 }>`
   &&& input {
     box-shadow: none;
-    border: 1px solid ${Colors.ALTO2};
-    background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
-      ${Colors.POLAR};
+    border: 1px solid var(--wds-color-border);
+    background: var(--wds-color-bg);
     box-sizing: border-box;
     width: 24px;
     height: 24px;
@@ -36,12 +35,19 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     text-align: center;
     font-size: 12px;
     border-radius: ${({ borderRadius }) => borderRadius};
+
+    &:disabled {
+      border-color: var(--wds-color-border-disabled);
+      background: var(--wds-color-bg-disabled);
+      color: var(--wds-color-text-disabled);
+    }
   }
+
   &&&.bp3-control-group > :only-child {
     border-radius: 0;
   }
 
-  & input:hover {
+  & input:hover:not(:disabled) {
     border-color: var(--wds-color-border-hover) !important;
   }
 
@@ -324,7 +330,8 @@ function TableHeader(props: TableHeaderProps) {
             onClick={() => {
               const pageNo =
                 props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
-              props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
+              !(props.currentPageIndex === 0) &&
+                props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
@@ -351,7 +358,8 @@ function TableHeader(props: TableHeaderProps) {
                 props.currentPageIndex < props.pageCount - 1
                   ? props.currentPageIndex + 1
                   : 0;
-              props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
+              !(props.currentPageIndex === props.pageCount - 1) &&
+                props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >
             <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />

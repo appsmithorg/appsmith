@@ -303,6 +303,10 @@ export const PaginationItemWrapper = styled.div<{
 
   & > * {
     pointer-events: ${(props) => props.disabled && "none"};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
   }
   ${({ disabled }) =>
     !disabled &&

@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import styled, { createGlobalStyle, withTheme } from "styled-components";
+import { createGlobalStyle, withTheme } from "styled-components";
 import {
   Popover,
   IconName,

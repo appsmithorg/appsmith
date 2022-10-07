@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react";
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import {
@@ -14,27 +14,12 @@ import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
-import { ControlIcons } from "icons/ControlIcons";
 import { Icon, IconSize } from "design-system";
 import Button from "pages/AppViewer/AppViewerButton";
 import { ButtonVariantTypes } from "components/constants";
 
 import AddIcon from "remixicon-react/AddLineIcon";
 import { cloneDeep } from "lodash";
-
-const StyledPlusCircleIcon = styled(
-  ControlIcons.ADD_CIRCLE_CONTROL as AnyStyledComponent,
-)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  svg {
-    circle {
-      fill: none !important;
-      stroke: ${Colors.GREY_5} !important;
-    }
-  }
-`;
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;

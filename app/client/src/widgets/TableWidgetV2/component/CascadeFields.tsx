@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, InputGroup } from "@blueprintjs/core";
+import { InputGroup } from "@blueprintjs/core";
 import { debounce } from "lodash";
-import { AnyStyledComponent } from "styled-components";
 
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
-import { ControlIcons } from "icons/ControlIcons";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "./cellComponents/AutoToolTipComponent";
 import {
@@ -26,17 +24,6 @@ import { ColumnTypes, ReadOnlyColumnTypes } from "../constants";
 
 import CloseIcon from "remixicon-react/CloseCircleFillIcon";
 import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
-
-const StyledRemoveIcon = styled(
-  ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
-)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  &.hide-icon {
-    display: none;
-  }
-`;
 
 const LabelWrapper = styled.div`
   width: 95px;
