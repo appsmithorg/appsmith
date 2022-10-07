@@ -430,23 +430,60 @@ abstract class BaseWidget<
     content: ReactNode,
     style?: DynamicHeightOverlayStyle,
   ) {
+    const shouldUpdateHeight = (
+      minDynamicHeightInRows: number,
+      maxDynamicHeightInRows: number,
+    ) => {
+      const currentHeightInRows = this.props.bottomRow - this.props.topRow;
+
+      if (minDynamicHeightInRows <= currentHeightInRows) {
+        return true;
+      }
+
+      // If current height is more than the maxDynamicHeightInRows
+      // We're trying to see if we can decrease the height
+      if (currentHeightInRows > maxDynamicHeightInRows) {
+        return true;
+      }
+
+      // The widget height should always be at least minDynamicHeightInRows
+      if (currentHeightInRows !== minDynamicHeightInRows) {
+        return true;
+      }
+
+      // Since the conditions to change height already return true
+      // If we reach this point, we don't have to change height
+      return false;
+    };
+
+    const updateHeight = (height: number) => {
+      const { updateWidgetDynamicHeight } = this.context;
+      if (updateWidgetDynamicHeight) {
+        updateWidgetDynamicHeight(this.props.widgetId, height);
+      }
+    };
+
     const onMaxHeightSet = (height: number) => {
       this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
       requestAnimationFrame(() => {
-        this.updateDynamicHeight(
-          (this.props.bottomRow - this.props.topRow) *
-            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        );
+        if (shouldUpdateHeight(this.props.minDynamicHeight, height)) {
+          updateHeight(
+            (this.props.bottomRow - this.props.topRow) *
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          );
+        }
       });
     };
 
     const onMinHeightSet = (height: number) => {
       this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
       requestAnimationFrame(() => {
-        this.updateDynamicHeight(
-          (this.props.bottomRow - this.props.topRow) *
-            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        );
+        if (shouldUpdateHeight(this.props.minDynamicHeight, height)) {
+          updateHeight(
+            (this.props.bottomRow - this.props.topRow) *
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          );
+        }
       });
     };
 
