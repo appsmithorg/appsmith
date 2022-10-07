@@ -308,6 +308,13 @@ export const PaginationItemWrapper = styled.div<{
     justify-content: center;
     position: relative;
   }
+
+  & svg {
+    fill: ${(props) =>
+      props.disabled
+        ? `var(--wds-color-icon-disabled)`
+        : `var(--wds-color-icon)`};
+  }
   ${({ disabled }) =>
     !disabled &&
     `&:hover {
