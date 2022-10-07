@@ -22,6 +22,7 @@ export function migrateSelectTypeWidgetDefaultValue(currentDSL: DSLWidget) {
         defaultOptionValue.endsWith(suffixTemplate) &&
         defaultOptionValue.startsWith(prefixTemplate)
       ) {
+        console.log("$$$$$---defaultOptionValue", defaultOptionValue);
         child.defaultOptionValue = removeTemplateFromJSBinding(
           defaultOptionValue,
           child.widgetName,

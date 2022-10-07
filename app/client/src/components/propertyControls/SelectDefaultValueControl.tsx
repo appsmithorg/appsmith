@@ -27,7 +27,7 @@ export const removeTemplateFromJSBinding = (
   const suffixTemplate = `))(${widgetName}.options, ${widgetName}.serverSideFiltering) }}`;
   const concatenatedString = string.substring(
     prefixTemplate.length,
-    string.length - prefixTemplate.length - suffixTemplate.length,
+    string.length - suffixTemplate.length,
   );
 
   return JSToString(concatenatedString);

@@ -1,11 +1,11 @@
 import { DSLWidget } from "widgets/constants";
-import { MigrateSelectTypeWidgetDefaultValue } from "./SelectWidget";
+import { migrateSelectTypeWidgetDefaultValue } from "./SelectWidget";
 
-describe("MigrateSelectTypeWidgetDefaultValue", () => {
+describe("migrateSelectTypeWidgetDefaultValue", () => {
   describe("Select widget", () => {
     it("should check that defaultOptionValue is migrated when its in old format", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -19,14 +19,13 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "SELECT_WIDGET",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( moment()))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{moment()}}",
           },
         ],
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -40,22 +39,20 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "SELECT_WIDGET",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( moment() + moment()))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{moment()}}{{moment()}}",
           },
         ],
       });
     });
 
-    it("should check that defaultOptionValue is not migrated when its in new format", () => {
+    it("should check that defaultOptionValue is not migrated when it has normal js binding", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "SELECT_WIDGET",
               widgetName: "select",
-              defaultOptionValue:
-                "{{ ((options, serverSideFiltering) => ( moment()))(select.options, select.serverSideFiltering) }}",
+              defaultOptionValue: "{{moment()}}",
             },
           ],
         } as any) as DSLWidget),
@@ -64,14 +61,13 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "SELECT_WIDGET",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( moment()))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{moment()}}",
           },
         ],
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -86,8 +82,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "SELECT_WIDGET",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( moment() + moment()))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{moment()}}{{moment()}}",
           },
         ],
       });
@@ -95,7 +90,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
 
     it("should check that defaultOptionValue is not migrated when its a static value", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -117,9 +112,9 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
   });
 
   describe("Multi Select widget", () => {
-    it("should check that defaultOptionValue is migrated when its in old format", () => {
+    it("should check that defaultOptionValue is not touched for normal js binding", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -133,14 +128,13 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "MULTI_SELECT_WIDGET_V2",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( [moment()]))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{[moment()]}}",
           },
         ],
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -154,16 +148,15 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "MULTI_SELECT_WIDGET_V2",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( moment() + moment()))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{moment()}}{{moment()}}",
           },
         ],
       });
     });
 
-    it("should check that defaultOptionValue is not migrated when its in new format", () => {
+    it("should check that defaultOptionValue is migrated back when its in new format", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -178,14 +171,13 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "MULTI_SELECT_WIDGET_V2",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( [moment()]))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{[moment()]}}",
           },
         ],
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -200,8 +192,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
           {
             type: "MULTI_SELECT_WIDGET_V2",
             widgetName: "select",
-            defaultOptionValue:
-              "{{ ((options, serverSideFiltering) => ( moment() + moment()))(select.options, select.serverSideFiltering) }}",
+            defaultOptionValue: "{{moment()}}{{moment()}}",
           },
         ],
       });
@@ -209,7 +200,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
 
     it("should check that defaultOptionValue is not migrated when its a static value", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -230,7 +221,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
     });
 
     expect(
-      MigrateSelectTypeWidgetDefaultValue(({
+      migrateSelectTypeWidgetDefaultValue(({
         children: [
           {
             type: "MULTI_SELECT_WIDGET_V2",
@@ -253,7 +244,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
   describe("other widget", () => {
     it("should left untouched", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        migrateSelectTypeWidgetDefaultValue(({
           children: [
             {
               type: "TABLE_WIDGET",
@@ -1616,8 +1607,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
                           type: "SELECT_WIDGET",
                           serverSideFiltering: false,
                           hideCard: false,
-                          defaultOptionValue:
-                            "{{ ((options, serverSideFiltering) => ( moment()))(Select1.options, Select1.serverSideFiltering) }}",
+                          defaultOptionValue: "{{moment()}}",
                           animateLoading: true,
                           parentColumnSpace: 8.578338623046875,
                           leftColumn: 0,
@@ -1678,8 +1668,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
                           type: "MULTI_SELECT_WIDGET_V2",
                           serverSideFiltering: false,
                           hideCard: false,
-                          defaultOptionValue:
-                            "{{ ((options, serverSideFiltering) => ( [moment()]))(MultiSelect1.options, MultiSelect1.serverSideFiltering) }}",
+                          defaultOptionValue: "{{[moment()]}}",
                           animateLoading: true,
                           parentColumnSpace: 8.578338623046875,
                           leftColumn: 0,
@@ -1830,7 +1819,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
     };
 
     expect(
-      MigrateSelectTypeWidgetDefaultValue((input as any) as DSLWidget),
+      migrateSelectTypeWidgetDefaultValue((input as any) as DSLWidget),
     ).toEqual(output);
   });
 });
