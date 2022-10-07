@@ -414,6 +414,7 @@ function* autolayoutReorderSaga(
     movedWidgets,
     parentId,
   } = actionPayload.payload;
+
   const { alignment, index, isNewLayer, layerIndex } = dropPayload;
   // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
   // console.log(`#### parentId: ${parentId}`);
@@ -471,7 +472,6 @@ function* reorderAutolayoutChildren(params: {
   if (orphans && orphans.length) {
     //parent has changed
     // console.log(`#### orphans ${JSON.stringify(orphans)}`);
-    // update parent for children
     orphans.forEach((item) => {
       const prevParentId = widgets[item].parentId;
       if (prevParentId !== undefined) {
@@ -525,6 +525,7 @@ function* reorderAutolayoutChildren(params: {
       ...newItems.slice(pos),
     ],
   };
+
   return updatedWidgets;
 }
 
@@ -550,16 +551,21 @@ function addNewLayer(
   // console.log("#### canvas id", parentId);
   // console.log("#### newLayer", newLayer);
   const flexLayers = canvas.flexLayers || [];
+  const updatedLayers = removeWidgetsFromCurrentLayers(
+    widgets,
+    movedWidgets,
+    flexLayers,
+  );
   // console.log("#### filteredLayers", filteredLayers);
-  const pos = index > flexLayers.length ? flexLayers.length : index;
+  const pos = index > updatedLayers.length ? updatedLayers.length : index;
   // console.log("#### index", index);
   // console.log("#### pos", pos);
   const updatedCanvas = {
     ...canvas,
     flexLayers: [
-      ...flexLayers.slice(0, pos),
+      ...updatedLayers.slice(0, pos),
       newLayer,
-      ...flexLayers.slice(pos),
+      ...updatedLayers.slice(pos),
     ],
   };
   const updatedWidgets = {
@@ -584,7 +590,13 @@ function updateExistingLayer(
   if (!canvas || !movedWidgets.length) return widgets;
 
   const layers = canvas.flexLayers || [];
-  const filteredLayers: FlexLayer[] = filterLayers(layers, movedWidgets);
+  const updatedLayers = removeWidgetsFromCurrentLayers(
+    allWidgets,
+    movedWidgets,
+    layers,
+  );
+  // Remove empty layers
+  const filteredLayers: FlexLayer[] = filterLayers(updatedLayers, movedWidgets);
 
   const { hasFillChild, layerChildren } = processLayerChildren(
     movedWidgets,
@@ -595,7 +607,7 @@ function updateExistingLayer(
   let selectedLayer: FlexLayer = filteredLayers[layerIndex];
   let childCount = 0;
   filteredLayers.forEach((layer: FlexLayer, index: number) => {
-    if (index > layerIndex) return;
+    if (index >= layerIndex) return;
     childCount += layer.children.length;
   });
   const pos = index - childCount;
@@ -607,6 +619,7 @@ function updateExistingLayer(
       ...layerChildren,
       ...selectedLayer.children.slice(pos),
     ],
+    hasFillChild: hasFillChild || selectedLayer.hasFillChild,
   };
 
   const updatedCanvas = {
@@ -622,6 +635,35 @@ function updateExistingLayer(
   return updatedWidgets;
 }
 
+function removeWidgetsFromCurrentLayers(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: string[],
+  flexLayers: FlexLayer[],
+): FlexLayer[] {
+  const updatedLayers = flexLayers.map((layer: FlexLayer) => {
+    const updatedChildren = layer.children.filter(
+      (child: LayerChild) => movedWidgets.indexOf(child.id) === -1,
+    );
+    return {
+      ...layer,
+      children: updatedChildren,
+      hasFillChild: updatedChildren.some(
+        (child: LayerChild) =>
+          allWidgets[child.id].responsiveBehavior === ResponsiveBehavior.Fill,
+      ),
+    };
+  });
+  return updatedLayers;
+}
+
+/**
+ * Transform movedWidgets to FlexLayer format,
+ * and determine if the new widgets have a fill child.
+ * @param movedWidgets
+ * @param allWidgets
+ * @param alignment
+ * @returns hasFillChild: boolean, layerChildren: string[]
+ */
 function processLayerChildren(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,

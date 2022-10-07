@@ -13,14 +13,6 @@ interface XYCord {
   y: number;
 }
 
-export interface Highlight {
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-  alignment: FlexLayerAlignment;
-}
-
 export interface HighlightInfo {
   isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
   index: number; // index of the child in props.children.
@@ -40,10 +32,8 @@ export interface AutoLayoutHighlightProps {
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
-  widgetName?: string;
 }
 
-const BASE_OFFSET_SIZE = 100;
 const OFFSET_WIDTH = 4;
 
 export const useAutoLayoutHighlights = ({
@@ -168,13 +158,14 @@ export const useAutoLayoutHighlights = ({
       if (!updateContainerDimensions()) return [];
       hideDraggedItems(draggedBlocks);
 
+      const canvasChildren = canvas.children || [];
+      const offsetChildren = canvasChildren.filter((each) => {
+        return draggedBlocks.indexOf(each) === -1;
+      });
+
       if (isVertical) {
-        highlights = generateContainerHighlights(layers, draggedBlocks);
+        highlights = generateContainerHighlights(layers, offsetChildren);
       } else {
-        const canvasChildren = canvas.children || [];
-        const offsetChildren = canvasChildren.filter((each) => {
-          return draggedBlocks.indexOf(each) === -1;
-        });
         highlights = generateHighlightsForChildren(offsetChildren);
       }
     }
@@ -226,18 +217,18 @@ export const useAutoLayoutHighlights = ({
     return arr;
   }
 
-  function isEmptyLayer(layer: FlexLayer, draggedBlocks: string[]): boolean {
-    return (
-      layer.children?.length === 0 ||
-      !layer.children?.some((each) => {
-        return draggedBlocks.indexOf(each.id) === -1;
-      })
-    );
+  function filterLayer(layer: FlexLayer, offsetChildren: string[]): FlexLayer {
+    return {
+      ...layer,
+      children: layer.children?.filter((each) => {
+        return offsetChildren.indexOf(each.id) > -1;
+      }),
+    };
   }
 
   function generateContainerHighlights(
     flexLayers: FlexLayer[],
-    draggedBlocks: string[],
+    offsetChildren: string[],
   ): HighlightInfo[] {
     if (!flexLayers || !flexLayers.length)
       return [
@@ -256,8 +247,10 @@ export const useAutoLayoutHighlights = ({
     const arr: HighlightInfo[] = [];
     const rects: DOMRect[] = [];
     for (const layer of flexLayers) {
-      if (isEmptyLayer(layer, draggedBlocks)) {
+      const filteredLayer = filterLayer(layer, offsetChildren);
+      if (!filteredLayer?.children?.length) {
         discardedLayers += 1;
+        index += 1;
         continue;
       }
       const el = document.querySelector(
@@ -265,6 +258,7 @@ export const useAutoLayoutHighlights = ({
       );
       if (!el) {
         discardedLayers += 1;
+        index += 1;
         continue;
       }
       const rect: DOMRect = el.getBoundingClientRect();
@@ -282,14 +276,14 @@ export const useAutoLayoutHighlights = ({
       arr.push(info);
       arr.push(
         ...generateHighlightsForLayer(
-          layer,
+          filteredLayer,
           index - discardedLayers,
           rect,
           childCount,
         ),
       );
       index += 1;
-      childCount += layer.children?.length || 0;
+      childCount += filteredLayer.children?.length || 0;
     }
 
     const lastElRect: DOMRect = rects[rects.length - 1];

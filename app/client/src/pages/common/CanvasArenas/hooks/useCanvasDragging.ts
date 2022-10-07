@@ -127,7 +127,6 @@ export const useCanvasDragging = (
     isCurrentDraggedCanvas,
     isDragging,
     useAutoLayout,
-    widgetName,
   });
 
   const highlights: HighlightInfo[] = calculateHighlights();
@@ -327,7 +326,6 @@ export const useCanvasDragging = (
               y: currentRectanglesToDraw[0].left,
             });
             if (dropInfo !== undefined && useAutoLayout) {
-              // cleanUpTempStyles();
               updateChildrenPositions(dropInfo, currentRectanglesToDraw);
             } else
               onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
