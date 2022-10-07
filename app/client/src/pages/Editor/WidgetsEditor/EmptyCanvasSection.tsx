@@ -48,15 +48,14 @@ const Card = styled.div<{ centerAlign?: boolean }>`
     justify-content: center;
   `}
   cursor: pointer;
-  transition: all 0.5s;
 
   svg {
     height: 24px;
     width: 24px;
   }
 
-  &:hover {
-    background-color: ${Colors.GREY_2};
+  &:hover svg path {
+    fill: var(--appsmith-color-orange-500);
   }
 `;
 
