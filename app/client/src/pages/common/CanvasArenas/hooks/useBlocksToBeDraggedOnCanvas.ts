@@ -31,11 +31,7 @@ import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "./useCanvasDragging";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
-import {
-  AlignItems,
-  LayoutDirection,
-  FlexLayerAlignment,
-} from "components/constants";
+import { AlignItems, LayoutDirection } from "components/constants";
 import { HighlightInfo } from "./useAutoLayoutHighlights";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {

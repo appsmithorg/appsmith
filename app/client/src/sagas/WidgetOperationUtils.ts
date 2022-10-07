@@ -54,7 +54,10 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
 import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import {
+  FlexLayer,
+  LayerChild,
+} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1713,5 +1716,36 @@ export function* wrapChildren(
   }
   parent = { ...parent, flexLayers };
   widgets[canvasId] = parent;
+  return widgets;
+}
+
+export function* updateFlexLayersOnDelete(
+  allWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  parentId: string,
+) {
+  const widgets = { ...allWidgets };
+  let parent = widgets[parentId];
+  if (!parent) return widgets;
+
+  const flexLayers = parent.flexLayers || [];
+  if (!flexLayers.length) return widgets;
+  for (const layer of flexLayers) {
+    const children = layer.children || [];
+    if (!children.length) continue;
+    const index = children.findIndex(
+      (each: LayerChild) => each.id === widgetId,
+    );
+    if (index === -1) continue;
+    children.splice(index, 1);
+    layer.children = children;
+  }
+  parent = {
+    ...parent,
+    flexLayers: flexLayers.filter(
+      (layer: FlexLayer) => layer?.children?.length,
+    ),
+  };
+  widgets[parentId] = parent;
   return widgets;
 }

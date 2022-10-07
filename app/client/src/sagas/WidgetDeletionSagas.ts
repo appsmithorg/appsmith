@@ -30,6 +30,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
+  updateFlexLayersOnDelete,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
@@ -94,7 +95,14 @@ function* deleteTabChildSaga(
           tabsObj: updatedObj,
         },
       };
-      yield put(updateAndSaveLayout(parentUpdatedWidgets));
+      // Update flex layers of a canvas upon deletion of a widget.
+      const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
+        updateFlexLayersOnDelete,
+        parentUpdatedWidgets,
+        widgetId,
+        tabWidget.parentId,
+      );
+      yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -199,6 +207,7 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
 function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { parentId, widgetId } = deleteAction.payload;
+
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
@@ -217,30 +226,23 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
-      const stateParent: WidgetProps = yield select(getWidget, parentId);
-      const parent = { ...stateParent };
-      // Additional check for auto layout children
-      const shouldDeleteParent =
-        parent.type === "LAYOUT_WRAPPER_WIDGET" &&
-        !parent.children?.filter((e: string) => e !== widgetId).length;
 
-      let updatedObj: UpdatedDSLPostDelete;
-      if (shouldDeleteParent)
-        updatedObj = yield call(
-          getUpdatedDslAfterDeletingWidget,
-          parentId,
-          parent.parentId || "0",
-        );
-      else
-        updatedObj = yield call(
-          getUpdatedDslAfterDeletingWidget,
-          widgetId,
-          parentId,
-        );
+      const updatedObj: UpdatedDSLPostDelete = yield call(
+        getUpdatedDslAfterDeletingWidget,
+        widgetId,
+        parentId,
+      );
 
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        yield put(updateAndSaveLayout(finalWidgets));
+        // Update flex layers of a canvas upon deletion of a widget.
+        const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
+          updateFlexLayersOnDelete,
+          finalWidgets,
+          widgetId,
+          parentId,
+        );
+        yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";

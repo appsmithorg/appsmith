@@ -62,9 +62,7 @@ export const useAutoLayoutHighlights = ({
 
   let highlights: HighlightInfo[] = [];
   let dragBlocksSize = 0;
-  const siblingElements: any[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
-  let lastTranslatedIndex: number;
   let containerDimensions: {
     top: number;
     bottom: number;
@@ -126,7 +124,6 @@ export const useAutoLayoutHighlights = ({
 
   // Get a list of widgetIds that are being dragged.
   const getDraggedBlocks = (): string[] => {
-    console.log("#### blocksToDraw", blocksToDraw);
     const blocks = blocksToDraw.map((block) => block.widgetId);
     // console.log(`#### blocksToDraw: ${JSON.stringify(blocksToDraw)}`);
     // console.log(`#### blocks: ${JSON.stringify(blocks)}`);
@@ -181,7 +178,7 @@ export const useAutoLayoutHighlights = ({
         highlights = generateHighlightsForChildren(offsetChildren);
       }
     }
-    console.log("#### highlights: ", highlights);
+    // console.log("#### highlights: ", highlights);
     return highlights;
   };
 
@@ -392,12 +389,12 @@ export const useAutoLayoutHighlights = ({
     childCount: number,
     alignment: FlexLayerAlignment,
     layerIndex: number,
-  ) {
+  ): HighlightInfo[] {
     const arr: HighlightInfo[] = [];
     const childRects: DOMRect[] = [];
-    layer.forEach((child) => {
+    for (const child of layer) {
       const el = getDomElement(child.id);
-      if (!el) return null;
+      if (!el) continue;
       const childRect: DOMRect = el?.getBoundingClientRect();
       childRects.push(childRect);
       // A highlight before each existing child.
@@ -406,13 +403,13 @@ export const useAutoLayoutHighlights = ({
         index: childCount,
         layerIndex,
         alignment,
-        posX: childRect.left - containerDimensions?.left,
-        posY: childRect.y - containerDimensions?.top,
+        posX: childRect?.left - containerDimensions?.left,
+        posY: childRect?.y - containerDimensions?.top,
         width: OFFSET_WIDTH,
-        height: childRect.height,
+        height: childRect?.height,
       });
       childCount += 1;
-    });
+    }
     // A highlight after the last child.
     const lastRect: DOMRect = childRects[childRects.length - 1];
     arr.push({
@@ -420,10 +417,10 @@ export const useAutoLayoutHighlights = ({
       index: childCount,
       layerIndex,
       alignment,
-      posX: lastRect.left + lastRect.width - containerDimensions?.left,
-      posY: lastRect.y - containerDimensions?.top,
+      posX: lastRect?.left + lastRect?.width - containerDimensions?.left,
+      posY: lastRect?.y - containerDimensions?.top,
       width: OFFSET_WIDTH,
-      height: lastRect.height,
+      height: lastRect?.height,
     });
     return arr;
   }
@@ -459,10 +456,10 @@ export const useAutoLayoutHighlights = ({
     if (!highlights || !highlights.length)
       highlights = [
         getInitialHighlight(0, FlexLayerAlignment.Start, 0, {
-          x: containerDimensions.left,
-          y: containerDimensions.top,
-          width: containerDimensions.width,
-          height: containerDimensions.height,
+          x: containerDimensions?.left,
+          y: containerDimensions?.top,
+          width: containerDimensions?.width,
+          height: containerDimensions?.height,
         } as DOMRect),
       ];
     base = highlights;
