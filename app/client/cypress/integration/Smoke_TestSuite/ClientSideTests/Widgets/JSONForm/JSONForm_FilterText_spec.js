@@ -61,7 +61,6 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
   });
 
   it("3. JSONForm Multiselect field - filterText update action trigger - pre condition", () => {
-    cy.log("appID:" + appId);
     const schema = {
       colors: ["GREEN", "BLUE"],
     };

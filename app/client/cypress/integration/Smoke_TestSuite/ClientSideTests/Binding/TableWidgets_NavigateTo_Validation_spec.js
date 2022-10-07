@@ -1,6 +1,7 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
+const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";

@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let dsl: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   apiPage = ObjectsRegistry.ApiPage,
@@ -11,7 +10,6 @@ describe("Layout OnLoad Actions tests", function() {
   before(() => {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
       agHelper.AddDsl(val);
-      dsl = val;
     });
   });
 
@@ -42,7 +40,9 @@ describe("Layout OnLoad Actions tests", function() {
   });
 
   it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function() {
-    agHelper.AddDsl(dsl, locator._imageWidget);
+    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
+      agHelper.AddDsl(val, locator._imageWidget);
+    });
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",

@@ -6,12 +6,19 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 let datasourceName;
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.startRoutesForDatasource();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   // afterEach(function() {

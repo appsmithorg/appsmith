@@ -41,8 +41,6 @@ describe("Git sync Bug #10773", function() {
 
   it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     // adding a new page "ChildPage" to master
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
     cy.Createpage(pagename);
     cy.get(".t--entity-name:contains('Page1')").click();
     cy.commitAndPush();

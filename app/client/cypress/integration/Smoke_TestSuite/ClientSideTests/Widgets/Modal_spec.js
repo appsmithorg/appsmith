@@ -3,7 +3,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const widgets = require("../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
+const agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer;
 
 describe("Modal Widget Functionality", function() {
   afterEach(() => {
@@ -22,30 +23,21 @@ describe("Modal Widget Functionality", function() {
   });
 
   it("2. Open Existing Modal from created Widgets list", () => {
-    cy.get(".t--entity-name")
-      .contains("Widgets")
-      .click();
-    cy.get(".t--entity-name:contains(Modal1)").click();
+    ee.SelectEntityByName("Modal1", "Widgets");
     cy.get(".t--modal-widget").should("exist");
-
     cy.CreateAPI("FirstAPI");
-
-    cy.get(".t--entity-name:contains(Modal1)").click();
+    ee.SelectEntityByName("Modal1", "Widgets");
     cy.get(".t--modal-widget").should("exist");
   });
 
   it("3. Display toast on close action", () => {
     cy.SearchEntityandOpen("Modal1");
-
     cy.get(".t--property-control-onclose")
       .find(".t--js-toggle")
       .click({ force: true });
-
     cy.testJsontext("onclose", "{{showAlert('test','success')}}");
-
     cy.wait(1000); //make sure evaluated value disappears
     cy.get(widgets.modalCloseButton).click({ force: true });
-
     cy.get(commonlocators.toastmsg).contains("test");
   });
 

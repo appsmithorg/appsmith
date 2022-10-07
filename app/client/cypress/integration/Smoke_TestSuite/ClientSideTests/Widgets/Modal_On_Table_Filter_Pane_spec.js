@@ -3,7 +3,7 @@ const widgets = require("../../../../locators/Widgets.json");
 
 describe("Modal Widget Functionality", function() {
   before(() => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
   });
 
   it("Close the opened filter pane of the table", () => {
