@@ -36,6 +36,7 @@ import {
   LayoutDirection,
   FlexLayerAlignment,
 } from "components/constants";
+import { HighlightInfo } from "./useAutoLayoutHighlights";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -278,28 +279,24 @@ export const useBlocksToBeDraggedOnCanvas = ({
     if (isReflowing) dispatch(stopReflowAction());
   };
   const updateChildrenPositions = (
-    index: number,
+    dropPayload: HighlightInfo,
     drawingBlocks: WidgetDraggingBlock[],
-    alignment: FlexLayerAlignment,
   ): void => {
-    if (isNewWidget) addNewWidgetToAutoLayout(index, drawingBlocks, alignment);
+    if (isNewWidget) addNewWidgetToAutoLayout(dropPayload, drawingBlocks);
     else
       dispatch({
         type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
         payload: {
-          index,
+          dropPayload,
           movedWidgets: selectedWidgets,
           parentId: widgetId,
-          alignment,
           direction,
-          isNewLayer: false,
         },
       });
   };
   const addNewWidgetToAutoLayout = (
-    index: number,
+    dropPayload: HighlightInfo,
     drawingBlocks: WidgetDraggingBlock[],
-    alignment: FlexLayerAlignment,
   ) => {
     logContainerJumpOnDrop();
     const blocksToUpdate = drawingBlocks.map((each) => {
@@ -327,18 +324,16 @@ export const useBlocksToBeDraggedOnCanvas = ({
       ...blocksToUpdate[0]?.updateWidgetParams?.payload,
       props: {
         ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
-        alignment,
+        alignment: dropPayload.alignment,
       },
     };
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
-        index,
+        dropPayload,
         newWidget: widgetPayload,
         parentId: widgetId,
-        alignment,
         direction,
-        isNewLayer: true,
       },
     });
   };

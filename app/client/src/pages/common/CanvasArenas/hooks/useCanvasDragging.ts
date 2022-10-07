@@ -30,7 +30,6 @@ import {
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
 import {
-  DropPositionPayload,
   HighlightInfo,
   useAutoLayoutHighlights,
 } from "./useAutoLayoutHighlights";
@@ -323,17 +322,13 @@ export const useCanvasDragging = (
                 }
                 return each;
               });
-            const pos: DropPositionPayload | undefined = getDropInfo({
+            const dropInfo: HighlightInfo | undefined = getDropInfo({
               x: currentRectanglesToDraw[0].top,
               y: currentRectanglesToDraw[0].left,
             });
-            if (pos !== undefined && useAutoLayout) {
+            if (dropInfo !== undefined && useAutoLayout) {
               // cleanUpTempStyles();
-              updateChildrenPositions(
-                pos.index,
-                currentRectanglesToDraw,
-                pos.alignment,
-              );
+              updateChildrenPositions(dropInfo, currentRectanglesToDraw);
             } else
               onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
           }

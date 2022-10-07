@@ -39,6 +39,7 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -400,23 +401,20 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
 function* autolayoutReorderSaga(
   actionPayload: ReduxAction<{
     movedWidgets: string[];
-    index: number;
-    isNewLayer: boolean;
     parentId: string;
-    alignment: FlexLayerAlignment;
     direction: LayoutDirection;
+    dropPayload: HighlightInfo;
   }>,
 ) {
   const start = performance.now();
 
   const {
-    alignment,
     direction,
-    index,
-    isNewLayer,
+    dropPayload,
     movedWidgets,
     parentId,
   } = actionPayload.payload;
+  const { alignment, index, isNewLayer, layerIndex } = dropPayload;
   // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
   // console.log(`#### parentId: ${parentId}`);
   try {
@@ -432,6 +430,7 @@ function* autolayoutReorderSaga(
         allWidgets,
         alignment,
         direction,
+        layerIndex,
       },
     );
 
@@ -658,24 +657,14 @@ function filterLayers(
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
     newWidget: WidgetAddChild;
-    index: number;
-    isNewLayer: boolean;
     parentId: string;
-    alignment: FlexLayerAlignment;
     direction: LayoutDirection;
-    layerIndex?: number;
+    dropPayload: HighlightInfo;
   }>,
 ) {
   const start = performance.now();
-  const {
-    alignment,
-    direction,
-    index,
-    isNewLayer,
-    layerIndex,
-    newWidget,
-    parentId,
-  } = actionPayload.payload;
+  const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
+  const { alignment, index, isNewLayer, layerIndex } = dropPayload;
   try {
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
       getUpdateDslAfterCreatingChild,
