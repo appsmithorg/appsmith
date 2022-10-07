@@ -5,9 +5,7 @@ const widgetName = "phoneinputwidget";
 
 describe("Phone input widget - ", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dynamicDSL, appId);
+    cy.addDsl(dynamicDSL);
   });
   it("1. Should show empty dropdown for a typo", () => {
     cy.openPropertyPane(widgetName);

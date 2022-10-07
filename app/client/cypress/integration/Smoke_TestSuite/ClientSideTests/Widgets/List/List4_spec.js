@@ -9,9 +9,7 @@ describe("Container Widget Functionality", function() {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.wait(5000);
   });
 

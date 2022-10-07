@@ -228,7 +228,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("4. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.wait(3000); //dsl to settle!    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.getEntityName().then((entity) => {
       cy.wrap(entity).as("entity");

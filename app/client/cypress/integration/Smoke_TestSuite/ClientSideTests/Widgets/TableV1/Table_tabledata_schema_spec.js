@@ -4,10 +4,6 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tablev1NewDsl.json");
 
 describe("Table Widget", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
     cy.NavigateToHome();
@@ -19,7 +15,7 @@ describe("Table Widget", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 500 });
     cy.wait(1000);

@@ -7,12 +7,7 @@ const backBtn = ".t--property-pane-back-btn";
 
 describe("JSON Form Widget Form Bindings", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
-
-  beforeEach(() => {
-    cy.addDsl(dslWithSchema, appId);
+    cy.addDsl(dslWithSchema);
   });
 
   it("updates formData when field value changes", () => {

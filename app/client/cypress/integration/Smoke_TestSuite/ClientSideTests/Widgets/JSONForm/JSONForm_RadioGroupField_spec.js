@@ -1,7 +1,8 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
-
 const fieldPrefix = ".t--jsonformfield";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 function selectAndValidateOption(selector, option, expectedFormData) {
   // Select option Zero
@@ -34,13 +35,13 @@ function clearOptionsProperty() {
 }
 
 describe("JSONForm RadioGroup Field", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    cy.addDsl(dslWithoutSchema, appId);
+    agHelper.RestoreLocalStorageCache();
+    cy.addDsl(dslWithoutSchema);
     // Bind formData to Text1 widget text property
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");

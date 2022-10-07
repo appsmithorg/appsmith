@@ -9,15 +9,23 @@ const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const submitButtonStylesSection =
   ".t--property-pane-section-submitbuttonstyles";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSON Form Widget Form Bindings", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dslWithSchema, appId);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
   });
 
-  it("should have all the fields under field configuration", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  before(() => {
+    cy.addDsl(dslWithSchema);
+  });
+
+  it("1. should have all the fields under field configuration", () => {
     cy.openPropertyPane("jsonformwidget");
     const fieldNames = [
       "name",
@@ -34,7 +42,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("Field Configuration - adds new custom field", () => {
+  it("2. Field Configuration - adds new custom field", () => {
     cy.openPropertyPane("jsonformwidget");
 
     // Add new field
@@ -46,7 +54,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(`[data-rbd-draggable-id='customField1']`).should("exist");
   });
 
-  it("Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
+  it("3. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
     cy.get("button")
       .contains("Submit")
       .parent("button")
@@ -75,7 +83,7 @@ describe("JSON Form Widget Form Bindings", () => {
       .should("not.have.attr", "disabled");
   });
 
-  it("Should set isValid to false when form is invalid", () => {
+  it("4. Should set isValid to false when form is invalid", () => {
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
@@ -94,7 +102,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
   });
 
-  it("show show icon select when a collapsed section is opened", () => {
+  it("5. show show icon select when a collapsed section is opened", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.moveToStyleTab();
     // Check Submit Button Styles hidden
@@ -119,8 +127,8 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(".bp3-select-popover .virtuoso-grid-item").should("be.visible");
   });
 
-  it("Should set isValid to false on first load when form is invalid", () => {
-    cy.addDsl(dslWithoutSchema, appId);
+  it("6. Should set isValid to false on first load when form is invalid", () => {
+    cy.addDsl(dslWithoutSchema);
 
     const schema = {
       name: "",
@@ -143,8 +151,8 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Should set isValid to false on reset when form is invalid", () => {
-    cy.addDsl(dslWithoutSchema, appId);
+  it("7. Should set isValid to false on reset when form is invalid", () => {
+    cy.addDsl(dslWithoutSchema);
 
     const schema = {
       name: "",

@@ -6,12 +6,8 @@ const fieldPrefix = ".t--jsonformfield";
 const backBtn = ".t--property-pane-back-btn";
 
 describe("JSON Form Widget Unicode keys", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
   it("generates fields with valid source data json", () => {
-    cy.addDsl(dslWithoutSchema, appId);
+    cy.addDsl(dslWithoutSchema);
     const sourceData = {
       नाम: "John",
       суроға: {
@@ -68,7 +64,7 @@ describe("JSON Form Widget Unicode keys", () => {
   });
 
   it("modifies field when source data changes", () => {
-    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData, appId);
+    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData);
 
     const modifiedSourceData = {
       "पहला नाम": "John",
@@ -148,7 +144,7 @@ describe("JSON Form Widget Unicode keys", () => {
   });
 
   it("change in accessor updates formData", () => {
-    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData, appId);
+    cy.addDsl(jsonFormUnicodeDSLWithoutSourceData);
     const sourceData = {
       नाम: "John",
       суроға: {

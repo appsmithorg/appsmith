@@ -39,10 +39,6 @@ const checkFormModalValues = (value) => {
 };
 
 describe("JSONForm in Modal", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
   it("should show the JSONForm with default values from Table widget", () => {
     const tableData = [
       {
@@ -64,7 +60,7 @@ describe("JSONForm in Modal", () => {
         action: "",
       },
     ];
-    cy.addDsl(jsonFormInModalDsl, appId);
+    cy.addDsl(jsonFormInModalDsl);
 
     cy.PublishtheApp();
 

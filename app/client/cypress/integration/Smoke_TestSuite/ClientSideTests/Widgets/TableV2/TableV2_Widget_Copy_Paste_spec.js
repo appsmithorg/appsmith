@@ -5,8 +5,6 @@ const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 
 describe("Test Suite to validate copy/paste table Widget V2", function() {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
   it("1. Copy paste table widget and valdiate application status", function() {

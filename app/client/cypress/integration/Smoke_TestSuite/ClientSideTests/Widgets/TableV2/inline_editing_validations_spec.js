@@ -6,13 +6,8 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const propPane = ObjectsRegistry.PropertyPane;
 
 describe("Table widget inline editing validation functionality", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
-
   beforeEach(() => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
   });
 
   it("1. should check that validation only appears when editable enabled", () => {

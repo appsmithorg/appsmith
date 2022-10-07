@@ -4,12 +4,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form reset", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
-
-  beforeEach(() => {
-    cy.addDsl(dslWithSchema, appId);
+    cy.addDsl(dslWithSchema);
   });
 
   it("updates formData when field value changes", () => {

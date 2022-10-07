@@ -1,85 +1,65 @@
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonText = require("../../../../../fixtures/jsonTextDsl.json");
-var appId = " "
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("Verify syntax to create Datpicker field type", () => {
-  
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    const schema = { Key: "20/03/1992" };
-    cy.addDsl(dslWithoutSchema,appId);
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
   });
 
-  it("Validate calendar on clicking date field", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("1. Validate calendar on clicking date field", () => {
+    const schema = { Key: "20/03/1992" };
+    cy.addDsl(dslWithoutSchema);
+    cy.openPropertyPane("jsonformwidget");
+    cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.xpath(jsonform.datepickerContainer).click({
       force: true,
     });
     cy.get(jsonform.calendarPopup).should("be.visible");
   });
-});
 
-describe("Verify syntax to boolean type", () => {
-  before(() => {
-    cy.log("appID:"+appId);
+  it("2. Validate calendar on clicking date field", () => {
     const schema = { Key: true };
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
-  });
-
-  it("Validate calendar on clicking date field", () => {
     cy.get(jsonform.switchStatus).should("be.visible");
     cy.get(jsonform.switchStatus).click({ force: true });
   });
-});
 
-describe("Verify syntax to create email type", () => {
-  before(() => {
-    cy.log("appID:"+appId);
+  it("3. Validate email input field in form", () => {
     const schema = { Key: "Value@mail.com" };
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
-  });
-
-  it("Validate email input field in form", () => {
     cy.xpath(jsonform.emailField).should("be.visible");
     cy.xpath(jsonform.emailField).should("have.value", "Value@mail.com");
   });
-});
 
-describe("Verify syntax for Text type", () => {
-  before(() => {
-    cy.log("appID:"+appId);
+  it("4. Validate email input field in form", () => {
     const schema = { Key: "value" };
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
-  });
-
-  it("Validate email input field in form", () => {
     cy.get(jsonform.keyInput).should("be.visible");
     cy.get(jsonform.keyInput).should("have.value", "value");
   });
-});
 
-describe("Verify mandatory field check and also submit button active/inactive", () => {
-  before(() => {
-    cy.log("appID:"+appId);
+  it("5. Verify mandatory field check and also submit button active/inactive", () => {
     const schema = {
       name: "John",
       date_of_birth: "20/02/1990",
       employee_id: 1001,
     };
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
-  });
-
-  it("Modify a field to be mandatory", () => {
     cy.get(jsonform.settings)
       .first()
       .should("be.visible")
@@ -93,7 +73,7 @@ describe("Verify mandatory field check and also submit button active/inactive", 
     cy.get(jsonform.mandatoryAsterisk).should("be.visible");
   });
 
-  it("Checks when mandatory field is blank", () => {
+  it("6. Checks when mandatory field is blank", () => {
     cy.get(jsonform.jsformInput).clear({ force: true });
     cy.get(jsonform.msg).should("have.text", "This field is required");
     cy.get(jsonform.submit).should("be.disabled");
@@ -101,16 +81,10 @@ describe("Verify mandatory field check and also submit button active/inactive", 
     cy.get(jsonform.msg).should("not.exist");
     cy.get(jsonform.submit).should("be.enabled");
   });
-});
 
-describe("Verify property name change with json/text widget binding", () => {
-  before(() => {
-    cy.log("appID:"+appId);
-    cy.addDsl(jsonText,appId);
+  it("7. Verify property name change with json/text widget binding - Modify property name and check how the binding value changes", () => {
+    cy.addDsl(jsonText);
     cy.openPropertyPane("jsonformwidget");
-  });
-
-  it("Modify property name and check how the binding value changes", () => {
     cy.get(jsonform.settings)
       .first()
       .should("be.visible")

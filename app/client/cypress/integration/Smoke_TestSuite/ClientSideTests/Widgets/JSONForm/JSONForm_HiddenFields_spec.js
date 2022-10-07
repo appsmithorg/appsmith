@@ -78,9 +78,7 @@ function removeCustomField() {
 
 describe("JSON Form Hidden fields", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dslWithSchema, appId);
+    cy.addDsl(dslWithSchema);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
   });
