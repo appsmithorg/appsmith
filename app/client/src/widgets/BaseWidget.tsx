@@ -72,6 +72,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
+  expectedHeight = 0;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -434,10 +435,52 @@ abstract class BaseWidget<
       minDynamicHeightInRows: number,
       maxDynamicHeightInRows: number,
     ) => {
+      const expectedHeight = this.expectedHeight;
+      const expectedHeightInRows = Math.ceil(
+        expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      );
       const currentHeightInRows = this.props.bottomRow - this.props.topRow;
 
-      if (minDynamicHeightInRows <= currentHeightInRows) {
-        return true;
+      console.log(
+        "shouldUpdateHeight",
+        expectedHeightInRows,
+        currentHeightInRows,
+        minDynamicHeightInRows,
+        maxDynamicHeightInRows,
+      );
+
+      if (currentHeightInRows === expectedHeightInRows) {
+        if (
+          minDynamicHeightInRows <= expectedHeightInRows &&
+          maxDynamicHeightInRows >= expectedHeightInRows
+        ) {
+          return false;
+        }
+      }
+
+      // If current height is less than the expected height
+      // We're trying to see if we can increase the height
+      if (currentHeightInRows < expectedHeightInRows) {
+        // If we're not already at the max height, we can increase height
+        if (
+          maxDynamicHeightInRows >= currentHeightInRows &&
+          Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
+        ) {
+          return true;
+        }
+      }
+
+      // If current height is greater than expected height
+      // We're trying to see if we can reduce the height
+      if (currentHeightInRows > expectedHeightInRows) {
+        // If our attempt to reduce does not go below the min possible height
+        // We can safely reduce the height
+        if (
+          minDynamicHeightInRows <= expectedHeightInRows &&
+          Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
+        ) {
+          return true;
+        }
       }
 
       // If current height is more than the maxDynamicHeightInRows
@@ -464,25 +507,37 @@ abstract class BaseWidget<
     };
 
     const onMaxHeightSet = (height: number) => {
-      this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
+      const maxDynamicHeightInRows = Math.floor(
+        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      );
+      this.updateWidgetProperty("maxDynamicHeight", maxDynamicHeightInRows);
       requestAnimationFrame(() => {
-        if (shouldUpdateHeight(this.props.minDynamicHeight, height)) {
-          updateHeight(
-            (this.props.bottomRow - this.props.topRow) *
-              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          );
+        if (
+          shouldUpdateHeight(
+            this.props.minDynamicHeight,
+            maxDynamicHeightInRows,
+          )
+        ) {
+          console.log("shouldUpdateHeight", true);
+          updateHeight(this.expectedHeight);
         }
       });
     };
 
     const onMinHeightSet = (height: number) => {
-      this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
+      const minDynamicHeightInRows = Math.floor(
+        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      );
+      this.updateWidgetProperty("minDynamicHeight", minDynamicHeightInRows);
       requestAnimationFrame(() => {
-        if (shouldUpdateHeight(this.props.minDynamicHeight, height)) {
-          updateHeight(
-            (this.props.bottomRow - this.props.topRow) *
-              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          );
+        if (
+          shouldUpdateHeight(
+            minDynamicHeightInRows,
+            this.props.maxDynamicHeight,
+          )
+        ) {
+          console.log("shouldUpdateHeight", true);
+          updateHeight(this.expectedHeight);
         }
       });
     };
@@ -548,6 +603,7 @@ abstract class BaseWidget<
 
   addDynamicHeightContainer = (content: ReactNode) => {
     const onHeightUpdate = (height: number) => {
+      this.expectedHeight = height;
       requestAnimationFrame(() => {
         this.updateDynamicHeight(height);
       });
