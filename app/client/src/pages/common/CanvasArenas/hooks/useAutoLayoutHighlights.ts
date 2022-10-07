@@ -61,7 +61,6 @@ export const useAutoLayoutHighlights = ({
   const isVertical = direction === LayoutDirection.Vertical;
 
   let highlights: HighlightInfo[] = [];
-  let dragBlocksSize = 0;
   let lastActiveHighlight: HighlightInfo | undefined;
   let containerDimensions: {
     top: number;
@@ -97,6 +96,16 @@ export const useAutoLayoutHighlights = ({
     return true;
   };
 
+  const getContainerDimensionsAsDomRect = (): DOMRect => {
+    if (!containerDimensions) updateContainerDimensions();
+    return {
+      x: containerDimensions?.left,
+      y: containerDimensions?.top,
+      width: containerDimensions?.width,
+      height: containerDimensions?.height,
+    } as DOMRect;
+  };
+
   // Get DOM element for a given widgetId
   const getDomElement = (widgetId: string): any =>
     document.querySelector(`.auto-layout-child-${widgetId}`);
@@ -112,7 +121,6 @@ export const useAutoLayoutHighlights = ({
     }
 
     // reset state
-    dragBlocksSize = 0;
     lastActiveHighlight = undefined;
     highlights = [];
     // Hide the highlight
@@ -128,13 +136,6 @@ export const useAutoLayoutHighlights = ({
     // console.log(`#### blocksToDraw: ${JSON.stringify(blocksToDraw)}`);
     // console.log(`#### blocks: ${JSON.stringify(blocks)}`);
     return blocks;
-  };
-
-  // Get the total 1D size of the drag block.
-  const calculateDragBlockSize = (): void => {
-    blocksToDraw?.forEach((each) => {
-      dragBlocksSize += isVertical ? each.height : each.width;
-    });
   };
 
   // Hide the dragged children of the auto layout container
@@ -157,7 +158,6 @@ export const useAutoLayoutHighlights = ({
      */
     cleanUpTempStyles(); // TODO: is this needed?
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
-      calculateDragBlockSize();
       const draggedBlocks = getDraggedBlocks();
       if (!draggedBlocks || !draggedBlocks.length) return [];
       /**
@@ -183,9 +183,21 @@ export const useAutoLayoutHighlights = ({
   };
 
   function generateHighlightsForChildren(children: string[]): HighlightInfo[] {
+    if (!children || !children.length)
+      return [
+        getInitialHighlight(
+          0,
+          FlexLayerAlignment.Start,
+          0,
+          getContainerDimensionsAsDomRect(),
+          LayoutDirection.Horizontal,
+          true,
+        ),
+      ];
     const arr: HighlightInfo[] = [];
     const rects: DOMRect[] = [];
-    children.forEach((child, index) => {
+    let index = 0;
+    for (const child of children) {
       const el = getDomElement(child);
       const childRect: DOMRect = el.getBoundingClientRect();
       rects.push(childRect);
@@ -198,16 +210,17 @@ export const useAutoLayoutHighlights = ({
         height: childRect.height,
         alignment: FlexLayerAlignment.Start,
       });
-    });
+      index += 1;
+    }
     // TODO: Add check for empty container.
     const lastElRect: DOMRect = rects[rects.length - 1];
     arr.push({
       isNewLayer: true,
       index: children.length,
-      posX: lastElRect.x - containerDimensions?.left + lastElRect.width,
-      posY: lastElRect.y - containerDimensions?.top,
+      posX: lastElRect?.x - containerDimensions?.left + lastElRect?.width,
+      posY: lastElRect?.y - containerDimensions?.top,
       width: OFFSET_WIDTH,
-      height: lastElRect.height,
+      height: lastElRect?.height,
       alignment: FlexLayerAlignment.Start,
     });
     return arr;
@@ -226,6 +239,17 @@ export const useAutoLayoutHighlights = ({
     flexLayers: FlexLayer[],
     draggedBlocks: string[],
   ): HighlightInfo[] {
+    if (!flexLayers || !flexLayers.length)
+      return [
+        getInitialHighlight(
+          0,
+          FlexLayerAlignment.Start,
+          0,
+          getContainerDimensionsAsDomRect(),
+          LayoutDirection.Vertical,
+          true,
+        ),
+      ];
     let childCount = 0;
     let discardedLayers = 0;
     let index = 0;
@@ -274,7 +298,7 @@ export const useAutoLayoutHighlights = ({
       index: childCount,
       layerIndex: rects.length,
       posX: 0,
-      posY: lastElRect.y + lastElRect.height - containerDimensions?.top,
+      posY: lastElRect?.y + lastElRect?.height - containerDimensions?.top,
       width: containerDimensions?.width,
       height: OFFSET_WIDTH,
       alignment: FlexLayerAlignment.Start,
@@ -354,7 +378,16 @@ export const useAutoLayoutHighlights = ({
   ): HighlightInfo[] {
     const arr: HighlightInfo[] = [];
     if (!layer.length) {
-      arr.push(getInitialHighlight(childCount, align, layerIndex, layerRect));
+      arr.push(
+        getInitialHighlight(
+          childCount,
+          align,
+          layerIndex,
+          layerRect,
+          LayoutDirection.Horizontal,
+          false,
+        ),
+      );
       return arr;
     }
     arr.push(...getHighlights(layer, childCount, align, layerIndex));
@@ -366,9 +399,12 @@ export const useAutoLayoutHighlights = ({
     alignment: FlexLayerAlignment,
     layerIndex: number,
     rect: DOMRect,
+    direction: LayoutDirection,
+    isNewLayer = false,
   ): HighlightInfo {
+    const verticalFlex = direction === LayoutDirection.Vertical;
     return {
-      isNewLayer: false,
+      isNewLayer,
       index: childCount,
       layerIndex,
       alignment,
@@ -379,8 +415,8 @@ export const useAutoLayoutHighlights = ({
           ? containerDimensions.width / 2
           : containerDimensions?.width,
       posY: rect.y - containerDimensions?.top,
-      width: OFFSET_WIDTH,
-      height: rect.height,
+      width: verticalFlex ? rect?.width : OFFSET_WIDTH,
+      height: verticalFlex ? OFFSET_WIDTH : rect.height,
     };
   }
 
@@ -455,12 +491,14 @@ export const useAutoLayoutHighlights = ({
     let base: HighlightInfo[] = [];
     if (!highlights || !highlights.length)
       highlights = [
-        getInitialHighlight(0, FlexLayerAlignment.Start, 0, {
-          x: containerDimensions?.left,
-          y: containerDimensions?.top,
-          width: containerDimensions?.width,
-          height: containerDimensions?.height,
-        } as DOMRect),
+        getInitialHighlight(
+          0,
+          FlexLayerAlignment.Start,
+          0,
+          getContainerDimensionsAsDomRect(),
+          direction || LayoutDirection.Vertical,
+          true,
+        ),
       ];
     base = highlights;
 
