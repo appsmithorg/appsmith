@@ -172,7 +172,8 @@ export type ConfirmationModal = {
 export type AddMessageHandlerDescription = {
   type: ActionTriggerType.ADD_MESSAGE_HANDLER;
   payload: {
-    handler: (event: MessageEvent) => void;
+    callbackString: string;
+    acceptedOrigin: string;
   };
 };
 

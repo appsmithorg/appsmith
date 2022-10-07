@@ -322,6 +322,7 @@ export const unsafeFunctionForEval = [
   "XMLHttpRequest",
   "importScripts",
   "Navigator",
+  "addMessageHandler",
 ];
 
 export const isChildPropertyPath = (

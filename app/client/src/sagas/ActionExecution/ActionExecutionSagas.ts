@@ -145,7 +145,12 @@ export function* executeActionTriggers(
       break;
 
     case ActionTriggerType.ADD_MESSAGE_HANDLER:
-      yield call(addMessageHandlerSaga, trigger.payload, triggerMeta);
+      yield call(
+        addMessageHandlerSaga,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
       break;
 
     default:

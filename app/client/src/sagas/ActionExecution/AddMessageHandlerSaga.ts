@@ -1,33 +1,54 @@
-import { spawn } from "redux-saga/effects";
-import { AddMessageHandlerDescription } from "../../entities/DataTree/actionTriggers";
-import {
-  logActionExecutionError,
-  TriggerFailureError,
-} from "sagas/ActionExecution/errorUtils";
-import { TriggerMeta } from "./ActionExecutionSagas";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { AddMessageHandlerDescription } from "entities/DataTree/actionTriggers";
+import { Channel, channel } from "redux-saga";
+import { call, take, spawn } from "redux-saga/effects";
+import { executeAppAction, TriggerMeta } from "./ActionExecutionSagas";
 
-export function* addMessageHandlerSaga(
-  payload: AddMessageHandlerDescription["payload"],
-  triggerMeta: TriggerMeta,
-) {
-  yield spawn(addExecuteMessageHandler, payload, triggerMeta);
+interface MessageChannelPayload {
+  callbackString: string;
+  callbackData: unknown;
+  eventType: EventType;
+  triggerMeta: TriggerMeta;
 }
 
-export function* addExecuteMessageHandler(
-  payload: AddMessageHandlerDescription["payload"],
+export function* addMessageHandlerSaga(
+  actionPayload: AddMessageHandlerDescription["payload"],
+  eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
-  const { handler } = payload;
+  const messageChannel = channel<MessageChannelPayload>();
+  yield spawn(messageChannelHandler, messageChannel);
+
+  const messageHandler = (event: MessageEvent) => {
+    if (event.currentTarget !== window) return;
+    if (event.type !== "message") return;
+    if (event.origin !== actionPayload.acceptedOrigin) return;
+
+    messageChannel.put({
+      callbackString: actionPayload.callbackString,
+      callbackData: event.data,
+      eventType,
+      triggerMeta,
+    });
+  };
+
+  window.addEventListener("message", messageHandler);
+}
+
+function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
   try {
-    if (!handler) {
-      throw new TriggerFailureError("Message handler is empty.");
+    while (true) {
+      const payload: MessageChannelPayload = yield take(channel);
+      const { callbackData, callbackString, eventType, triggerMeta } = payload;
+      yield call(executeAppAction, {
+        dynamicString: callbackString,
+        callbackData: [callbackData],
+        event: { type: eventType },
+        triggerPropertyName: triggerMeta.triggerPropertyName,
+        source: triggerMeta.source,
+      });
     }
-    window.addEventListener("message", handler);
-  } catch (error) {
-    logActionExecutionError(
-      (error as Error).message,
-      triggerMeta.source,
-      triggerMeta.triggerPropertyName,
-    );
+  } finally {
+    channel.close();
   }
 }
