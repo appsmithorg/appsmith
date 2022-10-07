@@ -1,6 +1,8 @@
 import { updateApplication } from "actions/applicationActions";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 import { AppIconName, TextInput, IconSelector } from "design-system";
-import React, { useState } from "react";
+import { debounce } from "lodash";
+import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -40,24 +42,21 @@ function GeneralSettings() {
     setApplicationName(application?.name);
   }, [application?.name]);
 
-  const callUpdateAppNameApi = () => {
-    if (!applicationName || !(applicationName?.length > 0)) return;
-    dispatch(
-      updateApplication(applicationId, {
-        name: applicationName,
-        currentApp: true,
-      }),
-    );
-  };
+  const updateAppSettings = useCallback(
+    debounce((icon?: AppIconName) => {
+      const isAppNameUpdated = applicationName !== application?.name;
 
-  const callUpdateAppIconApi = (icon: AppIconName) => {
-    dispatch(
-      updateApplication(applicationId, {
-        icon,
-        currentApp: true,
-      }),
-    );
-  };
+      const payload: UpdateApplicationPayload = { currentApp: true };
+      if (isAppNameUpdated) {
+        payload.name = applicationName;
+      }
+      icon ? (payload.icon = icon) : null;
+
+      (isAppNameUpdated || icon) &&
+        dispatch(updateApplication(applicationId, payload));
+    }, 50),
+    [applicationName, application, applicationId],
+  );
 
   return (
     <>
@@ -65,7 +64,7 @@ function GeneralSettings() {
       <div className="pb-2.5">
         <TextInput
           fill
-          onBlur={callUpdateAppNameApi}
+          onBlur={() => updateAppSettings()}
           onChange={(name: string) => {
             setApplicationName(name);
           }}
@@ -88,7 +87,9 @@ function GeneralSettings() {
           fill
           onSelect={(icon: AppIconName) => {
             setApplicationIcon(icon);
-            callUpdateAppIconApi(icon);
+            // updateAppSettings - passing `icon` because `applicationIcon`
+            // will be not updated untill the component is re-rendered
+            updateAppSettings(icon);
           }}
           selectedColor="black"
           selectedIcon={applicationIcon}
