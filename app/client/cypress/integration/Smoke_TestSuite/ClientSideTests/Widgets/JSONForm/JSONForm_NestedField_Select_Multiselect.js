@@ -79,7 +79,6 @@ describe("JSONForm select field", () => {
   });
 
   it("4. JSONForm multiselect field - precondition", () => {
-    cy.log("appID:" + appId);
     const schema = {
       object: {
         multiselect: "GREEN",
