@@ -948,6 +948,10 @@ jobs:
         env:
           PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
         run: echo "$PAYLOAD_CONTEXT"
+        
+      - name: Check ui-test set status
+        if: needs.ui-test.result != 'success' or needs.fat-container-test.result != 'success'
+        run: exit 1
 
   package:
     needs: [ui-test, fat-container-test]

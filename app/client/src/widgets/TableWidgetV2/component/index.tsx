@@ -86,6 +86,7 @@ interface ReactTableComponentProps {
   borderColor?: string;
   borderWidth?: number;
   variant?: TableVariant;
+  primaryColumnId?: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -118,6 +119,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     pageNo,
     pageSize,
     prevPageClick,
+    primaryColumnId,
     searchKey,
     searchTableData,
     selectAllRow,
@@ -301,6 +303,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      primaryColumnId={primaryColumnId}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -366,6 +369,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
     equal(prev.editableCell, next.editableCell) &&
     prev.isEditableCellValid === next.isEditableCellValid &&
-    prev.variant === next.variant
+    prev.variant === next.variant &&
+    prev.primaryColumnId === next.primaryColumnId
   );
 });
