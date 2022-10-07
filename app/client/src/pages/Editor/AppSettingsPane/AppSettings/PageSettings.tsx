@@ -142,6 +142,8 @@ function PageSettings(props: { page: Page }) {
           large
           onChange={() => {
             setIsHidden(!isHidden);
+            // saveIsHidden - passing `!isHidden` because it
+            // will be not updated untill the component is re-rendered
             saveIsHidden(!isHidden);
           }}
         />
