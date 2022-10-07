@@ -50,7 +50,6 @@ import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.UserSignup;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -620,8 +619,9 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String resourceType = auditLogService.getResourceType(workspace);
 
-        workspace.setName("AuditLogWorkspaceUpdated");
-        Workspace updatedWorkspace = workspaceService.update(workspace.getId(), workspace).block();
+        Workspace updateWorkspace = new Workspace();
+        updateWorkspace.setName("AuditLogWorkspaceUpdated");
+        Workspace updatedWorkspace = workspaceService.update(createdWorkspace.getId(), updateWorkspace).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.updated", resourceType, createdWorkspace.getId(), null, null, null);
 
@@ -638,7 +638,7 @@ public class AuditLogServiceTest {
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(updatedWorkspace.getId());
                     assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
-                    assertThat(auditLog.getResource().getName()).isEqualTo(workspace.getName());
+                    assertThat(auditLog.getResource().getName()).isEqualTo(updatedWorkspace.getName());
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotEmpty();
