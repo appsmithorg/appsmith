@@ -227,12 +227,6 @@ abstract class BaseWidget<
 
     let minDynamicHeightInRows = getWidgetMinDynamicHeight(this.props);
 
-    console.log(
-      "shouldUpdateDynamicHeight",
-      minDynamicHeightInRows,
-      maxDynamicHeightInRows,
-    );
-
     if (
       (this.props.renderMode === RenderModes.PAGE ||
         this.props.renderMode === RenderModes.PREVIEW) &&
