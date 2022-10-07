@@ -25,5 +25,3 @@ export * from "./Table";
 // export * from "./Tabs"; conflict on names
 
 export * from "./Toast";
-
-export { default as UserProfileImagePicker } from "./UserProfileImagePicker";
