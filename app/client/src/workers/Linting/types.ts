@@ -4,9 +4,7 @@ import { JSUpdate } from "utils/JSPaneUtils";
 import { WorkerRequest } from "workers/common/types";
 
 export enum LINT_WORKER_ACTIONS {
-  SETUP = "SETUP",
-  LINT_TREE = "EVAL_TREE",
-  CLEAR_CACHE = "CLEAR_CACHE",
+  LINT_TREE = "LINT_TREE",
 }
 
 export interface LintTreeResponse {

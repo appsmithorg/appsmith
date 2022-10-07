@@ -105,6 +105,7 @@ function eventRequestHandler({
       let dependencies: DependencyMap = {};
       let evalMetaUpdates: EvalMetaUpdates = [];
       let hasUncaughtError = !!uncaughtError;
+
       if (hasUncaughtError) {
         if (dataTreeEvaluator !== undefined) {
           errors = dataTreeEvaluator.errors;
@@ -393,7 +394,7 @@ function eventRequestHandler({
       } as UpdateDependencyResponseData;
     }
     default: {
-      console.error("Action not registered on worker", method);
+      console.error("Action not registered on evalWorker", method);
     }
   }
 }

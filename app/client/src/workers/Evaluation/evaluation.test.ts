@@ -424,7 +424,7 @@ describe("DataTreeEvaluator", () => {
     ),
   };
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
-  evaluator.createFirstTree();
+  // evaluator.createFirstTree();
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
     const dependencyMap = evaluator.dependencyMap;
@@ -457,7 +457,7 @@ describe("DataTreeEvaluator", () => {
     //   },
     // };
     //updatedUnEvalTree
-    evaluator.updateDataTree([]);
+    // evaluator.updateDataTree([]);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Text2.text", "Label");
@@ -674,7 +674,7 @@ describe("DataTreeEvaluator", () => {
     //   },
     // };
     //updatedTree3
-    evaluator.updateDataTree([]);
+    // evaluator.updateDataTree([]);
     const dataTree3 = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",

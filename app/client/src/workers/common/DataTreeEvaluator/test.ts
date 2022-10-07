@@ -140,11 +140,11 @@ describe("DataTreeEvaluator", () => {
 
   describe("test updateDependencyMap", () => {
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree();
+      // dataTreeEvaluator.createFirstTree();
     });
 
     it("initial dependencyMap computation", () => {
-      dataTreeEvaluator.updateDataTree([]);
+      // dataTreeEvaluator.updateDataTree([]);
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
         "Button2.text": ["Button1.text"],
@@ -201,7 +201,7 @@ describe("DataTreeEvaluator", () => {
 
   describe("parseJsActions", () => {
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree();
+      // dataTreeEvaluator.createFirstTree();
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
@@ -217,7 +217,7 @@ describe("DataTreeEvaluator", () => {
   describe("array accessor dependency handling", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree();
+      // dataTreeEvaluator.createFirstTree();
       // nestedArrayAccessorCyclicDependency.initUnEvalTree,
     });
     describe("array of objects", () => {
@@ -227,7 +227,7 @@ describe("DataTreeEvaluator", () => {
         for (let i = 0; i < 2; i++) {
           // success: response -> [{...}, {...}, {...}]
           //arrayAccessorCyclicDependency.apiSuccessUnEvalTree
-          dataTreeEvaluator.updateDataTree([]);
+          // dataTreeEvaluator.updateDataTree([]);
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
           ]);
@@ -243,7 +243,7 @@ describe("DataTreeEvaluator", () => {
 
           // failure: response -> {}
           // arrayAccessorCyclicDependency.apiFailureUnEvalTree,
-          dataTreeEvaluator.updateDataTree([]);
+          // dataTreeEvaluator.updateDataTree([]);
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
           ]);
@@ -263,11 +263,11 @@ describe("DataTreeEvaluator", () => {
       it("on API response array length change", () => {
         // success: response -> [{...}, {...}, {...}]
         //arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
-        dataTreeEvaluator.updateDataTree([]);
+        // dataTreeEvaluator.updateDataTree([]);
 
         // success: response -> [{...}, {...}]
         //arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
-        dataTreeEvaluator.updateDataTree([]);
+        // dataTreeEvaluator.updateDataTree([]);
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
           "Api1.data",
         ]);
@@ -286,7 +286,7 @@ describe("DataTreeEvaluator", () => {
         for (let i = 0; i < 2; i++) {
           // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
           //nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
-          dataTreeEvaluator.updateDataTree([]);
+          // dataTreeEvaluator.updateDataTree([]);
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
           ]);
@@ -305,7 +305,7 @@ describe("DataTreeEvaluator", () => {
 
           // failure: response -> {}
           //nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
-          dataTreeEvaluator.updateDataTree([]);
+          // dataTreeEvaluator.updateDataTree([]);
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
           ]);
@@ -328,11 +328,11 @@ describe("DataTreeEvaluator", () => {
       it("on API response array length change", () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         //nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
-        dataTreeEvaluator.updateDataTree([]);
+        // dataTreeEvaluator.updateDataTree([]);
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         //nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2
-        dataTreeEvaluator.updateDataTree([]);
+        // dataTreeEvaluator.updateDataTree([]);
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
           "Api1.data",
         ]);
@@ -350,11 +350,11 @@ describe("DataTreeEvaluator", () => {
       it("on API response nested array length change", () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         //nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
-        dataTreeEvaluator.updateDataTree([]);
+        // dataTreeEvaluator.updateDataTree([]);
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
         // nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
-        dataTreeEvaluator.updateDataTree([]);
+        // dataTreeEvaluator.updateDataTree([]);
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
           "Api1.data",
         ]);
@@ -375,7 +375,7 @@ describe("DataTreeEvaluator", () => {
   describe("lintTree", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree();
+      // dataTreeEvaluator.createFirstTree();
     });
     it("Correctly lints tree", () => {
       // const getLintErrorsInEntityProperty = (
@@ -478,7 +478,7 @@ describe("DataTreeEvaluator", () => {
 
   describe("triggerfield dependency map", () => {
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree();
+      // dataTreeEvaluator.createFirstTree();
     });
     it("Creates correct triggerFieldDependencyMap", () => {
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
@@ -492,7 +492,7 @@ describe("DataTreeEvaluator", () => {
       // delete Api2
       delete newUnEvalTree["Api2"];
       // newUnEvalTree
-      dataTreeEvaluator.updateDataTree([]);
+      // dataTreeEvaluator.updateDataTree([]);
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Button2.text"],
         "Button2.onClick": [],
@@ -502,7 +502,7 @@ describe("DataTreeEvaluator", () => {
       // @ts-expect-error: Types are not available
       newUnEvalTree["Api2"] = { ...lintingUnEvalTree }["Api2"];
       //newUnEvalTree
-      dataTreeEvaluator.updateDataTree([]);
+      // dataTreeEvaluator.updateDataTree([]);
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Button2.text", "Api2.run"],
         "Button2.onClick": ["Api2.run"],
@@ -514,12 +514,12 @@ describe("DataTreeEvaluator", () => {
       // @ts-expect-error: Types are not available
       newUnEvalTree["Button2"] = newButton2;
       //newUnEvalTree
-      dataTreeEvaluator.updateDataTree([]);
+      // dataTreeEvaluator.updateDataTree([]);
 
       // delete Button2
       delete newUnEvalTree["Button2"];
       // newUnEvalTree
-      dataTreeEvaluator.updateDataTree([]);
+      // dataTreeEvaluator.updateDataTree([]);
 
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Api2.run"],
