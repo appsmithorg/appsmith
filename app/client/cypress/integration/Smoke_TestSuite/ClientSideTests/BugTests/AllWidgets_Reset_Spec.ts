@@ -307,13 +307,15 @@ function listwidgetAndReset() {
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "002",
-    "contain.text", 6
+    "contain.text",
+    6,
   );
   agHelper.ClickButton("Submit");
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "001",
-    "contain.text", 6
+    "contain.text",
+    6,
   );
 }
 
@@ -420,12 +422,6 @@ function filePickerWidgetAndReset() {
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset assertWidgetReset`, () => {
-    before(() => {
-      cy.fixture("defaultMetaDsl").then((val: any) => {
-        agHelper.AddDsl(val);
-      });
-    });
-
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
     });
@@ -435,6 +431,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
+      cy.fixture("defaultMetaDsl").then((val: any) => {
+        agHelper.AddDsl(val);
+      });
       ee.DragDropWidgetNVerify(widgetSelector, 300, 100);
     });
 
