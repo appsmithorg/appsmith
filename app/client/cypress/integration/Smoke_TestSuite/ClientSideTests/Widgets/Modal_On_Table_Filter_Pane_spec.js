@@ -3,11 +3,6 @@ const widgets = require("../../../../locators/Widgets.json");
 
 describe("Modal Widget Functionality", function() {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
-
-  beforeEach(() => {
     cy.addDsl(dsl, appId);
   });
 
