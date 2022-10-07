@@ -1,4 +1,4 @@
-import FormTextField from "components/ads/formFields/TextField";
+import FormTextField from "components/utils/ReduxFormTextField";
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import { FormGroup, SettingComponentProps } from "./Common";

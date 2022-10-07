@@ -8,7 +8,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import { DroppableComponent } from "./DraggableListComponent";
 import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -29,7 +29,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const TabsWrapper = styled.div`
   width: 100%;
