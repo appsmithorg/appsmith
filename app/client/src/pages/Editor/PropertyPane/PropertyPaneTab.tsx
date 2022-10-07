@@ -17,6 +17,7 @@ const StyledTabComponent = styled(TabComponent)`
 
   .react-tabs__tab-panel {
     overflow: initial;
+    padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
   }
 `;
 

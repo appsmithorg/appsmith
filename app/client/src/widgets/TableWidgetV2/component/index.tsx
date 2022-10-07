@@ -83,6 +83,7 @@ interface ReactTableComponentProps {
   borderRadius: string;
   boxShadow?: string;
   isEditableCellValid?: boolean;
+  primaryColumnId?: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -113,6 +114,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     pageNo,
     pageSize,
     prevPageClick,
+    primaryColumnId,
     searchKey,
     searchTableData,
     selectAllRow,
@@ -293,6 +295,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      primaryColumnId={primaryColumnId}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -354,6 +357,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
     equal(prev.editableCell, next.editableCell) &&
-    prev.isEditableCellValid === next.isEditableCellValid
+    prev.isEditableCellValid === next.isEditableCellValid &&
+    prev.primaryColumnId === next.primaryColumnId
   );
 });

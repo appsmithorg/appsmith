@@ -40,6 +40,15 @@ const RequiredFieldWrapper = styled.span`
   color: var(--appsmith-color-red-500);
 `;
 
+// TODO: replace condition with props.config.dataType === "TOGGLE"
+// label and form element is rendered side by side for CHECKBOX and SWITCH
+const FormConfigWrapper = styled.div<{ controlType: string }>`
+  display: ${(props) =>
+    props.controlType === "CHECKBOX" || props.controlType === "SWITCH"
+      ? "flex"
+      : "block"};
+`;
+
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   configErrors: EvaluationError[];
@@ -77,17 +86,7 @@ export default function FormConfig(props: FormConfigProps) {
 
   return (
     <div>
-      <div
-        style={{
-          // TODO: replace condition with props.config.dataType === "TOGGLE"
-          // label and form element is rendered side by side for CHECKBOX and SWITCH
-          display:
-            props.config.controlType === "SWITCH" ||
-            props.config.controlType === "CHECKBOX"
-              ? "flex"
-              : "block",
-        }}
-      >
+      <FormConfigWrapper controlType={props.config.controlType}>
         {props.config.controlType === "CHECKBOX" ? (
           <>
             {props.children}
@@ -107,7 +106,7 @@ export default function FormConfig(props: FormConfigProps) {
             {props.children}
           </>
         )}
-      </div>
+      </FormConfigWrapper>
       {renderFormConfigBottom({
         config: props.config,
         configErrors: props.configErrors,
@@ -131,7 +130,7 @@ function renderFormConfigTop(props: {
     urlText,
   } = { ...props.config };
   return (
-    <React.Fragment key={props.config.label}>
+    <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
         (label?.length > 0 || encrypted || tooltipText || subtitle) && (
           <>
@@ -190,7 +189,7 @@ function renderFormConfigTop(props: {
           {urlText}
         </FormInputAnchor>
       )}
-    </React.Fragment>
+    </div>
   );
 }
 
