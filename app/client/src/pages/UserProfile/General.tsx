@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "@appsmith/reducers";
-import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
+import UserProfileImagePicker from "./UserProfileImagePicker";
 import {
   Wrapper,
   FieldWrapper,

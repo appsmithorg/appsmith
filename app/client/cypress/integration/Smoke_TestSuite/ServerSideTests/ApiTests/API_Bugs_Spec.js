@@ -122,9 +122,7 @@ describe("Rest Bugs tests", function() {
 
   it("Bug 6863: Clicking on 'debug' crashes the appsmith application", function() {
     cy.startErrorRoutes();
-    cy.get(pages.AddPage)
-      .first()
-      .click();
+    cy.CreatePage();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",

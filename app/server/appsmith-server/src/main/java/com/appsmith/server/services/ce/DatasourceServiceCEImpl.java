@@ -15,6 +15,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -183,7 +184,27 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
+    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
+        // Global datasource requires us to fetch the datasource from DB.
+        if (actionDTO.getDatasource() != null && actionDTO.getDatasource().getId() != null) {
+            return this.findById(actionDTO.getDatasource().getId(), aclPermission)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                            FieldName.DATASOURCE,
+                            actionDTO.getDatasource().getId())));
+        }
+        // This is a nested datasource. Return as is.
+        return Mono.justOrEmpty(actionDTO.getDatasource());
+    }
+
+    @Override
     public Mono<Datasource> update(String id, Datasource datasource) {
+        // since there was no datasource update differentiator between server invoked due to refresh token,
+        // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
+        // since the base controller uses the default method from CRUD interface, we are adding keys manually for the user invoked flow
+        return update(id, datasource, Boolean.FALSE);
+    }
+
+    public Mono<Datasource> update(String id, Datasource datasource, Boolean isServerRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -193,6 +214,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
@@ -204,9 +226,19 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
-                .flatMap(savedDatasource ->
-                        analyticsService.sendUpdateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
-                )
+                .flatMap(savedDatasource -> {
+
+                    // this key will present in the analytics as a diff b/w server and user invoked flows
+                    String isDatasourceUpdateServerInvokedKey = "isDatasourceUpdateServerInvoked";
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
+
+                    if (isServerRefreshedUpdate.equals(Boolean.TRUE)) {
+                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.TRUE);
+                    } else {
+                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.FALSE);
+                    }
+                    return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
+                })
                 .flatMap(this::populateHintMessages);
     }
 
@@ -288,13 +320,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(unsavedDatasource -> {
-
-                    return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                        return savedDatasource;
-                    });
+                    return repository.save(unsavedDatasource)
+                            .map(savedDatasource -> {
+                                // datasource.pluginName is a transient field. It was set by validateDatasource method
+                                // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                                savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                                return savedDatasource;
+                            });
                 });
     }
 
