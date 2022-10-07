@@ -226,6 +226,12 @@ abstract class BaseWidget<
 
     let minDynamicHeightInRows = getWidgetMinDynamicHeight(this.props);
 
+    console.log(
+      "shouldUpdateDynamicHeight",
+      minDynamicHeightInRows,
+      maxDynamicHeightInRows,
+    );
+
     if (
       (this.props.renderMode === RenderModes.PAGE ||
         this.props.renderMode === RenderModes.PREVIEW) &&
@@ -426,10 +432,22 @@ abstract class BaseWidget<
   ) {
     const onMaxHeightSet = (height: number) => {
       this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
+      requestAnimationFrame(() => {
+        this.updateDynamicHeight(
+          (this.props.bottomRow - this.props.topRow) *
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      });
     };
 
     const onMinHeightSet = (height: number) => {
       this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
+      requestAnimationFrame(() => {
+        this.updateDynamicHeight(
+          (this.props.bottomRow - this.props.topRow) *
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      });
     };
 
     const onBatchUpdate = (height: number) => {
