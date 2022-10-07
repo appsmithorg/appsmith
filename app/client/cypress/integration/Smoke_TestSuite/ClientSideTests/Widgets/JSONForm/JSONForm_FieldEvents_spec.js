@@ -5,22 +5,26 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const fieldPrefix = ".t--jsonformfield";
-var appId = " ";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Radio Group Field", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-    });
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
 
-  before(() => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("1. Radio Group Field - pre condition", () => {
     const schema = {
       answer: "Y",
     };
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("answer");
@@ -28,7 +32,7 @@ describe("Radio Group Field", () => {
     cy.closePropertyPane();
   });
 
-  it("shows alert on optionChange", () => {
+  it("2. shows alert on optionChange", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("answer");
 
@@ -46,21 +50,18 @@ describe("Radio Group Field", () => {
     // Check for alert
     cy.get(commonlocators.toastmsg).contains("N");
   });
-});
 
-describe("Multiselect Field", () => {
-  before(() => {
+  it("3. Multiselect Field - pre condition", () => {
     const schema = {
       colors: ["BLUE"],
     };
-    cy.log("appID:"+appId);
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
   });
 
-  it("shows updated formData values in onOptionChange binding", () => {
+  it("4. Shows updated formData values in onOptionChange binding", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("colors");
 
@@ -84,15 +85,12 @@ describe("Multiselect Field", () => {
     // Check for alert
     cy.get(commonlocators.toastmsg).contains("BLUE, RED");
   });
-});
 
-describe("Select Field", () => {
-  before(() => {
+  it("5. Select Field - pre condition", () => {
     const schema = {
       color: "BLUE",
     };
-    cy.log("appID:"+appId);
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("color");
@@ -100,7 +98,7 @@ describe("Select Field", () => {
     cy.closePropertyPane();
   });
 
-  it("shows updated formData values in onOptionChange binding", () => {
+  it("6. shows updated formData values in onOptionChange binding", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("color");
 
@@ -123,21 +121,18 @@ describe("Select Field", () => {
     // Check for alert
     cy.get(commonlocators.toastmsg).contains("RED");
   });
-});
 
-describe("Input Field", () => {
-  before(() => {
+  it("7. Input Field - pre condition", () => {
     const schema = {
       name: "John",
     };
-    cy.log("appID:"+appId);
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
   });
 
-  it("shows updated formData values in onOptionChange binding", () => {
+  it("8. Shows updated formData values in onOptionChange binding", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("name");
 
@@ -153,15 +148,12 @@ describe("Input Field", () => {
     // Check for alert
     cy.get(commonlocators.toastmsg).contains("John Doe");
   });
-});
 
-describe("Checkbox Field", () => {
-  before(() => {
+  it("9. Checkbox Field - pre condition", () => {
     const schema = {
       agree: true,
     };
-    cy.log("appID:"+appId);
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("agree");
@@ -169,7 +161,7 @@ describe("Checkbox Field", () => {
     cy.closePropertyPane();
   });
 
-  it("shows updated formData values in onChange binding", () => {
+  it("10. Shows updated formData values in onChange binding", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("agree");
 
@@ -188,22 +180,18 @@ describe("Checkbox Field", () => {
     // Check for alert
     cy.get(commonlocators.toastmsg).contains("false");
   });
-});
 
-describe("Switch Field", () => {
- 
-  before(() => {
+  it("11. Switch Field - pre condition", () => {
     const schema = {
       agree: true,
     };
-    cy.log("appID:"+appId);
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
   });
 
-  it("shows updated formData values in onChange binding", () => {
+  it("12. Shows updated formData values in onChange binding", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("agree");
 
@@ -219,21 +207,18 @@ describe("Switch Field", () => {
     // Check for alert
     cy.get(commonlocators.toastmsg).contains("false");
   });
-});
 
-describe("Date Field", () => {
-  before(() => {
+  it("13. Date Field - pre condition", () => {
     const schema = {
       dob: "20/12/1992",
     };
-    cy.log("appID:"+appId);
-    cy.addDsl(dslWithoutSchema,appId);
+    cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
   });
 
-  it("shows updated formData values in onDateSelected binding", () => {
+  it("14. shows updated formData values in onDateSelected binding", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("dob");
 

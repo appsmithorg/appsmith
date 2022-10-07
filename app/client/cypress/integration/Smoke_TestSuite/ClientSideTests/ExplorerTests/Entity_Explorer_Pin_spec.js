@@ -1,14 +1,8 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
-var appId = " ";
 
 describe("Entity explorer tests related to pinning and unpinning", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
-  });
-
   beforeEach(() => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
   });
 
   it("checks entity explorer visibility on unpin", function() {

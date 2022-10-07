@@ -12,10 +12,8 @@ const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 let repoName;
-var appId = " ";
 
 describe("Git sync Bug #10773", function() {
- 
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -35,7 +33,7 @@ describe("Git sync Bug #10773", function() {
   it("Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     // adding a new page "ChildPage" to master
     appId = localStorage.getItem("applicationId");
-    cy.log("appID:"+appId);
+    cy.log("appID:" + appId);
     cy.Createpage(pagename);
     cy.get(".t--entity-name:contains('Page1')").click();
     cy.commitAndPush();
@@ -66,7 +64,6 @@ describe("Git sync Bug #10773", function() {
 });
 
 describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
-  
   it("Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -177,7 +174,7 @@ describe("Git synced app with JSObject", function() {
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.addDsl(dsl,appId);
+      cy.addDsl(dsl, appId);
     });
     ee.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1

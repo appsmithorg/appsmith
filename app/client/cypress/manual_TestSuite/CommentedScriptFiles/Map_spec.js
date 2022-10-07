@@ -2,13 +2,11 @@ const commonlocators = require("../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../locators/ViewWidgets.json");
 const dsl = require("../../fixtures/Mapdsl.json");
 const publishPage = require("../../locators/publishWidgetspage.json");
-var appId = " ";
+
 if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
-  describe("Map Widget Functionality", function() {  
+  describe("Map Widget Functionality", function() {
     before(() => {
-      appId = localStorage.getItem("applicationId");
-      cy.log("appID:" + appId);
-      cy.addDsl(dsl, appId);
+      cy.addDsl(dsl);
     });
 
     it("Map Widget Functionality", function() {

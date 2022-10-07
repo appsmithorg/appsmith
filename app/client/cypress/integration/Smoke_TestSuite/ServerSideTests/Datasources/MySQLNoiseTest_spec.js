@@ -2,17 +2,12 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const dsl = require("../../../../fixtures/noiseDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-var appId = " ";
 
 describe("MySQL noise test", function() {
   let datasourceName;
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
- 
+
   beforeEach(() => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.startRoutesForDatasource();
   });
 

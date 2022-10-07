@@ -1,6 +1,5 @@
 import homePage from "../../../../locators/HomePage";
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
-var appId = " ";
 
 describe("Workspace Import Application", function() {
   let workspaceId;
@@ -8,10 +7,9 @@ describe("Workspace Import Application", function() {
   let appname;
 
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
+
   it("Can Import Application from json", function() {
     cy.NavigateToHome();
     appname = localStorage.getItem("AppName");
