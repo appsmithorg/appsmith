@@ -755,7 +755,6 @@ class SwitchGroupWidget extends BaseWidget<
         maxDynamicHeight={this.props.maxDynamicHeight}
         onChange={this.handleSwitchStateChange}
         options={options}
-        ref={this.contentRef}
         required={isRequired}
         selected={selectedValues}
         valid={isValid}
