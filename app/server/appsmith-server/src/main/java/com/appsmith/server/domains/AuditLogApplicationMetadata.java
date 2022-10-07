@@ -10,5 +10,7 @@ public class AuditLogApplicationMetadata {
 
     String visibility;
 
+    String mode;
+
     AuditLogGitMetadata auditLogGitMetadata;
 }

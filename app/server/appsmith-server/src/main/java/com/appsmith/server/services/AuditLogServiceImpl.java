@@ -12,7 +12,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AuditLogApplicationMetadata;
-
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.AuditLogGitMetadata;
 import com.appsmith.server.domains.AuditLogPageMetadata;
 import com.appsmith.server.domains.AuditLogResource;
@@ -532,7 +532,21 @@ public class AuditLogServiceImpl implements AuditLogService {
                     Application application = tuple.getT1();
                     String publicPermissionGroupId = tuple.getT2();
                     boolean isApplicationPublic = isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
-                    setApplicationProperties(auditLog, application, isApplicationPublic);
+
+                    // By default, appMode is set to edit mode since this data will be coming via properties for view mode events
+                    String appMode = AuditLogEvents.appModeMap.get(ApplicationMode.EDIT.toString());
+                    Boolean isAppViewModePresent = false;
+                    Map<String, String> eventData = new HashMap<>();
+                    Boolean isEventDataPresent = properties != null && properties.containsKey(FieldName.EVENT_DATA) && properties.get(FieldName.EVENT_DATA) != null;
+                    if (isEventDataPresent) {
+                        eventData = (Map) properties.get(FieldName.EVENT_DATA);
+                        isAppViewModePresent =  eventData.containsKey(FieldName.APP_MODE) && eventData.get(FieldName.APP_MODE) != null;
+                    }
+                    if (isEventDataPresent && isAppViewModePresent) {
+                        appMode = AuditLogEvents.appModeMap.get((String) eventData.get(FieldName.APP_MODE));
+                    }
+
+                    setApplicationProperties(auditLog, application, isApplicationPublic, appMode);
                     return Mono.just(application);
                 });
     }
@@ -574,11 +588,13 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param auditLog AuditLog
      * @param application Application
      * @param isApplicationPublic Application is public or not
+     * @param appMode Application is opened in view mode or edit mode
      */
-    private void setApplicationProperties(AuditLog auditLog, Application application, Boolean isApplicationPublic) {
+    private void setApplicationProperties(AuditLog auditLog, Application application, Boolean isApplicationPublic, String appMode) {
         AuditLogApplicationMetadata applicationMetadata = new AuditLogApplicationMetadata();
         applicationMetadata.setId(application.getId());
         applicationMetadata.setName(application.getName());
+        applicationMetadata.setMode(appMode);
         applicationMetadata.setVisibility(isApplicationPublic ? FieldName.PUBLIC : FieldName.PRIVATE);
         if (application.getGitApplicationMetadata() != null && !StringUtils.isEmpty(application.getGitApplicationMetadata().getBranchName())) {
             AuditLogGitMetadata auditLogGitMetadata = new AuditLogGitMetadata();

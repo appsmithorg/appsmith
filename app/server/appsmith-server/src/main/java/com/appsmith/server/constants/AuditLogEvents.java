@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Role;
+import com.appsmith.server.domains.ApplicationMode;
 
 import java.util.Map;
 
@@ -91,6 +92,12 @@ public class AuditLogEvents {
             entry(APPSMITH_OAUTH2_OIDC_CLIENT_ID.toString(), FieldName.OIDC),
             entry(APPSMITH_SSO_SAML_ENABLED.toString(), FieldName.SAML),
             entry(User.class.getSimpleName(), FieldName.USER)
+    );
+
+    // Audit Logs use different naming than the one in ApplicationMode
+    public final static Map<String, String> appModeMap = Map.ofEntries(
+            entry(ApplicationMode.EDIT.toString(), FieldName.AUDIT_LOG_APP_MODE_EDIT),
+            entry(ApplicationMode.PUBLISHED.toString(), FieldName.AUDIT_LOG_APP_MODE_VIEW)
     );
 
 }
