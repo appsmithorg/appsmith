@@ -80,9 +80,6 @@ export const useAutoLayoutHighlights = ({
       width: containerRect?.width,
       height: containerRect?.height,
     };
-    // console.log(
-    //   `#### container dimensions: ${JSON.stringify(containerDimensions)}`,
-    // );
     return true;
   };
 
@@ -123,8 +120,6 @@ export const useAutoLayoutHighlights = ({
   // Get a list of widgetIds that are being dragged.
   const getDraggedBlocks = (): string[] => {
     const blocks = blocksToDraw.map((block) => block.widgetId);
-    // console.log(`#### blocksToDraw: ${JSON.stringify(blocksToDraw)}`);
-    // console.log(`#### blocks: ${JSON.stringify(blocks)}`);
     return blocks;
   };
 
@@ -159,64 +154,29 @@ export const useAutoLayoutHighlights = ({
       hideDraggedItems(draggedBlocks);
 
       const canvasChildren = canvas.children || [];
+      // Get the list of children that are not being dragged.
       const offsetChildren = canvasChildren.filter((each) => {
         return draggedBlocks.indexOf(each) === -1;
       });
 
       if (isVertical) {
-        highlights = generateContainerHighlights(layers, offsetChildren);
+        highlights = calculateVerticalStackHighlights(layers, offsetChildren);
       } else {
-        highlights = generateHighlightsForChildren(offsetChildren);
+        highlights = calculateRowHighlights(
+          offsetChildren,
+          0,
+          0,
+          FlexLayerAlignment.Start,
+          getContainerDimensionsAsDomRect(),
+          true,
+        );
       }
     }
     // console.log("#### highlights: ", highlights);
     return highlights;
   };
 
-  function generateHighlightsForChildren(children: string[]): HighlightInfo[] {
-    if (!children || !children.length)
-      return [
-        getInitialHighlight(
-          0,
-          FlexLayerAlignment.Start,
-          0,
-          getContainerDimensionsAsDomRect(),
-          LayoutDirection.Horizontal,
-          true,
-        ),
-      ];
-    const arr: HighlightInfo[] = [];
-    const rects: DOMRect[] = [];
-    let index = 0;
-    for (const child of children) {
-      const el = getDomElement(child);
-      const childRect: DOMRect = el.getBoundingClientRect();
-      rects.push(childRect);
-      arr.push({
-        isNewLayer: true,
-        index,
-        posX: childRect.x - containerDimensions?.left,
-        posY: childRect.y - containerDimensions?.top,
-        width: OFFSET_WIDTH,
-        height: childRect.height,
-        alignment: FlexLayerAlignment.Start,
-      });
-      index += 1;
-    }
-    // TODO: Add check for empty container.
-    const lastElRect: DOMRect = rects[rects.length - 1];
-    arr.push({
-      isNewLayer: true,
-      index: children.length,
-      posX: lastElRect?.x - containerDimensions?.left + lastElRect?.width,
-      posY: lastElRect?.y - containerDimensions?.top,
-      width: OFFSET_WIDTH,
-      height: lastElRect?.height,
-      alignment: FlexLayerAlignment.Start,
-    });
-    return arr;
-  }
-
+  // Remove dragged blocks from the list of children.
   function filterLayer(layer: FlexLayer, offsetChildren: string[]): FlexLayer {
     return {
       ...layer,
@@ -226,10 +186,11 @@ export const useAutoLayoutHighlights = ({
     };
   }
 
-  function generateContainerHighlights(
+  function calculateVerticalStackHighlights(
     flexLayers: FlexLayer[],
     offsetChildren: string[],
   ): HighlightInfo[] {
+    // If container is empty, return a highlight for the first position.
     if (!flexLayers || !flexLayers.length)
       return [
         getInitialHighlight(
@@ -241,12 +202,15 @@ export const useAutoLayoutHighlights = ({
           true,
         ),
       ];
+
     let childCount = 0;
     let discardedLayers = 0;
     let index = 0;
     const arr: HighlightInfo[] = [];
     const rects: DOMRect[] = [];
+
     for (const layer of flexLayers) {
+      // remove dragged blocks from the layer
       const filteredLayer = filterLayer(layer, offsetChildren);
       if (!filteredLayer?.children?.length) {
         discardedLayers += 1;
@@ -273,7 +237,9 @@ export const useAutoLayoutHighlights = ({
         height: OFFSET_WIDTH,
         alignment: FlexLayerAlignment.Start,
       };
+      // Add the horizontal highlight before the layer.
       arr.push(info);
+      // Add vertical highlights for each child in the layer.
       arr.push(
         ...generateHighlightsForLayer(
           filteredLayer,
@@ -286,13 +252,14 @@ export const useAutoLayoutHighlights = ({
       childCount += filteredLayer.children?.length || 0;
     }
 
-    const lastElRect: DOMRect = rects[rects.length - 1];
+    // Add a highlight for the last position.
+    const lastRect: DOMRect = rects[rects.length - 1];
     arr.push({
       isNewLayer: true,
       index: childCount,
       layerIndex: rects.length,
       posX: 0,
-      posY: lastElRect?.y + lastElRect?.height - containerDimensions?.top,
+      posY: lastRect?.y + lastRect?.height - containerDimensions?.top,
       width: containerDimensions?.width,
       height: OFFSET_WIDTH,
       alignment: FlexLayerAlignment.Start,
@@ -301,18 +268,19 @@ export const useAutoLayoutHighlights = ({
     return arr;
   }
 
+  // Extract start, center and end children from the layer.
   function spreadLayer(layer: FlexLayer) {
-    const start: LayerChild[] = [],
-      center: LayerChild[] = [],
-      end: LayerChild[] = [];
+    const start: string[] = [],
+      center: string[] = [],
+      end: string[] = [];
     layer.children.forEach((child: LayerChild) => {
       if (layer.hasFillChild) {
-        start.push(child);
+        start.push(child.id);
         return;
       }
-      if (child.align === FlexLayerAlignment.End) end.push(child);
-      else if (child.align === FlexLayerAlignment.Center) center.push(child);
-      else start.push(child);
+      if (child.align === FlexLayerAlignment.End) end.push(child.id);
+      else if (child.align === FlexLayerAlignment.Center) center.push(child.id);
+      else start.push(child.id);
     });
     return { start, center, end, hasFillChild: layer.hasFillChild };
   }
@@ -328,7 +296,7 @@ export const useAutoLayoutHighlights = ({
     const { center, end, hasFillChild, start } = spreadLayer(layer);
     // process start sub wrapper.
     arr.push(
-      ...getLayerHighlights(
+      ...calculateRowHighlights(
         start,
         curr,
         layerIndex,
@@ -340,7 +308,7 @@ export const useAutoLayoutHighlights = ({
       // process center sub wrapper.
       curr += start.length;
       arr.push(
-        ...getLayerHighlights(
+        ...calculateRowHighlights(
           center,
           curr,
           layerIndex,
@@ -351,7 +319,7 @@ export const useAutoLayoutHighlights = ({
       // process end sub wrapper.
       curr += center.length;
       arr.push(
-        ...getLayerHighlights(
+        ...calculateRowHighlights(
           end,
           curr,
           layerIndex,
@@ -363,31 +331,29 @@ export const useAutoLayoutHighlights = ({
     return arr;
   }
 
-  function getLayerHighlights(
-    layer: LayerChild[],
+  function calculateRowHighlights(
+    children: string[],
     childCount: number,
     layerIndex: number,
     align: FlexLayerAlignment,
     layerRect: DOMRect,
+    isNewLayer = false,
   ): HighlightInfo[] {
-    const arr: HighlightInfo[] = [];
-    if (!layer.length) {
-      arr.push(
+    if (!children || !children.length)
+      return [
         getInitialHighlight(
           childCount,
           align,
           layerIndex,
           layerRect,
           LayoutDirection.Horizontal,
-          false,
+          isNewLayer,
         ),
-      );
-      return arr;
-    }
-    arr.push(...getHighlights(layer, childCount, align, layerIndex));
-    return arr;
+      ];
+    return getRowHighlights(children, align, layerIndex, childCount);
   }
 
+  // Initial highlight for an empty container or layer.
   function getInitialHighlight(
     childCount: number,
     alignment: FlexLayerAlignment,
@@ -414,40 +380,43 @@ export const useAutoLayoutHighlights = ({
     };
   }
 
-  function getHighlights(
-    layer: LayerChild[],
-    childCount: number,
-    alignment: FlexLayerAlignment,
-    layerIndex: number,
+  function getRowHighlights(
+    children: string[], // Children of the row flex.
+    alignment: FlexLayerAlignment, // alignment for the highlights.
+    layerIndex: number, // index of the row flex.
+    childCount: number, // index of the first child.
   ): HighlightInfo[] {
     const arr: HighlightInfo[] = [];
     const childRects: DOMRect[] = [];
-    for (const child of layer) {
-      const el = getDomElement(child.id);
+    let index = childCount;
+
+    for (const child of children) {
+      const el = getDomElement(child);
       if (!el) continue;
       const childRect: DOMRect = el?.getBoundingClientRect();
       childRects.push(childRect);
       // A highlight before each existing child.
       arr.push({
         isNewLayer: false,
-        index: childCount,
+        index,
         layerIndex,
         alignment,
-        posX: childRect?.left - containerDimensions?.left,
+        posX: childRect?.x - containerDimensions?.left,
         posY: childRect?.y - containerDimensions?.top,
         width: OFFSET_WIDTH,
         height: childRect?.height,
       });
-      childCount += 1;
+      index += 1;
     }
+
     // A highlight after the last child.
     const lastRect: DOMRect = childRects[childRects.length - 1];
     arr.push({
       isNewLayer: false,
-      index: childCount,
+      index,
       layerIndex,
       alignment,
-      posX: lastRect?.left + lastRect?.width - containerDimensions?.left,
+      posX: lastRect?.x + lastRect?.width - containerDimensions?.left,
       posY: lastRect?.y - containerDimensions?.top,
       width: OFFSET_WIDTH,
       height: lastRect?.height,
