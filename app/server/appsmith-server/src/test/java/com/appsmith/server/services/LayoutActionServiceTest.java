@@ -38,11 +38,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,7 +50,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -71,9 +70,10 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -138,7 +138,7 @@ public class LayoutActionServiceTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         newPageService.deleteAll();
@@ -227,7 +227,7 @@ public class LayoutActionServiceTest {
         jsDatasource.setPluginId(installedJsPlugin.getId());
     }
 
-    @After
+    @AfterEach
     @WithUserDetails(value = "api_user")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
@@ -337,8 +337,8 @@ public class LayoutActionServiceTest {
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
                 .flatMap(savedAction -> {
-                    Assert.assertFalse(savedAction.getActionConfiguration().getIsValid());
-                    Assert.assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
+                    assertFalse(savedAction.getActionConfiguration().getIsValid());
+                    assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
@@ -988,7 +988,7 @@ public class LayoutActionServiceTest {
                 .assertNext(updatedLayout -> {
                     assertTrue(((Map) updatedLayout.getDsl().get("template")).containsKey("newWidgetName"));
                     assertEquals("newWidgetName",
-                            ((Map)(((List)updatedLayout.getDsl().get("children")).get(0))).get("widgetName"));
+                            ((Map) (((List) updatedLayout.getDsl().get("children")).get(0))).get("widgetName"));
                 })
                 .verifyComplete();
     }
@@ -1417,7 +1417,7 @@ public class LayoutActionServiceTest {
                     final JSONObject dsl = layoutDTO.getDsl();
                     final Object fieldValue = ((JSONObject) ((ArrayList) dsl.get("children")).get(0)).getAsString("testField");
                     // Make sure the DSL got updated
-                    Assert.assertEquals("{{ firstWidget.testField }}", fieldValue);
+                    assertEquals("{{ firstWidget.testField }}", fieldValue);
                 })
                 .verifyComplete();
     }
@@ -1428,6 +1428,7 @@ public class LayoutActionServiceTest {
      * o make action2 dependent on action1 by adding {{action1.data}} in action2's body.
      * o set both action1 and action2 to run on page load via settings tab. Do not reference action1 and action2 data
      * in any other widget or action.
+     *
      * @throws JsonProcessingException
      */
     @Test
@@ -1554,7 +1555,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void introduceCyclicDependencyAndRemoveLater(){
+    public void introduceCyclicDependencyAndRemoveLater() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1577,7 +1578,7 @@ public class LayoutActionServiceTest {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetName", "inputWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "defaultText" ))));
+        temp.addAll(List.of(new JSONObject(Map.of("key", "defaultText"))));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("defaultText", "{{ \tactionName.data[0].inputWidget}}");
 
@@ -1600,13 +1601,13 @@ public class LayoutActionServiceTest {
 
         // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports will be null
         if (createdAction.getErrorReports() != null) {
-            assert(createdAction.getErrorReports() instanceof List || createdAction.getErrorReports() == null);
-            assert(createdAction.getErrorReports() == null);
+            assert (createdAction.getErrorReports() instanceof List || createdAction.getErrorReports() == null);
+            assert (createdAction.getErrorReports() == null);
         }
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated layoutOnLoadActionErrors
-        assert(firstLayout.getLayoutOnLoadActionErrors() instanceof List);
-        assert (firstLayout.getLayoutOnLoadActionErrors().size() ==1 );
+        assert (firstLayout.getLayoutOnLoadActionErrors() instanceof List);
+        assert (firstLayout.getLayoutOnLoadActionErrors().size() == 1);
 
         // refactoring action to carry the existing error in DSL
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -1628,13 +1629,12 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(actionDTOMono.map(
 
-                actionDTO1 -> actionDTO1.getErrorReports().size()
-                        ))
+                        actionDTO1 -> actionDTO1.getErrorReports().size()
+                ))
                 .expectNext(1).verifyComplete();
 
 
-
-        JSONObject newDsl =  new JSONObject();
+        JSONObject newDsl = new JSONObject();
         newDsl.put("widgetName", "newInputWidget");
         newDsl.put("innerArrayReference", innerArrayReference);
         newDsl.put("innerObjectReference", innerObjectReference);
@@ -1646,7 +1646,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(mainDsl);
 
         LayoutDTO changedLayoutDTO = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
-        assert(changedLayoutDTO.getLayoutOnLoadActionErrors() instanceof List);
+        assert (changedLayoutDTO.getLayoutOnLoadActionErrors() instanceof List);
         assert (changedLayoutDTO.getLayoutOnLoadActionErrors().size() == 0);
 
     }

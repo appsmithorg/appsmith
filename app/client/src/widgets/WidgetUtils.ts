@@ -131,19 +131,61 @@ export const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? lightenColor(backgroundColor)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? lightenColor(backgroundColor)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
-        ? darkenColor(backgroundColor, 10)
+        ? calulateHoverColor(backgroundColor, false)
         : theme.colors.button.primary.primary.hoverColor;
   }
+};
+
+/**
+ * Calculate Hover Color using the logic
+ * https://www.notion.so/appsmith/Widget-hover-colors-165e54b304ca4e83a355e4e14d7aa3cb
+ *
+ * In case of transparent backgrounds (secondary or tertiary button varients)
+ * 1. Find out the button color
+ * 2. Calculate hover color by setting the button color to 10% transparency
+ * 3. Add the calculated color to the background of the button
+ *
+ * In case of non transparent backgrounds (primary button varient), using the HSL color modal,
+ * 1. If lightness > 35, decrease the lightness by 5 on hover
+ * 2. If lightness <= 35, increase the lightness by 5 on hover
+ *
+ * @param backgroundColor A color string
+ * @param hasTransparentBackground Boolean to represent if the button has transparent background
+ *
+ * @returns An RGB string (in case of transparent backgrounds) or a HSL string (in case of solid backgrounds).
+ */
+export const calulateHoverColor = (
+  backgroundColor: string,
+  hasTransparentBackground?: boolean,
+) => {
+  // For transparent backgrounds
+  if (hasTransparentBackground) {
+    return tinycolor(backgroundColor)
+      .setAlpha(0.1)
+      .toRgbString();
+  }
+
+  // For non-transparent backgrounds, using the HSL color modal
+  const backgroundColorHsl = tinycolor(backgroundColor).toHsl();
+
+  // Check the lightness and modify accordingly
+  if (backgroundColorHsl.l > 0.35) {
+    backgroundColorHsl.l -= 0.05;
+  } else {
+    backgroundColorHsl.l += 0.05;
+  }
+
+  return tinycolor(backgroundColorHsl).toHslString();
 };
 
 export const getCustomBackgroundColor = (

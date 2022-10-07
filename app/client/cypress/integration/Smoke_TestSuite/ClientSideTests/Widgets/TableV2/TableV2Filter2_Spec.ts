@@ -24,6 +24,16 @@ describe("Verify various Table_Filter combinations", function() {
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     agHelper.PressEscape();
+    /*
+      Changing id and orderAmount to "Plain Text" column type
+      so that the tests that depend on id and orderAmount
+      being "Plain Text" type do not fail.
+      From this PR onwards columns with number data (like id and orderAmount here)
+      will be auto-assigned as "NUMBER" type column
+    */
+    table.ChangeColumnTypeV2("id", "Plain Text");
+    table.ChangeColumnTypeV2("orderAmount", "Plain Text");
+
     deployMode.DeployApp();
   });
 

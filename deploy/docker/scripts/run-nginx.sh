@@ -42,12 +42,17 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 EOF
 
 if [[ -z "${APPSMITH_ALLOWED_FRAME_ANCESTORS-}" ]]; then
-	# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-	export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+  export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
 else
-	# Remove any extra rules that may be present in the frame ancestors value. This is to prevent this env variable from
-	# being used to inject more rules to the CSP header. If needed, that should be supported/solved separately.
-	export APPSMITH_ALLOWED_FRAME_ANCESTORS="${APPSMITH_ALLOWED_FRAME_ANCESTORS%;*}"
+  # Remove any extra rules that may be present in the frame ancestors value. This is to prevent this env variable from
+  # being used to inject more rules to the CSP header. If needed, that should be supported/solved separately.
+  export APPSMITH_ALLOWED_FRAME_ANCESTORS="${APPSMITH_ALLOWED_FRAME_ANCESTORS%;*}"
+fi
+
+if [[ -z "${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}" ]]; then
+  # For backwards compatibility, if this is not set to anything, we default to no sandbox for iframe widgets.
+  export APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX="true"
 fi
 
 # Check exist certificate with given custom domain

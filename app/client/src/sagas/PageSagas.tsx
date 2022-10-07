@@ -116,6 +116,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
+import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -328,6 +329,8 @@ export function* fetchPublishedPageSaga(
       yield call(setDataUrl);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      // resize main canvas
+      resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
       // Update the canvas
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
