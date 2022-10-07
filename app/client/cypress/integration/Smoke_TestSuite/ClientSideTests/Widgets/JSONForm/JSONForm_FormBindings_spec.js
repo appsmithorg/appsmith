@@ -5,8 +5,16 @@ const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const backBtn = ".t--property-pane-back-btn";
 
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("JSON Form Widget Form Bindings", () => {
-  before(() => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dslWithSchema);
   });
 
