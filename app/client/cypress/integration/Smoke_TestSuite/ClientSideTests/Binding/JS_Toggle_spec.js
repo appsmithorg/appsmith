@@ -2,8 +2,6 @@ const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
 
 describe("JS Toggle tests", () => {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 

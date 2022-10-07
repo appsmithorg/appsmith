@@ -9,16 +9,10 @@ const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function() {
-  before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
-    cy.addDsl(dsl);
-    cy.wait(5000); //dsl to settle!
-  });
-
   it("1. Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2, appId);
+    cy.addDsl(dsl2);
+    cy.wait(5000); //dsl to settle!
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Pages");

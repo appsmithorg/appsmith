@@ -3,12 +3,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWidgetdsl.json");
 
-const pageid = "MyPage";
-
 before(() => {
-  appId = localStorage.getItem("applicationId");
-  cy.log("appID:" + appId);
-  cy.addDsl(dsl, appId);
+  cy.addDsl(dsl);
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function() {

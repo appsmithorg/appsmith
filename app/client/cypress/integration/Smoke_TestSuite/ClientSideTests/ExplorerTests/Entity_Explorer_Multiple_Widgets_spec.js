@@ -2,19 +2,24 @@ const tdsl = require("../../../../fixtures/tableWidgetDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const testdata = require("../../../../fixtures/testdata.json");
-const pages = require("../../../../locators/Pages.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("Entity explorer tests related to widgets and validation", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
   });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("Add a widget to default page and verify the properties", function() {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     cy.OpenBindings("Text1");
     cy.get(explorer.property)
       .last()
@@ -28,7 +33,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
 
   it("Create another page and add another widget and verify properties", function() {
     cy.Createpage(pageid);
-    cy.addDsl(tdsl, appId);
+    cy.addDsl(tdsl);
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.GlobalSearchEntity("Table1");

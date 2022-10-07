@@ -12,8 +12,19 @@ const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 let repoName;
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Git sync Bug #10773", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -30,7 +41,7 @@ describe("Git sync Bug #10773", function() {
     });
   });
 
-  it("Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
+  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     // adding a new page "ChildPage" to master
     appId = localStorage.getItem("applicationId");
     cy.log("appID:" + appId);
@@ -61,16 +72,14 @@ describe("Git sync Bug #10773", function() {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
   });
-});
 
-describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
-  it("Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
+  it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.addDsl(dsl, appId);
+      cy.addDsl(dsl);
     });
     // connect app to git
     cy.generateUUID().then((uid) => {
@@ -131,7 +140,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
     cy.wait(1000);
   });
 
-  it("Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
+  it("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
     // create a new branch, clone page and validate jsObject data binding
     cy.createGitBranch(tempBranch);
     cy.wait(2000);
@@ -161,20 +170,16 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       "response.body.responseMeta.status",
       201,
     );
-  });
-
-  after(() => {
     cy.deleteTestGithubRepo(repoName);
   });
-});
-describe("Git synced app with JSObject", function() {
-  it("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
+
+  it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.addDsl(dsl, appId);
+      cy.addDsl(dsl);
     });
     ee.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
@@ -264,13 +269,10 @@ describe("Git synced app with JSObject", function() {
           );
         });
     });
-  });
-  after(() => {
     cy.deleteTestGithubRepo(repoName);
   });
-});
-describe("Git sync Bug #13385", function() {
-  it("Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
+
+  it("5. Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {

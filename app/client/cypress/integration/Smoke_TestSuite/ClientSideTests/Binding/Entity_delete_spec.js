@@ -3,8 +3,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Binding the multiple widgets and validating default data", function() {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 

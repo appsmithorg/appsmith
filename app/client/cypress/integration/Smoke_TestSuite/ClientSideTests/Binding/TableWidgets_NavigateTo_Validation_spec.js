@@ -1,18 +1,13 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 
 describe("Table Widget and Navigate to functionality validation", function() {
-  before(() => {
-    cy.addDsl(dsl);
-  });
-
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2, appId);
+    cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.CheckAndUnfoldEntityItem("Pages");

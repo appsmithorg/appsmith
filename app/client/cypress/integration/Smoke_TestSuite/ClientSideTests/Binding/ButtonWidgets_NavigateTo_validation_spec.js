@@ -6,8 +6,6 @@ const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Binding the button Widgets and validating NavigateTo Page functionality", function() {
   before(() => {
-    //appId = localStorage.getItem("applicationId");
-    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
   });
 

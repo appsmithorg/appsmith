@@ -4,14 +4,13 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Page Load tests", () => {
   before(() => {
-    cy.addDsl(dsl);
     cy.CreatePage();
     cy.get("h2").contains("Drag and drop a widget here");
   });
 
   it("1. Published page loads correctly", () => {
     //add page within page
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
     // Update the text to be asserted later
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");
