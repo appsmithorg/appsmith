@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Param;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public interface SmartSubstitutionInterface {
                     String value = matchingParam.get().getValue();
 
                     input = substituteValueInInput(i + 1, key,
-                            value, input, insertedParams, args);
+                            value, input, insertedParams, append(args, matchingParam.get().getClientDataType()));
                 } else {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Uh oh! This is unexpected. " +
                             "Did not receive any information for the binding "
@@ -70,5 +71,12 @@ public interface SmartSubstitutionInterface {
      */
     default String sanitizeReplacement(String replacementValue, DataType dataType) {
         return replacementValue;
+    }
+
+    static <T> T[] append(T[] arr, T lastElement) {
+        final int N = arr.length;
+        arr = Arrays.copyOf(arr, N+1);
+        arr[N] = lastElement;
+        return arr;
     }
 }
