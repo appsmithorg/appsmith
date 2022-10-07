@@ -30,9 +30,8 @@ import {
   NEW_TO_APPSMITH,
   createMessage,
 } from "@appsmith/constants/messages";
-import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
-import { Button, Size } from "design-system";
+import { Button, FormMessage, Size } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
