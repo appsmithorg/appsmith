@@ -149,7 +149,6 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   CanvasPattern: "CanvasPattern",
   clearInterval: "clearInterval",
   clearTimeout: "clearTimeout",
-  postMessageHandler: "postMessageHandler",
   close: "close",
   CloseEvent: "CloseEvent",
   CompressionStream: "CompressionStream",

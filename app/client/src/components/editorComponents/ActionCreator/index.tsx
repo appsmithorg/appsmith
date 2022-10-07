@@ -129,7 +129,7 @@ const baseOptions: { label: string; value: string }[] = [
   },
   {
     label: createMessage(ADD_MESSAGE_HANDLER),
-    value: AppsmithFunction.postMessageHandler,
+    value: AppsmithFunction.addMessageHandler,
   },
 ];
 
@@ -394,10 +394,15 @@ function getFieldFromValue(
     });
   }
 
-  if (value.indexOf("postMessageHandler") !== -1) {
-    fields.push({
-      field: FieldType.POST_MESSAGE_HANDLER,
-    });
+  if (value.indexOf("addMessageHandler") !== -1) {
+    fields.push(
+      {
+        field: FieldType.CALLBACK_FUNCTION_FIELD,
+      },
+      {
+        field: FieldType.ACCEPTED_ORIGIN_FIELD,
+      },
+    );
   }
   return fields;
 }

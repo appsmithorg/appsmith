@@ -1,5 +1,5 @@
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { PostMessageHandlerDescription } from "entities/DataTree/actionTriggers";
+import { AddMessageHandlerDescription } from "entities/DataTree/actionTriggers";
 import { Channel, channel } from "redux-saga";
 import { call, take, spawn } from "redux-saga/effects";
 import { executeAppAction, TriggerMeta } from "./ActionExecutionSagas";
@@ -11,8 +11,8 @@ interface MessageChannelPayload {
   triggerMeta: TriggerMeta;
 }
 
-export function* postMessageHandlerSaga(
-  actionPayload: PostMessageHandlerDescription["payload"],
+export function* addMessageHandlerSaga(
+  actionPayload: AddMessageHandlerDescription["payload"],
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {

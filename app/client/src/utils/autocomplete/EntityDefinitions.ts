@@ -749,10 +749,10 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
   },
-  postMessageHandler: {
+  addMessageHandler: {
     "!doc":
       "Add a handler for incoming message from parent host when page is embed as iframe",
-    "!type": "fn(handler: fn) -> void",
+    "!type": "fn(callBack: fn, acceptedOrigin: string) -> void",
   },
 };
 
