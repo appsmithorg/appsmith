@@ -6,15 +6,13 @@ const pages = require("../../../../../locators/Pages.json");
 import homePage from "../../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
+let agHelper = ObjectsRegistry.AggregateHelper;
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 let repoName;
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Git sync Bug #10773", function() {
   beforeEach(() => {

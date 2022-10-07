@@ -10,7 +10,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.addDsl(dslWithSchema);
   });
 
-  it("updates formData when field value changes", () => {
+  it("1. updates formData when field value changes", () => {
     const expectedInitialFormData = {
       age: 30,
       dob: "10/12/1992",
@@ -68,7 +68,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("updates fieldState", () => {
+  it("2. updates fieldState", () => {
     const expectedInitialFieldState = {
       name: {
         isDisabled: false,
@@ -280,7 +280,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("change field accessor should reflect in fieldState", () => {
+  it("3. change field accessor should reflect in fieldState", () => {
     const expectedFieldStateChange = {
       firstName: {
         isDisabled: false,
@@ -379,7 +379,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("change field accessor should reflect in formData", () => {
+  it("4. change field accessor should reflect in formData", () => {
     const expectedFormDataChange = {
       age: 30,
       dob: "10/12/1992",
