@@ -1,14 +1,13 @@
 import { ApplicationVersion } from "actions/applicationActions";
-import { setPageAsDefault, setPageSlug, updatePage } from "actions/pageActions";
+import { setPageAsDefault, setPageSlug } from "actions/pageActions";
 import { UpdatePageRequest } from "api/PageApi";
 import { Page } from "ce/constants/ReduxActionConstants";
-import classNames from "classnames";
-import { Button, Size, TextInput } from "design-system";
+import { TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
 import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -62,33 +61,29 @@ function PageSettings(props: { page: Page }) {
     setIsDefault(page.isDefault);
   }, [page]);
 
-  const isPageNameUpdated = pageName !== page.pageName;
-  const isPageUrlUpdated = customSlug !== page.customSlug;
-  const isHiddenUpdated = isHidden !== page.isHidden;
-  const isDefaultUpdated = isDefault !== page.isDefault;
+  const savePageName = useCallback(() => {
+    if (pageName.length === 0) return;
+    const payload: UpdatePageRequest = {
+      id: page.pageId,
+      name: pageName,
+    };
+    dispatch(setPageSlug(payload));
+  }, [pageName]);
 
-  const isEdited =
-    isPageNameUpdated ||
-    isPageUrlUpdated ||
-    isHiddenUpdated ||
-    isDefaultUpdated;
+  const saveCustomSlug = useCallback(() => {
+    const payload: UpdatePageRequest = {
+      id: page.pageId,
+      customSlug: customSlug || "",
+    };
+    dispatch(setPageSlug(payload));
+  }, [customSlug]);
 
-  const saveChanges = () => {
-    if (isPageUrlUpdated) {
-      const payload: UpdatePageRequest = {
-        id: page.pageId,
-        customSlug: customSlug || "",
-      };
-      if (isPageNameUpdated) payload.name = pageName;
-      if (isHiddenUpdated) payload.isHidden = !!isHidden;
-      dispatch(setPageSlug(payload));
-    } else {
-      dispatch(updatePage(page.pageId, pageName, !!isHidden));
-    }
-
-    if (isDefaultUpdated) {
-      dispatch(setPageAsDefault(page.pageId, applicationId));
-    }
+  const saveIsHidden = (isHidden: boolean) => {
+    const payload: UpdatePageRequest = {
+      id: page.pageId,
+      isHidden,
+    };
+    dispatch(setPageSlug(payload));
   };
 
   return (
@@ -97,6 +92,7 @@ function PageSettings(props: { page: Page }) {
       <div className="pb-1">
         <TextInput
           fill
+          onBlur={savePageName}
           onChange={setPageName}
           placeholder="Page name"
           type="input"
@@ -125,6 +121,7 @@ function PageSettings(props: { page: Page }) {
       <div className="pb-1">
         <TextInput
           fill
+          onBlur={saveCustomSlug}
           onChange={setCustomSlug}
           placeholder="Page URL"
           readOnly={appNeedsUpdate}
@@ -143,7 +140,10 @@ function PageSettings(props: { page: Page }) {
           checked={isHidden}
           className="mb-0"
           large
-          onChange={() => setIsHidden(!isHidden)}
+          onChange={() => {
+            setIsHidden(!isHidden);
+            saveIsHidden(!isHidden);
+          }}
         />
       </div>
 
@@ -154,22 +154,13 @@ function PageSettings(props: { page: Page }) {
             checked={isDefault}
             className="mb-0"
             large
-            onChange={() => setIsDefault(!isDefault)}
+            onChange={() => {
+              setIsDefault(!isDefault);
+              dispatch(setPageAsDefault(page.pageId, applicationId));
+            }}
           />
         </div>
       )}
-
-      <Button
-        className={classNames({
-          "!bg-[#b3b3b3] !border-[#b3b3b3] !text-white": !isEdited,
-          "!bg-[#393939] !border-[#393939] !text-white": isEdited,
-        })}
-        disabled={!isEdited}
-        fill
-        onClick={saveChanges}
-        size={Size.medium}
-        text="Save"
-      />
     </>
   );
 }

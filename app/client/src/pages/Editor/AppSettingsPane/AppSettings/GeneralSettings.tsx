@@ -65,9 +65,7 @@ function GeneralSettings() {
         <TextInput
           fill
           onBlur={() => updateAppSettings()}
-          onChange={(name: string) => {
-            setApplicationName(name);
-          }}
+          onChange={setApplicationName}
           placeholder="App name"
           type="input"
           validator={(value: string) => {
