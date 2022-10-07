@@ -9,7 +9,7 @@ export const APPSMITH_GLOBAL_FUNCTIONS = {
   resetWidget: "resetWidget",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
-  addMessageHandler: "addMessageHandler",
+  postMessageHandler: "postMessageHandler",
 };
 
 export const APPSMITH_NAMESPACED_FUNCTIONS = {
@@ -98,5 +98,5 @@ export enum FieldType {
   MESSAGE_FIELD = "MESSAGE_FIELD",
   TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
   PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD = "PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD",
-  MESSAGE_HANDLER_FIELD = "MESSAGE_HANDLER_FIELD",
+  POST_MESSAGE_HANDLER = "POST_MESSAGE_HANDLER",
 }

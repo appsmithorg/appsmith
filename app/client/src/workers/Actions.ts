@@ -266,9 +266,9 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  addMessageHandler: function(origin: string, callback: Function) {
+  postMessageHandler: function(origin: string, callback: Function) {
     return {
-      type: ActionTriggerType.ADD_MESSAGE_HANDLER,
+      type: ActionTriggerType.POST_MESSAGE_HANDLER,
       payload: {
         acceptedOrigin: origin,
         callbackString: callback.toString(),

@@ -129,7 +129,7 @@ const baseOptions: { label: string; value: string }[] = [
   },
   {
     label: createMessage(ADD_MESSAGE_HANDLER),
-    value: AppsmithFunction.addMessageHandler,
+    value: AppsmithFunction.postMessageHandler,
   },
 ];
 
@@ -394,9 +394,9 @@ function getFieldFromValue(
     });
   }
 
-  if (value.indexOf("addMessageHandler") !== -1) {
+  if (value.indexOf("postMessageHandler") !== -1) {
     fields.push({
-      field: FieldType.MESSAGE_HANDLER_FIELD,
+      field: FieldType.POST_MESSAGE_HANDLER,
     });
   }
   return fields;

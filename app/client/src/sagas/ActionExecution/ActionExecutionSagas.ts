@@ -49,7 +49,7 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { addMessageHandlerSaga } from "./AddMessageHandlerSaga";
+import { postMessageHandlerSaga } from "./PostMessageHandlerSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -144,9 +144,9 @@ export function* executeActionTriggers(
       }
       break;
 
-    case ActionTriggerType.ADD_MESSAGE_HANDLER:
+    case ActionTriggerType.POST_MESSAGE_HANDLER:
       yield call(
-        addMessageHandlerSaga,
+        postMessageHandlerSaga,
         trigger.payload,
         eventType,
         triggerMeta,
