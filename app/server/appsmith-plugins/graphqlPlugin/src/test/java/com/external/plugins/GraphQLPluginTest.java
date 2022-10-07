@@ -1033,7 +1033,7 @@ public class GraphQLPluginTest {
      * into a simple non paginated query.
      */
     @Test
-    public void testNextCursorKeyIsSkippedWhenValueIsNull() {
+    public void testNextCursorKeyIsSkippedWhenCursorValueIsNull() {
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setPaginationType(PaginationType.CURSOR);
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
@@ -1063,7 +1063,7 @@ public class GraphQLPluginTest {
      * into a simple non paginated query.
      */
     @Test
-    public void testPrevCursorKeyIsSkippedWhenValueIsNull() {
+    public void testPrevCursorKeyIsSkippedWhenCursorValueIsNull() {
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setPaginationType(PaginationType.CURSOR);
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
@@ -1086,4 +1086,37 @@ public class GraphQLPluginTest {
         assertEquals(expectedVariableString,
                 actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
     }
+
+    /**
+     * This method tests that when the value for pagination type is "null", then the cursor key should be skipped from
+     * being added to the query variables. This would ensure that when a user clicks on the `run` button after
+     * configuring the pagination settings then it runs without taking the pagination value otherwise every
+     * subsequent click would fetch the next `n` values instead of getting the same values. It should consider the
+     * cursor value only when the query is triggered via a paginated widget.
+     */
+    @Test
+    public void testNextCursorKeyIsSkippedWhenPaginationValueIsNull() {
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setPaginationType(PaginationType.CURSOR);
+        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
+
+        Map<String, Object> paginationDataMap = new HashMap<String, Object>();
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.name", "first");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.value", "3");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.name", "endCursor");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.value", "null");
+        Property property = new Property();
+        property.setKey("paginationData");
+        property.setValue(paginationDataMap);
+        actionConfig.getPluginSpecifiedTemplates().add(property);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+
+        updateVariablesWithPaginationValues(actionConfig, executeActionDTO);
+        String expectedVariableString = "{\"first\":3}";
+        assertEquals(expectedVariableString,
+                actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
+    }
+
 }
