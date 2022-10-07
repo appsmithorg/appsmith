@@ -1,4 +1,11 @@
-import React, { Context, createContext, ReactNode, useMemo } from "react";
+import React, {
+  Context,
+  createContext,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { connect } from "react-redux";
 
 import { WidgetOperation } from "widgets/BaseWidget";
@@ -51,6 +58,9 @@ export type EditorContextType = {
     propertyValue: any,
   ) => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
+  // TODO (ashit) - Use generics instead of unknown
+  setWidgetCache?: (widgetId: string, data: unknown) => void;
+  getWidgetCache?: (widgetId: string) => unknown;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -59,6 +69,18 @@ type EditorContextProviderProps = EditorContextType & {
 };
 
 function EditorContextProvider(props: EditorContextProviderProps) {
+  const widgetCache = useRef<Record<string, unknown>>({});
+
+  // TODO: (Ashit) - Use generics for data.
+  const setWidgetCache = useCallback((widgetId: string, data: unknown) => {
+    widgetCache.current[widgetId] = data;
+  }, []);
+
+  const getWidgetCache = useCallback(
+    (widgetId: string) => widgetCache.current[widgetId],
+    [],
+  );
+
   const {
     batchUpdateWidgetProperty,
     children,
@@ -87,6 +109,8 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
       modifyMetaWidgets,
+      setWidgetCache,
+      getWidgetCache,
     }),
     [
       executeAction,
@@ -99,6 +123,8 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
       modifyMetaWidgets,
+      setWidgetCache,
+      getWidgetCache,
     ],
   );
   return (

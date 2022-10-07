@@ -46,7 +46,12 @@ export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
 
-const staticProps = omit(WIDGET_STATIC_PROPS, "children");
+const BLACKLISTED_PROPS = ["children", "level", "levelData"] as const;
+const staticProps = omit(WIDGET_STATIC_PROPS, BLACKLISTED_PROPS) as Omit<
+  typeof WIDGET_STATIC_PROPS,
+  typeof BLACKLISTED_PROPS[number]
+>;
+
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps

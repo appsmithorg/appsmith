@@ -209,16 +209,21 @@ export const getMetaCanvasWidget = (metaWidgetId: string) =>
 
 export const getMetaWidgetChildrenStructure = (
   parentWidgetId: string,
-  isMetaWidget: boolean,
+  type: string,
+  hasMetaWidgets = false,
 ) =>
   createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
-    if (isMetaWidget) return [];
+    if (!hasMetaWidgets) return [];
 
     const structure: CanvasWidgetStructure[] = [];
 
     Object.values(metaCanvasWidgets).forEach(({ parentId, widgetId }) => {
       if (parentId === parentWidgetId) {
-        structure.push(denormalize(widgetId, metaCanvasWidgets));
+        structure.push(
+          denormalize(widgetId, metaCanvasWidgets, {
+            widgetTypeForHaltingRecursion: type,
+          }),
+        );
       }
     });
 

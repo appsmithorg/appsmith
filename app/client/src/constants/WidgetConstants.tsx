@@ -136,15 +136,20 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+  level: true,
+  levelData: true,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {
+  bottomRow: true,
   children: true,
+  requiresFlatWidgetChildren: true,
+  hasMetaWidgets: true,
+  parentId: true,
+  referencedWidgetId: true,
+  topRow: true,
   type: true,
   widgetId: true,
-  parentId: true,
-  topRow: true,
-  bottomRow: true,
 };
 
 export type TextSize = keyof typeof TextSizes;

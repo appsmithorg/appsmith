@@ -35,11 +35,13 @@ import {
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
   CURRENT_INDEX = "currentIndex",
   CURRENT_ROW = "currentRow",
+  LEVEL = "level",
 }
 export type DynamicPathMap = Record<string, DynamicPathType[]>;
 export type DynamicPathMapList = Record<string, DynamicPathMap>;
@@ -49,6 +51,31 @@ export type MetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentRow: string;
   currentItem: string;
+};
+
+export type LevelData = {
+  [level: string]: {
+    currentIndex: number;
+    currentItem: string;
+    currentRowCache: MetaWidgetRowCache;
+  };
+};
+
+export type MetaWidgetCacheProps = {
+  entityDefinition: Record<string, string>;
+  index: number;
+  metaWidgetId: string;
+  metaWidgetName: string;
+  rowIndex: number;
+  templateWidgetId: string;
+  templateWidgetName: string;
+  type: string;
+};
+
+export type MetaWidgetRowCache = Record<string, MetaWidgetCacheProps>;
+
+export type MetaWidgetCache = {
+  [key: string]: MetaWidgetRowCache | undefined;
 };
 
 export type GenerateMetaWidgetOptions = {
@@ -107,7 +134,6 @@ class ListWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
-      templateBottomRow: 16,
       currentViewItems: "{{[]}}",
     };
   }
@@ -118,9 +144,19 @@ class ListWidget extends BaseWidget<
       | Readonly<ListWidgetProps<WidgetProps>>,
   ) {
     super(props);
+    const { referencedWidgetId, widgetId } = props;
+    const isListCloned =
+      Boolean(referencedWidgetId) && referencedWidgetId !== widgetId;
 
     this.metaWidgetGenerator = new MetaWidgetGenerator({
-      renderMode: this.props.renderMode,
+      renderMode: props.renderMode,
+      // eslint-disable-next-line
+      // @ts-ignore
+      getWidgetCache: this.getWidgetCache,
+      setWidgetCache: this.setWidgetCache,
+      isListCloned,
+      level: props.level || 1,
+      widgetId: props.widgetId,
     });
     this.prevMetaContainerNames = [];
   }
@@ -129,10 +165,6 @@ class ListWidget extends BaseWidget<
     if (this.props.serverSidePaginationEnabled && !this.props.pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
-    this.props.updateWidgetMetaProperty(
-      "templateBottomRow",
-      this.getMainContainer()?.bottomRow,
-    );
 
     this.generateChildrenEntityDefinitions(this.props);
 
@@ -179,6 +211,12 @@ class ListWidget extends BaseWidget<
       }
     }
 
+    if (this.getMainContainer()?.bottomRow !== this.props.templateBottomRow) {
+      super.updateWidgetProperty(
+        "templateBottomRow",
+        this.getMainContainer()?.bottomRow,
+      );
+    }
     // if (
     //   get(this.props.childWidgets, "0.children.0.bottomRow") !==
     //   get(prevProps.childWidgets, "0.children.0.bottomRow")
@@ -214,6 +252,7 @@ class ListWidget extends BaseWidget<
       mainContainerId = "",
       pageSize,
     } = this.props;
+
     const startIndex = pageSize * (page - 1);
     const currentViewData = listData.slice(startIndex, startIndex + pageSize);
 
@@ -225,6 +264,7 @@ class ListWidget extends BaseWidget<
         data: currentViewData,
         dynamicPathMapList,
         gridGap: this.getGridGap(),
+        levelData: this.props.levelData,
         prevTemplateWidgets: prevFlattenedChildCanvasWidgets,
         primaryKey: "id",
         startIndex,
@@ -233,30 +273,52 @@ class ListWidget extends BaseWidget<
       .generate();
 
     this.updateCurrentViewItems();
-    this.addMainCanvasMetaWidgetTo(metaWidgets);
+    const mainCanvasWidget = this.generateMainCanvasMetaWidget();
     this.syncMetaContainerNames();
 
-    if (!isEmpty(metaWidgets) || removedMetaWidgetIds.length) {
-      this.modifyMetaWidgets({
-        addOrUpdate: metaWidgets,
-        delete: removedMetaWidgetIds,
-      });
+    const updates: ModifyMetaWidgetPayload = {
+      addOrUpdate: metaWidgets,
+      deleteIds: removedMetaWidgetIds,
+    };
+
+    if (mainCanvasWidget) {
+      metaWidgets[mainCanvasWidget.widgetId] = mainCanvasWidget;
+    }
+
+    const { metaWidgetId: metaMainCanvasId } =
+      this.metaWidgetGenerator.getContainerParentCache() || {};
+    if (
+      this.props.isMetaWidget &&
+      metaMainCanvasId !== this.props.children?.[0]?.widgetId
+    ) {
+      updates.propertyUpdates = [
+        {
+          path: "children",
+          value: [metaMainCanvasId],
+        },
+      ];
+    }
+
+    if (
+      !isEmpty(updates.addOrUpdate) ||
+      updates.deleteIds.length ||
+      updates.propertyUpdates?.length
+    ) {
+      this.modifyMetaWidgets(updates);
     }
   };
 
-  addMainCanvasMetaWidgetTo = (metaWidgets: MetaWidgets) => {
-    const { mainCanvasId } = this.props;
+  generateMainCanvasMetaWidget = () => {
     const {
       ids: currMetaContainerIds,
       names: currMetaContainerNames,
     } = this.metaWidgetGenerator.getMetaContainers();
 
-    if (
-      !equal(this.prevMetaContainerNames, currMetaContainerNames) &&
-      mainCanvasId
-    ) {
-      metaWidgets[mainCanvasId] = this.mainCanvasMetaWidget() as MetaWidget;
-      metaWidgets[mainCanvasId].children = currMetaContainerIds;
+    if (!equal(this.prevMetaContainerNames, currMetaContainerNames)) {
+      const mainCanvasWidget = this.mainCanvasMetaWidget() as MetaWidget;
+      mainCanvasWidget.children = currMetaContainerIds;
+
+      return mainCanvasWidget;
     }
   };
 
@@ -300,7 +362,14 @@ class ListWidget extends BaseWidget<
     const { shouldPaginate } = this.shouldPaginate();
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const metaMainCanvas = klona(mainCanvasWidget) ?? {};
+    const { metaWidgetId, metaWidgetName } =
+      this.metaWidgetGenerator.getContainerParentCache() || {};
 
+    if (!metaWidgetId || !metaWidgetName) return;
+
+    metaMainCanvas.parentId = this.props.widgetId;
+    metaMainCanvas.widgetId = metaWidgetId;
+    metaMainCanvas.widgetName = metaWidgetName;
     metaMainCanvas.canExtend = undefined;
     metaMainCanvas.isVisible = this.props.isVisible;
     metaMainCanvas.minHeight = componentHeight;
@@ -550,12 +619,9 @@ class ListWidget extends BaseWidget<
     const {
       templateWidgetId,
     } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    const widgetId = templateWidgetId || metaWidgetId;
 
-    this.context?.batchUpdateWidgetProperty?.(
-      templateWidgetId,
-      updates,
-      shouldReplay,
-    );
+    this.context?.batchUpdateWidgetProperty?.(widgetId, updates, shouldReplay);
   };
 
   overrideUpdateWidget = (
@@ -566,8 +632,9 @@ class ListWidget extends BaseWidget<
     const {
       templateWidgetId,
     } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    const widgetId = templateWidgetId || metaWidgetId;
 
-    this.context?.updateWidget?.(operation, templateWidgetId, payload);
+    this.context?.updateWidget?.(operation, widgetId, payload);
   };
 
   overrideUpdateWidgetProperty = (
@@ -578,12 +645,9 @@ class ListWidget extends BaseWidget<
     const {
       templateWidgetId,
     } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    const widgetId = templateWidgetId || metaWidgetId;
 
-    this.context?.updateWidgetProperty?.(
-      templateWidgetId,
-      propertyName,
-      propertyValue,
-    );
+    this.context?.updateWidgetProperty?.(widgetId, propertyName, propertyValue);
   };
 
   overrideDeleteWidgetProperty = (
@@ -593,8 +657,9 @@ class ListWidget extends BaseWidget<
     const {
       templateWidgetId,
     } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    const widgetId = templateWidgetId || metaWidgetId;
 
-    this.context?.deleteWidgetProperty?.(templateWidgetId, propertyPaths);
+    this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);
   };
 
   /**
@@ -710,12 +775,14 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   children?: T[];
   currentItemStructure?: Record<string, string>;
   dynamicPathMapList?: DynamicPathMapList;
-  mainCanvasId?: string;
+  gridGap?: number;
+  level?: number;
+  levelData?: LevelData;
   listData?: Array<Record<string, unknown>>;
+  mainCanvasId?: string;
   mainContainerId?: string;
   onListItemClick?: string;
   shouldScrollContents?: boolean;
-  gridGap?: number;
 }
 
 export default ListWidget;

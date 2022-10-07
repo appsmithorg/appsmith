@@ -7,6 +7,10 @@ import {
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
 import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
 
+type DenormalizeOptions = {
+  widgetTypeForHaltingRecursion?: string;
+};
+
 export const compareAndGenerateImmutableCanvasStructure = (
   original: CanvasStructure,
   current: DSL,
@@ -56,12 +60,17 @@ const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
 export function denormalize(
   rootWidgetId: string,
   widgets: Record<string, FlattenedWidgetProps>,
+  options?: DenormalizeOptions,
 ): CanvasWidgetStructure {
+  const { widgetTypeForHaltingRecursion } = options || {};
   const rootWidget = widgets[rootWidgetId];
+  let children;
 
-  const children = (rootWidget?.children || []).map((childId) =>
-    denormalize(childId, widgets),
-  );
+  if (widgetTypeForHaltingRecursion !== rootWidget.type) {
+    children = (rootWidget?.children || []).map((childId) =>
+      denormalize(childId, widgets, options),
+    );
+  }
 
   const staticProps = Object.keys(WIDGET_DSL_STRUCTURE_PROPS);
 
