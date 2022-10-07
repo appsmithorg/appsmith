@@ -398,7 +398,7 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   return widgets;
 }
 
-function* autolayoutReorderSaga(
+function* autoLayoutReorderSaga(
   actionPayload: ReduxAction<{
     movedWidgets: string[];
     parentId: string;
@@ -740,7 +740,7 @@ export default function* draggingCanvasSagas() {
     ),
     takeLatest(
       ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
-      autolayoutReorderSaga,
+      autoLayoutReorderSaga,
     ),
     takeLatest(
       ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,

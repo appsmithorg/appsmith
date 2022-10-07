@@ -1,7 +1,11 @@
 import { getWidgets } from "sagas/selectors";
 import { useSelector } from "store";
 
-import { LayoutDirection, FlexLayerAlignment } from "components/constants";
+import {
+  LayoutDirection,
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "components/constants";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import {
   FlexLayer,
@@ -176,13 +180,18 @@ export const useAutoLayoutHighlights = ({
     return highlights;
   };
 
-  // Remove dragged blocks from the list of children.
+  // Remove dragged blocks from the list of children and update hasChild.
   function filterLayer(layer: FlexLayer, offsetChildren: string[]): FlexLayer {
+    const filteredChildren = layer.children?.filter(
+      (child: LayerChild) => offsetChildren.indexOf(child.id) !== -1,
+    );
     return {
       ...layer,
-      children: layer.children?.filter((each) => {
-        return offsetChildren.indexOf(each.id) > -1;
-      }),
+      children: filteredChildren,
+      hasFillChild: filteredChildren?.some(
+        (each) =>
+          allWidgets[each.id]?.responsiveBehavior === ResponsiveBehavior.Fill,
+      ),
     };
   }
 
@@ -294,6 +303,7 @@ export const useAutoLayoutHighlights = ({
     const arr: HighlightInfo[] = [];
     let curr: number = childCount;
     const { center, end, hasFillChild, start } = spreadLayer(layer);
+
     // process start sub wrapper.
     arr.push(
       ...calculateRowHighlights(
