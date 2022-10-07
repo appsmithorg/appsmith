@@ -1,20 +1,24 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-
 const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;
 const addButton = ".t--jsonformfield-array-add-btn";
 const deleteButton = ".t--jsonformfield-array-delete-btn";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSON Form Widget Array Field", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   it("can remove default items when default value changes from undefined to an array", () => {
-    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData, appId);
+    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData);
 
     const sourceData = {
       name: "John",
@@ -61,7 +65,7 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("can add more items to the field", () => {
-    cy.addDsl(dslWithSchema, appId);
+    cy.addDsl(dslWithSchema);
 
     cy.openPropertyPane("jsonformwidget");
 

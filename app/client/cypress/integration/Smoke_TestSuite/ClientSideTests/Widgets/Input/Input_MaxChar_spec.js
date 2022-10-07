@@ -3,13 +3,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Input Widget Max Char Functionality", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
-
   beforeEach(() => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
   });
 
   it("Text Input maxChar shows error if defaultText longer", () => {

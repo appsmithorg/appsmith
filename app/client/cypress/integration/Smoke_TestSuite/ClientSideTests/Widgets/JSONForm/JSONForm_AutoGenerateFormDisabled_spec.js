@@ -1,18 +1,23 @@
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-
 const fieldPrefix = ".t--jsonformfield";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSON Form Widget AutoGenerate Disabled", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
   });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("generates fields with valid source data json", () => {
     const formDsl = JSON.parse(
       JSON.stringify(jsonFormDslWithSchemaAndWithoutSourceData),
     );
 
-    cy.addDsl(formDsl, appId);
+    cy.addDsl(formDsl);
 
     cy.openPropertyPane("jsonformwidget");
 
@@ -132,7 +137,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
       JSON.stringify(jsonFormDslWithSchemaAndWithoutSourceData),
     );
 
-    cy.addDsl(formDsl, appId);
+    cy.addDsl(formDsl);
 
     cy.openPropertyPane("jsonformwidget");
 

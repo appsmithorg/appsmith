@@ -5,9 +5,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget Field Change", () => {
   before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-    cy.addDsl(dslWithSchema, appId);
+    cy.addDsl(dslWithSchema);
   });
   it("modifies field type text to number", () => {
     cy.openPropertyPane("jsonformwidget");

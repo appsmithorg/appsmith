@@ -4,16 +4,12 @@ const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtur
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form Widget Custom Field", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
   it("uses the custom field when the accessor matches", () => {
     const formDsl = JSON.parse(
       JSON.stringify(jsonFormDslWithSchemaAndWithoutSourceData),
     );
 
-    cy.addDsl(formDsl, appId);
+    cy.addDsl(formDsl);
 
     cy.openPropertyPane("jsonformwidget");
 

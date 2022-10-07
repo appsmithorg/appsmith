@@ -1,13 +1,8 @@
 const dsl = require("../../../../fixtures/longCanvasDsl.json");
 
 describe("reduce long canvas height on widget operation", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
-
   beforeEach(() => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
   });
 
   it("should reduce canvas height when a widget is deleted", () => {

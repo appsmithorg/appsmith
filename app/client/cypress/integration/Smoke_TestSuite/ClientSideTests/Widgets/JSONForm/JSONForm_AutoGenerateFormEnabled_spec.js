@@ -1,16 +1,20 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-
 const fieldPrefix = ".t--jsonformfield";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSON Form Widget AutoGenerate Enabled", () => {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   it("generates fields with valid source data json", () => {
-    cy.addDsl(dslWithoutSchema, appId);
+    cy.addDsl(dslWithoutSchema);
     const sourceData = {
       name: "John",
       age: 30,
@@ -105,7 +109,7 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
   });
 
   it("modifies field when source data changes", () => {
-    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData, appId);
+    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData);
 
     const modifiedSourceData = {
       name: "John",

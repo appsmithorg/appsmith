@@ -2,13 +2,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 
 describe("FilePicker Widget Functionality", function() {
-  before(() => {
-    appId = localStorage.getItem("applicationId");
-    cy.log("appID:" + appId);
-  });
-
   beforeEach(() => {
-    cy.addDsl(dsl, appId);
+    cy.addDsl(dsl);
   });
 
   it("Create API to be used in Filepicker", function() {
