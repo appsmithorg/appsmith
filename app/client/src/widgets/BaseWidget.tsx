@@ -431,96 +431,15 @@ abstract class BaseWidget<
     content: ReactNode,
     style?: DynamicHeightOverlayStyle,
   ) {
-    const shouldUpdateHeight = (
-      minDynamicHeightInRows: number,
-      maxDynamicHeightInRows: number,
-    ) => {
-      const expectedHeight = this.expectedHeight;
-      const expectedHeightInRows = Math.ceil(
-        expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      );
-      const currentHeightInRows = this.props.bottomRow - this.props.topRow;
-
-      console.log(
-        "shouldUpdateHeight",
-        expectedHeightInRows,
-        currentHeightInRows,
-        minDynamicHeightInRows,
-        maxDynamicHeightInRows,
-      );
-
-      if (currentHeightInRows === expectedHeightInRows) {
-        if (
-          minDynamicHeightInRows <= expectedHeightInRows &&
-          maxDynamicHeightInRows >= expectedHeightInRows
-        ) {
-          return false;
-        }
-      }
-
-      // If current height is less than the expected height
-      // We're trying to see if we can increase the height
-      if (currentHeightInRows < expectedHeightInRows) {
-        // If we're not already at the max height, we can increase height
-        if (
-          maxDynamicHeightInRows >= currentHeightInRows &&
-          Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
-        ) {
-          return true;
-        }
-      }
-
-      // If current height is greater than expected height
-      // We're trying to see if we can reduce the height
-      if (currentHeightInRows > expectedHeightInRows) {
-        // If our attempt to reduce does not go below the min possible height
-        // We can safely reduce the height
-        if (
-          minDynamicHeightInRows <= expectedHeightInRows &&
-          Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
-        ) {
-          return true;
-        }
-      }
-
-      // If current height is more than the maxDynamicHeightInRows
-      // We're trying to see if we can decrease the height
-      if (currentHeightInRows > maxDynamicHeightInRows) {
-        return true;
-      }
-
-      // The widget height should always be at least minDynamicHeightInRows
-      if (currentHeightInRows !== minDynamicHeightInRows) {
-        return true;
-      }
-
-      // Since the conditions to change height already return true
-      // If we reach this point, we don't have to change height
-      return false;
-    };
-
-    const updateHeight = (height: number) => {
-      const { updateWidgetDynamicHeight } = this.context;
-      if (updateWidgetDynamicHeight) {
-        updateWidgetDynamicHeight(this.props.widgetId, height);
-      }
-    };
-
     const onMaxHeightSet = (height: number) => {
       const maxDynamicHeightInRows = Math.floor(
         height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
       this.updateWidgetProperty("maxDynamicHeight", maxDynamicHeightInRows);
       requestAnimationFrame(() => {
-        if (
-          shouldUpdateHeight(
-            this.props.minDynamicHeight,
-            maxDynamicHeightInRows,
-          )
-        ) {
-          console.log("shouldUpdateHeight", true);
-          updateHeight(this.expectedHeight);
-        }
+        setTimeout(() => {
+          this.updateDynamicHeight(this.expectedHeight);
+        }, 0);
       });
     };
 
@@ -530,15 +449,9 @@ abstract class BaseWidget<
       );
       this.updateWidgetProperty("minDynamicHeight", minDynamicHeightInRows);
       requestAnimationFrame(() => {
-        if (
-          shouldUpdateHeight(
-            minDynamicHeightInRows,
-            this.props.maxDynamicHeight,
-          )
-        ) {
-          console.log("shouldUpdateHeight", true);
-          updateHeight(this.expectedHeight);
-        }
+        setTimeout(() => {
+          this.updateDynamicHeight(this.expectedHeight);
+        }, 0);
       });
     };
 
