@@ -13,6 +13,7 @@ import {
   getCurrentApplicationId,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
+import { checkSpecialCharacters } from "../Utils/CheckSpecialCharacters";
 
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
@@ -23,7 +24,9 @@ function PageSettings(props: { page: Page }) {
   const appNeedsUpdate = applicationVersion < ApplicationVersion.SLUG_URL;
 
   const [pageName, setPageName] = useState(page.pageName);
+  const [isPageNameValid, setIsPageNameValid] = useState(true);
   const [customSlug, setCustomSlug] = useState(page.customSlug);
+  const [isCustomSlugValid, setIsCustomSlugValid] = useState(true);
   const [isHidden, setIsHidden] = useState(page.isHidden);
   const [isDefault, setIsDefault] = useState(page.isDefault);
 
@@ -62,7 +65,7 @@ function PageSettings(props: { page: Page }) {
   }, [page]);
 
   const savePageName = useCallback(() => {
-    if (pageName.length === 0) return;
+    if (!isPageNameValid) return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       name: pageName,
@@ -71,6 +74,7 @@ function PageSettings(props: { page: Page }) {
   }, [pageName]);
 
   const saveCustomSlug = useCallback(() => {
+    if (!isCustomSlugValid) return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       customSlug: customSlug || "",
@@ -89,19 +93,14 @@ function PageSettings(props: { page: Page }) {
   return (
     <>
       <div className="pb-1 text-[#575757]">Page name</div>
-      <div className="pb-1">
+      <div className="pb-2.5">
         <TextInput
           fill
           onBlur={savePageName}
           onChange={setPageName}
           placeholder="Page name"
           type="input"
-          validator={(value: string) => {
-            return {
-              isValid: value.length > 0,
-              message: value.length > 0 ? "" : "Cannot be empty",
-            };
-          }}
+          validator={checkSpecialCharacters(true, setIsPageNameValid)}
           value={pageName}
         />
       </div>
@@ -118,7 +117,7 @@ function PageSettings(props: { page: Page }) {
           your app URL to new readable format to change this*
         </div>
       )}
-      <div className="pb-1">
+      <div className="pb-2.5">
         <TextInput
           fill
           onBlur={saveCustomSlug}
@@ -126,6 +125,7 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page URL"
           readOnly={appNeedsUpdate}
           type="input"
+          validator={checkSpecialCharacters(false, setIsCustomSlugValid)}
           value={customSlug}
         />
       </div>

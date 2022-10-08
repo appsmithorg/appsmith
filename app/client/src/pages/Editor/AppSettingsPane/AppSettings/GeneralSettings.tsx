@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { checkSpecialCharacters } from "../Utils/CheckSpecialCharacters";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
@@ -34,6 +35,7 @@ function GeneralSettings() {
   const application = useSelector(getCurrentApplication);
 
   const [applicationName, setApplicationName] = useState(application?.name);
+  const [isAppNameValid, setIsAppNameValid] = useState(true);
   const [applicationIcon, setApplicationIcon] = useState(
     application?.icon as AppIconName,
   );
@@ -47,7 +49,7 @@ function GeneralSettings() {
       const isAppNameUpdated = applicationName !== application?.name;
 
       const payload: UpdateApplicationPayload = { currentApp: true };
-      if (isAppNameUpdated) {
+      if (isAppNameUpdated && isAppNameValid) {
         payload.name = applicationName;
       }
       icon ? (payload.icon = icon) : null;
@@ -68,12 +70,7 @@ function GeneralSettings() {
           onChange={setApplicationName}
           placeholder="App name"
           type="input"
-          validator={(value: string) => {
-            return {
-              isValid: value.length > 0,
-              message: value.length > 0 ? "" : "Cannot be empty",
-            };
-          }}
+          validator={checkSpecialCharacters(true, setIsAppNameValid)}
           value={applicationName}
         />
       </div>
