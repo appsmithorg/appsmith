@@ -236,16 +236,13 @@ public class DatabaseChangelog {
     }
 
     public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
-        Query queryToFetchAllWorkspaceIds = new Query();
+        Query queryToFetchAllWorkspaces = new Query();
         /* Filter in only those workspaces that don't have the plugin installed */
-        queryToFetchAllWorkspaceIds.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
-        /* Only read the workspace id and leave out other fields */
-        queryToFetchAllWorkspaceIds.fields().include(fieldName(QWorkspace.workspace.id));
-        List<Workspace> workspacesWithOnlyId = mongockTemplate.find(queryToFetchAllWorkspaceIds, Workspace.class);
-        for (Workspace workspaceWithId : workspacesWithOnlyId) {
-            Workspace workspace =
-                    mongockTemplate.findOne(query(where(fieldName(QWorkspace.workspace.id)).is(workspaceWithId.getId())),
-                    Workspace.class);
+        queryToFetchAllWorkspaces.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
+        /* Fetch complete details of the workspaces */
+        List<Workspace> workspacesWithNoPlugin = mongockTemplate.find(queryToFetchAllWorkspaces, Workspace.class);
+
+        for (Workspace workspace : workspacesWithNoPlugin) {
 
             if (CollectionUtils.isEmpty(workspace.getPlugins())) {
                 workspace.setPlugins(new HashSet<>());
