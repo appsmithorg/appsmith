@@ -115,7 +115,6 @@ function SaveThemeModal(props: SaveThemeModalProps) {
       isOpen={isOpen}
       onClose={onClose}
       title="Save Theme"
-      width="400px"
     >
       <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
         <div className="pb-6 space-y-3">

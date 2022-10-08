@@ -32,7 +32,6 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
       isOpen={isOpen}
       onClose={onClose}
       title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
-      width="400px"
     >
       <div className="pb-8 space-y-3 ">
         <p>{createMessage(DELETE_APP_THEME_WARNING)}</p>

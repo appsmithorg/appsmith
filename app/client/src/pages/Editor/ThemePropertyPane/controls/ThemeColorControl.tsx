@@ -69,9 +69,6 @@ function ThemeColorControl(props: ThemeColorControlProps) {
             color={userDefinedColors[selectedColor]}
             isOpen={autoFocus}
             key={selectedColor}
-            portalContainer={
-              document.getElementById("app-settings-portal") || undefined
-            }
           />
         </div>
       )}

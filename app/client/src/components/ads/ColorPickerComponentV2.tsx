@@ -43,7 +43,6 @@ interface ColorPickerProps {
   evaluatedColorValue?: string;
   autoFocus?: boolean;
   isOpen?: boolean;
-  portalContainer?: HTMLElement;
 }
 
 /**
@@ -518,7 +517,6 @@ const ColorPickerComponent = React.forwardRef(
           minimal
           modifiers={POPOVER_MODFIER}
           onInteraction={handleOnInteraction}
-          portalContainer={props.portalContainer}
         >
           <StyledInputGroup
             autoFocus={props.autoFocus}
