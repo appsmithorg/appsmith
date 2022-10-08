@@ -602,6 +602,9 @@ export function* createPageSaga(
 export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
+    // to be done in backend
+    request.customSlug = request.customSlug?.replaceAll(" ", "-");
+
     const response: ApiResponse = yield call(PageApi.updatePage, request);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
