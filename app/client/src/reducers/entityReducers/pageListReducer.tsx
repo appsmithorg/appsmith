@@ -7,8 +7,11 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import { GenerateCRUDSuccess } from "actions/pageActions";
-import { UpdatePageRequest } from "api/PageApi";
+import {
+  GenerateCRUDSuccess,
+  UpdatePageErrorPayload,
+} from "actions/pageActions";
+import { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -116,13 +119,7 @@ export const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{
-      id: string;
-      name: string;
-      isHidden?: boolean;
-      slug: string;
-      customSlug: string;
-    }>,
+    action: ReduxAction<UpdatePageResponse>,
   ) => {
     const pages = [...state.pages];
     const updatedPageIndex = pages.findIndex(
@@ -151,13 +148,13 @@ export const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionErrorTypes.UPDATE_PAGE_ERROR]: (
     state: PageListReduxState,
-    action: ReduxAction<UpdatePageRequest>,
+    action: ReduxAction<UpdatePageErrorPayload>,
   ) => {
     return {
       ...state,
       loading: {
         ...state.loading,
-        [action.payload.id]: false,
+        [action.payload.request.id]: false,
       },
     };
   },

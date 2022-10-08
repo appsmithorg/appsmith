@@ -41,28 +41,28 @@ function PageSettings(props: { page: Page }) {
 
   useEffect(() => {
     setPageName(page.pageName);
-    setCustomSlug(page.customSlug);
-    setIsHidden(page.isHidden);
-    setIsDefault(page.isDefault);
-  }, [page]);
+    setCustomSlug(page.customSlug || "");
+    setIsHidden(!!page.isHidden);
+    setIsDefault(!!page.isDefault);
+  }, [page, page.pageName, page.customSlug, page.isHidden, page.isDefault]);
 
   const savePageName = useCallback(() => {
-    if (!isPageNameValid) return;
+    if (!isPageNameValid || page.pageName === pageName) return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       name: pageName,
     };
     dispatch(updatePage(payload));
-  }, [pageName]);
+  }, [page.pageId, page.pageName, pageName, isPageNameValid]);
 
   const saveCustomSlug = useCallback(() => {
-    if (!isCustomSlugValid) return;
+    if (!isCustomSlugValid || page.customSlug === customSlug) return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       customSlug: customSlug || "",
     };
     dispatch(updatePage(payload));
-  }, [customSlug]);
+  }, [page.pageId, page.customSlug, customSlug, isCustomSlugValid]);
 
   const saveIsHidden = useCallback(
     (isHidden: boolean) => {
@@ -72,7 +72,7 @@ function PageSettings(props: { page: Page }) {
       };
       dispatch(updatePage(payload));
     },
-    [isHidden],
+    [page.pageId, isHidden],
   );
 
   return (

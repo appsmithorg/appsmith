@@ -44,19 +44,22 @@ function AppSettings() {
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
-    page: context?.pageId
-      ? pages.find((page) => page.pageId === context.pageId)
-      : undefined,
+    page:
+      context?.pageId && pages.length > 0
+        ? pages.find((page) => page.pageId === context.pageId) || pages[0]
+        : undefined,
   });
 
   useEffect(() => {
-    if (selectedTab.page?.pageId) {
+    if (selectedTab.page?.pageId && pages.length > 0) {
       setSelectedTab({
         ...selectedTab,
-        page: pages.find((page) => page.pageId === selectedTab.page?.pageId),
+        page:
+          pages.find((page) => page.pageId === selectedTab.page?.pageId) ||
+          pages[0],
       });
     }
-  }, pages);
+  }, [selectedTab.page?.pageId, pages]);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {

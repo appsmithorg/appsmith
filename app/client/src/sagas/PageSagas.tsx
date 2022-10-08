@@ -26,6 +26,8 @@ import {
   generateTemplateError,
   generateTemplateSuccess,
   fetchAllPageEntityCompletion,
+  updatePageSuccess,
+  updatePageError,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -40,6 +42,7 @@ import PageApi, {
   SavePageResponseData,
   SetPageOrderRequest,
   UpdatePageRequest,
+  UpdatePageResponse,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
 } from "api/PageApi";
@@ -605,22 +608,21 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
     // to be done in backend
     request.customSlug = request.customSlug?.replaceAll(" ", "-");
 
-    const response: ApiResponse = yield call(PageApi.updatePage, request);
+    const response: ApiResponse<UpdatePageResponse> = yield call(
+      PageApi.updatePage,
+      request,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
-        payload: response.data,
-      });
+      yield put(updatePageSuccess(response.data));
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.UPDATE_PAGE_ERROR,
-      payload: {
+    yield put(
+      updatePageError({
         request: action.payload,
         error,
-      },
-    });
+      }),
+    );
   }
 }
 

@@ -16,6 +16,7 @@ import {
   PageLayout,
   SavePageResponse,
   UpdatePageRequest,
+  UpdatePageResponse,
 } from "api/PageApi";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -216,6 +217,25 @@ export const updatePage = (payload: UpdatePageRequest) => {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload,
   };
+};
+
+export const updatePageSuccess = (payload: UpdatePageResponse) => {
+  return {
+    type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+    payload,
+  };
+};
+
+export const updatePageError = (payload: UpdatePageErrorPayload) => {
+  return {
+    type: ReduxActionErrorTypes.UPDATE_PAGE_ERROR,
+    payload,
+  };
+};
+
+export type UpdatePageErrorPayload = {
+  request: UpdatePageRequest;
+  error: unknown;
 };
 
 export type WidgetAddChild = {
