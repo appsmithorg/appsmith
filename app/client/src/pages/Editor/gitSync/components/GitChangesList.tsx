@@ -183,7 +183,7 @@ export default function GitChangesList() {
   const changes = gitChangeListData(status);
   const currentApplication = useSelector(getCurrentApplication);
   const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
-  if (isAutoUpdate) {
+  if (isAutoUpdate && !status.isClean) {
     changes.push(
       <Change
         hasValue={isAutoUpdate}
