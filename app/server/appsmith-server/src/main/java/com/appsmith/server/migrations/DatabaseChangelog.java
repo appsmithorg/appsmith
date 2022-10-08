@@ -236,23 +236,16 @@ public class DatabaseChangelog {
     }
 
     public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
-        Query queryToFetchAllWorkspaces = new Query();
+
+        Query queryToFetchWorkspacesWOPlugin = new Query();
         /* Filter in only those workspaces that don't have the plugin installed */
-        queryToFetchAllWorkspaces.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
-        /* Fetch complete details of the workspaces */
-        List<Workspace> workspacesWithNoPlugin = mongockTemplate.find(queryToFetchAllWorkspaces, Workspace.class);
+        queryToFetchWorkspacesWOPlugin.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
 
-        for (Workspace workspace : workspacesWithNoPlugin) {
+        /* Add plugin to the workspace */
+        Update update = new Update();
+        update.addToSet("plugins",new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
 
-            if (CollectionUtils.isEmpty(workspace.getPlugins())) {
-                workspace.setPlugins(new HashSet<>());
-            }
-
-            workspace.getPlugins()
-                    .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
-
-            mongockTemplate.save(workspace);
-        }
+        mongockTemplate.updateMulti(queryToFetchWorkspacesWOPlugin,update,Workspace.class);
     }
 
     @ChangeSet(order = "001", id = "initial-plugins", author = "")
