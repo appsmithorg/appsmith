@@ -995,14 +995,14 @@ function* setCustomSlugSaga(action: ReduxAction<UpdatePageRequest>) {
     yield put({
       type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS,
       payload: {
-        pageId: request.id,
+        id: request.id,
       },
     });
   } catch (e) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR,
       payload: {
-        pageId: request.id,
+        id: request.id,
       },
     });
   }

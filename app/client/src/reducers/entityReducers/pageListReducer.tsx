@@ -103,32 +103,32 @@ export const pageListReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pageId: string }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     loading: {
       ...state.loading,
-      [action.payload.pageId]: true,
+      [action.payload.id]: true,
     },
   }),
   [ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pageId: string }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     loading: {
       ...state.loading,
-      [action.payload.pageId]: false,
+      [action.payload.id]: false,
     },
   }),
   [ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pageId: string }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     loading: {
       ...state.loading,
-      [action.payload.pageId]: false,
+      [action.payload.id]: false,
     },
   }),
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (

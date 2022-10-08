@@ -13,6 +13,7 @@ import {
   getCurrentApplicationId,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
+import { getPageLoadingState } from "selectors/pageListSelectors";
 import { checkSpecialCharacters } from "../Utils/CheckSpecialCharacters";
 
 function PageSettings(props: { page: Page }) {
@@ -20,6 +21,7 @@ function PageSettings(props: { page: Page }) {
   const page = props.page;
   const applicationId = useSelector(getCurrentApplicationId);
   const applicationVersion = useSelector(selectApplicationVersion);
+  const isPageLoading = useSelector(getPageLoadingState(page.pageId));
 
   const appNeedsUpdate = applicationVersion < ApplicationVersion.SLUG_URL;
 
@@ -99,6 +101,7 @@ function PageSettings(props: { page: Page }) {
           onBlur={savePageName}
           onChange={setPageName}
           placeholder="Page name"
+          readOnly={isPageLoading}
           type="input"
           validator={checkSpecialCharacters(true, setIsPageNameValid)}
           value={pageName}
@@ -123,7 +126,7 @@ function PageSettings(props: { page: Page }) {
           onBlur={saveCustomSlug}
           onChange={setCustomSlug}
           placeholder="Page URL"
-          readOnly={appNeedsUpdate}
+          readOnly={appNeedsUpdate || isPageLoading}
           type="input"
           validator={checkSpecialCharacters(false, setIsCustomSlugValid)}
           value={customSlug}
@@ -139,6 +142,7 @@ function PageSettings(props: { page: Page }) {
         <AdsSwitch
           checked={isHidden}
           className="mb-0"
+          disabled={isPageLoading}
           large
           onChange={() => {
             setIsHidden(!isHidden);
@@ -155,6 +159,7 @@ function PageSettings(props: { page: Page }) {
           <AdsSwitch
             checked={isDefault}
             className="mb-0"
+            disabled={isPageLoading}
             large
             onChange={() => {
               setIsDefault(!isDefault);
