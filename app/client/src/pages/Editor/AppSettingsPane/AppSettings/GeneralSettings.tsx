@@ -5,7 +5,10 @@ import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  getCurrentApplication,
+  getIsSavingAppName,
+} from "selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { checkSpecialCharacters } from "../Utils/CheckSpecialCharacters";
@@ -33,6 +36,7 @@ function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const application = useSelector(getCurrentApplication);
+  const isSavingAppName = useSelector(getIsSavingAppName);
 
   const [applicationName, setApplicationName] = useState(application?.name);
   const [isAppNameValid, setIsAppNameValid] = useState(true);
@@ -69,6 +73,7 @@ function GeneralSettings() {
           onBlur={() => updateAppSettings()}
           onChange={setApplicationName}
           placeholder="App name"
+          readOnly={isSavingAppName}
           type="input"
           validator={checkSpecialCharacters(true, setIsAppNameValid)}
           value={applicationName}
