@@ -847,6 +847,46 @@ export const getUpdatedRoute = (
   return updatedPath;
 };
 
+// to split url into array, so specific parts can be bolded on UI preview
+export const splitPathPreview = (
+  url: string,
+  customSlug?: string,
+): string | string[] => {
+  const slugMatch = matchPath<{ pageId: string; pageSlug: string }>(
+    url,
+    VIEWER_PATH,
+  );
+
+  const customSlugMatch = matchPath<{ pageId: string; customSlug: string }>(
+    url,
+    VIEWER_CUSTOM_PATH,
+  );
+
+  if (!customSlug && slugMatch?.isExact) {
+    const { pageSlug } = slugMatch.params;
+    const splitUrl = url.split(pageSlug);
+    splitUrl.splice(
+      1,
+      0,
+      pageSlug.slice(0, pageSlug.length - 1), // to split -
+      pageSlug.slice(pageSlug.length - 1),
+    );
+    return splitUrl;
+  } else if (customSlug && customSlugMatch?.isExact) {
+    const { customSlug } = customSlugMatch.params;
+    const splitUrl = url.split(customSlug);
+    splitUrl.splice(
+      1,
+      0,
+      customSlug.slice(0, customSlug.length - 1), // to split -
+      customSlug.slice(customSlug.length - 1),
+    );
+    return splitUrl;
+  }
+
+  return url;
+};
+
 export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const { pathname, search } = window.location;
   // Do not update old URLs

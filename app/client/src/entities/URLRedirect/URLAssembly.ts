@@ -164,8 +164,8 @@ export class URLBuilder {
       baseURLRegistry[URL_TYPE.CUSTOM_SLUG][APP_MODE.PUBLISHED];
     return generatePath(urlPattern, {
       pageId,
-      customSlug: `${customSlug}-`,
-    });
+      customSlug: `${customSlug.replaceAll(" ", "-")}-`,
+    }).toLowerCase();
   }
 
   getPagePathPreview(pageId: string, pageName: string) {
@@ -177,9 +177,9 @@ export class URLBuilder {
 
     const formattedParams = this.getFormattedParams(pageId);
 
-    formattedParams.pageSlug = `${pageName}-`;
+    formattedParams.pageSlug = `${pageName.replaceAll(" ", "-")}-`;
 
-    return generatePath(urlPattern, formattedParams);
+    return generatePath(urlPattern, formattedParams).toLowerCase();
   }
 
   /**

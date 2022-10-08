@@ -4,8 +4,6 @@ import { UpdatePageRequest } from "api/PageApi";
 import { Page } from "ce/constants/ReduxActionConstants";
 import { TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
-import { APP_MODE } from "entities/App";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +13,7 @@ import {
 } from "selectors/editorSelectors";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import { checkRegex } from "utils/validation/CheckRegex";
+import { getUrlPreview } from "../Utils";
 
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
@@ -32,32 +31,13 @@ function PageSettings(props: { page: Page }) {
   const [isHidden, setIsHidden] = useState(page.isHidden);
   const [isDefault, setIsDefault] = useState(page.isDefault);
 
-  let pathPreview;
-
-  // when page name is changed
-  // and when custom slug doesn't exist
-  if (!customSlug && pageName !== page.pageName) {
-    // show path based on page name
-    pathPreview = urlBuilder.getPagePathPreview(page.pageId, pageName);
-  }
-  // when custom slug is changed
-  else if (customSlug !== page.customSlug) {
-    if (customSlug) {
-      // show custom slug preview
-      pathPreview = urlBuilder.getCustomSlugPathPreview(
-        page.pageId,
-        customSlug,
-      );
-    } else {
-      // when custom slug is removed
-      // show path based on page name
-      pathPreview = urlBuilder.getPagePathPreview(page.pageId, pageName);
-    }
-  }
-  // when nothing has changed
-  else {
-    pathPreview = urlBuilder.generateBasePath(page.pageId, APP_MODE.PUBLISHED);
-  }
+  const pathPreview = useCallback(getUrlPreview, [
+    page.pageId,
+    pageName,
+    page.pageName,
+    customSlug,
+    page.customSlug,
+  ])(page.pageId, pageName, page.pageName, customSlug, page.customSlug);
 
   useEffect(() => {
     setPageName(page.pageName);
@@ -84,13 +64,16 @@ function PageSettings(props: { page: Page }) {
     dispatch(updatePage(payload));
   }, [customSlug]);
 
-  const saveIsHidden = (isHidden: boolean) => {
-    const payload: UpdatePageRequest = {
-      id: page.pageId,
-      isHidden,
-    };
-    dispatch(updatePage(payload));
-  };
+  const saveIsHidden = useCallback(
+    (isHidden: boolean) => {
+      const payload: UpdatePageRequest = {
+        id: page.pageId,
+        isHidden,
+      };
+      dispatch(updatePage(payload));
+    },
+    [isHidden],
+  );
 
   return (
     <>
@@ -144,7 +127,18 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       <div className="bg-[#e7e7e7] pb-2 break-all">
-        <p className="p-2">{window.location.hostname + pathPreview}</p>
+        <p className="p-2">
+          {window.location.hostname}
+          {Array.isArray(pathPreview) && (
+            <>
+              {pathPreview[0]}
+              <strong>{pathPreview[1]}</strong>
+              {pathPreview[2]}
+              {pathPreview[3]}
+            </>
+          )}
+          {!Array.isArray(pathPreview) && pathPreview}
+        </p>
       </div>
 
       <div className="pb-2 flex justify-between content-center">
