@@ -19,7 +19,6 @@ export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId`;
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
 export const CURL_IMPORT_PAGE_PATH = `/api/curl/curl-import`;
-export const PAGE_LIST_EDITOR_PATH = `/pages`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const PROVIDER_TEMPLATE_PATH = `/provider/:providerId`;
 export const GEN_TEMPLATE_URL = "generate-page";

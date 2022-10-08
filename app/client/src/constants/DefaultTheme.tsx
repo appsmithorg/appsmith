@@ -1345,9 +1345,6 @@ type ColorType = {
     highlightTextColor: string;
     textColor: string;
   };
-  pagesEditor: {
-    iconColor: string;
-  };
   numberedStep: {
     line: string;
   };
@@ -1408,10 +1405,6 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
-};
-
-const pagesEditor = {
-  iconColor: "#A2A6A8",
 };
 
 const toggleMode = {
@@ -2149,7 +2142,6 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2783,7 +2775,6 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
