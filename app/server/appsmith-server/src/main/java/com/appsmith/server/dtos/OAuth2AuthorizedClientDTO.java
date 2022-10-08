@@ -3,6 +3,8 @@ package com.appsmith.server.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
@@ -18,8 +20,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OAuth2AuthorizedClientDTO {
-
-    private String provider;
 
     private String principalName;
 
@@ -70,14 +70,13 @@ public class OAuth2AuthorizedClientDTO {
         private String expiresAt;
     }
 
-    public static OAuth2AuthorizedClientDTO fromOAuth2AuthorizedClient(final String provider, final OAuth2AuthorizedClient client) {
+    public static OAuth2AuthorizedClientDTO fromOAuth2AuthorizedClient(final OAuth2AuthorizedClient client) {
         final ClientRegistration cr = client.getClientRegistration();
         final ClientRegistration.ProviderDetails pd = cr.getProviderDetails();
         final OAuth2AccessToken at = client.getAccessToken();
         final OAuth2RefreshToken rt = client.getRefreshToken();
 
         return new OAuth2AuthorizedClientDTO(
-                provider,
                 client.getPrincipalName(),
                 new ClientRegistrationDTO(
                         cr.getRegistrationId(),
@@ -99,14 +98,14 @@ public class OAuth2AuthorizedClientDTO {
                 new OAuth2AccessTokenDTO(
                         at.getTokenType().getValue(),
                         at.getTokenValue(),
-                        at.getIssuedAt().toString(),
-                        at.getExpiresAt().toString(),
+                        ObjectUtils.defaultIfNull(at.getIssuedAt(), "").toString(),
+                        ObjectUtils.defaultIfNull(at.getExpiresAt(), "").toString(),
                         at.getScopes()
                 ),
                 rt == null ? null : new OAuth2RefreshTokenDTO(
                         rt.getTokenValue(),
-                        rt.getIssuedAt().toString(),
-                        rt.getExpiresAt().toString()
+                        ObjectUtils.defaultIfNull(rt.getIssuedAt(), "").toString(),
+                        ObjectUtils.defaultIfNull(rt.getExpiresAt(), "").toString()
                 )
         );
     }
@@ -119,8 +118,7 @@ public class OAuth2AuthorizedClientDTO {
             throw new IllegalArgumentException("Could not deserialize OAuth2AuthorizedClient, unknown token type: " + accessToken.tokenType);
         }
 
-
-        final OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(
+        return new OAuth2AuthorizedClient(
                 ClientRegistration
                         .withRegistrationId(clientRegistration.registrationId)
                         .clientId(clientRegistration.clientId)
@@ -144,19 +142,20 @@ public class OAuth2AuthorizedClientDTO {
                 new OAuth2AccessToken(
                         tokenType,
                         accessToken.tokenValue,
-                        Instant.parse(accessToken.issuedAt),
-                        Instant.parse(accessToken.expiresAt),
+                        parseInstant(accessToken.issuedAt),
+                        parseInstant(accessToken.expiresAt),
                         Set.copyOf(accessToken.scopes)
                 ),
                 refreshToken == null ? null : new OAuth2RefreshToken(
                         refreshToken.tokenValue,
-                        Instant.parse(refreshToken.issuedAt),
-                        Instant.parse(refreshToken.expiresAt)
+                        parseInstant(refreshToken.issuedAt),
+                        parseInstant(refreshToken.expiresAt)
                 )
         );
+    }
 
-
-        return client;
+    private Instant parseInstant(String refreshToken) {
+        return StringUtils.isEmpty(refreshToken) ? null : Instant.parse(refreshToken);
     }
 
 }

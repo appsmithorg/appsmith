@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
@@ -94,24 +96,36 @@ public class RedisConfig {
 
             } else if ((t instanceof Map)) {
                 final Map<?, ?> data = (Map<?, ?>) t;
-                if (data.size() == 1
-                        && (data.get(LoginSource.GOOGLE.name().toLowerCase()) instanceof OAuth2AuthorizedClient || data.get(LoginSource.GITHUB.name().toLowerCase()) instanceof OAuth2AuthorizedClient)) {
-                    final String firstAndOnlyKey = (String) data.keySet().iterator().next();
-                    final OAuth2AuthorizedClient client = (OAuth2AuthorizedClient) ((Map<?, ?>) t).get(firstAndOnlyKey);
-                    final OAuth2AuthorizedClientDTO dto;
-                    try {
-                        dto = OAuth2AuthorizedClientDTO.fromOAuth2AuthorizedClient(firstAndOnlyKey, client);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw e;
-                    }
-                    final byte[] bytes = jsonSerializer.serialize(dto);
+                if (data.get(LoginSource.GOOGLE.name().toLowerCase()) instanceof OAuth2AuthorizedClient
+                        || data.get(LoginSource.GITHUB.name().toLowerCase()) instanceof OAuth2AuthorizedClient) {
+                    final byte[] bytes = serializeOAuthClientMap(data);
                     return bytes == null ? null : ByteUtils.concat(OAUTH_CLIENT_PREFIX, bytes);
                 }
 
             }
 
             return fallback.serialize(t);
+        }
+
+        private byte[] serializeOAuthClientMap(Map<?, ?> data) {
+            final Map<String, Object> dataMap = new HashMap<>();
+            for (final Map.Entry<?, ?> entry : data.entrySet()) {
+                if (entry.getValue() instanceof OAuth2AuthorizedClient) {
+                    final String key = (String) entry.getKey();
+                    final OAuth2AuthorizedClient client = (OAuth2AuthorizedClient) entry.getValue();
+                    final OAuth2AuthorizedClientDTO dto;
+                    try {
+                        dto = OAuth2AuthorizedClientDTO.fromOAuth2AuthorizedClient(client);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw e;
+                    }
+                    dataMap.put(key, dto);
+                } else {
+                    log.warn("Unknown data type found in session data. Key: {}, Value: {}", entry.getKey(), entry.getValue());
+                }
+            }
+            return jsonSerializer.serialize(dataMap);
         }
 
         @Override
@@ -129,12 +143,19 @@ public class RedisConfig {
             } else if (ByteUtils.startsWith(bytes, OAUTH_CLIENT_PREFIX)) {
                 final byte[] data = Arrays.copyOfRange(bytes, OAUTH_CLIENT_PREFIX.length, bytes.length);
 
-                final OAuth2AuthorizedClientDTO clientData = jsonSerializer.deserialize(data, OAuth2AuthorizedClientDTO.class);
+                final HashMap<String, Map<?, ?>> clientData = jsonSerializer.deserialize(data, HashMap.class);
                 if (clientData == null) {
                     throw new IllegalArgumentException("Could not deserialize OAuth2 client, got null");
                 }
 
-                return Map.of(clientData.getProvider(), clientData.makeOAuth2AuthorizedClient());
+                final Map<String, OAuth2AuthorizedClient> sessionData = new HashMap<>();
+                for (final Map.Entry<String, Map<?, ?>> entry : clientData.entrySet()) {
+                    final OAuth2AuthorizedClientDTO dto = new ObjectMapper()
+                            .convertValue(entry.getValue(), OAuth2AuthorizedClientDTO.class);
+                    sessionData.put(entry.getKey(), dto.makeOAuth2AuthorizedClient());
+                }
+
+                return sessionData;
 
             }
 
