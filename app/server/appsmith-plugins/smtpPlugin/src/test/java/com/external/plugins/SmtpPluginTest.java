@@ -8,11 +8,11 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -23,15 +23,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Testcontainers
 public class SmtpPluginTest {
     final static String username = "smtpUser";
     final static String password = "smtpPass";
     private static String host = "localhost";
     private static Long port = 25l;
 
-    @ClassRule
+    @Container
     public static final GenericContainer smtp = new GenericContainer(DockerImageName.parse("maildev/maildev"))
             .withExposedPorts(25)
             .withCommand("bin/maildev --base-pathname /maildev --incoming-user " + username + " --incoming-pass " + password + " -s 25");
@@ -39,7 +41,7 @@ public class SmtpPluginTest {
     private SmtpPlugin.SmtpPluginExecutor pluginExecutor = new SmtpPlugin.SmtpPluginExecutor();
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         host = smtp.getContainerIpAddress();
         port = Long.valueOf(smtp.getFirstMappedPort());
@@ -90,7 +92,7 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint("", 25l)));
 
-        Assert.assertEquals(Set.of("Could not find host address. Please edit the 'Hostname' field to provide the " +
+        assertEquals(Set.of("Could not find host address. Please edit the 'Hostname' field to provide the " +
                         "desired endpoint."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
@@ -100,7 +102,7 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint(host, null)));
 
-        Assert.assertEquals(Set.of(), pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
+        assertEquals(Set.of(), pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
     @Test
@@ -108,7 +110,7 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setAuthentication(null);
 
-        Assert.assertEquals(Set.of("Invalid authentication credentials. Please check datasource configuration."),
+        assertEquals(Set.of("Invalid authentication credentials. Please check datasource configuration."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -143,8 +145,8 @@ public class SmtpPluginTest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e ->
-                    e instanceof AppsmithPluginException &&
-                    e.getMessage().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Couldn't find a valid sender address. Please check your action configuration."))
+                        e instanceof AppsmithPluginException &&
+                                e.getMessage().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Couldn't find a valid sender address. Please check your action configuration."))
                 )
                 .verify();
     }
