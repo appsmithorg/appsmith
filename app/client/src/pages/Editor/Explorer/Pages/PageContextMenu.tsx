@@ -92,7 +92,14 @@ export function PageContextMenu(props: {
    * @return void
    */
   const setHiddenField = useCallback(
-    () => dispatch(updatePage(props.pageId, props.name, !props.isHidden)),
+    () =>
+      dispatch(
+        updatePage({
+          id: props.pageId,
+          name: props.name,
+          isHidden: !props.isHidden,
+        }),
+      ),
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 

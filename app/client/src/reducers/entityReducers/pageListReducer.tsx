@@ -8,6 +8,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import { GenerateCRUDSuccess } from "actions/pageActions";
+import { UpdatePageRequest } from "api/PageApi";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -101,36 +102,18 @@ export const pageListReducer = createReducer(initialState, {
     ...state,
     currentPageId: action.payload.id,
   }),
-  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT]: (
+  [ReduxActionTypes.UPDATE_PAGE_INIT]: (
     state: PageListReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    loading: {
-      ...state.loading,
-      [action.payload.id]: true,
-    },
-  }),
-  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS]: (
-    state: PageListReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    loading: {
-      ...state.loading,
-      [action.payload.id]: false,
-    },
-  }),
-  [ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR]: (
-    state: PageListReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    loading: {
-      ...state.loading,
-      [action.payload.id]: false,
-    },
-  }),
+    action: ReduxAction<UpdatePageRequest>,
+  ) => {
+    return {
+      ...state,
+      loading: {
+        ...state.loading,
+        [action.payload.id]: true,
+      },
+    };
+  },
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{
@@ -157,7 +140,26 @@ export const pageListReducer = createReducer(initialState, {
       pages.splice(updatedPageIndex, 1, updatedPage);
     }
 
-    return { ...state, pages };
+    return {
+      ...state,
+      pages,
+      loading: {
+        ...state.loading,
+        [action.payload.id]: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.UPDATE_PAGE_ERROR]: (
+    state: PageListReduxState,
+    action: ReduxAction<UpdatePageRequest>,
+  ) => {
+    return {
+      ...state,
+      loading: {
+        ...state.loading,
+        [action.payload.id]: false,
+      },
+    };
   },
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
     state: PageListReduxState,

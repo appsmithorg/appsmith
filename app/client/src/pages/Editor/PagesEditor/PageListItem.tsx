@@ -8,7 +8,6 @@ import {
   clonePageInit,
   deletePage,
   setPageAsDefault,
-  setPageSlug,
 } from "actions/pageActions";
 import EditName from "./EditName";
 import ContextMenu from "./ContextMenu";
@@ -143,7 +142,13 @@ function PageListItem(props: PageListItemProps) {
    * @return void
    */
   const setPageHidden = useCallback(() => {
-    return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
+    return dispatch(
+      updatePage({
+        id: item.pageId,
+        name: item.pageName,
+        isHidden: !item.isHidden,
+      }),
+    );
   }, [dispatch, item]);
 
   return (
@@ -270,11 +275,11 @@ export function CustomURLSlug(props: CustomURLSlugProp) {
   );
 
   const saveSlug = useCallback(() => {
-    dispatch(setPageSlug({ customSlug, id: page.pageId }));
+    dispatch(updatePage({ customSlug, id: page.pageId }));
   }, [page.pageId, customSlug]);
 
   const resetCustomSlug = useCallback(() => {
-    dispatch(setPageSlug({ customSlug: "", id: page.pageId }));
+    dispatch(updatePage({ customSlug: "", id: page.pageId }));
   }, [page.pageId]);
 
   const onChange = useCallback(

@@ -115,7 +115,6 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
-import { takeEvery } from "redux-saga/effects";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
@@ -615,6 +614,7 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_PAGE_ERROR,
       payload: {
+        request: action.payload,
         error,
       },
     });
@@ -982,32 +982,6 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
   }
 }
 
-function* setCustomSlugSaga(action: ReduxAction<UpdatePageRequest>) {
-  const request = action.payload;
-  const response: ApiResponse<Page> = yield call(PageApi.updatePage, request);
-  try {
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (!isValidResponse) return;
-    yield put({
-      type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
-      payload: response.data,
-    });
-    yield put({
-      type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS,
-      payload: {
-        id: request.id,
-      },
-    });
-  } catch (e) {
-    yield put({
-      type: ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR,
-      payload: {
-        id: request.id,
-      },
-    });
-  }
-}
-
 export function* generateTemplatePageSaga(
   action: ReduxAction<GenerateTemplatePageRequest>,
 ) {
@@ -1115,6 +1089,5 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
     takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
-    takeEvery(ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT, setCustomSlugSaga),
   ]);
 }

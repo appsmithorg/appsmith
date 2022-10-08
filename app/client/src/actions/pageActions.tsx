@@ -211,14 +211,10 @@ export const clonePageSuccess = (
   };
 };
 
-export const updatePage = (id: string, name: string, isHidden: boolean) => {
+export const updatePage = (payload: UpdatePageRequest) => {
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
-    payload: {
-      id,
-      name,
-      isHidden,
-    },
+    payload,
   };
 };
 
@@ -503,9 +499,4 @@ export const resetApplicationWidgets = () => ({
 
 export const fetchPageDSLs = () => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
-});
-
-export const setPageSlug = (payload: UpdatePageRequest) => ({
-  type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT,
-  payload,
 });

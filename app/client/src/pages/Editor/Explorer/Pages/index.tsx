@@ -215,7 +215,7 @@ function Pages() {
             searchKeyword={""}
             step={1}
             updateEntityName={(id, name) =>
-              updatePage(id, name, !!page.isHidden)
+              updatePage({ id, name, isHidden: !!page.isHidden })
             }
           />
         );

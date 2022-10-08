@@ -65,7 +65,11 @@ function EditName(props: Props) {
 
   const updateNameCallback = useCallback(
     (name: string) => {
-      return updatePage(page.pageId, name, !!page.isHidden);
+      return updatePage({
+        id: page.pageId,
+        name: name,
+        isHidden: !!page.isHidden,
+      });
     },
     [dispatch],
   );

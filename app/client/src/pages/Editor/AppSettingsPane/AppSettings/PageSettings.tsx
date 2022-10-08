@@ -1,5 +1,5 @@
 import { ApplicationVersion } from "actions/applicationActions";
-import { setPageAsDefault, setPageSlug } from "actions/pageActions";
+import { setPageAsDefault, updatePage } from "actions/pageActions";
 import { UpdatePageRequest } from "api/PageApi";
 import { Page } from "ce/constants/ReduxActionConstants";
 import { TextInput } from "design-system";
@@ -72,7 +72,7 @@ function PageSettings(props: { page: Page }) {
       id: page.pageId,
       name: pageName,
     };
-    dispatch(setPageSlug(payload));
+    dispatch(updatePage(payload));
   }, [pageName]);
 
   const saveCustomSlug = useCallback(() => {
@@ -81,7 +81,7 @@ function PageSettings(props: { page: Page }) {
       id: page.pageId,
       customSlug: customSlug || "",
     };
-    dispatch(setPageSlug(payload));
+    dispatch(updatePage(payload));
   }, [customSlug]);
 
   const saveIsHidden = (isHidden: boolean) => {
@@ -89,7 +89,7 @@ function PageSettings(props: { page: Page }) {
       id: page.pageId,
       isHidden,
     };
-    dispatch(setPageSlug(payload));
+    dispatch(updatePage(payload));
   };
 
   return (
