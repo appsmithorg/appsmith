@@ -9,6 +9,7 @@ import {
   LintTreeResponse,
   LINT_WORKER_ACTIONS,
 } from "workers/Linting/types";
+import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 
 export const lintWorker = new GracefulWorkerService(
   new Worker(new URL("../workers/Linting/lint.worker.ts", import.meta.url)),
@@ -40,5 +41,5 @@ export function* lintTreeSaga({
   );
 
   yield put(setLintingErrors(errors));
-  // TO-DO Update lint errors in the debugger
+  logLatestLintPropertyErrors(errors, unevalTree);
 }
