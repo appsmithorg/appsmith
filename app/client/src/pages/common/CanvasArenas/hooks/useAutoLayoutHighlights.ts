@@ -11,6 +11,7 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { ReflowDirection } from "reflow/reflowTypes";
 
 interface XYCord {
   x: number;
@@ -26,6 +27,7 @@ export interface HighlightInfo {
   posY: number; // y position of the highlight.
   width: number; // width of the highlight.
   height: number; // height of the highlight.
+  isVertical: boolean; // determines if the highlight is vertical or horizontal.
 }
 
 export interface AutoLayoutHighlightProps {
@@ -245,6 +247,7 @@ export const useAutoLayoutHighlights = ({
         width: containerDimensions?.width,
         height: OFFSET_WIDTH,
         alignment: FlexLayerAlignment.Start,
+        isVertical: false,
       };
       // Add the horizontal highlight before the layer.
       arr.push(info);
@@ -272,6 +275,7 @@ export const useAutoLayoutHighlights = ({
       width: containerDimensions?.width,
       height: OFFSET_WIDTH,
       alignment: FlexLayerAlignment.Start,
+      isVertical: false,
     });
 
     return arr;
@@ -387,6 +391,7 @@ export const useAutoLayoutHighlights = ({
       posY: rect.y - containerDimensions?.top,
       width: verticalFlex ? rect?.width : OFFSET_WIDTH,
       height: verticalFlex ? OFFSET_WIDTH : rect.height,
+      isVertical: !verticalFlex,
     };
   }
 
@@ -415,6 +420,7 @@ export const useAutoLayoutHighlights = ({
         posY: childRect?.y - containerDimensions?.top,
         width: OFFSET_WIDTH,
         height: childRect?.height,
+        isVertical: true,
       });
       index += 1;
     }
@@ -430,6 +436,7 @@ export const useAutoLayoutHighlights = ({
       posY: lastRect?.y - containerDimensions?.top,
       width: OFFSET_WIDTH,
       height: lastRect?.height,
+      isVertical: true,
     });
     return arr;
   }
@@ -438,9 +445,12 @@ export const useAutoLayoutHighlights = ({
    * END AUTO LAYOUT OFFSET CALCULATION
    */
 
-  const highlightDropPosition = (e: any) => {
+  const highlightDropPosition = (e: any, moveDirection: ReflowDirection) => {
     if (!useAutoLayout) return;
-    const pos: HighlightInfo | undefined = getHighlightPosition(e);
+    const pos: HighlightInfo | undefined = getHighlightPosition(
+      e,
+      moveDirection,
+    );
 
     if (!pos) return;
     lastActiveHighlight = pos;
@@ -460,7 +470,11 @@ export const useAutoLayoutHighlights = ({
     }
   };
 
-  const getHighlightPosition = (e: any, val?: XYCord): HighlightInfo => {
+  const getHighlightPosition = (
+    e: any,
+    moveDirection?: ReflowDirection,
+    val?: XYCord,
+  ): HighlightInfo => {
     let base: HighlightInfo[] = [];
     if (!highlights || !highlights.length)
       highlights = [
@@ -480,7 +494,17 @@ export const useAutoLayoutHighlights = ({
       y: e?.offsetY || val?.y,
     };
 
-    const arr = [...base].sort((a, b) => {
+    let filteredHighlights: HighlightInfo[] = base;
+    if (moveDirection) {
+      const isVerticalDrag =
+        moveDirection === ReflowDirection.TOP ||
+        moveDirection === ReflowDirection.BOTTOM;
+      filteredHighlights = base.filter((highlight: HighlightInfo) =>
+        isVerticalDrag ? !highlight.isVertical : highlight.isVertical,
+      );
+    }
+
+    const arr = [...filteredHighlights].sort((a, b) => {
       return calculateDistance(a, pos) - calculateDistance(b, pos);
     });
     return arr[0];
@@ -495,7 +519,7 @@ export const useAutoLayoutHighlights = ({
   const getDropInfo = (val: XYCord): HighlightInfo | undefined => {
     if (lastActiveHighlight) return lastActiveHighlight;
 
-    const pos = getHighlightPosition(null, val);
+    const pos = getHighlightPosition(null, undefined, val);
     if (!pos) return;
     lastActiveHighlight = pos;
     return pos;

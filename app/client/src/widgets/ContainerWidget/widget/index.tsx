@@ -286,7 +286,6 @@ export class ContainerWidget extends BaseWidget<
   componentDidMount(): void {
     super.componentDidMount();
     this.updatePositioningInformation();
-    this.checkIsMobile();
   }
 
   componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
@@ -296,10 +295,6 @@ export class ContainerWidget extends BaseWidget<
       this.updateWrappers();
     }
   }
-
-  checkIsMobile = (): void => {
-    if (window.innerWidth < 767) this.setState({ isMobile: true });
-  };
 
   updatePositioningInformation = (): void => {
     if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
