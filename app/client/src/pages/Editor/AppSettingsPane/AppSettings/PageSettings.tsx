@@ -126,13 +126,13 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <div className="bg-[#e7e7e7] pb-2 break-all">
-        <p className="p-2">
+      <div className="pt-2 pb-2.5 text-[#575757] break-all">
+        <p>
           {window.location.hostname}
           {Array.isArray(pathPreview) && (
             <>
               {pathPreview[0]}
-              <strong>{pathPreview[1]}</strong>
+              <strong className="text-[#393939]">{pathPreview[1]}</strong>
               {pathPreview[2]}
               {pathPreview[3]}
             </>
