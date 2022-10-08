@@ -15,6 +15,8 @@ import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,
 } from "@appsmith/constants/messages";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { changeInfoSinceLastCommit } from "../utils";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -175,14 +177,12 @@ export function gitChangeListData(
     .filter((s) => !!s);
 }
 
-export default function GitChangesList({
-  isAutoUpdate,
-}: {
-  isAutoUpdate: boolean;
-}) {
+export default function GitChangesList() {
   const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
+  const currentApplication = useSelector(getCurrentApplication);
+  const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
   if (isAutoUpdate) {
     changes.push(
       <Change
