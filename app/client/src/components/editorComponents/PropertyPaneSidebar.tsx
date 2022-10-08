@@ -104,6 +104,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
 
   /**
    * renders the property pane:
+   * 0. if isAppSettingsPaneOpen -> AppSettingsPane
    * 1. if no widget is selected -> CanvasPropertyPane
    * 2. if more than one widget is selected -> MultiWidgetPropertyPane
    * 3. if user is dragging for selection -> CanvasPropertyPane

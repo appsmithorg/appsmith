@@ -11,7 +11,7 @@ import {
 } from "selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { checkSpecialCharacters } from "../Utils/CheckSpecialCharacters";
+import { checkRegex } from "utils/validation/CheckRegex";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
@@ -75,7 +75,12 @@ function GeneralSettings() {
           placeholder="App name"
           readOnly={isSavingAppName}
           type="input"
-          validator={checkSpecialCharacters(true, setIsAppNameValid)}
+          validator={checkRegex(
+            /^[A-Za-z0-9\s\-]+$/,
+            "No special characters allowed (except -)",
+            true,
+            setIsAppNameValid,
+          )}
           value={applicationName}
         />
       </div>

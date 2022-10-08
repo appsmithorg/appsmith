@@ -14,7 +14,7 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { getPageLoadingState } from "selectors/pageListSelectors";
-import { checkSpecialCharacters } from "../Utils/CheckSpecialCharacters";
+import { checkRegex } from "utils/validation/CheckRegex";
 
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
@@ -103,7 +103,12 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page name"
           readOnly={isPageLoading}
           type="input"
-          validator={checkSpecialCharacters(true, setIsPageNameValid)}
+          validator={checkRegex(
+            /^[A-Za-z0-9\s\-]+$/,
+            "No special characters allowed (except -)",
+            true,
+            setIsPageNameValid,
+          )}
           value={pageName}
         />
       </div>
@@ -128,7 +133,12 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page URL"
           readOnly={appNeedsUpdate || isPageLoading}
           type="input"
-          validator={checkSpecialCharacters(false, setIsCustomSlugValid)}
+          validator={checkRegex(
+            /^[A-Za-z0-9\s\-]+$/,
+            "No special characters allowed (except -)",
+            false,
+            setIsCustomSlugValid,
+          )}
           value={customSlug}
         />
       </div>
