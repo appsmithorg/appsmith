@@ -466,8 +466,8 @@ abstract class BaseWidget<
         <DynamicHeightOverlay
           {...this.props}
           batchUpdate={onBatchUpdate}
-          maxDynamicHeight={this.props.maxDynamicHeight}
-          minDynamicHeight={this.props.minDynamicHeight}
+          maxDynamicHeight={getWidgetMaxDynamicHeight(this.props)}
+          minDynamicHeight={getWidgetMinDynamicHeight(this.props)}
           onMaxHeightSet={onMaxHeightSet}
           onMinHeightSet={onMinHeightSet}
           style={{
