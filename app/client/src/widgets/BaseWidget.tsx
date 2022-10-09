@@ -425,16 +425,20 @@ abstract class BaseWidget<
     content: ReactNode,
     style?: DynamicHeightOverlayStyle,
   ) {
-    const onMaxHeightSet = (height: number) => {
-      const maxDynamicHeightInRows = Math.floor(
-        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      );
-      this.updateWidgetProperty("maxDynamicHeight", maxDynamicHeightInRows);
+    const updateDynamicHeight = () => {
       requestAnimationFrame(() => {
         setTimeout(() => {
           this.updateDynamicHeight(this.expectedHeight);
         }, 0);
       });
+    };
+
+    const onMaxHeightSet = (height: number) => {
+      const maxDynamicHeightInRows = Math.floor(
+        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      );
+      this.updateWidgetProperty("maxDynamicHeight", maxDynamicHeightInRows);
+      updateDynamicHeight();
     };
 
     const onMinHeightSet = (height: number) => {
@@ -442,20 +446,21 @@ abstract class BaseWidget<
         height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
       this.updateWidgetProperty("minDynamicHeight", minDynamicHeightInRows);
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          this.updateDynamicHeight(this.expectedHeight);
-        }, 0);
-      });
+      updateDynamicHeight();
     };
 
     const onBatchUpdate = (height: number) => {
       this.batchUpdateWidgetProperty({
         modify: {
-          maxDynamicHeight: Math.floor(height / 10),
-          minDynamicHeight: Math.floor(height / 10),
+          maxDynamicHeight: Math.floor(
+            height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          ),
+          minDynamicHeight: Math.floor(
+            height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          ),
         },
       });
+      updateDynamicHeight();
     };
 
     const position = this.getPositionStyle();
