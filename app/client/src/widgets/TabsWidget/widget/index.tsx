@@ -1,7 +1,7 @@
 import React from "react";
 import { find } from "lodash";
 import TabsComponent from "../component";
-import BaseWidget, { WidgetState } from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   ValidationResponse,
@@ -13,6 +13,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -143,6 +144,9 @@ class TabsWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "isVisible",
@@ -329,6 +333,9 @@ class TabsWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "animateLoading",

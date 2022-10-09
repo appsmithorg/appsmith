@@ -112,6 +112,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "animateLoading",

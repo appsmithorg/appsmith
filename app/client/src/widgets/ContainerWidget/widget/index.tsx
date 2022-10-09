@@ -20,6 +20,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -63,6 +64,9 @@ class ContainerWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
         ],
       },
@@ -149,6 +153,9 @@ class ContainerWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "animateLoading",
