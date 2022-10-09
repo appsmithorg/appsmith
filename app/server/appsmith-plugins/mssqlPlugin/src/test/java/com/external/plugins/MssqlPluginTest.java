@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -269,6 +270,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -333,6 +335,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -407,6 +410,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -468,6 +472,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("null");
+        param.setClientDataType(ClientDataType.NULL);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -519,6 +524,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue(null);
+        param.setClientDataType(ClientDataType.NULL);
         params.add(param);
         executeActionDTO.setParams(params);
 

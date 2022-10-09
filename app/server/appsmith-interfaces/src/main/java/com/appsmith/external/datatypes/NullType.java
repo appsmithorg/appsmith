@@ -2,7 +2,6 @@ package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
 
-import javax.naming.OperationNotSupportedException;
 
 public class NullType implements AppsmithType {
 
@@ -12,6 +11,13 @@ public class NullType implements AppsmithType {
             return true;
         }
         final String trimmedValue = s.trim();
+        if (trimmedValue.startsWith("[") && trimmedValue.endsWith("]")) {
+            // In case of no values in the array, set this as null. Otherwise plugins like postgres and ms-sql
+            // would break while creating a SQL array.
+            String betweenBraces = trimmedValue.substring(1, trimmedValue.length() - 1);
+            String trimmedInputBetweenBraces = betweenBraces.trim();
+            return trimmedInputBetweenBraces.isEmpty();
+        }
         return "null".equalsIgnoreCase(trimmedValue);
     }
 

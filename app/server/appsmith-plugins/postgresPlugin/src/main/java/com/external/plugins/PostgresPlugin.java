@@ -1,11 +1,12 @@
 package com.external.plugins;
 
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -15,6 +16,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -814,12 +816,14 @@ public class PostgresPlugin extends BasePlugin {
             PreparedStatement preparedStatement = (PreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
             List<DataType> explicitCastDataTypes = (List<DataType>) args[1];
+            Param param = (Param) args[2];
             DataType valueType;
             // If explicitly cast, set the user specified data type
             if (explicitCastDataTypes != null && explicitCastDataTypes.get(index - 1) != null) {
                 valueType = explicitCastDataTypes.get(index - 1);
             } else {
-                valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+                AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value);
+                valueType = appsmithType.type();
             }
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
@@ -875,7 +879,8 @@ public class PostgresPlugin extends BasePlugin {
                         }
                         // Find the type of the entries in the list
                         Object firstEntry = arrayListFromInput.get(0);
-                        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter((String.valueOf(firstEntry)));
+                        AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getDataTypesOfArrayElements().get(0), String.valueOf(firstEntry));
+                        DataType dataType = appsmithType.type();
                         String typeName = toPostgresqlPrimitiveTypeName(dataType);
 
                         // Create the Sql Array and set it.

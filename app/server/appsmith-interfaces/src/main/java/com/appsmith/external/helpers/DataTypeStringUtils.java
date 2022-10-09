@@ -2,8 +2,10 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,6 +60,7 @@ public class DataTypeStringUtils {
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
 
+    @Deprecated(since = "With the implementation of Data Type handling this function is marked as deprecated and is discouraged for further use")
     public static DataType stringToKnownDataTypeConverter(String input) {
 
         if (input == null) {
@@ -202,11 +205,14 @@ public class DataTypeStringUtils {
                                                                   String replacement,
                                                                   DataType replacementDataType,
                                                                   List<Map.Entry<String, String>> insertedParams,
-                                                                  SmartSubstitutionInterface smartSubstitutionUtils) {
+                                                                  SmartSubstitutionInterface smartSubstitutionUtils,
+                                                                  Object...args) {
 
         final DataType dataType;
         if (replacementDataType == null) {
-            dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), replacement);
+            dataType = appsmithType.type();
         } else {
             dataType = replacementDataType;
         }

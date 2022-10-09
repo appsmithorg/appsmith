@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -1069,18 +1070,22 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("{ age: { \"$gte\": 30 } }");
+        param1.setClientDataType(ClientDataType.OBJECT);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -1160,18 +1165,22 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("$gte");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -1692,18 +1701,22 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("{ age: { \"$gte\": 30 } }");
+        param1.setClientDataType(ClientDataType.OBJECT);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -1754,10 +1767,12 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input2.text");
         param1.setValue("1");
+        param1.setClientDataType(ClientDataType.NUMBER);
         params.add(param1);
         Param param2 = new Param();
         param2.setKey("Input4.text");
         param2.setValue("users");
+        param2.setClientDataType(ClientDataType.STRING);
         params.add(param2);
         executeActionDTO.setParams(params);
 
@@ -1865,10 +1880,12 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("This string contains ? symbol");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("F");
+        param3.setClientDataType(ClientDataType.STRING);
         params.add(param3);
         executeActionDTO.setParams(params);
 
@@ -2067,6 +2084,8 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue(objectIdsAsArray);
+        param1.setClientDataType(ClientDataType.ARRAY);
+        param1.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(param1);
         executeActionDTO.setParams(params);
 
@@ -2123,6 +2142,8 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue(objectIdsAsArray);
+        param1.setClientDataType(ClientDataType.ARRAY);
+        param1.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(param1);
         executeActionDTO.setParams(params);
 
@@ -2501,14 +2522,23 @@ public class MongoPluginTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         final List<Param> params = new ArrayList<>();
         final Param id = new Param("Input0", "[\"ObjectId('" + documentIds.get(0) + "')\"]");
+        id.setClientDataType(ClientDataType.ARRAY);
+        id.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(id);
         final Param dob = new Param("Input1", "[\"ISODate('1970-01-01T00:00:00.000Z')\"]");
+        dob.setClientDataType(ClientDataType.ARRAY);
+        dob.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(dob);
         final Param netWorth = new Param("Input2", "['NumberDecimal(\"123456.789012\")']");
+        netWorth.setClientDataType(ClientDataType.ARRAY);
+        netWorth.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(netWorth);
         final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        aLong.setClientDataType(ClientDataType.OBJECT);
         params.add(aLong);
         final Param ts = new Param("Input4", "[\"Timestamp(1421006159, 4)\"]");
+        ts.setClientDataType(ClientDataType.ARRAY);
+        ts.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(ts);
         executeActionDTO.setParams(params);
 
@@ -2549,18 +2579,22 @@ public class MongoPluginTest {
                 "\"dob\": { \"$gte\": \"ISODate('2000-01-01T00:00:00.000Z')\" }, " +
                 "\"netWorth\": { \"$in\": [\"NumberDecimal(123456.789012)\"] } " +
                 "}");
+        param1.setClientDataType(ClientDataType.OBJECT);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -2618,14 +2652,19 @@ public class MongoPluginTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         final List<Param> params = new ArrayList<>();
         final Param id = new Param("Input0", "\"ObjectId(\\\"" + documentIds.get(0) + "\\\")\"");
+        id.setClientDataType(ClientDataType.OBJECT);
         params.add(id);
         final Param dob = new Param("Input1", "\"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"");
+        dob.setClientDataType(ClientDataType.OBJECT);
         params.add(dob);
         final Param netWorth = new Param("Input2", "\"NumberDecimal(\\\"123456.789012\\\")\"");
+        netWorth.setClientDataType(ClientDataType.OBJECT);
         params.add(netWorth);
         final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        aLong.setClientDataType(ClientDataType.OBJECT);
         params.add(aLong);
         final Param ts = new Param("Input4", "\"Timestamp(1421006159, 4)\"");
+        ts.setClientDataType(ClientDataType.OBJECT);
         params.add(ts);
         executeActionDTO.setParams(params);
 
@@ -2664,6 +2703,7 @@ public class MongoPluginTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         final List<Param> params = new ArrayList<>();
         final Param dob = new Param("Input1", "{\"dob\": \"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"}");
+        dob.setClientDataType(ClientDataType.OBJECT);
         params.add(dob);
         executeActionDTO.setParams(params);
 
@@ -2895,7 +2935,9 @@ public class MongoPluginTest {
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "[a-zA-Z]{0,3}.*Ci.*")));
+        Param param = new Param("appsmith.store.variable", "[a-zA-Z]{0,3}.*Ci.*");
+        param.setClientDataType(ClientDataType.STRING);
+        executeActionDTO.setParams(List.of(param));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
                                                                                                                                                 executeActionDTO,
@@ -2930,7 +2972,9 @@ public class MongoPluginTest {
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "35")));
+        Param param = new Param("appsmith.store.variable", "35");
+        param.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(param));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
                                                                                                                                                 executeActionDTO,
@@ -2966,7 +3010,9 @@ public class MongoPluginTest {
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "5-.*")));
+        Param param = new Param("appsmith.store.variable", "5-.*");
+        param.setClientDataType(ClientDataType.STRING);
+        executeActionDTO.setParams(List.of(param));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
                                                                                                                                                 executeActionDTO,
@@ -3002,7 +3048,9 @@ public class MongoPluginTest {
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-7")));
+        Param param = new Param("appsmith.store.variable", "-7");
+        param.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(param));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
                                                                                                                                                 executeActionDTO,
@@ -3039,7 +3087,9 @@ public class MongoPluginTest {
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-2.5")));
+        Param param = new Param("appsmith.store.variable", "-2.5");
+        param.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(param));
 
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
                                                                                                                                                 executeActionDTO,
