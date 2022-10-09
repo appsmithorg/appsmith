@@ -103,7 +103,7 @@ export class CommonLocators {
   _inputFieldByName = (fieldName: string) =>
     "//p[text()='" +
     fieldName +
-    "']/ancestor::label/parent::div/following-sibling::div";
+    "']/ancestor::div[@class='form-config-top']/following-sibling::div";
   _existingFieldTextByName = (fieldName: string) =>
     "//label[text()='" +
     fieldName +
