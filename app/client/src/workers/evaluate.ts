@@ -70,7 +70,6 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 }, {} as any);
 
 function resetWorkerGlobalScope() {
-  console.log({ origin: self.location.origin });
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key]) continue;
     if (key === "evaluationVersion") continue;
