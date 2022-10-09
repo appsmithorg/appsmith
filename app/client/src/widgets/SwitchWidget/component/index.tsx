@@ -40,6 +40,7 @@ const SwitchLabel = styled.div<{
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: inline-block;
@@ -53,6 +54,9 @@ const SwitchLabel = styled.div<{
     labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
   };
   `}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 `;
 
 export const StyledSwitch = styled(Switch)<{
@@ -132,6 +136,7 @@ const SwitchComponent = React.forwardRef<HTMLDivElement, SwitchComponentProps>(
             <SwitchLabel
               className="t--switch-widget-label"
               disabled={isDisabled}
+              isDynamicHeightEnabled={isDynamicHeightEnabled}
               labelPosition={labelPosition}
               labelStyle={labelStyle}
               labelTextColor={labelTextColor}
