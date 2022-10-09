@@ -251,7 +251,7 @@ export const showConnectGitModal = () => ({
   type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
 });
 
-export const disconnectGit = () => ({
+export const revokeGit = () => ({
   type: ReduxActionTypes.REVOKE_GIT,
 });
 
