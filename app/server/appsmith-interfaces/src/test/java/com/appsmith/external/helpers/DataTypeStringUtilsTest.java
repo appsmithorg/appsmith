@@ -17,7 +17,6 @@ import java.util.Map;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 public class DataTypeStringUtilsTest {
 
@@ -67,32 +66,6 @@ public class DataTypeStringUtilsTest {
         assertThat(dataType).isEqualByComparingTo(DataType.INTEGER);
     }
 
-    @Test
-    public void checkCommaDelimitedIntegerValues() {
-        String strData = "54,024,464";
-        AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(ClientDataType.NUMBER, strData);
-        DataType dataType = appsmithType.type();
-
-        assertThat(dataType).isEqualByComparingTo(DataType.INTEGER);
-    }
-
-    @Test
-    public void checkCommaDelimitedDoubleValues() {
-        String doubleData = "54,024,464,177.345300";
-        AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(ClientDataType.NUMBER, doubleData);
-        DataType dataType = appsmithType.type();
-
-        assertThat(dataType).isEqualByComparingTo(DataType.DOUBLE);
-    }
-
-    @Test
-    public void checkCommaDelimitedLongValues() {
-        String strData = "454,024,464,454,987,777";
-        AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(ClientDataType.NUMBER, strData);
-        DataType dataType = appsmithType.type();
-
-        assertThat(dataType).isEqualByComparingTo(DataType.LONG);
-    }
 
     @Test
     public void checkSimpleArrayDataType() {
