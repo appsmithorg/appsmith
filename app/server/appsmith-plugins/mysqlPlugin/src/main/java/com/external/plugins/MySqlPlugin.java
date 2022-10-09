@@ -16,6 +16,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -396,8 +397,8 @@ public class MySqlPlugin extends BasePlugin {
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
-            ClientDataType clientDataType = (ClientDataType) args[0];
-            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, value, MySQLSpecificDataTypes.pluginSpecificTypes);
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value, MySQLSpecificDataTypes.pluginSpecificTypes);
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, appsmithType.type().toString());
             insertedParams.add(parameter);
