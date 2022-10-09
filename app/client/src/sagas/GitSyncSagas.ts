@@ -911,7 +911,7 @@ export default function* gitSyncSagas() {
     ),
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
-    takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
+    takeLatest(ReduxActionTypes.REVOKE_GIT, disconnectGitSaga),
     takeLatest(
       ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
       importAppFromGitSaga,
