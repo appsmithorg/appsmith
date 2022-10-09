@@ -296,7 +296,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   }
   yield call(evalErrorHandler, errors);
   if (isEmpty(errors)) return;
-  if (errors[0].errorMessage !== "undefined: User cancelled action execution") {
+  if (!errors[0].errorMessage.includes("User cancelled action execution")) {
     throw new UncaughtPromiseError(errors[0].errorMessage);
   }
 }
@@ -341,7 +341,9 @@ export function* executeFunction(
 
   if (
     errors?.length > 0 &&
-    errors[0].errorMessage !== "undefined: User cancelled action execution"
+    !errors[0].errorMessage.includes(
+      "undefined: User cancelled action execution",
+    )
   )
     logActionExecutionError(errors[0].errorMessage);
 

@@ -13,6 +13,7 @@ import { isEmpty } from "lodash";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import overrideTimeout from "./TimeoutOverride";
 
 export type EvalResult = {
   result: any;
@@ -69,6 +70,7 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 }, {} as any);
 
 function resetWorkerGlobalScope() {
+  console.log({ origin: self.location.origin });
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key]) continue;
     if (key === "evaluationVersion") continue;
@@ -114,6 +116,9 @@ export function setupEvaluationEnvironment() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
+
+  userLogs.overrideConsole();
+  overrideTimeout();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
@@ -364,7 +369,7 @@ export function isFunctionAsync(
           self.IS_ASYNC = true;
         } else {
           //Find a way to get rid of this
-          self.testIfAsync = true;
+          self.dryRun = true;
           const returnValue = userFunction();
           if (!!returnValue && returnValue instanceof Promise) {
             self.IS_ASYNC = true;

@@ -13,8 +13,6 @@ import {
 } from "workers/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
-import { createGlobalData } from "./evaluate";
-import { dataTreeEvaluator } from "./evaluation.worker";
 
 export const _internalSetTimeout = setTimeout;
 export const _internalClearTimeout = clearTimeout;
@@ -29,7 +27,7 @@ declare global {
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
-    testIfAsync?: boolean;
+    dryRun?: boolean;
   }
 }
 
@@ -45,8 +43,6 @@ type ActionDescriptionWithExecutionType = ActionDescription & {
 type ActionDispatcherWithExecutionType = (
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
-
-const activeTimers = new Map();
 
 export const DATA_TREE_FUNCTIONS: Record<string, any> = {
   navigateTo: function(
@@ -269,40 +265,6 @@ export const DATA_TREE_FUNCTIONS: Record<string, any> = {
           executionType: ExecutionType.PROMISE,
         };
       },
-  },
-  executeAfterDelay: function(
-    cb: (...args: any) => any,
-    delay: number,
-    timerId?: number | string,
-    ...args: any
-  ) {
-    if (timerId) {
-      if (!["string", "number"].includes(typeof timerId))
-        throw new Error("TimerId should be a string or a number");
-    }
-    const _internalTimerId = _internalSetTimeout(
-      function(...args: any) {
-        if (!dataTreeEvaluator) return;
-        self.ALLOW_ASYNC = true;
-        const globalData = createGlobalData({
-          dataTree: dataTreeEvaluator.evalTree,
-          resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
-          isTriggerBased: true,
-        });
-        Object.assign(self, globalData);
-        cb(...args);
-        activeTimers.delete(timerId);
-      },
-      delay,
-      ...args,
-    );
-    if (timerId) activeTimers.set(timerId, _internalTimerId);
-    return timerId || _internalTimerId;
-  },
-  clearTimeout: function(timerId: number | string) {
-    const internalId = activeTimers.get(timerId) || timerId;
-    activeTimers.delete(internalId);
-    return _internalClearTimeout(internalId);
   },
 };
 

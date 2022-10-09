@@ -4,16 +4,14 @@ import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
+const { debug, error, info, log, table, warn } = console;
+
 class UserLog {
   private source: { entityName?: string; entityId?: string } = {};
 
-  constructor() {
-    this.initiate();
-  }
   private logs: LogObject[] = [];
   // initiates the log object with the default methods and their overrides
-  private initiate() {
-    const { debug, error, info, log, table, warn } = console;
+  public overrideConsole() {
     console = {
       ...console,
       table: (...args: any) => {

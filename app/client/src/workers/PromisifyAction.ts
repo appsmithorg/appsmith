@@ -27,8 +27,8 @@ export const talkToMainThread = (actionDescription: ActionDescription) => {
     self.IS_ASYNC = true;
     throw new Error("Async function called in a sync field");
   }
-  if (self.testIfAsync) {
-    self.testIfAsync = false;
+  if (self.dryRun) {
+    self.dryRun = false;
     return Promise.resolve(true);
   }
   const requestId = _.uniqueId(`${actionDescription.type}_`);
@@ -185,9 +185,9 @@ function handleResponseFromMainThread(
 }
 
 export function executeTriggerOnMainThread(trigger: ActionDescription) {
-  if (self.testIfAsync) {
+  if (self.dryRun) {
     self.TRIGGER_COLLECTOR.push(trigger);
-    self.testIfAsync = false;
+    self.dryRun = false;
     return;
   }
   ctx.postMessage({
