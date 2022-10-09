@@ -272,6 +272,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       dynamicTrigger,
       callbackData,
       globalContext,
+      eventType,
     },
   );
 

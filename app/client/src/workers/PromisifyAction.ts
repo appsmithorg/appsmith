@@ -15,10 +15,12 @@ import {
 } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export const promisifyAction = (
   workerRequestId: string,
   actionDescription: ActionDescription,
+  eventType?: EventType,
 ) => {
   if (!self.ALLOW_ASYNC) {
     /**
@@ -38,6 +40,7 @@ export const promisifyAction = (
       trigger: actionDescription,
       errors: [],
       subRequestId,
+      eventType,
     };
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
