@@ -935,7 +935,7 @@ public class MongoPlugin extends BasePlugin {
             String jsonBody = (String) input;
             Param param = (Param) args[0];
             DataType dataType = stringToKnownMongoDBDataTypeConverter(value, param.getClientDataType());
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this, args);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this, param, args);
         }
 
         /**
