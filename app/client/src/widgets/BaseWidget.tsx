@@ -433,18 +433,28 @@ abstract class BaseWidget<
     style?: DynamicHeightOverlayStyle,
   ) {
     const onMaxHeightSet = (height: number) => {
-      this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
+      this.updateWidgetProperty(
+        "maxDynamicHeight",
+        Math.floor(height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
+      );
     };
 
     const onMinHeightSet = (height: number) => {
-      this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
+      this.updateWidgetProperty(
+        "minDynamicHeight",
+        Math.floor(height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
+      );
     };
 
     const onBatchUpdate = (height: number) => {
       this.batchUpdateWidgetProperty({
         modify: {
-          maxDynamicHeight: Math.floor(height / 10),
-          minDynamicHeight: Math.floor(height / 10),
+          maxDynamicHeight: Math.floor(
+            height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          ),
+          minDynamicHeight: Math.floor(
+            height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          ),
         },
       });
     };
