@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @RequestMapping(Url.TENANT_URL)
 public class TenantControllerCE {
 
@@ -18,6 +20,15 @@ public class TenantControllerCE {
         this.service = service;
     }
 
+    /**
+     * This API returns the tenant configuration for any user (anonymous or logged in). The configurations are set
+     * in {@link com.appsmith.server.controllers.ce.InstanceAdminControllerCE#saveEnvChanges(Map<String,String>)}
+     * <p>
+     * The update and retrieval are in different controllers because it would have been weird to fetch the configurations
+     * from the InstanceAdminController
+     *
+     * @return
+     */
     @GetMapping("/config")
     public Mono<ResponseDTO<TenantConfiguration>> getTenantConfig() {
         return service.getTenantConfiguration()
