@@ -43,6 +43,32 @@ export const getDatasourcesStructure = (
   return state.entities.datasources.structure;
 };
 
+export const getDatasourceStructureByDatasourceId = (
+  state: AppState,
+): Record<string, DatasourceStructure> => {
+  return state.entities.datasources.structure;
+};
+
+export const getDatasourceStructuresFromDatasourceId = createSelector(
+  (state: AppState) => getDatasourcesStructure(state),
+  (state: AppState) => getActions(state),
+  (state: AppState, dataTreePath: string) => dataTreePath,
+  (datasourceStructures: any, actions: any, dataTreePath: string) => {
+    const actionName = dataTreePath.split(".")[0];
+
+    const action = find(actions, (a) => a.config.name === actionName);
+    let datasourceId = "";
+    if (action) {
+      datasourceId = action?.config?.datasource?.id;
+    }
+    let structures = "";
+    if (datasourceId in datasourceStructures) {
+      structures = datasourceStructures[datasourceId];
+    }
+    return structures;
+  },
+);
+
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
 };

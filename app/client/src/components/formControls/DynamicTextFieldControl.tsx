@@ -74,7 +74,7 @@ class DynamicTextControl extends BaseControl<
       QUERY_BODY_FIELDS.includes(this.props.configProperty);
     const mode =
       responseType === "TABLE"
-        ? EditorModes.SQL_WITH_BINDING
+        ? EditorModes.SQL
         : EditorModes.JSON_WITH_BINDING;
 
     return (

@@ -53,6 +53,7 @@ import {
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { pluginBindingHint } from "./pluginHintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { ScrollIndicator } from "design-system";
@@ -101,6 +102,7 @@ import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
+import { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -331,6 +333,7 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
+          this.props.datasourceStructures,
         );
 
         this.lintCode(editor);
@@ -364,6 +367,22 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
+
+    if (
+      this.props.datasourceStructures !== prevProps.datasourceStructures &&
+      !!this.props.datasourceStructures
+    ) {
+      // @ts-expect-error: Types are not available
+      this.editor.closeHint();
+      this.props.hinting.push(pluginBindingHint);
+      this.hinters = CodeEditor.startAutocomplete(
+        this.editor,
+        this.props.hinting,
+        this.props.dynamicData,
+        this.props.datasourceStructures,
+      );
+    }
+
     this.editor.operation(() => {
       if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
@@ -482,9 +501,10 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
+    datasourceStructures: any,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData);
+      return helper(editor, dynamicData, datasourceStructures);
     });
   }
 
@@ -973,11 +993,15 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: AppState, ownProps: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
+  datasourceStructures: getDatasourceStructuresFromDatasourceId(
+    state,
+    ownProps?.dataTreePath || "",
+  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -1,4 +1,5 @@
 import CodeMirror from "codemirror";
+import { DatasourceStructure } from "entities/Datasource";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -57,6 +58,7 @@ export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
   customDataTree?: AdditionalDynamicDataTree,
+  datasourceStructures?: DatasourceStructure | string,
 ) => Hinter;
 export type Hinter = {
   showHint: (
