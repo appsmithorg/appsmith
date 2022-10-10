@@ -495,13 +495,28 @@ export const useAutoLayoutHighlights = ({
     };
 
     let filteredHighlights: HighlightInfo[] = base;
-    if (moveDirection) {
+    // For vertical stacks, filter out the highlights based on drag direction and y position.
+    if (moveDirection && direction === LayoutDirection.Vertical) {
       const isVerticalDrag =
         moveDirection === ReflowDirection.TOP ||
         moveDirection === ReflowDirection.BOTTOM;
-      filteredHighlights = base.filter((highlight: HighlightInfo) =>
-        isVerticalDrag ? !highlight.isVertical : highlight.isVertical,
-      );
+
+      filteredHighlights = base.filter((highlight: HighlightInfo) => {
+        // Return only horizontal highlights for vertical drag.
+        if (isVerticalDrag) return !highlight.isVertical;
+        // Return only vertical highlights for horizontal drag, if they lie in the same x plane.
+        return (
+          highlight.isVertical &&
+          (pos.y >= highlight.posY ||
+            pos.y <= highlight.posY + highlight.height)
+        );
+      });
+      // Additional redundancy check.
+      // For horizontal drag, if no vertical highlight exists in the same x plane, return the nearest horizontal highlight.
+      if (!isVerticalDrag && !filteredHighlights.length)
+        filteredHighlights = base.filter(
+          (highlight: HighlightInfo) => !highlight.isVertical,
+        );
     }
 
     const arr = [...filteredHighlights].sort((a, b) => {

@@ -583,7 +583,7 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const dir: ReflowDirection = getMouseMoveDirection(e, 2);
+              const dir: ReflowDirection = getMouseMoveDirection(e, 1);
               triggerReflow(e, firstMove);
               isCurrentDraggedCanvas &&
                 highlights.length &&
