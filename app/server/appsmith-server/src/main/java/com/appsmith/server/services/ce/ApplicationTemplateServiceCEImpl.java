@@ -12,7 +12,9 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -35,9 +37,10 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -46,17 +49,23 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ImportExportApplicationService importExportApplicationService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
+    private final ApplicationService applicationService;
+    private final ResponseUtils responseUtils;
 
     public ApplicationTemplateServiceCEImpl(CloudServicesConfig cloudServicesConfig,
                                             ReleaseNotesService releaseNotesService,
                                             ImportExportApplicationService importExportApplicationService,
                                             AnalyticsService analyticsService,
-                                            UserDataService userDataService) {
+                                            UserDataService userDataService,
+                                            ApplicationService applicationService,
+                                            ResponseUtils responseUtils) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importExportApplicationService = importExportApplicationService;
         this.analyticsService = analyticsService;
         this.userDataService = userDataService;
+        this.applicationService = applicationService;
+        this.responseUtils = responseUtils;
     }
 
     @Override
@@ -246,18 +255,39 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         }
     }
 
+    /**
+     * Merge Template API is slow today because it needs to communicate with ImportExport Service, CloudService and/or serialise and de-serialise the
+     * application. This process takes time and the client may cancel the request. This leads to the flow getting stopped
+     * midway producing corrupted states.
+     * We use the synchronous sink to ensure that even though the client may have cancelled the flow, git operations should
+     * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. Synchronous sink does
+     * not take subscription cancellations into account. This means that even if the subscriber has cancelled its
+     * subscription, the create method still generates its event.
+     */
     @Override
     public Mono<ApplicationImportDTO> mergeTemplateWithApplication(String templateId,
                                                                    String applicationId,
                                                                    String organizationId,
                                                                    String branchName,
                                                                    List<String> pagesToImport) {
-        return getApplicationJsonFromTemplate(templateId)
-                .flatMap(applicationJson -> importExportApplicationService.mergeApplicationJsonWithApplication(
-                        organizationId, applicationId, branchName, applicationJson, pagesToImport)
-                )
+        Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
+                .flatMap(applicationJson ->{
+                    if (branchName != null) {
+                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+                                .flatMap(application -> importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, application.getId(), branchName, applicationJson, pagesToImport));
+                    }
+                    return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);
+                })
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application)
-                );
+                )
+                .map(applicationImportDTO -> {
+                    responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());
+                    return applicationImportDTO;
+                });
+
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 }
