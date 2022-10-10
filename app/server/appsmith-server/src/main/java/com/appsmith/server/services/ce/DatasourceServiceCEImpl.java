@@ -11,6 +11,7 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -67,22 +68,23 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
+	private final CloudServicesConfig cloudServicesConfig;
 
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
-                                   Validator validator,
-                                   MongoConverter mongoConverter,
-                                   ReactiveMongoTemplate reactiveMongoTemplate,
-                                   DatasourceRepository repository,
-                                   WorkspaceService workspaceService,
-                                   AnalyticsService analyticsService,
-                                   SessionUserService sessionUserService,
-                                   PluginService pluginService,
-                                   PluginExecutorHelper pluginExecutorHelper,
-                                   PolicyGenerator policyGenerator,
-                                   SequenceService sequenceService,
-                                   NewActionRepository newActionRepository) {
+								   Validator validator,
+								   MongoConverter mongoConverter,
+								   ReactiveMongoTemplate reactiveMongoTemplate,
+								   DatasourceRepository repository,
+								   WorkspaceService workspaceService,
+								   AnalyticsService analyticsService,
+								   SessionUserService sessionUserService,
+								   PluginService pluginService,
+								   PluginExecutorHelper pluginExecutorHelper,
+								   PolicyGenerator policyGenerator,
+								   SequenceService sequenceService,
+								   NewActionRepository newActionRepository, CloudServicesConfig cloudServicesConfig) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -92,7 +94,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
-    }
+		this.cloudServicesConfig = cloudServicesConfig;
+	}
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
@@ -237,6 +240,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 }));
 
         if (datasource.getDatasourceConfiguration() == null) {
+			//默认初始化成 ip+port/api/版本/xxx
+			final String baseUrl = cloudServicesConfig.getBaseUrl();
+			datasource.setDatasourceConfiguration(DatasourceConfiguration.builder()
+							.url(baseUrl + "/api/v1/background/")
+					.build());
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
         }
 
