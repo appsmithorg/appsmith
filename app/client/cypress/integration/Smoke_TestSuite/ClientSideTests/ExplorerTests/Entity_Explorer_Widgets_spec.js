@@ -3,7 +3,9 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const ee = ObjectsRegistry.EntityExplorer;
+const ee = ObjectsRegistry.EntityExplorer,
+  agHelper = ObjectsRegistry.AggregateHelper,
+  locator = ObjectsRegistry.CommonLocators;
 
 describe("Entity explorer tests related to widgets and validation", function() {
   beforeEach(() => {
@@ -12,14 +14,10 @@ describe("Entity explorer tests related to widgets and validation", function() {
 
   it("Widgets visibility in widget pane", function() {
     ee.NavigateToSwitcher("widgets");
-    cy.get("[data-cy='widget-sidebar-scrollable-wrapper']").scrollTo("bottom");
-    cy.get(ee.locator._widgetPageIcon(WIDGET.VIDEO))
-      .first()
-      .should("be.visible");
+    agHelper.ScrollTo(locator._widgetPane, "bottom");
+    agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
     ee.PinUnpinEntityExplorer(true);
-    cy.get(ee.locator._widgetPageIcon(WIDGET.VIDEO))
-      .first()
-      .should("be.visible");
+    agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
   });
 
   it("Widget edit/delete/copy to clipboard validation", function() {

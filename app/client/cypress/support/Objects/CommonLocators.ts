@@ -154,4 +154,5 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _widgetPane = "[data-cy='widget-sidebar-scrollable-wrapper']";
 }
