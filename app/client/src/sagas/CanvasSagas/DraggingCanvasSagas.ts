@@ -305,10 +305,27 @@ function* moveWidgetsSaga(
     ) {
       throw Error;
     }
+    // TODO: Put this piece of code in a proper place.
+    const prevParentId =
+      draggedBlocksToUpdate[0].updateWidgetParams.payload.parentId;
+    const prevParent = updatedWidgetsOnMove[prevParentId];
 
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    const updatedWidgets = {
+      ...updatedWidgetsOnMove,
+      [prevParent.widgetId]: {
+        ...prevParent,
+        flexLayers: removeWidgetsFromCurrentLayers(
+          updatedWidgetsOnMove,
+          draggedBlocksToUpdate.map((each) => each.widgetId),
+          prevParent.flexLayers,
+        ),
+      },
+    };
+
+    yield put(updateAndSaveLayout(updatedWidgets));
 
     const block = draggedBlocksToUpdate[0];
+
     const oldParentId = block.updateWidgetParams.payload.parentId;
     const newParentId = block.updateWidgetParams.payload.newParentId;
 
@@ -550,6 +567,11 @@ function updateRelationships(
           const updatedPrevParent = {
             ...prevParent,
             children: prevParent.children.filter((each) => each !== item),
+            flexLayers: removeWidgetsFromCurrentLayers(
+              widgets,
+              movedWidgets,
+              prevParent.flexLayers,
+            ),
           };
           widgets[prevParentId] = updatedPrevParent;
         }
@@ -648,20 +670,23 @@ function removeWidgetsFromCurrentLayers(
   movedWidgets: string[],
   flexLayers: FlexLayer[],
 ): FlexLayer[] {
-  const updatedLayers = flexLayers.map((layer: FlexLayer) => {
-    const updatedChildren = layer.children.filter(
-      (child: LayerChild) => movedWidgets.indexOf(child.id) === -1,
+  if (!flexLayers || !flexLayers.length) return [];
+  return flexLayers?.reduce((acc: FlexLayer[], layer: FlexLayer) => {
+    const children = layer.children.filter(
+      (each: LayerChild) => movedWidgets.indexOf(each.id) === -1,
     );
-    return {
-      ...layer,
-      children: updatedChildren,
-      hasFillChild: updatedChildren.some(
-        (child: LayerChild) =>
-          allWidgets[child.id].responsiveBehavior === ResponsiveBehavior.Fill,
-      ),
-    };
-  });
-  return updatedLayers.filter((layer: FlexLayer) => layer.children.length);
+    if (children.length) {
+      acc.push({
+        ...layer,
+        children,
+        hasFillChild: children.some(
+          (each: LayerChild) =>
+            allWidgets[each.id].responsiveBehavior === ResponsiveBehavior.Fill,
+        ),
+      });
+    }
+    return acc;
+  }, []);
 }
 
 /**
