@@ -227,15 +227,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(savedDatasource -> {
-
-                    // this key will present in the analytics as a diff b/w server and user invoked flows
-                    final String isDatasourceUpdateUserInvokedKey = "isDatasourceUpdateUserInvoked";
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
-
                     if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
-                        analyticsProperties.put(isDatasourceUpdateUserInvokedKey, Boolean.TRUE);
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
                     } else {
-                        analyticsProperties.put(isDatasourceUpdateUserInvokedKey, Boolean.FALSE);
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
                     }
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
                 })
