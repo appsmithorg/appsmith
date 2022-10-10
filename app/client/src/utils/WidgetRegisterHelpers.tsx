@@ -52,6 +52,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
   let features: Record<string, unknown> = {};
   if (config.features && config.features.dynamicHeight) {
     features = Object.assign({}, WidgetFeatureProps.DYNAMIC_HEIGHT);
+    config.defaults.dynamicHeight = "AUTO_HEIGHT";
   }
   if (config.isCanvas) {
     features["shouldScrollContents"] = false;
