@@ -3,14 +3,14 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import { DroppableComponent } from "./DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import { Category, Size } from "design-system";
 import { ButtonPlacementTypes } from "components/constants";
-import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;

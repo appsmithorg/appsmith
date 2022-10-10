@@ -1,9 +1,15 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import { isPermitted } from "pages/Applications/permissionHelpers";
-import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { IconName, TabComponent, TabProp, Text, TextType } from "design-system";
+import {
+  DialogComponent as Dialog,
+  TabComponent,
+  TabProp,
+  Text,
+  TextType,
+  IconName,
+} from "design-system";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";

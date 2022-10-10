@@ -185,7 +185,7 @@ export const BindingText = styled.span`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 16px 30px;
+  padding: 18px 30px;
   height: 100%;
   ${FormLabel} {
     padding: 0px;

@@ -22,6 +22,8 @@ import {
   TEMPLATE_CARD_DESCRIPTION,
   TEMPLATE_CARD_TITLE,
 } from "ce/constants/messages";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -31,7 +33,7 @@ const Wrapper = styled.div`
   gap: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const Card = styled.div`
+const Card = styled.div<{ centerAlign?: boolean }>`
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[9]}px`};
   border: solid 1px ${Colors.GREY_4};
@@ -40,16 +42,20 @@ const Card = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  ${(props) =>
+    props.centerAlign &&
+    `
+    justify-content: center;
+  `}
   cursor: pointer;
-  transition: all 0.5s;
 
   svg {
     height: 24px;
     width: 24px;
   }
 
-  &:hover {
-    background-color: ${Colors.GREY_2};
+  &:hover svg path {
+    fill: var(--appsmith-color-orange-500);
   }
 `;
 
@@ -75,6 +81,7 @@ function CanvasTopSection() {
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
+  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
   if (!showCanvasTopSection) return null;
 
@@ -84,18 +91,21 @@ function CanvasTopSection() {
 
   return (
     <Wrapper>
-      <Card data-cy="start-from-template" onClick={showTemplatesModal}>
-        <Layout />
-        <Content>
-          <Text color={Colors.COD_GRAY} type={TextType.P1}>
-            {createMessage(TEMPLATE_CARD_TITLE)}
-          </Text>
-          <Text type={TextType.P3}>
-            {createMessage(TEMPLATE_CARD_DESCRIPTION)}
-          </Text>
-        </Content>
-      </Card>
+      {!!featureFlags.TEMPLATES_PHASE_2 && (
+        <Card data-cy="start-from-template" onClick={showTemplatesModal}>
+          <Layout />
+          <Content>
+            <Text color={Colors.COD_GRAY} type={TextType.P1}>
+              {createMessage(TEMPLATE_CARD_TITLE)}
+            </Text>
+            <Text type={TextType.P3}>
+              {createMessage(TEMPLATE_CARD_DESCRIPTION)}
+            </Text>
+          </Content>
+        </Card>
+      )}
       <Card
+        centerAlign={!featureFlags.TEMPLATES_PHASE_2}
         data-cy="generate-app"
         onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
       >
