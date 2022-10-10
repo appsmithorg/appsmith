@@ -137,9 +137,9 @@ describe("Layout OnLoad Actions tests", function() {
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
 
-      const _randomFlora = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[0];
       const _randomUser = JSON.parse(respBody).data.layouts[0]
+        .layoutOnLoadActions[0];
+      const _randomFlora = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[1];
       const _genderize = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[2];
@@ -150,11 +150,11 @@ describe("Layout OnLoad Actions tests", function() {
       // cy.log("_genderize is: " + JSON.stringify(_genderize))
       // cy.log("_suggestions is: " + JSON.stringify(_suggestions))
 
-      expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
-        "RandomFlora",
-      );
       expect(JSON.parse(JSON.stringify(_randomUser))[0]["name"]).to.eq(
         "RandomUser",
+      );
+      expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
+        "RandomFlora",
       );
       expect(JSON.parse(JSON.stringify(_genderize))[0]["name"]).to.be.oneOf([
         "Genderize",
@@ -189,20 +189,20 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
-      const _randomFlora = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[0];
       const _randomUser = JSON.parse(respBody).data.layouts[0]
+        .layoutOnLoadActions[0];
+      const _randomFlora = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[1];
       const _genderize = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[2];
       const _suggestions = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[3];
 
-      expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
-        "RandomFlora",
-      );
       expect(JSON.parse(JSON.stringify(_randomUser))[0]["name"]).to.eq(
         "RandomUser",
+      );
+      expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
+        "RandomFlora",
       );
       expect(JSON.parse(JSON.stringify(_genderize))[0]["name"]).to.be.oneOf([
         "Genderize",
