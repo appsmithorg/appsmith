@@ -14,6 +14,7 @@ import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import overrideTimeout from "./TimeoutOverride";
 
 export type EvalResult = {
   result: any;
@@ -115,6 +116,8 @@ export function setupEvaluationEnvironment() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
+  userLogs.overrideConsoleAPI();
+  overrideTimeout();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;

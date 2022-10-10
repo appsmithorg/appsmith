@@ -4,12 +4,9 @@ import { klona } from "klona/lite";
 import moment from "moment";
 
 class UserLog {
-  constructor() {
-    this.initiate();
-  }
   private logs: LogObject[] = [];
   // initiates the log object with the default methods and their overrides
-  private initiate() {
+  public overrideConsoleAPI() {
     const { debug, error, info, log, table, warn } = console;
     console = {
       ...console,
