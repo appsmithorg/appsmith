@@ -73,7 +73,7 @@ public class EnvManagerTest {
     @MockBean
     private UserUtils userUtils;
 
-    @Autowired
+    @MockBean
     private TenantService tenantService;
 
     EnvManager envManager;
