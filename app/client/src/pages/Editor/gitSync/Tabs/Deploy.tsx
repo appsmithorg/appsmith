@@ -311,7 +311,8 @@ function Deploy() {
 
   const showPullButton =
     !isFetchingGitStatus &&
-    ((pullRequired && !isConflicting) || gitStatus?.behindCount > 0);
+    ((pullRequired && !isConflicting) ||
+      (gitStatus?.behindCount > 0 && gitStatus?.isClean));
   return (
     <Container data-testid={"t--deploy-tab-container"} ref={scrollWrapperRef}>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
