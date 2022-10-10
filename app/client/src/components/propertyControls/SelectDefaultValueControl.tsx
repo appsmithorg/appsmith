@@ -19,6 +19,12 @@ export const getBindingTemplate = (widgetName: string) => {
   return { prefixTemplate, suffixTemplate };
 };
 
+export const getNewBindingTemplate = () => {
+  const prefixTemplate = "";
+  const suffixTemplate = "";
+  return { prefixTemplate, suffixTemplate };
+};
+
 export const removeTemplateFromJSBinding = (
   string: string,
   widgetName: string,
@@ -135,17 +141,25 @@ class SelectDefaultValueControl extends BaseControl<
   }
 
   getInputComputedValue = (propertyValue: string) => {
-    return JSToString(propertyValue);
+    const { prefixTemplate, suffixTemplate } = getNewBindingTemplate();
+
+    const value = propertyValue.substring(
+      prefixTemplate.length,
+      propertyValue.length - suffixTemplate.length,
+    );
+
+    return JSToString(value);
   };
 
   getComputedValue = (value: string) => {
     const stringToEvaluate = stringToJS(value);
+    const { prefixTemplate, suffixTemplate } = getNewBindingTemplate();
 
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
 
-    return stringToEvaluate;
+    return `${prefixTemplate}${stringToEvaluate}${suffixTemplate}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
