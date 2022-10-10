@@ -7,12 +7,6 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Layout OnLoad Actions tests", function() {
-  before(() => {
-    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
-  });
-
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -22,6 +16,9 @@ describe("Layout OnLoad Actions tests", function() {
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
+    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
+      agHelper.AddDsl(val);
+    });
     ee.SelectEntityByName("Widgets");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
