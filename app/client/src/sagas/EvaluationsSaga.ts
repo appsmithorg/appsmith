@@ -274,7 +274,6 @@ export function* evaluateAndExecuteDynamicTrigger(
       callbackData,
       context: { globalContext: context, eventType },
       triggerMeta,
-      eventType,
     },
   );
   yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);

@@ -50,7 +50,6 @@ export const talkToMainThread = (
         eventType,
         triggerMeta,
       },
-      eventType,
     });
   });
 };
@@ -108,7 +107,7 @@ export const promisifyAction = (
             dataTree: dataTreeEvaluator.evalTree,
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
             isTriggerBased: true,
-            context: {},
+            context: { eventType },
           });
           for (const entity in globalData) {
             // @ts-expect-error: Types are not available
