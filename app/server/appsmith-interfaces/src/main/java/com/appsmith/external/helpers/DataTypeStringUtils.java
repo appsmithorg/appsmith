@@ -199,6 +199,7 @@ public class DataTypeStringUtils {
      * @param insertedParams keeps a list of tuple (replacement, data_type)
      * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied to replacement
      *                               value before the final substitution happens
+     * @param param the binding parameter having the clientDataType to be used in the data type identification process
      * @return
      */
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
@@ -206,11 +207,11 @@ public class DataTypeStringUtils {
                                                                   DataType replacementDataType,
                                                                   List<Map.Entry<String, String>> insertedParams,
                                                                   SmartSubstitutionInterface smartSubstitutionUtils,
+                                                                  Param param,
                                                                   Object...args) {
 
         final DataType dataType;
         if (replacementDataType == null) {
-            Param param = (Param) args[0];
             AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), replacement);
             dataType = appsmithType.type();
         } else {
