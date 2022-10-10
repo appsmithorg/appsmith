@@ -272,7 +272,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       dataTree: unEvalTree,
       dynamicTrigger,
       callbackData,
-      context: { ...context, eventType },
+      context: { globalContext: context, eventType },
       triggerMeta,
       eventType,
     },
