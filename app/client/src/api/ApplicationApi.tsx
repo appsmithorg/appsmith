@@ -173,7 +173,7 @@ export interface UpdateApplicationResponse {
   name: string;
   workspaceId: string;
   isPublic: boolean;
-  pages: Page[];
+  pages: PageDefaultMeta[];
   appIsExample: boolean;
   unreadCommentThreads: number;
   color: string;
@@ -188,7 +188,7 @@ export interface UpdateApplicationResponse {
   modifiedAt: Date;
 }
 
-interface Page {
+export interface PageDefaultMeta {
   id: string;
   isDefault: boolean;
   defaultPageId: string;
