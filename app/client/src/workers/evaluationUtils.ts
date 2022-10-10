@@ -679,18 +679,18 @@ export const removeErrorsFromEntityProperty = (
     fullPropertyPath,
   );
   if (propertyPath) {
-    const existingLintErrors = (_.get(
+    const existingErrorsExceptValidation = (_.get(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
       [],
     ) as EvaluationError[]).filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
+      (error) => error.errorType === PropertyEvaluationErrorType.VALIDATION,
     );
 
     _.set(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
-      existingLintErrors,
+      existingErrorsExceptValidation,
     );
   }
   return dataTree;
