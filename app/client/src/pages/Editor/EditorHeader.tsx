@@ -46,8 +46,6 @@ import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
-import { useLocation } from "react-router";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
@@ -84,7 +82,6 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import { inviteModalLinks } from "@appsmith/constants/forms";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -252,7 +249,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     publishApplication,
     workspaceId,
   } = props;
-  const location = useLocation();
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
@@ -263,15 +259,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const user = useSelector(getCurrentUser);
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
-
-  useEffect(() => {
-    if (window.location.href) {
-      const searchParams = new URL(window.location.href).searchParams;
-      const isSnipingMode = searchParams.get("isSnipingMode");
-      const updatedIsSnipingMode = isSnipingMode === "true";
-      dispatch(setSnipingModeAction(updatedIsSnipingMode));
-    }
-  }, [location]);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -462,7 +449,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                 bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
-              links={inviteModalLinks}
               message={createMessage(INVITE_USERS_MESSAGE)}
               placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
               title={

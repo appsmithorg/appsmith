@@ -1,7 +1,6 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   CodeEditorContext,
-  CursorPosition,
   EvaluatedPopupState,
   PropertyPanelContext,
   SelectedPropertyPanel,
@@ -23,20 +22,17 @@ export const setSelectedPropertyPanel = (
   };
 };
 
+export const setCodeEditorLastFocus = (key: string | undefined) => {
+  return {
+    type: ReduxActionTypes.SET_CODE_EDITOR_FOCUS,
+    payload: { key },
+  };
+};
+
 export const setCodeEditorHistory = (codeEditorContext: CodeEditorContext) => {
   return {
     type: ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY,
     payload: codeEditorContext,
-  };
-};
-
-export const setCodeEditorCursorPosition = (
-  key: string | undefined,
-  cursorPosition: CursorPosition,
-) => {
-  return {
-    type: ReduxActionTypes.SET_CODE_EDITOR_CURSOR_POSITION,
-    payload: { key, cursorPosition },
   };
 };
 

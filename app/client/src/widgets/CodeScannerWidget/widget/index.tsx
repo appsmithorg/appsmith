@@ -10,16 +10,18 @@ class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
-    return [...contentConfig, ...styleConfig];
-  }
-
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      value: undefined,
+    };
   }
 
   onCodeDetected = (value: string) => {

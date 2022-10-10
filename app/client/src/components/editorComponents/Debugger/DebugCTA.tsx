@@ -1,6 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { showDebugger } from "actions/debuggerActions";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes, Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
@@ -13,7 +16,6 @@ import { Position } from "@blueprintjs/core";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
-import { setCanvasDebuggerSelectedTab } from "actions/editorContextActions";
 
 const EVDebugButton = styled.button`
   ${(props) => getTypographyByKey(props, "btnSmall")};

@@ -17,7 +17,7 @@ import { isString } from "utils/helpers";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/ActionCreator/Fields";
+} from "components/editorComponents/ActionCreator/utils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
   ORIGINAL_INDEX_KEY,

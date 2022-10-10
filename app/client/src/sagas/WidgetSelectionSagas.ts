@@ -38,6 +38,7 @@ import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -300,7 +301,9 @@ function* selectMultipleWidgetsSaga(
     if (!widgetIds) {
       return;
     }
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const allWidgets: CanvasWidgetsReduxState = yield select(
+      getCanvasWidgetsWithParentId,
+    );
     const parentToMatch = allWidgets[widgetIds[0]]?.parentId;
     const doesNotMatchParent = widgetIds.some((each) => {
       return allWidgets[each]?.parentId !== parentToMatch;
@@ -313,6 +316,9 @@ function* selectMultipleWidgetsSaga(
     ) {
       yield put(showModal(widgetIds[0]));
     } else {
+      if (widgetIds.length > 0 && allWidgets[widgetIds[0]]?.parentModalId) {
+        yield put(showModal(allWidgets[widgetIds[0]]?.parentModalId, false));
+      }
       yield put(selectWidgetAction());
       yield put(selectMultipleWidgetsAction(widgetIds));
     }

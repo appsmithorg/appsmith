@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isString } from "lodash";
+import _ from "lodash";
 import {
   DataTree,
   ENTITY_TYPE,
@@ -100,11 +100,10 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { getCodeEditorCursorPosition } from "selectors/editorContextSelectors";
-import { CursorPosition } from "reducers/uiReducers/editorContextReducer";
+import { setCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
-import { setCodeEditorCursorPosition } from "actions/editorContextActions";
+import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -183,6 +182,7 @@ export type EditorProps = EditorStyleProps &
     isReadOnly?: boolean;
     isRawView?: boolean;
     isJSObject?: boolean;
+    containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
   };
@@ -338,9 +338,8 @@ class CodeEditor extends Component<Props, State> {
 
         this.lintCode(editor);
 
-        if (this.props.cursorPosition && shouldFocusOnPropertyControl()) {
+        if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
           editor.focus();
-          editor.setCursor(this.props.cursorPosition);
         }
       }.bind(this);
 
@@ -358,7 +357,27 @@ class CodeEditor extends Component<Props, State> {
     return true;
   }
 
+  //Debounce editor refresh request as container resizing triggers many change events.
+  debounceEditorRefresh = _.debounce(async () => {
+    this.editor.refresh();
+  }, 100);
+
   componentDidUpdate(prevProps: Props): void {
+    if (
+      prevProps.containerHeight &&
+      this.props.containerHeight &&
+      prevProps.containerHeight < this.props.containerHeight
+    ) {
+      //Refresh editor when the container height is increased.
+      this.debounceEditorRefresh();
+    }
+    if (
+      !prevProps.editorIsFocused &&
+      this.props.editorIsFocused &&
+      shouldFocusOnPropertyControl()
+    ) {
+      this.editor.focus();
+    }
     this.editor.operation(() => {
       if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
@@ -368,7 +387,7 @@ class CodeEditor extends Component<Props, State> {
       const previousInputValue = getInputValue(prevProps.input.value);
 
       if (!!inputValue || inputValue === "") {
-        if (inputValue !== editorValue && isString(inputValue)) {
+        if (inputValue !== editorValue && _.isString(inputValue)) {
           this.editor.setValue(inputValue);
           this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
         } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
@@ -381,15 +400,6 @@ class CodeEditor extends Component<Props, State> {
         this.editor.setValue("");
       }
       CodeEditor.updateMarkings(this.editor, this.props.marking);
-      if (
-        JSON.stringify(this.props.cursorPosition) !==
-        JSON.stringify(prevProps.cursorPosition)
-      ) {
-        if (this.props.cursorPosition) {
-          this.editor.focus();
-          this.editor.setCursor(this.props.cursorPosition);
-        }
-      }
     });
   }
 
@@ -529,14 +539,15 @@ class CodeEditor extends Component<Props, State> {
         EditorModes.GRAPHQL_WITH_BINDING,
       ].includes(mode.name)
     ) {
-      this.editor?.setOption("matchBrackets", true);
+      this.editor.setOption("matchBrackets", true);
     } else {
-      this.editor?.setOption("matchBrackets", false);
+      this.editor.setOption("matchBrackets", false);
     }
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+
     if (!cm.state.completionActive) {
       updateCustomDef(this.props.additionalDynamicData);
 
@@ -552,13 +563,12 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = (cm: CodeMirror.Editor) => {
+  handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    this.editor?.setOption("matchBrackets", false);
+    this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
-    const { ch, line } = cm.getCursor();
-    this.props.setCursorPosition(this.props.dataTreePath, { line, ch });
+    this.props.setCodeEditorLastFocus(this.props.dataTreePath);
   };
 
   handleBeforeChange = (
@@ -984,17 +994,15 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  cursorPosition: getCodeEditorCursorPosition(state, props.dataTreePath || ""),
+  editorIsFocused: getshouldFocusPropertyPath(state, props.dataTreePath || ""),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
-  setCursorPosition: (
-    key: string | undefined,
-    cursorPosition: CursorPosition,
-  ) => dispatch(setCodeEditorCursorPosition(key, cursorPosition)),
+  setCodeEditorLastFocus: (key: string | undefined) =>
+    dispatch(setCodeEditorLastFocus(key)),
 });
 
 export default Sentry.withProfiler(

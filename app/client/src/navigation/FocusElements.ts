@@ -23,8 +23,6 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   setAllEntityCollapsibleStates,
-  setAllPropertySectionState,
-  setCanvasDebuggerSelectedTab,
   setCodeEditorHistory,
   setExplorerSwitchIndex,
   setFocusableField,
@@ -69,6 +67,8 @@ import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
 import { setAllMetaProps } from "actions/metaActions";
 import { getWidgetsMeta } from "sagas/selectors";
 import { initialState as MetaDefaultState } from "reducers/entityReducers/metaReducer";
+import { setAllPropertySectionState } from "actions/propertyPaneActions";
+import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",

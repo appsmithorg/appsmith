@@ -5,7 +5,10 @@ import { useSelector } from "store";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "@appsmith/reducers";
-import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger as showDebuggerAction,
+} from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -17,7 +20,6 @@ import {
 import { matchBuilderPath } from "constants/routes";
 import { TooltipComponent } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
-import { setCanvasDebuggerSelectedTab } from "actions/editorContextActions";
 
 function Debugger() {
   const showDebugger = useSelector(

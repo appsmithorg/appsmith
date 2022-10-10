@@ -4,6 +4,7 @@ const { merge } = require("webpack-merge");
 const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
+const { RetryChunkLoadPlugin } = require("webpack-retry-chunk-load-plugin");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
 
@@ -48,6 +49,18 @@ plugins.push(
     test: /\.(js|css|html|svg)$/,
     threshold: 10240,
     minRatio: 0.8,
+  }),
+);
+
+plugins.push(
+  new RetryChunkLoadPlugin({
+    // optional value to set the amount of time in milliseconds before trying to load the chunk again. Default is 0
+    retryDelay: 3000,
+    // optional value to set the maximum number of retries to load the chunk. Default is 1
+    maxRetries: 2,
+    // optional code to be executed in the browser context if after all retries chunk is not loaded.
+    // if not set - nothing will happen and error will be returned to the chunk loader.
+    lastResortScript: "window.location.href='/404.html';",
   }),
 );
 

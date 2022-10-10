@@ -11,11 +11,11 @@ import { Collapse } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { AppIcon as Icon, Size } from "design-system";
-import { setPropertySectionState } from "actions/editorContextActions";
 import { AppState } from "ce/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { setPropertySectionState } from "actions/propertyPaneActions";
 
 const SectionTitle = styled.div`
   cursor: pointer;

@@ -28,8 +28,8 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { DraggableListCard } from "components/ads/DraggableListCard";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -173,7 +173,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
             items={draggableComponentColumns}
             onEdit={this.onEdit}
             propertyName={this.props.propertyName}
-            renderComponent={(props) =>
+            renderComponent={(props: any) =>
               DraggableListCard({
                 ...props,
                 isDelete: false,

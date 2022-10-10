@@ -1,7 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 import {
   CodeEditorHistory,
-  CursorPosition,
   EvaluatedPopupState,
   PropertyPanelContext,
   PropertyPanelState,
@@ -70,22 +69,15 @@ export const getSelectedPropertyTabIndex = createSelector(
   },
 );
 
-export const getCodeEditorCursorPosition = createSelector(
-  [
-    getCodeEditorHistory,
-    getFocusableField,
-    (_state: AppState, key: string | undefined) => key,
-  ],
-  (
-    codeEditorHistory: CodeEditorHistory,
-    focusableField: string | undefined,
-    key: string | undefined,
-  ): CursorPosition | undefined => {
-    return key && focusableField === key
-      ? codeEditorHistory?.[key]?.cursorPosition
-      : undefined;
-  },
-);
+// export const getIsCodeEditorFocused = createSelector(
+//   [getFocusableField, (_state: AppState, key: string | undefined) => key],
+//   (focusableField: string | undefined, key: string | undefined): boolean => {
+//     if (key) {
+//       return focusableField === key;
+//     }
+//     return false;
+//   },
+// );
 
 export const getshouldFocusPropertyPath = createSelector(
   [

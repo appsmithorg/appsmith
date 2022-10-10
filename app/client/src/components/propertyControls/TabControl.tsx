@@ -2,10 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import {
-  BaseItemProps,
-  RenderComponentProps,
-} from "components/ads/DraggableListComponent";
+import { BaseItemProps, RenderComponentProps } from "./DraggableListComponent";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
@@ -15,8 +12,8 @@ import * as Sentry from "@sentry/react";
 import { Category, Size } from "design-system";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { DraggableListCard } from "components/ads/DraggableListCard";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;

@@ -1,11 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export type CursorPosition = {
-  line: number;
-  ch: number;
-};
-
 export type SelectedPropertyPanel = {
   path: string;
   index: number;
@@ -18,7 +13,6 @@ export type EvaluatedPopupState = {
 };
 
 export type CodeEditorContext = {
-  cursorPosition?: CursorPosition;
   evalPopupState?: EvaluatedPopupState;
 };
 
@@ -77,25 +71,15 @@ export const editorContextReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedPropertyPanel = action.payload;
   },
-  [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_POSITION]: (
+  [ReduxActionTypes.SET_CODE_EDITOR_FOCUS]: (
     state: EditorContextState,
     action: {
-      payload: { key: string; cursorPosition: CursorPosition };
+      payload: { key: string };
     },
   ) => {
-    const { cursorPosition, key } = action.payload;
+    const { key } = action.payload;
     if (!key) return;
-    if (!state.codeEditorHistory[key]) state.codeEditorHistory[key] = {};
-    state.codeEditorHistory[key].cursorPosition = cursorPosition;
     state.focusableField = key;
-  },
-  [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY]: (
-    state: EditorContextState,
-    action: {
-      payload: Record<string, CodeEditorContext>;
-    },
-  ) => {
-    state.codeEditorHistory = action.payload || {};
   },
   [ReduxActionTypes.SET_EVAL_POPUP_STATE]: (
     state: EditorContextState,

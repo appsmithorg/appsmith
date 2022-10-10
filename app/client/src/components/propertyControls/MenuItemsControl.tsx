@@ -8,8 +8,8 @@ import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import { Category, Size } from "design-system";
-import { DraggableListCard } from "components/ads/DraggableListCard";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -101,7 +101,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           items={this.getMenuItems()}
           onEdit={this.onEdit}
           propertyName={this.props.propertyName}
-          renderComponent={(props) =>
+          renderComponent={(props: any) =>
             DraggableListCard({
               ...props,
               isDelete: true,

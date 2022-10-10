@@ -1,10 +1,10 @@
 import { AppState } from "@appsmith/reducers";
 import { setSelectedPropertyPanel } from "actions/editorContextActions";
 import {
-  DroppableComponent,
   BaseItemProps,
+  DroppableComponent,
   DroppableComponentProps,
-} from "components/ads/DraggableListComponent";
+} from "components/propertyControls/DraggableListComponent";
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";

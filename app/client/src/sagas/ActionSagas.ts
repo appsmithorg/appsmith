@@ -112,6 +112,7 @@ import {
 } from "RouteBuilder";
 import { PLUGIN_PACKAGE_MONGO } from "constants/QueryEditorConstants";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -637,13 +638,10 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
+  yield put(setSnipingModeAction({ isActive: true, bindTo: queryId }));
   history.push(
     builderURL({
       pageId,
-      params: {
-        isSnipingMode: "true",
-        bindTo: queryId,
-      },
     }),
   );
 }

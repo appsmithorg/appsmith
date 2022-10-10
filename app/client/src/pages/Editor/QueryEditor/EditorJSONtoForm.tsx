@@ -13,7 +13,7 @@ import { Datasource } from "entities/Datasource";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
-import { Action, QueryAction, SaaSAction } from "entities/Action";
+import { Action, QueryAction, SaaSAction, SlashCommand } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -22,10 +22,20 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
-import { Text, TextType } from "design-system";
+import {
+  Button,
+  Category,
+  Icon as AdsIcon,
+  IconSize,
+  SearchSnippet,
+  Size,
+  Spinner,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
-import { Icon as AdsIcon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -76,10 +86,8 @@ import ActionRightPane, {
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
-import { Button, Category, Size, TooltipComponent } from "design-system";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import SearchSnippets from "components/ads/SnippetButton";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
@@ -87,7 +95,6 @@ import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import { Spinner } from "design-system";
 import {
   FormEvalOutput,
   isValidFormConfig,
@@ -102,6 +109,7 @@ import {
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { executeCommandAction } from "../../../actions/apiPaneActions";
 import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneResponsePaneHeight,
@@ -927,10 +935,21 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
-            <SearchSnippets
+            <SearchSnippet
               className="search-snippets"
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
+              onClick={() => {
+                dispatch(
+                  executeCommandAction({
+                    actionType: SlashCommand.NEW_SNIPPET,
+                    args: {
+                      entityId: currentActionConfig?.id,
+                      entityType: ENTITY_TYPE.ACTION,
+                    },
+                  }),
+                );
+              }}
             />
             <DropdownSelect>
               <DropdownField

@@ -427,13 +427,23 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
-        log.debug("Archiving pages, actions and actionCollections for applicationId: {}", application.getId());
-        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
-                .then(actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS))
+        log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
+        return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS)
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .then(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(deletedApplication -> {
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.APPLICATION, deletedApplication
+                    );
+                    final Map<String, Object> data = Map.of(
+                            FieldName.EVENT_DATA, eventData
+                    );
+
+                    return analyticsService.sendDeleteEvent(deletedApplication, data);
+                });
     }
 
     @Override
@@ -836,7 +846,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
 
                     Mono<PageDTO> archivedPageMono = newPageMono
-                            .flatMap(analyticsService::sendDeleteEvent)
+                            .flatMap(newPage -> {
+                                final Map<String, Object> eventData = Map.of(
+                                        FieldName.APP_MODE, ApplicationMode.EDIT.toString()
+                                );
+                                final Map<String, Object> data = Map.of(
+                                        FieldName.EVENT_DATA, eventData
+                                );
+
+                                return analyticsService.sendDeleteEvent(newPage, data);
+                            })
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
                     /**
@@ -864,14 +883,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
                             }).collectList();
 
-                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
+                    // Page is deleted only after other resources are deleted
+                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
                             .map(tuple -> {
-                                PageDTO page1 = tuple.getT1();
-                                List<ActionDTO> actions = tuple.getT2();
-                                final List<ActionCollectionDTO> actionCollections = tuple.getT3();
-                                Application application = tuple.getT4();
-                                log.debug("Archived pageId: {} , {} actions and {} action collections for applicationId: {}", page1.getId(), actions.size(), actionCollections.size(), application.getId());
-                                return page1;
+                                List<ActionDTO> actions = tuple.getT1();
+                                final List<ActionCollectionDTO> actionCollections = tuple.getT2();
+                                Application application = tuple.getT3();
+                                log.debug("Archived {} actions and {} action collections for applicationId: {}", actions.size(), actionCollections.size(), application.getId());
+                                return application;
+                            })
+                            .then(archivedPageMono)
+                            .map(pageDTO -> {
+                                log.debug("Archived pageId: {} for applicationId: {}", pageDTO.getId(), pageDTO.getApplicationId());
+                                return pageDTO;
                             })
                             .flatMap(pageDTO ->
                                     // save the last edit information as page is deleted from application
@@ -1028,6 +1052,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("isManual", defaultIfNull(isPublishedManually, ""));
                     extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
 
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APPLICATION, application,
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString()
+                    );
+                    extraProperties.put(FieldName.EVENT_DATA, eventData);
+
                     return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);
                 });
     }
@@ -1072,6 +1102,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return applicationRepository
                             .setPages(application.getId(), pages)
+                            .flatMap(updateResult -> sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
@@ -1120,7 +1151,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     final Map<String, Object> eventData = Map.of(
                             FieldName.SOURCE_APPLICATION, sourceApplication,
                             FieldName.APPLICATION, application,
-                            FieldName.WORKSPACE, workspace
+                            FieldName.WORKSPACE, workspace,
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString()
                     );
 
                     final Map<String, Object> data = Map.of(
@@ -1141,12 +1173,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return NewPage
      */
     private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
-        if (!viewMode) {
-            return Mono.empty();
-        }
-
+        String view = viewMode ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
         final Map<String, Object> eventData = Map.of(
-                FieldName.PAGE, newPage
+                FieldName.PAGE, newPage,
+                FieldName.APP_MODE, view
         );
 
         final Map<String, Object> data = Map.of(
@@ -1154,5 +1184,24 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         );
 
         return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);
+    }
+
+    private Mono<Application> sendPageOrderAnalyticsEvent(Application application, String pageId, int order, String branchName) {
+        final Map<String, Object> eventData = Map.of(
+                FieldName.APPLICATION, application,
+                FieldName.APP_MODE, ApplicationMode.EDIT.toString()
+        );
+
+        final Map<String, Object> data = Map.of(
+                FieldName.APPLICATION_ID, application.getId(),
+                FieldName.WORKSPACE_ID, application.getWorkspaceId(),
+                FieldName.PAGE_ID, pageId,
+                FieldName.PAGE_ORDER, order,
+                FieldName.EVENT_DATA, eventData,
+                FieldName.BRANCH_NAME, defaultIfNull(branchName, "")
+        );
+
+        return analyticsService.sendObjectEvent(AnalyticsEvents.PAGE_REORDER, application, data);
+
     }
 }

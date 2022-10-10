@@ -5,10 +5,13 @@ import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RowsGetMethodTest {
 
@@ -20,7 +23,7 @@ public class RowsGetMethodTest {
         try {
             rowsGetMethod.transformExecutionResponse(null, null);
         } catch (AppsmithPluginException e) {
-            Assert.assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
+            assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
         }
     }
 
@@ -32,14 +35,14 @@ public class RowsGetMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertEquals(0, result.size());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -52,14 +55,14 @@ public class RowsGetMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertEquals(0, result.size());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -72,14 +75,14 @@ public class RowsGetMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertEquals(0, result.size());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -97,16 +100,16 @@ public class RowsGetMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray() && result.size() == 8);
+        assertNotNull(result);
+        assertTrue(result.isArray() && result.size() == 8);
 
-        Assert.assertTrue("".equalsIgnoreCase(result.get(0).get("Some").asText()));
-        Assert.assertTrue("Some".equalsIgnoreCase(result.get(3).get("Some").asText()));
+        assertTrue("".equalsIgnoreCase(result.get(0).get("Some").asText()));
+        assertTrue("Some".equalsIgnoreCase(result.get(3).get("Some").asText()));
     }
 
     @Test
@@ -124,15 +127,15 @@ public class RowsGetMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertEquals(3, result.size());
-        Assert.assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(3, result.size());
+        assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
     }
 
     @Test
@@ -152,14 +155,14 @@ public class RowsGetMethodTest {
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-        Assert.assertNotNull(jsonNode);
+        assertNotNull(jsonNode);
 
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isArray());
-        Assert.assertEquals(3, result.size());
-        Assert.assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
+        assertNotNull(result);
+        assertTrue(result.isArray());
+        assertEquals(3, result.size());
+        assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
     }
 }

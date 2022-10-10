@@ -18,6 +18,7 @@ import { setSelectedPropertyPanel } from "actions/editorContextActions";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
+  padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
 `;
 
 function PanelHeader(props: PanelHeaderProps) {

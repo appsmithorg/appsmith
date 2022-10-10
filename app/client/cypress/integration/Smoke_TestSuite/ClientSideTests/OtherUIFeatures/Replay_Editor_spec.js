@@ -116,7 +116,6 @@ describe("Undo/Redo functionality", function() {
       });
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
-    cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get(".CodeMirror-code").should("have.text", "{{FirstAPI}}");
     // undo/redo through app menu

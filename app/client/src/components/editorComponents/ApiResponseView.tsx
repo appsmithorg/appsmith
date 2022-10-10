@@ -267,6 +267,7 @@ export const responseTabComponent = (
   return {
     [API_RESPONSE_TYPE_OPTIONS.JSON]: (
       <ReadOnlyEditor
+        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -280,6 +281,7 @@ export const responseTabComponent = (
     ),
     [API_RESPONSE_TYPE_OPTIONS.RAW]: (
       <ReadOnlyEditor
+        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -352,11 +354,11 @@ function ApiResponseView(props: Props) {
     responseHeaders = {};
   }
 
-  const onResponseTabSelect = (tab: any) => {
+  const onResponseTabSelect = (tab: string) => {
     updateActionResponseDisplayFormat({
       id: apiId ? apiId : "",
       field: "responseDisplayFormat",
-      value: tab.title,
+      value: tab,
     });
   };
 
