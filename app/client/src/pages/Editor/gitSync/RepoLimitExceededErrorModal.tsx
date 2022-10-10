@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Dialog from "components/ads/DialogComponent";
 import {
   getDisconnectDocUrl,
   getShowRepoLimitErrorModal,
@@ -14,6 +13,7 @@ import styled, { useTheme } from "styled-components";
 import {
   Button,
   Category,
+  DialogComponent as Dialog,
   Icon,
   IconSize,
   Size,
