@@ -1,5 +1,10 @@
 import { updateApplication } from "actions/applicationActions";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
+import {
+  GENERAL_SETTINGS_APP_ICON_LABEL,
+  GENERAL_SETTINGS_APP_NAME_LABEL,
+  URL_FIELD_SPECIAL_CHARACTER_ERROR,
+} from "ce/constants/messages";
 import { AppIconName, TextInput, IconSelector } from "design-system";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
@@ -66,7 +71,9 @@ function GeneralSettings() {
 
   return (
     <>
-      <div className="pb-1 text-[#575757]">App name</div>
+      <div className="pb-1 text-[#575757]">
+        {GENERAL_SETTINGS_APP_NAME_LABEL()}
+      </div>
       <div className="pb-2.5">
         <TextInput
           fill
@@ -77,7 +84,7 @@ function GeneralSettings() {
           type="input"
           validator={checkRegex(
             /^[A-Za-z0-9\s\-]+$/,
-            "No special characters allowed (except -)",
+            URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsAppNameValid,
           )}
@@ -85,7 +92,9 @@ function GeneralSettings() {
         />
       </div>
 
-      <div className="pb-1 text-[#575757]">App Icon</div>
+      <div className="pb-1 text-[#575757]">
+        {GENERAL_SETTINGS_APP_ICON_LABEL()}
+      </div>
       <IconSelectorWrapper className="pb-4">
         <IconSelector
           className="icon-selector"

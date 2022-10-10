@@ -1,8 +1,8 @@
 import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { APP_SETTINGS_PANE_HEADER } from "ce/constants/messages";
 import { Icon, IconSize } from "design-system";
 import React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 
 const StyledHeader = styled.div`
@@ -15,29 +15,20 @@ const StyledText = styled.div`
   font-size: 16px;
 `;
 
-class PaneHeader extends React.Component<{
-  closePane: () => void;
-}> {
-  render() {
-    return (
-      <StyledHeader className="flex justify-start items-center">
-        <Icon
-          className="pr-2"
-          fillColor="#090707"
-          name="double-arrow-right"
-          onClick={this.props.closePane}
-          size={IconSize.SMALL}
-        />
-        <StyledText>Settings</StyledText>
-      </StyledHeader>
-    );
-  }
+function PaneHeader() {
+  const dispatch = useDispatch();
+  return (
+    <StyledHeader className="flex justify-start items-center">
+      <Icon
+        className="pr-2"
+        fillColor="#090707"
+        name="double-arrow-right"
+        onClick={() => dispatch(closeAppSettingsPaneAction())}
+        size={IconSize.SMALL}
+      />
+      <StyledText>{APP_SETTINGS_PANE_HEADER()}</StyledText>
+    </StyledHeader>
+  );
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  closePane: () => {
-    dispatch(closeAppSettingsPaneAction());
-  },
-});
-
-export default connect(null, mapDispatchToProps)(PaneHeader);
+export default PaneHeader;

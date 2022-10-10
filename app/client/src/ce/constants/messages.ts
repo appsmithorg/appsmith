@@ -1254,6 +1254,30 @@ export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 
+export const APP_SETTINGS_PANE_HEADER = () => "Settings";
+
+export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, icon and share";
+export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
+export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
+
+export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
+export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
+  "Set theme, color and font";
+
+export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
+  "your app URL to new readable format to change this*";
+export const PAGE_SETTINGS_HIDE_PAGE_NAV = () => "Hide Page Navigation";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
+
+export const URL_FIELD_SPECIAL_CHARACTER_ERROR = () =>
+  "No special characters allowed (except -)";
+
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

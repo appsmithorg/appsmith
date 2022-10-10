@@ -9,6 +9,12 @@ import SectionHeader, { SectionHeaderProps } from "./SectionHeader";
 import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
+import {
+  GENERAL_SETTINGS_SECTION_HEADER,
+  GENERAL_SETTINGS_SECTION_HEADER_DESC,
+  THEME_SETTINGS_SECTION_HEADER,
+  THEME_SETTINGS_SECTION_HEADER_DESC,
+} from "ce/constants/messages";
 
 export enum AppSettingsTabs {
   General,
@@ -65,20 +71,20 @@ function AppSettings() {
     {
       icon: "settings-2-line",
       isSelected: selectedTab.type === AppSettingsTabs.General,
-      name: "General",
+      name: GENERAL_SETTINGS_SECTION_HEADER(),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.General });
       },
-      subText: "App name, icon , share",
+      subText: GENERAL_SETTINGS_SECTION_HEADER_DESC(),
     },
     {
       icon: "edit-line",
       isSelected: selectedTab.type === AppSettingsTabs.Theme,
-      name: "Theme",
+      name: THEME_SETTINGS_SECTION_HEADER(),
       onClick: () => {
         setSelectedTab({ type: AppSettingsTabs.Theme });
       },
-      subText: "Set theme, color and font",
+      subText: THEME_SETTINGS_SECTION_HEADER_DESC(),
     },
   ];
 

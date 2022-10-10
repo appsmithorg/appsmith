@@ -1,6 +1,16 @@
 import { ApplicationVersion } from "actions/applicationActions";
 import { setPageAsDefault, updatePage } from "actions/pageActions";
 import { UpdatePageRequest } from "api/PageApi";
+import {
+  PAGE_SETTINGS_HIDE_PAGE_NAV,
+  PAGE_SETTINGS_PAGE_NAME_LABEL,
+  PAGE_SETTINGS_PAGE_URL_LABEL,
+  PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1,
+  PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2,
+  PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3,
+  PAGE_SETTINGS_SET_AS_HOMEPAGE,
+  URL_FIELD_SPECIAL_CHARACTER_ERROR,
+} from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import { TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
@@ -77,7 +87,9 @@ function PageSettings(props: { page: Page }) {
 
   return (
     <>
-      <div className="pb-1 text-[#575757]">Page name</div>
+      <div className="pb-1 text-[#575757]">
+        {PAGE_SETTINGS_PAGE_NAME_LABEL()}
+      </div>
       <div className="pb-2.5">
         <TextInput
           fill
@@ -88,7 +100,7 @@ function PageSettings(props: { page: Page }) {
           type="input"
           validator={checkRegex(
             /^[A-Za-z0-9\s\-]+$/,
-            "No special characters allowed (except -)",
+            URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsPageNameValid,
           )}
@@ -96,16 +108,18 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <div className="pb-1 text-[#575757]">Change Page URL</div>
+      <div className="pb-1 text-[#575757]">
+        {PAGE_SETTINGS_PAGE_URL_LABEL()}
+      </div>
       {appNeedsUpdate && (
         <div className="pb-1 text-[#575757]">
-          Please{" "}
+          {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1()}{" "}
           <ManualUpgrades inline>
             <a>
-              <u>update</u>
+              <u>{PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2()}</u>
             </a>
           </ManualUpgrades>{" "}
-          your app URL to new readable format to change this*
+          {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3()}
         </div>
       )}
       <div className="pb-2.5">
@@ -118,7 +132,7 @@ function PageSettings(props: { page: Page }) {
           type="input"
           validator={checkRegex(
             /^[A-Za-z0-9\s\-]+$/,
-            "No special characters allowed (except -)",
+            URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             false,
             setIsCustomSlugValid,
           )}
@@ -142,7 +156,7 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       <div className="pb-2 flex justify-between content-center">
-        <div className="text-[#575757]">Hide the page</div>
+        <div className="text-[#575757]">{PAGE_SETTINGS_HIDE_PAGE_NAV()}</div>
         <AdsSwitch
           checked={isHidden}
           className="mb-0"
@@ -159,7 +173,9 @@ function PageSettings(props: { page: Page }) {
 
       {!page.isDefault && (
         <div className="pb-4 flex justify-between content-center">
-          <div className="text-[#575757]">Set as home page</div>
+          <div className="text-[#575757]">
+            {PAGE_SETTINGS_SET_AS_HOMEPAGE()}
+          </div>
           <AdsSwitch
             checked={isDefault}
             className="mb-0"
