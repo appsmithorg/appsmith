@@ -28,6 +28,22 @@ const appSettingsPaneReducer = createReducer(initialState, {
       isOpen: false,
     };
   },
+  [ReduxActionTypes.SELECT_WIDGET]: (
+    state: AppSettingsPaneReduxState,
+  ): AppSettingsPaneReduxState => {
+    return {
+      ...state,
+      isOpen: false,
+    };
+  },
+  [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
+    state: AppSettingsPaneReduxState,
+  ): AppSettingsPaneReduxState => {
+    return {
+      ...state,
+      isOpen: false,
+    };
+  },
 });
 
 export interface AppSettingsPaneContext {
