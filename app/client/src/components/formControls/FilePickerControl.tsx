@@ -13,7 +13,7 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
-import DialogComponent from "components/ads/DialogComponent";
+import { DialogComponent } from "design-system";
 import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
 
