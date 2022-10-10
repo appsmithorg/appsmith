@@ -21,10 +21,12 @@ import {
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
+import {
+  getDataTreeForAutocomplete,
+  getPathEvalErrors,
+} from "selectors/dataTreeSelectors";
 import {
   EvaluationError,
-  getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -57,9 +59,9 @@ const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
+  errors: EvaluationError[];
 }
-
-type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
+interface EvaluaedValueProps {
   isFocused: boolean;
   theme: EditorTheme;
   popperPlacement?: Placement;
@@ -70,7 +72,9 @@ type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   hideEvaluatedValue?: boolean;
   useValidationMessage?: boolean;
   children: JSX.Element;
-};
+}
+
+type EvaluatedValuePopupWrapperProps = ReduxStateProps & EvaluaedValueProps;
 
 type ColumnsType = Record<string, ColumnProperties>;
 
@@ -475,6 +479,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
     errors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
+    const { errors } = this.props;
     if (!dataTreePath) {
       return {
         isInvalid: false,
@@ -483,17 +488,11 @@ class EvaluatedValuePopupWrapperClass extends Component<
       };
     }
 
-    const errors = _.get(
-      dataTree,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
-
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
       isInvalid: errors.length > 0,
-      errors,
+      errors: errors,
       pathEvaluatedValue,
     };
   };
@@ -535,10 +534,16 @@ class EvaluatedValuePopupWrapperClass extends Component<
     );
   };
 }
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getDataTreeForAutocomplete(state),
-  datasources: state.entities.datasources,
-});
+const mapStateToProps = (
+  state: AppState,
+  { dataTreePath }: EvaluaedValueProps,
+): ReduxStateProps => {
+  return {
+    dynamicData: getDataTreeForAutocomplete(state),
+    datasources: state.entities.datasources,
+    errors: dataTreePath ? getPathEvalErrors(state, dataTreePath) : [],
+  };
+};
 
 const EvaluatedValuePopupWrapper = Sentry.withProfiler(
   connect(mapStateToProps)(EvaluatedValuePopupWrapperClass),

@@ -15,7 +15,7 @@ export function logLatestLintPropertyErrors(
   errors: LintErrors,
   dataTree: DataTree,
 ) {
-  Object.keys(errors).forEach((path) => {
+  for (const path of Object.keys(errors)) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];
     // only log lint errors in JSObjects
@@ -29,19 +29,19 @@ export function logLatestLintPropertyErrors(
 
     if (isEmpty(lintErrorInPath)) {
       AppsmithConsole.deleteError(debuggerKey);
-    } else {
-      AppsmithConsole.addError({
-        id: debuggerKey,
-        logType: LOG_TYPE.LINT_ERROR,
-        text: createMessage(JS_OBJECT_BODY_INVALID),
-        messages: lintErrorMessagesInPath,
-        source: {
-          id: path,
-          name: entityName,
-          type: ENTITY_TYPE.JSACTION,
-          propertyPath,
-        },
-      });
+      return;
     }
-  });
+    AppsmithConsole.addError({
+      id: debuggerKey,
+      logType: LOG_TYPE.LINT_ERROR,
+      text: createMessage(JS_OBJECT_BODY_INVALID),
+      messages: lintErrorMessagesInPath,
+      source: {
+        id: path,
+        name: entityName,
+        type: ENTITY_TYPE.JSACTION,
+        propertyPath,
+      },
+    });
+  }
 }

@@ -431,19 +431,19 @@ export enum PropertyEvaluationErrorType {
   LINT = "LINT",
 }
 
-export interface AppsmithError {
+export interface DataTreeError {
   raw: string;
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
 }
 
-export interface EvaluationError extends AppsmithError {
+export interface EvaluationError extends DataTreeError {
   errorType:
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;
 }
 
-export interface LintError extends AppsmithError {
+export interface LintError extends DataTreeError {
   errorType: PropertyEvaluationErrorType.LINT;
   errorSegment: string;
   originalBinding: string;
