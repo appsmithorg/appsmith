@@ -18,6 +18,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -75,24 +76,20 @@ public class ActionCollectionServiceImplTest {
     private CollectionService collectionService;
     @MockBean
     private PolicyGenerator policyGenerator;
-
     @MockBean
     NewPageService newPageService;
-
     @MockBean
     LayoutActionService layoutActionService;
-
     @MockBean
     ActionCollectionRepository actionCollectionRepository;
-
     @MockBean
     NewActionService newActionService;
-
     @MockBean
     ApplicationService applicationService;
-
     @MockBean
     ResponseUtils responseUtils;
+    @MockBean
+    RefactoringSolution refactoringSolution;
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
@@ -114,6 +111,7 @@ public class ActionCollectionServiceImplTest {
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
                 layoutActionService,
+                refactoringSolution,
                 actionCollectionService,
                 newActionService,
                 analyticsService,
@@ -743,7 +741,7 @@ public class ActionCollectionServiceImplTest {
         jsonObject.put("key", "value");
         layout.setDsl(jsonObject);
         Mockito
-                .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         Mockito
@@ -821,7 +819,7 @@ public class ActionCollectionServiceImplTest {
         layout.setActionUpdates(new ArrayList<>());
         layout.setLayoutOnLoadActions(new ArrayList<>());
         Mockito
-                .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         Mockito

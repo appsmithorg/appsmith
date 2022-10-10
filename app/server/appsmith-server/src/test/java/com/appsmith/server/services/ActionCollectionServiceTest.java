@@ -27,6 +27,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -81,6 +82,9 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    RefactoringSolution refactoringSolution;
 
     @Autowired
     NewPageService newPageService;
@@ -303,7 +307,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("testAction1");
         refactorActionNameDTO.setNewName("newTestAction1");
 
-        final LayoutDTO layoutDTO = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+        final LayoutDTO layoutDTO = refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO2.getId());
@@ -381,7 +385,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("run");
         refactorActionNameDTO.setNewName("newRun");
 
-        final LayoutDTO layoutDTO = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+        final LayoutDTO layoutDTO = refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO2.getId());
