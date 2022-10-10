@@ -333,16 +333,32 @@ export const useCanvasDragging = (
           startPoints.left = defaultHandlePositions.left;
           resetCanvasState();
 
-          if (isCurrentDraggedCanvas) {
-            if (isNewWidget) {
-              setDraggingNewWidget(false, undefined);
-            } else {
-              setDraggingState({
-                isDragging: false,
-              });
+          // if (isCurrentDraggedCanvas) {
+          //   if (isNewWidget) {
+          //     setDraggingNewWidget(false, undefined);
+          //   } else {
+          //     setDraggingState({
+          //       isDragging: false,
+          //     });
+          //   }
+          //   setDraggingCanvas();
+          // }
+          resetDragging();
+        };
+
+        const resetDragging = () => {
+          setTimeout(() => {
+            if (isCurrentDraggedCanvas) {
+              if (isNewWidget) {
+                setDraggingNewWidget(false, undefined);
+              } else {
+                setDraggingState({
+                  isDragging: false,
+                });
+              }
+              setDraggingCanvas();
             }
-            setDraggingCanvas();
-          }
+          }, 0);
         };
 
         const onFirstMoveOnCanvas = (e: any, over = false) => {

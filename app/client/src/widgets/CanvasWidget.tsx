@@ -206,6 +206,7 @@ export const CONFIG = {
     widgetName: "Canvas",
     version: 1,
     detachFromLayout: true,
+    flexLayers: [],
   },
   properties: {
     derived: CanvasWidget.getDerivedPropertiesMap(),
