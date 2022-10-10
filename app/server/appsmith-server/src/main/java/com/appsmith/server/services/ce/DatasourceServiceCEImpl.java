@@ -229,7 +229,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(savedDatasource -> {
 
                     // this key will present in the analytics as a diff b/w server and user invoked flows
-                    String isDatasourceUpdateUserInvokedKey = "isDatasourceUpdateUserInvoked";
+                    final String isDatasourceUpdateUserInvokedKey = "isDatasourceUpdateUserInvoked";
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
 
                     if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
