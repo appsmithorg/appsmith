@@ -3,9 +3,6 @@ export * from "./Callout";
 
 export * from "./common";
 
-export { default as DialogComponent } from "./DialogComponent";
-export * from "./DialogComponent";
-
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
 
