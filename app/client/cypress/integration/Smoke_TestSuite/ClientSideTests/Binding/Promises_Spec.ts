@@ -357,7 +357,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
   it("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
-      agHelper.AddDsl(val,);
+      agHelper.AddDsl(val);
     });
     jsEditor.CreateJSObject(`const user = 'You';
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
@@ -365,6 +365,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.Sleep(1000);
     agHelper
