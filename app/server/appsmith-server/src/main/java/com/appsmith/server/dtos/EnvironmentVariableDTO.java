@@ -1,17 +1,16 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.DefaultResources;
+
+import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.EnvironmentVariable;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -40,7 +39,7 @@ public class EnvironmentVariableDTO {
 
     String name;
 
-    @JsonProperty(access=JsonProperty.Access.READ_ONLY)
+    @Encrypted
     String value;
 
     @Transient
@@ -53,8 +52,6 @@ public class EnvironmentVariableDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant deletedAt = null; // do we need this?
 
-    @Transient
-    DefaultResources defaultResources;
 
     public void sanitiseToExportDBObject() {
 
@@ -74,7 +71,6 @@ public class EnvironmentVariableDTO {
         }
 
         this.setPolicies(null);
-        this.setDefaultResources(null);
         this.setValue(null);
     }
 
@@ -102,14 +98,16 @@ public class EnvironmentVariableDTO {
         Set<String> userPermissions = new HashSet<>();
         envVar.setUserPermissions(userPermissions);
         if (this.getUserPermissions() != null) {
-            for (String userPermission: this.getUserPermissions()) {
-                userPermissions.add(userPermission);
-            }
+            userPermissions.addAll(this.getUserPermissions());
+        }
+
+        Set<Policy> policies = new HashSet<>();
+        if (this.getPolicies() != null) {
+            policies.addAll(this.getPolicies());
         }
 
         return envVar;
     }
-
 
 
 }

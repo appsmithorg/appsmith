@@ -18,19 +18,13 @@ import java.util.List;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-public class CustomEnvironmentVariableRepositoryCEImpl extends BaseAppsmithRepositoryImpl<EnvironmentVariable>
-        implements CustomEnvironmentVariableRepositoryCE {
+public class CustomEnvironmentVariableRepositoryCEImpl extends BaseAppsmithRepositoryImpl<EnvironmentVariable> implements CustomEnvironmentVariableRepositoryCE {
 
     @Autowired
     public CustomEnvironmentVariableRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
-    @Override
-    public Flux<EnvironmentVariable> findByApplicationId(String id, AclPermission aclPermission) {
-        // sudo Implementation
-        return Flux.just(new EnvironmentVariable());
-    }
 
     @Override
     public Flux<EnvironmentVariable> findAllByIds(List<String> ids, AclPermission aclPermission) {
@@ -39,11 +33,10 @@ public class CustomEnvironmentVariableRepositoryCEImpl extends BaseAppsmithRepos
     }
 
     @Override
-    public Flux<EnvironmentVariable> findByEnvironmentId (String envId, AclPermission aclPermission) {
+    public Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission) {
         // sudo implementation
         return Flux.just(new EnvironmentVariable());
     }
-
 
 
 }

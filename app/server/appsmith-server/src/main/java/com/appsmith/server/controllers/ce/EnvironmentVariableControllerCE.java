@@ -17,10 +17,10 @@ import reactor.core.publisher.Mono;
 import com.appsmith.server.services.EnvironmentVariableService;
 
 @Slf4j
-@RequestMapping(Url.BASE_URL+Url.VERSION+"/environment-variable") // will be added to the url post discussion
+@RequestMapping(Url.BASE_URL + Url.VERSION + "/environment-variable") // will be added to the url post discussion
 public class EnvironmentVariableControllerCE {
 
-    private EnvironmentVariableService environmentVariableService;
+    private final EnvironmentVariableService environmentVariableService;
 
     @Autowired
     public EnvironmentVariableControllerCE(EnvironmentVariableService environmentVariableService) {
@@ -29,8 +29,8 @@ public class EnvironmentVariableControllerCE {
 
     @GetMapping("/{envVarId}")
     public Mono<ResponseDTO<EnvironmentVariableDTO>> getEnvVarById(@PathVariable String envVarId) {
-        return  environmentVariableService.findById(envVarId,  AclPermission.MANAGE_ENVIRONMENT_VARIABLE)
-                .map(envVar -> new ResponseDTO<>(HttpStatus.OK.value(), EnvironmentVariableDTO.createDTOFromEnvironmentVariable(envVar), null ) );
+        return environmentVariableService.findById(envVarId, AclPermission.MANAGE_ENVIRONMENT_VARIABLE)
+                .map(envVar -> new ResponseDTO<>(HttpStatus.OK.value(), EnvironmentVariableDTO.createDTOFromEnvironmentVariable(envVar), null));
     }
 
 }

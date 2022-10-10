@@ -12,10 +12,9 @@ public interface CustomEnvironmentVariableRepositoryCE extends AppsmithRepositor
 
     Mono<EnvironmentVariable> findById(String id, AclPermission aclPermission);
 
-    Flux<EnvironmentVariable> findByApplicationId(String id, AclPermission aclPermission);
 
     Flux<EnvironmentVariable> findAllByIds(List<String> ids, AclPermission aclPermission);
 
-    Flux<EnvironmentVariable> findByEnvironmentId (String envId, AclPermission aclPermission);
+    Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission);
 
 }

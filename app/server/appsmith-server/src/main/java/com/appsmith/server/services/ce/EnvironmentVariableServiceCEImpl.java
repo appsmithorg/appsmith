@@ -1,33 +1,30 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.EnvironmentVariable;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import com.appsmith.server.services.*;
+import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.repositories.EnvironmentVariableRepository;
 
 
 import javax.validation.Validator;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVariableRepository, EnvironmentVariable, String> implements EnvironmentVariableServiceCE {
 
     @Autowired
-    public EnvironmentVariableServiceCEImpl(Scheduler scheduler,
-                                            Validator validator,
-                                            MongoConverter mongoConverter,
-                                            ReactiveMongoTemplate reactiveMongoTemplate,
-                                            EnvironmentVariableRepository repository,
-                                            AnalyticsService analyticsService) {
+    public EnvironmentVariableServiceCEImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, EnvironmentVariableRepository repository, AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
     }
@@ -35,13 +32,9 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
     // read
     @Override
     public Mono<EnvironmentVariable> findById(String id, AclPermission aclPermission) {
-        return  repository.findById(id, aclPermission);
+        return repository.findById(id, aclPermission);
     }
 
-    @Override
-    public Flux<EnvironmentVariable> findByApplicationId(String id, AclPermission aclPermission) {
-        return  repository.findByApplicationId(id, aclPermission);
-    }
 
     @Override
     public Flux<EnvironmentVariable> findAllByIds(List<String> ids, AclPermission aclPermission) {
@@ -49,8 +42,8 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
     }
 
     @Override
-    public Flux<EnvironmentVariable> findByEnvironmentId (String envId, AclPermission aclPermission) {
-        return repository.findByEnvironmentId(envId, aclPermission);
+    public Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission) {
+        return repository.findByEnvironmentId(envId, aclPermission).filter(envVar -> !envVar.isDeleted());
     }
 
     // Write
@@ -74,7 +67,14 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
 
     @Override
     public Mono<EnvironmentVariable> archiveById(String id) {
-        return super.archiveById(id);
+        Mono<EnvironmentVariable> environmentVariableMono = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT_VARIABLE, id)));
+
+        // scope for analytics event to be added.
+        return environmentVariableMono.map(environmentVariable ->  {
+            repository.archive(environmentVariable);
+            return environmentVariable;
+        });
     }
 
     // Update
