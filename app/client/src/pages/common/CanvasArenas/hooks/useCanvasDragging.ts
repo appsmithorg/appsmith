@@ -397,7 +397,7 @@ export const useCanvasDragging = (
             prevSpeed < CONTAINER_JUMP_SPEED_THRESHOLD
           );
         };
-        const getMouseMoveDirection = (event: any) => {
+        const getMouseMoveDirection = (event: any, minDelta = 0) => {
           if (lastMousePosition) {
             const deltaX = lastMousePosition.x - event.clientX,
               deltaY = lastMousePosition.y - event.clientY;
@@ -411,9 +411,12 @@ export const useCanvasDragging = (
             ) {
               return currentDirection.current;
             }
-            if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
+            if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > minDelta) {
               return ReflowDirection.TOP;
-            } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
+            } else if (
+              Math.abs(deltaY) > Math.abs(deltaX) &&
+              deltaY < -minDelta
+            ) {
               return ReflowDirection.BOTTOM;
             }
             if (
@@ -422,9 +425,12 @@ export const useCanvasDragging = (
             ) {
               return currentDirection.current;
             }
-            if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
+            if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > minDelta) {
               return ReflowDirection.LEFT;
-            } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
+            } else if (
+              Math.abs(deltaX) > Math.abs(deltaY) &&
+              deltaX < -minDelta
+            ) {
               return ReflowDirection.RIGHT;
             }
           }
@@ -577,7 +583,7 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const dir: ReflowDirection = getMouseMoveDirection(e);
+              const dir: ReflowDirection = getMouseMoveDirection(e, 3);
               triggerReflow(e, firstMove);
               isCurrentDraggedCanvas &&
                 highlights.length &&
