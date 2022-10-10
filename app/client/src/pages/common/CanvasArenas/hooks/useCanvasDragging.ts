@@ -333,16 +333,6 @@ export const useCanvasDragging = (
           startPoints.left = defaultHandlePositions.left;
           resetCanvasState();
 
-          // if (isCurrentDraggedCanvas) {
-          //   if (isNewWidget) {
-          //     setDraggingNewWidget(false, undefined);
-          //   } else {
-          //     setDraggingState({
-          //       isDragging: false,
-          //     });
-          //   }
-          //   setDraggingCanvas();
-          // }
           resetDragging();
         };
 
