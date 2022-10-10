@@ -14,6 +14,7 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import overrideTimeout from "./TimeoutOverride";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export type EvalResult = {
   result: any;
@@ -128,6 +129,7 @@ export interface createGlobalDataArgs {
   context?: EvaluateContext;
   evalArguments?: Array<unknown>;
   isTriggerBased: boolean;
+  triggerMeta?: TriggerMeta;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
 }
@@ -140,6 +142,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     isTriggerBased,
     resolvedFunctions,
     skipEntityFunctions,
+    triggerMeta,
   } = args;
 
   const GLOBAL_DATA: Record<string, any> = {};
@@ -147,33 +150,24 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
   //// Adding contextual data not part of data tree
-  GLOBAL_DATA.THIS_CONTEXT = {};
-  if (context) {
-    if (context.thisContext) {
-      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
-    }
-    if (context.globalContext) {
-      Object.entries(context.globalContext).forEach(([key, value]) => {
-        GLOBAL_DATA[key] = value;
-      });
-    }
+  GLOBAL_DATA.THIS_CONTEXT = context?.thisContext || {};
+  if (context?.globalContext) {
+    Object.entries(context.globalContext).forEach(([key, value]) => {
+      GLOBAL_DATA[key] = value;
+    });
   }
 
-  if (isTriggerBased) {
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-      dataTree,
-      context?.requestId,
-      skipEntityFunctions,
-    );
-    ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
-  } else {
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
-    });
+  const enhancedDataTree = isTriggerBased
+    ? enhanceDataTreeWithFunctions(
+        dataTree,
+        skipEntityFunctions,
+        context?.eventType,
+        triggerMeta,
+      )
+    : dataTree;
+
+  for (const datum of Object.keys(enhancedDataTree)) {
+    GLOBAL_DATA[datum] = enhancedDataTree[datum];
   }
 
   if (isEmpty(resolvedFunctions)) return GLOBAL_DATA;
@@ -207,7 +201,7 @@ export function sanitizeScript(js: string): string {
 export type EvaluateContext = {
   thisContext?: Record<string, any>;
   globalContext?: Record<string, any>;
-  requestId?: string;
+  eventType?: EventType;
 };
 
 export const getUserScriptToEvaluate = (

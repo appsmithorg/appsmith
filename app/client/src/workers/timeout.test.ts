@@ -1,21 +1,13 @@
+import { PluginType } from "entities/Action";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { createGlobalData } from "./evaluate";
 import "./TimeoutOverride";
-import { MOCK_EVAL_TREE } from "./__tests__/evaluation.mockData";
-// import { dataTreeEvaluator } from "./evaluation.worker";
-// import evaluate from "./evaluate";
 import overrideTimeout from "./TimeoutOverride";
-jest.mock("./evaluation.worker.ts", () => {
-  return {
-    dataTreeEvaluator: {
-      evalTree: MOCK_EVAL_TREE,
-      resolvedFunctions: {},
-    },
-  };
-});
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
-  jest.useFakeTimers();
   overrideTimeout();
-  const setTimeout = self.setTimeout;
+  jest.useFakeTimers();
+  jest.spyOn(self, "setTimeout");
   self.postMessage = jest.fn();
   it("returns a number a timerId", () => {
     const timerId = setTimeout(jest.fn(), 1000);
@@ -92,17 +84,37 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
     jest.runAllTimers();
     expect(cb.mock.calls.length).toBe(0);
   });
-  // it("Access to appsmith functions inside setTimeout", async () => {
-  //   const code = "setTimeout(() => Api1.run(), 1000)";
-  //   await evaluate(
-  //     code,
-  //     dataTreeEvaluator?.evalTree || {},
-  //     dataTreeEvaluator?.resolvedFunctions || {},
-  //     {
-  //       enableAppsmithFunctions: true,
-  //     },
-  //   );
-  //   jest.runAllTimers();
-  //   expect(self.postMessage).toBeCalled();
-  // });
+  it("Access to appsmith functions inside setTimeout", async () => {
+    const dataTree: DataTree = {
+      action1: {
+        actionId: "123",
+        pluginId: "",
+        data: {},
+        config: {},
+        datasourceUrl: "",
+        pluginType: PluginType.API,
+        dynamicBindingPathList: [],
+        name: "action1",
+        bindingPaths: {},
+        reactivePaths: {},
+        isLoading: false,
+        run: {},
+        clear: {},
+        responseMeta: { isExecutionSuccess: false },
+        ENTITY_TYPE: ENTITY_TYPE.ACTION,
+        dependencyMap: {},
+        logBlackList: {},
+      },
+    };
+    self.ALLOW_ASYNC = true;
+    const dataTreeWithFunctions = createGlobalData({
+      dataTree,
+      resolvedFunctions: {},
+      isTriggerBased: true,
+      context: {},
+    });
+    setTimeout(() => dataTreeWithFunctions.action1.run(), 1000);
+    jest.runAllTimers();
+    expect(self.postMessage).toBeCalled();
+  });
 });

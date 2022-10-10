@@ -34,9 +34,7 @@ describe("Add functions", () => {
     dataTree,
     resolvedFunctions: {},
     isTriggerBased: true,
-    context: {
-      requestId: "EVAL_TRIGGER",
-    },
+    context: {},
   });
 
   beforeEach(() => {

@@ -13,6 +13,8 @@ import {
 } from "workers/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 export const _internalSetTimeout = setTimeout;
 export const _internalClearTimeout = clearTimeout;
@@ -270,9 +272,10 @@ export const DATA_TREE_FUNCTIONS: Record<string, any> = {
 
 export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
-  requestId = "",
-  // Whether not to add functions like "run", "clear" to entity
   skipEntityFunctions = false,
+  eventType?: EventType,
+  // Whether not to add functions like "run", "clear" to entity
+  triggerMeta?: TriggerMeta,
 ): DataTree => {
   const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
@@ -282,31 +285,33 @@ export const enhanceDataTreeWithFunctions = (
       typeof funcOrFuncCreator === "object" &&
       "qualifier" in funcOrFuncCreator
     ) {
-      !skipEntityFunctions &&
-        Object.entries(dataTree).forEach(([entityName, entity]) => {
-          if (funcOrFuncCreator.qualifier(entity)) {
-            const func = funcOrFuncCreator.func(entity);
-            const funcName = `${funcOrFuncCreator.path ||
-              `${entityName}.${name}`}`;
-            _.set(
-              clonedDT,
-              funcName,
-              pusher.bind(
-                {
-                  REQUEST_ID: requestId,
-                },
-                func,
-              ),
-            );
-          }
-        });
+      if (skipEntityFunctions) continue;
+      Object.entries(dataTree).forEach(([entityName, entity]) => {
+        if (funcOrFuncCreator.qualifier(entity)) {
+          const func = funcOrFuncCreator.func(entity);
+          const funcName = `${funcOrFuncCreator.path ||
+            `${entityName}.${name}`}`;
+          _.set(
+            clonedDT,
+            funcName,
+            pusher.bind(
+              {
+                EVENT_TYPE: eventType,
+                TRIGGER_META: triggerMeta,
+              },
+              func,
+            ),
+          );
+        }
+      });
     } else {
       _.set(
         clonedDT,
         name,
         pusher.bind(
           {
-            REQUEST_ID: requestId,
+            EVENT_TYPE: eventType,
+            TRIGGER_META: triggerMeta,
           },
           funcOrFuncCreator,
         ),
@@ -332,7 +337,7 @@ export const enhanceDataTreeWithFunctions = (
  *
  * **/
 export const pusher = function(
-  this: { REQUEST_ID: string },
+  this: { EVENT_TYPE?: EventType; TRIGGER_META?: TriggerMeta },
   action: ActionDispatcherWithExecutionType,
   ...args: any[]
 ) {
@@ -344,9 +349,13 @@ export const pusher = function(
   } as ActionDescription;
 
   if (executionType && executionType === ExecutionType.TRIGGER) {
-    return executeTriggerOnMainThread(actionPayload);
+    return executeTriggerOnMainThread(
+      actionPayload,
+      this.EVENT_TYPE,
+      this.TRIGGER_META,
+    );
   } else if (executionType === ExecutionType.PROMISE) {
-    return talkToMainThread(actionPayload);
+    return talkToMainThread(actionPayload, this.EVENT_TYPE, this.TRIGGER_META);
   } else {
     return actionDescription;
   }

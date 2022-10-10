@@ -260,7 +260,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   eventType: EventType,
   triggerMeta: TriggerMeta,
   callbackData?: Array<any>,
-  globalContext?: Record<string, unknown>,
+  context?: Record<string, unknown>,
 ) {
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
@@ -272,8 +272,9 @@ export function* evaluateAndExecuteDynamicTrigger(
       dataTree: unEvalTree,
       dynamicTrigger,
       callbackData,
-      globalContext,
+      context: { ...context, eventType },
       triggerMeta,
+      eventType,
     },
   );
   yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
@@ -650,13 +651,17 @@ function* processErrorsAndExecuteTriggers(action: any) {
   yield call(evalErrorHandler, requestData?.errors || []);
   if (requestData?.trigger?.length === 0) return;
   log.debug({ trigger: requestData.trigger });
-  const responsePayload: any = { data: {} };
+  const responsePayload: any = {
+    data: {},
+    eventType: requestData.eventType,
+    triggerMeta: requestData.triggerMeta,
+  };
   try {
     const response: unknown = yield call(
       executeActionTriggers,
       requestData.trigger,
-      EventType.ON_JS_FUNCTION_EXECUTE,
-      {},
+      requestData.eventType,
+      requestData.triggerMeta,
     );
     responsePayload.data.resolve = response;
     responsePayload.success = true;

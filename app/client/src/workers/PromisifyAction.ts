@@ -16,8 +16,14 @@ import {
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
 import { RequestOrigin } from "utils/WorkerUtil";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
-export const talkToMainThread = (actionDescription: ActionDescription) => {
+export const talkToMainThread = (
+  actionDescription: ActionDescription,
+  eventType?: EventType,
+  triggerMeta?: TriggerMeta,
+) => {
   if (!self.ALLOW_ASYNC) {
     /**
      * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
@@ -41,7 +47,10 @@ export const talkToMainThread = (actionDescription: ActionDescription) => {
       data: {
         trigger: actionDescription,
         errors: [],
+        eventType,
+        triggerMeta,
       },
+      eventType,
     });
   });
 };
@@ -157,7 +166,7 @@ function handleResponseFromMainThread(
   function responseHandler(event: MessageEvent) {
     const {
       method,
-      requestData: { data, success },
+      requestData: { data, eventType, success, triggerMeta },
       requestId: requestIdFromMainThread,
     } = event.data;
     if (method !== EVAL_WORKER_ACTIONS.PROCESS_TRIGGER) return;
@@ -172,6 +181,10 @@ function handleResponseFromMainThread(
       dataTree: dataTreeEvaluator.evalTree,
       resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
       isTriggerBased: true,
+      context: {
+        eventType,
+      },
+      triggerMeta,
     });
     Object.assign(self, globalData);
     if (success) {
@@ -184,7 +197,11 @@ function handleResponseFromMainThread(
   return responseHandler;
 }
 
-export function executeTriggerOnMainThread(trigger: ActionDescription) {
+export function executeTriggerOnMainThread(
+  trigger: ActionDescription,
+  eventType?: EventType,
+  triggerMeta?: TriggerMeta,
+) {
   if (self.dryRun) {
     self.TRIGGER_COLLECTOR.push(trigger);
     self.dryRun = false;
@@ -195,6 +212,8 @@ export function executeTriggerOnMainThread(trigger: ActionDescription) {
     data: {
       trigger,
       errors: [],
+      triggerMeta,
+      eventType,
     },
   });
 }

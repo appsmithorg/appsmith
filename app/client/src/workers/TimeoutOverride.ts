@@ -13,10 +13,9 @@ export default function overrideTimeout() {
         self.dryRun = false;
         return;
       }
-      if (!dataTreeEvaluator) return;
       const globalData = createGlobalData({
-        dataTree: dataTreeEvaluator.evalTree,
-        resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
+        dataTree: dataTreeEvaluator?.evalTree || {},
+        resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
       });
       return (function(globalData) {

@@ -11,7 +11,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../utils/treeUtils";
-import { WIDGET_CONFIG_MAP } from "./__tests__/evaluation.mockData";
+import { WIDGET_CONFIG_MAP } from "./mockData/evaluation.mockData";
 
 // @ts-expect-error: meta is required
 const BASE_WIDGET: DataTreeWidget = {
