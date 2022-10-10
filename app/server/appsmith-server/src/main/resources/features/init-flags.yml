@@ -68,7 +68,7 @@ ff4j:
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: emails
+          - name: emailDomains
             value: appsmith.com,moolya.com
 
 
