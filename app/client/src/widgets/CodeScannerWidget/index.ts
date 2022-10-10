@@ -29,7 +29,6 @@ export const CONFIG = {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
-    config: Widget.getPropertyPaneConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
   },

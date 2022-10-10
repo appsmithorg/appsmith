@@ -1,7 +1,7 @@
 import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 
-var DataSourceKVP = {
+const DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
@@ -39,7 +39,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::label/parent::div/following-sibling::div/div/div";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@role='listbox']";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
@@ -371,7 +371,7 @@ export class DataSources {
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
-    let btnLocator =
+    const btnLocator =
       createQuery == true
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
@@ -523,31 +523,40 @@ export class DataSources {
   public CreateDataSource(
     dsType: "Postgres" | "Mongo" | "MySql",
     navigateToCreateNewDs = true,
+    verifyBeforeSave = true,
   ) {
     let guid: any;
+    let dataSourceName = "";
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       navigateToCreateNewDs && this.NavigateToDSCreateNew();
       this.CreatePlugIn(DataSourceKVP[dsType]);
       guid = uid;
-      this.agHelper.RenameWithInPane(dsType + " " + guid, false);
+      dataSourceName = dsType + " " + guid;
+      this.agHelper.RenameWithInPane(dataSourceName, false);
       if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
       else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
       else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
-      this.TestSaveDatasource();
-      cy.wrap(dsType + " " + guid).as("dsName");
+
+      if (verifyBeforeSave) {
+        this.TestSaveDatasource();
+      } else {
+        this.SaveDatasource();
+      }
+
+      cy.wrap(dataSourceName).as("dsName");
     });
   }
 
-  public CreateNewQueryInDS(
-    dsName: string,
-    query: string,
-    queryName: string = "",
-  ) {
+  public CreateNewQueryInDS(dsName: string, query = "", queryName = "") {
     this.ee.CreateNewDsQuery(dsName);
+
     if (queryName) this.agHelper.RenameWithInPane(queryName);
-    this.agHelper.GetNClick(this._templateMenu);
-    this.EnterQuery(query);
+
+    if (query) {
+      this.agHelper.GetNClick(this._templateMenu);
+      this.EnterQuery(query);
+    }
   }
 
   public CreateGraphqlDatasource(datasourceName: string) {

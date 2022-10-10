@@ -4822,7 +4822,7 @@ public class DatabaseChangelog {
      * @param action
      * @return true / false
      */
-    private boolean hasUnpublishedActionConfiguration(NewAction action) {
+    public boolean hasUnpublishedActionConfiguration(NewAction action) {
         ActionDTO unpublishedAction = action.getUnpublishedAction();
         if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
             return false;
@@ -4837,7 +4837,7 @@ public class DatabaseChangelog {
      * @param mongockTemplate
      * @return action
      */
-    private NewAction fetchActionUsingId(String actionId, MongockTemplate mongockTemplate) {
+    public static NewAction fetchActionUsingId(String actionId, MongockTemplate mongockTemplate) {
         final NewAction action =
                 mongockTemplate.findOne(query(where(fieldName(QNewAction.newAction.id)).is(actionId)), NewAction.class);
         return action;
@@ -4848,7 +4848,7 @@ public class DatabaseChangelog {
      * @param plugin
      * @return query
      */
-    private Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
+    public static Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
         Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
         Criteria isNotDeleted = where("deleted").ne(true);
         return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));

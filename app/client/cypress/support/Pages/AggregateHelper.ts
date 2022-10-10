@@ -25,9 +25,7 @@ export class AggregateHelper {
       ? "{cmd}{shift}{leftArrow}{backspace}"
       : "{shift}{home}{backspace}"
   }`;
-  private selectAll = `${
-    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
-  }`;
+  private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -138,7 +136,7 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      locator = selector.startsWith("//")
+      locator = selector.startsWith("//") || selector.startsWith("(//")
         ? cy.xpath(selector, { timeout: timeout })
         : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
@@ -206,7 +204,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleDisappear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
@@ -232,7 +230,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("be.visible"), {
@@ -457,10 +455,7 @@ export class AggregateHelper {
     force = false,
     waitTimeInterval = 500,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator
+    return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
       .click({ force: force })
@@ -723,16 +718,16 @@ export class AggregateHelper {
     this.GetElement(selector)
       .find("input")
       .type(this.selectAll)
-      .type(value, {delay: 1})
-      // .type(selectAllJSObjectContentShortcut)
-      // .then((ins: any) => {
-      //   //const input = ins[0].input;
-      //   ins.clear();
-      //   this.Sleep(200);
-      //   //ins.setValue(value);
-      //   ins.val(value).trigger('change');
-      //   this.Sleep(200);
-      // });
+      .type(value, { delay: 1 });
+    // .type(selectAllJSObjectContentShortcut)
+    // .then((ins: any) => {
+    //   //const input = ins[0].input;
+    //   ins.clear();
+    //   this.Sleep(200);
+    //   //ins.setValue(value);
+    //   ins.val(value).trigger('change');
+    //   this.Sleep(200);
+    // });
   }
 
   public BlurCodeInput(selector: string) {

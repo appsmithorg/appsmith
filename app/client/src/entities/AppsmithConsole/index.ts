@@ -14,6 +14,30 @@ export enum PLATFORM_ERROR {
   JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION",
 }
 
+export type Methods =
+  | "log"
+  | "debug"
+  | "info"
+  | "warn"
+  | "error"
+  | "table"
+  | "clear"
+  | "time"
+  | "timeEnd"
+  | "count"
+  | "assert";
+
+export type UserLogObject = { logObject: LogObject[]; source: SourceEntity };
+
+// Type of the log object
+export type LogObject = {
+  method: Methods | "result";
+  data: any[];
+  timestamp: string;
+  id: string;
+  severity: Severity;
+};
+
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
 export enum Severity {
@@ -61,6 +85,8 @@ export interface LogActionPayload {
   logType?: LOG_TYPE;
   // This is the preview of the log that the user sees.
   text: string;
+  // Number of times this log has been repeated
+  occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
   logData?: any[];
   messages?: Array<Message>;

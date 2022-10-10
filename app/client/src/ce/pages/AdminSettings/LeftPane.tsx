@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
-import AdminConfig from "./config";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 

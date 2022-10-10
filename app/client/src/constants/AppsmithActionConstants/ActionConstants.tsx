@@ -129,6 +129,12 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
   data: ActionResponse;
 }
 
+export interface LayoutOnLoadActionErrors {
+  errorType: string;
+  code: number;
+  message: string;
+}
+
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
