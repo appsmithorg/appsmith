@@ -1322,6 +1322,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PUBLIC);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -1391,6 +1392,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -1444,11 +1446,11 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
-    // Test case to validate page view audit log event and contents
+    // Test case to validate page view in view mode audit log event and contents
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void logEvent_pageView_success() {
+    public void logEvent_pageViewInViewMode_success() {
         Workspace workspace = new Workspace();
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
@@ -1484,6 +1486,72 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_VIEW);
+
+                    // Workspace validation
+                    assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
+                    assertThat(auditLog.getWorkspace().getName()).isEqualTo(workspace.getName());
+
+                    // User validation
+                    assertThat(auditLog.getUser().getId()).isNotEmpty();
+                    assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
+                    assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
+                    //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
+
+                    // Metadata validation
+                    //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
+                    assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    // Misc. fields validation
+                    assertThat(auditLog.getPage()).isNull();
+                    assertThat(auditLog.getAuthentication()).isNull();
+                    assertThat(auditLog.getInvitedUsers()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    // Test case to validate page view in edit mode audit log event and contents
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_pageViewInEditMode_success() {
+        Workspace workspace = new Workspace();
+        workspace.setName("AuditLogWorkspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("AuditLogApplication");
+        Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
+
+        PageDTO pageDTO = createNewPage("AuditLogPage", createdApplication).block();
+        applicationPageService.addPageToApplication(createdApplication, pageDTO, false).block();
+
+        String resourceType = auditLogService.getResourceType(new NewPage());
+
+        applicationPageService.getPageByBranchAndDefaultPageId(createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, false).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.viewed", resourceType, createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    // We are looking for the first event since Audit Logs sort order is DESC
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("page.viewed");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+
+                    // Resource validation
+                    assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getPublishedPages().get(0).getDefaultPageId());
+                    assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
+
+                    // Application validation
+                    assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
+                    assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
+                    assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -1547,6 +1615,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -1817,6 +1886,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -1899,6 +1969,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -2030,6 +2101,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -2121,6 +2193,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource().getId()).isEqualTo(executeActionDTO.getActionId());
                     assertThat(auditLog.getResource().getType()).isEqualTo("Query");
                     assertThat(auditLog.getResource().getName()).isEqualTo(action.getName());
+                    assertThat(auditLog.getResource().getExecutionStatus()).isNotNull();
                     assertThat(auditLog.getResource().getResponseCode()).isNotNull();
                     assertThat(auditLog.getResource().getResponseTime()).isNotNegative();
 
@@ -2132,7 +2205,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
-                    // TODO: Add Query Execution mode view/edit
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -2202,9 +2275,12 @@ public class AuditLogServiceTest {
         action.setDatasource(datasource);
         ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
+        // Publish application for testing action execution in view mode
+        applicationPageService.publish(createdApplication.getId(), true).block();
+
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
-        executeActionDTO.setViewMode(false);
+        executeActionDTO.setViewMode(true);
 
         ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO).block();
 
@@ -2224,7 +2300,9 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource().getId()).isEqualTo(executeActionDTO.getActionId());
                     assertThat(auditLog.getResource().getType()).isEqualTo("Query");
                     assertThat(auditLog.getResource().getName()).isEqualTo(action.getName());
-                    // TODO: Add checks for executionStatus, responseTime, responseCode
+                    assertThat(auditLog.getResource().getExecutionStatus()).isNotNull();
+                    assertThat(auditLog.getResource().getResponseCode()).isNotNull();
+                    assertThat(auditLog.getResource().getResponseTime()).isNotNegative();
 
                     // Page validation
                     assertThat(auditLog.getPage().getId()).isEqualTo(createdPageDTO.getId());
@@ -2234,7 +2312,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isEqualTo(createdApplication.getId());
                     assertThat(auditLog.getApplication().getName()).isEqualTo(createdApplication.getName());
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
-                    // TODO: Add Query Execution mode view/edit
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_VIEW);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
@@ -2948,6 +3026,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getApplication().getId()).isNotNull();
                     assertThat(auditLog.getApplication().getName()).isNotNull();
                     assertThat(auditLog.getApplication().getVisibility()).isEqualTo(FieldName.PRIVATE);
+                    assertThat(auditLog.getApplication().getMode()).isEqualTo(FieldName.AUDIT_LOG_APP_MODE_EDIT);
 
                     // Workspace validation
                     assertThat(auditLog.getWorkspace().getId()).isNotNull();
