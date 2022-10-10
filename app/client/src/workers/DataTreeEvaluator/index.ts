@@ -389,10 +389,14 @@ export default class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-    const { evalMetaUpdates, evaluatedTree: newEvalTree } = this.evaluateTree(
+    const {
+      evalMetaUpdates,
+      evaluatedTree: newEvalTree,
+    } = this.evaluateTree(
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
+      { skipRevalidation: false },
     );
     const evalStop = performance.now();
 
@@ -619,6 +623,7 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
+    option = { skipRevalidation: true },
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
@@ -705,12 +710,13 @@ export default class DataTreeEvaluator {
                 propertyPath,
               });
 
-              this.reValidateWidgetDependentProperty({
-                fullPropertyPath,
-                widget: entity,
-                currentTree,
-                evalMetaUpdates,
-              });
+              if (!option.skipRevalidation) {
+                this.reValidateWidgetDependentProperty({
+                  fullPropertyPath,
+                  widget: entity,
+                  currentTree,
+                });
+              }
 
               return currentTree;
             }
@@ -1074,9 +1080,15 @@ export default class DataTreeEvaluator {
         }) ?? [];
       addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
     } else {
+      console.log("$$$-currentTree", {
+        currentTree,
+        fullPropertyPath,
+        isValid,
+      });
       // if valid then remove already present error
-      removeErrorsFromEntityProperty(currentTree, fullPropertyPath);
+      // removeErrorsFromEntityProperty(currentTree, fullPropertyPath);
     }
+
     return parsed;
   }
 
@@ -1112,21 +1124,19 @@ export default class DataTreeEvaluator {
 
   reValidateWidgetDependentProperty({
     currentTree,
-    evalMetaUpdates,
     fullPropertyPath,
     widget,
   }: {
     currentTree: DataTree;
     fullPropertyPath: string;
     widget: DataTreeWidget;
-    evalMetaUpdates: EvalMetaUpdates;
   }) {
     if (this.inverseValidationDependencyMap[fullPropertyPath]) {
       const pathsToRevalidate = this.inverseValidationDependencyMap[
         fullPropertyPath
       ];
       pathsToRevalidate.forEach((fullPath) => {
-        const parsedValue = this.validateAndParseWidgetProperty({
+        this.validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
           widget,
           currentTree,
@@ -1135,14 +1145,6 @@ export default class DataTreeEvaluator {
             this.oldUnEvalTree,
             fullPath,
           ) as unknown) as string,
-        });
-        this.setParsedValue({
-          parsedValue,
-          currentTree,
-          entity: widget,
-          fullPropertyPath: fullPath,
-          propertyPath: getEntityNameAndPropertyPath(fullPath).propertyPath,
-          evalMetaUpdates,
         });
       });
     }

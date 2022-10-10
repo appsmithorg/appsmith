@@ -1,6 +1,6 @@
 import {
   getBindingTemplate,
-  removeTemplateFromJSBinding,
+  stringToJS,
 } from "components/propertyControls/SelectDefaultValueControl";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -8,7 +8,7 @@ import { DSLWidget } from "widgets/constants";
 
 const SelectTypeWidgets = ["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"];
 
-export function migrateSelectTypeWidgetDefaultValue(currentDSL: DSLWidget) {
+export function MigrateSelectTypeWidgetDefaultValue(currentDSL: DSLWidget) {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (SelectTypeWidgets.includes(child.type)) {
       const defaultOptionValue = child.defaultOptionValue;
@@ -19,16 +19,15 @@ export function migrateSelectTypeWidgetDefaultValue(currentDSL: DSLWidget) {
       if (
         typeof defaultOptionValue === "string" &&
         isDynamicValue(defaultOptionValue) &&
-        defaultOptionValue.endsWith(suffixTemplate) &&
-        defaultOptionValue.startsWith(prefixTemplate)
+        !defaultOptionValue.endsWith(suffixTemplate) &&
+        !defaultOptionValue.startsWith(prefixTemplate)
       ) {
-        child.defaultOptionValue = removeTemplateFromJSBinding(
+        child.defaultOptionValue = `${prefixTemplate}${stringToJS(
           defaultOptionValue,
-          child.widgetName,
-        );
+        )}${suffixTemplate}`;
       }
     } else if (child.children && child.children.length > 0) {
-      child = migrateSelectTypeWidgetDefaultValue(child);
+      child = MigrateSelectTypeWidgetDefaultValue(child);
     }
     return child;
   });

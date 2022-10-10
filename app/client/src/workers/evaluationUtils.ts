@@ -563,6 +563,8 @@ export function getValidatedTree(tree: DataTree) {
             fullPath: false,
           }),
         );
+      } else {
+        //
       }
     });
     return { ...tree, [entityKey]: parsedEntity };
