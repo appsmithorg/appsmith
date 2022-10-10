@@ -106,9 +106,7 @@ export const promisifyAction = (
             dataTree: dataTreeEvaluator.evalTree,
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
             isTriggerBased: true,
-            context: {
-              requestId: workerRequestId,
-            },
+            context: {},
           });
           for (const entity in globalData) {
             // @ts-expect-error: Types are not available
