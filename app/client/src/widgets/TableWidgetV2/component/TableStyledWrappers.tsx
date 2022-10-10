@@ -11,6 +11,7 @@ import {
   CellAlignment,
   VerticalAlignment,
   scrollbarOnHoverCSS,
+  MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
@@ -80,6 +81,9 @@ export const TableWrapper = styled.div<{
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
+    }
+    .tbody.no-scroll {
+      overflow: hidden;
     }
     .tr {
       overflow: hidden;
@@ -429,11 +433,11 @@ export const CellWrapper = styled.div<{
 
 export const CellCheckboxWrapper = styled(CellWrapper)<{
   isChecked?: boolean;
-  accentColor: string;
-  borderRadius: string;
+  accentColor?: string;
+  borderRadius?: string;
 }>`
   justify-content: center;
-  width: 40px;
+  width: ${MULTISELECT_CHECKBOX_WIDTH}px;
   height: auto;
   & > div {
     border-radius: ${({ borderRadius }) => borderRadius};

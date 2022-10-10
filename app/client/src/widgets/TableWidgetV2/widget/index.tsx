@@ -858,6 +858,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
+          primaryColumnId={this.props.primaryColumnId}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}
@@ -1841,7 +1842,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onOptionSelect = (
-    value: string,
+    value: string | number,
     rowIndex: number,
     column: string,
     action?: string,
