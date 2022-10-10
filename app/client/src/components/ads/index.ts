@@ -3,9 +3,6 @@ export * from "./Callout";
 
 export * from "./common";
 
-export { default as DialogComponent } from "./DialogComponent";
-export * from "./DialogComponent";
-
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
 
@@ -20,5 +17,3 @@ export * from "./FilePicker";
 export { default as FilePickerV2 } from "./FilePickerV2";
 
 export * from "./Toast";
-
-export { default as UserProfileImagePicker } from "./UserProfileImagePicker";
