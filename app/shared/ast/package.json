@@ -22,6 +22,7 @@
   "dependencies": {
     "acorn": "^8.8.0",
     "acorn-walk": "^8.2.0",
+    "astravel": "^0.6.1",
     "astring": "^1.7.5",
     "lodash": "^4.17.21",
     "rollup": "^2.77.0",

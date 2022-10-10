@@ -1,5 +1,7 @@
 import { parse, Node, SourceLocation, Options } from "acorn";
-import { ancestor, simple } from "acorn-walk";
+import { ancestor, simple, full } from "acorn-walk";
+import { generate } from "astring";
+//import astravel from "astravel";
 import { ECMA_VERSION, NodeTypes } from "./constants/ast";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
@@ -339,6 +341,34 @@ export const extractIdentifierInfoFromCode = (
     functionalParams: Array.from(functionalParams),
     variables: Array.from(variableDeclarations),
   };
+};
+
+export const entityRefactorFromCode = (
+  code: string,
+  oldName: string,
+  newName: string
+): string => {
+  let comments: any[] = [];
+  var ast = parse(code, {
+    ecmaVersion: 6,
+    locations: false,
+    onComment: comments,
+  });
+
+  let prevNode = ast;
+  full(ast, (node) => {
+    if (isIdentifierNode(node) && node.name === oldName) {
+      node.name = newName;
+    }
+    prevNode = node;
+  });
+  // Attach comments to AST nodes
+  //astravel.attachComments(ast, comments);
+  // Format it and write the result to stdout
+  var formattedCode = generate(ast, {
+    comments: true,
+  });
+  return formattedCode;
 };
 
 export type functionParam = { paramName: string; defaultValue: unknown };

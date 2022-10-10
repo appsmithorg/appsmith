@@ -63,4 +63,24 @@ export default class AstController extends BaseController {
       );
     }
   }
+
+  async entityRefactorController(req: Request, res: Response) {
+    try {
+      // By default the application eval version is set to be 2
+      const { script, evalVersion = 2 }: ScriptToIdentifiersType = req.body;
+      const data = await AstService.refactorEntity(
+        req.body.script,
+        req.body.oldName,
+        req.body.newName
+      );
+      return super.sendResponse(res, data);
+    } catch (err) {
+      return super.sendError(
+        res,
+        super.serverErrorMessaage,
+        [err.message],
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 }
