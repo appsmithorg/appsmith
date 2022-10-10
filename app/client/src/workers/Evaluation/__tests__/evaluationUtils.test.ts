@@ -1,8 +1,4 @@
-import {
-  DependencyMap,
-  EVAL_ERROR_PATH,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
@@ -21,20 +17,19 @@ import {
   isPrivateEntityPath,
   makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
-} from "./evaluationUtils";
+} from "../evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
-import _, { get, flatten } from "lodash";
-import { overrideWidgetProperties, findDatatype } from "./evaluationUtils";
+import _, { flatten } from "lodash";
+import { overrideWidgetProperties, findDatatype } from "../evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalMetaUpdates } from "../common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "../../common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
 import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
-import { Severity } from "entities/AppsmithConsole";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -751,15 +746,6 @@ describe("overrideWidgetProperties", () => {
       //@ts-expect-error: selectedRowIndex does not exits on type DataTreeEntity
       expect(currentTree.Table1.selectedRowIndex).toStrictEqual(0);
     });
-  });
-});
-
-describe("removeLintErrorsFromEntityProperty", () => {
-  it("returns correct result", function() {
-    const dataTree: DataTree = { ...testDataTree };
-    const path = "Button1.text";
-    // removeLintErrorsFromEntityProperty(dataTree, path);
-    expect(get(dataTree, `Button1.${EVAL_ERROR_PATH}[text]`)).toEqual([]);
   });
 });
 

@@ -1,4 +1,4 @@
-import ReplayDSL from "./ReplayDSL";
+import ReplayDSL from "../ReplayDSL";
 import { diff as deepDiff } from "deep-diff";
 
 describe("Checks ReplayDSL functionality", () => {

@@ -1,4 +1,4 @@
-import { findDuplicateIndex } from "./helpers";
+import { findDuplicateIndex } from "../helpers";
 
 describe("Worker Helper functions test", () => {
   it("Correctly finds the duplicate index in an array of strings", () => {

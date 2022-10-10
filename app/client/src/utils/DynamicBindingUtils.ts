@@ -441,6 +441,7 @@ export interface EvaluationError extends DataTreeError {
   errorType:
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;
+  originalBinding?: string;
 }
 
 export interface LintError extends DataTreeError {

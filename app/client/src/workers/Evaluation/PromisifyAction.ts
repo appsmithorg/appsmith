@@ -46,6 +46,7 @@ export const promisifyAction = (
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
       responseData,
       requestId: workerRequestIdCopy,
+      promisified: true,
     });
     const processResponse = function(event: MessageEvent) {
       const { data, eventType, method, requestId, success } = event.data;
@@ -103,6 +104,7 @@ export const completePromise = (requestId: string, result: EvalResult) => {
       result,
     },
     requestId,
+    promisified: true,
   });
 };
 
