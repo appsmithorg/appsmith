@@ -96,8 +96,15 @@ public class RedisConfig {
 
             } else if ((t instanceof Map)) {
                 final Map<?, ?> data = (Map<?, ?>) t;
-                if (data.get(LoginSource.GOOGLE.name().toLowerCase()) instanceof OAuth2AuthorizedClient
-                        || data.get(LoginSource.GITHUB.name().toLowerCase()) instanceof OAuth2AuthorizedClient) {
+                boolean allValuesAreClientDTOs = true;
+                for (final LoginSource loginSource : LoginSource.oauthSources) {
+                    final Object value = data.get(loginSource.name().toLowerCase());
+                    if (value != null && !(value instanceof OAuth2AuthorizedClientDTO)) {
+                        allValuesAreClientDTOs = false;
+                        break;
+                    }
+                }
+                if (allValuesAreClientDTOs) {
                     final byte[] bytes = serializeOAuthClientMap(data);
                     return bytes == null ? null : ByteUtils.concat(OAUTH_CLIENT_PREFIX, bytes);
                 }

@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 public enum LoginSource {
     GOOGLE, FORM, GITHUB, OIDC;
 
+    public static final Set<LoginSource> oauthSources = Set.of(GOOGLE, GITHUB, OIDC);
+
     public static LoginSource fromString(String name) {
         return EnumUtils.getEnumFromString(LoginSource.class, name);
     }
