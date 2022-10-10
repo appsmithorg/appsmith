@@ -104,7 +104,6 @@ import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActio
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
-import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -599,9 +598,9 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleLintTooltip = () => {
-    const { appMode, lintErrors } = this.props;
+    const { lintErrors } = this.props;
 
-    if (lintErrors.length === 0 || appMode === APP_MODE.PUBLISHED) return;
+    if (lintErrors.length === 0) return;
     const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
     if (!lintTooltipList) return;
     for (const tooltip of lintTooltipList) {
@@ -753,17 +752,11 @@ class CodeEditor extends Component<Props, State> {
   lintCode(editor: CodeMirror.Editor) {
     const {
       additionalDynamicData: contextData,
-      appMode,
       dataTreePath,
       isJSObject,
     } = this.props;
 
-    if (
-      !dataTreePath ||
-      !this.updateLintingCallback ||
-      !editor ||
-      appMode === APP_MODE.PUBLISHED
-    ) {
+    if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
     const lintErrors = this.props.lintErrors;
@@ -994,7 +987,6 @@ const mapStateToProps = (state: AppState, { dataTreePath }: EditorProps) => ({
   recentEntities: getRecentEntityIds(state),
   editorIsFocused: getIsCodeEditorFocused(state, dataTreePath || ""),
   lintErrors: dataTreePath ? getEntityLintErrors(state, dataTreePath) : [],
-  appMode: getAppMode(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
