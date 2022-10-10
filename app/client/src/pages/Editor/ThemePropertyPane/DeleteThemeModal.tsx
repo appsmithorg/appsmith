@@ -7,8 +7,12 @@ import {
   DELETE_CONFIRMATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import Dialog from "components/ads/DialogComponent";
-import { Button, Category, Size } from "design-system";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  Size,
+} from "design-system";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;
