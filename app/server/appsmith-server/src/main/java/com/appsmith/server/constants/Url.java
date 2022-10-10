@@ -14,6 +14,7 @@ public interface Url {
     String SAAS_URL = BASE_URL + VERSION + "/saas";
     String ACTION_URL = BASE_URL + VERSION + "/actions";
     String USER_URL = BASE_URL + VERSION + "/users";
+    String BACKGROUND_URL = BASE_URL + VERSION + "/background";
     String APPLICATION_URL = BASE_URL + VERSION + "/" + Entity.APPLICATIONS;
     String PAGE_URL = BASE_URL + VERSION + "/" + Entity.PAGES;
     String PROPERTY_URL = BASE_URL + VERSION + "/properties";
