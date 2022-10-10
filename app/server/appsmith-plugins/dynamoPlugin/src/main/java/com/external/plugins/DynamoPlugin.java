@@ -69,6 +69,8 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
 
+    private static final long DYNAMO_DEFAULT_PORT = 8000L;
+
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -268,6 +270,15 @@ public class DynamoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        public long getPort(Endpoint endpoint) {
+
+            if (endpoint.getPort() == null) {
+                return DYNAMO_DEFAULT_PORT;
+            }
+
+            return endpoint.getPort();
+        }
+
         @Override
         public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
@@ -276,7 +287,7 @@ public class DynamoPlugin extends BasePlugin {
 
                         if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                             final Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-                            builder.endpointOverride(URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
+                            builder.endpointOverride(URI.create("http://" + endpoint.getHost() + ":" + getPort(endpoint)));
                         }
 
                         final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();

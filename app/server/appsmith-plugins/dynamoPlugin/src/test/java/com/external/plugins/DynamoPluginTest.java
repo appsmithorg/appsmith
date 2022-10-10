@@ -160,6 +160,16 @@ public class DynamoPluginTest {
     }
 
     @Test
+    public void testDefaultPort() {
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("localhost");
+        long defaultPort = pluginExecutor.getPort(endpoint);
+
+        assertEquals(8000L,defaultPort);
+    }
+
+    @Test
     public void testListTables() {
         StepVerifier.create(execute("ListTables", null))
                 .assertNext(result -> {
