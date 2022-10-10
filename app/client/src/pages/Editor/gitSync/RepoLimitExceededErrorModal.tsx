@@ -27,7 +27,7 @@ import {
   CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
   REVOKE_CAUSE_APPLICATION_BREAK,
-  DISCONNECT_EXISTING_REPOSITORIES_INFO,
+  REVOKE_EXISTING_REPOSITORIES_INFO,
   LEARN_MORE,
   REPOSITORY_LIMIT_REACHED,
   REPOSITORY_LIMIT_REACHED_INFO,
@@ -238,7 +238,7 @@ function RepoLimitExceededErrorModal() {
           </div>
           <div style={{ marginTop: theme.spaces[3], width: 410 }}>
             <Text color={Colors.BLACK} type={TextType.P1}>
-              {createMessage(DISCONNECT_EXISTING_REPOSITORIES_INFO)}
+              {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
             </Text>
           </div>
           <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px 0` }}>

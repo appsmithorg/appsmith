@@ -28,7 +28,7 @@ import {
   DISCARDING_AND_PULLING_CHANGES,
   DISCONNECT,
   REVOKE_CAUSE_APPLICATION_BREAK,
-  DISCONNECT_EXISTING_REPOSITORIES_INFO,
+  REVOKE_EXISTING_REPOSITORIES_INFO,
   REVOKE_GIT,
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
@@ -199,7 +199,7 @@ describe("messages without input", () => {
       value: "Revoke Existing Repositories",
     },
     {
-      key: "DISCONNECT_EXISTING_REPOSITORIES_INFO",
+      key: "REVOKE_EXISTING_REPOSITORIES_INFO",
       value:
         "To make space for newer repositories, you can remove existing repositories.",
     },
@@ -352,7 +352,7 @@ describe("messages without input", () => {
     DISCONNECT,
     REVOKE_CAUSE_APPLICATION_BREAK,
     REVOKE_EXISTING_REPOSITORIES,
-    DISCONNECT_EXISTING_REPOSITORIES_INFO,
+    REVOKE_EXISTING_REPOSITORIES_INFO,
     REVOKE_GIT,
     ERROR_GIT_AUTH_FAIL,
     ERROR_GIT_INVALID_REMOTE,

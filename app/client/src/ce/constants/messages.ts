@@ -675,7 +675,7 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
 
 export const REVOKE_EXISTING_REPOSITORIES = () =>
   "Revoke Existing Repositories";
-export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
