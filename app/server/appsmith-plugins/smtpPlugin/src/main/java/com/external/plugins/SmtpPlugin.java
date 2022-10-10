@@ -166,6 +166,7 @@ public class SmtpPlugin extends BasePlugin {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             Properties prop = new Properties();
+            prop.put("mail.transport.protocol", "smtp");
             prop.put("mail.smtp.auth", true);
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.host", endpoint.getHost());
