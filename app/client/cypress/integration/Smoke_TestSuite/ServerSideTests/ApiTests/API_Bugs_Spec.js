@@ -1,7 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dslParallel = require("../../../../fixtures/apiParallelDsl.json");
 const dslTable = require("../../../../fixtures/apiTableDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
@@ -11,6 +10,14 @@ let apiPage = ObjectsRegistry.ApiPage,
   locator = ObjectsRegistry.CommonLocators;
 
 describe("Rest Bugs tests", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("Bug 5550: Not able to run APIs in parallel", function() {
     cy.addDsl(dslParallel);
     cy.wait(8000); //settling time for dsl!
