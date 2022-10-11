@@ -7,10 +7,10 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
@@ -916,7 +916,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(jsonObject);
 
         Mockito
-                .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.moveCollection(actionCollectionMoveDTO);

@@ -1,9 +1,18 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-
 const fieldPrefix = ".t--jsonformfield";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSON Form Widget AutoGenerate Enabled", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("generates fields with valid source data json", () => {
     cy.addDsl(dslWithoutSchema);
     const sourceData = {
