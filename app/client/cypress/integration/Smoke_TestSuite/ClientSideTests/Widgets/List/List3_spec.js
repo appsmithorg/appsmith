@@ -2,8 +2,6 @@ const dsl = require("../../../../../fixtures/listRegression3Dsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 
 describe("Binding the list widget with text widget", function() {
-  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
   before(() => {
     cy.addDsl(dsl);
   });

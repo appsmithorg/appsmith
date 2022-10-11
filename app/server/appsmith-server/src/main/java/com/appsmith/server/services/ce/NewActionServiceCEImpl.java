@@ -25,7 +25,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionProvider;
+import com.appsmith.external.models.ActionProvider;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
@@ -33,9 +33,9 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1106,6 +1106,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
+                    final String appMode = TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
 
                     final Map<String, Object> data = new HashMap<>(Map.of(
                             "username", user.getUsername(),
@@ -1117,7 +1118,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             ),
                             "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
-                            "appMode", TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString(),
+                            FieldName.APP_MODE, appMode,
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample()
                     ));
@@ -1165,7 +1166,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
-                            FieldName.APP_MODE, viewMode,
+                            FieldName.APP_MODE, appMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
                             FieldName.ACTION_EXECUTION_REQUEST, request,
