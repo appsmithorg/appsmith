@@ -37,6 +37,7 @@ import PreviewModeComponent from "components/editorComponents/PreviewModeCompone
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import DynamicHeightContainer from "components/dynamicHeight/DynamicHeightContainer";
 
 /***
  * BaseWidget
@@ -347,6 +348,17 @@ abstract class BaseWidget<
     return renderMode === RenderModes.CANVAS
       ? this.getCanvasView()
       : this.getPageView();
+  };
+
+  addDynamicHeightContainer = (content: ReactNode) => {
+    return (
+      <DynamicHeightContainer
+        dynamicHeight={this.props.dynamicHeight}
+        maxDynamicHeight={this.props.maxDynamicHeight}
+      >
+        {content}
+      </DynamicHeightContainer>
+    );
   };
 
   private getWidgetView(): ReactNode {
