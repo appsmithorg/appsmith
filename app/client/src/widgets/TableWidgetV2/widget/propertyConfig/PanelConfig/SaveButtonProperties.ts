@@ -126,7 +126,8 @@ export const saveButtonStyleConfig = {
         {
           propertyName: "saveButtonVariant",
           label: "Button Variant",
-          controlType: "DROP_DOWN",
+          controlType: "ICON_TABS",
+          fullWidth: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText: "Sets the variant of the save button",
@@ -211,6 +212,7 @@ export const saveButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the save button",
           controlType: "ICON_TABS",
+          fullWidth: true,
           defaultValue: "left",
           options: [
             {
@@ -228,7 +230,7 @@ export const saveButtonStyleConfig = {
           validation: {
             type: ValidationTypes.TEXT,
             params: {
-              allowedValues: ["center", "left", "right"],
+              allowedValues: ["left", "right"],
             },
           },
         },

@@ -9,7 +9,8 @@ export default [
         propertyName: "compactMode",
         helpText: "Selects row height",
         label: "Default Row Height",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         defaultValue: "DEFAULT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -91,6 +92,7 @@ export default [
         propertyName: "horizontalAlignment",
         label: "Text Align",
         controlType: "ICON_TABS",
+        fullWidth: true,
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
         options: [
@@ -122,6 +124,7 @@ export default [
         propertyName: "verticalAlignment",
         label: "Vertical Alignment",
         controlType: "ICON_TABS",
+        fullWidth: true,
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
         options: [

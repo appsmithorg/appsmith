@@ -126,7 +126,8 @@ export const discardButtonStyleConfig = {
         {
           propertyName: "discardButtonVariant",
           label: "Button Variant",
-          controlType: "DROP_DOWN",
+          controlType: "ICON_TABS",
+          fullWidth: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText: "Sets the variant of the discard button",
@@ -212,6 +213,7 @@ export const discardButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the discard button",
           controlType: "ICON_TABS",
+          fullWidth: true,
           defaultValue: "left",
           options: [
             {

@@ -81,7 +81,8 @@ export default [
         propertyName: "inlineEditingSaveOption",
         helpText: "Choose the save experience to save the edited cell",
         label: "Update Mode",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => {

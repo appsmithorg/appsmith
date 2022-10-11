@@ -107,6 +107,7 @@ export default {
           : "Text Align";
       },
       controlType: "ICON_TABS",
+      fullWidth: true,
       options: [
         {
           icon: "LEFT_ALIGN",
@@ -151,6 +152,7 @@ export default {
       propertyName: "verticalAlignment",
       label: "Vertical Alignment",
       controlType: "ICON_TABS",
+      fullWidth: true,
       options: [
         {
           icon: "VERTICAL_TOP",

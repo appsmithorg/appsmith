@@ -145,7 +145,8 @@ export const GeneralStyle = {
     {
       propertyName: "buttonVariant",
       label: "Button Variant",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       helpText: "Sets the variant",
@@ -191,7 +192,8 @@ export const GeneralStyle = {
     {
       propertyName: "menuVariant",
       label: "Button Variant",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       helpText: "Sets the variant of the menu button",
       options: [

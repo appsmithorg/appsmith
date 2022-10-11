@@ -22,6 +22,8 @@ export default {
     {
       propertyName: "columnType",
       label: "Column Type",
+      helpText:
+        "Type of column to be shown corresponding to the data of the column",
       controlType: "DROP_DOWN",
       options: [
         {
