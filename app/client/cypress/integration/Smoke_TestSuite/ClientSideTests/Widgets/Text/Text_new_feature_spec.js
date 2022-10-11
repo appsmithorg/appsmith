@@ -66,6 +66,10 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.readTextDataValidateCSS("font-weight", "700");
     cy.get(widgetsPage.italics).click({ force: true });
     cy.readTextDataValidateCSS("font-style", "normal");
+    cy.get(widgetsPage.underline).click({ force: true });
+    cy.readTextDataValidateCSS("text-decoration-line", "underline");
+    cy.get(widgetsPage.underline).click({ force: true });
+    cy.readTextDataValidateCSS("text-decoration-line", "normal");
     cy.closePropertyPane();
   });
 
