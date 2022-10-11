@@ -1,59 +1,58 @@
-import React, { useContext, useEffect, memo, useMemo, useState } from "react";
-import {
-  WidgetOperations,
-  WidgetRowCols,
-  WidgetProps,
-} from "widgets/BaseWidget";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import {
-  UIElementSize,
-  computeFinalRowCols,
-  computeRowCols,
-} from "./ResizableUtils";
-import {
-  useShowPropertyPane,
-  useShowTableFilterPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
-import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import Resizable from "resizable/resizenreflow";
-import { omit, get } from "lodash";
-import { getSnapColumns } from "utils/WidgetPropsUtils";
-import {
-  VisibilityContainer,
-  LeftHandleStyles,
-  RightHandleStyles,
-  TopHandleStyles,
-  BottomHandleStyles,
-  TopLeftHandleStyles,
-  TopRightHandleStyles,
-  BottomLeftHandleStyles,
-  BottomRightHandleStyles,
-} from "./ResizeStyledComponents";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
-import { GridDefaults } from "constants/WidgetConstants";
-import { DropTargetContext } from "./DropTargetComponent";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import {
   AlignItems,
   LayoutDirection,
   ResponsiveBehavior,
 } from "components/constants";
-import { AutoLayoutContext } from "utils/autoLayoutContext";
-import { getParentToOpenSelector } from "selectors/widgetSelectors";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { GridDefaults } from "constants/WidgetConstants";
+import { get, omit } from "lodash";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import React, { memo, useContext, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import Resizable from "resizable/resizenreflow";
 import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import {
+  getParentToOpenSelector,
   isCurrentWidgetFocused,
   isCurrentWidgetLastSelected,
-  isWidgetSelected,
   isMultiSelectedWidget,
+  isWidgetSelected,
 } from "selectors/widgetSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  useShowPropertyPane,
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getSnapColumns } from "utils/WidgetPropsUtils";
+import {
+  WidgetOperations,
+  WidgetProps,
+  WidgetRowCols,
+} from "widgets/BaseWidget";
+import { DropTargetContext } from "./DropTargetComponent";
+import {
+  computeFinalRowCols,
+  computeRowCols,
+  UIElementSize,
+} from "./ResizableUtils";
+import {
+  BottomHandleStyles,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
+  LeftHandleStyles,
+  RightHandleStyles,
+  TopHandleStyles,
+  TopLeftHandleStyles,
+  TopRightHandleStyles,
+  VisibilityContainer,
+} from "./ResizeStyledComponents";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;

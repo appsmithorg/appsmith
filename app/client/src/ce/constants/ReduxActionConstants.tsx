@@ -1,16 +1,16 @@
-import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { ApplicationVersion } from "actions/applicationActions";
+import {
+  ApplicationPagePayload,
+  GitApplicationMetadata,
+} from "api/ApplicationApi";
 import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { Workspace } from "constants/workspaceConstants";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import {
-  ApplicationPagePayload,
-  GitApplicationMetadata,
-} from "api/ApplicationApi";
-import { ApplicationVersion } from "actions/applicationActions";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -18,6 +18,7 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  SET_AUTOLAYOUT_HIGHLIGHTS: "SET_AUTOLAYOUT_HIGHLIGHTS",
   GIT_DISCARD_CHANGES_SUCCESS: "GIT_DISCARD_CHANGES_SUCCESS",
   GIT_DISCARD_CHANGES: "GIT_DISCARD_CHANGES",
   DELETE_BRANCH_INIT: "DELETE_BRANCH_INIT",

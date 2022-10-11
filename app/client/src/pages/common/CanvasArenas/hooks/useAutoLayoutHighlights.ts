@@ -1,17 +1,19 @@
 import { getWidgets } from "sagas/selectors";
 import { useSelector } from "store";
 
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
-  LayoutDirection,
   FlexLayerAlignment,
+  LayoutDirection,
   ResponsiveBehavior,
 } from "components/constants";
-import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { useDispatch } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
+import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 interface XYCord {
   x: number;
@@ -55,7 +57,7 @@ export const useAutoLayoutHighlights = ({
   const canvas = allWidgets[canvasId];
   const layers: FlexLayer[] = canvas?.flexLayers || [];
   const isVertical = direction === LayoutDirection.Vertical;
-
+  const dispatch = useDispatch();
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
   let containerDimensions: {
@@ -178,6 +180,7 @@ export const useAutoLayoutHighlights = ({
         );
       }
     }
+    console.log({ highlights });
     // console.log("#### highlights: ", highlights);
     return highlights;
   };
@@ -451,6 +454,14 @@ export const useAutoLayoutHighlights = ({
       e,
       moveDirection,
     );
+    dispatch({
+      type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
+      payload: {
+        flexHighlight: pos,
+        blocksToDraw,
+      },
+    });
+    // console.log({ pos });
 
     if (!pos) return;
     lastActiveHighlight = pos;
