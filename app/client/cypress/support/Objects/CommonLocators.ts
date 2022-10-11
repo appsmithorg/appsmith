@@ -118,6 +118,8 @@ export class CommonLocators {
   _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span";
   _evaluatedCurrentValue =
     "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre";
+  _evaluatedErrorMessage =
+    ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -139,7 +141,7 @@ export class CommonLocators {
     "(//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" +
     date +
     "'])[last()]";
-  _inputWidgetValueField = (fieldName: string, input: boolean = true) =>
+  _inputWidgetValueField = (fieldName: string, input = true) =>
     `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
@@ -154,4 +156,8 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _sliderThumb = "#slider-thumb";
+  // sliderOne & sliderTwo are ids of the range slider thumbs
+  _sliderThumbOne = "#slider-thumb-one";
+  _sliderThumbTwo = "#slider-thumb-two";
 }

@@ -136,9 +136,10 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      locator = selector.startsWith("//") || selector.startsWith("(//")
-        ? cy.xpath(selector, { timeout: timeout })
-        : cy.get(selector, { timeout: timeout });
+      locator =
+        selector.startsWith("//") || selector.startsWith("(//")
+          ? cy.xpath(selector, { timeout: timeout })
+          : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
     return locator;
   }
@@ -753,6 +754,12 @@ export class AggregateHelper {
         this.Sleep(200);
         expect(inputVal).to.eq(expectedValue);
       });
+  }
+
+  public VerifyErrorMessage(errorMessage: string) {
+    cy.get(this.locator._evaluatedErrorMessage)
+      .should("be.visible")
+      .should("have.text", errorMessage);
   }
 
   public VerifyEvaluatedValue(currentValue: string) {
