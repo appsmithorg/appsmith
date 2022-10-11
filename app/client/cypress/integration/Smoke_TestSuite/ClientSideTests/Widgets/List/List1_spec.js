@@ -2,16 +2,25 @@ const dsl = require("../../../../../fixtures/listRegressionDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-let propPane = ObjectsRegistry.PropertyPane;
+let propPane = ObjectsRegistry.PropertyPane,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Binding the list widget with text widget", function () {
+describe("Binding the list widget with text widget", function() {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Validate delete widget action from side bar", function () {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("1. Validate delete widget action from side bar", function() {
     cy.openPropertyPane("listwidget");
     cy.verifyUpdatedWidgetName("Test");
     cy.verifyUpdatedWidgetName("#$%1234", "___1234");
@@ -26,22 +35,27 @@ describe("Binding the list widget with text widget", function () {
       200,
     );
     //cy.reload();
-    cy.wait(5000);
     //cy.get(commonlocators.homeIcon).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
   });
-  
 });
 
-
-describe("Binding the list widget with text widget", function () {
+describe("Binding the list widget with text widget", function() {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Validate text widget data based on changes in list widget Data1", function () {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("1. Validate text widget data based on changes in list widget Data1", function() {
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
@@ -63,7 +77,7 @@ describe("Binding the list widget with text widget", function () {
     );
   });
 
-  it("2. Validate text widget data based on changes in list widget Data2", function () {
+  it("2. Validate text widget data based on changes in list widget Data2", function() {
     cy.SearchEntityandOpen("List1");
     propPane.UpdatePropertyFieldValue(
       "Items",
@@ -98,7 +112,7 @@ describe("Binding the list widget with text widget", function () {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("3. Validate text widget data based on changes in list widget Data3", function () {
+  it("3. Validate text widget data based on changes in list widget Data3", function() {
     cy.SearchEntityandOpen("List1");
     propPane.UpdatePropertyFieldValue(
       "Items",
@@ -130,10 +144,9 @@ describe("Binding the list widget with text widget", function () {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  after(function () {
+  after(function() {
     //-- Deleting the application by Api---//
     cy.DeleteAppByApi();
     //-- LogOut Application---//
-  })
-
+  });
 });

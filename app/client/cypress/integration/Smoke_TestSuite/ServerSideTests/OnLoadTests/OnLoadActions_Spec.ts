@@ -199,13 +199,13 @@ describe("Layout OnLoad Actions tests", function() {
       const _suggestions = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[2];
 
-      expect(JSON.parse(JSON.stringify(_random))[0]["name"]).to.eq(
+      expect(JSON.parse(JSON.stringify(_random))[0]["name"]).to.be.oneOf([
         "RandomUser",
-        "RandomFlora",
+        "RandomFlora",]
       );
-      expect(JSON.parse(JSON.stringify(_random))[1]["name"]).to.eq(
+      expect(JSON.parse(JSON.stringify(_random))[1]["name"]).to.be.oneOf([
         "RandomFlora",
-        "RandomUser",
+        "RandomUser",]
       );
       expect(JSON.parse(JSON.stringify(_genderize))[0]["name"]).to.be.oneOf([
         "Genderize",
