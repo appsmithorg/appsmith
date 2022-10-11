@@ -29,10 +29,12 @@ export const setCodeEditorLastFocus = (key: string | undefined) => {
   };
 };
 
-export const setCodeEditorHistory = (codeEditorContext: CodeEditorContext) => {
+export const setCodeEditorHistory = (codeEditorHistory: {
+  [key: string]: CodeEditorContext;
+}) => {
   return {
     type: ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY,
-    payload: codeEditorContext,
+    payload: codeEditorHistory,
   };
 };
 

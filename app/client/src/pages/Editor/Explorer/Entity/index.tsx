@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useCallback,
   RefObject,
+  useMemo,
 } from "react";
 import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
@@ -223,43 +224,27 @@ export const Entity = forwardRef(
     const isEntityOpen = useSelector((state: AppState) =>
       getEntityCollapsibleState(state, props.name),
     );
+    const isDefaultExpanded = useMemo(() => !!props.isDefaultExpanded, []);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
     const dispatch = useDispatch();
     const guidedTourEnabled = useSelector(inGuidedTour);
 
     const isOpen =
-      isEntityOpen === undefined ? props.isDefaultExpanded : isEntityOpen;
+      (isEntityOpen === undefined ? isDefaultExpanded : isEntityOpen) ||
+      !!props.searchKeyword;
 
     const open = (shouldOpen: boolean | undefined) => {
-      !!props.children &&
-        props.name &&
-        isOpen !== shouldOpen &&
+      if (!!props.children && props.name && isOpen !== shouldOpen) {
         dispatch(setEntityCollapsibleState(props.name, !!shouldOpen));
+        props.onToggle && props.onToggle(!!shouldOpen);
+      }
     };
 
-    /* eslint-disable react-hooks/exhaustive-deps */
-    useEffect(() => {
-      if (
-        (props.isDefaultExpanded || props.searchKeyword) &&
-        isEntityOpen === undefined
-      ) {
-        open(true);
-        props.onToggle && props.onToggle(true);
-      }
-    }, [props.isDefaultExpanded, props.searchKeyword]);
-    useEffect(() => {
-      if (
-        !props.searchKeyword &&
-        !props.isDefaultExpanded &&
-        isEntityOpen === undefined
-      ) {
-        open(false);
-      }
-    }, [props.searchKeyword]);
     useEffect(() => {
       open(isOpen);
     }, [props.name]);
+
     /* eslint-enable react-hooks/exhaustive-deps */
     const toggleChildren = (e: any) => {
       // Make sure this entity is enabled before toggling the collpse of children.

@@ -81,6 +81,14 @@ export const editorContextReducer = createImmerReducer(initialState, {
     if (!key) return;
     state.focusableField = key;
   },
+  [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY]: (
+    state: EditorContextState,
+    action: {
+      payload: Record<string, CodeEditorContext>;
+    },
+  ) => {
+    state.codeEditorHistory = action.payload || {};
+  },
   [ReduxActionTypes.SET_EVAL_POPUP_STATE]: (
     state: EditorContextState,
     action: { payload: { key: string; evalPopupState: EvaluatedPopupState } },

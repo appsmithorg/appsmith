@@ -4,7 +4,6 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
-const ee = ObjectsRegistry.EntityExplorer;
 
 describe("MaintainContext&Focus", function() {
   it("Import the test application", () => {
@@ -75,43 +74,43 @@ describe("MaintainContext&Focus", function() {
     cy.wait("@saveAction");
   });
   it("Check for focus on entities", () => {
-    ee.SelectEntityByName("Page1", "Pages");
+    cy.SearchEntityandOpen("Page1");
 
     cy.get(".t--widget-name").should("have.text", "Text1");
     cy.assertCursorOnCodeInput(".t--property-control-text");
 
-    ee.SelectEntityByName("Graphql_Query", "Queries/JS");
+    cy.SearchEntityandOpen("Graphql_Query");
     cy.contains(".react-tabs__tab", "Body").should(
       "have.class",
       "react-tabs__tab--selected",
     );
     cy.assertCursorOnCodeInput(".t--graphql-query-editor");
 
-    ee.SelectEntityByName("Rest_Api_1", "Queries/JS");
+    cy.SearchEntityandOpen("Rest_Api_1");
     cy.assertCursorOnCodeInput(apiwidget.queryKey);
 
-    ee.SelectEntityByName("Rest_Api_2", "Queries/JS");
+    cy.SearchEntityandOpen("Rest_Api_2");
     cy.contains(".react-tabs__tab", "Headers").should(
       "have.class",
       "react-tabs__tab--selected",
     );
     cy.assertCursorOnCodeInput(apiwidget.headerValue);
 
-    ee.SelectEntityByName("SQL_Query", "Queries/JS");
+    cy.SearchEntityandOpen("SQL_Query");
     cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body");
 
-    ee.SelectEntityByName("S3_Query", "Queries/JS");
+    cy.SearchEntityandOpen("S3_Query");
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
     );
 
-    ee.SelectEntityByName("JSObject1", "Queries/JS");
+    cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor");
 
-    ee.SelectEntityByName("JSObject2", "Queries/JS");
+    cy.SearchEntityandOpen("JSObject2");
     cy.assertCursorOnCodeInput(".js-editor");
 
-    ee.SelectEntityByName("Mongo_Query", "Queries/JS");
+    cy.SearchEntityandOpen("Mongo_Query");
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
