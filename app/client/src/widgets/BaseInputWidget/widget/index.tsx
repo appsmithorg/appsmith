@@ -341,6 +341,10 @@ class BaseInputWidget<
                 icon: "ITALICS_FONT",
                 value: "ITALIC",
               },
+              {
+                icon: "UNDERLINE",
+                value: "UNDERLINE",
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,

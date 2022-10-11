@@ -421,6 +421,10 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
                 icon: "ITALICS_FONT",
                 value: "ITALIC",
               },
+              {
+                icon: "UNDERLINE",
+                value: "UNDERLINE",
+              },
             ],
             isJSConvertible: true,
             isBindProperty: true,

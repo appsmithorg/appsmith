@@ -100,6 +100,10 @@ export default [
             icon: "ITALICS_FONT",
             value: "ITALIC",
           },
+          {
+            icon: "UNDERLINE",
+            value: "UNDERLINE",
+          },
         ],
         isJSConvertible: true,
         isBindProperty: true,

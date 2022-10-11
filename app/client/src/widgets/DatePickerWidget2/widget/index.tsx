@@ -365,6 +365,10 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
                 icon: "ITALICS_FONT",
                 value: "ITALIC",
               },
+              {
+                icon: "UNDERLINE",
+                value: "UNDERLINE",
+              },
             ],
             isJSConvertible: true,
             isBindProperty: true,

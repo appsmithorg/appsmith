@@ -22,6 +22,10 @@ const options = [
     icon: "ITALICS_FONT",
     value: "ITALIC",
   },
+  {
+    icon: "UNDERLINE",
+    value: "UNDERLINE",
+  },
 ];
 const config = { ...requiredParams, options };
 
@@ -37,6 +41,7 @@ describe("ButtonTabControl.canDisplayValue", () => {
     expect(ButtonTabControl.canDisplayValueInUI(config, "BOLD,ITALIC")).toEqual(
       true,
     );
+    expect(ButtonTabControl.canDisplayValueInUI(config, "UNDERLINE")).toEqual(true);
   });
 
   it("Should return false when a value that is not in the option is passed", () => {

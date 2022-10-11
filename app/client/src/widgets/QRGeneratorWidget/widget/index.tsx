@@ -277,6 +277,10 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 icon: "ITALICS_FONT",
                 value: "ITALIC",
               },
+              {
+                icon: "UNDERLINE",
+                value: "UNDERLINE",
+              },
             ],
             isJSConvertible: true,
             isBindProperty: true,
@@ -599,6 +603,10 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
               {
                 icon: "ITALICS_FONT",
                 value: "ITALIC",
+              },
+              {
+                icon: "UNDERLINE",
+                value: "UNDERLINE",
               },
             ],
             isJSConvertible: true,
