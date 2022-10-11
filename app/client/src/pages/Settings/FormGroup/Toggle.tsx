@@ -6,7 +6,7 @@ import {
 } from "redux-form";
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
-import { FormTextFieldProps } from "components/ads/formFields/TextField";
+import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { Toggle } from "design-system";
 import { createMessage } from "@appsmith/constants/messages";
 
