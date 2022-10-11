@@ -26,15 +26,17 @@ describe("Number Slider spec", () => {
 
     propPane.UpdatePropertyFieldValue("Min. Value", "110");
 
-    agHelper.VerifyErrorMessage("This value must be less than max value");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value must be less than max value",
+    );
 
     propPane.UpdatePropertyFieldValue("Min. Value", "");
 
-    agHelper.VerifyErrorMessage("This value is required");
+    agHelper.VerifyEvaluatedErrorMessage("This value is required");
 
     propPane.UpdatePropertyFieldValue("Min. Value", "zero");
 
-    agHelper.VerifyErrorMessage("This value must be a number");
+    agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Min. Value", "0");
 
@@ -44,15 +46,17 @@ describe("Number Slider spec", () => {
   it("2. Validates Max. Value", () => {
     propPane.UpdatePropertyFieldValue("Max. Value", "0");
 
-    agHelper.VerifyErrorMessage("This value must be greater than min value");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value must be greater than min value",
+    );
 
     propPane.UpdatePropertyFieldValue("Max. Value", "");
 
-    agHelper.VerifyErrorMessage("This value is required");
+    agHelper.VerifyEvaluatedErrorMessage("This value is required");
 
     propPane.UpdatePropertyFieldValue("Max. Value", "asd");
 
-    agHelper.VerifyErrorMessage("This value must be a number");
+    agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Max. Value", "100");
 
@@ -62,15 +66,15 @@ describe("Number Slider spec", () => {
   it("3. Validates Step Value", () => {
     propPane.UpdatePropertyFieldValue("Step Size", "-10");
 
-    agHelper.VerifyErrorMessage("This value must be greater than 0.1");
+    agHelper.VerifyEvaluatedErrorMessage("This value must be greater than 0.1");
 
     propPane.UpdatePropertyFieldValue("Step Size", "110");
 
-    agHelper.VerifyErrorMessage("This value must be less than 100");
+    agHelper.VerifyEvaluatedErrorMessage("This value must be less than 100");
 
     propPane.UpdatePropertyFieldValue("Step Size", "asd");
 
-    agHelper.VerifyErrorMessage("This value must be a number");
+    agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Step Size", "10");
 
@@ -80,15 +84,19 @@ describe("Number Slider spec", () => {
   it("4. Validates Default Value", () => {
     propPane.UpdatePropertyFieldValue("Default Value", "-10");
 
-    agHelper.VerifyErrorMessage("This value must be greater than min value");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value must be greater than min value",
+    );
 
     propPane.UpdatePropertyFieldValue("Default Value", "110");
 
-    agHelper.VerifyErrorMessage("This value must be less than max value");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value must be less than max value",
+    );
 
     propPane.UpdatePropertyFieldValue("Default Value", "asd");
 
-    agHelper.VerifyErrorMessage("This value must be a number");
+    agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Default Value", "10");
 

@@ -26,13 +26,13 @@ describe("Category Slider spec", () => {
 
     propPane.UpdatePropertyFieldValue("Default Value", "mdx");
 
-    agHelper.VerifyErrorMessage(
+    agHelper.VerifyEvaluatedErrorMessage(
       "Default value is missing in options. Please update the value.",
     );
 
     propPane.UpdatePropertyFieldValue("Default Value", "");
 
-    agHelper.VerifyErrorMessage(
+    agHelper.VerifyEvaluatedErrorMessage(
       "Default value is missing in options. Please update the value.",
     );
 

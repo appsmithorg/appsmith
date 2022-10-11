@@ -75,7 +75,12 @@ export class AggregateHelper {
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
-          "api/v1/layouts/" + layoutId + "/pages/" + pageid + "?applicationId=" + appId,
+          "api/v1/layouts/" +
+            layoutId +
+            "/pages/" +
+            pageid +
+            "?applicationId=" +
+            appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
@@ -756,7 +761,7 @@ export class AggregateHelper {
       });
   }
 
-  public VerifyErrorMessage(errorMessage: string) {
+  public VerifyEvaluatedErrorMessage(errorMessage: string) {
     cy.get(this.locator._evaluatedErrorMessage)
       .should("be.visible")
       .should("have.text", errorMessage);
