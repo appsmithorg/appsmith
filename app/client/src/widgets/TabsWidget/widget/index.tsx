@@ -33,186 +33,6 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "tabsObj",
-            isJSConvertible: false,
-            label: "Tabs",
-            controlType: "TABS_INPUT",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            updateRelatedWidgetProperties: (
-              propertyPath: string,
-              propertyValue: string,
-              props: WidgetProperties,
-            ) => {
-              const propertyPathSplit = propertyPath.split(".");
-              const property = propertyPathSplit.pop();
-              if (property === "label") {
-                const itemId = propertyPathSplit.pop() || "";
-                const item = props.tabsObj[itemId];
-                if (item) {
-                  return [
-                    {
-                      widgetId: item.widgetId,
-                      updates: {
-                        modify: {
-                          tabName: propertyValue,
-                        },
-                      },
-                    },
-                  ];
-                }
-              }
-              return [];
-            },
-            panelConfig: {
-              editableTitle: true,
-              titlePropertyName: "label",
-              panelIdPropertyName: "id",
-              updateHook: (
-                props: any,
-                propertyPath: string,
-                propertyValue: string,
-              ) => {
-                return [
-                  {
-                    propertyPath,
-                    propertyValue,
-                  },
-                ];
-              },
-              children: [
-                {
-                  sectionName: "Tab Control",
-                  children: [
-                    {
-                      propertyName: "isVisible",
-                      label: "Visible",
-                      helpText: "Controls the visibility of the tab",
-                      controlType: "SWITCH",
-                      useValidationMessage: true,
-                      isJSConvertible: true,
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.BOOLEAN },
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            propertyName: "defaultTab",
-            helpText: "Selects a tab name specified by default",
-            placeholderText: "Tab 1",
-            label: "Default Tab",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: selectedTabValidation,
-                expected: {
-                  type: "Tab Name (string)",
-                  example: "Tab 1",
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-            dependencies: ["tabsObj", "tabs"],
-          },
-          {
-            propertyName: "shouldShowTabs",
-            helpText:
-              "Hides the tabs so that different widgets can be displayed based on the default tab",
-            label: "Show Tabs",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            helpText: "Enables scrolling for content inside the widget",
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "Triggers an action when the button is clicked",
-            propertyName: "onTabSelected",
-            label: "onTabSelected",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -372,8 +192,49 @@ class TabsWidget extends BaseWidget<
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Colors, Borders and Shadows",
         children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the color of the selected tab's underline ",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "Border Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Enter value for border width",
+            propertyName: "borderWidth",
+            label: "Border Width",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -440,7 +301,10 @@ class TabsWidget extends BaseWidget<
     return (
       <TabsComponent
         {...tabsComponentProps}
+        backgroundColor={this.props.backgroundColor}
+        borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}
+        borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}

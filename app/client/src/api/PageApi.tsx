@@ -27,6 +27,7 @@ export type SavePageRequest = {
   dsl: DSLWidget;
   layoutId: string;
   pageId: string;
+  applicationId: string;
 };
 
 export type PageLayout = {
@@ -147,8 +148,12 @@ class PageApi extends Api {
   static url = "v1/pages";
   static refactorLayoutURL = "v1/layouts/refactor";
   static pageUpdateCancelTokenSource?: CancelTokenSource = undefined;
-  static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
-    return `v1/layouts/${layoutId}/pages/${pageId}`;
+  static getLayoutUpdateURL = (
+    applicationId: string,
+    pageId: string,
+    layoutId: string,
+  ) => {
+    return `v1/layouts/${layoutId}/pages/${pageId}?applicationId=${applicationId}`;
   };
 
   static getGenerateTemplateURL = (pageId?: string) => {
@@ -183,6 +188,7 @@ class PageApi extends Api {
     PageApi.pageUpdateCancelTokenSource = axios.CancelToken.source();
     return Api.put(
       PageApi.getLayoutUpdateURL(
+        savePageRequest.applicationId,
         savePageRequest.pageId,
         savePageRequest.layoutId,
       ),

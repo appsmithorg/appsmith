@@ -8,10 +8,11 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -38,24 +39,25 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
+@Testcontainers
 public class DynamoPluginTest {
 
     private final static DynamoPlugin.DynamoPluginExecutor pluginExecutor = new DynamoPlugin.DynamoPluginExecutor();
 
     @SuppressWarnings("rawtypes")
-    @ClassRule
+    @Container
     public static GenericContainer container = new GenericContainer(CompletableFuture.completedFuture("amazon/dynamodb-local"))
             .withExposedPorts(8000);
 
     private final static DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         final String host = "localhost";
         final Integer port = container.getMappedPort(8000);
@@ -164,15 +166,15 @@ public class DynamoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
-                   HashSet<String> expectedTables = new HashSet<>();
-                   expectedTables.add("cities");
-                   expectedTables.add("allTypes");
+                    HashSet<String> expectedTables = new HashSet<>();
+                    expectedTables.add("cities");
+                    expectedTables.add("allTypes");
 
-                   HashSet<String> actualTables = new HashSet<>();
-                   actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(0));
-                   actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(1));
+                    HashSet<String> actualTables = new HashSet<>();
+                    actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(0));
+                    actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(1));
 
-                   assertTrue(expectedTables.equals(actualTables));
+                    assertTrue(expectedTables.equals(actualTables));
                 })
                 .verifyComplete();
     }
@@ -188,7 +190,7 @@ public class DynamoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    final Map<String, Object> table =  ((Map<String, Map<String, Object>>) result.getBody()).get("Table");
+                    final Map<String, Object> table = ((Map<String, Map<String, Object>>) result.getBody()).get("Table");
                     assertEquals("cities", table.get("TableName"));
 
                     /*
@@ -200,7 +202,7 @@ public class DynamoPluginTest {
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, "DescribeTable", null,
                             null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null, null));
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -370,20 +372,20 @@ public class DynamoPluginTest {
     public void testTransactGetItems() {
         final String body =
                 "{\n" +
-                "  \"ReturnConsumedCapacity\": \"NONE\",\n" +
-                "  \"TransactItems\": [\n" +
-                "    {\n" +
-                "      \"Get\": {\n" +
-                "        \"Key\": {\n" +
-                "          \"Id\": {\n" +
-                "            \"S\": \"1\"\n" +
-                "          }\n" +
-                "        },\n" +
-                "        \"TableName\": \"cities\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+                        "  \"ReturnConsumedCapacity\": \"NONE\",\n" +
+                        "  \"TransactItems\": [\n" +
+                        "    {\n" +
+                        "      \"Get\": {\n" +
+                        "        \"Key\": {\n" +
+                        "          \"Id\": {\n" +
+                        "            \"S\": \"1\"\n" +
+                        "          }\n" +
+                        "        },\n" +
+                        "        \"TableName\": \"cities\"\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "  ]\n" +
+                        "}";
 
         StepVerifier.create(execute("TransactGetItems", body))
                 .assertNext(result -> {
@@ -395,7 +397,7 @@ public class DynamoPluginTest {
                     // Test transformed response
                     ArrayList<Map<String, Object>> transformedResponse = (ArrayList<Map<String, Object>>) response.get("Responses");
                     assertEquals("New Delhi",
-                            ((Map<String, Object>)transformedResponse.get(0).get("Item")).get("City"));
+                            ((Map<String, Object>) transformedResponse.get(0).get("Item")).get("City"));
 
                 })
                 .verifyComplete();
@@ -455,15 +457,15 @@ public class DynamoPluginTest {
                     assertEquals("payload1", transformedItemMap.get("BinaryType"));
                     assertEquals("true", transformedItemMap.get("NullType").toString());
                     assertArrayEquals(new String[]{"str1", "str2"},
-                            ((ArrayList<String>)transformedItemMap.get("StringSetType")).toArray());
+                            ((ArrayList<String>) transformedItemMap.get("StringSetType")).toArray());
                     assertArrayEquals(new String[]{"payload1", "payload2"},
-                            ((ArrayList<String>)transformedItemMap.get("BinarySetType")).toArray());
+                            ((ArrayList<String>) transformedItemMap.get("BinarySetType")).toArray());
                     assertArrayEquals(new String[]{"1", "2"},
-                            ((ArrayList<String>)transformedItemMap.get("NumberSetType")).toArray());
+                            ((ArrayList<String>) transformedItemMap.get("NumberSetType")).toArray());
                     assertEquals("mapValue",
-                            ((Map<String, Object>)transformedItemMap.get("MapType")).get("mapKey").toString());
-                    assertEquals("listValue1", ((ArrayList<String>)transformedItemMap.get("ListType")).get(0));
-                    assertEquals("listValue2", ((ArrayList<String>)transformedItemMap.get("ListType")).get(1));
+                            ((Map<String, Object>) transformedItemMap.get("MapType")).get("mapKey").toString());
+                    assertEquals("listValue1", ((ArrayList<String>) transformedItemMap.get("ListType")).get(0));
+                    assertEquals("listValue2", ((ArrayList<String>) transformedItemMap.get("ListType")).get(1));
                 })
                 .verifyComplete();
     }

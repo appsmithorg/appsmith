@@ -2,10 +2,12 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -20,13 +22,11 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -53,9 +53,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -65,7 +65,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -114,7 +114,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -206,7 +206,7 @@ public class ApplicationServiceTest {
 
     static Application gitConnectedApp = new Application();
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
 
@@ -586,22 +586,22 @@ public class ApplicationServiceTest {
         testApp2.setName("validApplication2");
 
         Mono<List<Application>> createMultipleApplications = Mono.zip(
-            applicationPageService.createApplication(testApp1, workspaceId),
-            applicationPageService.createApplication(testApp2, workspaceId))
-            .map(tuple -> List.of(tuple.getT1(), tuple.getT2()));
+                        applicationPageService.createApplication(testApp1, workspaceId),
+                        applicationPageService.createApplication(testApp2, workspaceId))
+                .map(tuple -> List.of(tuple.getT1(), tuple.getT2()));
 
-            Mono<Application> updateInvalidApplication = createMultipleApplications
-            .map(applicationList -> {
-                Application savedTestApp1 = applicationList.get(0);
-                Application savedTestApp2 = applicationList.get(1);
-                savedTestApp2.setName(savedTestApp1.getName());
-                return savedTestApp2;
-            })
-            .flatMap(t -> applicationService.update(t.getId(), t));
+        Mono<Application> updateInvalidApplication = createMultipleApplications
+                .map(applicationList -> {
+                    Application savedTestApp1 = applicationList.get(0);
+                    Application savedTestApp2 = applicationList.get(1);
+                    savedTestApp2.setName(savedTestApp1.getName());
+                    return savedTestApp2;
+                })
+                .flatMap(t -> applicationService.update(t.getId(), t));
 
         StepVerifier.create(updateInvalidApplication)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
-            .verify();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
+                .verify();
     }
 
     @Test
@@ -1031,7 +1031,7 @@ public class ApplicationServiceTest {
         Mono<Application> branchApplicationMono = applicationService.findById(application.getId()).cache();
 
         StepVerifier
-                .create(Mono.zip(branchApplicationMono,publicPermissionGroupMono))
+                .create(Mono.zip(branchApplicationMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application branchApplication = tuple.getT1();
                     String permissionGroupId = tuple.getT2().getId();
@@ -1106,18 +1106,18 @@ public class ApplicationServiceTest {
         Mono<Tuple2<Application, PageDTO>> privateAppAndPageTupleMono =
                 // First make the git connected app public
                 applicationService.changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
-                .flatMap(application1 -> {
-                    applicationAccessDTO.setPublicAccess(false);
-                    // Then make the test branch private
-                    return applicationService.changeViewAccess(application1.getId(), "testBranch", applicationAccessDTO);
-                })
-                .flatMap(app -> {
-                    String pageId = app.getPages().get(0).getId();
-                    return Mono.zip(
-                            Mono.just(app),
-                            newPageService.findPageById(pageId, READ_PAGES, false)
-                    );
-                });
+                        .flatMap(application1 -> {
+                            applicationAccessDTO.setPublicAccess(false);
+                            // Then make the test branch private
+                            return applicationService.changeViewAccess(application1.getId(), "testBranch", applicationAccessDTO);
+                        })
+                        .flatMap(app -> {
+                            String pageId = app.getPages().get(0).getId();
+                            return Mono.zip(
+                                    Mono.just(app),
+                                    newPageService.findPageById(pageId, READ_PAGES, false)
+                            );
+                        });
 
         StepVerifier
                 .create(privateAppAndPageTupleMono)
@@ -1645,9 +1645,9 @@ public class ApplicationServiceTest {
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
                             layoutActionService.createSingleAction(action),
-                            layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout),
+                            layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
                             Mono.just(application)
-                        );
+                    );
                 })
                 .flatMap(tuple -> {
                     List<String> pageIds = new ArrayList<>(), collectionIds = new ArrayList<>();
@@ -1667,12 +1667,12 @@ public class ApplicationServiceTest {
                 .cache();
 
         StepVerifier.create(resultMono
-                .zipWhen(application -> Mono.zip(
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
-                        defaultPermissionGroupsMono
-                )))
+                        .zipWhen(application -> Mono.zip(
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
+                                defaultPermissionGroupsMono
+                        )))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1(); // cloned application
                     List<NewAction> actionList = tuple.getT2().getT1();
@@ -1736,9 +1736,9 @@ public class ApplicationServiceTest {
                         newPage.getUnpublishedPage()
                                 .getLayouts()
                                 .forEach(layout -> {
-                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                                     layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                        assertThat(dslActionDTOS).hasSize(2);
+                                        assertThat(dslActionDTOS).hasSize(1);
                                         dslActionDTOS.forEach(actionDTO -> {
                                             assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                             if (StringUtils.hasLength(actionDTO.getCollectionId())) {
@@ -1788,11 +1788,11 @@ public class ApplicationServiceTest {
         // Check if the resources from original application are intact
         StepVerifier
                 .create(originalApplicationMono
-                .zipWhen(application -> Mono.zip(
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
-                )))
+                        .zipWhen(application -> Mono.zip(
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
+                        )))
                 .assertNext(tuple -> {
                     List<NewAction> actionList = tuple.getT2().getT1();
                     List<ActionCollection> actionCollectionList = tuple.getT2().getT2();
@@ -1974,9 +1974,19 @@ public class ApplicationServiceTest {
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
                             layoutActionService.createSingleAction(action),
-                            layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout),
-                            Mono.just(application)
+                            Mono.just(application),
+                            Mono.just(testPage),
+                            Mono.just(layout)
                     );
+                })
+                .flatMap(tuple -> {
+                    PageDTO testPage = tuple.getT4();
+                    Layout layout = tuple.getT5();
+                    return Mono.zip(
+                            Mono.just(tuple.getT1()),
+                            Mono.just(tuple.getT2()),
+                            layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
+                            Mono.just(tuple.getT3()));
                 })
                 .flatMap(tuple -> {
                     List<String> pageIds = new ArrayList<>(), collectionIds = new ArrayList<>();
@@ -2072,9 +2082,9 @@ public class ApplicationServiceTest {
                         newPage.getUnpublishedPage()
                                 .getLayouts()
                                 .forEach(layout -> {
-                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                                     layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                        assertThat(dslActionDTOS).hasSize(2);
+                                        assertThat(dslActionDTOS).hasSize(1);
                                         dslActionDTOS.forEach(actionDTO -> {
                                             assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                             if (StringUtils.hasLength(actionDTO.getCollectionId())) {
@@ -2509,8 +2519,8 @@ public class ApplicationServiceTest {
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
                     assertThat(publishedPages).size().isEqualTo(2);
                     boolean isFound = false;
-                    for( ApplicationPage page: publishedPages) {
-                        if(page.getId().equals(publishedEditedPage.getId()) && page.getIsDefault().equals(publishedEditedPage.getIsDefault())) {
+                    for (ApplicationPage page : publishedPages) {
+                        if (page.getId().equals(publishedEditedPage.getId()) && page.getIsDefault().equals(publishedEditedPage.getIsDefault())) {
                             isFound = true;
                         }
                     }
@@ -2519,8 +2529,8 @@ public class ApplicationServiceTest {
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
                     isFound = false;
-                    for( ApplicationPage page: editedApplicationPages) {
-                        if(page.getId().equals(unpublishedEditedPage.getId()) && page.getIsDefault().equals(unpublishedEditedPage.getIsDefault())) {
+                    for (ApplicationPage page : editedApplicationPages) {
+                        if (page.getId().equals(unpublishedEditedPage.getId()) && page.getIsDefault().equals(unpublishedEditedPage.getIsDefault())) {
                             isFound = true;
                         }
                     }
@@ -2569,8 +2579,8 @@ public class ApplicationServiceTest {
                     List<ApplicationPage> editedApplicationPages = viewApplication.getPages();
                     assertThat(editedApplicationPages.size()).isEqualTo(2);
                     boolean isFound = false;
-                    for( ApplicationPage page: editedApplicationPages) {
-                        if(page.getId().equals(applicationPage.getId()) && page.getIsDefault().equals(applicationPage.getIsDefault())) {
+                    for (ApplicationPage page : editedApplicationPages) {
+                        if (page.getId().equals(applicationPage.getId()) && page.getIsDefault().equals(applicationPage.getIsDefault())) {
                             isFound = true;
                         }
                     }
@@ -2969,7 +2979,7 @@ public class ApplicationServiceTest {
                     return applicationService.changeViewAccess(application.getId(), applicationAccessDTO);
                 })
                 .flatMap(application ->
-                    applicationService.saveLastEditInformation(application.getId())
+                        applicationService.saveLastEditInformation(application.getId())
                 );
         StepVerifier.create(updatedApplication).assertNext(application -> {
             assertThat(application.getLastUpdateTime()).isNotNull();
@@ -3123,9 +3133,9 @@ public class ApplicationServiceTest {
                                         .flatMap(application -> applicationPageService.deleteApplication(application.getId()))
                                         .flatMap(ignored ->
                                                 Mono.zip(
-                                                    (Mono<NewAction>) this.getArchivedResource(savedAction.getId(), NewAction.class),
-                                                    (Mono<ActionCollection>) this.getArchivedResource(savedActionCollection.getId(), ActionCollection.class),
-                                                    (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)
+                                                        (Mono<NewAction>) this.getArchivedResource(savedAction.getId(), NewAction.class),
+                                                        (Mono<ActionCollection>) this.getArchivedResource(savedActionCollection.getId(), ActionCollection.class),
+                                                        (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)
                                                 ));
                             });
                 })
@@ -3227,8 +3237,8 @@ public class ApplicationServiceTest {
                                         )
                         )
                 ).flatMap(objects ->
-                    themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEMES)
-                            .zipWith(Mono.just(objects))
+                        themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEMES)
+                                .zipWith(Mono.just(objects))
                 );
 
         StepVerifier.create(tuple2Application)

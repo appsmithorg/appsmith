@@ -1,11 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../locators/Layout.json");
 const explorer = require("../../../../locators/explorerlocators.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tabdsl.json");
-const pages = require("../../../../locators/Pages.json");
-const tabname = "UpdatedTab";
 
 describe("Tab widget test", function() {
   const tabname = "UpdatedTab";

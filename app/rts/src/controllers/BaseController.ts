@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { ValidationError } from "express-validator";
 import { StatusCodes } from "http-status-codes";
+import { IdentifierInfo } from "@shared/ast";
 
 type ErrorData = {
   error: string | string[];
@@ -16,14 +17,14 @@ type ErrorBag = {
 type ResponseData = {
   success: boolean;
   message?: string;
-  data: unknown; //setting unknown for now, to be modified later.
+  data: IdentifierInfo;
 };
 
 export default class BaseController {
   serverErrorMessaage = "Something went wrong";
   sendResponse(
     response: Response,
-    result: unknown,
+    result?: unknown,
     message?: string,
     code: number = StatusCodes.OK
   ): Response<ResponseData> {
