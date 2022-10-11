@@ -630,7 +630,6 @@ export default class DataTreeEvaluator {
   } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
-    console.log("$$$-sortedDependencies", sortedDependencies);
     try {
       const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
@@ -1079,14 +1078,6 @@ export default class DataTreeEvaluator {
       safeEvaluatedValue,
     );
 
-    console.log("$$$-validateAndParseWidgetProperty", {
-      isValid,
-      messages,
-      parsed,
-      transformed,
-      propertyPath,
-    });
-
     if (!isValid) {
       const evalErrors: EvaluationError[] =
         messages?.map((message) => {
@@ -1099,8 +1090,8 @@ export default class DataTreeEvaluator {
         }) ?? [];
       addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
     } else {
-      // if valid then remove already present error
-      // resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
+      // if valid then reset validation error
+      resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
     }
 
     return parsed;
