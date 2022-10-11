@@ -564,7 +564,10 @@ export function getValidatedTree(tree: DataTree) {
           }),
         );
       } else {
-        //
+        resetValidationErrorsForEntityProperty(
+          tree,
+          `${entityKey}.${property}`,
+        );
       }
     });
     return { ...tree, [entityKey]: parsedEntity };
@@ -673,7 +676,7 @@ export const addErrorToEntityProperty = (
   return dataTree;
 };
 
-export const removeErrorsFromEntityProperty = (
+export const resetValidationErrorsForEntityProperty = (
   dataTree: DataTree,
   fullPropertyPath: string,
 ) => {
@@ -686,7 +689,7 @@ export const removeErrorsFromEntityProperty = (
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
       [],
     ) as EvaluationError[]).filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.VALIDATION,
+      (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
 
     _.set(

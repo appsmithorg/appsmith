@@ -43,7 +43,7 @@ import {
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
   getAllPaths,
-  removeErrorsFromEntityProperty,
+  resetValidationErrorsForEntityProperty,
 } from "workers/evaluationUtils";
 import _, { get } from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -630,6 +630,7 @@ export default class DataTreeEvaluator {
   } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
+    console.log("$$$-sortedDependencies", sortedDependencies);
     try {
       const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
@@ -1054,6 +1055,15 @@ export default class DataTreeEvaluator {
       widget,
       propertyPath,
     );
+    /**
+     * 
+     * if isValid then evaluatedValue = parsed
+        if invalid then
+          if transformed value is undefined then evaluatedValue = evalPropertyValue
+          else evaluatedValue = transformed
+     *  
+     */
+
     const evaluatedValue = isValid
       ? parsed
       : _.isUndefined(transformed)
@@ -1068,6 +1078,15 @@ export default class DataTreeEvaluator {
       }),
       safeEvaluatedValue,
     );
+
+    console.log("$$$-validateAndParseWidgetProperty", {
+      isValid,
+      messages,
+      parsed,
+      transformed,
+      propertyPath,
+    });
+
     if (!isValid) {
       const evalErrors: EvaluationError[] =
         messages?.map((message) => {
@@ -1080,13 +1099,8 @@ export default class DataTreeEvaluator {
         }) ?? [];
       addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
     } else {
-      console.log("$$$-currentTree", {
-        currentTree,
-        fullPropertyPath,
-        isValid,
-      });
       // if valid then remove already present error
-      // removeErrorsFromEntityProperty(currentTree, fullPropertyPath);
+      // resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
     }
 
     return parsed;
