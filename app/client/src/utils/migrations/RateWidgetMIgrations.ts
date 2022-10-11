@@ -26,8 +26,19 @@ export function migrateRateWidgetDisabledState(currentDSL: DSLWidget) {
           },
         ];
 
+        child.dynamicPropertyPathList = [
+          ...(child.dynamicPropertyPathList || []),
+          {
+            key: "isReadOnly",
+          },
+        ];
+
         // remove readonly from dynamic binding
         child.dynamicBindingPathList = child.dynamicBindingPathList.filter(
+          (item) => item.key !== "isDisabled",
+        );
+
+        child.dynamicPropertyPathList = child.dynamicPropertyPathList.filter(
           (item) => item.key !== "isDisabled",
         );
       }
