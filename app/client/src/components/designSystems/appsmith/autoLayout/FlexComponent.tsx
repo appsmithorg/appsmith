@@ -13,7 +13,6 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -91,8 +90,6 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
 
-  console.log("#### widget props", props.widgetId, props);
-  console.log("#### is mobile", isMobile);
   const minWidth =
     props.responsiveBehavior === ResponsiveBehavior.Fill && isMobile
       ? "100%"

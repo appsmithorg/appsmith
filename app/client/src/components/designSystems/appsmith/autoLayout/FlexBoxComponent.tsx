@@ -1,26 +1,18 @@
 import { isArray } from "lodash";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
 
 import { AppState } from "ce/reducers";
 import {
-  AlignItems,
-  Alignment,
-  FlexDirection,
   FlexLayerAlignment,
-  JustifyContent,
   LayoutDirection,
   Overflow,
-  Spacing,
 } from "components/constants";
 import { useSelector } from "react-redux";
-import { getLayoutProperties } from "utils/layoutPropertiesUtils";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 
 export interface FlexBoxProps {
-  alignment: Alignment;
   direction?: LayoutDirection;
-  spacing: Spacing;
   stretchHeight: boolean;
   useAutoLayout: boolean;
   children?: ReactNode;
@@ -41,16 +33,15 @@ export interface FlexLayer {
 
 export const FlexContainer = styled.div<{
   useAutoLayout?: boolean;
-  flexDirection?: FlexDirection;
-  justifyContent?: JustifyContent;
-  alignItems?: AlignItems;
+  direction?: LayoutDirection;
   stretchHeight: boolean;
   overflow: Overflow;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
-  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
-  justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
-  align-items: ${({ alignItems }) => alignItems || "flex-start"};
+  flex-direction: ${({ direction }) =>
+    direction === LayoutDirection.Vertical ? "column" : "row"};
+  justify-content: flex-start;
+  align-items: flex-start;
   flex-wrap: ${({ overflow }) =>
     overflow?.indexOf("wrap") > -1 ? overflow : "nowrap"};
 
@@ -66,10 +57,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
 
-  const layoutProps = useMemo(
-    () => getLayoutProperties(props.direction, props.alignment, props.spacing),
-    [props.direction, props.alignment, props.spacing],
-  );
+  // const layoutProps = useMemo(
+  //   () => getLayoutProperties(props.direction, props.alignment, props.spacing),
+  //   [props.direction, props.alignment, props.spacing],
+  // );
   const { autoLayoutDragDetails, dragDetails, flexHighlight } = useSelector(
     (state: AppState) => state.ui.widgetDragResize,
   );
@@ -186,10 +177,11 @@ function FlexBoxComponent(props: FlexBoxProps) {
       );
     });
   };
+
   return (
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
-      {...layoutProps}
+      direction={direction}
       overflow={props.overflow}
       stretchHeight={props.stretchHeight}
       useAutoLayout={props.useAutoLayout}

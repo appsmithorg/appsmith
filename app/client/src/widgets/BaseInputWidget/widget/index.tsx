@@ -229,7 +229,7 @@ class BaseInputWidget<
               return props.type !== "PHONE_INPUT_WIDGET";
             },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
         ],
       },
       {

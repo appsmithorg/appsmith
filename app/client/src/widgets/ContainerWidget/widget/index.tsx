@@ -241,7 +241,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.parentId = this.props.widgetId;
     // Pass layout controls to children
     childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.props.direction;
+    childWidget.direction = childWidget.direction || this.props.direction;
     childWidget.positioning = this.props.positioning;
     childWidget.alignment = this.props.alignment;
     childWidget.spacing = this.props.spacing;

@@ -5,7 +5,7 @@ import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Positioning } from "components/constants";
+import { LayoutDirection, Positioning } from "components/constants";
 import { useDispatch } from "react-redux";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { useSelector } from "store";
@@ -50,6 +50,10 @@ const PositioningOptions = () => {
               updates: {
                 modify: {
                   positioning: (option as DropdownOption).value,
+                  direction:
+                    (option as DropdownOption).value === Positioning.Vertical
+                      ? LayoutDirection.Vertical
+                      : LayoutDirection.Horizontal,
                 },
               },
             },

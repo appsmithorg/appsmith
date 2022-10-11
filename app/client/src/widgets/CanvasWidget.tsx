@@ -16,7 +16,7 @@ import {
   LayoutDirection,
   Overflow,
   Positioning,
-  Spacing,
+  ResponsiveBehavior,
 } from "components/constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
@@ -74,7 +74,7 @@ class CanvasWidget extends ContainerWidget {
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = this.props.direction;
+    childWidget.direction = childWidget?.direction || this.props.direction;
     childWidget.justifyContent = this.props.justifyContent;
     childWidget.alignItems = this.props.alignItems;
 
@@ -125,7 +125,6 @@ class CanvasWidget extends ContainerWidget {
         />
         {/* without the wrapping div onClick events are triggered twice */}
         <FlexBoxComponent
-          alignment={this.props.alignment || Alignment.Left}
           direction={this.props.direction}
           flexLayers={this.props.flexLayers || []}
           overflow={
@@ -133,7 +132,6 @@ class CanvasWidget extends ContainerWidget {
               ? Overflow.Wrap
               : Overflow.NoWrap
           }
-          spacing={this.props.spacing || Spacing.None}
           stretchHeight={stretchFlexBox}
           useAutoLayout={this.state.useAutoLayout}
           widgetId={this.props.widgetId}
@@ -199,6 +197,7 @@ export const CONFIG = {
     version: 1,
     detachFromLayout: true,
     flexLayers: [],
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: CanvasWidget.getDerivedPropertiesMap(),
