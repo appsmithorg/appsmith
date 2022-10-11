@@ -1,14 +1,14 @@
-package com.appsmith.server.dtos;
+package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.domains.ActionProvider;
-import com.appsmith.server.domains.Documentation;
-import com.appsmith.server.domains.PluginType;
-import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.models.ActionProvider;
+import com.appsmith.external.models.Documentation;
+import com.appsmith.external.models.PluginType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -154,6 +154,7 @@ public class ActionDTO {
             return this.fullyQualifiedName;
         }
     }
+
     public void sanitiseToExportDBObject() {
         this.setDefaultResources(null);
         this.setCacheResponse(null);
