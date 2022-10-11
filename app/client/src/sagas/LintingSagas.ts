@@ -12,7 +12,10 @@ import {
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 
 export const lintWorker = new GracefulWorkerService(
-  new Worker(new URL("../workers/Linting/lint.worker.ts", import.meta.url)),
+  new Worker(new URL("../workers/Linting/lint.worker.ts", import.meta.url), {
+    type: "module",
+    name: "lintWorker",
+  }),
 );
 
 export function* lintTreeSaga({

@@ -119,6 +119,10 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
+    {
+      type: "module",
+      name: "evalWorker",
+    },
   ),
 );
 
