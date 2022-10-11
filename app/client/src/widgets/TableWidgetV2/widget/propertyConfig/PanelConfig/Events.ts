@@ -77,17 +77,22 @@ export default {
     },
     {
       propertyName: "onCheckChange",
-      label: (props: TableWidgetProps, propertyPath: string) => {
-        const basePropertyPath = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${basePropertyPath}.columnType`);
-        return columnType === ColumnTypes.SWITCH ? "onChange" : "onCheckChange";
-      },
+      label: "onChange",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.CHECKBOX,
-          ColumnTypes.SWITCH,
-        ]);
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SWITCH]);
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onCheckChange",
+      label: "onCheckChange",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,

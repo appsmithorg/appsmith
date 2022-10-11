@@ -7,13 +7,12 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { AppTheme } from "entities/AppTheming";
-import { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
-  sectionName: string | ((props: WidgetProps, propertyPath: string) => string);
+  sectionName: string;
   id?: string;
   children: PropertyPaneConfig[];
   collapsible?: boolean; // Indicates whether the section could be collapsed or not
@@ -47,7 +46,7 @@ export type PanelConfig = {
 
 export type PropertyPaneControlConfig = {
   id?: string;
-  label: string | ((props: WidgetProps, propertyPath: string) => string);
+  label: string;
   propertyName: string;
   // Serves in the tooltip
   helpText?: string;
