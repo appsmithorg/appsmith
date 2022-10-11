@@ -1,7 +1,8 @@
+import { isArray } from "lodash";
 import React, { ReactNode, useMemo } from "react";
 import styled from "styled-components";
-import { isArray } from "lodash";
 
+import { AppState } from "ce/reducers";
 import {
   AlignItems,
   Alignment,
@@ -12,6 +13,7 @@ import {
   Overflow,
   Spacing,
 } from "components/constants";
+import { useSelector } from "react-redux";
 import { getLayoutProperties } from "utils/layoutPropertiesUtils";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 
@@ -68,6 +70,28 @@ function FlexBoxComponent(props: FlexBoxProps) {
     () => getLayoutProperties(props.direction, props.alignment, props.spacing),
     [props.direction, props.alignment, props.spacing],
   );
+  const { autoLayoutDragDetails, dragDetails, flexHighlight } = useSelector(
+    (state: AppState) => state.ui.widgetDragResize,
+  );
+
+  const getPreviewNode = () => {
+    return React.createElement(() => {
+      const height = autoLayoutDragDetails
+        ? autoLayoutDragDetails[0].height
+        : 0;
+      const width = autoLayoutDragDetails ? autoLayoutDragDetails[0].width : 0;
+
+      return (
+        <div
+          style={{
+            border: "1px dashed blue",
+            height: `${height}px`,
+            width: `${width}px`,
+          }}
+        />
+      );
+    });
+  };
 
   const renderChildren = () => {
     if (!props.children) return null;
@@ -75,8 +99,21 @@ function FlexBoxComponent(props: FlexBoxProps) {
       !props.useAutoLayout ||
       direction === LayoutDirection.Horizontal ||
       !(props.flexLayers && props.flexLayers.length)
-    )
-      return props.children;
+    ) {
+      if (flexHighlight && dragDetails.draggedOn === props.widgetId) {
+        const previewNode = getPreviewNode();
+        const totalChildren = (props.children as any).length;
+        const allChildren = [
+          ...(props.children as any).slice(0, flexHighlight?.index),
+          previewNode,
+          ...(props.children as any).slice(flexHighlight?.index, totalChildren),
+        ];
+        return allChildren;
+      } else {
+        return props.children;
+      }
+    }
+
     /**
      * Wrap children of a Vertical Stack in a flex layer.
      */
@@ -86,13 +123,46 @@ function FlexBoxComponent(props: FlexBoxProps) {
         map[(child as JSX.Element).props?.widgetId] = child;
       }
     }
-    return props.flexLayers.map((layer: FlexLayer, index: number) => {
+
+    const layers =
+      flexHighlight?.isNewLayer && flexHighlight?.layerIndex
+        ? [
+            ...props.flexLayers.slice(0, flexHighlight?.index),
+            { children: [], hasFillChild: false },
+            ...props.flexLayers.slice(
+              flexHighlight?.index,
+              props.flexLayers.length,
+            ),
+          ]
+        : props.flexLayers;
+    let childCount = 0;
+    return layers.map((layer: FlexLayer, index: number) => {
       const { children, hasFillChild } = layer;
-      if (!children || !children.length) return null;
       const start = [],
         center = [],
         end = [];
+      if (!children || !children.length) {
+        const previewNode = getPreviewNode();
+        start.push(previewNode);
+      }
+
       for (const child of children) {
+        if (
+          flexHighlight &&
+          index === flexHighlight.layerIndex &&
+          childCount === flexHighlight.index &&
+          dragDetails.draggedOn === props.widgetId
+        ) {
+          const previewNode = getPreviewNode();
+          if (flexHighlight.alignment === "start") {
+            start.push(previewNode);
+          } else if (flexHighlight.alignment === "center") {
+            center.push(previewNode);
+          } else {
+            end.push(previewNode);
+          }
+        }
+        childCount++;
         const widget = map[child.id];
         if (hasFillChild) {
           start.push(widget);

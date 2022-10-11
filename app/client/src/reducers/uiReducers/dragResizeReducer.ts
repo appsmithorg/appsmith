@@ -1,15 +1,17 @@
-import { areArraysEqual } from "utils/AppsmithUtils";
-import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
+import { areArraysEqual } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
   dragDetails: {},
+  autoLayoutDragDetails: {},
   isResizing: false,
   lastSelectedWidget: undefined,
   selectedWidgets: [],
@@ -142,6 +144,13 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedWidgetAncestry = action.payload;
   },
+  [ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ flexHighlight: HighlightInfo; blocksToDraw: any }>,
+  ) => {
+    state.flexHighlight = action.payload.flexHighlight;
+    state.autoLayoutDragDetails = action.payload.blocksToDraw;
+  },
 });
 
 type DraggingGroupCenter = {
@@ -161,6 +170,8 @@ export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   dragDetails: DragDetails;
+  autoLayoutDragDetails: any;
+  flexHighlight?: HighlightInfo;
   isResizing: boolean;
   lastSelectedWidget?: string;
   focusedWidget?: string;

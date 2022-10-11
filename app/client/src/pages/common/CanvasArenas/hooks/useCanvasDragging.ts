@@ -1,3 +1,4 @@
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -6,13 +7,14 @@ import {
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
-import { useSelector } from "store";
+import { useDispatch } from "react-redux";
 import {
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
+import { useSelector } from "store";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -23,16 +25,16 @@ import {
   getMousePositionsOnCanvas,
   noCollision,
 } from "utils/WidgetPropsUtils";
-import {
-  useBlocksToBeDraggedOnCanvas,
-  WidgetDraggingBlock,
-} from "./useBlocksToBeDraggedOnCanvas";
-import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
 import {
   HighlightInfo,
   useAutoLayoutHighlights,
 } from "./useAutoLayoutHighlights";
+import {
+  useBlocksToBeDraggedOnCanvas,
+  WidgetDraggingBlock,
+} from "./useBlocksToBeDraggedOnCanvas";
+import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 
 export interface XYCord {
   x: number;
@@ -127,6 +129,7 @@ export const useCanvasDragging = (
     isDragging,
     useAutoLayout,
   });
+  const dispatch = useDispatch();
 
   const highlights: HighlightInfo[] = calculateHighlights();
 
@@ -347,6 +350,13 @@ export const useCanvasDragging = (
                 });
               }
               setDraggingCanvas();
+              dispatch({
+                type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
+                payload: {
+                  flexHighlight: undefined,
+                  blocksToDraw: undefined,
+                },
+              });
             }
           }, 0);
         };

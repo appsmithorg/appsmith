@@ -7,11 +7,11 @@ import {
   widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import { useSelector } from "store";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
-import { useSelector } from "store";
-import { snipingModeSelector } from "selectors/editorSelectors";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -73,7 +73,6 @@ export function FlexComponent(props: AutoLayoutProps) {
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
   };
-
   /**
    * In a vertical stack,
    * Fill widgets grow / shrink to take up all the available space.
@@ -91,6 +90,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       className={className}
       componentHeight={props.componentHeight}
       componentWidth={props.componentWidth}
+      id={props.widgetId}
       isFillWidget={isFillWidget}
       minWidth={props.minWidth}
       onClick={stopEventPropagation}
