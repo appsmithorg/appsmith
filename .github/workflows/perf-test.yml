@@ -9,8 +9,6 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
-  repository_dispatch:
-    types: [perf-test-command]
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -195,12 +193,19 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      - name: Get the performance-infra branch/ref
+        id: perf_infra_ref
+        run: |
+          ref=${{ github.event.client_payload.slash_command.args.named.ref }}
+          if [[ -z "$ref" ]]; then ref="main"; fi
+          echo ::set-output name=ref::$ref
+
       - name: Checkout Performance Infra code
         uses: actions/checkout@v3
         with:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
-          ref: main
+          ref: ${{ steps.perf_infra_ref.outputs.ref }}
           path: app/client/perf
 
       - name: Installing performance tests dependencies
