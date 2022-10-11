@@ -59,7 +59,7 @@ describe("Arango datasource test cases", function() {
     dataSources.CreatePlugIn("ArangoDB");
     agHelper
       .GetText(dataSources._databaseName, "val")
-      .then(($dbName) => expect($dbName).to.eq("default"));
+      .then(($dbName) => expect($dbName).to.eq("_system"));
     dataSources.DeleteDSDirectly();
   });
 });
