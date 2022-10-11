@@ -264,10 +264,6 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 });
     }
 
-    JSONObject refactorNameInDsl(JSONObject dsl, String oldName, String newName) {
-
-        return dsl;
-    }
 
     private JsonNode replaceStringInJsonNode(JsonNode jsonNode, Pattern oldNamePattern, String newName) {
         // If this is a text node, perform replacement directly
