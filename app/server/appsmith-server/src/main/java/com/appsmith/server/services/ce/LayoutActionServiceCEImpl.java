@@ -1,11 +1,13 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
@@ -15,7 +17,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
@@ -23,7 +24,6 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
-import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -71,6 +71,7 @@ import java.util.regex.Pattern;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 import static java.util.stream.Collectors.toSet;
 
@@ -206,7 +207,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     return Flux.fromIterable(page.getLayouts())
                                             .flatMap(layout -> {
                                                 layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                                return updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                             })
                                             .collect(toSet());
                                 })
@@ -221,7 +222,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     return Flux.fromIterable(page.getLayouts())
                                             .flatMap(layout -> {
                                                 layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                                                return updateLayout(page.getId(), layout.getId(), layout);
+                                                return updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                             })
                                             .collect(toSet());
                                 })
@@ -450,7 +451,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     for (Layout layout : layouts) {
                         if (layoutId.equals(layout.getId())) {
                             layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                            return updateLayout(page.getId(), layout.getId(), layout);
+                            return updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                         }
                     }
                     return Mono.empty();
@@ -490,7 +491,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 ((ObjectNode) template).set(newName, newJsonNode);
             }
         }
-        
+
         final Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
         // Go through each field to recursively operate on it
         while (iterator.hasNext()) {
@@ -833,7 +834,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return Flux.fromIterable(page.getLayouts())
                             .flatMap(layout -> {
                                 layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                                return updateLayout(page.getId(), layout.getId(), layout);
+                                return updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                             });
                 })
                 .collectList()
@@ -870,7 +871,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     @Override
-    public Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout) {
+    public Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -901,21 +902,33 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         List<String> messages = new ArrayList<>();
 
         AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
+        Mono<Integer> evaluatedVersionMono = applicationService
+                .findById(applicationId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.APPLICATION_ID, applicationId)))
+                .map(application -> {
+                    Integer evaluationVersion = application.getEvaluationVersion();
+                    if (evaluationVersion == null) {
+                        evaluationVersion = EVALUATION_VERSION;
+                    }
+                    return evaluationVersion;
+                });
 
-        // setting the layoutOnLoadActionActionErrors to null to remove the existing errors before new DAG calculation.
+        // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
-        Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
-                .onErrorResume(AppsmithException.class, error -> {
-                    log.info(error.getMessage());
-                    validOnPageLoadActions.set(FALSE);
-                    layout.setLayoutOnLoadActionErrors(List.of(
-                            new ErrorDTO(error.getAppErrorCode(),
-                                    layoutOnLoadActionErrorToastMessage,
-                                    error.getMessage())));
-                    return Mono.just(new ArrayList<>());
-                });
+        Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = evaluatedVersionMono
+                .flatMap(evaluatedVersion -> pageLoadActionsUtil
+                        .findAllOnLoadActions(pageId, evaluatedVersion, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
+                        .onErrorResume(AppsmithException.class, error -> {
+                            log.info(error.getMessage());
+                            validOnPageLoadActions.set(FALSE);
+                            layout.setLayoutOnLoadActionErrors(List.of(
+                                    new ErrorDTO(error.getAppErrorCode(),
+                                            layoutOnLoadActionErrorToastMessage,
+                                            error.getMessage())));
+                            return Mono.just(new ArrayList<>());
+                        }));
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
@@ -987,12 +1000,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     @Override
-    public Mono<LayoutDTO> updateLayout(String defaultPageId, String layoutId, Layout layout, String branchName) {
+    public Mono<LayoutDTO> updateLayout(String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName) {
         if (StringUtils.isEmpty(branchName)) {
-            return updateLayout(defaultPageId, layoutId, layout);
+            return updateLayout(defaultPageId, defaultApplicationId, layoutId, layout);
         }
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
-                .flatMap(branchedPage -> updateLayout(branchedPage.getId(), layoutId, layout))
+                .flatMap(branchedPage -> updateLayout(branchedPage.getId(), branchedPage.getApplicationId(), layoutId, layout))
                 .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 
