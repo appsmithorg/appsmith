@@ -1,3 +1,5 @@
+import { set, split } from "lodash";
+
 import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
@@ -17,11 +19,16 @@ export type FlattenedWidgetProps<orType = never> =
 
 export type ModifyMetaWidgetPayload = {
   addOrUpdate: Record<string, FlattenedWidgetProps>;
-  delete: string[];
+  deleteIds: string[];
+  propertyUpdates?: MetaWidgetPropertyUpdate[];
   creatorId?: string;
 };
 export type BulkDeleteMetaWidgetPayload = {
   metaWidgetIds: string[];
+};
+type MetaWidgetPropertyUpdate = {
+  path: string;
+  value: unknown;
 };
 
 const initialState: MetaCanvasWidgetsReduxState = {};
@@ -31,19 +38,30 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<ModifyMetaWidgetPayload>,
   ) => {
-    if (action.payload.addOrUpdate) {
-      Object.entries(action.payload.addOrUpdate).forEach(
-        ([metaWidgetId, widgetProps]) => {
-          state[metaWidgetId] = widgetProps;
-          state[metaWidgetId].isMetaWidget = true;
-          state[metaWidgetId].creatorId = action.payload.creatorId;
-        },
-      );
+    const {
+      addOrUpdate,
+      creatorId,
+      deleteIds,
+      propertyUpdates,
+    } = action.payload;
+
+    if (addOrUpdate) {
+      Object.entries(addOrUpdate).forEach(([metaWidgetId, widgetProps]) => {
+        state[metaWidgetId] = widgetProps;
+        state[metaWidgetId].isMetaWidget = true;
+        state[metaWidgetId].creatorId = creatorId;
+      });
     }
-    action.payload.delete.forEach((deleteId) => {
-      if (state[deleteId].creatorId === action.payload.creatorId) {
+    deleteIds.forEach((deleteId) => {
+      if (state[deleteId].creatorId === creatorId) {
         delete state[deleteId];
       }
+    });
+
+    (propertyUpdates || []).forEach(({ path, value }) => {
+      const [widgetId, ...propertyPathChunks] = split(path, ".");
+      const propertyPath = propertyPathChunks.join(".");
+      set(state[widgetId], propertyPath, value);
     });
 
     return state;

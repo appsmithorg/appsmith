@@ -10,7 +10,6 @@ import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { Def } from "tern";
-import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget/widget";
 
 const isVisible = {
   "!type": "bool",
@@ -275,13 +274,11 @@ export const entityDefinitions = {
     isDisabled: "bool",
     recaptchaToken: "string",
   },
-  BUTTON_GROUP_WIDGET: (widget: ButtonGroupWidgetProps) => {
-    return {
-      "!doc":
-        "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
-      "!url": "https://docs.appsmith.com/widget-reference/button-group",
-      groupButtons: generateTypeDef(widget.groupButtons),
-    };
+  BUTTON_GROUP_WIDGET: {
+    "!doc":
+      "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
+    "!url": "https://docs.appsmith.com/widget-reference/button-group",
+    isVisible: isVisible,
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -414,6 +411,23 @@ export const entityDefinitions = {
     listData: generateTypeDef(widget.listData, extraDefsToDefine),
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
+  }),
+  LIST_WIDGET_V2: (widget: any, extraDefsToDefine?: ExtraDef) => ({
+    "!doc":
+      "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+    "!url": "https://docs.appsmith.com/widget-reference/list",
+    backgroundColor: {
+      "!type": "string",
+      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    },
+    isVisible: isVisible,
+    gridGap: "number",
+    selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+    items: generateTypeDef(widget.items, extraDefsToDefine),
+    listData: generateTypeDef(widget.listData, extraDefsToDefine),
+    pageNo: generateTypeDef(widget.pageNo),
+    pageSize: generateTypeDef(widget.pageSize),
+    currentViewItems: generateTypeDef(widget.currentViewItems),
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",
@@ -648,6 +662,28 @@ export const entityDefinitions = {
     isVisible: isVisible,
     docUrl: "string",
   },
+  NUMBER_SLIDER_WIDGET: {
+    "!doc":
+      "Number slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "number",
+  },
+  CATEGORY_SLIDER_WIDGET: {
+    "!doc":
+      "Category slider widget is used to capture user feedback from a range of categories",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "string",
+  },
+  RANGE_SLIDER_WIDGET: {
+    "!doc":
+      "Range slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    start: "number",
+    end: "number",
+  },
   CODE_SCANNER_WIDGET: {
     "!doc": "Scan a Code",
     "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
@@ -657,7 +693,7 @@ export const entityDefinitions = {
   },
 };
 
-/* 
+/*
   $__name__$ is just to reduce occurrences of global def showing up in auto completion for user as `$` is less commonly used as entityName/
 
   GLOBAL_DEFS are maintained to support definition for array of objects which currently aren't supported by our generateTypeDef.

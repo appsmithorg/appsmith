@@ -5,6 +5,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { omit, isUndefined } from "lodash";
+import equal from "fast-deep-equal";
 
 const initialState: DebuggerReduxState = {
   logs: [],
@@ -15,12 +16,42 @@ const initialState: DebuggerReduxState = {
   currentTab: "",
 };
 
+// check the last message from the current log and update the occurrence count
+const removeRepeatedLogsAndMerge = (
+  currentLogs: Log[],
+  incomingLogs: Log[],
+) => {
+  const outputArray = incomingLogs.reduce((acc: Log[], incomingLog: Log) => {
+    if (acc.length === 0) {
+      acc.push(incomingLog);
+    } else {
+      const lastLog = acc[acc.length - 1];
+      if (
+        equal(
+          omit(lastLog, ["occurrenceCount"]),
+          omit(incomingLog, ["occurrenceCount"]),
+        )
+      ) {
+        lastLog.hasOwnProperty("occurrenceCount") && !!lastLog.occurrenceCount
+          ? lastLog.occurrenceCount++
+          : (lastLog.occurrenceCount = 2);
+      } else {
+        acc.push(incomingLog);
+      }
+    }
+    return acc;
+  }, currentLogs);
+
+  return outputArray;
+};
+
 const debuggerReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.DEBUGGER_LOG]: (
     state: DebuggerReduxState,
     action: ReduxAction<Log[]>,
   ) => {
-    state.logs = [...state.logs, ...action.payload];
+    // state.logs = [...state.logs, ...action.payload];
+    state.logs = removeRepeatedLogsAndMerge(state.logs, action.payload);
   },
   [ReduxActionTypes.CLEAR_DEBUGGER_LOGS]: (state: DebuggerReduxState) => {
     state.logs = [];

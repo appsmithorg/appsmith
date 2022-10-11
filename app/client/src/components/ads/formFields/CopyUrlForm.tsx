@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { InjectedFormProps, reduxForm } from "redux-form";
+import { Field, InjectedFormProps, reduxForm } from "redux-form";
 import { HelpIcons } from "icons/HelpIcons";
-import UneditableField from "components/ads/formFields/UneditableField";
+import { UneditableField } from "design-system";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { Toaster } from "components/ads/Toast";
@@ -93,12 +93,15 @@ function CopyUrlForm(
         )}
       </HeaderWrapper>
       <BodyContainer>
-        <UneditableField
+        <Field
+          component={UneditableField}
           disabled
           handleCopy={handleCopy}
           helperText={props.helpText}
-          iscopy={"true"}
+          iscopy="true"
           name={props.fieldName}
+          {...props}
+          asyncControl
         />
       </BodyContainer>
     </Wrapper>

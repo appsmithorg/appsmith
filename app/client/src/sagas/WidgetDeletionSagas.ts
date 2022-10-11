@@ -11,10 +11,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
@@ -37,6 +34,7 @@ import {
   getAllListWidgetIds,
   getAllWidgetsInTree,
   getMetaWidgetChildrenIds,
+  resizeCanvasToLowestWidget,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
@@ -49,7 +47,6 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 import { deleteMetaWidgets } from "actions/metaWidgetActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -195,8 +192,15 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       mainCanvasMinHeight = mainCanvasProps?.height;
     }
 
-    // Note: mutates finalWidgets
-    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
+    if (parentId && finalWidgets[parentId]) {
+      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
+        finalWidgets,
+        parentId,
+        finalWidgets[parentId].bottomRow,
+        mainCanvasMinHeight,
+      );
+    }
+
     return {
       finalWidgets,
       otherWidgetsToDelete,
@@ -339,8 +343,16 @@ function* deleteAllSelectedWidgetsSaga(
       mainCanvasMinHeight = mainCanvasProps?.height;
     }
 
-    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
+    if (parentId && finalWidgets[parentId]) {
+      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
+        finalWidgets,
+        parentId,
+        finalWidgets[parentId].bottomRow,
+        mainCanvasMinHeight,
+      );
+    }
     yield put(deleteMetaWidgets(childMetaWidgetIds));
+
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
@@ -402,45 +414,6 @@ function* postDelete(
       });
     });
   }
-}
-
-/**
- * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
- * @param finalWidgets
- * @param parentId
- */
-function resizeCanvasToLowestWidget(
-  finalWidgets: CanvasWidgetsReduxState,
-  parentId: string | undefined,
-  mainCanvasMinHeight: number | undefined,
-) {
-  if (!parentId) return;
-
-  if (
-    !finalWidgets[parentId] ||
-    finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
-  ) {
-    return;
-  }
-
-  let lowestBottomRow = Math.ceil(
-    (mainCanvasMinHeight ||
-      finalWidgets[parentId].minHeight ||
-      CANVAS_DEFAULT_MIN_HEIGHT_PX) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  );
-  const childIds = finalWidgets[parentId].children || [];
-
-  // find the lowest row
-  childIds.forEach((cId) => {
-    const child = finalWidgets[cId];
-
-    if (child.bottomRow > lowestBottomRow) {
-      lowestBottomRow = child.bottomRow;
-    }
-  });
-  finalWidgets[parentId].bottomRow =
-    (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 }
 
 export default function* widgetDeletionSagas() {

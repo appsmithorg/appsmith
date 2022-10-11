@@ -1,5 +1,7 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { klona } from "klona";
 import { get } from "lodash";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
@@ -22,6 +24,8 @@ import {
   getWidgetsFromIds,
   getValueFromTree,
   getMetaWidgetChildrenIds,
+  resizeCanvasToLowestWidget,
+  resizePublishedMainCanvasToLowestWidget,
 } from "./WidgetOperationUtils";
 
 const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
@@ -2858,6 +2862,59 @@ describe("getValueFromTree - ", () => {
       expect(
         getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
       ).toEqual(testObj.defaultValue);
+    });
+  });
+
+  describe("test resizeCanvasToLowestWidget and resizePublishedMainCanvasToLowestWidget", () => {
+    const widgets = ({
+      0: { bottomRow: 100, children: ["1", "2"], type: "CANVAS_WIDGET" },
+      1: {
+        bottomRow: 10,
+        children: ["3", "4"],
+        type: "CANVAS_WIDGET",
+        minHeight: 260,
+      },
+      2: { bottomRow: 35, children: [] },
+      3: { bottomRow: 15, children: [] },
+      4: { bottomRow: 20, children: [] },
+    } as unknown) as CanvasWidgetsReduxState;
+
+    it("should modify main container's bottomRow to minHeight of canvas when it is greater than bottomRow of lowest widget", () => {
+      const currentWidgets = klona(widgets);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "0",
+        currentWidgets["0"].bottomRow,
+        450,
+      );
+      expect(bottomRow).toEqual(450);
+    });
+
+    it("should modify main container's bottomRow to lowest bottomRow of canvas when minHeight is lesser than bottomRow of lowest widget", () => {
+      const currentWidgets = klona(widgets);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "0",
+        currentWidgets["0"].bottomRow,
+        140,
+      );
+      expect(bottomRow).toEqual(430);
+    });
+
+    it("should modify main container's bottomRow to lowest bottomRow of canvas when minHeight is lesser than bottomRow of lowest widget", () => {
+      const currentWidgets = klona(widgets);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "1",
+        currentWidgets["1"].bottomRow,
+      );
+      expect(bottomRow).toEqual(260);
+    });
+
+    it("should trim canvas close to the lowest bottomRow of it's children widget", () => {
+      const currentWidgets = klona(widgets);
+      resizePublishedMainCanvasToLowestWidget(currentWidgets);
+      expect(currentWidgets["0"].bottomRow).toEqual(400);
     });
   });
 });

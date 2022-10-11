@@ -100,6 +100,10 @@ export const getPageSavingError = (state: AppState) => {
 export const getLayoutOnLoadActions = (state: AppState) =>
   state.ui.editor.pageActions || [];
 
+export const getLayoutOnLoadIssues = (state: AppState) => {
+  return state.ui.editor.layoutOnLoadActionErrors || [];
+};
+
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;
 
@@ -209,16 +213,21 @@ export const getMetaCanvasWidget = (metaWidgetId: string) =>
 
 export const getMetaWidgetChildrenStructure = (
   parentWidgetId: string,
-  isMetaWidget: boolean,
+  type: string,
+  hasMetaWidgets = false,
 ) =>
   createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
-    if (isMetaWidget) return [];
+    if (!hasMetaWidgets) return [];
 
     const structure: CanvasWidgetStructure[] = [];
 
     Object.values(metaCanvasWidgets).forEach(({ parentId, widgetId }) => {
       if (parentId === parentWidgetId) {
-        structure.push(denormalize(widgetId, metaCanvasWidgets));
+        structure.push(
+          denormalize(widgetId, metaCanvasWidgets, {
+            widgetTypeForHaltingRecursion: type,
+          }),
+        );
       }
     });
 
@@ -625,3 +634,13 @@ export const getIsSavingEntity = (state: AppState) =>
 
 export const selectJSCollections = (state: AppState) =>
   state.entities.jsActions;
+
+export const showCanvasTopSectionSelector = createSelector(
+  getCanvasWidgets,
+  previewModeSelector,
+  (canvasWidgets, inPreviewMode) => {
+    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
+
+    return true;
+  },
+);

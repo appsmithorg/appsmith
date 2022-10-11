@@ -9,7 +9,13 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE, Log, LogActionPayload } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  Log,
+  LogActionPayload,
+  LogObject,
+  LOG_CATEGORY,
+} from "entities/AppsmithConsole";
 import {
   all,
   call,
@@ -39,7 +45,10 @@ import {
   isAction,
   isWidget,
 } from "workers/evaluationUtils";
-import { getDependencyChain } from "components/editorComponents/Debugger/helpers";
+import {
+  createLogTitleString,
+  getDependencyChain,
+} from "components/editorComponents/Debugger/helpers";
 import {
   ACTION_CONFIGURATION_UPDATED,
   createMessage,
@@ -53,7 +62,6 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { LogObject, createLogTitleString } from "workers/UserLog";
 import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
 
 // Saga to format action request values to be shown in the debugger
@@ -490,9 +498,9 @@ export function* storeLogs(
   entityType: ENTITY_TYPE,
   entityId: string,
 ) {
-  logs.forEach((log: LogObject) => {
-    AppsmithConsole.addLog(
-      {
+  AppsmithConsole.addLogs(
+    logs.reduce((acc: Log[], log: LogObject) => {
+      acc.push({
         text: createLogTitleString(log.data),
         logData: log.data,
         source: {
@@ -500,11 +508,13 @@ export function* storeLogs(
           name: entityName,
           id: entityId,
         },
-      },
-      log.severity,
-      log.timestamp,
-    );
-  });
+        severity: log.severity,
+        timestamp: log.timestamp,
+        category: LOG_CATEGORY.USER_GENERATED,
+      });
+      return acc;
+    }, []),
+  );
 }
 
 export function* updateTriggerMeta(

@@ -9,6 +9,7 @@ import {
 } from "../../propertyUtils";
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+import { ButtonVariantTypes } from "components/constants";
 
 export default {
   sectionName: "General",
@@ -80,7 +81,7 @@ export default {
       dependencies: ["primaryColumns", "columnType"],
       label: "Cell Wrapping",
       helpText: "Allows content of the cell to be wrapped",
-      defaultValue: true,
+      defaultValue: false,
       controlType: "SWITCH",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
@@ -133,6 +134,101 @@ export default {
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isDerived = get(props, `${baseProperty}.isDerived`, false);
         return !isColumnTypeEditable(columnType) || isDerived;
+      },
+    },
+  ],
+};
+
+export const GeneralStyle = {
+  sectionName: "General",
+  children: [
+    {
+      propertyName: "buttonVariant",
+      label: "Button Variant",
+      controlType: "DROP_DOWN",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      helpText: "Sets the variant",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.ICON_BUTTON,
+          ColumnTypes.BUTTON,
+        ]);
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      options: [
+        {
+          label: "Primary",
+          value: ButtonVariantTypes.PRIMARY,
+        },
+        {
+          label: "Secondary",
+          value: ButtonVariantTypes.SECONDARY,
+        },
+        {
+          label: "Tertiary",
+          value: ButtonVariantTypes.TERTIARY,
+        },
+      ],
+      defaultValue: ButtonVariantTypes.PRIMARY,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            default: ButtonVariantTypes.PRIMARY,
+            allowedValues: [
+              ButtonVariantTypes.PRIMARY,
+              ButtonVariantTypes.SECONDARY,
+              ButtonVariantTypes.TERTIARY,
+            ],
+          },
+        },
+      },
+    },
+    {
+      propertyName: "menuVariant",
+      label: "Button Variant",
+      controlType: "DROP_DOWN",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      helpText: "Sets the variant of the menu button",
+      options: [
+        {
+          label: "Primary",
+          value: ButtonVariantTypes.PRIMARY,
+        },
+        {
+          label: "Secondary",
+          value: ButtonVariantTypes.SECONDARY,
+        },
+        {
+          label: "Tertiary",
+          value: ButtonVariantTypes.TERTIARY,
+        },
+      ],
+      isJSConvertible: true,
+      dependencies: ["primaryColumns", "columnOrder"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+      },
+      isBindProperty: true,
+      isTriggerProperty: false,
+      defaultValue: ButtonVariantTypes.PRIMARY,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            default: ButtonVariantTypes.PRIMARY,
+            allowedValues: [
+              ButtonVariantTypes.PRIMARY,
+              ButtonVariantTypes.SECONDARY,
+              ButtonVariantTypes.TERTIARY,
+            ],
+          },
+        },
       },
     },
   ],

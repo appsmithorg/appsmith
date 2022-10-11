@@ -2,6 +2,7 @@ import { klona } from "klona";
 import { difference, omit, set, get, isEmpty } from "lodash";
 
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { extractTillNestedListWidget } from "./widget/helper";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
@@ -9,7 +10,10 @@ import { ListWidgetProps } from "./constants";
 import {
   DynamicPathMapList,
   DynamicPathType,
+  LevelData,
   MetaWidget,
+  MetaWidgetCache,
+  MetaWidgetCacheProps,
   MetaWidgets,
 } from "./widget";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -23,35 +27,26 @@ type TemplateWidgets = ListWidgetProps<
 >["flattenedChildCanvasWidgets"];
 
 type Options = {
-  data: Record<string, unknown>[];
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets?: TemplateWidgets;
-  gridGap: number;
-  containerWidgetId: string;
   containerParentId: string;
+  containerWidgetId: string;
+  data: Record<string, unknown>[];
+  dynamicPathMapList: DynamicPathMapList;
+  gridGap: number;
+  levelData?: LevelData;
   primaryKey: string;
   startIndex: number;
   widgetName: string;
-  dynamicPathMapList: DynamicPathMapList;
 };
 
 type ConstructorProps = {
+  isListCloned: boolean;
+  level: number;
   renderMode: string;
-};
-
-type MetaWidgetCacheProps = {
-  entityDefinition: Record<string, string>;
-  index: number;
-  metaWidgetId: string;
-  metaWidgetName: string;
-  rowIndex: number;
-  templateWidgetId: string;
-  templateWidgetName: string;
-  type: string;
-};
-
-type MetaWidgetCache = {
-  [key: string]: Record<string, MetaWidgetCacheProps> | undefined;
+  getWidgetCache: () => MetaWidgetCache | undefined;
+  setWidgetCache: (data: MetaWidgetCache) => void;
+  widgetId: string;
 };
 
 type TemplateWidgetStatus = {
@@ -82,6 +77,29 @@ type GenerateMetaWidget = {
   metaWidget?: MetaWidget;
 };
 
+type LevelProperty = {
+  currentIndex: number;
+  currentItem: string;
+  currentRow: Record<string, string>;
+};
+
+const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
+const ROOT_ROW_KEY = "__$ROOT_KEY$__";
+/**
+ * LEVEL_PATH_REGEX gives out following matches:
+ * Inputs
+ * {{() => { level_1.currentIndex+ level_22.currentRow.something.test}()}}
+ * {{level_1.currentIndex + level_1.currentRow.something.test}}
+ * {{Text1.value}}
+ *
+ * Outputs
+ * ["level_1.currentIndex", level_22.currentRow.something.test]
+ * ["level_1.currentIndex", level_1.currentRow.something.test]
+ * null
+ */
+// eslint-disable-next-line prettier/prettier
+const LEVEL_PATH_REGEX = /level_[\$\w]*(\.[a-zA-Z\$\_][\$\w]*)*/gi;
+
 class MetaWidgetGenerator {
   containerParentId: Options["containerParentId"];
   containerWidgetId: Options["containerWidgetId"];
@@ -89,15 +107,20 @@ class MetaWidgetGenerator {
   prevViewMetaWidgetIds: string[];
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets: TemplateWidgets;
-  dynamicPathMapList: Options["dynamicPathMapList"];
   data: Options["data"];
+  dynamicPathMapList: Options["dynamicPathMapList"];
+  getWidgetCache: ConstructorProps["getWidgetCache"];
+  setWidgetCache: ConstructorProps["setWidgetCache"];
   gridGap: Options["gridGap"];
+  isListCloned: ConstructorProps["isListCloned"];
+  level: ConstructorProps["level"];
+  levelData: Options["levelData"];
   metaIdToCacheMap: Record<string, string>;
-  metaWidgetCache: MetaWidgetCache;
   primaryKey: Options["primaryKey"];
   renderMode: ConstructorProps["renderMode"];
   startIndex: Options["startIndex"];
   templateWidgetStatus: TemplateWidgetStatus;
+  widgetId: ConstructorProps["widgetId"];
   widgetName: Options["widgetName"];
 
   constructor(props: ConstructorProps) {
@@ -108,7 +131,12 @@ class MetaWidgetGenerator {
     this.dynamicPathMapList = {};
     this.data = [];
     this.gridGap = 0;
-    this.metaWidgetCache = {};
+    this.isListCloned = props.isListCloned;
+    this.level = props.level;
+    this.levelData = undefined;
+    this.getWidgetCache = props.getWidgetCache;
+    this.setWidgetCache = props.setWidgetCache;
+    this.metaIdToCacheMap = {};
     this.prevTemplateWidgets = {};
     this.primaryKey = "";
     this.renderMode = props.renderMode;
@@ -120,20 +148,27 @@ class MetaWidgetGenerator {
       unchanged: new Set(),
     };
     this.widgetName = "";
-    this.metaIdToCacheMap = {};
+    this.widgetId = props.widgetId;
   }
 
   withOptions = (options: Options) => {
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
-    this.currTemplateWidgets = options.currTemplateWidgets || {};
-    this.prevTemplateWidgets = options.prevTemplateWidgets;
     this.data = options.data;
     this.dynamicPathMapList = options.dynamicPathMapList;
     this.gridGap = options.gridGap;
+    this.levelData = options.levelData;
     this.primaryKey = options.primaryKey;
     this.startIndex = options.startIndex;
     this.widgetName = options.widgetName;
+    this.currTemplateWidgets = extractTillNestedListWidget(
+      options.currTemplateWidgets,
+      options.containerParentId,
+    );
+    this.prevTemplateWidgets = extractTillNestedListWidget(
+      options.prevTemplateWidgets,
+      options.containerParentId,
+    );
     return this;
   };
 
@@ -145,6 +180,7 @@ class MetaWidgetGenerator {
     // Reset
     this.currViewMetaWidgetIds = [];
 
+    this.generateWidgetCacheForContainerParent();
     this.updateTemplateWidgetStatus();
 
     if (dataCount > 0) {
@@ -200,7 +236,7 @@ class MetaWidgetGenerator {
 
     const key = this.getPrimaryKey(rowIndex);
     const metaWidget = klona(templateWidget) as MetaWidget;
-    const metaCacheProps = this.getCachedMetaWidgetProps(key, templateWidgetId);
+    const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
 
     if (!metaCacheProps) {
       return {
@@ -234,6 +270,10 @@ class MetaWidgetGenerator {
       this.addDynamicPathsProperties(metaWidget, metaCacheProps);
     }
 
+    if (templateWidget.type === "LIST_WIDGET_V2") {
+      this.addLevelData(metaWidget, rowIndex);
+    }
+
     if (this.isClonedRow(index)) {
       this.disableWidgetOperations(metaWidget);
     }
@@ -243,6 +283,7 @@ class MetaWidgetGenerator {
     metaWidget.widgetName = metaWidgetName;
     metaWidget.children = children;
     metaWidget.parentId = parentId;
+    metaWidget.referencedWidgetId = templateWidgetId;
 
     return {
       childMetaWidgets,
@@ -294,9 +335,10 @@ class MetaWidgetGenerator {
 
   generateWidgetCacheData = (index: number, rowIndex: number) => {
     const key = this.getPrimaryKey(rowIndex);
-    const cache = this.metaWidgetCache[key] || {};
+    const rowCache = this.getRowCache(key) || {};
     const isClonedRow = this.isClonedRow(index);
     const templateWidgets = Object.values(this.currTemplateWidgets || {}) || [];
+    const updatedRowCache: MetaWidgetCache[string] = {};
 
     templateWidgets.forEach((templateWidget) => {
       const {
@@ -307,7 +349,7 @@ class MetaWidgetGenerator {
 
       if (templateWidgetId === this.containerParentId) return;
 
-      const currentCache = cache[templateWidgetId] || {};
+      const currentCache = rowCache[templateWidgetId] || {};
       const metaWidgetId = isClonedRow
         ? currentCache.metaWidgetId || generateReactKey()
         : templateWidgetId;
@@ -324,20 +366,58 @@ class MetaWidgetGenerator {
 
       this.metaIdToCacheMap[metaWidgetId] = `${key}.${templateWidgetId}`;
 
-      this.metaWidgetCache[key] = {
-        ...this.metaWidgetCache[key],
-        [templateWidgetId]: {
-          entityDefinition,
-          index,
-          metaWidgetId,
-          metaWidgetName,
-          rowIndex,
-          templateWidgetId,
-          templateWidgetName,
-          type,
-        },
+      updatedRowCache[templateWidgetId] = {
+        entityDefinition,
+        index,
+        metaWidgetId,
+        metaWidgetName,
+        rowIndex,
+        templateWidgetId,
+        templateWidgetName,
+        type,
       };
     });
+
+    this.setRowCache(key, {
+      ...rowCache,
+      ...updatedRowCache,
+    });
+  };
+
+  generateWidgetCacheForContainerParent = () => {
+    if (this.currTemplateWidgets && !isEmpty(this.currTemplateWidgets)) {
+      const rowCache = this.getRowCache(ROOT_ROW_KEY) || {};
+      const currentCache = rowCache[ROOT_CONTAINER_PARENT_KEY] || {};
+      const updatedRowCache: MetaWidgetCache[string] = {};
+      const {
+        type,
+        widgetName: containerParentName,
+      } = this.currTemplateWidgets[this.containerParentId];
+
+      const metaWidgetId = this.isListCloned
+        ? currentCache.metaWidgetId || generateReactKey()
+        : this.containerParentId;
+
+      const metaWidgetName = this.isListCloned
+        ? `${this.widgetName}_${containerParentName}_${metaWidgetId}`
+        : containerParentName;
+
+      updatedRowCache[ROOT_CONTAINER_PARENT_KEY] = {
+        metaWidgetId,
+        metaWidgetName,
+        type,
+        index: -1,
+        rowIndex: -1,
+        entityDefinition: {},
+        templateWidgetId: this.containerParentId,
+        templateWidgetName: containerParentName,
+      };
+
+      this.setRowCache(ROOT_ROW_KEY, {
+        ...rowCache,
+        ...updatedRowCache,
+      });
+    }
   };
 
   disableWidgetOperations = (metaWidget: FlattenedWidgetProps) => {
@@ -360,6 +440,24 @@ class MetaWidgetGenerator {
     ]);
   };
 
+  addLevelData = (metaWidget: MetaWidget, index: number) => {
+    const key = this.getPrimaryKey(index);
+    const currentIndex = index;
+    const currentItem = `{{${this.widgetName}.listData[${index}]}}`;
+    const currentRowCache = this.getRowCacheByTemplateWidgetName(key);
+
+    metaWidget.levelData = {
+      ...this.levelData,
+      [`level_${this.level}`]: {
+        currentIndex,
+        currentItem,
+        currentRowCache,
+      },
+    };
+
+    metaWidget.level = this.level + 1;
+  };
+
   addDynamicPathsProperties = (
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
@@ -372,12 +470,18 @@ class MetaWidgetGenerator {
     if (!dynamicMap) return;
 
     Object.entries(dynamicMap).forEach(([path, dynamicPathTypes]) => {
-      const propertyValue = get(metaWidget, path);
+      const propertyValue: string = get(metaWidget, path);
       const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
       const js = combineDynamicBindings(jsSnippets, stringSegments);
+      const pathTypes = new Set();
 
       if (dynamicPathTypes.includes(DynamicPathType.CURRENT_ITEM)) {
         this.addCurrentItemProperty(metaWidget, metaWidgetName);
+        pathTypes.add(DynamicPathType.CURRENT_ITEM);
+      }
+
+      if (dynamicPathTypes.includes(DynamicPathType.CURRENT_INDEX)) {
+        pathTypes.add(DynamicPathType.CURRENT_INDEX);
       }
 
       if (dynamicPathTypes.includes(DynamicPathType.CURRENT_ROW)) {
@@ -385,10 +489,26 @@ class MetaWidgetGenerator {
           ...referencesEntityDef,
           ...this.getReferencesEntityDefMap(propertyValue, key),
         };
+        pathTypes.add(DynamicPathType.CURRENT_ROW);
       }
 
-      const prefix = dynamicPathTypes.join(", ");
-      const suffix = dynamicPathTypes
+      if (dynamicPathTypes.includes(DynamicPathType.LEVEL)) {
+        pathTypes.add(DynamicPathType.CURRENT_ROW);
+        const levelPaths = propertyValue.match(LEVEL_PATH_REGEX);
+
+        if (levelPaths) {
+          this.addLevelProperty(metaWidget, levelPaths);
+
+          levelPaths.forEach((levelPath) => {
+            const [level] = levelPath.split(".");
+
+            pathTypes.add(level);
+          });
+        }
+      }
+
+      const prefix = [...pathTypes].join(", ");
+      const suffix = [...pathTypes]
         .map((type) => `${metaWidgetName}.${type}`)
         .join(", ");
       const propertyBinding = `{{((${prefix}) => ${js})(${suffix})}}`;
@@ -440,6 +560,64 @@ class MetaWidgetGenerator {
       ...(metaWidget.dynamicBindingPathList || []),
       { key: "currentRow" },
     ];
+  };
+
+  addLevelProperty = (metaWidget: MetaWidget, levelPaths: string[]) => {
+    if (!this.levelData) return;
+
+    const levelProps: Record<string, Partial<LevelProperty>> = {};
+    const dynamicBindingPathList: string[] = [];
+
+    levelPaths.forEach((levelPath) => {
+      const [level, dynamicPathType, widgetName] = levelPath.split(".");
+      const lookupLevel = this.levelData?.[level];
+
+      if (!lookupLevel) return;
+
+      if (dynamicPathType === DynamicPathType.CURRENT_INDEX) {
+        levelProps[level] = {
+          ...(levelProps[level] || {}),
+          currentIndex: lookupLevel.currentIndex,
+        };
+      }
+
+      if (dynamicPathType === DynamicPathType.CURRENT_ITEM) {
+        levelProps[level] = {
+          ...(levelProps[level] || {}),
+          currentItem: lookupLevel.currentItem,
+        };
+
+        dynamicBindingPathList.push(`${level}.currentItem`);
+      }
+
+      if (dynamicPathType === DynamicPathType.CURRENT_ROW) {
+        const { entityDefinition } =
+          lookupLevel?.currentRowCache?.[widgetName] || {};
+
+        if (entityDefinition) {
+          levelProps[level] = {
+            ...(levelProps[level] || {}),
+            currentRow: {
+              ...(levelProps[level]?.currentRow || {}),
+              [widgetName]: `{{{${entityDefinition}}}}`,
+            },
+          };
+
+          dynamicBindingPathList.push(`${level}.currentRow.${widgetName}`);
+        }
+      }
+    });
+
+    Object.entries(levelProps).forEach(([level, props]) => {
+      metaWidget[level] = props;
+    });
+
+    dynamicBindingPathList.forEach((path) => {
+      metaWidget.dynamicBindingPathList = [
+        ...(metaWidget.dynamicBindingPathList || []),
+        { key: path },
+      ];
+    });
   };
 
   updateContainerBindings = (metaWidget: MetaWidget, key: string) => {
@@ -511,15 +689,17 @@ class MetaWidgetGenerator {
   };
 
   isClonedRow = (index: number) => {
+    // TODO (ashit): Modify -> check if making the first row as template in view mode as well makes any difference?
     return (
       this.renderMode === RenderModes.PAGE ||
-      (this.renderMode === RenderModes.CANVAS && index !== 0)
+      (this.renderMode === RenderModes.CANVAS && index !== 0) ||
+      this.isListCloned
     );
   };
 
   shouldGenerateMetaWidgetFor = (templateWidgetId: string, key: string) => {
     const { metaWidgetId } =
-      this.getCachedMetaWidgetProps(key, templateWidgetId) || {};
+      this.getRowTemplateCache(key, templateWidgetId) || {};
     const { added, removed, unchanged } = this.templateWidgetStatus;
     const templateWidgetsAddedOrRemoved = added.size > 0 || removed.size > 0;
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
@@ -541,19 +721,34 @@ class MetaWidgetGenerator {
     );
   };
 
-  getReferencesEntityDefMap = (value: string, key: string) => {
-    // Get all meta widgets for a key
-    const metaWidgetsCacheProps = this.metaWidgetCache[key] || {};
-    // For all the meta widgets, create a map between the template widget name and
-    // the meta widget cache data
-    const metaWidgetsMap = Object.values(metaWidgetsCacheProps).reduce(
-      (acc, currMetaWidget) => {
-        acc[currMetaWidget.templateWidgetName] = currMetaWidget;
+  setRowCache = (key: string, rowData: MetaWidgetCache[string]) => {
+    const cache = this.getWidgetCache() || {};
+    const updatedCache = {
+      ...cache,
+      [key]: rowData,
+    };
 
-        return acc;
-      },
-      {} as Record<string, MetaWidgetCacheProps>,
-    );
+    this.setWidgetCache(updatedCache);
+  };
+
+  getRowTemplateCache = (key: string, templateWidgetId: string) => {
+    return this.getRowCache(key)?.[templateWidgetId];
+  };
+
+  getRowCache = (key: string) => {
+    return this.getWidgetCache()?.[key];
+  };
+
+  getCache = () => {
+    return this.getWidgetCache();
+  };
+
+  getContainerParentCache = () => {
+    return this.getRowTemplateCache(ROOT_ROW_KEY, ROOT_CONTAINER_PARENT_KEY);
+  };
+
+  getReferencesEntityDefMap = (value: string, key: string) => {
+    const metaWidgetsMap = this.getRowCacheByTemplateWidgetName(key);
 
     // All the template widget names
     const templateWidgetNames = Object.keys(metaWidgetsMap);
@@ -581,11 +776,27 @@ class MetaWidgetGenerator {
     return dependantBinding;
   };
 
+  getRowCacheByTemplateWidgetName = (key: string) => {
+    // Get all meta widgets for a key
+    const metaWidgetsRowCache = this.getRowCache(key) || {};
+    // For all the meta widgets, create a map between the template widget name and
+    // the meta widget cache data
+
+    return Object.values(metaWidgetsRowCache).reduce((acc, currMetaWidget) => {
+      acc[currMetaWidget.templateWidgetName] = currMetaWidget;
+
+      return acc;
+    }, {} as Record<string, MetaWidgetCacheProps>);
+  };
+
   getMetaContainers = () => {
     const containers = { ids: [] as string[], names: [] as string[] };
     this.data.forEach((_datum, rowIndex) => {
       const key = this.getPrimaryKey(rowIndex);
-      const metaContainer = this.metaWidgetCache[key]?.[this.containerWidgetId];
+      const metaContainer = this.getRowTemplateCache(
+        key,
+        this.containerWidgetId,
+      );
       if (!containers.ids) {
         containers.ids = [];
         containers.names = [];
@@ -614,16 +825,12 @@ class MetaWidgetGenerator {
   getPropsByMetaWidgetId = (metaWidgetId: string) => {
     const path = this.metaIdToCacheMap[metaWidgetId];
 
-    return get(this.metaWidgetCache, path, {}) as MetaWidgetCacheProps;
-  };
-
-  getCachedMetaWidgetProps = (key: string, templateWidgetId: string) => {
-    return this.metaWidgetCache?.[key]?.[templateWidgetId];
+    return get(this.getCache(), path, {}) as MetaWidgetCacheProps;
   };
 
   getCurrentRowMetaWidgets = (key: string) => {
     const templateWidgetIds = Object.keys(this.currTemplateWidgets || {});
-    const metaWidgetsCache = this.metaWidgetCache[key];
+    const metaWidgetsCache = this.getRowCache(key);
 
     const metaWidgets: MetaWidgetCacheProps[] = [];
     templateWidgetIds.forEach((templateWidgetId) => {
@@ -636,9 +843,10 @@ class MetaWidgetGenerator {
   };
 
   getEntityDefinitionsFor = (widgetType: string) => {
-    return Object.keys(
-      omit(get(entityDefinitions, widgetType), ["!doc", "!url"]),
-    );
+    const config = get(entityDefinitions, widgetType);
+    const entityDefinition = typeof config === "function" ? config({}) : config;
+
+    return Object.keys(omit(entityDefinition, ["!doc", "!url"]));
   };
 
   getPropertiesOfWidget = (widgetName: string, type: string) => {

@@ -6,19 +6,14 @@ import com.appsmith.external.helpers.restApiUtils.connections.OAuth2ClientCreden
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import okio.Buffer;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
@@ -32,21 +27,21 @@ import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@PowerMockIgnore("javax.net.ssl.*")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(OAuth2ClientCredentials.class)
 public class OAuth2ClientCredentialsTest {
 
     private static MockWebServer mockEndpoint;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         mockEndpoint = new MockWebServer();
         mockEndpoint.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws IOException {
         mockEndpoint.shutdown();
     }
@@ -114,8 +109,8 @@ public class OAuth2ClientCredentialsTest {
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");
-        Assert.assertNotNull(authorizationHeader);
-        Assert.assertEquals("Basic dGVzdElkOnRlc3RTZWNyZXQ=", authorizationHeader);
+        assertNotNull(authorizationHeader);
+        assertEquals("Basic dGVzdElkOnRlc3RTZWNyZXQ=", authorizationHeader);
     }
 
     @Test
@@ -139,12 +134,12 @@ public class OAuth2ClientCredentialsTest {
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");
-        Assert.assertNull(authorizationHeader);
+        assertNull(authorizationHeader);
 
         final Buffer recordedRequestBody = recordedRequest.getBody();
         byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
         recordedRequestBody.readFully(bodyBytes);
         recordedRequestBody.close();
-        Assert.assertEquals("grant_type=client_credentials&client_id=testId&client_secret=testSecret", new String(bodyBytes));
+        assertEquals("grant_type=client_credentials&client_id=testId&client_secret=testSecret", new String(bodyBytes));
     }
 }

@@ -23,6 +23,8 @@ const hasCurrentIndex = (value: string) =>
   isString(value) && value.indexOf("currentIndex") > -1;
 const hasCurrentRow = (value: string) =>
   isString(value) && value.indexOf("currentRow") > -1;
+const hasLevel = (value: string) =>
+  isString(value) && value.indexOf("level_") > -1;
 
 const getDynamicPathTypesFor = (propertyValue: string) => {
   const types = [];
@@ -35,6 +37,9 @@ const getDynamicPathTypesFor = (propertyValue: string) => {
   }
   if (hasCurrentRow(propertyValue)) {
     types.push(DynamicPathType.CURRENT_ROW);
+  }
+  if (hasLevel(propertyValue)) {
+    types.push(DynamicPathType.LEVEL);
   }
 
   return types;
@@ -114,6 +119,8 @@ export const CONFIG = {
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
+    requiresFlatWidgetChildren: true,
+    hasMetaWidgets: true,
     rows: 40,
     columns: 24,
     animateLoading: true,
@@ -129,6 +136,7 @@ export const CONFIG = {
         autocomplete: (parentProps: any) => {
           return parentProps.childAutoComplete;
         },
+        // TODO: (Ashit) - Remove this enhancement. Probably not required for V2
         updateDataTreePath: (
           parentProps: ListWidgetProps<WidgetProps>,
           dataTreePath: string,
@@ -184,6 +192,7 @@ export const CONFIG = {
       },
     },
     gridGap: 0,
+    templateBottomRow: 16,
     listData: [
       {
         id: "001",
