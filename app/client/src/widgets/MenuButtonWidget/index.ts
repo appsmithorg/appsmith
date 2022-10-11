@@ -42,6 +42,15 @@ export const CONFIG = {
         index: 2,
       },
     },
+    configureMenuItems: {
+      label: "Configure Menu Items",
+      id: "configureMenuItemsPanel",
+      config: {
+        label: "{{currentItem.name}}",
+        isVisible: true,
+        isDisabled: false,
+      },
+    },
     rows: 4,
     columns: 16,
     widgetName: "MenuButton",
