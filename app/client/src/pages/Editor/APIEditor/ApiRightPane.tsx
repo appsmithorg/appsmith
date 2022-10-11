@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
@@ -15,6 +15,9 @@ import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
 import { datasourcesEditorIdURL } from "RouteBuilder";
+import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
+import { useDispatch, useSelector } from "react-redux";
+import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -202,15 +205,19 @@ export const getDatasourceInfo = (datasource: any): string => {
   if (authType.length) info.push(authType);
   return info.join(" | ");
 };
-
 function ApiRightPane(props: any) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const dispatch = useDispatch();
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
+  const selectedTab = useSelector(getApiRightPaneSelectedTab);
   useEffect(() => {
-    if (!!props.hasResponse) setSelectedIndex(1);
+    if (!!props.hasResponse) dispatch(setApiRightPaneSelectedTab(1));
   }, [props.hasResponse]);
+
+  const setSelectedTab = useCallback((selectedIndex: number) => {
+    dispatch(setApiRightPaneSelectedTab(selectedIndex));
+  }, []);
 
   // array of datasources with the current action's datasource first, followed by the rest.
   const sortedDatasources = useMemo(
@@ -227,16 +234,16 @@ function ApiRightPane(props: any) {
       <TabbedViewContainer>
         <TabComponent
           cypressSelector={"api-right-pane"}
-          onSelect={setSelectedIndex}
-          selectedIndex={selectedIndex}
+          onSelect={setSelectedTab}
+          selectedIndex={selectedTab}
           tabs={[
             {
-              key: "datasources",
+              key: "Datasources",
               title: "Datasources",
               panelComponent:
                 props.datasources && props.datasources.length > 0 ? (
                   <DataSourceListWrapper
-                    className={selectedIndex === 0 ? "show" : ""}
+                    className={selectedTab === 0 ? "show" : ""}
                   >
                     {(sortedDatasources || []).map((d: any, idx: number) => {
                       const dataSourceInfo: string = getDatasourceInfo(d);

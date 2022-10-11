@@ -4,6 +4,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const ee = ObjectsRegistry.EntityExplorer;
+const apiPage = ObjectsRegistry.ApiPage;
 
 describe("MaintainContext&Focus", function() {
   it("Import the test application", () => {
@@ -114,5 +116,12 @@ describe("MaintainContext&Focus", function() {
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
+  });
+  it("Check if selected tab on right tab persists", () => {
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.SelectRightPaneTab("Connections");
+    ee.SelectEntityByName("SQL_Query");
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.AssertRightPaneSelectedTab("Connections");
   });
 });

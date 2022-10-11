@@ -1,4 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+
+type RightPaneTabs = "Datasources" | "Connections";
+
 export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -30,6 +33,7 @@ export class ApiPage {
     verb +
     "')]";
   private _bodySubTab = (subTab: string) => `[data-cy='tab--${subTab}']`;
+  private _rightPaneTab = (tab: string) => `[data-cy='t--tab-${tab}']`;
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _noBodyMessageDiv = "#NoBodyMessageDiv";
@@ -240,6 +244,17 @@ export class ApiPage {
     this.agHelper.GetNClick(this._bodySubTab(subTabName));
   }
 
+  AssertRightPaneSelectedTab(tabName: RightPaneTabs) {
+    cy.get(this._rightPaneTab(tabName)).should(
+      "have.class",
+      "react-tabs__tab--selected",
+    );
+  }
+
+  SelectRightPaneTab(tabName: RightPaneTabs) {
+    this.agHelper.GetNClick(this._rightPaneTab(tabName));
+  }
+
   ValidateQueryParams(param: { key: string; value: string }) {
     this.SelectPaneTab("Params");
     this.agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key);
@@ -285,11 +300,7 @@ export class ApiPage {
       .click({ force: true });
   }
 
-  CreateAndFillGraphqlApi(
-    url: string,
-    apiName = "",
-    queryTimeout = 10000
-  ) {
+  CreateAndFillGraphqlApi(url: string, apiName = "", queryTimeout = 10000) {
     this.CreateGraphqlApi(apiName);
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
