@@ -207,8 +207,7 @@ public class DataTypeStringUtils {
                                                                   DataType replacementDataType,
                                                                   List<Map.Entry<String, String>> insertedParams,
                                                                   SmartSubstitutionInterface smartSubstitutionUtils,
-                                                                  Param param,
-                                                                  Object...args) {
+                                                                  Param param) {
 
         final DataType dataType;
         if (replacementDataType == null) {

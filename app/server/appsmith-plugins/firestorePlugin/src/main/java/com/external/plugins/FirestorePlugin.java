@@ -121,7 +121,7 @@ public class FirestorePlugin extends BasePlugin {
             String jsonBody = (String) input;
             Param param = (Param) args[0];
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams,
-                    null, param, args);
+                    null, param);
         }
 
         @Override

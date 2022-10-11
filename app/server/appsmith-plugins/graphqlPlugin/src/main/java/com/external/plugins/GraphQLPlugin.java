@@ -287,7 +287,7 @@ public class GraphQLPlugin extends BasePlugin {
             Param param = (Param) args[1];
             if (!isInputQueryBody) {
                 String queryVariables = (String) input;
-                return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(queryVariables, value, null, insertedParams, null, param, args);
+                return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(queryVariables, value, null, insertedParams, null, param);
             }
             else {
                 String queryBody = (String) input;

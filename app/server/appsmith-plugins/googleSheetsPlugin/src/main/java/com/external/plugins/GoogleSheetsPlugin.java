@@ -305,7 +305,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                              Object... args) {
             String jsonBody = (String) input;
             Param param = (Param) args[0];
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param, args);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param);
         }
 
         @Override
