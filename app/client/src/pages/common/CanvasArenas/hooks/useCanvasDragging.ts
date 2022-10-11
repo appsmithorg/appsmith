@@ -14,7 +14,7 @@ import {
 } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
-import { getAbsolutePixels } from "utils/helpers";
+import { getAbsolutePixels, getSnappedXY } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
 import {
@@ -64,7 +64,6 @@ export const useCanvasDragging = (
     blocksToDraw,
     defaultHandlePositions,
     draggingSpaces,
-    getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
     isDragging,

@@ -25,7 +25,7 @@ import { XYCord } from "./hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
-import { getAbsolutePixels, snapToGrid } from "utils/helpers";
+import { getAbsolutePixels, getSnappedXY } from "utils/helpers";
 import {
   getSlidingCanvasName,
   getStickyCanvasName,
@@ -214,25 +214,6 @@ export function CanvasSelectionArena({
             isMultiSelect,
           );
         }
-      };
-
-      const getSnappedXY = (
-        parentColumnWidth: number,
-        parentRowHeight: number,
-        currentOffset: XYCord,
-        parentOffset: XYCord,
-      ) => {
-        // TODO(abhinav): There is a simpler math to use.
-        const [leftColumn, topRow] = snapToGrid(
-          parentColumnWidth,
-          parentRowHeight,
-          currentOffset.x - parentOffset.x,
-          currentOffset.y - parentOffset.y,
-        );
-        return {
-          X: leftColumn * parentColumnWidth,
-          Y: topRow * parentRowHeight,
-        };
       };
 
       const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {

@@ -43,6 +43,25 @@ export const snapToGrid = (
   return [snappedX, snappedY];
 };
 
+export const getSnappedXY = (
+  parentColumnWidth: number,
+  parentRowHeight: number,
+  currentOffset: { x: number; y: number },
+  parentOffset: { x: number; y: number },
+) => {
+  // TODO(abhinav): There is a simpler math to use.
+  const [leftColumn, topRow] = snapToGrid(
+    parentColumnWidth,
+    parentRowHeight,
+    currentOffset.x - parentOffset.x,
+    currentOffset.y - parentOffset.y,
+  );
+  return {
+    X: leftColumn * parentColumnWidth,
+    Y: topRow * parentRowHeight,
+  };
+};
+
 export const formatBytes = (bytes: string | number) => {
   if (!bytes) return;
   const value = typeof bytes === "string" ? parseInt(bytes) : bytes;
