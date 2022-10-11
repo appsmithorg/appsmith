@@ -1,11 +1,11 @@
 package com.appsmith.server.services.ee;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.repositories.CustomDatasourceRepository;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.VariableReplacementService;
@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -68,7 +67,7 @@ public class DatasourceServiceTest {
         Mono<Datasource> renderedDatasourceMono = datasourceService.getValidDatasourceFromActionMono(testActionDTO, EXECUTE_DATASOURCES);
 
         StepVerifier.create(renderedDatasourceMono)
-                .assertNext( datasource ->  {
+                .assertNext(datasource -> {
                     assertThat(datasource).isNotNull();
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     assertThat(datasource.getDatasourceConfiguration().getHeaders()).isNotEmpty();

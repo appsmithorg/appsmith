@@ -3,9 +3,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.dtos.ActionDTO;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

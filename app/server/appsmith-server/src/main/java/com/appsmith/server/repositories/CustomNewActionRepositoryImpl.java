@@ -1,8 +1,8 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
