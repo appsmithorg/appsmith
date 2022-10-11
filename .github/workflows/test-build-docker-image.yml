@@ -534,7 +534,7 @@ jobs:
       - name: Start RTS Server
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          cd app/rts ./start-server.sh
+          cd app/rts && ./start-server.sh
 
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
