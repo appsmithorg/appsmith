@@ -1456,6 +1456,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             compactMode={compactMode}
             fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
+            imageSize={cellProperties.imageSize}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
             isSelected={isSelected}

@@ -11,6 +11,8 @@ import {
   CellAlignment,
   VerticalAlignment,
   scrollbarOnHoverCSS,
+  ImageSize,
+  ImageSizes,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
@@ -330,6 +332,7 @@ export const CellWrapper = styled.div<{
   textColor?: string;
   cellBackground?: string;
   textSize?: string;
+  imageSize?: ImageSize;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -356,7 +359,7 @@ export const CellWrapper = styled.div<{
   font-size: ${(props) => props.textSize};
 
   padding: ${(props) =>
-    props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
+      props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
     10px;
   line-height: ${CELL_WRAPPER_LINE_HEIGHT}px;
   .${Classes.POPOVER_WRAPPER} {
@@ -377,19 +380,20 @@ export const CellWrapper = styled.div<{
   .image-cell-wrapper {
     width: 100%;
     height: 100%;
-  }
-  .image-cell {
-    width: 100%;
-    height: 100%;
-    margin: 0 5px 0 0;
-    ${BORDER_RADIUS}
-    background-position-x: ${(props) =>
+    display: flex;
+    align-items: ${(props) =>
+      props.verticalAlignment && IMAGE_VERTICAL_ALIGN[props.verticalAlignment]};
+    justify-content: ${(props) =>
       props.horizontalAlignment &&
       IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};
-    background-position-y: ${(props) =>
-      props.verticalAlignment && IMAGE_VERTICAL_ALIGN[props.verticalAlignment]};
-    background-repeat: no-repeat;
-    background-size: contain;
+  }
+  .image-cell {
+    // width: 100%;
+    height: ${(props) =>
+      props.imageSize ? `${ImageSizes[props.imageSize]}px` : "64px"};
+    margin: 0 5px 0 0;
+    ${BORDER_RADIUS}
+    object-fit: contain;
   }
   video {
     ${BORDER_RADIUS}

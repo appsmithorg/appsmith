@@ -420,6 +420,7 @@ export const getCellProperties = (
         columnProperties.isDiscardDisabled,
         rowIndex,
       ),
+      imageSize: getPropertyValue(columnProperties.imageSize, rowIndex, true),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;

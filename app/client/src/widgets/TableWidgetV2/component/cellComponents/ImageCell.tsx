@@ -42,6 +42,7 @@ export function ImageCell(props: renderImageType) {
     fontStyle,
     textColor,
     textSize,
+    imageSize,
   } = props;
 
   if (!value) {
@@ -52,6 +53,7 @@ export function ImageCell(props: renderImageType) {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        imageSize={imageSize}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -67,6 +69,7 @@ export function ImageCell(props: renderImageType) {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        imageSize={imageSize}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -87,6 +90,7 @@ export function ImageCell(props: renderImageType) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      imageSize={imageSize}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}
@@ -104,10 +108,7 @@ export function ImageCell(props: renderImageType) {
                 onClick();
               }}
             >
-              <div
-                className="image-cell"
-                style={{ backgroundImage: `url("${item}")` }}
-              />
+              <img className="image-cell" src={item} />
             </div>
           );
         } else {

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import Table from "./Table";
 import {
   CompactMode,
+  ImageSize,
   ReactTableColumnProps,
   ReactTableFilter,
 } from "./Constants";
@@ -83,6 +84,7 @@ interface ReactTableComponentProps {
   borderRadius: string;
   boxShadow?: string;
   isEditableCellValid?: boolean;
+  imageSize?: ImageSize;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -99,6 +101,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleReorderColumn,
     handleResizeColumn,
     height,
+    imageSize,
     isLoading,
     isSortable,
     isVisibleDownload,
@@ -280,6 +283,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       filters={filters}
       handleResizeColumn={handleResizeColumn}
       height={height}
+      imageSize={imageSize}
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
