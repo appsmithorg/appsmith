@@ -353,6 +353,9 @@ export function* executeDynamicTriggerRequest(
       mainThreadRequestChannel,
     );
     log.debug({ requestData });
+    if (requestData?.logs) {
+      yield call(storeLogs, requestData.logs, "", ENTITY_TYPE.JSACTION, "");
+    }
     if (requestData?.trigger) {
       // if we have found a trigger, we need to execute it and respond back
       log.debug({ trigger: requestData.trigger });

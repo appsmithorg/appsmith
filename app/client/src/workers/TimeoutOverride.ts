@@ -1,8 +1,8 @@
 import { createGlobalData } from "./evaluate";
 import { dataTreeEvaluator } from "./evaluation.worker";
 
-const _internalSetTimeout = self.setTimeout;
-const _internalClearTimeout = self.clearTimeout;
+export const _internalSetTimeout = self.setTimeout;
+export const _internalClearTimeout = self.clearTimeout;
 
 export default function overrideTimeout() {
   Object.defineProperty(self, "setTimeout", {
