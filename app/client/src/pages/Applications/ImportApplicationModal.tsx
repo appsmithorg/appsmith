@@ -19,8 +19,9 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import {
-  FilePickerV2,
+  DialogComponent as Dialog,
   FileType,
+  FilePickerV2,
   Icon,
   IconSize,
   SetProgress,
@@ -32,7 +33,6 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
