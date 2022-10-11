@@ -3,9 +3,14 @@ import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
   ButtonBorderRadius,
-  ButtonStyleType,
   ButtonVariant,
+  ButtonPlacement,
 } from "components/constants";
+
+export enum MenuItemsSource {
+  STATIC = "STATIC",
+  DYNAMIC = "DYNAMIC",
+}
 
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
@@ -29,13 +34,12 @@ export interface MenuButtonWidgetProps extends WidgetProps {
       onClick?: string;
     }
   >;
-  menuStyle?: ButtonStyleType;
-  prevMenuStyle?: ButtonStyleType;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius: ButtonBorderRadius;
   boxShadow?: string;
-
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
+  menuItemsSource: MenuItemsSource;
 }

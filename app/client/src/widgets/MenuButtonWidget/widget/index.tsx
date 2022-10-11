@@ -1,49 +1,12 @@
 import React from "react";
-
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import MenuButtonComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment } from "@blueprintjs/core";
-import {
-  ButtonBorderRadius,
-  ButtonVariant,
-  ButtonVariantTypes,
-  ButtonPlacementTypes,
-  ButtonPlacement,
-} from "components/constants";
-import { IconName } from "@blueprintjs/icons";
+import { ButtonVariantTypes, ButtonPlacementTypes } from "components/constants";
 import { MinimumPopupRows } from "widgets/constants";
-export interface MenuButtonWidgetProps extends WidgetProps {
-  label?: string;
-  isDisabled?: boolean;
-  isVisible?: boolean;
-  isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
-  menuVariant?: ButtonVariant;
-  menuColor?: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow?: string;
-  iconName?: IconName;
-  iconAlign?: Alignment;
-  placement?: ButtonPlacement;
-}
+import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -62,12 +25,35 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "menuItemsSource",
+            helpText: "Sets the source for the menu items",
+            label: "Menu Items Source",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Static",
+                value: MenuItemsSource.STATIC,
+              },
+              {
+                label: "Dynamic",
+                value: MenuItemsSource.DYNAMIC,
+              },
+            ],
+            isJSConvertible: false,
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Menu items",
             propertyName: "menuItems",
             controlType: "MENU_ITEMS",
             label: "Menu Items",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: MenuButtonWidgetProps) =>
+              props.menuItemsSource === MenuItemsSource.DYNAMIC,
+            dependencies: ["menuItemsSource"],
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
@@ -201,6 +187,20 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                 },
               ],
             },
+          },
+          {
+            helpText: "Takes in an array of items to display the menu items.",
+            propertyName: "sourceData",
+            label: "Source Data",
+            controlType: "INPUT_TEXT",
+            placeholderText: "{{Table.data.map(row=>(row.buttonDetail)}}",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: MenuButtonWidgetProps) =>
+              props.menuItemsSource === MenuItemsSource.STATIC,
+            dependencies: ["menuItemsSource"],
           },
         ],
       },
