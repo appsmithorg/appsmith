@@ -6,7 +6,7 @@ import {
   useBlockLayout,
   useResizeColumns,
   useRowSelect,
-  Row,
+  Row as ReactTableRowType,
 } from "react-table";
 import {
   TableWrapper,
@@ -29,12 +29,10 @@ import { ScrollIndicator } from "design-system";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
-import {
-  renderBodyCheckBoxCell,
-  renderHeaderCheckBoxCell,
-} from "./cellComponents/SelectionCheckboxCell";
+import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell } from "../constants";
+import { TableBody } from "./TableBody";
 
 interface TableProps {
   width: number;
@@ -69,7 +67,7 @@ interface TableProps {
   enableDrag: () => void;
   toggleAllRowSelect: (
     isSelect: boolean,
-    pageData: Row<Record<string, unknown>>[],
+    pageData: ReactTableRowType<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
   searchTableData: (searchKey: any) => void;
@@ -87,6 +85,7 @@ interface TableProps {
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
   imageSize?: ImageSize;
+  primaryColumnId?: string;
 }
 
 const defaultColumn = {
@@ -187,7 +186,6 @@ export function Table(props: TableProps) {
     endIndex = props.data.length;
   }
   const subPage = page.slice(startIndex, endIndex);
-  const selectedRowIndex = props.selectedRowIndex;
   const selectedRowIndices = props.selectedRowIndices || [];
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -229,6 +227,12 @@ export function Table(props: TableProps) {
     }),
     [props.width],
   );
+
+  const shouldUseVirtual =
+    props.serverSidePaginationEnabled &&
+    !props.columns.some(
+      (column) => !!column.columnProperties.allowCellWrapping,
+    );
 
   return (
     <TableWrapper
@@ -356,73 +360,32 @@ export function Table(props: TableProps) {
                   props.columns,
                   props.width,
                   subPage,
-                  prepareRow,
                   props.multiRowSelection,
                   props.accentColor,
                   props.borderRadius,
+                  {},
+                  prepareRow,
                 )}
             </div>
-            <div
-              {...getTableBodyProps()}
-              className={`tbody ${
-                props.pageSize > subPage.length ? "no-scroll" : ""
-              }`}
+            <TableBody
+              accentColor={props.accentColor}
+              borderRadius={props.borderRadius}
+              columns={props.columns}
+              getTableBodyProps={getTableBodyProps}
+              height={props.height}
+              multiRowSelection={!!props.multiRowSelection}
+              pageSize={props.pageSize}
+              prepareRow={prepareRow}
+              primaryColumnId={props.primaryColumnId}
               ref={tableBodyRef}
-            >
-              {subPage.map((row, rowIndex) => {
-                prepareRow(row);
-                const rowProps = {
-                  ...row.getRowProps(),
-                  style: { display: "flex" },
-                };
-                const isRowSelected = props.multiRowSelection
-                  ? selectedRowIndices.includes(row.index)
-                  : row.index === selectedRowIndex;
-                return (
-                  <div
-                    {...rowProps}
-                    className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
-                    key={rowIndex}
-                    onClick={(e) => {
-                      row.toggleRowSelected();
-                      props.selectTableRow(row);
-                      e.stopPropagation();
-                    }}
-                  >
-                    {props.multiRowSelection &&
-                      renderBodyCheckBoxCell(
-                        isRowSelected,
-                        props.accentColor,
-                        props.borderRadius,
-                      )}
-                    {row.cells.map((cell, cellIndex) => {
-                      return (
-                        <div
-                          {...cell.getCellProps()}
-                          className="td"
-                          data-colindex={cellIndex}
-                          data-rowindex={rowIndex}
-                          key={cellIndex}
-                        >
-                          {cell.render("Cell")}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-              {props.pageSize > subPage.length &&
-                renderEmptyRows(
-                  props.pageSize - subPage.length,
-                  props.columns,
-                  props.width,
-                  subPage,
-                  prepareRow,
-                  props.multiRowSelection,
-                  props.accentColor,
-                  props.borderRadius,
-                )}
-            </div>
+              rows={subPage}
+              selectTableRow={props.selectTableRow}
+              selectedRowIndex={props.selectedRowIndex}
+              selectedRowIndices={props.selectedRowIndices}
+              tableSizes={tableSizes}
+              useVirtual={shouldUseVirtual}
+              width={props.width}
+            />
           </div>
         </Scrollbars>
       </div>

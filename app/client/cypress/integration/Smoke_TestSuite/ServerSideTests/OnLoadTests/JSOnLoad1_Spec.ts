@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 let dsName: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -13,6 +12,14 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
 describe("JSObjects OnLoad Actions tests", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   before(() => {
     cy.fixture("tablev1NewDsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -305,7 +312,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //One Quotes confirmation - for API true
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
+      agHelper.WaitUntilToastDisappear("Quotes was cancelled");
 
       //Another for API called via JS callQuotes()
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
@@ -357,7 +364,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
-    agHelper.AssertContains('The action "Quotes" has failed');
+    agHelper.AssertContains("Quotes was cancelled");
 
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
@@ -392,9 +399,9 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "CatFacts" has failed');
+    agHelper.ValidateToastMessage("CatFacts was cancelled");
 
-    agHelper.WaitUntilToastDisappear('The action "CatFacts" has failed');
+    agHelper.WaitUntilToastDisappear("CatFacts was cancelled");
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
     agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("Yes");
@@ -525,7 +532,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "getBooks" has failed');
+    agHelper.ValidateToastMessage("getBooks was cancelled");
     agHelper
       .GetText(locator._jsonFormInputField("name"), "val")
       .should("be.empty");
@@ -538,7 +545,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     // agHelper.AssertElementPresence(jsEditor._dialogBody("getCountry"));
     // agHelper.ClickButton("No");
 
-    agHelper.WaitUntilToastDisappear('The action "getBooks" has failed');
+    agHelper.WaitUntilToastDisappear("getBooks was cancelled");
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("Yes");
@@ -555,7 +562,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "getBooks" has failed');
+    agHelper.ValidateToastMessage("getBooks was cancelled");
 
     ee.SelectEntityByName(jsName as string, "Queries/JS");
     ee.ActionContextMenuByEntityName(

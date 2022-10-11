@@ -421,6 +421,23 @@ export const getCellProperties = (
         rowIndex,
       ),
       imageSize: getPropertyValue(columnProperties.imageSize, rowIndex, true),
+      isFilterable: getBooleanPropertyValue(
+        columnProperties.isFilterable,
+        rowIndex,
+      ),
+      serverSideFiltering: getBooleanPropertyValue(
+        columnProperties.serverSideFiltering,
+        rowIndex,
+      ),
+      placeholderText: getPropertyValue(
+        columnProperties.placeholderText,
+        rowIndex,
+        true,
+      ),
+      resetFilterTextOnClose: getBooleanPropertyValue(
+        columnProperties.resetFilterTextOnClose,
+        rowIndex,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
