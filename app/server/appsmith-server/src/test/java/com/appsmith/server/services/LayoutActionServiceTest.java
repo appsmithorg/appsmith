@@ -10,10 +10,11 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -63,8 +64,10 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static com.mongodb.assertions.Assertions.assertNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -136,6 +139,10 @@ public class LayoutActionServiceTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
+    Plugin installed_plugin;
+
+    Plugin installedJsPlugin;
+
     @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
@@ -184,7 +191,7 @@ public class LayoutActionServiceTest {
 
             layout.setDsl(dsl);
             layout.setPublishedDsl(dsl);
-            layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
+            layoutActionService.updateLayout(pageId, testApp.getId(), layout.getId(), layout).block();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
@@ -214,13 +221,13 @@ public class LayoutActionServiceTest {
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
 
         jsDatasource = new Datasource();
         jsDatasource.setName("Default JS Database");
         jsDatasource.setWorkspaceId(workspaceId);
-        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         jsDatasource.setPluginId(installedJsPlugin.getId());
     }
@@ -351,14 +358,16 @@ public class LayoutActionServiceTest {
                 .create(resultMono)
                 .assertNext(page -> {
                     assertThat(page.getLayouts()).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
-                    Set<DslActionDTO> dslActionDTOS = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
-                    assertThat(dslActionDTOS).hasSize(2);
-                    assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "jsObject.jsFunction"));
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(2);
+                    Set<DslActionDTO> dslActionDTOS1 = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
+                    assertThat(dslActionDTOS1).hasSize(1);
+                    assertThat(dslActionDTOS1.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("jsObject.jsFunction"));
+                    Set<DslActionDTO> dslActionDTOS2 = page.getLayouts().get(0).getLayoutOnLoadActions().get(1);
+                    assertThat(dslActionDTOS2).hasSize(1);
+                    assertThat(dslActionDTOS2.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1"));
                 })
                 .verifyComplete();
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -394,7 +403,7 @@ public class LayoutActionServiceTest {
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -423,7 +432,7 @@ public class LayoutActionServiceTest {
 
         layout.setDsl(dsl);
 
-        updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -516,7 +525,7 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).cache();
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).cache();
 
         Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
 
@@ -534,7 +543,6 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -645,14 +653,14 @@ public class LayoutActionServiceTest {
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
 
                     assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
 
-                    // Assert that both the actions dont belong to the same set. They should be run iteratively.
+                    // Assert that both the actions don't belong to the same set. They should be run iteratively.
                     DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
@@ -669,7 +677,7 @@ public class LayoutActionServiceTest {
     public void simpleOnPageLoadActionCreationTest() throws JsonProcessingException {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        // This action should be tagged as on page load since its used by firstWidget
+        // This action should be tagged as on page load since it is used by firstWidget
         ActionDTO action1 = new ActionDTO();
         action1.setName("firstAction");
         action1.setPageId(testPage.getId());
@@ -742,7 +750,7 @@ public class LayoutActionServiceTest {
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 }).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -828,7 +836,7 @@ public class LayoutActionServiceTest {
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -855,7 +863,7 @@ public class LayoutActionServiceTest {
         JSONObject firstWidget = new JSONObject();
         firstWidget.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         firstWidget.put("dynamicBindingPathList", temp);
         firstWidget.put("testField", "{{ firstWidget.testField }}");
         children.add(firstWidget);
@@ -866,7 +874,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(layoutDTO -> {
@@ -920,16 +928,22 @@ public class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block(); // create action1
+        assertNotNull(createdAction1);
         createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setDefaultResources(createdAction1.getDefaultResources());
+        newAction1.setPluginId(installed_plugin.getId());
+        newAction1.setPluginType(installed_plugin.getType());
 
         ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block(); // create action2
+        assertNotNull(createdAction1);
         createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
         NewAction newAction2 = new NewAction();
         newAction2.setUnpublishedAction(createdAction2);
         newAction2.setDefaultResources(createdAction2.getDefaultResources());
+        newAction2.setPluginId(installed_plugin.getId());
+        newAction2.setPluginType(installed_plugin.getType());
 
         NewAction[] newActionArray = new NewAction[2];
         newActionArray[0] = newAction1;
@@ -937,7 +951,7 @@ public class LayoutActionServiceTest {
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
         Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -977,7 +991,7 @@ public class LayoutActionServiceTest {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ firstAction.data }}");
 
@@ -985,18 +999,21 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
 
         ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        assertNotNull(createdAction1);
         createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
         createdAction1.setUserSetOnLoad(true);
         NewAction newAction1 = new NewAction();
         newAction1.setUnpublishedAction(createdAction1);
         newAction1.setDefaultResources(createdAction1.getDefaultResources());
+        newAction1.setPluginId(installed_plugin.getId());
+        newAction1.setPluginType(installed_plugin.getType());
 
         NewAction[] newActionArray = new NewAction[1];
         newActionArray[0] = newAction1;
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
         Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -1034,9 +1051,14 @@ public class LayoutActionServiceTest {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetName", "inputWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "defaultText"))));
+        temp.add(new JSONObject(Map.of("key", "defaultText")));
         dsl.put("dynamicBindingPathList", temp);
-        dsl.put("defaultText", "{{ \tactionName.data[0].inputWidget}}");
+        dsl.put("defaultText", "{{\n" +
+                "(function(){\n" +
+                "\tlet inputWidget = \"abc\";\n" +
+                "\treturn actionName.data;\n" +
+                "})()\n" +
+                "}}");
 
         final JSONObject innerObjectReference = new JSONObject();
         innerObjectReference.put("k", "{{\tactionName.data[0].inputWidget}}");
@@ -1053,17 +1075,15 @@ public class LayoutActionServiceTest {
         mainDsl.put("children", objects);
         layout.setDsl(mainDsl);
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports will be null
-        if (createdAction.getErrorReports() != null) {
-            assert (createdAction.getErrorReports() instanceof List || createdAction.getErrorReports() == null);
-            assert (createdAction.getErrorReports() == null);
-        }
+        assertNotNull(createdAction);
+        assertNull(createdAction.getErrorReports());
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated layoutOnLoadActionErrors
-        assert (firstLayout.getLayoutOnLoadActionErrors() instanceof List);
-        assert (firstLayout.getLayoutOnLoadActionErrors().size() == 1);
+        assertNotNull(firstLayout);
+        assertEquals(1, firstLayout.getLayoutOnLoadActionErrors().size());
 
         // refactoring action to carry the existing error in DSL
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -1074,20 +1094,17 @@ public class LayoutActionServiceTest {
         refactorActionNameDTO.setActionId(createdAction.getId());
 
         Mono<LayoutDTO> layoutDTOMono = refactoringSolution.refactorActionName(refactorActionNameDTO);
-        StepVerifier.create(layoutDTOMono
-                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
-                .expectNext(1).verifyComplete();
-
+        StepVerifier.create(layoutDTOMono.map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
+                .expectNext(1)
+                .verifyComplete();
 
         // updateAction to see if the error persists
         actionDTO.setName("finalActionName");
         Mono<ActionDTO> actionDTOMono = layoutActionService.updateSingleActionWithBranchName(createdAction.getId(), actionDTO, null);
 
-        StepVerifier.create(actionDTOMono.map(
-
-                        actionDTO1 -> actionDTO1.getErrorReports().size()
-                ))
-                .expectNext(1).verifyComplete();
+        StepVerifier.create(actionDTOMono.map(actionDTO1 -> actionDTO1.getErrorReports().size()))
+                .expectNext(1)
+                .verifyComplete();
 
 
         JSONObject newDsl = new JSONObject();
@@ -1101,9 +1118,10 @@ public class LayoutActionServiceTest {
 
         layout.setDsl(mainDsl);
 
-        LayoutDTO changedLayoutDTO = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
-        assert (changedLayoutDTO.getLayoutOnLoadActionErrors() instanceof List);
-        assert (changedLayoutDTO.getLayoutOnLoadActionErrors().size() == 0);
+        LayoutDTO changedLayoutDTO = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
+        assertNotNull(changedLayoutDTO);
+        assertNotNull(changedLayoutDTO.getLayoutOnLoadActionErrors());
+        assertEquals(0, changedLayoutDTO.getLayoutOnLoadActionErrors().size());
 
     }
 
