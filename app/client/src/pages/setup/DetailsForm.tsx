@@ -24,7 +24,7 @@ import {
   WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import FormTextField from "components/ads/formFields/TextField";
+import FormTextField from "components/utils/ReduxFormTextField";
 import { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { Button, Category, Size } from "design-system";

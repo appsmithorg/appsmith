@@ -530,6 +530,12 @@ jobs:
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
+      # Start rts
+      - name: Start RTS Server
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          cd app/rts && ./start-server.sh
+
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash

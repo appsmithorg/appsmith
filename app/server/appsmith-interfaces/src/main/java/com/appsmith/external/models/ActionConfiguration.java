@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,7 +65,7 @@ public class ActionConfiguration implements AppsmithDomain {
      * cyclic dependency errors.
      */
     @Transient
-    Set<String> selfReferencingDataPaths;
+    Set<String> selfReferencingDataPaths = new HashSet<>();
 
     // DB action fields
 
