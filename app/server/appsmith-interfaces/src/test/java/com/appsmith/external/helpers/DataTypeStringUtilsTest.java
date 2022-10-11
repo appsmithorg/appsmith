@@ -122,34 +122,28 @@ public class DataTypeStringUtilsTest {
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"){}").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"]{}").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"}{}").type());
-        // Streams that include multiple top-level values. With strict parsing, each stream must contain exactly one top-level value.
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{}{}").type());
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{}[]null").type());
         // Top-level values of any type. With strict parsing, the top-level value must be an object or an array.
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"").type());
         assertThat(DataType.NULL).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.NULL,"null").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"Abracadabra").type());
         assertThat(DataType.INTEGER).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.NUMBER,"13").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"\"literal\"").type());
-        assertThat(DataType.NULL).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.NULL,"[]").type());
-        // Numbers may be NaNs or infinities.
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{\"number\": NaN}").type());
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{\"number\": Infinity}").type());
+        assertThat(DataType.NULL_ARRAY).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.ARRAY,"[]").type());
+
         // End of line comments starting with // or # and ending with a newline character.
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{//comment\n}").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{#comment\n}").type());
+
         // C-style comments starting with /* and ending with */. Such comments may not be nested.
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{/*comment*/}").type());
-        // Names that are unquoted or 'single quoted'.
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{a: 1}").type());
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{'a': 1}").type());
+
         // Strings that are unquoted or 'single quoted'.
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{\"a\": str}").type());
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{\"a\": ''}").type());
+
         // Array elements separated by ; instead of ,.
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{\"a\": [1;2]}").type());
         // Unnecessary array separators. These are interpreted as if null was the omitted value.
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT, "{\"a\": [1,]}").type());
+
         // Names and values separated by = or => instead of :.
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{\"a\" = 13}").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{\"a\" => 13}").type());
@@ -158,7 +152,6 @@ public class DataTypeStringUtilsTest {
 
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING, "{\"a\": }").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING, "{\"a\": ,}").type());
-        assertThat(DataType.BSON).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT,"{\"a\": 0,}").type());
 
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT, "{} ").type());
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT, "{\"a\": null} \n \n").type());

@@ -12,7 +12,7 @@ public class DataTypeServiceUtils {
     static  {
         defaultAppsmithTypes.put(ClientDataType.NULL, List.of(new NullType()));
 
-        defaultAppsmithTypes.put(ClientDataType.ARRAY, List.of(new ArrayType()));
+        defaultAppsmithTypes.put(ClientDataType.ARRAY, List.of(new NullArrayType(), new ArrayType()));
 
         defaultAppsmithTypes.put(ClientDataType.BOOLEAN, List.of(new BooleanType()));
 

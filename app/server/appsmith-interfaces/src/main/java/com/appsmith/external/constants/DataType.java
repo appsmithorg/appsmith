@@ -18,5 +18,6 @@ public enum DataType {
     TIMESTAMP,
     BSON,
     BSON_SPECIAL_DATA_TYPES,
-    BIGDECIMAL
+    BIGDECIMAL,
+    NULL_ARRAY
 }
