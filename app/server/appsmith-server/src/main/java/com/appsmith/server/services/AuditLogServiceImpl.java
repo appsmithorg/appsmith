@@ -599,8 +599,13 @@ public class AuditLogServiceImpl implements AuditLogService {
         if (application.getGitApplicationMetadata() != null && !StringUtils.isEmpty(application.getGitApplicationMetadata().getBranchName())) {
             AuditLogGitMetadata auditLogGitMetadata = new AuditLogGitMetadata();
             auditLogGitMetadata.setBranch(application.getGitApplicationMetadata().getBranchName());
-            auditLogGitMetadata.setDefaultBranch(application.getGitApplicationMetadata().getDefaultBranchName());
-            applicationMetadata.setAuditLogGitMetadata(auditLogGitMetadata);
+            if(!StringUtils.isEmpty(application.getGitApplicationMetadata().getRemoteUrl())) {
+                auditLogGitMetadata.setRepoURL(application.getGitApplicationMetadata().getRemoteUrl());
+            }
+            if(application.getGitApplicationMetadata().getIsRepoPrivate() != null) {
+                auditLogGitMetadata.setRepoType(application.getGitApplicationMetadata().getIsRepoPrivate() ? FieldName.PRIVATE : FieldName.PUBLIC);
+            }
+            applicationMetadata.setGit(auditLogGitMetadata);
         }
         auditLog.setApplication(applicationMetadata);
     }
