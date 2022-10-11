@@ -1,6 +1,7 @@
-package com.appsmith.external.datatypes;
+package com.external.plugins.datatypes;
 
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;

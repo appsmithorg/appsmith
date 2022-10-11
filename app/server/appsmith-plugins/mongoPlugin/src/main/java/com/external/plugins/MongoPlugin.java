@@ -29,6 +29,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.constants.MongoSpecialDataTypes;
+import com.external.plugins.datatypes.MongoSpecificDataTypes;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -949,7 +950,7 @@ public class MongoPlugin extends BasePlugin {
          * @return identified data type of replacement value
          */
         private DataType stringToKnownMongoDBDataTypeConverter(String replacement, ClientDataType clientDataType) {
-            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, replacement);
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, replacement, MongoSpecificDataTypes.pluginSpecificTypes);
             DataType dataType = appsmithType.type();
             if (dataType == DataType.STRING) {
                 for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {

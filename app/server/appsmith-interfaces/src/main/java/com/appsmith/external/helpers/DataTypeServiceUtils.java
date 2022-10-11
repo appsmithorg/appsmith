@@ -27,7 +27,7 @@ public class DataTypeServiceUtils {
             JsonObjectType is the preferred server-side data type when the client-side data type is of type OBJECT.
             Fallback server-side data type for client-side OBJECT type is String.
          */
-        defaultAppsmithTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType(), new BsonType()));
+        defaultAppsmithTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType()));
 
         defaultAppsmithTypes.put(ClientDataType.STRING, List.of(
                 new TimeType(),
