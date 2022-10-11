@@ -16,7 +16,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
