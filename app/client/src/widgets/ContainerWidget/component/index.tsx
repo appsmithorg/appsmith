@@ -1,6 +1,6 @@
-import React, { ReactNode, useRef, useEffect, RefObject, useMemo } from "react";
+import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
-import { isArray, pick } from "lodash";
+import { pick } from "lodash";
 import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
@@ -11,21 +11,6 @@ import WidgetStyleContainer, {
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import {
-  FlexDirection,
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "components/constants";
-import {
-  getLayoutProperties,
-  LayoutProperties,
-} from "utils/layoutPropertiesUtils";
-import { useSelector } from "store";
-import { getWidgets } from "sagas/selectors";
-import {
-  FlexBoxProps,
-  FlexContainer,
-} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -77,28 +62,6 @@ const StyledContainerComponent = styled.div<
   }
 `;
 
-const SubWrapper = styled.div<{
-  flexDirection: FlexDirection;
-}>`
-  flex: 1 1 33.3%;
-  display: flex;
-  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
-  align-items: ${({ flexDirection }) =>
-    flexDirection === FlexDirection.Column ? "flex-start" : "center"};
-`;
-
-const StartWrapper = styled(SubWrapper)`
-  justify-content: flex-start;
-`;
-
-const EndWrapper = styled(SubWrapper)`
-  justify-content: flex-end;
-`;
-
-const CenterWrapper = styled(SubWrapper)`
-  justify-content: center;
-`;
-
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
@@ -129,70 +92,6 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
     >
       {props.children}
     </StyledContainerComponent>
-  );
-}
-
-export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
-  const allWidgets = useSelector(getWidgets);
-  let start: JSX.Element[] = [],
-    center: JSX.Element[] = [],
-    end: JSX.Element[] = [];
-  let hasFillChild = false;
-  if (isArray(props.children)) {
-    for (const child of props.children) {
-      const widget = allWidgets[(child as JSX.Element).props?.widgetId];
-      if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-        hasFillChild = true;
-        break;
-      }
-      if (widget?.alignment === FlexLayerAlignment.End)
-        end.push(child as JSX.Element);
-      else if (widget?.alignment === FlexLayerAlignment.Center)
-        center.push(child as JSX.Element);
-      else start.push(child as JSX.Element);
-    }
-  }
-  if (hasFillChild) {
-    start = props.children as JSX.Element[];
-    center = [];
-    end = [];
-  }
-
-  const layoutProps: LayoutProperties = useMemo(
-    () => getLayoutProperties(props.direction, props.alignment, props.spacing),
-    [props.direction, props.alignment, props.spacing],
-  );
-  return (
-    <FlexContainer
-      className={`flex-container-${props.widgetId}`}
-      {...layoutProps}
-      overflow={props.overflow}
-      stretchHeight={props.stretchHeight}
-      useAutoLayout={props.useAutoLayout}
-    >
-      <StartWrapper
-        className={`start-wrapper-${props.widgetId}`}
-        flexDirection={layoutProps.flexDirection}
-      >
-        {start}
-      </StartWrapper>
-      <CenterWrapper
-        className={`center-wrapper-${props.widgetId} ${
-          hasFillChild ? "no-display" : ""
-        }`}
-        flexDirection={layoutProps.flexDirection}
-      >
-        {center}
-      </CenterWrapper>
-      <EndWrapper
-        className={`end-wrapper-${props.widgetId} ${
-          hasFillChild ? "no-display" : ""
-        }`}
-        flexDirection={layoutProps.flexDirection}
-      >
-        {end}
-      </EndWrapper>
-    </FlexContainer>
   );
 }
 

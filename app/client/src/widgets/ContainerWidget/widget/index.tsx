@@ -38,6 +38,7 @@ export class ContainerWidget extends BaseWidget<
     super(props);
     this.state = {
       useAutoLayout: false,
+      direction: LayoutDirection.Horizontal,
     };
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
@@ -152,9 +153,7 @@ export class ContainerWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      direction: `{{ this.positioning === "vertical" ? "Vertical" : "Horizontal" }}`,
-    };
+    return {};
   }
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
@@ -182,6 +181,10 @@ export class ContainerWidget extends BaseWidget<
     else
       this.setState({
         useAutoLayout: true,
+        direction:
+          this.props.positioning === Positioning.Vertical
+            ? LayoutDirection.Vertical
+            : LayoutDirection.Horizontal,
       });
   };
 
@@ -241,7 +244,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.parentId = this.props.widgetId;
     // Pass layout controls to children
     childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = childWidget.direction || this.props.direction;
+    childWidget.direction = childWidget.direction || this.state.direction;
     childWidget.positioning = this.props.positioning;
     childWidget.alignment = this.props.alignment;
     childWidget.spacing = this.props.spacing;
@@ -309,6 +312,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
 
 export interface ContainerWidgetState extends WidgetState {
   useAutoLayout: boolean;
+  direction: LayoutDirection;
 }
 
 export default connect(null, mapDispatchToProps)(ContainerWidget);

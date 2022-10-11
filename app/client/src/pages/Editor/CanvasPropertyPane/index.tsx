@@ -25,7 +25,6 @@ const PositioningOptions = () => {
   const widgets = useSelector(getWidgets);
   const options: DropdownOption[] = [
     { label: "Fixed", value: Positioning.Fixed },
-    { label: "Horizontal stack", value: Positioning.Horizontal },
     { label: "Vertical stack", value: Positioning.Vertical },
   ];
   const [selectedOption, setSelectedOption] = useState<number>(() => {

@@ -74,7 +74,7 @@ class CanvasWidget extends ContainerWidget {
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = childWidget?.direction || this.props.direction;
+    childWidget.direction = childWidget?.direction || this.state.direction;
     childWidget.justifyContent = this.props.justifyContent;
     childWidget.alignItems = this.props.alignItems;
 
@@ -98,7 +98,7 @@ class CanvasWidget extends ContainerWidget {
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={this.props.direction}
+              direction={this.state.direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
@@ -125,10 +125,10 @@ class CanvasWidget extends ContainerWidget {
         />
         {/* without the wrapping div onClick events are triggered twice */}
         <FlexBoxComponent
-          direction={this.props.direction}
+          direction={this.state.direction}
           flexLayers={this.props.flexLayers || []}
           overflow={
-            this.props.direction === LayoutDirection.Horizontal
+            this.state.direction === LayoutDirection.Horizontal
               ? Overflow.Wrap
               : Overflow.NoWrap
           }
