@@ -12,6 +12,8 @@ import { useSelector } from "store";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -30,8 +32,9 @@ export type AutoLayoutProps = {
 const FlexWidget = styled.div<{
   componentHeight: number;
   componentWidth: number;
+  isMobile: boolean;
   isFillWidget: boolean;
-  minWidth?: number;
+  minWidth?: string;
   padding: number;
   zIndex: number;
   zIndexOnHover: number;
@@ -41,10 +44,12 @@ const FlexWidget = styled.div<{
 
   width: ${({ componentWidth, isFillWidget }) =>
     isFillWidget ? "auto" : `${Math.floor(componentWidth)}px`};
-  height: ${({ componentHeight }) => Math.floor(componentHeight) + "px"};
-  min-width: ${({ minWidth }) => minWidth + "px"};
+  height: ${({ componentHeight, isMobile }) =>
+    isMobile ? "100%" : Math.floor(componentHeight) + "px"};
+  min-width: ${({ minWidth }) => minWidth};
   min-height: 30px;
-  padding: ${({ padding }) => padding + "px"};
+  padding: ${({ isMobile, padding }) =>
+    isMobile ? `${padding}px 0 0` : padding + "px"};
 
   flex-grow: ${({ isFillWidget }) => (isFillWidget ? "1" : "0")};
 
@@ -56,6 +61,7 @@ const FlexWidget = styled.div<{
 // TODO: update min width logic.
 
 export function FlexComponent(props: AutoLayoutProps) {
+  const isMobile = useIsMobileDevice();
   const isSnipingMode = useSelector(snipingModeSelector);
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(() => {
@@ -85,6 +91,13 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
 
+  console.log("#### widget props", props.widgetId, props);
+  console.log("#### is mobile", isMobile);
+  const minWidth =
+    props.responsiveBehavior === ResponsiveBehavior.Fill && isMobile
+      ? "100%"
+      : props.minWidth + "px";
+
   return (
     <FlexWidget
       className={className}
@@ -92,7 +105,8 @@ export function FlexComponent(props: AutoLayoutProps) {
       componentWidth={props.componentWidth}
       id={props.widgetId}
       isFillWidget={isFillWidget}
-      minWidth={props.minWidth}
+      isMobile={isMobile}
+      minWidth={minWidth}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       padding={WIDGET_PADDING}

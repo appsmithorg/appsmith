@@ -16,7 +16,6 @@ import {
   LayoutDirection,
   Overflow,
   Positioning,
-  ResponsiveBehavior,
   Spacing,
 } from "components/constants";
 import ContainerComponent from "./ContainerWidget/component";
@@ -78,14 +77,6 @@ class CanvasWidget extends ContainerWidget {
     childWidget.direction = this.props.direction;
     childWidget.justifyContent = this.props.justifyContent;
     childWidget.alignItems = this.props.alignItems;
-
-    if (
-      childWidget?.responsiveBehavior === ResponsiveBehavior.Fill &&
-      this.state.isMobile
-    ) {
-      childWidget.leftColumn = 0;
-      childWidget.rightColumn = 64;
-    }
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -163,7 +154,8 @@ class CanvasWidget extends ContainerWidget {
 
     const style: CSSProperties = {
       width: "100%",
-      height: `${height}px`,
+      height:
+        this.props.positioning !== Positioning.Fixed ? "100%" : `${height}px`,
       background: "none",
       position: "relative",
     };
