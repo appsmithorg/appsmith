@@ -156,8 +156,5 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
-  _sliderThumb = "#slider-thumb";
-  // sliderOne & sliderTwo are ids of the range slider thumbs
-  _sliderThumbOne = "#slider-thumb-one";
-  _sliderThumbTwo = "#slider-thumb-two";
+  _sliderThumb = '[data-cy="slider-thumb"]';
 }

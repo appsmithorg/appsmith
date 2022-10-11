@@ -168,7 +168,8 @@ describe("Range Slider spec", () => {
     propPane.UpdatePropertyFieldValue("Step Size", "10");
 
     agHelper
-      .GetElement(locator._sliderThumbOne)
+      .GetElement(locator._sliderThumb)
+      .eq(0)
       .focus()
       .type("{rightArrow}");
 
@@ -181,7 +182,8 @@ describe("Range Slider spec", () => {
 
     // Change the slider value
     agHelper
-      .GetElement(locator._sliderThumbTwo)
+      .GetElement(locator._sliderThumb)
+      .eq(1)
       .focus()
       .type("{leftArrow}")
       .type("{leftArrow}");

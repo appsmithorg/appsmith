@@ -7,7 +7,6 @@ import { SliderSizes, thumbSizeMap } from "../utils";
 interface ThumbProps {
   thumbBgColor: string;
   max: number;
-  id?: string;
   min: number;
   position: number;
   dragging: boolean;
@@ -74,7 +73,6 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
       color,
       disabled,
       dragging,
-      id,
       max,
       min,
       onBlur,
@@ -100,8 +98,8 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
         aria-valuemin={min}
         aria-valuenow={parseInt(tooltipValue)}
         color={color}
+        data-cy="slider-thumb"
         disabled={disabled}
-        id={id || "slider-thumb"}
         onBlur={() => {
           setFocused(false);
           typeof onBlur === "function" && onBlur();

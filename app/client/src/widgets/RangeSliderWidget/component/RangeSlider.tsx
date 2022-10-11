@@ -366,7 +366,6 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             {...sharedThumbProps}
             disabled={disabled}
             dragging={active}
-            id="slider-thumb-one"
             onFocus={() => setFocused(0)}
             onMouseDown={(event) => handleThumbMouseDown(event, 0)}
             position={positions[0]}
@@ -384,7 +383,6 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             {...sharedThumbProps}
             disabled={disabled}
             dragging={active}
-            id="slider-thumb-two"
             onFocus={() => setFocused(1)}
             onMouseDown={(event) => handleThumbMouseDown(event, 1)}
             position={positions[1]}
