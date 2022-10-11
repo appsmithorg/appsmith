@@ -137,6 +137,7 @@ if [[ -n ${env_file-} && ! -f $env_file ]]; then
     exit 1
 elif [[ -n ${env_file-} || -f ../../.env ]]; then
     set -o allexport
+    # shellcheck disable=SC1090
     source "${env_file-../../.env}"
     set +o allexport
 else
@@ -258,6 +259,7 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_SIGNUP_DISABLED__ '${APPSMITH_SIGNUP_DISABLED-}';
             sub_filter __APPSMITH_ZIPY_SDK_KEY__ '${APPSMITH_ZIPY_SDK_KEY-}';
             sub_filter __APPSMITH_HIDE_WATERMARK__ '${APPSMITH_HIDE_WATERMARK-}';
+            sub_filter __APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__ '${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}';
         }
 
         location /api {

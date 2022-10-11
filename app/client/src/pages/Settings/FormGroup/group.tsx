@@ -16,7 +16,7 @@ import {
   createMessage,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { Callout } from "components/ads/CalloutV2";
+import { CalloutV2 } from "design-system";
 import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
@@ -24,6 +24,7 @@ import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import Checkbox from "./Checkbox";
+import { useDispatch } from "react-redux";
 
 type GroupProps = {
   name?: string;
@@ -92,6 +93,8 @@ export default function Group({
   subCategory,
 }: GroupProps) {
   const state = useSelector((state) => state);
+  const calloutDispatch = useDispatch();
+
   return (
     <GroupWrapper data-testid="admin-settings-group-wrapper">
       {name && <GroupHeader>{createMessage(() => name)}</GroupHeader>}
@@ -147,13 +150,27 @@ export default function Group({
                     data-testid="admin-settings-group-link"
                     key={setting.name || setting.id}
                   >
-                    <Callout
-                      action={setting.action}
-                      actionLabel="READ MORE"
-                      desc={createMessage(() => setting.label || "")}
-                      type={setting.calloutType || "Notify"}
-                      url={setting.url}
-                    />
+                    {setting.action ? (
+                      <CalloutV2
+                        actionLabel="READ MORE"
+                        desc={createMessage(() => setting.label || "")}
+                        onClick={
+                          ((() => {
+                            if (setting.action) {
+                              setting.action(calloutDispatch);
+                            }
+                          }) as unknown) as React.MouseEvent<HTMLElement>
+                        }
+                        type={setting.calloutType || "Notify"}
+                      />
+                    ) : (
+                      <CalloutV2
+                        actionLabel="READ MORE"
+                        desc={createMessage(() => setting.label || "")}
+                        type={setting.calloutType || "Notify"}
+                        url={setting.url}
+                      />
+                    )}
                   </div>
                 );
               case SettingTypes.TEXT:
