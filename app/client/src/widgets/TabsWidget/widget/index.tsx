@@ -13,7 +13,11 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
-import { Positioning, ResponsiveBehavior } from "components/constants";
+import {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "components/constants";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
@@ -346,6 +350,10 @@ class TabsWidget extends BaseWidget<
       (item) => item.widgetId === selectedTabWidgetId,
     )[0];
     childWidgetData.positioning = selectedTabProps?.positioning;
+    childWidgetData.direction =
+      selectedTabProps?.positioning === Positioning.Vertical
+        ? LayoutDirection.Vertical
+        : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
 
