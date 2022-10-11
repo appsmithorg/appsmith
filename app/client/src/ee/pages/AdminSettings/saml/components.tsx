@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { TooltipComponent as Tooltip, Text, TextType } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
-import FormTextAreaField from "components/ads/formFields/TextAreaField";
+import FormTextAreaField from "pages/Settings/FormGroup/TextAreaField";
 import { HelpIcons } from "icons/HelpIcons";
 import { createMessage } from "@appsmith/constants/messages";
 import { Position } from "@blueprintjs/core";
