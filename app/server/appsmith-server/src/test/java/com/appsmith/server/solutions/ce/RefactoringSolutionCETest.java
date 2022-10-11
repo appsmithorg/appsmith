@@ -1,7 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -9,11 +11,9 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -183,7 +183,7 @@ class RefactoringSolutionCETest {
 
             layout.setDsl(dsl);
             layout.setPublishedDsl(dsl);
-            layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
+            layoutActionService.updateLayout(pageId, testApp.getId(), layout.getId(), layout).block();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
@@ -265,7 +265,7 @@ class RefactoringSolutionCETest {
 
         ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -329,7 +329,7 @@ class RefactoringSolutionCETest {
 
         ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), layout.getId(), layout, branchName).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), testApp.getId(), layout.getId(), layout, branchName).block();
 
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -383,7 +383,7 @@ class RefactoringSolutionCETest {
         ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
 
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         applicationPageService.publish(testPage.getApplicationId(), true).block();
 
@@ -440,7 +440,7 @@ class RefactoringSolutionCETest {
 
         ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
@@ -510,7 +510,7 @@ class RefactoringSolutionCETest {
         // Now save this action directly in the repo to create a duplicate action name scenario
         actionRepository.save(duplicateNameCompleteAction).block();
 
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
@@ -555,7 +555,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -596,7 +596,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -640,7 +640,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
         refactorNameDTO.setPageId(testPage.getId());
@@ -672,7 +672,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
         // Create an action collection that refers to the table
         ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();

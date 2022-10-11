@@ -1,10 +1,10 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
@@ -257,7 +257,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     for (Layout layout : layouts) {
                         if (layoutId.equals(layout.getId())) {
                             layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                            return layoutActionService.updateLayout(page.getId(), layout.getId(), layout);
+                            return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                         }
                     }
                     return Mono.empty();
