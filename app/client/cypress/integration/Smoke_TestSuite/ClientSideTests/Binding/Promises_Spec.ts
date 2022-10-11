@@ -9,6 +9,15 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate basic Promises", () => {
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. Verify storeValue via .then via direct Promises", () => {
     const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
@@ -356,6 +365,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.Sleep(1000);
     agHelper

@@ -1,9 +1,6 @@
 const omnibar = require("../../../../locators/Omnibar.json");
 const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
