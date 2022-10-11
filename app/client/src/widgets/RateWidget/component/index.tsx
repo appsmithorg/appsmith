@@ -19,6 +19,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 
 interface RateContainerProps {
   isDisabled: boolean;
+  readonly?: boolean;
 }
 
 export const RateContainer = styled.div<RateContainerProps>`
@@ -55,6 +56,14 @@ export const RateContainer = styled.div<RateContainerProps>`
       pointer-events: none;
     }
   `}
+
+  ${({ readonly }) =>
+    readonly &&
+    `
+    & > * {
+      pointer-events: none;
+    }
+`}
 `;
 
 export const Star = styled(Icon)<{ isActive?: boolean; isDisabled?: boolean }>`
@@ -147,12 +156,16 @@ function RateComponent(props: RateComponentProps) {
   } = props;
 
   return (
-    <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
+    <RateContainer
+      isDisabled={Boolean(isDisabled)}
+      readonly={readonly}
+      ref={rateContainerRef}
+    >
       <Rating
         emptySymbol={
           <Star
             color={
-              isDisabled
+              isDisabled && !readonly
                 ? "var(--wds-color-bg-strong)"
                 : inactiveColor ?? "var(--wds-color-bg)"
             }
