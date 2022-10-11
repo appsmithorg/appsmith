@@ -390,7 +390,7 @@ export const CellWrapper = styled.div<{
   .image-cell {
     // width: 100%;
     height: ${(props) =>
-      props.imageSize ? `${ImageSizes[props.imageSize]}px` : "64px"};
+      props.imageSize ? ImageSizes[props.imageSize] : ImageSizes.DEFAULT};
     margin: 0 5px 0 0;
     ${BORDER_RADIUS}
     object-fit: contain;

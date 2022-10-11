@@ -36,9 +36,9 @@ export enum VerticalAlignmentTypes {
 }
 
 export enum ImageSizes {
-  DEFAULT = "32",
-  MEDIUM = "64",
-  LARGE = "128",
+  DEFAULT = "32px",
+  MEDIUM = "64px",
+  LARGE = "128px",
 }
 
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
