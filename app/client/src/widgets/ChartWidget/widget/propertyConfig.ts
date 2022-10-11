@@ -243,6 +243,7 @@ export const contentConfig = [
           x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
         dependencies: ["chartType"],
       },
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
     ],
   },
   {

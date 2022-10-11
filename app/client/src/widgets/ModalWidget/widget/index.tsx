@@ -16,10 +16,7 @@ import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment, Positioning, Spacing } from "components/constants";
-import {
-  generatePositioningConfig,
-  getLayoutConfig,
-} from "utils/layoutPropertiesUtils";
+import { generatePositioningConfig } from "utils/layoutPropertiesUtils";
 
 const minSize = 100;
 

@@ -13,16 +13,10 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
-import {
-  Alignment,
-  Positioning,
-  ResponsiveBehavior,
-  Spacing,
-} from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
-  getLayoutConfig,
 } from "utils/layoutPropertiesUtils";
 
 export function selectedTabValidation(

@@ -200,6 +200,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
         ],
       },
       {

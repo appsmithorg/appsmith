@@ -267,6 +267,7 @@ export const contentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
     ],
   },
   {

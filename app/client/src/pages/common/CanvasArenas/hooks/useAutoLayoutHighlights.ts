@@ -180,7 +180,6 @@ export const useAutoLayoutHighlights = ({
         );
       }
     }
-    console.log({ highlights });
     // console.log("#### highlights: ", highlights);
     return highlights;
   };
