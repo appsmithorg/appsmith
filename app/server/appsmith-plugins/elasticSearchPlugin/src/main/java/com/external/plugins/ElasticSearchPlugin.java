@@ -258,10 +258,9 @@ public class ElasticSearchPlugin extends BasePlugin {
                         }
                     }
 
-                    // TODO :: Remove this ?
-                    if (endpoint.getPort() == null) {
-                        invalids.add("Missing port for endpoint");
-                    }
+//                    if (endpoint.getPort() == null) {
+//                        invalids.add("Missing port for endpoint");
+//                    }
                 }
 
             }
