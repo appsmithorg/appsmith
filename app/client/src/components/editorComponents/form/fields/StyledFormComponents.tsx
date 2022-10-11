@@ -10,13 +10,18 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
     props?.config?.controlType !== "SWITCH" &&
     props?.config?.controlType !== "CHECKBOX"
       ? "block;"
-      : "inline;"}
+      : "inline-block;"}
   font-weight: normal;
   color: ${Colors.DOVE_GRAY};
   font-size: 12px;
-  margin-left: 1px;
+  margin-left: ${(props) =>
+    //SWITCH and CHECKBOX display label text and form input aligned side by side
+    props?.config?.controlType !== "SWITCH" &&
+    props?.config?.controlType !== "CHECKBOX"
+      ? "1px"
+      : "0px"};
   margin-top: 5px;
-  margin-bottom: 8px;
+  line-height: 16px;
 `;
 
 const FormSubtitleText = styled.span<{ config?: ControlProps }>`
