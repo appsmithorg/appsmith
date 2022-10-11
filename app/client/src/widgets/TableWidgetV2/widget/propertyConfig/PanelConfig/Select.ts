@@ -74,7 +74,7 @@ export default {
     {
       propertyName: "resetFilterTextOnClose",
       label: "Reset filter text on close",
-      helpText: "Makes the dropdown list filterable",
+      helpText: "Resets the filter text when the dropdown is closed",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,

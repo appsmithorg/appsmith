@@ -36,6 +36,7 @@ import PageApi, {
   FetchPageResponse,
   FetchPublishedPageRequest,
   PageLayout,
+  SavePageRequest,
   SavePageResponse,
   SavePageResponseData,
   SetPageOrderRequest,
@@ -383,12 +384,16 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const editorConfigs:
     | {
+        applicationId: string;
         pageId: string;
         layoutId: string;
       }
     | undefined = yield select(getEditorConfigs) as any;
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
-  const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
+  const savePageRequest: SavePageRequest = getLayoutSavePayload(
+    widgets,
+    editorConfigs,
+  );
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SAVE_PAGE_API,
     {
