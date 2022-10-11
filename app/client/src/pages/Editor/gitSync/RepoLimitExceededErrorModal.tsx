@@ -85,6 +85,7 @@ const ApplicationWrapper = styled.div`
 
 const TextWrapper = styled.div`
   display: block;
+  word-break: break-word;
 `;
 
 const AppListContainer = styled.div`
