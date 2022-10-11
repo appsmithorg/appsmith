@@ -1,8 +1,4 @@
 import datasourceFormData from "../../../../fixtures/datasources.json";
-import {
-  ERROR_ACTION_EXECUTE_FAIL,
-  createMessage,
-} from "../../../../support/Objects/CommonErrorMessages";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const locator = ObjectsRegistry.CommonLocators,
@@ -44,6 +40,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
 
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__limit__")
+      .trigger("mouseover")
       .click()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "limitValue");
@@ -66,6 +63,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
 
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__offset__")
+      .trigger("mouseover")
       .should($el => {
         expect(Cypress.dom.isDetached($el)).to.false;
       })

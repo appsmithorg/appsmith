@@ -2,8 +2,7 @@ const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const commonlocators = require("../../../../locators/commonlocators.json");
-let HomePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Export application as a JSON file", function() {
   let workspaceId;
