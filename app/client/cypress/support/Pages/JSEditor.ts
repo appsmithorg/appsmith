@@ -119,7 +119,10 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.AssertContains("created successfully");
+    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
+    //Checking JS object was created successfully
+    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
+
     this.agHelper.Sleep();
   }
 
@@ -209,7 +212,7 @@ export class JSEditor {
 
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
-    this.agHelper.Sleep();//for function to run
+    this.agHelper.Sleep(); //for function to run
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 
