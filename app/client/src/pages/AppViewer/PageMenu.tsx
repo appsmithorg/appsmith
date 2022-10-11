@@ -129,10 +129,10 @@ export function PageMenu(props: AppViewerHeaderProps) {
             />
           )}
           <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          {!hideWatermark && (
+          {hideWatermark && (
             <a
               className="flex hover:no-underline"
-              href="https://appsmith.com"
+              href={window.location.origin.toString()}
               rel="noreferrer"
               target="_blank"
             >

@@ -83,7 +83,8 @@ function AppInviteUsersForm(props: any) {
     const url = viewerURL({
       pageId: defaultPageId,
     });
-    return window.location.origin.toString() + url;
+    //默认分享是不展示标题
+    return window.location.origin.toString() + url + "?embed=false";
   }, [defaultPageId]);
 
   useEffect(() => {

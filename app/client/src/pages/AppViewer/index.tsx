@@ -253,10 +253,10 @@ function AppViewer(props: Props) {
           >
             {isInitialized && registered && <AppViewerPageContainer />}
           </AppViewerBody>
-          {!hideWatermark && (
+          {hideWatermark && (
             <a
               className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
-              href="https://appsmith.com"
+              href={window.location.origin.toString()}
               rel="noreferrer"
               target="_blank"
             >

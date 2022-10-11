@@ -6,6 +6,7 @@
     "node": "^16.14.0",
     "npm": "^8.5.5"
   },
+  "proxy": "http://127.0.0.1:8080/",
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
@@ -165,7 +166,8 @@
   },
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
+    "start-linux": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
+    "start": "set BROWSER=none&&set EXTEND_ESLINT=true&&set REACT_APP_ENVIRONMENT=DEVELOPMENT&&set REACT_APP_CLIENT_LOG_LEVEL=debug&& craco start",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
@@ -178,8 +180,10 @@
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
     "postbuild": "rm build/mockServiceWorker.js",
-    "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
-    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
+    "postinstall-linux": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
+    "preinstall-linux": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
+    "postinstall": "patch-package &&set CURRENT_SCOPE=client&& node ../shared/install-dependencies.js",
+    "preinstall": "set CURRENT_SCOPE=client&& node ../shared/build-shared-dep.js",
     "install": "node cypress/apply-patches.js"
   },
   "browserslist": [

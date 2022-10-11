@@ -6,7 +6,7 @@ function BrandingBadge() {
   return (
     <a
       className="flex items-center p-1 px-2 space-x-2 bg-white rounded-md md:border md:flex z-2 hover:no-underline"
-      href="https://appsmith.com"
+      href={window.location.origin.toString()}
       rel="noreferrer"
       target="_blank"
     >
