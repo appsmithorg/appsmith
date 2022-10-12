@@ -11,6 +11,7 @@ import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { useSelector } from "store";
 import { getWidgets } from "sagas/selectors";
 import { Dropdown, DropdownOption, RenderOption } from "design-system";
+import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
 
 const Title = styled.p`
   color: ${Colors.GRAY_800};
@@ -42,22 +43,26 @@ const PositioningOptions = () => {
       }`}
       onClick={() => {
         setSelectedOption(options.indexOf(option as DropdownOption));
+        const isVerticalStack =
+          (option as DropdownOption).value === Positioning.Vertical;
+        const widgetId = "0";
         dispatch(
           batchUpdateMultipleWidgetProperties([
             {
-              widgetId: "0",
+              widgetId,
               updates: {
                 modify: {
                   positioning: (option as DropdownOption).value,
-                  direction:
-                    (option as DropdownOption).value === Positioning.Vertical
-                      ? LayoutDirection.Vertical
-                      : LayoutDirection.Horizontal,
+                  direction: isVerticalStack
+                    ? LayoutDirection.Vertical
+                    : LayoutDirection.Horizontal,
                 },
               },
             },
           ]),
         );
+        if (isVerticalStack) dispatch(addWrappers(widgetId));
+        else removeWrappers(widgetId);
       }}
     >
       <div className="leading-normal">{(option as DropdownOption).label}</div>

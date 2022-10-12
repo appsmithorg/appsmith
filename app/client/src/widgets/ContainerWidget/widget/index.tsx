@@ -190,13 +190,7 @@ export class ContainerWidget extends BaseWidget<
 
   updateWrappers = (): void => {
     if (this.props.positioning === Positioning.Vertical) {
-      this.props.addWrappers &&
-        this.props.addWrappers(
-          this.props.widgetId,
-          (this.props.positioning as Positioning) === Positioning.Horizontal
-            ? LayoutDirection.Horizontal
-            : LayoutDirection.Vertical,
-        );
+      this.props.addWrappers && this.props.addWrappers(this.props.widgetId);
     } else {
       this.props.removeWrappers &&
         this.props.removeWrappers(this.props.widgetId);
@@ -292,8 +286,7 @@ export class ContainerWidget extends BaseWidget<
 
 const mapDispatchToProps = (dispatch: any) => ({
   removeWrappers: (id: string) => dispatch(removeWrappers(id)),
-  addWrappers: (id: string, direction: LayoutDirection) =>
-    dispatch(addWrappers(id, direction)),
+  addWrappers: (id: string) => dispatch(addWrappers(id)),
 });
 
 export interface ContainerWidgetProps<T extends WidgetProps>
@@ -307,7 +300,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   spacing?: Spacing;
   direction?: LayoutDirection;
   removeWrappers?: (id: string) => void;
-  addWrappers?: (id: string, direction: LayoutDirection) => void;
+  addWrappers?: (id: string) => void;
 }
 
 export interface ContainerWidgetState extends WidgetState {

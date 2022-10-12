@@ -34,14 +34,14 @@ const LayoutLayerContainer = styled.div<{
 
 const SubWrapper = styled.div<{
   flexDirection: FlexDirection;
-  hasFillChild?: boolean;
+  wrap?: boolean;
 }>`
   flex: 1 1 33.3%;
   display: flex;
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   align-items: ${({ flexDirection }) =>
     flexDirection === FlexDirection.Column ? "flex-start" : "center"};
-  flex-wrap: ${({ hasFillChild }) => (hasFillChild ? "wrap" : "nowrap")};
+  flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -78,7 +78,7 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     >
       <StartWrapper
         flexDirection={flexDirection}
-        hasFillChild={props.hasFillChild && isMobile}
+        wrap={props.hasFillChild && isMobile}
       >
         {props.start}
       </StartWrapper>

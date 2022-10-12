@@ -1755,18 +1755,29 @@ export function resizePublishedMainCanvasToLowestWidget(
   );
 }
 
-export function purgeChildWrappers(
+function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
+  const container = widgets[containerId];
+  if (!container) return;
+  let canvas;
+  // True for MainContainer
+  if (container.type === "CANVAS_WIDGET") canvas = container;
+  else {
+    const canvasId = container.children ? container.children[0] : "";
+    canvas = widgets[canvasId];
+  }
+  if (!canvas) return;
+  return canvas;
+}
+
+export function removeChildLayers(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
-  const container = widgets[containerId];
-  if (!containerId) return widgets;
-  const canvasId = container.children ? container.children[0] : "";
-  let parent = widgets[canvasId];
-  if (!parent) return widgets;
-  parent = { ...parent, flexLayers: [] };
-  widgets[canvasId] = parent;
+  let canvas = getCanvas(widgets, containerId);
+  if (!canvas) return widgets;
+  canvas = { ...canvas, flexLayers: [] };
+  widgets[canvas.widgetId] = canvas;
   return widgets;
 }
 
@@ -1775,12 +1786,10 @@ export function* wrapChildren(
   containerId: string,
 ) {
   const widgets = { ...allWidgets };
-  const container = widgets[containerId];
-  if (!container) return widgets;
-  const canvasId = container.children ? container.children[0] : "";
-  let parent = widgets[canvasId];
-  if (!parent) return widgets;
-  const children = parent.children || [];
+  let canvas = getCanvas(widgets, containerId);
+  if (!canvas) return widgets;
+
+  const children = canvas.children || [];
   if (!children.length) return widgets;
 
   const flexLayers: FlexLayer[] = [];
@@ -1794,8 +1803,8 @@ export function* wrapChildren(
         child.responsiveBehavior === ResponsiveBehavior.Fill || false,
     });
   }
-  parent = { ...parent, flexLayers };
-  widgets[canvasId] = parent;
+  canvas = { ...canvas, flexLayers };
+  widgets[canvas.widgetId] = canvas;
   return widgets;
 }
 

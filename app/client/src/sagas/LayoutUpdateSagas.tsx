@@ -4,16 +4,14 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import { LayoutDirection } from "components/constants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "./selectors";
-import { purgeChildWrappers, wrapChildren } from "./WidgetOperationUtils";
+import { removeChildLayers, wrapChildren } from "./WidgetOperationUtils";
 
 type LayoutUpdatePayload = {
   parentId: string;
-  direction: LayoutDirection;
 };
 
 function* removeChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
@@ -21,7 +19,7 @@ function* removeChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
     const start = performance.now();
     const { parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const updatedWidgets: CanvasWidgetsReduxState = purgeChildWrappers(
+    const updatedWidgets: CanvasWidgetsReduxState = removeChildLayers(
       allWidgets,
       parentId,
     );
