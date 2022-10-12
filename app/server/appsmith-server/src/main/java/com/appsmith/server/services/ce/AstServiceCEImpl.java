@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -46,6 +47,11 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .bodyToMono(GetIdentifiersResponse.class)
                 .map(response -> response.data.references);
         // TODO: add error handling scenario for when RTS is not accessible in fat container
+    }
+
+    @Override
+    public Mono<Map<String, String>> refactorNameInDynamicBindings(Set<String> bindingValues, String oldName, String newName, int evalVersion) {
+        return Mono.empty();
     }
 
     @NoArgsConstructor

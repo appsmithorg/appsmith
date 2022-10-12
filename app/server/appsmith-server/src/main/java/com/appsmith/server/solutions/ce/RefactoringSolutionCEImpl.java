@@ -2,6 +2,8 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.configurations.InstanceConfig;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -11,8 +13,11 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -21,12 +26,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,13 +40,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
-@RequiredArgsConstructor
 public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     private final ObjectMapper objectMapper;
@@ -51,6 +57,14 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final ResponseUtils responseUtils;
     private final LayoutActionService layoutActionService;
 
+    private final ApplicationService applicationService;
+
+    private final AstService astService;
+
+    private final InstanceConfig instanceConfig;
+    private final Boolean isRtsAccessible;
+
+
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
      * `\\b(fetchUsers)\\b`. To achieve this the following strings preWord and postWord are declared here to be used
@@ -58,6 +72,30 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
      */
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
+
+    public RefactoringSolutionCEImpl(ObjectMapper objectMapper,
+                                     NewPageService newPageService,
+                                     NewActionService newActionService,
+                                     ActionCollectionService actionCollectionService,
+                                     ResponseUtils responseUtils,
+                                     LayoutActionService layoutActionService,
+                                     ApplicationService applicationService,
+                                     AstService astService,
+                                     InstanceConfig instanceConfig) {
+        this.objectMapper = objectMapper;
+        this.newPageService = newPageService;
+        this.newActionService = newActionService;
+        this.actionCollectionService = actionCollectionService;
+        this.responseUtils = responseUtils;
+        this.layoutActionService = layoutActionService;
+        this.applicationService = applicationService;
+        this.astService = astService;
+        this.instanceConfig = instanceConfig;
+
+        // TODO Remove this variable and access the field directly when RTS API is ready
+        this.isRtsAccessible = false;
+
+    }
 
 
     @Override
@@ -156,17 +194,32 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         String regexPattern = preWord + oldName + postWord;
         Pattern oldNamePattern = Pattern.compile(regexPattern);
 
-        Mono<PageDTO> updatePageMono = newPageService
+        Mono<PageDTO> pageMono = newPageService
                 // fetch the unpublished page
                 .findPageById(pageId, MANAGE_PAGES, false)
+                .cache();
+
+        Mono<Integer> evalVersionMono = pageMono
                 .flatMap(page -> {
+                    return applicationService.findById(page.getApplicationId())
+                            .map(application -> {
+                                Integer evaluationVersion = application.getEvaluationVersion();
+                                if (evaluationVersion == null) {
+                                    evaluationVersion = EVALUATION_VERSION;
+                                }
+                                return evaluationVersion;
+                            });
+                })
+                .cache();
+
+        Mono<PageDTO> updatePageMono = Mono.zip(pageMono, evalVersionMono)
+                .flatMap(tuple -> {
+                    PageDTO page = tuple.getT1();
+                    int evalVersion = tuple.getT2();
+
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
                         if (layoutId.equals(layout.getId()) && layout.getDsl() != null) {
-                            final JsonNode dslNode = objectMapper.convertValue(layout.getDsl(), JsonNode.class);
-                            final JsonNode dslNodeAfterReplacement = this.replaceStringInJsonNode(dslNode, oldNamePattern, newName);
-                            layout.setDsl(objectMapper.convertValue(dslNodeAfterReplacement, JSONObject.class));
-
                             // DSL has removed all the old names and replaced it with new name. If the change of name
                             // was one of the mongoEscaped widgets, then update the names in the set as well
                             Set<String> mongoEscapedWidgetNames = layout.getMongoEscapedWidgetNames();
@@ -174,9 +227,18 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                                 mongoEscapedWidgetNames.remove(oldName);
                                 mongoEscapedWidgetNames.add(newName);
                             }
-                            page.setLayouts(layouts);
+
+                            final JsonNode dslNode = objectMapper.convertValue(layout.getDsl(), JsonNode.class);
+                            Mono<PageDTO> refactorNameInDslMono = this.refactorNameInDsl(dslNode, oldName, newName, evalVersion, oldNamePattern)
+                                    .then(Mono.fromCallable(() -> {
+                                        layout.setDsl(objectMapper.convertValue(dslNode, JSONObject.class));
+                                        page.setLayouts(layouts);
+                                        return page;
+                                    }));
+
                             // Since the page has most probably changed, save the page and return.
-                            return newPageService.saveUnpublishedPage(page);
+                            return refactorNameInDslMono
+                                    .flatMap(newPageService::saveUnpublishedPage);
                         }
                     }
                     // If we have reached here, the layout was not found and the page should be returned as is.
@@ -318,5 +380,101 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             }
         }
         return jsonNode;
+    }
+
+    Mono<Void> refactorNameInDsl(JsonNode dsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
+
+        Mono<Void> refactorNameInWidgetMono = Mono.empty().then();
+        Mono<List<Void>> recursiveRefactorNameInDslMono = Mono.empty();
+
+        // if current object is widget,
+        if (dsl.has(FieldName.WIDGET_ID)) {
+            // enter parse widget method
+            refactorNameInWidgetMono = refactorNameInWidget(dsl, oldName, newName, evalVersion, oldNamePattern);
+        }
+        // if current object has children,
+        if (dsl.has("children")) {
+            ArrayNode dslChildren = (ArrayNode) dsl.get("children");
+            // recurse over each child
+            recursiveRefactorNameInDslMono = Flux.fromStream(StreamSupport.stream(dslChildren.spliterator(), true))
+                    .flatMap(child -> refactorNameInDsl(child, oldName, newName, evalVersion, oldNamePattern))
+                    .collectList();
+        }
+
+        return refactorNameInWidgetMono
+                .then(recursiveRefactorNameInDslMono)
+                .then();
+    }
+
+    Mono<Void> refactorNameInWidget(JsonNode widgetDsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
+
+        Mono<Void> refactorDynamicBindingsMono = Mono.empty().then();
+
+        // If the name of this widget matches the old name, replace the name
+        if (widgetDsl.has(FieldName.WIDGET_NAME) && oldName.equals(widgetDsl.get(FieldName.WIDGET_NAME).asText())) {
+            ((ObjectNode) widgetDsl).set(FieldName.WIDGET_NAME, new TextNode(newName));
+        }
+
+        // This is special handling for the list widget that has been added to allow refactoring of
+        // just the default widgets inside the list. This is required because for the list, the widget names
+        // exist as keys at the location List1.template(.Text1) [Ref #9281]
+        // Ideally, we should avoid any non-structural elements as keys. This will be improved in list widget v2
+        if (widgetDsl.has(FieldName.WIDGET_TYPE) && FieldName.LIST_WIDGET.equals(widgetDsl.get(FieldName.WIDGET_TYPE).asText())) {
+            final JsonNode template = widgetDsl.get(FieldName.LIST_WIDGET_TEMPLATE);
+            JsonNode newJsonNode = null;
+            String fieldName = null;
+            final Iterator<String> templateIterator = template.fieldNames();
+            while (templateIterator.hasNext()) {
+                fieldName = templateIterator.next();
+
+                if (oldName.equals(fieldName)) {
+                    newJsonNode = template.get(fieldName);
+                    break;
+                }
+            }
+            if (newJsonNode != null) {
+                // If such a pattern is found, remove that element and attach it back with the new name
+                ((ObjectNode) template).remove(fieldName);
+                ((ObjectNode) template).set(newName, newJsonNode);
+            }
+        }
+
+        // If there are dynamic bindings in this widget, inspect them
+        if (widgetDsl.has(FieldName.DYNAMIC_BINDING_PATH_LIST) && !widgetDsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST).isEmpty()) {
+            ArrayNode dslDynamicBindingPathList = (ArrayNode) widgetDsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
+            // recurse over each child
+            refactorDynamicBindingsMono = Flux.fromStream(StreamSupport.stream(dslDynamicBindingPathList.spliterator(), true))
+                    .flatMap(dynamicBindingPath -> {
+                        String key = dynamicBindingPath.get(FieldName.KEY).asText();
+                        Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
+                        return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
+                                .map(replacementMap -> {
+                                    return DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, key, replacementMap);
+                                });
+                    })
+                    .collectList()
+                    .then();
+        }
+
+        return refactorDynamicBindingsMono;
+    }
+
+    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
+        if (Boolean.TRUE.equals(this.isRtsAccessible)) {
+            return astService.refactorNameInDynamicBindings(mustacheKeySet, oldName, newName, evalVersion);
+        }
+        return this.replaceValueInMustacheKeys(mustacheKeySet, oldNamePattern, newName);
+    }
+
+    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, Pattern oldNamePattern, String newName) {
+        return Flux.fromIterable(mustacheKeySet)
+                .flatMap(mustacheKey -> {
+                    Matcher matcher = oldNamePattern.matcher(mustacheKey);
+                    if (matcher.find()) {
+                        return Mono.zip(Mono.just(mustacheKey), Mono.just(matcher.replaceAll(newName)));
+                    }
+                    return Mono.empty();
+                })
+                .collectMap(Tuple2::getT1, Tuple2::getT2);
     }
 }

@@ -78,6 +78,8 @@ public class FieldName {
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";
+    public static String LIST_WIDGET_TEMPLATE = "template";
+    public static String LIST_WIDGET = "LIST_WIDGET";
     public static String TABLE_WIDGET = "TABLE_WIDGET";
     public static String CONTAINER_WIDGET = "CONTAINER_WIDGET";
     public static String CANVAS_WIDGET = "CANVAS_WIDGET";
