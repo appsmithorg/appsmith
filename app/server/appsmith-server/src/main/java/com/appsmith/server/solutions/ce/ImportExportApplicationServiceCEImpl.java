@@ -2022,7 +2022,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             // setting some properties to null so that target application is not updated by these properties
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
-            applicationJson.getExportedApplication().setApplicationVersion(null);
             applicationJson.getExportedApplication().setForkingEnabled(null);
             applicationJson.getExportedApplication().setClonedFromApplicationId(null);
         }
