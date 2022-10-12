@@ -2,11 +2,21 @@ const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("Page Load tests", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   before(() => {
     cy.addDsl(dsl);
     cy.CreatePage();
-
     cy.get("h2").contains("Drag and drop a widget here");
   });
 
