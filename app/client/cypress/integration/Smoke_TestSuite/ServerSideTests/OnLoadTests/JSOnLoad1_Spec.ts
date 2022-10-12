@@ -321,7 +321,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // ); //When Confirmation is NO validate error toast!
 
       agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear("was cancelled");
+      agHelper.AssertContains("was cancelled");
 
       //One Quotes confirmation - for API true
       // agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
@@ -329,14 +329,13 @@ describe("JSObjects OnLoad Actions tests", function() {
       // agHelper.WaitUntilToastDisappear("Quotes was cancelled");
 
       agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear("was cancelled");
+      agHelper.AssertContains("was cancelled");
 
       // //Another for API called via JS callQuotes()
       // agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       // agHelper.ClickButton("No");
 
       agHelper.ClickButton("No");
-
       //agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
