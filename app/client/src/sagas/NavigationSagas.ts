@@ -24,7 +24,7 @@ function* handleRouteChange(
       yield call(storeStateOfPath, previousPath);
     }
   }
-  // Check if if should restore the stored state of the path
+  // Check if it should restore the stored state of the path
   if (shouldSetState(previousPath, pathname, previousHash, hash)) {
     // restore old state for new path
     yield call(setStateOfPath, pathname, hash);
@@ -95,16 +95,12 @@ function shouldSetState(
   const currFocusEntity = identifyEntityFromPath(currPath, currHash);
 
   // While switching from selected widget state to canvas,
-  // it should not restored stored state for canvas
-  if (
+  // it should not be restored stored state for canvas
+  return !(
     prevFocusEntity === FocusEntity.PROPERTY_PANE &&
     currFocusEntity === FocusEntity.CANVAS &&
     prevPath === currPath
-  ) {
-    return false;
-  }
-
-  return true;
+  );
 }
 
 /**
