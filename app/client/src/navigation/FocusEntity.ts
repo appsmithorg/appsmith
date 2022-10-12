@@ -4,6 +4,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  DATA_SOURCES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -11,6 +12,7 @@ import {
 export enum FocusEntity {
   API = "API",
   CANVAS = "CANVAS",
+  DATASOURCE = "DATASOURCE",
   QUERY = "QUERY",
   JS_OBJECT = "JS_OBJECT",
   PROPERTY_PANE = "PROPERTY_PANE",
@@ -27,6 +29,7 @@ export function identifyEntityFromPath(
   }
   const match = matchPath<{
     apiId?: string;
+    datasourceId?: string;
     queryId?: string;
     appId?: string;
     pageId?: string;
@@ -39,6 +42,9 @@ export function identifyEntityFromPath(
       BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
       BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
       BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_PATH,
+      BUILDER_PATH_DEPRECATED + DATA_SOURCES_EDITOR_ID_PATH,
+      BUILDER_PATH + DATA_SOURCES_EDITOR_ID_PATH,
+      BUILDER_CUSTOM_PATH + DATA_SOURCES_EDITOR_ID_PATH,
       BUILDER_PATH_DEPRECATED + JS_COLLECTION_ID_PATH,
       BUILDER_PATH + JS_COLLECTION_ID_PATH,
       BUILDER_CUSTOM_PATH + JS_COLLECTION_ID_PATH,
@@ -52,6 +58,9 @@ export function identifyEntityFromPath(
   }
   if (match.params.apiId) {
     return FocusEntity.API;
+  }
+  if (match.params.datasourceId) {
+    return FocusEntity.DATASOURCE;
   }
   if (match.params.queryId) {
     return FocusEntity.QUERY;

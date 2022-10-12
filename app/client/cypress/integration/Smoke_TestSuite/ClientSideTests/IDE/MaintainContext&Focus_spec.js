@@ -4,6 +4,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const dataSources = ObjectsRegistry.DataSources;
+const ee = ObjectsRegistry.EntityExplorer;
 
 describe("MaintainContext&Focus", function() {
   it("Import the test application", () => {
@@ -114,5 +116,13 @@ describe("MaintainContext&Focus", function() {
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
+  });
+  it("Datasource edit mode has to be maintained", () => {
+    ee.SelectEntityByName("Appsmith");
+    dataSources.EditDatasource();
+    ee.SelectEntityByName("Github");
+    dataSources.AssertViewMode();
+    ee.SelectEntityByName("Appsmith");
+    dataSources.AssertEditMode();
   });
 });
