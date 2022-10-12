@@ -379,20 +379,18 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("10. Tc #1912 - API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No");
-    agHelper.AssertContains("Quotes was cancelled");
+    agHelper.AssertContains("was cancelled"); //agHelper.AssertContains("Quotes was cancelled");
 
     agHelper.WaitUntilAllToastsDisappear();
-    agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No"); //Ask Favour abt below
     //agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
 
-    agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".callTrump"),
-    );
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No");
-    agHelper.AssertContains(`${jsName + ".callTrump"} was cancelled`);
+    agHelper.AssertContains("was cancelled");
     ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);
