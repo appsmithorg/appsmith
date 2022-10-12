@@ -4,13 +4,11 @@ import com.appsmith.external.models.EntityDependencyNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 public class ActionDependencyEdge {
 
@@ -19,6 +17,10 @@ public class ActionDependencyEdge {
 
     @Override
     public int hashCode() {
+        if (sourceNode == null || targetNode == null) {
+            return 0;
+        }
+
         return new HashCodeBuilder()
                 .append(sourceNode.getReferenceString())
                 .append(targetNode.getReferenceString())
@@ -29,6 +31,10 @@ public class ActionDependencyEdge {
     public boolean equals(Object obj) {
         if (obj instanceof ActionDependencyEdge) {
             final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
+
+            if (sourceNode == null || targetNode == null || actionDependencyEdge.sourceNode == null || actionDependencyEdge.targetNode == null) {
+                return false;
+            }
 
             return new EqualsBuilder()
                     .append(sourceNode.getReferenceString(), actionDependencyEdge.sourceNode.getReferenceString())
@@ -41,6 +47,9 @@ public class ActionDependencyEdge {
 
     @Override
     public String toString() {
+        if (sourceNode == null || targetNode == null) {
+            return "";
+        }
         return sourceNode.getReferenceString() + " : " + targetNode.getReferenceString();
     }
 }
