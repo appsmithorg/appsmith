@@ -273,7 +273,7 @@ public class RedshiftPlugin extends BasePlugin {
                                 try {
                                     resultSet.close();
                                 } catch (SQLException e) {
-                                    log.warn("Error closing Redshift ResultSet", e);
+                                    log.error("Error closing Redshift ResultSet", e);
                                 }
                             }
 
@@ -281,14 +281,14 @@ public class RedshiftPlugin extends BasePlugin {
                                 try {
                                     statement.close();
                                 } catch (SQLException e) {
-                                    log.warn("Error closing Redshift Statement", e);
+                                    log.error("Error closing Redshift Statement", e);
                                 }
                             }
 
                             try {
                                 connection.close();
                             } catch (SQLException e) {
-                                log.warn("Error closing Redshift Connection", e);
+                                log.error("Error closing Redshift Connection", e);
                             }
 
                         }
@@ -636,7 +636,7 @@ public class RedshiftPlugin extends BasePlugin {
                             try {
                                 connection.close();
                             } catch (SQLException e) {
-                                log.warn("Error closing Redshift Connection", e);
+                                log.error("Error closing Redshift Connection", e);
                             }
 
                         }
