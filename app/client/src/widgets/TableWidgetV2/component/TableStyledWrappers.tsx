@@ -11,6 +11,7 @@ import {
   CellAlignment,
   VerticalAlignment,
   scrollbarOnHoverCSS,
+  MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
@@ -18,13 +19,14 @@ import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
+const OFFSET_WITHOUT_HEADER = 40;
+const OFFSET_WITH_HEADER = 80;
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
 
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
-  $isDynamicHeightEnabled: boolean;
   tableSizes: TableSizes;
   accentColor: string;
   backgroundColor?: Color;
@@ -34,9 +36,7 @@ export const TableWrapper = styled.div<{
   boxShadow?: string;
 }>`
   width: 100%;
-  &&& {
-    height: ${(props) => (props.$isDynamicHeightEnabled ? `auto` : `100%`)};
-  }
+  height: 100%;
   background: white;
   border: ${({ boxShadow }) =>
     boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
@@ -48,7 +48,7 @@ export const TableWrapper = styled.div<{
   flex-direction: column;
   overflow: hidden;
   .tableWrap {
-    height: ${(props) => (props.$isDynamicHeightEnabled ? `auto` : `100%`)};
+    height: 100%;
     display: block;
     position: relative;
     width: ${(props) => props.width}px;
@@ -74,10 +74,16 @@ export const TableWrapper = styled.div<{
       overflow: hidden;
     }
     .tbody {
-      height: ${(props) => props.height}
+      height: ${(props) =>
+        props.isHeaderVisible
+          ? props.height - OFFSET_WITH_HEADER
+          : props.height - OFFSET_WITHOUT_HEADER}px;
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
+    }
+    .tbody.no-scroll {
+      overflow: hidden;
     }
     .tr {
       overflow: hidden;
@@ -427,11 +433,11 @@ export const CellWrapper = styled.div<{
 
 export const CellCheckboxWrapper = styled(CellWrapper)<{
   isChecked?: boolean;
-  accentColor: string;
-  borderRadius: string;
+  accentColor?: string;
+  borderRadius?: string;
 }>`
   justify-content: center;
-  width: 40px;
+  width: ${MULTISELECT_CHECKBOX_WIDTH}px;
   height: auto;
   & > div {
     border-radius: ${({ borderRadius }) => borderRadius};
@@ -477,7 +483,7 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  width: ${(props) => props.width - 8}px;
+  width: ${(props) => props.width}px;
   .show-page-items {
     display: ${(props) =>
       props.width < MIN_WIDTH_TO_SHOW_PAGE_ITEMS ? "none" : "flex"};

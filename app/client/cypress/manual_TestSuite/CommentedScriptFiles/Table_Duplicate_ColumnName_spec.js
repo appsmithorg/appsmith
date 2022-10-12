@@ -1,6 +1,4 @@
-const widgetsPage = require("../../locators/Widgets.json");
 const dsl = require("../../fixtures/tableNewDsl.json");
-const commonlocators = require("../../locators/commonlocators.json");
 
 describe("prevent duplicate column name in table", function() {
   before(() => {

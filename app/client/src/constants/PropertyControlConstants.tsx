@@ -13,7 +13,7 @@ const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
-  sectionName: string;
+  sectionName: string | ((props: WidgetProps, propertyPath: string) => string);
   id?: string;
   children: PropertyPaneConfig[];
   collapsible?: boolean;
@@ -33,7 +33,7 @@ export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
   panelIdPropertyName: string;
-  children: PropertyPaneConfig[];
+  children?: PropertyPaneConfig[];
   contentChildren?: PropertyPaneConfig[];
   styleChildren?: PropertyPaneConfig[];
   updateHook: (
@@ -45,9 +45,12 @@ export type PanelConfig = {
 
 export type PropertyPaneControlConfig = {
   id?: string;
-  label: string;
+  label: string | ((props: WidgetProps, propertyPath: string) => string);
   propertyName: string;
+  // Serves in the tooltip
   helpText?: string;
+  //Dynamic text serves below the property pane inputs
+  helperText?: ((props: any) => string) | string;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;

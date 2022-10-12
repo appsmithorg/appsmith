@@ -25,7 +25,7 @@ import {
 import tinycolor from "tinycolor2";
 import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
+import { Classes as DTClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
@@ -133,19 +133,61 @@ export const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? lightenColor(backgroundColor)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? lightenColor(backgroundColor)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
-        ? darkenColor(backgroundColor, 10)
+        ? calulateHoverColor(backgroundColor, false)
         : theme.colors.button.primary.primary.hoverColor;
   }
+};
+
+/**
+ * Calculate Hover Color using the logic
+ * https://www.notion.so/appsmith/Widget-hover-colors-165e54b304ca4e83a355e4e14d7aa3cb
+ *
+ * In case of transparent backgrounds (secondary or tertiary button varients)
+ * 1. Find out the button color
+ * 2. Calculate hover color by setting the button color to 10% transparency
+ * 3. Add the calculated color to the background of the button
+ *
+ * In case of non transparent backgrounds (primary button varient), using the HSL color modal,
+ * 1. If lightness > 35, decrease the lightness by 5 on hover
+ * 2. If lightness <= 35, increase the lightness by 5 on hover
+ *
+ * @param backgroundColor A color string
+ * @param hasTransparentBackground Boolean to represent if the button has transparent background
+ *
+ * @returns An RGB string (in case of transparent backgrounds) or a HSL string (in case of solid backgrounds).
+ */
+export const calulateHoverColor = (
+  backgroundColor: string,
+  hasTransparentBackground?: boolean,
+) => {
+  // For transparent backgrounds
+  if (hasTransparentBackground) {
+    return tinycolor(backgroundColor)
+      .setAlpha(0.1)
+      .toRgbString();
+  }
+
+  // For non-transparent backgrounds, using the HSL color modal
+  const backgroundColorHsl = tinycolor(backgroundColor).toHsl();
+
+  // Check the lightness and modify accordingly
+  if (backgroundColorHsl.l > 0.35) {
+    backgroundColorHsl.l -= 0.05;
+  } else {
+    backgroundColorHsl.l += 0.05;
+  }
+
+  return tinycolor(backgroundColorHsl).toHslString();
 };
 
 export const getCustomBackgroundColor = (
@@ -260,6 +302,12 @@ export const darkenColor = (color = "#fff", amount = 10) => {
         .toString();
 };
 
+export const getRgbaColor = (color: string, opacity: number) => {
+  const { b, g, r } = tinycolor(color).toRgb();
+
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
 /**
  * checks if color is dark or not
  *
@@ -281,37 +329,100 @@ export const PopoverStyles = createGlobalStyle<{
   portalClassName: string;
   accentColor: string;
 }>`
-  ${(props) => `
-    .${props.portalClassName} .${Classes.POPOVER} {
-      border-radius: ${props.borderRadius} !important;
+  ${({ accentColor, borderRadius, portalClassName }) => `
+    .${portalClassName} .${Classes.POPOVER} {
+      border-radius: ${borderRadius} !important;
       overflow: hidden;
       box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
       margin-top: 4px !important;
     }
 
-    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY},
-    .${props.portalClassName} .${Classes.BUTTON} {
-      border-radius: ${props.borderRadius} !important;
-    }
-    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY_SELECTED} {
-      background-color: ${props.accentColor} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY},
+    .${portalClassName} .${Classes.BUTTON} {
+      border-radius: ${borderRadius} !important;
     }
 
-    .${props.portalClassName}  .${Classes.INPUT} {
-      border-radius: ${props.borderRadius} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:hover
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:focus,
+    .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select:focus,
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select:focus,
+    .${portalClassName} .${Classes.BUTTON}:hover {
+      background: var(--wds-color-bg-hover);
     }
 
-    .${props.portalClassName}  .${Classes.INPUT}:focus, .${
-    props.portalClassName
-  }  .${Classes.INPUT}:active {
-      border: 1px solid ${props.accentColor} !important;
-      box-shadow:  0px 0px 0px 2px ${lightenColor(
-        props.accentColor,
-      )} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY_SELECTED} {
+      background-color: ${accentColor} !important;
     }
 
-    .${props.portalClassName} .ads-dropdown-options-wrapper {
+    .${portalClassName}  .${Classes.INPUT} {
+      border-radius: ${borderRadius} !important;
+    }
+
+    .${portalClassName}  .${Classes.INPUT}:focus,
+    .${portalClassName}  .${Classes.INPUT}:active {
+      border: 1px solid ${accentColor} !important;
+      box-shadow:  0px 0px 0px 2px ${lightenColor(accentColor)} !important;
+    }
+
+    .${portalClassName} .ads-dropdown-options-wrapper {
       border: 0px solid !important;
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT_ROW} {
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border);
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT_ROW}:hover {
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border-hover);
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT}:focus {
+      box-shadow: 0px 0px 0px 1px ${accentColor},
+                  0px 0px 0px 3px ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${Classes.BUTTON} {
+      color: ${accentColor};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${
+    Classes.BUTTON
+  }:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON} span {
+      color: var(--wds-color-icon) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON}:disabled span {
+      color: var(--wds-color-icon-disabled) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select + .${
+    Classes.ICON
+  }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
+    Classes.ICON
+  } {
+      color: var(--wds-color-icon) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a {
+      border-radius: ${borderRadius};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a.${
+    Classes.ACTIVE
+  } {
+      color: ${getComplementaryGrayscaleColor(accentColor)};
+      background-color: ${accentColor};
     }
   `}
 `;

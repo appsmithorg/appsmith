@@ -1,7 +1,7 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 
 describe("Entity explorer tests related to pinning and unpinning", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
 

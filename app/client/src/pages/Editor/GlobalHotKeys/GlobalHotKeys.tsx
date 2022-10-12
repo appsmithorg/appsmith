@@ -18,7 +18,7 @@ import {
 } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { isMacOrIOS } from "utils/helpers";
-import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -49,7 +49,7 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { matchBuilderPath, matchGeneratePagePath } from "constants/routes";
+import { matchBuilderPath } from "constants/routes";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -213,10 +213,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Paste Widget"
           onKeyDown={() => {
-            if (
-              matchBuilderPath(window.location.pathname) ||
-              matchGeneratePagePath(window.location.pathname)
-            ) {
+            if (matchBuilderPath(window.location.pathname)) {
               this.props.pasteCopiedWidget(
                 this.props.getMousePosition() || { x: 0, y: 0 },
               );
@@ -383,7 +380,7 @@ class GlobalHotKeys extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  selectedWidget: getSelectedWidget(state),
+  selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
   appMode: getAppMode(state),

@@ -17,8 +17,9 @@ import { ButtonVariant } from "components/constants";
 export type EditableCell = {
   column: string;
   index: number;
-  value: string;
+  value: string | number | null;
   initialValue: string;
+  inputValue: string;
 };
 
 export enum EditableCellActions {
@@ -72,23 +73,15 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   transientTableData: {
     [key: string]: Record<string, string>;
   };
-  editableCell: EditableCell;
+  editableCell?: EditableCell;
   primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
+  isEditableCellValid: boolean;
+  selectColumnFilterText?: Record<string, string>;
 }
-
-export const getCurrentRowBinding = (
-  entityName: string,
-  userInput: string,
-  withBinding = true,
-) => {
-  let rowBinding = `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput}))`;
-  if (withBinding) rowBinding = `{{${rowBinding}}}`;
-  return rowBinding;
-};
 
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
 
@@ -110,6 +103,8 @@ export enum ColumnTypes {
   MENU_BUTTON = "menuButton",
   SELECT = "select",
   EDIT_ACTIONS = "editActions",
+  CHECKBOX = "checkbox",
+  SWITCH = "switch",
 }
 
 export enum ReadOnlyColumnTypes {
@@ -119,6 +114,9 @@ export enum ReadOnlyColumnTypes {
   IMAGE = "image",
   VIDEO = "video",
   DATE = "date",
+  CHECKBOX = "checkbox",
+  SWITCH = "switch",
+  SELECT = "select",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
@@ -130,7 +128,7 @@ export const DEFAULT_MENU_VARIANT = "PRIMARY";
 export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
 
 export type TransientDataPayload = {
-  [key: string]: string | number;
+  [key: string]: string | number | boolean;
   __original_index__: number;
 };
 
@@ -141,6 +139,7 @@ export type OnColumnEventArgs = {
   triggerPropertyName: string;
   eventType: EventType;
   row?: Record<string, unknown>;
+  additionalData?: Record<string, unknown>;
 };
 
 export const ICON_NAMES = Object.keys(IconNames).map(
@@ -163,3 +162,11 @@ export enum DateInputFormat {
   EPOCH = "Epoch",
   MILLISECONDS = "Milliseconds",
 }
+
+export const defaultEditableCell = {
+  column: "",
+  index: -1,
+  inputValue: "",
+  value: "",
+  initialValue: "",
+};

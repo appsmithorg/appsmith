@@ -1,9 +1,36 @@
 const dsl = require("../../../../../fixtures/listRegressionDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 let propPane = ObjectsRegistry.PropertyPane;
+
+describe("Binding the list widget with text widget", function() {
+  //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
+  it("1. Validate delete widget action from side bar", function() {
+    cy.openPropertyPane("listwidget");
+    cy.verifyUpdatedWidgetName("Test");
+    cy.verifyUpdatedWidgetName("#$%1234", "___1234");
+    cy.verifyUpdatedWidgetName("56789");
+    cy.get(".t--delete-widget").click({ force: true });
+    cy.get(".t--toast-action span")
+      .eq(0)
+      .contains("56789 is removed");
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    //cy.reload();
+    cy.wait(5000);
+    //cy.get(commonlocators.homeIcon).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+  });
+});
 
 describe("Binding the list widget with text widget", function() {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -101,21 +128,9 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("4. Validate delete widget action from side bar", function() {
-    cy.openPropertyPane("listwidget");
-    cy.verifyUpdatedWidgetName("Test");
-    cy.verifyUpdatedWidgetName("#$%1234", "___1234");
-    cy.verifyUpdatedWidgetName("56789");
-    cy.get(".t--delete-widget").click({ force: true });
-    cy.get(".t--toast-action span")
-      .eq(0)
-      .contains("56789 is removed");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.reload();
-    cy.wait(2000);
+  after(function() {
+    //-- Deleting the application by Api---//
+    cy.DeleteAppByApi();
+    //-- LogOut Application---//
   });
 });

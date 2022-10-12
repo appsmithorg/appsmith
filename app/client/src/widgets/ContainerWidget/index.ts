@@ -1,4 +1,5 @@
 import { ButtonBoxShadowTypes } from "components/constants";
+import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -17,8 +18,8 @@ export const CONFIG = {
     columns: 24,
     widgetName: "Container",
     containerStyle: "card",
-    borderColor: "transparent",
-    borderWidth: "0",
+    borderColor: Colors.GREY_5,
+    borderWidth: "1",
     boxShadow: ButtonBoxShadowTypes.NONE,
     animateLoading: true,
     children: [],

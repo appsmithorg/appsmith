@@ -1,5 +1,5 @@
 import { focusWidget } from "actions/widgetActions";
-import React, { memo, useEffect, useMemo, useRef } from "react";
+import React, { CSSProperties, memo, useEffect, useMemo, useRef } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useDrag } from "react-use-gesture";
@@ -15,7 +15,11 @@ import {
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetProps } from "widgets/BaseWidget";
-import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
@@ -325,19 +329,10 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
     </StyledOverlayHandles>
   );
 };
-
-export interface DynamicHeightOverlayStyle {
-  width: string | number;
-  height: string | number;
-  top: number;
-  left: number;
-}
-
 interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
   batchUpdate: (height: number) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
-  style: DynamicHeightOverlayStyle;
 }
 
 const getSnappedValues = (
@@ -358,7 +353,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     minDynamicHeight,
     onMaxHeightSet,
     onMinHeightSet,
-    style,
     ...props
   }) => {
     const widgetId = props.widgetId;
@@ -598,18 +592,42 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const isOverlayToBeDisplayed =
       isWidgetSelected && !multipleWidgetsSelected && !isDragging;
 
+    const {
+      bottomRow,
+      leftColumn,
+      noContainerOffset,
+      parentColumnSpace,
+      parentRowSpace,
+      rightColumn,
+      topRow,
+    } = props;
+    const styles: CSSProperties = useMemo(
+      () => ({
+        position: "absolute",
+        height: (bottomRow - topRow) * parentRowSpace,
+        width: (rightColumn - leftColumn) * parentColumnSpace,
+        left:
+          leftColumn * parentColumnSpace +
+          (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+        top:
+          topRow * parentRowSpace +
+          (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+        zIndex: 3,
+        pointerEvents: "none",
+      }),
+      [
+        bottomRow,
+        leftColumn,
+        noContainerOffset,
+        parentColumnSpace,
+        parentRowSpace,
+        rightColumn,
+        topRow,
+      ],
+    );
+
     return (
-      <StyledDynamicHeightOverlay
-        style={{
-          position: "absolute",
-          height: style.height,
-          width: style.width,
-          left: style.left,
-          top: style.top,
-          zIndex: 3,
-          pointerEvents: "none",
-        }}
-      >
+      <StyledDynamicHeightOverlay style={styles}>
         <div
           style={{
             display: isOverlayToBeDisplayed ? "block" : "none",

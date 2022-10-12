@@ -23,7 +23,13 @@ export type EventLocation =
   | "QUERY_TEMPLATE"
   | "QUICK_COMMANDS"
   | "OMNIBAR"
-  | "SUBMENU";
+  | "SUBMENU"
+  | "ACTION_SELECTOR"
+  | "ENTITY_EXPLORER"
+  | "KEYBOARD_SHORTCUT"
+  | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
+  | "JS_OBJECT_MAIN_RUN_BUTTON"
+  | "JS_OBJECT_RESPONSE_RUN_BUTTON";
 
 export type EventName =
   | "APP_CRASH"
@@ -244,7 +250,6 @@ export type EventName =
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
-  | "RUN_JS_FUNCTION"
   | "PROPERTY_PANE_KEYPRESS"
   | "PAGE_NAME_CLICK"
   | "BACK_BUTTON_CLICK"
@@ -253,7 +258,22 @@ export type EventName =
   | "ADMIN_SETTINGS_UPGRADE_WATERMARK"
   | "ADMIN_SETTINGS_UPGRADE"
   | "PRETTIFY_CODE_MANUAL_TRIGGER"
-  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT";
+  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT"
+  | "JS_OBJECT_CREATED"
+  | "JS_OBJECT_FUNCTION_ADDED"
+  | "JS_OBJECT_FUNCTION_RUN"
+  | "SHOW_BINDINGS_TRIGGERED"
+  | "BINDING_COPIED"
+  | AUDIT_LOGS_EVENT_NAMES;
+
+export type AUDIT_LOGS_EVENT_NAMES =
+  | "AUDIT_LOGS_CLEAR_FILTERS"
+  | "AUDIT_LOGS_FILTER_BY_RESOURCE_ID"
+  | "AUDIT_LOGS_FILTER_BY_EMAIL"
+  | "AUDIT_LOGS_FILTER_BY_EVENT"
+  | "AUDIT_LOGS_FILTER_BY_DATE"
+  | "AUDIT_LOGS_COLLAPSIBLE_ROW_OPENED"
+  | "AUDIT_LOGS_COLLAPSIBLE_ROW_CLOSED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -269,6 +289,7 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }

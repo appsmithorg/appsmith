@@ -73,7 +73,6 @@ interface ReactTableComponentProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
-  isDynamicHeightEnabled: boolean;
   isVisibleSearch?: boolean;
   isVisibleFilters?: boolean;
   isVisibleDownload?: boolean;
@@ -83,12 +82,11 @@ interface ReactTableComponentProps {
   accentColor: string;
   borderRadius: string;
   boxShadow?: string;
+  isEditableCellValid?: boolean;
+  primaryColumnId?: string;
 }
 
-const ReactTableComponent = React.forwardRef<
-  HTMLDivElement,
-  ReactTableComponentProps
->((props, ref) => {
+function ReactTableComponent(props: ReactTableComponentProps) {
   const {
     applyFilter,
     columns,
@@ -102,7 +100,6 @@ const ReactTableComponent = React.forwardRef<
     handleReorderColumn,
     handleResizeColumn,
     height,
-    isDynamicHeightEnabled,
     isLoading,
     isSortable,
     isVisibleDownload,
@@ -117,6 +114,7 @@ const ReactTableComponent = React.forwardRef<
     pageNo,
     pageSize,
     prevPageClick,
+    primaryColumnId,
     searchKey,
     searchTableData,
     selectAllRow,
@@ -284,7 +282,6 @@ const ReactTableComponent = React.forwardRef<
       filters={filters}
       handleResizeColumn={handleResizeColumn}
       height={height}
-      isDynamicHeightEnabled={isDynamicHeightEnabled}
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
@@ -298,7 +295,7 @@ const ReactTableComponent = React.forwardRef<
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
-      ref={ref}
+      primaryColumnId={primaryColumnId}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -315,7 +312,7 @@ const ReactTableComponent = React.forwardRef<
       width={width}
     />
   );
-});
+}
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
@@ -359,6 +356,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
-    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell)
+    equal(prev.editableCell, next.editableCell) &&
+    prev.isEditableCellValid === next.isEditableCellValid &&
+    prev.primaryColumnId === next.primaryColumnId
   );
 });

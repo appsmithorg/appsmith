@@ -20,7 +20,7 @@ import {
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   DEFAULT_MULTI_PART_DROPDOWN_HEIGHT,
   MULTI_PART_DROPDOWN_OPTIONS,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
@@ -132,10 +132,12 @@ const expected = {
 
 function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
-    // Always maintain 2 rows
-    if (props.fields.length < 2 && props.pushFields) {
-      for (let i = props.fields.length; i < 2; i += 1) {
-        props.fields.push({ key: "", value: "" });
+    const allProps = props.fields?.getAll();
+    if (!!allProps) {
+      if (props.fields.length < 2 && props.pushFields) {
+        for (let i = props.fields.length; i < 2; i += 1) {
+          props.fields.push({ key: "", value: "" });
+        }
       }
     }
   }, [props.fields, props.pushFields]);

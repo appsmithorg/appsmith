@@ -9,13 +9,13 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -25,8 +25,8 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@RunWith(SpringRunner.class)
-@SpringBootTest(properties = { "signup.disabled = true", "admin.emails = dummy_admin@appsmith.com,dummy2@appsmith.com" })
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(properties = {"signup.disabled = true", "admin.emails = dummy_admin@appsmith.com,dummy2@appsmith.com"})
 @DirtiesContext
 public class UserServiceWithDisabledSignupTest {
 
@@ -50,7 +50,7 @@ public class UserServiceWithDisabledSignupTest {
 
     Mono<User> userMono;
 
-    @Before
+    @BeforeEach
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
     }

@@ -1,6 +1,7 @@
 import { AppState } from "@appsmith/reducers";
 import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { createSelector } from "reselect";
+import { getIsResizing } from "./widgetSelectors";
 
 export const getReflow = (state: AppState): widgetReflow =>
   state.ui.widgetReflow;
@@ -22,3 +23,23 @@ export const getDynamicHeightLayoutTree = (state: AppState) =>
 
 export const getCanvasLevelMap = (state: AppState) =>
   state.entities.canvasLevels;
+
+export const getIsReflowEffectedSelector = (
+  widgetId: string | undefined,
+  reflowed: boolean,
+) => {
+  return createSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+    getIsResizing,
+    (dragDetails, isResizing) => {
+      return (
+        ((widgetId &&
+          dragDetails &&
+          !!dragDetails.draggedOn &&
+          dragDetails.draggedOn === widgetId) ||
+          isResizing) &&
+        reflowed
+      );
+    },
+  );
+};

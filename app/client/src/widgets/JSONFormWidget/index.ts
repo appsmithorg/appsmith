@@ -1,4 +1,5 @@
 import IconSVG from "./icon.svg";
+import { Colors } from "constants/Colors";
 import Widget, { JSONFormWidgetProps } from "./widget";
 import { ButtonVariantTypes } from "components/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
@@ -32,6 +33,8 @@ export const CONFIG = {
     showReset: true,
     title: "Form",
     version: 1,
+    borderWidth: "1",
+    borderColor: Colors.GREY_5,
     widgetName: "JSONForm",
     autoGenerateForm: true,
     fieldLimitExceeded: false,

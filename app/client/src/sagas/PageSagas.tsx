@@ -36,7 +36,9 @@ import PageApi, {
   FetchPageResponse,
   FetchPublishedPageRequest,
   PageLayout,
+  SavePageRequest,
   SavePageResponse,
+  SavePageResponseData,
   SetPageOrderRequest,
   UpdatePageRequest,
   UpdateWidgetNameRequest,
@@ -102,11 +104,7 @@ import { GenerateTemplatePageRequest } from "api/PageApi";
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
-import {
-  getIsFirstTimeUserOnboardingEnabled,
-  getFirstTimeUserOnboardingApplicationId,
-  inGuidedTour,
-} from "selectors/onboardingSelectors";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageSuccess,
@@ -116,10 +114,12 @@ import {
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { builderURL, generateTemplateURL } from "RouteBuilder";
+import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
 import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
+import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -204,6 +204,8 @@ export const getCanvasWidgetsPayload = (
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
     pageActions: pageResponse.data.layouts[0].layoutOnLoadActions || [],
+    layoutOnLoadActionErrors:
+      pageResponse.data.layouts[0].layoutOnLoadActionErrors || [],
   };
 };
 
@@ -333,6 +335,8 @@ export function* fetchPublishedPageSaga(
       yield call(setDataUrl);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      // resize main canvas
+      resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
       // Update the canvas
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
@@ -385,12 +389,16 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const editorConfigs:
     | {
+        applicationId: string;
         pageId: string;
         layoutId: string;
       }
     | undefined = yield select(getEditorConfigs) as any;
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
-  const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
+  const savePageRequest: SavePageRequest = getLayoutSavePayload(
+    widgets,
+    editorConfigs,
+  );
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SAVE_PAGE_API,
     {
@@ -454,6 +462,10 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
+      );
+      checkAndLogErrorsIfCyclicDependency(
+        (savePageResponse.data as SavePageResponseData)
+          .layoutOnLoadActionErrors,
       );
     }
   } catch (error) {
@@ -581,29 +593,11 @@ export function* createPageSaga(
       // TODO: Update URL params here
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        const firstTimeUserOnboardingApplicationId: string = yield select(
-          getFirstTimeUserOnboardingApplicationId,
+        history.push(
+          builderURL({
+            pageId: response.data.id,
+          }),
         );
-        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
-          getIsFirstTimeUserOnboardingEnabled,
-        );
-        if (
-          firstTimeUserOnboardingApplicationId ==
-            createPageAction.payload.applicationId &&
-          isFirstTimeUserOnboardingEnabled
-        ) {
-          history.push(
-            builderURL({
-              pageId: response.data.id,
-            }),
-          );
-        } else {
-          history.push(
-            generateTemplateURL({
-              pageId: response.data.id,
-            }),
-          );
-        }
       }
     }
   } catch (error) {
@@ -855,6 +849,9 @@ export function* updateWidgetNameSaga(
               dsl: response.data.dsl,
             },
           });
+          checkAndLogErrorsIfCyclicDependency(
+            (response.data as PageLayout).layoutOnLoadActionErrors,
+          );
         }
       } else {
         yield put({

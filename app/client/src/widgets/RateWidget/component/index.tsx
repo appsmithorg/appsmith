@@ -7,9 +7,7 @@ import _ from "lodash";
 
 import { RateSize, RATE_SIZES } from "../constants";
 import { TooltipComponent } from "design-system";
-import { disable } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
-import { Colors } from "constants/Colors";
 
 /*
   Note:
@@ -50,10 +48,20 @@ export const RateContainer = styled.div<RateContainerProps>`
     }
   }
 
-  ${({ isDisabled }) => isDisabled && disable}
+  ${({ isDisabled }) =>
+    isDisabled &&
+    `cursor: not-allowed;
+    & > * {
+      pointer-events: none;
+    }
+  `}
 `;
 
-export const Star = styled(Icon)``;
+export const Star = styled(Icon)<{ isActive?: boolean; isDisabled?: boolean }>`
+  path {
+    stroke-width: ${(props) => (props.isActive ? "0" : "1px")};
+  }
+`;
 
 export interface RateComponentProps extends ComponentProps {
   value: number;
@@ -79,26 +87,44 @@ function renderStarsWithTooltip(props: RateComponentProps) {
   if (rateTooltipsCount === 0) {
     return (
       <Star
-        color={props.activeColor}
+        color={
+          props.isDisabled
+            ? "var(--wds-color-bg-disabled-strong)"
+            : props.activeColor
+        }
         icon={IconNames.STAR}
         iconSize={RATE_SIZES[props.size]}
+        isActive
+        isDisabled={props.isDisabled}
       />
     );
   }
   const starWithTooltip = rateTooltips.map((tooltip) => (
     <TooltipComponent content={tooltip} key={tooltip} position="top">
       <Star
-        color={props.activeColor}
+        color={
+          props.isDisabled
+            ? "var(--wds-color-bg-disabled-strong)"
+            : props.activeColor
+        }
         icon={IconNames.STAR}
         iconSize={RATE_SIZES[props.size]}
+        isActive
+        isDisabled={props.isDisabled}
       />
     </TooltipComponent>
   ));
   const starWithoutTooltip = _.times(deltaCount, (num: number) => (
     <Star
-      color={props.activeColor}
+      color={
+        props.isDisabled
+          ? "var(--wds-color-bg-disabled-strong)"
+          : props.activeColor
+      }
       icon={IconNames.STAR}
       iconSize={RATE_SIZES[props.size]}
+      isActive
+      isDisabled={props.isDisabled}
       key={num}
     />
   ));
@@ -125,9 +151,14 @@ function RateComponent(props: RateComponentProps) {
       <Rating
         emptySymbol={
           <Star
-            color={inactiveColor || Colors.ALTO_3}
+            color={
+              isDisabled
+                ? "var(--wds-color-bg-strong)"
+                : inactiveColor ?? "var(--wds-color-bg)"
+            }
             icon={IconNames.STAR}
             iconSize={RATE_SIZES[size]}
+            isDisabled={isDisabled}
           />
         }
         fractions={isAllowHalf ? 2 : 1}

@@ -36,7 +36,7 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
 import Table from "pages/Editor/QueryEditor/Table";
-import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
+import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import {
   setActionResponseDisplayFormat,
   UpdateActionPropertyActionPayload,
@@ -265,6 +265,7 @@ export const responseTabComponent = (
   return {
     [API_RESPONSE_TYPE_OPTIONS.JSON]: (
       <ReadOnlyEditor
+        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -278,6 +279,7 @@ export const responseTabComponent = (
     ),
     [API_RESPONSE_TYPE_OPTIONS.RAW]: (
       <ReadOnlyEditor
+        containerHeight={tableBodyHeight}
         folding
         height={"100%"}
         input={{
@@ -569,6 +571,7 @@ function ApiResponseView(props: Props) {
                 <Text type={TextType.P3}>Status: </Text>
                 <StatusCodeText
                   accent="secondary"
+                  className="t--response-status-code"
                   code={response.statusCode.toString()}
                 >
                   {response.statusCode}

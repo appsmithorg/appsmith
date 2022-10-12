@@ -19,7 +19,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +40,9 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-//@RunWith(SpringRunner.class)
 @Slf4j
 @SpringBootTest
 @DirtiesContext
@@ -145,14 +144,6 @@ public class UserWorkspaceServiceTest {
             this.workspace = policyUtils.addPoliciesToExistingObject(workspacePolicyMap, workspace);
         }
         this.workspace = workspaceRepository.save(workspace).block();
-    }
-
-    @After
-    public void clear() {
-        User currentUser = userRepository.findByEmail("api_user").block();
-        currentUser.getWorkspaceIds().remove(workspace.getId());
-        userRepository.save(currentUser);
-        workspaceRepository.deleteById(workspace.getId()).block();
     }
 
     @Test
@@ -305,4 +296,13 @@ public class UserWorkspaceServiceTest {
                 )
                 .verifyComplete();
     }
+
+    @AfterEach
+    public void clear() {
+        User currentUser = userRepository.findByEmail("api_user").block();
+        currentUser.getWorkspaceIds().remove(workspace.getId());
+        userRepository.save(currentUser);
+        workspaceRepository.deleteById(workspace.getId()).block();
+    }
+
 }

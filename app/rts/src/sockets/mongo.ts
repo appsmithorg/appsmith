@@ -1,8 +1,8 @@
 import type mongodb from "mongodb";
 import log from "loglevel";
 import { MongoClient } from "mongodb";
-import { CommentThread, Comment } from "../utils/models";
-import { findPolicyEmails } from "../controllers/socket";
+import { CommentThread, Comment } from "@utils/models";
+import { findPolicyEmails } from "@controllers/socket";
 
 const MONGODB_URI = process.env.APPSMITH_MONGODB_URI;
 

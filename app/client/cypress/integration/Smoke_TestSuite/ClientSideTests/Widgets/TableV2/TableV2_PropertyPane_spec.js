@@ -240,7 +240,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       .children()
       .contains("URL")
       .click();
-    cy.get(".t--property-control-visible span.bp3-control-indicator").click();
+    // cy.get(".t--property-control-visible span.bp3-control-indicator").click();
     cy.wait("@updateLayout");
     cy.moveToStyleTab();
     // Verifying Center Alignment

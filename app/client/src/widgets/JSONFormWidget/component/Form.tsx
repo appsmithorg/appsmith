@@ -15,7 +15,6 @@ import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
-import { TEXT_SIZES } from "constants/WidgetConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
@@ -57,6 +56,7 @@ type StyledFooterProps = {
 
 const BUTTON_WIDTH = 110;
 const FOOTER_BUTTON_GAP = 10;
+const TITLE_FONT_SIZE = "1.25rem";
 const FOOTER_DEFAULT_BG_COLOR = "#fff";
 const FOOTER_PADDING_TOP = FORM_PADDING_Y;
 const TITLE_MARGIN_BOTTOM = 16;
@@ -67,6 +67,7 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
     backgroundColor || FOOTER_DEFAULT_BG_COLOR};
   bottom: 0;
   display: flex;
+  gap: ${FOOTER_BUTTON_GAP}px;
   justify-content: flex-end;
   padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
   padding-top: ${FOOTER_PADDING_TOP}px;
@@ -82,15 +83,6 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
   && > div {
     width: ${BUTTON_WIDTH}px;
   }
-
-  && > button,
-  && > div {
-    margin-right: ${FOOTER_BUTTON_GAP}px;
-  }
-
-  & > button:last-of-type {
-    margin-right: 0;
-  }
 `;
 
 const StyledForm = styled.form<StyledFormProps>`
@@ -103,7 +95,7 @@ const StyledForm = styled.form<StyledFormProps>`
 
 const StyledTitle = styled(Text)`
   font-weight: bold;
-  font-size: ${TEXT_SIZES.HEADING1};
+  font-size: ${TITLE_FONT_SIZE};
   word-break: break-word;
   margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
 `;

@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 let dsName: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -13,6 +12,14 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
 describe("JSObjects OnLoad Actions tests", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   before(() => {
     cy.fixture("tablev1NewDsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -86,36 +93,30 @@ describe("JSObjects OnLoad Actions tests", function() {
     jsEditor.VerifyAsyncFuncSettings("getEmployee", true, true);
   });
 
-  it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "Queries/JS");
-    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
-    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
-    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
-    deployMode.NavigateBacktoEditor();
-    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
-  });
-
-  it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
+  it.skip("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
-    agHelper.Sleep(2000); //to allow for changes to take effect!
-    agHelper.RefreshPage(); //For bug #
-    cy.wait("@jsCollections").then(({ response }) => {
-      expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
-      expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
-    });
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementAbsence(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     // assert that on view mode, we don't get "successful run" toast message for onpageload actions
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.AssertElementAbsence(locator._specificToast("ran successfully"));
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });
     deployMode.NavigateBacktoEditor();
+  });
+
+  it("5. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
+    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
+    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
+    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
+    deployMode.NavigateBacktoEditor();
+    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
   });
 
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
@@ -142,14 +143,14 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
   });
 
-  it("7. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No in Confirmation dialog", function() {
+  it("7. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No & then Yes in Confirmation dialog", function() {
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage("Failed to execute actions during page load"); //When Confirmation is NO
+    agHelper.ValidateToastMessage(`${jsName + ".getEmployee"} was cancelled`);
     table.WaitForTableEmpty();
     agHelper.RefreshPage();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
@@ -158,7 +159,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    // agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("2");
     });
@@ -311,7 +312,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //One Quotes confirmation - for API true
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
+      agHelper.WaitUntilToastDisappear("Quotes was cancelled");
 
       //Another for API called via JS callQuotes()
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
@@ -324,7 +325,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       );
       agHelper.ClickButton("No");
       agHelper.WaitUntilToastDisappear(
-        "Failed to execute actions during page load",
+        `${jsName + ".callTrump"} was cancelled`,
       ); //When Confirmation is NO validate error toast!
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
@@ -363,9 +364,9 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "Quotes" has failed');
+    agHelper.AssertContains("Quotes was cancelled");
 
-    agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
+    agHelper.WaitUntilAllToastsDisappear();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No"); //Ask Favour abt below
     //agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
@@ -374,8 +375,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       jsEditor._dialogBody((jsName as string) + ".callTrump"),
     );
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage("Failed to execute actions during page load");
-
+    agHelper.AssertContains(`${jsName + ".callTrump"} was cancelled`);
     ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);
@@ -399,9 +399,9 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "CatFacts" has failed');
+    agHelper.ValidateToastMessage("CatFacts was cancelled");
 
-    agHelper.WaitUntilToastDisappear('The action "CatFacts" has failed');
+    agHelper.WaitUntilToastDisappear("CatFacts was cancelled");
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
     agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("Yes");
@@ -532,7 +532,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "getBooks" has failed');
+    agHelper.ValidateToastMessage("getBooks was cancelled");
     agHelper
       .GetText(locator._jsonFormInputField("name"), "val")
       .should("be.empty");
@@ -545,7 +545,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     // agHelper.AssertElementPresence(jsEditor._dialogBody("getCountry"));
     // agHelper.ClickButton("No");
 
-    agHelper.WaitUntilToastDisappear('The action "getBooks" has failed');
+    agHelper.WaitUntilToastDisappear("getBooks was cancelled");
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("Yes");
@@ -562,7 +562,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage('The action "getBooks" has failed');
+    agHelper.ValidateToastMessage("getBooks was cancelled");
 
     ee.SelectEntityByName(jsName as string, "Queries/JS");
     ee.ActionContextMenuByEntityName(

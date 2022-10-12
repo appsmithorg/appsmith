@@ -18,43 +18,44 @@ describe("Repo Limit Exceeded Error Modal", function() {
     cy.createAppAndConnectGit(repoName2, false);
     cy.createAppAndConnectGit(repoName3, false);
     cy.createAppAndConnectGit(repoName4, false, true);
+    if (Cypress.env("Edition") === 0) {
+      cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("exist");
 
-    cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("exist");
+      // title and info text checking
+      cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
+        Cypress.env("MESSAGES").REPOSITORY_LIMIT_REACHED(),
+      );
+      cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
+        Cypress.env("MESSAGES").REPOSITORY_LIMIT_REACHED_INFO(),
+      );
+      cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
+        Cypress.env("MESSAGES").CONTACT_SUPPORT_TO_UPGRADE(),
+      );
+      cy.get(gitSyncLocators.contactSalesButton).should("exist");
+      cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
+        Cypress.env("MESSAGES").DISCONNECT_CAUSE_APPLICATION_BREAK(),
+      );
 
-    // title and info text checking
-    cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
-      Cypress.env("MESSAGES").REPOSITORY_LIMIT_REACHED(),
-    );
-    cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
-      Cypress.env("MESSAGES").REPOSITORY_LIMIT_REACHED_INFO(),
-    );
-    cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
-      Cypress.env("MESSAGES").CONTACT_SUPPORT_TO_UPGRADE(),
-    );
-    cy.get(gitSyncLocators.contactSalesButton).should("exist");
-    cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
-      Cypress.env("MESSAGES").DISCONNECT_CAUSE_APPLICATION_BREAK(),
-    );
-
-    // learn more link checking
-    cy.window().then((window) => {
-      windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
-        expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
-        windowOpenSpy.restore();
+      // learn more link checking
+      cy.window().then((window) => {
+        windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
+          expect(url.startsWith("https://docs.appsmith.com/")).to.be.true;
+          windowOpenSpy.restore();
+        });
       });
-    });
-    cy.get(gitSyncLocators.learnMoreOnRepoLimitModal).click();
+      cy.get(gitSyncLocators.learnMoreOnRepoLimitModal).click();
 
-    cy.get(gitSyncLocators.connectedApplication).should("have.length", 3);
-    cy.get(gitSyncLocators.diconnectLink)
-      .first()
-      .click();
+      cy.get(gitSyncLocators.connectedApplication).should("have.length", 3);
+      cy.get(gitSyncLocators.diconnectLink)
+        .first()
+        .click();
 
-    cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
-    cy.get(gitSyncLocators.disconnectGitModal).should("exist");
+      cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
+      cy.get(gitSyncLocators.disconnectGitModal).should("exist");
 
-    cy.get(gitSyncLocators.closeRevokeModal).click();
-    cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
+      cy.get(gitSyncLocators.closeRevokeModal).click();
+      cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
+    }
   });
   after(() => {
     cy.request({

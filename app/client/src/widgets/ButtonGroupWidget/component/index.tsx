@@ -20,7 +20,6 @@ import {
 } from "components/constants";
 import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
-import { Colors } from "constants/Colors";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -208,7 +207,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
       }
     }
 
-
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
@@ -228,10 +226,13 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
 
     &:disabled {
       cursor: not-allowed;
-      border: 1px solid ${Colors.ALTO2} !important;
-      background: ${theme.colors.button.disabled.bgColor} !important;
+      border: ${buttonVariant === ButtonVariantTypes.SECONDARY &&
+        "1px solid var(--wds-color-border-disabled)"} !important;
+      background: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
+        "var(--wds-color-bg-disabled)"} !important;
+      
       span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+        color: var(--wds-color-text-disabled) !important;
       }
     }
 
@@ -548,7 +549,7 @@ class ButtonGroupComponent extends React.Component<
         {items.map((button) => {
           const isLoading = button.id === loadedBtnId;
           const isButtonDisabled =
-            button.isDisabled || isDisabled || !!loadedBtnId;
+            button.isDisabled || isDisabled || !!loadedBtnId || isLoading;
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
 
@@ -600,7 +601,7 @@ class ButtonGroupComponent extends React.Component<
                         placement={button.placement}
                       >
                         {isLoading ? (
-                          <Spinner size={20} />
+                          <Spinner size={18} />
                         ) : (
                           <>
                             {button.iconName && <Icon icon={button.iconName} />}
@@ -646,7 +647,7 @@ class ButtonGroupComponent extends React.Component<
                   placement={button.placement}
                 >
                   {isLoading ? (
-                    <Spinner size={20} />
+                    <Spinner size={18} />
                   ) : (
                     <>
                       {button.iconName && <Icon icon={button.iconName} />}

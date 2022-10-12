@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _, { get } from "lodash";
+import _, { get, isFunction } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
@@ -7,7 +7,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
 } from "components/propertyControls/StyledControls";
-import { JSToggleButton } from "components/ads";
+import { JSToggleButton } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -50,6 +50,7 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import PropertyPaneHelperText from "./PropertyPaneHelperText";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -422,7 +423,14 @@ const PropertyControl = memo((props: Props) => {
     return null;
   }
 
-  const { label, propertyName } = props;
+  const { propertyName } = props;
+  const label = isFunction(props.label)
+    ? props.label(widgetProperties, propertyName)
+    : props.label;
+  const helperText = isFunction(props.helperText)
+    ? props.helperText(widgetProperties)
+    : props.helperText;
+
   if (widgetProperties) {
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =
@@ -451,6 +459,7 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
+      label,
     };
     config.expected = getExpectedValue(props.validation);
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
@@ -468,7 +477,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName,
     );
     const isConvertible = !!props.isJSConvertible;
-    const className = props.label
+    const className = label
       .split(" ")
       .join("")
       .toLowerCase();
@@ -621,6 +630,7 @@ const PropertyControl = memo((props: Props) => {
             additionAutocomplete,
             hideEvaluatedValue(),
           )}
+          <PropertyPaneHelperText helperText={helperText} />
         </ControlWrapper>
       );
     } catch (e) {

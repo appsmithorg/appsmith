@@ -91,7 +91,7 @@ export class JSEditor {
   _debugCTA = `button.js-editor-debug-cta`;
   _lineinJsEditor = (lineNumber: number) =>
     ":nth-child(" + lineNumber + ") > .CodeMirror-line";
-    _logsTab = "[data-cy=t--tab-LOGS_TAB]"
+  _logsTab = "[data-cy=t--tab-LOGS_TAB]";
   //#endregion
 
   //#region constants
@@ -119,7 +119,10 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.AssertContains("created successfully");
+    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
+    //Checking JS object was created successfully
+    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
+
     this.agHelper.Sleep();
   }
 
@@ -150,8 +153,8 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-      this.agHelper.AssertAutoSave();
       this.agHelper.AssertContains("Start object with export default");
+      //this.agHelper.AssertAutoSave();
     }
 
     toWriteAfterToastsDisappear && this.agHelper.WaitUntilAllToastsDisappear();
@@ -165,7 +168,7 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 50,
+            delay: 40,
             force: true,
           });
         }
@@ -190,7 +193,11 @@ export class JSEditor {
   }
 
   //Edit the name of a JSObject's property (variable or function)
-  public EditJSObj(newContent: string, toPrettify = true, toVerifyAutoSave = true) {
+  public EditJSObj(
+    newContent: string,
+    toPrettify = true,
+    toVerifyAutoSave = true,
+  ) {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .focus()
@@ -201,6 +208,12 @@ export class JSEditor {
     this.agHelper.Sleep(2000); //Settling time for edited js code
     toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
+  }
+
+  public RunJSObj() {
+    this.agHelper.GetNClick(this._runButton);
+    this.agHelper.Sleep(); //for function to run
+    this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 
   public DisableJSContext(endp: string) {
