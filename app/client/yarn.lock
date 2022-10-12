@@ -6211,14 +6211,16 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@0.0.0-alpha-20221011051408":
-  version "0.0.0-alpha-20221011051408"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-0.0.0-alpha-20221011051408.tgz#64c4c4c817ed1299924367120c40077664209f68"
-  integrity sha512-REof/s4yEafn9XAIUy3JQmwQ+KjTtGasuqw2SSHq6/SmFk3vxPg7D97ztrqHgUR2Tx4P/mgaT/UB9JsNhay30A==
+"design-system@npm:@appsmithorg/design-system@1.0.28-alpha.0":
+  version "1.0.28-alpha.0"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.28-alpha.0.tgz#64d2f02c5f2aaae4b9cde09bdcb26525684daf41"
+  integrity sha512-XTudHRMrZ/O2syEIqbGBpoZeuMGvveZ6+6AGw0ZcH7LnNO2yYUffCPKHG4hGV7ScLcqNl48/7SZPoHtaHTgV6Q==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
+    react-dnd "^9.3.4"
+    react-dnd-html5-backend "^9.3.4"
     react-redux "^7.2.4"
     react-router-dom "^6.3.0"
     react-table "^7.8.0"
