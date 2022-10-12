@@ -377,7 +377,6 @@ class SwitchGroupWidget extends BaseWidget<
         )
       }}`,
       value: `{{this.selectedValues}}`,
-      santisedOptions: `{{ (()=>{ console.log("SwitchGroup:, this.options); if(_.isString(this.options)) { try { return JSON.parse(this.options); } catch(e) { return this.options; } } else return this.options; })() }}`,
     };
   }
 
