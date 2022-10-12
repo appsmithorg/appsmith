@@ -1108,7 +1108,7 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testNumericStringHavingLeadingZeroWithPreparedStatement() {
+    public void testNumericStringHavingLeadingZero() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/post");
 
