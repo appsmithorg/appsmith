@@ -8,7 +8,6 @@ export const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
 ) => {
   useEffect(() => {
     const listener = (event: Event) => {
-      // console.log("click out", event);
       for (const ref of refs) {
         const el = ref?.current;
         if (!el || el.contains((event?.target as Node) || null)) {

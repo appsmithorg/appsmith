@@ -9,6 +9,13 @@ export const openAppSettingsPaneAction = (context?: AppSettingsPaneContext) => {
   };
 };
 
+export const setReopenExplorerOnSettingsCloseAction = (reopen: boolean) => {
+  return {
+    type: ReduxActionTypes.REOPEN_EXPLORER_ON_SETTINGS_PANE_CLOSE,
+    payload: reopen,
+  };
+};
+
 export const closeAppSettingsPaneAction = (): Action => {
   return {
     type: ReduxActionTypes.CLOSE_APP_SETTINGS_PANE,

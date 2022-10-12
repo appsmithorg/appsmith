@@ -3,10 +3,17 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 
+export type SelectWidgetActionPayload = {
+  widgetId?: string;
+  isMultiSelect?: boolean;
+};
+
+export type SelectMultipleWidgetsActionPayload = { widgetIds?: string[] };
+
 export const selectWidgetAction = (
   widgetId?: string,
   isMultiSelect?: boolean,
-): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
+): ReduxAction<SelectWidgetActionPayload> => ({
   type: ReduxActionTypes.SELECT_WIDGET,
   payload: { widgetId, isMultiSelect },
 });
@@ -14,7 +21,7 @@ export const selectWidgetAction = (
 export const selectWidgetInitAction = (
   widgetId?: string,
   isMultiSelect?: boolean,
-): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
+): ReduxAction<SelectWidgetActionPayload> => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
   payload: { widgetId, isMultiSelect },
 });
@@ -27,7 +34,7 @@ export const deselectAllInitAction = () => {
 
 export const selectMultipleWidgetsAction = (
   widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
+): ReduxAction<SelectMultipleWidgetsActionPayload> => {
   return {
     type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
     payload: { widgetIds },
@@ -36,7 +43,7 @@ export const selectMultipleWidgetsAction = (
 
 export const silentAddSelectionsAction = (
   widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
+): ReduxAction<SelectMultipleWidgetsActionPayload> => {
   return {
     type: ReduxActionTypes.SELECT_WIDGETS,
     payload: { widgetIds },
@@ -45,7 +52,7 @@ export const silentAddSelectionsAction = (
 
 export const deselectMultipleWidgetsAction = (
   widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
+): ReduxAction<SelectMultipleWidgetsActionPayload> => {
   return {
     type: ReduxActionTypes.DESELECT_WIDGETS,
     payload: { widgetIds },
