@@ -24,3 +24,10 @@ export const setSnipingMode = (payload: boolean) => ({
 export const resetSnipingMode = () => ({
   type: ReduxActionTypes.RESET_SNIPING_MODE,
 });
+
+export const updatePropertyPaneWidthAction = (width: number | undefined) => ({
+  type: ReduxActionTypes.UPDATE_PROPERTY_PANE_WIDTH,
+  payload: {
+    width,
+  },
+});

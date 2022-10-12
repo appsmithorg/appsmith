@@ -226,3 +226,13 @@ export const getIsPropertyPaneVisible = createSelector(
     );
   },
 );
+
+/**
+ * returns the width of propertypane
+ *
+ * @param state
+ * @returns
+ */
+export const getPropertyPaneWidth = (state: AppState) => {
+  return state.ui.propertyPane.width;
+};

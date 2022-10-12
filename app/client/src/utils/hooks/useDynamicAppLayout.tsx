@@ -25,6 +25,7 @@ import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -32,6 +33,7 @@ const GUTTER_WIDTH = 72;
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
   const explorerWidth = useSelector(getExplorerWidth);
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
@@ -87,15 +89,11 @@ export const useDynamicAppLayout = () => {
    * @returns
    */
   const calculateCanvasWidth = () => {
-    const domEntityExplorer = document.querySelector(".js-entity-explorer");
-    const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (isPreviewMode === false && !isAppSettingsPaneOpen) {
-      const propertyPaneWidth = domPropertyPane?.clientWidth || 0;
-
       calculatedWidth -= propertyPaneWidth;
     }
 
@@ -106,8 +104,6 @@ export const useDynamicAppLayout = () => {
 
     // if explorer is closed or its preview mode, we don't need to subtract the EE width
     if (isExplorerPinned === true && !isPreviewMode) {
-      const explorerWidth = domEntityExplorer?.clientWidth || 0;
-
       calculatedWidth -= explorerWidth;
     }
 
@@ -185,6 +181,7 @@ export const useDynamicAppLayout = () => {
     mainCanvasProps?.width,
     isPreviewMode,
     explorerWidth,
+    propertyPaneWidth,
     isExplorerPinned,
     isAppSettingsPaneOpen,
   ]);
