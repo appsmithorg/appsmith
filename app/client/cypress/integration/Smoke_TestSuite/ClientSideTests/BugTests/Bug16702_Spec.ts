@@ -44,7 +44,6 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       //   expect(Cypress.dom.isDetached($el)).to.false;
       // })
       //.trigger("mouseover")
-      .focus()
       .click()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "offsetValue");
@@ -58,7 +57,6 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__limit__")
       //.trigger("mouseover")
-      .focus()
       .click()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "limitValue");
