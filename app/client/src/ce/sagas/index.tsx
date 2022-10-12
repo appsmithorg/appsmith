@@ -40,6 +40,7 @@ import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import layoutUpdateSagas from "sagas/LayoutUpdateSagas";
+import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
 
 export const sagas = [
   initSagas,
@@ -84,4 +85,5 @@ export const sagas = [
   appThemingSaga,
   PageVisibilitySaga,
   layoutUpdateSagas,
+  autoLayoutDraggingSagas,
 ];
