@@ -286,8 +286,8 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
 }) => {
   const isColliding = maxY === minY;
 
-  const maxRows = Math.floor(maxY / 10);
-  const minRows = Math.floor(minY / 10);
+  const maxRows = Math.floor(maxY / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+  const minRows = Math.floor(minY / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
   return (
     <StyledOverlayHandles>

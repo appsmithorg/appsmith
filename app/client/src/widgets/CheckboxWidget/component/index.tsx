@@ -32,6 +32,7 @@ export const CheckboxLabel = styled.div<{
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: inline-block;
@@ -47,6 +48,9 @@ export const CheckboxLabel = styled.div<{
     labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
   };
   `}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 `;
 
 export const StyledCheckbox = Checkbox;
@@ -88,6 +92,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
             <CheckboxLabel
               className="t--checkbox-widget-label"
               disabled={this.props.isDisabled}
+              isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
               labelPosition={this.props.labelPosition}
               labelStyle={this.props.labelStyle}
               labelTextColor={this.props.labelTextColor}

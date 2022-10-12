@@ -39,11 +39,11 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import {
   getWidgetMaxDynamicHeight,
   getWidgetMinDynamicHeight,
   isDynamicHeightEnabledForWidget,
+  isDynamicHeightWithLimitsEnabledForWidget,
 } from "./WidgetUtils";
 import DynamicHeightOverlay, {
   DynamicHeightOverlayStyle,
@@ -470,8 +470,8 @@ abstract class BaseWidget<
         <DynamicHeightOverlay
           {...this.props}
           batchUpdate={onBatchUpdate}
-          maxDynamicHeight={this.props.maxDynamicHeight}
-          minDynamicHeight={this.props.minDynamicHeight}
+          maxDynamicHeight={getWidgetMaxDynamicHeight(this.props)}
+          minDynamicHeight={getWidgetMinDynamicHeight(this.props)}
           onMaxHeightSet={onMaxHeightSet}
           onMinHeightSet={onMinHeightSet}
           style={{
@@ -545,9 +545,7 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
-          if (
-            this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
-          ) {
+          if (isDynamicHeightWithLimitsEnabledForWidget(this.props)) {
             log.debug(
               "AUTO_HEIGHT_WITH_LIMITS",
               this.props.maxDynamicHeight,
