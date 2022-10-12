@@ -156,7 +156,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
           className={classNames({
             "h-full p-0 overflow-y-auto min-w-72": true,
             "max-w-104": !isAppSettingsPaneOpen,
-            "transition-all duration-300": isAppSettingsPaneOpen,
+            "transition-all duration-300": !resizing,
           })}
           style={{
             width: isAppSettingsPaneOpen
