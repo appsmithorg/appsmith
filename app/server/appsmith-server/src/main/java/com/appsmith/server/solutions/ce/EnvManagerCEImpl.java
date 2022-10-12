@@ -377,7 +377,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
         // We cannot send sensitive information present as values in env to the analytics
         // Values are filtered and only variable names are sent
-        Map<String, Object> analyticsProperties = Map.of(FieldName.UPDATED_SETTINGS, changes.keySet());
+        Map<String, Object> analyticsProperties = Map.of(FieldName.UPDATED_INSTANCE_SETTINGS, changes.keySet());
         Mono<User> sendAnalyticsMono = Mono.empty();
         // Currently supporting only one authentication method update in one env update call
         if (!analyticsEvents.isEmpty()) {
