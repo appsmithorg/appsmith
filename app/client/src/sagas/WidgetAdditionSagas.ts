@@ -6,7 +6,10 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { RenderModes } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import {
   CanvasWidgetsReduxState,
@@ -23,7 +26,10 @@ import {
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import { getParentBottomRowAfterAddingWidget } from "./WidgetOperationUtils";
+import {
+  getParentBottomRowAfterAddingWidget,
+  resizeCanvasToLowestWidget,
+} from "./WidgetOperationUtils";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
@@ -36,6 +42,8 @@ import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { getMainCanvasProps } from "selectors/editorSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -318,6 +326,24 @@ export function* getUpdateDslAfterCreatingChild(
     addChildPayload.newWidgetId,
     widgets,
   );
+
+  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
+    const mainCanvasMinHeight = mainCanvasProps?.height;
+
+    //updates bottom Row of main Canvas
+    updatedWidgets[
+      MAIN_CONTAINER_WIDGET_ID
+    ].bottomRow = resizeCanvasToLowestWidget(
+      updatedWidgets,
+      widgetId,
+      updatedWidgets[MAIN_CONTAINER_WIDGET_ID].bottomRow,
+      mainCanvasMinHeight,
+    );
+  }
+
   return updatedWidgets;
 }
 

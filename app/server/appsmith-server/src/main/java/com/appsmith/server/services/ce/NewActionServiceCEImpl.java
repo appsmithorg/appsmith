@@ -645,18 +645,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // 3. Instantiate the implementation class based on the query type
 
         Mono<Datasource> datasourceMono = actionDTOMono
-                .flatMap(action -> {
-                    // Global datasource requires us to fetch the datasource from DB.
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                        FieldName.DATASOURCE,
-                                        action.getDatasource().getId())));
-                    }
-
-                    // This is a nested datasource. Return as is.
-                    return Mono.justOrEmpty(action.getDatasource());
-                })
+                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO, EXECUTE_DATASOURCES))
                 .cache();
 
         Mono<Plugin> pluginMono = datasourceMono
@@ -1117,6 +1106,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
+                    final String appMode = TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
 
                     final Map<String, Object> data = new HashMap<>(Map.of(
                             "username", user.getUsername(),
@@ -1128,7 +1118,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             ),
                             "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
-                            "appMode", TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString(),
+                            FieldName.APP_MODE, appMode,
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample()
                     ));
@@ -1176,7 +1166,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
-                            FieldName.APP_MODE, viewMode,
+                            FieldName.APP_MODE, appMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
                             FieldName.ACTION_EXECUTION_REQUEST, request,

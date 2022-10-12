@@ -26,7 +26,7 @@ import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { EvalTreePayload } from "../sagas/EvaluationsSaga";
-import { UserLogObject } from "./UserLog";
+import { UserLogObject } from "entities/AppsmithConsole";
 
 const CANVAS = "canvas";
 
@@ -239,6 +239,7 @@ ctx.addEventListener(
           callbackData,
           dataTree,
           dynamicTrigger,
+          eventType,
           globalContext,
         } = requestData;
         if (!dataTreeEvaluator) {
@@ -256,6 +257,7 @@ ctx.addEventListener(
           callbackData,
           {
             globalContext,
+            eventType,
           },
         );
 

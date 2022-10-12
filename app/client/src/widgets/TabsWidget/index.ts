@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -15,6 +16,9 @@ export const CONFIG = {
     shouldScrollContents: false,
     widgetName: "Tabs",
     animateLoading: true,
+    borderWidth: 1,
+    borderColor: Colors.GREY_5,
+    backgroundColor: Colors.WHITE,
     tabsObj: {
       tab1: {
         label: "Tab 1",
