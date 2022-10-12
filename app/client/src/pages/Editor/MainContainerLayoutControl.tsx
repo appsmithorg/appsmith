@@ -12,17 +12,8 @@ import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import {
-  TooltipComponent,
-  Icon,
-  IconName,
-  IconSize,
-  Button,
-  Size,
-} from "design-system";
+import { TooltipComponent, Icon, IconName, IconSize } from "design-system";
 import { updateApplicationLayout } from "actions/applicationActions";
-import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import { PopoverPosition } from "@blueprintjs/core";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -120,68 +111,46 @@ export function MainContainerLayoutControl() {
     }
   };
 
-  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
-
   return (
-    <>
-      <div className="space-y-2 t--layout-control-wrapper pb-6">
-        <div
-          className="flex justify-around"
-          onBlur={() => setFocusedIndex(selectedIndex)}
-        >
-          {AppsmithLayouts.map((layoutOption: any, index: number) => {
-            return (
-              <TooltipComponent
-                className="flex-grow"
-                content={layoutOption.name}
-                key={layoutOption.name}
-                position={
-                  index === AppsmithLayouts.length - 1
-                    ? "bottom-right"
-                    : "bottom"
-                }
-              >
-                <button
-                  className={classNames({
-                    "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
-                    "bg-white border-gray-300": selectedIndex === index,
-                    "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
-                  })}
-                  onClick={() => {
-                    updateAppLayout(layoutOption);
-                    setFocusedIndex(index);
-                  }}
-                  onKeyDown={(event) => handleKeyDown(event, index)}
-                  ref={(input) => buttonRefs.push(input)}
-                  tabIndex={index === focusedIndex ? 0 : -1}
-                >
-                  <Icon
-                    fillColor={Colors.BLACK}
-                    name={layoutOption.icon}
-                    size={layoutOption.iconSize || IconSize.MEDIUM}
-                  />
-                </button>
-              </TooltipComponent>
-            );
-          })}
-        </div>
-      </div>
-      <TooltipComponent
-        content={
-          <>
-            <div>Update your app theme, URL</div>and other settings
-          </>
-        }
-        position={PopoverPosition.BOTTOM}
+    <div className="pb-6 space-y-2 t--layout-control-wrapper">
+      <div
+        className="flex justify-around"
+        onBlur={() => setFocusedIndex(selectedIndex)}
       >
-        <Button
-          className="!bg-white !border-[#716e6e] !text-[#716e6e]"
-          fill
-          onClick={openAppSettingsPane}
-          size={Size.medium}
-          text="App Settings"
-        />
-      </TooltipComponent>
-    </>
+        {AppsmithLayouts.map((layoutOption: any, index: number) => {
+          return (
+            <TooltipComponent
+              className="flex-grow"
+              content={layoutOption.name}
+              key={layoutOption.name}
+              position={
+                index === AppsmithLayouts.length - 1 ? "bottom-right" : "bottom"
+              }
+            >
+              <button
+                className={classNames({
+                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
+                  "bg-white border-gray-300": selectedIndex === index,
+                  "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
+                })}
+                onClick={() => {
+                  updateAppLayout(layoutOption);
+                  setFocusedIndex(index);
+                }}
+                onKeyDown={(event) => handleKeyDown(event, index)}
+                ref={(input) => buttonRefs.push(input)}
+                tabIndex={index === focusedIndex ? 0 : -1}
+              >
+                <Icon
+                  fillColor={Colors.BLACK}
+                  name={layoutOption.icon}
+                  size={layoutOption.iconSize || IconSize.MEDIUM}
+                />
+              </button>
+            </TooltipComponent>
+          );
+        })}
+      </div>
+    </div>
   );
 }
