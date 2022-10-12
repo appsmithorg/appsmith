@@ -42,6 +42,8 @@ export function defaultValueValidation(
   _?: any,
 ): ValidationResponse {
   const NUMBER_ERROR_MESSAGE = "This value must be number";
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
+    "Please use . as the decimal separator for default values.";
   const EMPTY_ERROR_MESSAGE = "";
   const localeLang = navigator.languages?.[0] || "en-US";
 
@@ -50,7 +52,8 @@ export function defaultValueValidation(
       .format(1.1)
       .replace(/\p{Number}/gu, "");
   }
-
+  const decimalSeperator = getLocaleDecimalSeperator();
+  const defaultDecimalSeperator = ".";
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -59,12 +62,7 @@ export function defaultValueValidation(
     };
   }
 
-  const decimalSeperator = getLocaleDecimalSeperator();
-  const hasDecimalValue = String(value).includes(decimalSeperator);
-  const defaultDecimalSeparator = ".";
-  let parsed: any = hasDecimalValue
-    ? Number(String(value).replaceAll(decimalSeperator, "."))
-    : Number(value);
+  let parsed: any = Number(value);
   let isValid, messages;
 
   if (_.isString(value) && value.trim() === "") {
@@ -79,24 +77,20 @@ export function defaultValueValidation(
      *  When parsed value is not a finite numer
      */
     isValid = false;
-    messages = [NUMBER_ERROR_MESSAGE];
     parsed = undefined;
-  } else if (
-    defaultDecimalSeparator !== decimalSeperator &&
-    !hasDecimalValue &&
-    String(value).includes(defaultDecimalSeparator)
-  ) {
-    /*
-     *  When value have not correct decimal separator
+
+    /**
+     * Check whether value contains the locale decimal separator apart from "."
+     * We only allow "." as a decimal separator inside default value
      */
-    isValid = false;
-    messages = [
-      'Please use "' +
-        decimalSeperator +
-        '" as decimal separator since your locale is ' +
-        localeLang,
-    ];
-    parsed = undefined;
+    if (
+      String(value).indexOf(defaultDecimalSeperator) === -1 &&
+      String(value).indexOf(decimalSeperator) > 0
+    ) {
+      messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
+    } else {
+      messages = [NUMBER_ERROR_MESSAGE];
+    }
   } else {
     /*
      *  When parsed value is a Number
@@ -113,7 +107,7 @@ export function defaultValueValidation(
       messages = [EMPTY_ERROR_MESSAGE];
     }
 
-    parsed = String(value);
+    parsed = String(parsed);
   }
 
   return {

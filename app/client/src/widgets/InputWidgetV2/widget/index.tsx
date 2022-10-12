@@ -33,8 +33,21 @@ export function defaultValueValidation(
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = "This value must be string";
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
+    "Please use . as the decimal separator for default values.";
   const NUMBER_ERROR_MESSAGE = "This value must be number";
   const EMPTY_ERROR_MESSAGE = "";
+  const localeLang = navigator.languages?.[0] || "en-US";
+
+  function getLocaleDecimalSeperator() {
+    return Intl.NumberFormat(localeLang)
+      .format(1.1)
+      .replace(/\p{Number}/gu, "");
+  }
+
+  const decimalSeperator = getLocaleDecimalSeperator();
+  const defaultDecimalSeperator = ".";
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -47,25 +60,12 @@ export function defaultValueValidation(
   let parsed;
   switch (inputType) {
     case "NUMBER":
-      const localeLang = navigator.languages?.[0] || "en-US";
-      function getLocaleDecimalSeperator() {
-        return Intl.NumberFormat(localeLang)
-          .format(1.1)
-          .replace(/\p{Number}/gu, "");
-      }
-
-      let isValid, messages;
-      const defaultDecimalSeparator = ".";
-      const decimalSeperator = getLocaleDecimalSeperator();
-      const hasDecimalValue = String(value).includes(decimalSeperator);
-
       if (_.isNil(value)) {
         parsed = null;
       } else {
-        parsed = hasDecimalValue
-          ? Number(String(value).replaceAll(decimalSeperator, "."))
-          : Number(value);
+        parsed = Number(value);
       }
+      let isValid, messages;
 
       if (_.isString(value) && value.trim() === "") {
         /*
@@ -79,23 +79,18 @@ export function defaultValueValidation(
          *  When parsed value is not a finite numer
          */
         isValid = false;
-        messages = [NUMBER_ERROR_MESSAGE];
-        parsed = null;
-      } else if (
-        defaultDecimalSeparator !== decimalSeperator &&
-        !hasDecimalValue &&
-        String(value).includes(defaultDecimalSeparator)
-      ) {
-        /*
-         *  When value have not correct decimal separator
+        /**
+         * Check whether value contains the locale decimal separator apart from "."
+         * We only allow "." as a decimal separator inside default value
          */
-        isValid = false;
-        messages = [
-          'Please use "' +
-            decimalSeperator +
-            '" as decimal separator since your locale is ' +
-            localeLang,
-        ];
+        if (
+          String(value).indexOf(defaultDecimalSeperator) === -1 &&
+          String(value).indexOf(decimalSeperator) > 0
+        ) {
+          messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
+        } else {
+          messages = [NUMBER_ERROR_MESSAGE];
+        }
         parsed = null;
       } else {
         /*
@@ -140,6 +135,9 @@ export function defaultValueValidation(
 }
 
 export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
+  const max = props.maxNum;
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
+    "Please use . as the decimal separator for default values.";
   const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
@@ -150,22 +148,8 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
 
   const defaultDecimalSeparator = ".";
   const decimalSeperator = getLocaleDecimalSeperator();
-  const max = String(props.maxNum).includes(decimalSeperator)
-    ? Number(
-        String(props.maxNum).replace(
-          new RegExp("\\" + decimalSeperator, "g"),
-          ".",
-        ),
-      )
-    : Number(props.maxNum);
-
   const value = min;
-  const hasDecimalValue = String(value).includes(decimalSeperator);
-  min = hasDecimalValue
-    ? Number(
-        String(value).replace(new RegExp("\\" + decimalSeperator, "g"), "."),
-      )
-    : Number(value);
+  min = Number(min);
 
   if (_?.isNil(value) || value === "") {
     return {
@@ -174,25 +158,23 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
       messages: [""],
     };
   } else if (!Number.isFinite(min)) {
-    return {
-      isValid: false,
-      parsed: undefined,
-      messages: ["This value must be number"],
-    };
-  } else if (
-    defaultDecimalSeparator !== decimalSeperator &&
-    !hasDecimalValue &&
-    String(value).includes(defaultDecimalSeparator)
-  ) {
-    /*
-     *  When value have not correct decimal separator
+    /**
+     * Check whether value contains the locale decimal separator apart from "."
+     * We only allow "." as a decimal separator inside default value
      */
+    let messages = [""];
+    if (
+      String(value).indexOf(defaultDecimalSeparator) === -1 &&
+      String(value).indexOf(decimalSeperator) > 0
+    ) {
+      messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
+    } else {
+      messages = ["This value must be number"];
+    }
     return {
       isValid: false,
       parsed: undefined,
-      messages: [
-        `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
-      ],
+      messages,
     };
   } else if (max !== undefined && min >= max) {
     return {
@@ -210,6 +192,9 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
 }
 
 export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
+  const min = props.minNum;
+  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
+    "Please use . as the decimal separator for default values.";
   const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
@@ -220,22 +205,8 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
 
   const defaultDecimalSeparator = ".";
   const decimalSeperator = getLocaleDecimalSeperator();
-  const min = String(props.minNum).includes(decimalSeperator)
-    ? Number(
-        String(props.minNum).replace(
-          new RegExp("\\" + decimalSeperator, "g"),
-          ".",
-        ),
-      )
-    : Number(props.minNum);
-
   const value = max;
-  const hasDecimalValue = String(value).includes(decimalSeperator);
-  max = hasDecimalValue
-    ? Number(
-        String(value).replace(new RegExp("\\" + decimalSeperator, "g"), "."),
-      )
-    : Number(value);
+  max = Number(max);
 
   if (_?.isNil(value) || value === "") {
     return {
@@ -244,25 +215,23 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
       messages: [""],
     };
   } else if (!Number.isFinite(max)) {
-    return {
-      isValid: false,
-      parsed: undefined,
-      messages: ["This value must be number"],
-    };
-  } else if (
-    defaultDecimalSeparator !== decimalSeperator &&
-    !hasDecimalValue &&
-    String(value).includes(defaultDecimalSeparator)
-  ) {
-    /*
-     *  When value have not correct decimal separator
+    /**
+     * Check whether value contains the locale decimal separator apart from "."
+     * We only allow "." as a decimal separator inside default value
      */
+    let messages = [""];
+    if (
+      String(value).indexOf(defaultDecimalSeparator) === -1 &&
+      String(value).indexOf(decimalSeperator) > 0
+    ) {
+      messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
+    } else {
+      messages = ["This value must be number"];
+    }
     return {
       isValid: false,
       parsed: undefined,
-      messages: [
-        `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
-      ],
+      messages,
     };
   } else if (min !== undefined && max <= min) {
     return {
