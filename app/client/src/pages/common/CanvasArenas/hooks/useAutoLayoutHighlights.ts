@@ -508,8 +508,8 @@ export const useAutoLayoutHighlights = ({
     // For vertical stacks, filter out the highlights based on drag direction and y position.
     if (moveDirection && direction === LayoutDirection.Vertical) {
       const isVerticalDrag =
-        moveDirection === ReflowDirection.TOP ||
-        moveDirection === ReflowDirection.BOTTOM;
+        moveDirection &&
+        [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
 
       filteredHighlights = base.filter((highlight: HighlightInfo) => {
         // Return only horizontal highlights for vertical drag.
@@ -517,28 +517,50 @@ export const useAutoLayoutHighlights = ({
         // Return only vertical highlights for horizontal drag, if they lie in the same x plane.
         return (
           highlight.isVertical &&
-          (pos.y >= highlight.posY ||
-            pos.y <= highlight.posY + highlight.height)
+          pos.y >= highlight.posY &&
+          pos.y <= highlight.posY + highlight.height
         );
       });
-      // Additional redundancy check.
-      // For horizontal drag, if no vertical highlight exists in the same x plane, return the nearest horizontal highlight.
-      if (!isVerticalDrag && !filteredHighlights.length)
-        filteredHighlights = base.filter(
+
+      // For horizontal drag, if no vertical highlight exists in the same x plane,
+      // return the last horizontal highlight.
+      if (!isVerticalDrag && !filteredHighlights.length) {
+        const horizontalHighlights = base.filter(
           (highlight: HighlightInfo) => !highlight.isVertical,
         );
+        filteredHighlights = [
+          horizontalHighlights[horizontalHighlights.length - 1],
+        ];
+      }
     }
 
     const arr = [...filteredHighlights].sort((a, b) => {
-      return calculateDistance(a, pos) - calculateDistance(b, pos);
+      return (
+        calculateDistance(a, pos, moveDirection) -
+        calculateDistance(b, pos, moveDirection)
+      );
     });
+
     return arr[0];
   };
 
-  const calculateDistance = (a: HighlightInfo, b: XYCord): number => {
-    const x: number = a.posX + a.width / 2 - b.x;
-    const y: number = a.posY + a.height / 2 - b.y;
-    return Math.abs(Math.sqrt(x * x + y * y));
+  const calculateDistance = (
+    a: HighlightInfo,
+    b: XYCord,
+    moveDirection?: ReflowDirection,
+  ): number => {
+    /**
+     * Calculate perpendicular distance of a point from a line.
+     * If moving vertically, x is fixed (x = 0) and vice versa.
+     */
+    const isVerticalDrag =
+      moveDirection &&
+      [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
+
+    const distX: number = a.isVertical && isVerticalDrag ? 0 : a.posX - b.x;
+    const distY: number = !a.isVertical && !isVerticalDrag ? 0 : a.posY - b.y;
+
+    return Math.abs(Math.sqrt(distX * distX + distY * distY));
   };
 
   const getDropInfo = (val: XYCord): HighlightInfo | undefined => {
