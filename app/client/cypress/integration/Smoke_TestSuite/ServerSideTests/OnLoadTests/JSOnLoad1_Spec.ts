@@ -309,6 +309,15 @@ describe("JSObjects OnLoad Actions tests", function() {
 
       deployMode.DeployApp();
 
+      //Confirmation - first JSObj then API
+      agHelper.AssertElementVisible(
+        jsEditor._dialogBody((jsName as string) + ".callTrump"),
+      );
+      agHelper.ClickButton("No");
+      agHelper.WaitUntilToastDisappear(
+        `${jsName + ".callTrump"} was cancelled`,
+      ); //When Confirmation is NO validate error toast!
+
       //One Quotes confirmation - for API true
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
@@ -319,29 +328,23 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.ClickButton("No");
       //agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
-      //Confirmation - first JSObj then API
-      agHelper.AssertElementVisible(
-        jsEditor._dialogBody((jsName as string) + ".callTrump"),
-      );
-      agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear(
-        `${jsName + ".callTrump"} was cancelled`,
-      ); //When Confirmation is NO validate error toast!
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
       agHelper.RefreshPage();
-      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
-      agHelper.ClickButton("Yes");
-
-      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
-      agHelper.ClickButton("Yes");
-
       agHelper.AssertElementVisible(
         jsEditor._dialogBody((jsName as string) + ".callTrump"),
       );
       agHelper.ClickButton("Yes");
 
+      agHelper.Sleep();
       agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
+      agHelper.ClickButton("Yes");
+
+      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      agHelper.ClickButton("Yes");
+
+      agHelper.Sleep(500);
+      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("Yes");
 
       agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
