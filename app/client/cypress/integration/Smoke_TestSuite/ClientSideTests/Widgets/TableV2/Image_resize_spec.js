@@ -12,6 +12,7 @@ describe("Table Widget Image Resize feature validation", function() {
 
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("image");
+    cy.moveToStyleTab();
 
     cy.get(".t--property-control-imagesize")
       .last()
@@ -52,6 +53,7 @@ describe("Table Widget Image Resize feature validation", function() {
 
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("image");
+    cy.moveToStyleTab();
 
     cy.get(".t--property-control-imagesize")
       .last()
