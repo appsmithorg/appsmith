@@ -213,7 +213,6 @@ export interface TextComponentProps extends ComponentProps {
   leftColumn?: number;
   rightColumn?: number;
   topRow?: number;
-  innerRef?: React.RefObject<HTMLDivElement>;
 }
 
 type State = {
@@ -303,17 +302,15 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               textAlign={textAlign}
               textColor={textColor}
             >
-              <div className="dynamic-height-wrapper" ref={this.props.innerRef}>
-                <Interweave
-                  content={text}
-                  matchers={
-                    disableLink
-                      ? []
-                      : [new EmailMatcher("email"), new UrlMatcher("url")]
-                  }
-                  newWindow
-                />
-              </div>
+              <Interweave
+                content={text}
+                matchers={
+                  disableLink
+                    ? []
+                    : [new EmailMatcher("email"), new UrlMatcher("url")]
+                }
+                newWindow
+              />
             </StyledText>
             {this.state.isTruncated && (
               <StyledIcon
@@ -371,11 +368,4 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   }
 }
 
-export default React.forwardRef<HTMLDivElement, TextComponentProps>(
-  (props, ref) => (
-    <TextComponent
-      {...props}
-      innerRef={ref as React.RefObject<HTMLDivElement>}
-    />
-  ),
-);
+export default TextComponent;

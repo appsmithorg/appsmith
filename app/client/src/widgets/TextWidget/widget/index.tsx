@@ -644,10 +644,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     );
   };
 
-  componentDidUpdate(prevProps: TextWidgetProps): void {
-    super.componentDidUpdate(prevProps);
-  }
-
   getPageView() {
     const disableLink: boolean = this.props.disableLink
       ? true
@@ -673,7 +669,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
           overflow={this.props.overflow}
-          ref={this.contentRef}
           rightColumn={this.props.rightColumn}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}

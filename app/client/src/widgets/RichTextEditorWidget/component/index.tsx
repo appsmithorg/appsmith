@@ -76,10 +76,7 @@ export interface RichtextEditorComponentProps {
   onValueChange: (valueAsString: string) => void;
 }
 
-const RichtextEditorComponent = React.forwardRef<
-  HTMLDivElement,
-  RichtextEditorComponentProps
->((props, ref) => {
+function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
     isDisabled,
@@ -136,7 +133,6 @@ const RichtextEditorComponent = React.forwardRef<
       compactMode={compactMode}
       data-testid="rte-container"
       labelPosition={labelPosition}
-      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -208,6 +204,6 @@ const RichtextEditorComponent = React.forwardRef<
       </RichTextEditorInputWrapper>
     </StyledRTEditor>
   );
-});
+}
 
 export default RichtextEditorComponent;

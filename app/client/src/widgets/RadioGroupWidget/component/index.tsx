@@ -63,10 +63,7 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   }
 `;
 
-const RadioGroupComponent = React.forwardRef<
-  HTMLDivElement,
-  RadioGroupComponentProps
->((props, ref) => {
+function RadioGroupComponent(props: RadioGroupComponentProps) {
   const {
     accentColor,
     alignment,
@@ -104,7 +101,6 @@ const RadioGroupComponent = React.forwardRef<
       data-testid="radiogroup-container"
       isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
-      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -152,9 +148,7 @@ const RadioGroupComponent = React.forwardRef<
       </StyledRadioGroup>
     </RadioGroupContainer>
   );
-});
-
-RadioGroupComponent.displayName = "RadioGroupComponent";
+}
 
 export interface RadioGroupComponentProps extends ComponentProps {
   options: RadioOption[];
@@ -179,7 +173,5 @@ export interface RadioGroupComponentProps extends ComponentProps {
   maxDynamicHeight?: number;
   required?: boolean;
 }
-
-RadioGroupComponent.displayName = "RadioGroupComponent";
 
 export default RadioGroupComponent;

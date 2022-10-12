@@ -867,7 +867,6 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: MultiSelectTreeWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     if (
       xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >
         0 &&
@@ -917,7 +916,6 @@ class MultiSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        ref={this.contentRef}
         renderMode={this.props.renderMode}
         value={this.props.selectedOptionValues}
         widgetId={this.props.widgetId}

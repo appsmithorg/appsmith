@@ -72,7 +72,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
-  contentRef = React.createRef<HTMLDivElement>();
+  expectedHeight = 0;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -277,14 +277,7 @@ abstract class BaseWidget<
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {
-    requestAnimationFrame(() => {
-      const expectedHeight = this.contentRef.current?.scrollHeight;
-      if (expectedHeight !== undefined) {
-        this.updateDynamicHeight(expectedHeight);
-      }
-    });
-  }
+  componentDidUpdate(prevProps: T) {}
 
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
@@ -432,18 +425,28 @@ abstract class BaseWidget<
     content: ReactNode,
     style?: DynamicHeightOverlayStyle,
   ) {
+    const updateDynamicHeight = () => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          this.updateDynamicHeight(this.expectedHeight);
+        }, 0);
+      });
+    };
+
     const onMaxHeightSet = (height: number) => {
-      this.updateWidgetProperty(
-        "maxDynamicHeight",
-        Math.floor(height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
+      const maxDynamicHeightInRows = Math.floor(
+        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
+      this.updateWidgetProperty("maxDynamicHeight", maxDynamicHeightInRows);
+      updateDynamicHeight();
     };
 
     const onMinHeightSet = (height: number) => {
-      this.updateWidgetProperty(
-        "minDynamicHeight",
-        Math.floor(height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
+      const minDynamicHeightInRows = Math.floor(
+        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
+      this.updateWidgetProperty("minDynamicHeight", minDynamicHeightInRows);
+      updateDynamicHeight();
     };
 
     const onBatchUpdate = (height: number) => {
@@ -457,6 +460,7 @@ abstract class BaseWidget<
           ),
         },
       });
+      updateDynamicHeight();
     };
 
     const position = this.getPositionStyle();
@@ -510,10 +514,18 @@ abstract class BaseWidget<
   };
 
   addDynamicHeightContainer = (content: ReactNode) => {
+    const onHeightUpdate = (height: number) => {
+      this.expectedHeight = height;
+      requestAnimationFrame(() => {
+        this.updateDynamicHeight(height);
+      });
+    };
+
     return (
       <DynamicHeightContainer
         dynamicHeight={this.props.dynamicHeight}
         maxDynamicHeight={this.props.maxDynamicHeight}
+        onHeightUpdate={onHeightUpdate}
       >
         {content}
       </DynamicHeightContainer>

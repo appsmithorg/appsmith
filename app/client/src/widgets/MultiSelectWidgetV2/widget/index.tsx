@@ -955,7 +955,6 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (
@@ -1025,7 +1024,6 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        ref={this.contentRef}
         renderMode={this.props.renderMode}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}

@@ -502,7 +502,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: CheckboxWidgetProps) {
-    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultCheckedState !== prevProps.defaultCheckedState &&
       this.props.isDirty
@@ -529,7 +528,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         onCheckChange={this.onCheckChange}
-        ref={this.contentRef}
         rowSpace={this.props.parentRowSpace}
         widgetId={this.props.widgetId}
       />

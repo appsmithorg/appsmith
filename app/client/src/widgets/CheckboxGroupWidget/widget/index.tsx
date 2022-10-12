@@ -851,7 +851,6 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
-    super.componentDidUpdate(prevProps);
     if (
       Array.isArray(prevProps.options) &&
       Array.isArray(this.props.options) &&
@@ -923,7 +922,6 @@ class CheckboxGroupWidget extends BaseWidget<
         onSelectAllChange={this.handleSelectAllChange}
         optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
-        ref={this.contentRef}
         selectedValues={this.props.selectedValues || []}
         widgetId={this.props.widgetId}
       />

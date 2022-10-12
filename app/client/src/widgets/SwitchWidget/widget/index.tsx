@@ -11,6 +11,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
 import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -449,7 +450,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         onChange={this.onChange}
-        ref={this.contentRef}
         widgetId={this.props.widgetId}
       />
     );
@@ -479,7 +479,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: SwitchWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultSwitchState !== prevProps.defaultSwitchState &&
       this.props.isDirty

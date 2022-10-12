@@ -75,7 +75,6 @@ class InputComponent extends React.Component<InputComponentProps> {
         onKeyDown={this.props.onKeyDown}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
-        ref={this.props.innerRef}
         showError={this.props.showError}
         spellCheck={this.props.spellCheck}
         stepSize={1}
@@ -87,7 +86,6 @@ class InputComponent extends React.Component<InputComponentProps> {
   }
 }
 export interface InputComponentProps extends BaseInputComponentProps {
-  innerRef?: React.RefObject<HTMLDivElement>;
   inputType: InputTypes;
   maxChars?: number;
   spellCheck?: boolean;
@@ -98,11 +96,4 @@ export interface InputComponentProps extends BaseInputComponentProps {
   accentColor?: string;
 }
 
-export default React.forwardRef<HTMLDivElement, InputComponentProps>(
-  (props, ref) => (
-    <InputComponent
-      {...props}
-      innerRef={ref as React.RefObject<HTMLDivElement>}
-    />
-  ),
-);
+export default InputComponent;

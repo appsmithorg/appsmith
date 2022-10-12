@@ -18,10 +18,10 @@ export interface SwitchComponentProps extends ComponentProps {
   labelPosition: LabelPosition;
   accentColor: string;
   inputRef?: (ref: HTMLInputElement | null) => any;
-  isDynamicHeightEnabled?: boolean;
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const SwitchComponentContainer = styled.div<{
@@ -89,69 +89,58 @@ export const StyledSwitch = styled(Switch)<{
   }
 `;
 
-const SwitchComponent = React.forwardRef<HTMLDivElement, SwitchComponentProps>(
-  (
-    {
-      accentColor,
-      alignWidget,
-      inputRef,
-      isDisabled,
-      isDynamicHeightEnabled,
-      isLoading,
-      isSwitchedOn,
-      label,
-      labelPosition,
-      labelStyle,
-      labelTextColor,
-      labelTextSize,
-      onChange,
-    },
-    ref,
-  ) => {
-    const switchAlignClass =
-      alignWidget === AlignWidgetTypes.RIGHT ? Alignment.RIGHT : Alignment.LEFT;
+function SwitchComponent({
+  accentColor,
+  alignWidget,
+  inputRef,
+  isDisabled,
+  isDynamicHeightEnabled,
+  isLoading,
+  isSwitchedOn,
+  label,
+  labelPosition,
+  labelStyle,
+  labelTextColor,
+  labelTextSize,
+  onChange,
+}: SwitchComponentProps): JSX.Element {
+  const switchAlignClass =
+    alignWidget === AlignWidgetTypes.RIGHT ? Alignment.RIGHT : Alignment.LEFT;
 
-    return (
-      <SwitchComponentContainer
+  return (
+    <SwitchComponentContainer accentColor={accentColor}>
+      <StyledSwitch
         accentColor={accentColor}
-        ref={ref}
-        style={isDynamicHeightEnabled ? { height: "auto" } : undefined}
-      >
-        <StyledSwitch
-          accentColor={accentColor}
-          alignIndicator={switchAlignClass}
-          checked={isSwitchedOn}
-          className={
-            isLoading
-              ? `${Classes.SKELETON} t--switch-widget-loading`
-              : `${
-                  isSwitchedOn
-                    ? "t--switch-widget-active"
-                    : "t--switch-widget-inactive"
-                }`
-          }
-          disabled={isDisabled}
-          inputRef={inputRef}
-          labelElement={
-            <SwitchLabel
-              className="t--switch-widget-label"
-              disabled={isDisabled}
-              isDynamicHeightEnabled={isDynamicHeightEnabled}
-              labelPosition={labelPosition}
-              labelStyle={labelStyle}
-              labelTextColor={labelTextColor}
-              labelTextSize={labelTextSize}
-            >
-              {label}
-            </SwitchLabel>
-          }
-          onChange={() => onChange(!isSwitchedOn)}
-        />
-      </SwitchComponentContainer>
-    );
-  },
-);
-
-SwitchComponent.displayName = "SwitchComponent";
+        alignIndicator={switchAlignClass}
+        checked={isSwitchedOn}
+        className={
+          isLoading
+            ? `${Classes.SKELETON} t--switch-widget-loading`
+            : `${
+                isSwitchedOn
+                  ? "t--switch-widget-active"
+                  : "t--switch-widget-inactive"
+              }`
+        }
+        disabled={isDisabled}
+        inputRef={inputRef}
+        labelElement={
+          <SwitchLabel
+            className="t--switch-widget-label"
+            disabled={isDisabled}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
+            labelPosition={labelPosition}
+            labelStyle={labelStyle}
+            labelTextColor={labelTextColor}
+            labelTextSize={labelTextSize}
+          >
+            {label}
+          </SwitchLabel>
+        }
+        onChange={() => onChange(!isSwitchedOn)}
+      />
+    </SwitchComponentContainer>
+  );
+}
 
 export default SwitchComponent;
