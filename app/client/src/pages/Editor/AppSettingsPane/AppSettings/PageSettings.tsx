@@ -140,8 +140,10 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <div className="pt-2 pb-2.5 text-[#575757] break-all">
+      <div className="pt-2 pb-2.5 text-[#575757] text-xs leading-extra-tight break-all">
         <p>
+          {location.protocol}
+          {"//"}
           {window.location.hostname}
           {Array.isArray(pathPreview) && (
             <>

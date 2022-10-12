@@ -5,6 +5,9 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      lineHeight: {
+        "extra-tight": "1.17",
+      },
       screens: {
         xs: "320px",
         sm: "640px",
