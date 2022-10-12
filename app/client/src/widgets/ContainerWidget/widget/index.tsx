@@ -64,9 +64,6 @@ class ContainerWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: WidgetProps) =>
-              isDynamicHeightEnabledForWidget(props),
-            dependencies: ["dynamicHeight"],
           },
         ],
       },

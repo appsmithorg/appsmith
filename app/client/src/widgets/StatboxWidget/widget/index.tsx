@@ -2,6 +2,8 @@ import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget from "widgets/ContainerWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { WidgetProps } from "widgets/BaseWidget";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -124,6 +126,9 @@ class StatboxWidget extends ContainerWidget {
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "animateLoading",
