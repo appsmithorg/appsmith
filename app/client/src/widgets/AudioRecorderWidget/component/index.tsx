@@ -49,7 +49,12 @@ const RightContainer = styled.div`
   flex-direction: column;
   justify-content: space-around;
   height: 100%;
-  padding-left: 8%;
+  padding-left: 16px;
+
+  .status {
+    font-size: 16px;
+    font-weight: bold;
+  }
 
   & > .controls {
     display: flex;
@@ -57,6 +62,10 @@ const RightContainer = styled.div`
     button {
       margin-left: 5%;
       border: none;
+    }
+
+    button.close-button {
+      margin-left: auto;
     }
   }
 `;
@@ -264,7 +273,8 @@ function PlayerButton(props: PlayerButtonProps) {
     default:
       return (
         <Button
-          icon={<Icon color="#F22B2B" icon="small-cross" iconSize={20} />}
+          className="close-button"
+          icon={<Icon color="#858282" icon="small-cross" iconSize={20} />}
           minimal
           onClick={onClick}
           outlined
@@ -492,7 +502,7 @@ function RecorderRight(props: RecorderRightProps) {
       <div className="status">{statusMessage}</div>
       {recorderStatus === RecorderStatusTypes.PERMISSION_DENIED ? (
         <a
-          href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
+          href="https://support.google.com/chrome/answer/2693767"
           rel="noreferrer"
           target="_blank"
         >

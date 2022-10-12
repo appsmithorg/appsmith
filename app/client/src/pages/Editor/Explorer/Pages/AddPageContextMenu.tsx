@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import FileAddIcon from "remixicon-react/FileAddLineIcon";
 import Database2LineIcon from "remixicon-react/Database2LineIcon";
 import Layout2LineIcon from "remixicon-react/Layout2LineIcon";
@@ -18,7 +18,7 @@ import styled from "styled-components";
 import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ExplorerURLParams } from "../helpers";
 import { showTemplatesModal } from "actions/templateActions";
 import { Colors } from "constants/Colors";
@@ -31,6 +31,7 @@ import {
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
 import HotKeys from "../Files/SubmenuHotkeys";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const MenuItem = styled.div<{ active: boolean }>`
   display: flex;
@@ -72,6 +73,7 @@ function AddPageContextMenu({
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
   const [activeItemIdx, setActiveItemIdx] = useState(0);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const menuRef = useCallback(
     (node) => {
@@ -82,26 +84,33 @@ function AddPageContextMenu({
     [show],
   );
 
-  const ContextMenuItems = [
-    {
-      title: createMessage(CREATE_PAGE),
-      icon: FileAddIcon,
-      onClick: createPageCallback,
-      "data-cy": "add-page",
-    },
-    {
-      title: createMessage(GENERATE_PAGE_ACTION_TITLE),
-      icon: Database2LineIcon,
-      onClick: () => history.push(generateTemplateFormURL({ pageId })),
-      "data-cy": "generate-page",
-    },
-    {
-      title: createMessage(ADD_PAGE_FROM_TEMPLATE),
-      icon: Layout2LineIcon,
-      onClick: () => dispatch(showTemplatesModal(true)),
-      "data-cy": "add-page-from-template",
-    },
-  ];
+  const ContextMenuItems = useMemo(() => {
+    const items = [
+      {
+        title: createMessage(CREATE_PAGE),
+        icon: FileAddIcon,
+        onClick: createPageCallback,
+        "data-cy": "add-page",
+      },
+      {
+        title: createMessage(GENERATE_PAGE_ACTION_TITLE),
+        icon: Database2LineIcon,
+        onClick: () => history.push(generateTemplateFormURL({ pageId })),
+        "data-cy": "generate-page",
+      },
+    ];
+
+    if (featureFlags.TEMPLATES_PHASE_2) {
+      items.push({
+        title: createMessage(ADD_PAGE_FROM_TEMPLATE),
+        icon: Layout2LineIcon,
+        onClick: () => dispatch(showTemplatesModal(true)),
+        "data-cy": "add-page-from-template",
+      });
+    }
+
+    return items;
+  }, [featureFlags, pageId]);
 
   const handleUpKey = useCallback(() => {
     setActiveItemIdx((currentActiveIndex) => {
