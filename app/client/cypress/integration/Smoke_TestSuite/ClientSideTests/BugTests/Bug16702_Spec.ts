@@ -47,10 +47,11 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       .click()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "offsetValue");
+    agHelper.Sleep(200);
 
     /* Start: Block of code to remove error of detached node of codemirror for cypress reference */
 
-    apiPage.SelectPaneTab("Params")
+    apiPage.SelectPaneTab("Params");
     apiPage.SelectPaneTab("Body");
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
 
