@@ -10,6 +10,14 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Validate API request body panel", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");

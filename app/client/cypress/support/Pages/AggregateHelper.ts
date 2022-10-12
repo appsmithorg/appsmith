@@ -60,8 +60,8 @@ export class AggregateHelper {
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let pageid: string;
-    let layoutId;
+    let pageid: string, layoutId, appId: string | null;
+    appId = localStorage.getItem("applicationId");
     cy.url().then((url) => {
       pageid = url
         .split("/")[5]
@@ -75,7 +75,7 @@ export class AggregateHelper {
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
-          "api/v1/layouts/" + layoutId + "/pages/" + pageid,
+          "api/v1/layouts/" + layoutId + "/pages/" + pageid + "?applicationId=" + appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);

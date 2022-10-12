@@ -1,6 +1,11 @@
 import React, { ReactNode, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
-import { Button, Category, Dropdown, Size } from "design-system";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  Dropdown,
+  Size,
+} from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
