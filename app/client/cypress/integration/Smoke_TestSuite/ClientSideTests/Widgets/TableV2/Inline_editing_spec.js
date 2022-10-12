@@ -2,11 +2,15 @@ const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
@@ -666,14 +670,9 @@ describe("Table widget inline editing functionality", () => {
         expect(text).to.equal("discarded!!");
       });
   });
-});
-
-describe("Table widget inline editing functionality with Text wrapping functionality", () => {
-  beforeEach(() => {
-    cy.addDsl(dsl);
-  });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
+    cy.addDsl(dsl);
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);
