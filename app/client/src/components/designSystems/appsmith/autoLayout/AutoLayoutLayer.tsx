@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 
 import { FlexDirection, LayoutDirection } from "components/constants";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -33,13 +34,14 @@ const LayoutLayerContainer = styled.div<{
 
 const SubWrapper = styled.div<{
   flexDirection: FlexDirection;
+  hasFillChild?: boolean;
 }>`
   flex: 1 1 33.3%;
   display: flex;
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   align-items: ${({ flexDirection }) =>
     flexDirection === FlexDirection.Column ? "flex-start" : "center"};
-  flex-wrap: wrap;
+  flex-wrap: ${({ hasFillChild }) => (hasFillChild ? "wrap" : "nowrap")};
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -67,13 +69,19 @@ function getInverseDirection(direction: LayoutDirection): LayoutDirection {
 }
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
+  const isMobile = useIsMobileDevice();
   const flexDirection = getFlexDirection(getInverseDirection(props.direction));
   return (
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
       flexDirection={flexDirection}
     >
-      <StartWrapper flexDirection={flexDirection}>{props.start}</StartWrapper>
+      <StartWrapper
+        flexDirection={flexDirection}
+        hasFillChild={props.hasFillChild && isMobile}
+      >
+        {props.start}
+      </StartWrapper>
       <CenterWrapper
         className={props.hasFillChild ? "no-display" : ""}
         flexDirection={flexDirection}
