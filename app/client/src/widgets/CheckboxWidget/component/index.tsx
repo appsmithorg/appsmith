@@ -23,6 +23,10 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     height: 100%;
     justify-content: start;
     width: 100%;
+
+    .${Classes.CHECKBOX} {
+      width: 100%;
+    }
   }
 `;
 
