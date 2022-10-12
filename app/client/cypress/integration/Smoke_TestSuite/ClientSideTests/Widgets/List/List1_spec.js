@@ -1,6 +1,5 @@
 const dsl = require("../../../../../fixtures/listRegressionDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 let propPane = ObjectsRegistry.PropertyPane;
