@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
 
 import {
   getImportedApplication,
@@ -15,6 +14,7 @@ import { Classes, MENU_HEIGHT } from "./constants";
 import {
   Button,
   Category,
+  DialogComponent as Dialog,
   Icon,
   IconSize,
   Size,
