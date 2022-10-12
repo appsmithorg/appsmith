@@ -17,6 +17,14 @@ describe("Json & JsonB Datatype tests", function() {
     });
   });
 
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   //#region Json Datatype
 
   it("0. Importing App & setting theme", () => {
@@ -35,7 +43,7 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-
+    ee.SelectEntityByName(dsName, "Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.jsonbooks"));
   });
@@ -368,6 +376,7 @@ describe("Json & JsonB Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
+    ee.SelectEntityByName(dsName, "Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer("public.jsonBbooks"),

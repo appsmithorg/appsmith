@@ -21,7 +21,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -175,7 +175,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * Note: It is assumed here that `application` is already checked for the MANAGE_APPLICATIONS policy.
      *
      * @param application Application to which the page will be added. Should have an `id` already.
-     * @param page Page to be added to the application. Should have an `id` already.
+     * @param page        Page to be added to the application. Should have an `id` already.
      * @return UpdateResult object with details on how many documents have been updated, which should be 0 or 1.
      */
     @Override
@@ -183,21 +183,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         String defaultPageId = page.getDefaultResources() == null || StringUtils.isEmpty(page.getDefaultResources().getPageId())
                 ? page.getId() : page.getDefaultResources().getPageId();
-        if(isDuplicatePage(application, page.getId())) {
+        if (isDuplicatePage(application, page.getId())) {
             return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
                     .doOnSuccess(result -> {
                         if (result.getModifiedCount() != 1) {
                             log.error("Add page to application didn't update anything, probably because application wasn't found.");
                         }
                     });
-        } else{
-            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id "+page.getId()));
+        } else {
+            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, "Page already exists with id " + page.getId()));
         }
 
     }
 
     private Boolean isDuplicatePage(Application application, String pageId) {
-        if( application.getPages() != null) {
+        if (application.getPages() != null) {
             int count = (int) application.getPages().stream().filter(
                     applicationPage -> applicationPage.getId().equals(pageId)).count();
             if (count > 0) {
@@ -326,7 +326,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application application1 = tuple.getT1();
                     application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
                     // assign the default theme id to edit mode
-                    return themeService.getDefaultThemeId().map(themeId-> {
+                    return themeService.getDefaultThemeId().map(themeId -> {
                         application1.setEditModeThemeId(themeId);
                         application1.setPublishedModeThemeId(themeId);
                         return themeId;
@@ -413,7 +413,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return deleteApplicationByResource(application);
                 })
                 .then(applicationMono)
-                .flatMap(application ->{
+                .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
                         String repoName = gitData.getRepoName();
@@ -427,10 +427,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
-        log.debug("Archiving pages, actions and actionCollections for applicationId: {}", application.getId());
-        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
-                .then(actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS))
+        log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
+        return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS)
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .then(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
                 .flatMap(deletedApplication -> {
@@ -644,14 +644,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                     })
                                                     .flatMap(newlyCreatedActionCollection ->
                                                             Flux.fromIterable(updatedDefaultToBranchedActionId.values())
-                                                                .flatMap(newActionService::findById)
-                                                                .flatMap(newlyCreatedAction -> {
-                                                                    newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
-                                                                    newlyCreatedAction.getUnpublishedAction().getDefaultResources()
-                                                                            .setCollectionId(newlyCreatedActionCollection.getDefaultResources().getCollectionId());
-                                                                    return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
-                                                                })
-                                                                .collectList()
+                                                                    .flatMap(newActionService::findById)
+                                                                    .flatMap(newlyCreatedAction -> {
+                                                                        newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedActionCollection.getId());
+                                                                        newlyCreatedAction.getUnpublishedAction().getDefaultResources()
+                                                                                .setCollectionId(newlyCreatedActionCollection.getDefaultResources().getCollectionId());
+                                                                        return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
+                                                                    })
+                                                                    .collectList()
                                                     );
                                         })
                                         .collectList();
@@ -665,7 +665,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Flux.fromIterable(layouts)
                             .flatMap(layout -> {
                                 layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                return layoutActionService.updateLayout(savedPage.getId(), layout.getId(), layout);
+                                return layoutActionService.updateLayout(savedPage.getId(), savedPage.getApplicationId(), layout.getId(), layout);
                             })
                             .collectList()
                             .thenReturn(savedPage);
@@ -700,7 +700,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(application -> {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
-                    if(StringUtils.isEmpty(branchName)
+                    if (StringUtils.isEmpty(branchName)
                             && !Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
                             && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(
@@ -744,7 +744,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newApplication.setLastEditedAt(Instant.now());
                     newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
 
-                    if(sourceApplication.getApplicationVersion() != null) {
+                    if (sourceApplication.getApplicationVersion() != null) {
                         newApplication.setApplicationVersion(sourceApplication.getApplicationVersion());
                     } else {
                         newApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
@@ -883,14 +883,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
                             }).collectList();
 
-                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
+                    // Page is deleted only after other resources are deleted
+                    return Mono.zip(archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
                             .map(tuple -> {
-                                PageDTO page1 = tuple.getT1();
-                                List<ActionDTO> actions = tuple.getT2();
-                                final List<ActionCollectionDTO> actionCollections = tuple.getT3();
-                                Application application = tuple.getT4();
-                                log.debug("Archived pageId: {} , {} actions and {} action collections for applicationId: {}", page1.getId(), actions.size(), actionCollections.size(), application.getId());
-                                return page1;
+                                List<ActionDTO> actions = tuple.getT1();
+                                final List<ActionCollectionDTO> actionCollections = tuple.getT2();
+                                Application application = tuple.getT3();
+                                log.debug("Archived {} actions and {} action collections for applicationId: {}", actions.size(), actionCollections.size(), application.getId());
+                                return application;
+                            })
+                            .then(archivedPageMono)
+                            .map(pageDTO -> {
+                                log.debug("Archived pageId: {} for applicationId: {}", pageDTO.getId(), pageDTO.getApplicationId());
+                                return pageDTO;
                             })
                             .flatMap(pageDTO ->
                                     // save the last edit information as page is deleted from application
@@ -905,6 +910,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
+
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
@@ -920,7 +926,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .cache();
 
         Mono<Theme> publishThemeMono = applicationMono.flatMap(
-                application ->  themeService.publishTheme(application.getId())
+                application -> themeService.publishTheme(application.getId())
         );
 
         Mono<List<NewPage>> publishApplicationAndPages = applicationMono
@@ -966,7 +972,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-                    if(isPublishedManually) {
+                    if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
                     // Archive the deleted pages and save the application changes and then return the pages so that
@@ -1064,11 +1070,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
-    /** This function walks through all the pages and reorders them and updates the order as per the user preference.
+    /**
+     * This function walks through all the pages and reorders them and updates the order as per the user preference.
      * A page can be moved up or down from the current position and accordingly the order of the remaining page changes.
-     * @param defaultAppId The id of the Application
+     *
+     * @param defaultAppId  The id of the Application
      * @param defaultPageId Targetted page id
-     * @param order New order for the selected page
+     * @param order         New order for the selected page
      * @return Application object with the latest order
      **/
     @Override
@@ -1090,7 +1098,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         }
                     }
 
-                    if(foundPage != null) {
+                    if (foundPage != null) {
                         pages.remove(foundPage);
                         pages.add(order, foundPage);
                     }
@@ -1105,9 +1113,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     /**
      * This method will create a new suffixed application or update the existing application if there is name conflict
+     *
      * @param application resource which needs to be created or updated
-     * @param name name which should be assigned to the application
-     * @param suffix extension to application name
+     * @param name        name which should be assigned to the application
+     * @param suffix      extension to application name
      * @return updated application with modified name if duplicate key exception is thrown
      */
     public Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix) {
@@ -1136,8 +1145,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     /**
      * To send analytics event for cloning an application
+     *
      * @param sourceApplication The application from which cloning is done
-     * @param application The newly created application by cloning
+     * @param application       The newly created application by cloning
      * @return The newly created application by cloning
      */
     private Mono<Application> sendCloneApplicationAnalyticsEvent(Application sourceApplication, Application application) {
@@ -1163,12 +1173,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     /**
      * To send analytics event for page views
-     * @param newPage Page being accessed
+     *
+     * @param newPage  Page being accessed
      * @param viewMode Page is accessed in view mode or not
      * @return NewPage
      */
     private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
-        String view = viewMode ? ApplicationMode.EDIT.toString() : ApplicationMode.PUBLISHED.toString();
+        String view = viewMode ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
         final Map<String, Object> eventData = Map.of(
                 FieldName.PAGE, newPage,
                 FieldName.APP_MODE, view
