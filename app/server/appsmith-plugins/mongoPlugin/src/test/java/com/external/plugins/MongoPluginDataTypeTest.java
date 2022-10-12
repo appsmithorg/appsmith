@@ -43,6 +43,8 @@ public class MongoPluginDataTypeTest {
                 new BigDecimalType()
         ));
 
+        //BSON is the superset of JSON with more data types.
+        // That's why JsonObjectType precedes otherwise BsonType would always take over
         pluginSpecificTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType(), new BsonType()));
 
         pluginSpecificTypes.put(ClientDataType.STRING, List.of(
