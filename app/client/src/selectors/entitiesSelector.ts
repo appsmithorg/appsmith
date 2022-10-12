@@ -43,6 +43,13 @@ export const getDatasourcesStructure = (
   return state.entities.datasources.structure;
 };
 
+export const getDatasourceStructureByDatasourceId = (
+  state: AppState,
+  datasourceId: string,
+): DatasourceStructure => {
+  return state.entities.datasources.structure[datasourceId];
+};
+
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
 };

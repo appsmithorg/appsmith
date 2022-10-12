@@ -222,7 +222,6 @@ class ApiEditor extends React.Component<Props> {
             }
             isDeleting={isDeleting}
             isRunning={isRunning}
-            match={this.props.match}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             paginationType={paginationType}

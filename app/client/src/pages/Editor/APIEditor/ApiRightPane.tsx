@@ -5,7 +5,6 @@ import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseC
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";
 import { Text, FontWeight, TextType } from "design-system";
-import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
 import { getQueryParams } from "utils/URLUtils";
 import ActionRightPane, {
@@ -13,8 +12,62 @@ import ActionRightPane, {
 } from "components/editorComponents/ActionRightPane";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
-import { sortedDatasourcesHandler } from "./helpers";
+import { useSelector } from "react-redux";
 import { datasourcesEditorIdURL } from "RouteBuilder";
+import { isGraphqlPlugin } from "entities/Action";
+import { getPlugin } from "selectors/entitiesSelector";
+import { AppState } from "@appsmith/reducers";
+import FormRow from "components/editorComponents/FormRow";
+import { sortedDatasourcesHandler } from "./helpers";
+import GraphqlDocExplorer from "./GraphQL/GraphqlDocExplorer";
+import { SuggestedWidget } from "api/ActionAPI";
+import { Datasource } from "entities/Datasource";
+
+export const TabbedViewContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  height: 100%;
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  ${FormRow} {
+    min-height: auto;
+    padding: ${(props) => props.theme.spaces[0]}px;
+    & > * {
+      margin-right: 0px;
+    }
+  }
+
+  &&& {
+    ul.react-tabs__tab-list {
+      overflow: auto hidden;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
+      li.react-tabs__tab--selected {
+        > div {
+          color: ${(props) => props.theme.colors.apiPane.closeIcon};
+        }
+      }
+    }
+    .react-tabs__tab-panel {
+      height: calc(100% - 36px);
+      background-color: ${(props) => props.theme.colors.apiPane.tabBg};
+      .eye-on-off {
+        svg {
+          fill: ${(props) =>
+            props.theme.colors.apiPane.requestTree.header.icon};
+          &:hover {
+            fill: ${(props) =>
+              props.theme.colors.apiPane.requestTree.header.icon};
+          }
+          path {
+            fill: unset;
+          }
+        }
+      }
+    }
+  }
+`;
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -203,11 +256,28 @@ export const getDatasourceInfo = (datasource: any): string => {
   return info.join(" | ");
 };
 
-function ApiRightPane(props: any) {
+type ApiRightPaneType = {
+  actionName: string;
+  actionId: string;
+  applicationId?: string;
+  currentActionDatasourceId: string;
+  currentPageId: string;
+  datasources?: any;
+  hasResponse: boolean;
+  onClick: (datasource: Datasource) => void;
+  pluginId: string;
+  suggestedWidgets?: SuggestedWidget[];
+};
+
+function ApiRightPane(props: ApiRightPaneType) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
+  const currentPlugin = useSelector((state: AppState) =>
+    getPlugin(state, props?.pluginId ?? ""),
+  );
+
   useEffect(() => {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
@@ -222,6 +292,108 @@ function ApiRightPane(props: any) {
     [props.datasources, props.currentActionDatasourceId],
   );
 
+  const isGraphqlDatasource = isGraphqlPlugin(currentPlugin);
+
+  const tabArray = [
+    {
+      key: "datasources",
+      title: "Datasources",
+      panelComponent:
+        props.datasources && props.datasources.length > 0 ? (
+          <DataSourceListWrapper className={selectedIndex === 0 ? "show" : ""}>
+            {(sortedDatasources || []).map((d: any, idx: number) => {
+              const dataSourceInfo: string = getDatasourceInfo(d);
+              return (
+                <DatasourceCard key={idx} onClick={() => props.onClick(d)}>
+                  <DataSourceNameContainer>
+                    <Text type={TextType.H5} weight={FontWeight.BOLD}>
+                      {d.name}
+                    </Text>
+                    <IconContainer>
+                      {d?.id === props.currentActionDatasourceId && (
+                        <SelectedDatasourceInfoContainer>
+                          <p>In use</p>
+                        </SelectedDatasourceInfoContainer>
+                      )}
+                      <Icon
+                        name="edit"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          history.push(
+                            datasourcesEditorIdURL({
+                              pageId: props.currentPageId,
+                              datasourceId: d.id,
+                              params: getQueryParams(),
+                            }),
+                          );
+                        }}
+                        size={IconSize.LARGE}
+                      />
+                    </IconContainer>
+                  </DataSourceNameContainer>
+                  <DatasourceURL>
+                    {d.datasourceConfiguration?.url}
+                  </DatasourceURL>
+                  {dataSourceInfo && (
+                    <>
+                      <StyledSeparator />
+                      <PadTop>
+                        <Text type={TextType.P3} weight={FontWeight.NORMAL}>
+                          {dataSourceInfo}
+                        </Text>
+                      </PadTop>
+                    </>
+                  )}
+                </DatasourceCard>
+              );
+            })}
+          </DataSourceListWrapper>
+        ) : (
+          <EmptyDatasourceContainer>
+            <NoEntityFoundWrapper>
+              <div className="lines first-line" />
+              <div className="lines second-line" />
+            </NoEntityFoundWrapper>
+            <Text
+              textAlign="center"
+              type={TextType.H5}
+              weight={FontWeight.NORMAL}
+            >
+              When you save a datasource, it will show up here.
+            </Text>
+          </EmptyDatasourceContainer>
+        ),
+    },
+    {
+      key: "Connections",
+      title: "Connections",
+      panelComponent: (
+        <SomeWrapper>
+          <ActionRightPane
+            actionName={props.actionName}
+            entityDependencies={entityDependencies}
+            hasConnections={hasDependencies}
+            hasResponse={props.hasResponse}
+            suggestedWidgets={props.suggestedWidgets}
+          />
+        </SomeWrapper>
+      ),
+    },
+  ];
+
+  if (isGraphqlDatasource) {
+    tabArray.unshift({
+      key: "Graphql",
+      title: "Explorer",
+      panelComponent: (
+        <GraphqlDocExplorer
+          actionId={props.actionId}
+          datasourceId={props.currentActionDatasourceId}
+        />
+      ),
+    });
+  }
+
   return (
     <DatasourceContainer>
       <TabbedViewContainer>
@@ -229,100 +401,7 @@ function ApiRightPane(props: any) {
           cypressSelector={"api-right-pane"}
           onSelect={setSelectedIndex}
           selectedIndex={selectedIndex}
-          tabs={[
-            {
-              key: "datasources",
-              title: "Datasources",
-              panelComponent:
-                props.datasources && props.datasources.length > 0 ? (
-                  <DataSourceListWrapper
-                    className={selectedIndex === 0 ? "show" : ""}
-                  >
-                    {(sortedDatasources || []).map((d: any, idx: number) => {
-                      const dataSourceInfo: string = getDatasourceInfo(d);
-                      return (
-                        <DatasourceCard
-                          key={idx}
-                          onClick={() => props.onClick(d)}
-                        >
-                          <DataSourceNameContainer>
-                            <Text type={TextType.H5} weight={FontWeight.BOLD}>
-                              {d.name}
-                            </Text>
-                            <IconContainer>
-                              {d?.id === props.currentActionDatasourceId && (
-                                <SelectedDatasourceInfoContainer>
-                                  <p>In use</p>
-                                </SelectedDatasourceInfoContainer>
-                              )}
-                              <Icon
-                                name="edit"
-                                onClick={(e: React.MouseEvent) => {
-                                  e.stopPropagation();
-                                  history.push(
-                                    datasourcesEditorIdURL({
-                                      pageId: props.currentPageId,
-                                      datasourceId: d.id,
-                                      params: getQueryParams(),
-                                    }),
-                                  );
-                                }}
-                                size={IconSize.LARGE}
-                              />
-                            </IconContainer>
-                          </DataSourceNameContainer>
-                          <DatasourceURL>
-                            {d.datasourceConfiguration?.url}
-                          </DatasourceURL>
-                          {dataSourceInfo && (
-                            <>
-                              <StyledSeparator />
-                              <PadTop>
-                                <Text
-                                  type={TextType.P3}
-                                  weight={FontWeight.NORMAL}
-                                >
-                                  {dataSourceInfo}
-                                </Text>
-                              </PadTop>
-                            </>
-                          )}
-                        </DatasourceCard>
-                      );
-                    })}
-                  </DataSourceListWrapper>
-                ) : (
-                  <EmptyDatasourceContainer>
-                    <NoEntityFoundWrapper>
-                      <div className="lines first-line" />
-                      <div className="lines second-line" />
-                    </NoEntityFoundWrapper>
-                    <Text
-                      textAlign="center"
-                      type={TextType.H5}
-                      weight={FontWeight.NORMAL}
-                    >
-                      When you save a datasource, it will show up here.
-                    </Text>
-                  </EmptyDatasourceContainer>
-                ),
-            },
-            {
-              key: "Connections",
-              title: "Connections",
-              panelComponent: (
-                <SomeWrapper>
-                  <ActionRightPane
-                    actionName={props.actionName}
-                    entityDependencies={entityDependencies}
-                    hasConnections={hasDependencies}
-                    hasResponse={props.hasResponse}
-                    suggestedWidgets={props.suggestedWidgets}
-                  />
-                </SomeWrapper>
-              ),
-            },
-          ]}
+          tabs={tabArray}
         />
       </TabbedViewContainer>
     </DatasourceContainer>

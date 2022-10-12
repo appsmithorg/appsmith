@@ -135,6 +135,11 @@ export interface RemoteAction extends BaseAction {
 
 export interface EmbeddedApiAction extends BaseApiAction {
   datasource: EmbeddedRestDatasource;
+  structure?: {
+    schema?: any;
+    isFetching?: boolean;
+    error?: any;
+  };
 }
 
 export interface StoredDatasourceApiAction extends BaseApiAction {

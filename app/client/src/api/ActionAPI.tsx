@@ -193,6 +193,15 @@ class ActionAPI extends API {
       flag: shouldExecute.toString(),
     });
   }
+
+  static fetchActionStructure(
+    id: string,
+    ignoreCache = false,
+  ): AxiosPromise<ApiResponse<any>> {
+    return API.get(
+      ActionAPI.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
+    );
+  }
 }
 
 export default ActionAPI;

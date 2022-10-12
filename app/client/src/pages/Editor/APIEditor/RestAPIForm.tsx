@@ -49,6 +49,10 @@ function ApiEditorForm(props: Props) {
   const allowPostBody = httpMethodFromForm;
   const theme = EditorTheme.LIGHT;
 
+  if (!props.initialized) {
+    return null;
+  }
+
   return (
     <CommonEditorForm
       {...props}
@@ -108,10 +112,9 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const datasourceParams =
     get(datasourceFromAction, "datasourceConfiguration.queryParameters") || [];
 
-  const apiId = selector(state, "id");
   const currentActionDatasourceId = selector(state, "datasource.id");
 
-  const actionName = getApiName(state, apiId) || "";
+  const actionName = getApiName(state, actionId) || "";
   const headers = selector(state, "actionConfiguration.headers");
   let headersCount = 0;
 
@@ -147,14 +150,14 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const responses = getActionResponses(state);
   let hasResponse = false;
   let suggestedWidgets;
-  if (apiId && apiId in responses) {
-    const response = responses[apiId] || EMPTY_RESPONSE;
+  if (actionId && actionId in responses) {
+    const response = responses[actionId] || EMPTY_RESPONSE;
     hasResponse =
       !isEmpty(response.statusCode) && response.statusCode[0] === "2";
     suggestedWidgets = response.suggestedWidgets;
   }
 
-  const actionData = getActionData(state, apiId);
+  const actionData = getActionData(state, actionId);
   let responseDisplayFormat: { title: string; value: string };
   let responseDataTypes: { key: string; title: string }[];
   if (!!actionData && actionData.responseDisplayFormat) {
@@ -178,7 +181,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 
   return {
     actionName,
-    apiId,
+    actionId,
     httpMethodFromForm,
     actionConfigurationHeaders,
     actionConfigurationParams,

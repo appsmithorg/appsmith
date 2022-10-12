@@ -106,11 +106,15 @@ function GraphQLEditorForm(props: Props) {
     true,
   );
 
+  if (!props.initialized) {
+    return null;
+  }
+
   return (
     <CommonEditorForm
       {...props}
       bodyUIComponent={
-        <BodyWrapper>
+        <BodyWrapper className="graphiql-container">
           <QueryEditor
             dataTreePath={`${actionName}.config.body`}
             height="100%"
@@ -167,135 +171,122 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   },
 });
 
-export default connect(
-  (state: AppState, props: { pluginId: string; match?: any }) => {
-    const httpMethodFromForm = selector(
-      state,
-      "actionConfiguration.httpMethod",
+export default connect((state: AppState, props: { pluginId: string }) => {
+  const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
+  const actionConfigurationHeaders =
+    selector(state, "actionConfiguration.headers") || [];
+  const actionConfigurationParams =
+    selector(state, "actionConfiguration.queryParameters") || [];
+  let datasourceFromAction = selector(state, "datasource");
+  if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
+    datasourceFromAction = state.entities.datasources.list.find(
+      (d) => d.id === datasourceFromAction.id,
     );
-    const actionConfigurationHeaders =
-      selector(state, "actionConfiguration.headers") || [];
-    const actionConfigurationParams =
-      selector(state, "actionConfiguration.queryParameters") || [];
-    let datasourceFromAction = selector(state, "datasource");
-    if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
-      datasourceFromAction = state.entities.datasources.list.find(
-        (d) => d.id === datasourceFromAction.id,
-      );
-    }
+  }
 
-    // get messages from action itself
-    const { apiId, queryId } = props.match?.params || {};
-    const actionId = queryId || apiId;
-    // const actionId = selector(state, "id");
-    const action = getAction(state, actionId);
-    const hintMessages = action?.messages;
+  const actionId = selector(state, "id");
+  const action = getAction(state, actionId);
+  const hintMessages = action?.messages;
 
-    const datasourceHeaders =
-      get(datasourceFromAction, "datasourceConfiguration.headers") || [];
-    const datasourceParams =
-      get(datasourceFromAction, "datasourceConfiguration.queryParameters") ||
-      [];
+  const datasourceHeaders =
+    get(datasourceFromAction, "datasourceConfiguration.headers") || [];
+  const datasourceParams =
+    get(datasourceFromAction, "datasourceConfiguration.queryParameters") || [];
 
-    // const apiId = selector(state, "id");
-    const currentActionDatasourceId = selector(state, "datasource.id");
+  const currentActionDatasourceId = selector(state, "datasource.id");
 
-    const actionName = getApiName(state, apiId) || "";
-    const headers = selector(state, "actionConfiguration.headers");
-    let headersCount = 0;
+  const actionName = getApiName(state, actionId) || "";
+  const headers = selector(state, "actionConfiguration.headers");
+  let headersCount = 0;
 
-    if (Array.isArray(headers)) {
-      const validHeaders = headers.filter(
-        (value) => value.key && value.key !== "",
-      );
-      headersCount += validHeaders.length;
-    }
+  if (Array.isArray(headers)) {
+    const validHeaders = headers.filter(
+      (value) => value.key && value.key !== "",
+    );
+    headersCount += validHeaders.length;
+  }
 
-    if (Array.isArray(datasourceHeaders)) {
-      const validHeaders = datasourceHeaders.filter(
-        (value: any) => value.key && value.key !== "",
-      );
-      headersCount += validHeaders.length;
-    }
+  if (Array.isArray(datasourceHeaders)) {
+    const validHeaders = datasourceHeaders.filter(
+      (value: any) => value.key && value.key !== "",
+    );
+    headersCount += validHeaders.length;
+  }
 
-    const params = selector(state, "actionConfiguration.queryParameters");
-    let paramsCount = 0;
+  const params = selector(state, "actionConfiguration.queryParameters");
+  let paramsCount = 0;
 
-    if (Array.isArray(params)) {
-      const validParams = params.filter(
-        (value) => value.key && value.key !== "",
-      );
-      paramsCount = validParams.length;
-    }
+  if (Array.isArray(params)) {
+    const validParams = params.filter((value) => value.key && value.key !== "");
+    paramsCount = validParams.length;
+  }
 
-    if (Array.isArray(datasourceParams)) {
-      const validParams = datasourceParams.filter(
-        (value: any) => value.key && value.key !== "",
-      );
-      paramsCount += validParams.length;
-    }
+  if (Array.isArray(datasourceParams)) {
+    const validParams = datasourceParams.filter(
+      (value: any) => value.key && value.key !== "",
+    );
+    paramsCount += validParams.length;
+  }
 
-    const actionConfigurationBody =
-      selector(state, "actionConfiguration.body") || "";
+  const actionConfigurationBody =
+    selector(state, "actionConfiguration.body") || "";
 
-    let hasResponse = false;
-    let suggestedWidgets;
-    if (apiId) {
-      const response = getActionData(state, apiId) || EMPTY_RESPONSE;
-      hasResponse =
-        !isEmpty(response.statusCode) && response.statusCode[0] === "2";
-      suggestedWidgets = response.suggestedWidgets;
-    }
+  let hasResponse = false;
+  let suggestedWidgets;
+  if (actionId) {
+    const response = getActionData(state, actionId) || EMPTY_RESPONSE;
+    hasResponse =
+      !isEmpty(response.statusCode) && response.statusCode[0] === "2";
+    suggestedWidgets = response.suggestedWidgets;
+  }
 
-    const actionData = getActionData(state, apiId);
-    let responseDisplayFormat: { title: string; value: string };
-    let responseDataTypes: { key: string; title: string }[];
-    if (!!actionData && actionData.responseDisplayFormat) {
-      responseDataTypes = actionData.dataTypes.map((data) => {
-        return {
-          key: data.dataType,
-          title: data.dataType,
-        };
-      });
-      responseDisplayFormat = {
-        title: actionData.responseDisplayFormat,
-        value: actionData.responseDisplayFormat,
+  const actionData = getActionData(state, actionId);
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+  if (!!actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
       };
-    } else {
-      responseDataTypes = [];
-      responseDisplayFormat = {
-        title: "",
-        value: "",
-      };
-    }
-
-    return {
-      actionName,
-      apiId,
-      httpMethodFromForm,
-      actionConfigurationHeaders,
-      actionConfigurationParams,
-      actionConfigurationBody,
-      currentActionDatasourceId,
-      datasourceHeaders,
-      datasourceParams,
-      headersCount,
-      paramsCount,
-      hintMessages,
-      datasources: state.entities.datasources.list.filter(
-        (d) => d.pluginId === props.pluginId,
-      ),
-      currentPageId: state.entities.pageList.currentPageId,
-      applicationId: state.entities.pageList.applicationId,
-      responseDataTypes,
-      responseDisplayFormat,
-      suggestedWidgets,
-      hasResponse,
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
     };
-  },
-  mapDispatchToProps,
-)(
-  reduxForm<Action, any>({
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = {
+      title: "",
+      value: "",
+    };
+  }
+
+  return {
+    actionId,
+    actionName,
+    httpMethodFromForm,
+    actionConfigurationHeaders,
+    actionConfigurationParams,
+    actionConfigurationBody,
+    currentActionDatasourceId,
+    datasourceHeaders,
+    datasourceParams,
+    headersCount,
+    paramsCount,
+    hintMessages,
+    datasources: state.entities.datasources.list.filter(
+      (d) => d.pluginId === props.pluginId,
+    ),
+    currentPageId: state.entities.pageList.currentPageId,
+    applicationId: state.entities.pageList.applicationId,
+    responseDataTypes,
+    responseDisplayFormat,
+    suggestedWidgets,
+    hasResponse,
+  };
+}, mapDispatchToProps)(
+  reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
     enableReinitialize: true,
   })(GraphQLEditorForm),

@@ -7,7 +7,7 @@ import {
 import { ActionResponse } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
-import { Action } from "entities/Action";
+import { Action, EmbeddedApiAction } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import produce from "immer";
 
@@ -410,6 +410,123 @@ const actionsReducer = createReducer(initialState, {
       ...action,
       data: undefined,
     })),
+
+  [ReduxActionTypes.FETCH_ACTION_STRUCTURE_INIT]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string }>,
+  ) =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            structure: {
+              isFetching: true,
+            },
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.FETCH_ACTION_STRUCTURE_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string; schema: any }>,
+  ) =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            structure: {
+              schema: action.payload.schema,
+              isFetching: false,
+            },
+          },
+        };
+      }
+      return a;
+    }),
+
+  [ReduxActionTypes.REFRESH_ACTION_STRUCTURE_INIT]: (
+    state: ActionDataState,
+    action: ReduxAction<Partial<Action>>,
+  ) =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            structure: {
+              ...((a.config as EmbeddedApiAction).structure || {}),
+              isFetching: true,
+            },
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.REFRESH_ACTION_STRUCTURE_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string; schema: any }>,
+  ) =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            structure: {
+              schema: action.payload.schema,
+              isFetching: false,
+            },
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionErrorTypes.FETCH_ACTION_STRUCTURE_ERROR]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string; error: any }>,
+  ) =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            structure: {
+              ...((a.config as EmbeddedApiAction).structure || {}),
+              isFetching: false,
+              error: action.payload.error.toString(),
+            },
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionErrorTypes.REFRESH_ACTION_STRUCTURE_ERROR]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string; error: any }>,
+  ) =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            structure: {
+              ...((a.config as EmbeddedApiAction).structure || {}),
+              isFetching: false,
+              error: action.payload.error.toString(),
+            },
+          },
+        };
+      }
+      return a;
+    }),
 });
 
 export default actionsReducer;

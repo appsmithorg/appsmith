@@ -38,6 +38,7 @@ export interface DatasourceKeys {
 export interface DatasourceStructure {
   tables?: DatasourceTable[];
   error?: APIResponseError;
+  schema?: any;
 }
 
 export interface QueryTemplate {

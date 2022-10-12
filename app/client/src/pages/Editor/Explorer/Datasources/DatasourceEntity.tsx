@@ -17,7 +17,10 @@ import { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getDatasourceStructureByDatasourceId,
+} from "selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
@@ -83,7 +86,7 @@ const ExplorerDatasourceEntity = React.memo(
       saveDatasourceName({ id: props.datasource.id, name });
 
     const datasourceStructure = useSelector((state: AppState) => {
-      return state.entities.datasources.structure[props.datasource.id];
+      return getDatasourceStructureByDatasourceId(state, props.datasource.id);
     });
 
     const expandDatasourceId = useSelector((state: AppState) => {

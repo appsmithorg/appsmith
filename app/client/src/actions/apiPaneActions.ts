@@ -95,3 +95,22 @@ export const executeCommandAction = (payload: SlashCommandPayload) => ({
   type: ReduxActionTypes.EXECUTE_COMMAND,
   payload: payload,
 });
+
+export const fetchActionStructure = (id: string, ignoreCache?: boolean) => {
+  return {
+    type: ReduxActionTypes.FETCH_ACTION_STRUCTURE_INIT,
+    payload: {
+      id,
+      ignoreCache,
+    },
+  };
+};
+
+export const refreshActionStructure = (id: string) => {
+  return {
+    type: ReduxActionTypes.REFRESH_ACTION_STRUCTURE_INIT,
+    payload: {
+      id,
+    },
+  };
+};

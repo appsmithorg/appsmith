@@ -52,7 +52,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
-import DataSourceList from "./ApiRightPane";
+import ApiRightPane, { TabbedViewContainer } from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import equal from "fast-deep-equal/es6";
 
@@ -134,51 +134,6 @@ const SecondaryWrapper = styled.div`
   }
 `;
 
-export const TabbedViewContainer = styled.div`
-  flex: 1;
-  overflow: auto;
-  position: relative;
-  height: 100%;
-  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  ${FormRow} {
-    min-height: auto;
-    padding: ${(props) => props.theme.spaces[0]}px;
-    & > * {
-      margin-right: 0px;
-    }
-  }
-
-  &&& {
-    ul.react-tabs__tab-list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.responseBody.bg};
-      li.react-tabs__tab--selected {
-        > div {
-          color: ${(props) => props.theme.colors.apiPane.closeIcon};
-        }
-      }
-    }
-    .react-tabs__tab-panel {
-      height: calc(100% - 36px);
-      background-color: ${(props) => props.theme.colors.apiPane.tabBg};
-      .eye-on-off {
-        svg {
-          fill: ${(props) =>
-            props.theme.colors.apiPane.requestTree.header.icon};
-          &:hover {
-            fill: ${(props) =>
-              props.theme.colors.apiPane.requestTree.header.icon};
-          }
-          path {
-            fill: unset;
-          }
-        }
-      }
-    }
-  }
-`;
-
 export const BindingText = styled.span`
   color: ${(props) => props.theme.colors.bindingTextDark};
   font-weight: 700;
@@ -231,7 +186,7 @@ export interface CommonFormProps {
   datasourceHeaders?: any;
   datasourceParams?: any;
   actionName: string;
-  apiId: string;
+  actionId: string;
   apiName: string;
   headersCount: number;
   paramsCount: number;
@@ -539,6 +494,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const {
     actionConfigurationHeaders,
     actionConfigurationParams,
+    actionId,
     actionName,
     currentActionDatasourceId,
     formName,
@@ -555,8 +511,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   } = props;
   const dispatch = useDispatch();
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
-
   // passing lodash's equality function to ensure that this selector does not cause a rerender multiple times.
   // it checks each value to make sure none has changed before recomputing the actions.
   const actions: Action[] = useSelector(
@@ -564,7 +518,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     equal,
   );
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) => action.id === actionId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
 
@@ -764,14 +718,16 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               theme={theme}
             />
           </SecondaryWrapper>
-          <DataSourceList
+          <ApiRightPane
+            actionId={currentActionConfig?.id || ""}
             actionName={actionName}
             applicationId={props.applicationId}
             currentActionDatasourceId={currentActionDatasourceId}
-            currentPageId={props.currentPageId}
+            currentPageId={props.currentPageId || ""}
             datasources={props.datasources}
             hasResponse={props.hasResponse}
             onClick={updateDatasource}
+            pluginId={pluginId}
             suggestedWidgets={props.suggestedWidgets}
           />
         </Wrapper>

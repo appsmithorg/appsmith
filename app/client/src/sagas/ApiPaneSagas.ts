@@ -37,7 +37,7 @@ import {
 import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change } from "redux-form";
-import { Property } from "api/ActionAPI";
+import ActionAPI, { Property } from "api/ActionAPI";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -80,6 +80,11 @@ import {
   integrationEditorURL,
 } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { validateResponse } from "./ErrorSagas";
+import isEmpty from "lodash/isEmpty";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { shouldBeDefined } from "utils/helpers";
+import { ApiResponse } from "api/ApiResponses";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -649,6 +654,129 @@ function* handleApiNameChangeFailureSaga(
   yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
 }
 
+function* fetchActionStructureSaga(
+  action: ReduxAction<{ id: string; ignoreCache: boolean }>,
+) {
+  const actionData = shouldBeDefined<Action>(
+    yield select(getAction, action.payload.id),
+    `Action not found for id - ${action.payload.id}`,
+  );
+
+  try {
+    const response: ApiResponse = yield ActionAPI.fetchActionStructure(
+      action.payload.id,
+      action.payload.ignoreCache,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response, false);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ACTION_STRUCTURE_SUCCESS,
+        payload: {
+          id: action.payload.id,
+          schema: response.data,
+        },
+      });
+
+      if (isEmpty(response.data)) {
+        AppsmithConsole.warning({
+          text: "Action structure could not be retrieved",
+          source: {
+            id: action.payload.id,
+            name: actionData.name,
+            type: ENTITY_TYPE.ACTION,
+          },
+        });
+      } else {
+        AppsmithConsole.info({
+          text: "Action structure retrieved",
+          source: {
+            id: action.payload.id,
+            name: actionData.name,
+            type: ENTITY_TYPE.ACTION,
+          },
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ACTION_STRUCTURE_ERROR,
+      payload: {
+        id: action.payload.id,
+        error,
+      },
+    });
+    AppsmithConsole.error({
+      text: "Action structure could not be retrieved",
+      source: {
+        id: action.payload.id,
+        name: actionData.name,
+        type: ENTITY_TYPE.ACTION,
+      },
+    });
+  }
+}
+
+function* refreshActionStructure(action: ReduxAction<{ id: string }>) {
+  const actionData = shouldBeDefined<Action>(
+    yield select(getAction, action.payload.id),
+    `Action not found for id - ${action.payload.id}`,
+  );
+
+  try {
+    const response: ApiResponse = yield ActionAPI.fetchActionStructure(
+      action.payload.id,
+      true,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.REFRESH_ACTION_STRUCTURE_SUCCESS,
+        payload: {
+          id: action.payload.id,
+          schema: response.data,
+        },
+      });
+
+      if (isEmpty(response.data)) {
+        AppsmithConsole.warning({
+          text: "Action structure could not be retrieved",
+          source: {
+            id: action.payload.id,
+            name: actionData.name,
+            type: ENTITY_TYPE.ACTION,
+          },
+        });
+      } else {
+        AppsmithConsole.info({
+          text: "Action structure retrieved",
+          source: {
+            id: action.payload.id,
+            name: actionData.name,
+            type: ENTITY_TYPE.ACTION,
+          },
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.REFRESH_ACTION_STRUCTURE_ERROR,
+      payload: {
+        id: action.payload.id,
+        error,
+      },
+    });
+    AppsmithConsole.error({
+      text: "Action structure could not be retrieved",
+      source: {
+        id: action.payload.id,
+        name: actionData.name,
+        type: ENTITY_TYPE.ACTION,
+      },
+    });
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
@@ -682,5 +810,13 @@ export default function* root() {
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(
+      ReduxActionTypes.FETCH_ACTION_STRUCTURE_INIT,
+      fetchActionStructureSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REFRESH_ACTION_STRUCTURE_INIT,
+      refreshActionStructure,
+    ),
   ]);
 }

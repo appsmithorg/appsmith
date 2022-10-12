@@ -4,7 +4,6 @@ import styled from "styled-components";
 import SyntaxHighlighter from "react-syntax-highlighter/dist/cjs/prism-light";
 import sql from "react-syntax-highlighter/dist/cjs/languages/prism/sql";
 import { prism } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { TabbedViewContainer } from "pages/Editor/APIEditor/CommonEditorForm";
 import { TabComponent } from "components/ads/Tabs";
 import {
   EditorModes,
@@ -153,6 +152,60 @@ const SnippetContainer = styled.div`
       background: white !important;
       padding: 0 10px !important;
       height: 30px;
+    }
+  }
+`;
+
+const FormRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-height: 50px;
+  flex-shrink: 0;
+`;
+
+const TabbedViewContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  height: 100%;
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  ${FormRow} {
+    min-height: auto;
+    padding: ${(props) => props.theme.spaces[0]}px;
+    & > * {
+      margin-right: 0px;
+    }
+  }
+
+  &&& {
+    ul.react-tabs__tab-list {
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
+      li.react-tabs__tab--selected {
+        > div {
+          color: ${(props) => props.theme.colors.apiPane.closeIcon};
+        }
+      }
+    }
+    .react-tabs__tab-panel {
+      height: calc(100% - 36px);
+      background-color: ${(props) => props.theme.colors.apiPane.tabBg};
+      .eye-on-off {
+        svg {
+          fill: ${(props) =>
+            props.theme.colors.apiPane.requestTree.header.icon};
+          &:hover {
+            fill: ${(props) =>
+              props.theme.colors.apiPane.requestTree.header.icon};
+          }
+          path {
+            fill: unset;
+          }
+        }
+      }
     }
   }
 `;
