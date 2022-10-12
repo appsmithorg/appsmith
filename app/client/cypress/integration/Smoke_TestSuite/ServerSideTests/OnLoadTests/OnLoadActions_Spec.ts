@@ -1,6 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let dsl: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   apiPage = ObjectsRegistry.ApiPage,
@@ -9,14 +7,18 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Layout OnLoad Actions tests", function() {
-  before(() => {
-    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-      dsl = val;
-    });
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
+    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
+      agHelper.AddDsl(val);
+    });
     ee.SelectEntityByName("Widgets");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
@@ -35,7 +37,9 @@ describe("Layout OnLoad Actions tests", function() {
   });
 
   it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function() {
-    agHelper.AddDsl(dsl, locator._imageWidget);
+    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
+      agHelper.AddDsl(val, locator._imageWidget);
+    });
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",
@@ -133,23 +137,25 @@ describe("Layout OnLoad Actions tests", function() {
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
 
-      const _randomFlora = JSON.parse(respBody).data.layouts[0]
+      const _random = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[0];
-      const _randomUser = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[1];
+      // const _randomFlora = JSON.parse(respBody).data.layouts[0]
+      //   .layoutOnLoadActions[1];
       const _genderize = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[2];
+        .layoutOnLoadActions[1];
       const _suggestions = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[3];
+        .layoutOnLoadActions[2];
       // cy.log("_randomFlora is: " + JSON.stringify(_randomFlora))
       // cy.log("_randomUser is: " + JSON.stringify(_randomUser))
       // cy.log("_genderize is: " + JSON.stringify(_genderize))
       // cy.log("_suggestions is: " + JSON.stringify(_suggestions))
 
-      expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
+      expect(JSON.parse(JSON.stringify(_random))[0]["name"]).to.eq(
+        "RandomUser",
         "RandomFlora",
       );
-      expect(JSON.parse(JSON.stringify(_randomUser))[0]["name"]).to.eq(
+      expect(JSON.parse(JSON.stringify(_random))[1]["name"]).to.eq(
+        "RandomFlora",
         "RandomUser",
       );
       expect(JSON.parse(JSON.stringify(_genderize))[0]["name"]).to.be.oneOf([
@@ -174,7 +180,8 @@ describe("Layout OnLoad Actions tests", function() {
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
-      "Genderize", 30000
+      "Genderize",
+      30000,
     );
     apiPage.ValidateQueryParams({
       key: "name",
@@ -185,19 +192,19 @@ describe("Layout OnLoad Actions tests", function() {
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
-      const _randomFlora = JSON.parse(respBody).data.layouts[0]
+      const _random = JSON.parse(respBody).data.layouts[0]
         .layoutOnLoadActions[0];
-      const _randomUser = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[1];
       const _genderize = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[2];
+        .layoutOnLoadActions[1];
       const _suggestions = JSON.parse(respBody).data.layouts[0]
-        .layoutOnLoadActions[3];
+        .layoutOnLoadActions[2];
 
-      expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
+      expect(JSON.parse(JSON.stringify(_random))[0]["name"]).to.eq(
+        "RandomUser",
         "RandomFlora",
       );
-      expect(JSON.parse(JSON.stringify(_randomUser))[0]["name"]).to.eq(
+      expect(JSON.parse(JSON.stringify(_random))[1]["name"]).to.eq(
+        "RandomFlora",
         "RandomUser",
       );
       expect(JSON.parse(JSON.stringify(_genderize))[0]["name"]).to.be.oneOf([
