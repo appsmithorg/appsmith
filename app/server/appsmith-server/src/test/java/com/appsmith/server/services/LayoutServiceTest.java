@@ -1,17 +1,17 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -25,13 +25,13 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -63,9 +64,6 @@ public class LayoutServiceTest {
 
     @Autowired
     ApplicationPageService applicationPageService;
-
-    @Autowired
-    ApplicationService applicationService;
 
     @Autowired
     UserService userService;
@@ -90,6 +88,9 @@ public class LayoutServiceTest {
     Datasource datasource;
 
     Plugin installedJsPlugin;
+
+    @SpyBean
+    AstService astService;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -208,13 +209,45 @@ public class LayoutServiceTest {
 
         Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();
 
-        Mono<LayoutDTO> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
+        Mono<LayoutDTO> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", page.getApplicationId(), startLayout.getId(), updateLayout);
 
         StepVerifier
                 .create(updatedLayoutMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND
                                 .getMessage(FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, "random-impossible-id-page" + ", " + startLayout.getId())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateLayoutInvalidAppId() {
+        Layout testLayout = new Layout();
+        JSONObject obj = new JSONObject();
+        obj.put("key", "value");
+        testLayout.setDsl(obj);
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("LayoutServiceTest updateLayoutInvalidPageId");
+
+        Layout updateLayout = new Layout();
+        obj = new JSONObject();
+        obj.put("key", "value-updated");
+        updateLayout.setDsl(obj);
+
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutInvalidPageId-Test");
+        PageDTO page = createPage(app, testPage).block();
+
+        Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();
+
+        Mono<LayoutDTO> updatedLayoutMono = layoutActionService.updateLayout(page.getId(), "random-impossible-id-app", startLayout.getId(), updateLayout);
+
+        StepVerifier
+                .create(updatedLayoutMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND
+                                .getMessage(FieldName.APPLICATION_ID, "random-impossible-id-app")))
                 .verify();
     }
 
@@ -246,7 +279,7 @@ public class LayoutServiceTest {
                     PageDTO page = tuple.getT1();
                     Layout startLayout = tuple.getT2();
                     startLayout.setDsl(obj1);
-                    return layoutActionService.updateLayout(page.getId(), startLayout.getId(), startLayout);
+                    return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), startLayout.getId(), startLayout);
                 });
 
         StepVerifier
@@ -259,28 +292,7 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
-    /**
-     * TODO: Comment no longer valid
-     * This test adds some actions in the page and attaches a few of those in the dynamic bindings in the widgets
-     * in the layout. An action attached in the widget also has two dependencies on other actions. One of those
-     * has been explicitly marked to NOT run on page load. This test asserts the following :
-     * 1. All the actions which must be executed on page load have been recognized correctly
-     * 2. The sequence of the action execution takes into account the action dependencies
-     * 3. An action which has been marked to not execute on page load does not get added to the on page load order
-     */
-    @Test
-    @Tag("performance")
-    @WithUserDetails(value = "api_user")
-    public void getActionsExecuteOnLoad() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        PageDTO testPage = new PageDTO();
-        testPage.setName("ActionsExecuteOnLoad Test Page");
-
-        Application app = new Application();
-        app.setName("newApplication-updateLayoutValidPageId-Test");
-
-        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+    private Mono<LayoutDTO> createComplexAppForExecuteOnLoad(Mono<PageDTO> pageMono) {
 
         Mono<LayoutDTO> testMono = pageMono
                 .flatMap(page1 -> {
@@ -298,6 +310,15 @@ public class LayoutServiceTest {
                     // Create a POST API Action
                     action = new ActionDTO();
                     action.setName("aPostAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create another POST API Action
+                    action = new ActionDTO();
+                    action.setName("anotherPostAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
@@ -451,6 +472,46 @@ public class LayoutServiceTest {
                     action.setPluginType(PluginType.JS);
                     monos.add(layoutActionService.createSingleAction(action));
 
+                    action = new ActionDTO();
+                    action.setName("anIgnoredAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("ignoredAction1");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("ignoredAction2");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("ignoredAction3");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("ignoredAction4");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
                     return Mono.zip(monos, objects -> page1);
                 })
                 .zipWhen(page1 -> {
@@ -473,8 +534,16 @@ public class LayoutServiceTest {
                             "widgetName", "testWidget",
                             "key", "value-updated",
                             "another", "Hello people of the {{input1.text}} planet!",
-                            "dynamicGet", "some dynamic {{aGetAction.data}}",
-                            "dynamicPost", "some dynamic {{aPostAction.data}}",
+                            "dynamicGet", "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
+                            "dynamicPost", "some dynamic {{\n" +
+                                    "(function(ignoredAction1){\n" +
+                                    "\tlet a = ignoredAction1.data\n" +
+                                    "\tlet ignoredAction2 = { data: \"nothing\" }\n" +
+                                    "\tlet b = ignoredAction2.data\n" +
+                                    "\tlet c = \"ignoredAction3.data\"\n" +
+                                    "\t// ignoredAction4.data\n" +
+                                    "\treturn aPostAction.data\n" +
+                                    "})(anotherPostAction.data)}}",
                             "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
                     ));
@@ -485,7 +554,7 @@ public class LayoutServiceTest {
                             // only add sync function call dependencies in the dependency tree. sync call would be done during eval.
                             "collection4Key", "some dynamic {{Collection.aSyncCollectionActionWithCall()}}"
                     ));
-                    obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.data.irrelevant}}")));
+                    obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.data[0].irrelevant}}")));
                     obj.put("dynamicDB2", List.of("{{ anotherDBAction.data.optional }}"));
                     obj.put("tableWidget", new JSONObject(
                             Map.of("test",
@@ -495,6 +564,7 @@ public class LayoutServiceTest {
                     JSONArray dynamicBindingsPathList = new JSONArray();
                     dynamicBindingsPathList.addAll(List.of(
                             new JSONObject(Map.of("key", "dynamicGet")),
+                            new JSONObject(Map.of("key", "dynamicPost")),
                             new JSONObject(Map.of("key", "dynamicPostWithAutoExec")),
                             new JSONObject(Map.of("key", "dynamicDB.test")),
                             new JSONObject(Map.of("key", "dynamicDB2.0")),
@@ -505,12 +575,495 @@ public class LayoutServiceTest {
                             new JSONObject(Map.of("key", "collection4Key"))
                     ));
 
+
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+                    return layoutActionService.updateLayout(page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
 
                 });
+
+        return testMono;
+    }
+
+    private Mono<LayoutDTO> createAppWithAllTypesOfReferencesForExecuteOnLoad(Mono<PageDTO> pageMono) {
+
+        Mono<LayoutDTO> testMono = pageMono
+                .flatMap(page1 -> {
+                    List<Mono<ActionDTO>> monos = new ArrayList<>();
+
+                    // Create a GET API Action for : aGetAction.data
+                    ActionDTO action = new ActionDTO();
+                    action.setName("aGetAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create a POST API Action for : aPostAction.data.users.name
+                    action = new ActionDTO();
+                    action.setName("aPostAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create a POST API Action for : anotherPostAction.run()
+                    action = new ActionDTO();
+                    action.setName("anotherPostAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    Datasource d2 = new Datasource();
+                    d2.setWorkspaceId(datasource.getWorkspaceId());
+                    d2.setPluginId(installedJsPlugin.getId());
+                    d2.setIsAutoGenerated(true);
+                    d2.setName("UNUSED_DATASOURCE");
+
+                    action = new ActionDTO();
+                    action.setName("hiddenAction1");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create an async function for: Collection.anAsyncCollectionActionWithoutCall.data
+                    action = new ActionDTO();
+                    action.setName("anAsyncCollectionActionWithoutCall");
+                    action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithoutCall");
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
+                    final ActionConfiguration ac1 = new ActionConfiguration();
+                    ac1.setBody("hiddenAction1.data");
+                    ac1.setIsAsync(true);
+                    action.setActionConfiguration(ac1);
+                    action.setDatasource(d2);
+                    action.setPageId(page1.getId());
+                    action.setPluginType(PluginType.JS);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("hiddenAction2");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create a sync function for: Collection.aSyncCollectionActionWithoutCall.data
+                    action = new ActionDTO();
+                    action.setName("aSyncCollectionActionWithoutCall");
+                    action.setFullyQualifiedName("Collection.aSyncCollectionActionWithoutCall");
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
+                    final ActionConfiguration ac2 = new ActionConfiguration();
+                    ac2.setBody("hiddenAction2.data");
+                    ac2.setIsAsync(false);
+                    action.setActionConfiguration(ac2);
+                    action.setDatasource(d2);
+                    action.setPageId(page1.getId());
+                    action.setPluginType(PluginType.JS);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("hiddenAction3");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create an async function for: Collection.anAsyncCollectionActionWithCall()
+                    action = new ActionDTO();
+                    action.setName("anAsyncCollectionActionWithCall");
+                    action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithCall");
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
+                    final ActionConfiguration ac3 = new ActionConfiguration();
+                    ac3.setBody("hiddenAction3.data");
+                    ac3.setIsAsync(true);
+                    action.setActionConfiguration(ac3);
+                    action.setDatasource(d2);
+                    action.setPageId(page1.getId());
+                    action.setPluginType(PluginType.JS);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("hiddenAction4");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create a sync function for: Collection.aSyncCollectionActionWithCall()
+                    action = new ActionDTO();
+                    action.setName("aSyncCollectionActionWithCall");
+                    action.setFullyQualifiedName("Collection.aSyncCollectionActionWithCall");
+                    final ActionConfiguration ac4 = new ActionConfiguration();
+                    ac4.setBody("hiddenAction4.data");
+                    ac4.setIsAsync(false);
+                    action.setActionConfiguration(ac4);
+                    action.setDatasource(d2);
+                    action.setPageId(page1.getId());
+                    action.setPluginType(PluginType.JS);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("hiddenAction5");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create a sync function for: Collection.data()
+                    action = new ActionDTO();
+                    action.setName("data");
+                    action.setFullyQualifiedName("Collection.data");
+                    final ActionConfiguration ac5 = new ActionConfiguration();
+                    ac5.setBody("hiddenAction5.data");
+                    ac5.setIsAsync(false);
+                    action.setActionConfiguration(ac5);
+                    action.setDatasource(d2);
+                    action.setPageId(page1.getId());
+                    action.setPluginType(PluginType.JS);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    action = new ActionDTO();
+                    action.setName("hiddenAction6");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    // Create an async function for: Collection2.data()
+                    action = new ActionDTO();
+                    action.setName("data");
+                    action.setFullyQualifiedName("Collection2.data");
+                    final ActionConfiguration ac6 = new ActionConfiguration();
+                    ac6.setBody("hiddenAction6.data");
+                    ac6.setIsAsync(true);
+                    action.setActionConfiguration(ac6);
+                    action.setDatasource(d2);
+                    action.setPageId(page1.getId());
+                    action.setPluginType(PluginType.JS);
+                    monos.add(layoutActionService.createSingleAction(action));
+
+                    return Mono.zip(monos, objects -> page1);
+                })
+                .zipWhen(page1 -> {
+                    Layout layout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "key", "value"
+                    ));
+                    layout.setDsl(obj);
+
+                    return layoutService.createLayout(page1.getId(), layout);
+                })
+                .flatMap(tuple2 -> {
+                    final PageDTO page1 = tuple2.getT1();
+                    final Layout layout = tuple2.getT2();
+
+                    Layout newLayout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "widgetName", "testWidget",
+                            "k1", "{{ aGetAction.data }}",
+                            "k2", "{{ aPostAction.data.users.name }}",
+                            "k3", "{{ anotherPostAction.run() }}",
+                            "k4", "{{ Collection.anAsyncCollectionActionWithoutCall.data }}",
+                            "k5", "{{ Collection.aSyncCollectionActionWithoutCall.data }}",
+                            "k6", "{{ Collection.anAsyncCollectionActionWithCall() }}",
+                            "k7", "{{ Collection.aSyncCollectionActionWithCall() }}"
+                    ));
+                    obj.putAll(Map.of(
+                            "k8", "{{ Collection.data() }}",
+                            "k9", "{{ Collection2.data() }}"
+                    ));
+                    JSONArray dynamicBindingsPathList = new JSONArray();
+                    dynamicBindingsPathList.addAll(List.of(
+                            new JSONObject(Map.of("key", "k1")),
+                            new JSONObject(Map.of("key", "k2")),
+                            new JSONObject(Map.of("key", "k3")),
+                            new JSONObject(Map.of("key", "k4")),
+                            new JSONObject(Map.of("key", "k5")),
+                            new JSONObject(Map.of("key", "k6")),
+                            new JSONObject(Map.of("key", "k7")),
+                            new JSONObject(Map.of("key", "k8")),
+                            new JSONObject(Map.of("key", "k9"))
+                    ));
+
+                    obj.put("dynamicBindingPathList", dynamicBindingsPathList);
+                    newLayout.setDsl(obj);
+
+                    return layoutActionService.updateLayout(page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
+
+                });
+
+        return testMono;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getActionsExecuteOnLoadWithAstLogic_withAllTypesOfActionReferences() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("ActionsExecuteOnLoad Test Page1 Universal");
+
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutValidPageId-TestWithAst-Universal");
+
+        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+
+        Mono<LayoutDTO> testMono = createAppWithAllTypesOfReferencesForExecuteOnLoad(pageMono);
+
+
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aGetAction.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aGetAction.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostAction.data.users.name", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostAction.data.users.name"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("anotherPostAction.run()", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("anotherPostAction.run"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithoutCall.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithoutCall.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithCall()", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithCall"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithCall()", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithCall"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.data()", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection2.data()", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection2.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction1.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction1.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction2.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction2.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction4.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction4.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction5.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction5.data"))));
+
+        StepVerifier
+                .create(testMono)
+                .assertNext(layout -> {
+                    assertThat(layout).isNotNull();
+                    assertThat(layout.getId()).isNotNull();
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(3);
+
+                    Set<String> firstSetPageLoadActions = Set.of(
+                            "aGetAction",
+                            "hiddenAction1",
+                            "hiddenAction2",
+                            "hiddenAction4",
+                            "hiddenAction5"
+                    );
+
+                    Set<String> secondSetPageLoadActions = Set.of(
+                            "aPostAction"
+                    );
+
+                    Set<String> thirdSetPageLoadActions = Set.of(
+                            "Collection.anAsyncCollectionActionWithoutCall"
+                    );
+
+                    assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(firstSetPageLoadActions);
+                    assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(secondSetPageLoadActions);
+                    assertThat(layout.getLayoutOnLoadActions().get(2).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(thirdSetPageLoadActions);
+                    Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
+                    for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
+                        flatOnLoadActions.addAll(actions);
+                    }
+                    for (DslActionDTO action : flatOnLoadActions) {
+                        assertThat(action.getId()).isNotBlank();
+                        assertThat(action.getName()).isNotBlank();
+                        assertThat(action.getTimeoutInMillisecond()).isNotZero();
+                    }
+                })
+                .verifyComplete();
+
+        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
+            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("hiddenAction3", page.getId(), AclPermission.MANAGE_ACTIONS));
+        });
+
+        StepVerifier
+                .create(actionDTOMono)
+                .assertNext(tuple -> {
+                    assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test is meant for the newer AST based on page load logic that is meant to work with fat container deployments.
+     * This test adds some actions in the page and attaches a few of those in the dynamic bindings in the widgets
+     * in the layout. An action attached in the widget also has two dependencies on other actions. One of those
+     * has been explicitly marked to NOT run on page load. This test asserts the following :
+     * 1. All the actions which must be executed on page load have been recognized correctly
+     * 2. The sequence of the action execution takes into account the action dependencies
+     * 3. An action which has been marked to not execute on page load does not get added to the on page load order
+     * 4. Async and sync JS functions when called with a .data reference are marked to run on load
+     * 5. Async and sync JS function when called as function calls are ignored to be marked on page load
+     * 6. A string that happens to match an action reference IS NOT marked to run on page load
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getActionsExecuteOnLoadWithAstLogic() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("ActionsExecuteOnLoad Test Page1");
+
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutValidPageId-TestWithAst");
+
+        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+
+        Mono<LayoutDTO> testMono = createComplexAppForExecuteOnLoad(pageMono);
+
+
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("\"anIgnoredAction.data:\" + aGetAction.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aGetAction.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        "(function(ignoredAction1){\n" +
+                                "\tlet a = ignoredAction1.data\n" +
+                                "\tlet ignoredAction2 = { data: \"nothing\" }\n" +
+                                "\tlet b = ignoredAction2.data\n" +
+                                "\tlet c = \"ignoredAction3.data\"\n" +
+                                "\t// ignoredAction4.data\n" +
+                                "\treturn aPostAction.data\n" +
+                                "})(anotherPostAction.data)", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostAction.data", "anotherPostAction.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostActionWithAutoExec.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostActionWithAutoExec.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aDBAction.data[0].irrelevant", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aDBAction.data[0].irrelevant"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("anotherDBAction.data.optional", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("anotherDBAction.data.optional"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aTableAction.data.child", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aTableAction.data.child"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithoutCall.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithoutCall.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithoutCall.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.anAsyncCollectionActionWithCall()", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithCall"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("Collection.aSyncCollectionActionWithCall()", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("Collection.aSyncCollectionActionWithCall"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction4.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction4.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction2.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction2.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("hiddenAction1.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("hiddenAction1.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostTertiaryAction.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostTertiaryAction.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("aPostSecondaryAction.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("aPostSecondaryAction.data"))));
+        StepVerifier
+                .create(testMono)
+                .assertNext(layout -> {
+                    assertThat(layout).isNotNull();
+                    assertThat(layout.getId()).isNotNull();
+                    assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(4);
+
+                    Set<String> firstSetPageLoadActions = Set.of(
+                            "aPostTertiaryAction",
+                            "aGetAction",
+                            "hiddenAction1",
+                            "hiddenAction2",
+                            "hiddenAction4",
+                            "aPostAction",
+                            "anotherPostAction"
+                    );
+
+                    Set<String> secondSetPageLoadActions = Set.of(
+                            "aTableAction",
+                            "anotherDBAction"
+                    );
+
+                    Set<String> thirdSetPageLoadActions = Set.of(
+                            "aDBAction"
+                    );
+
+                    Set<String> fourthSetPageLoadActions = Set.of(
+                            "aPostActionWithAutoExec",
+                            "Collection.anAsyncCollectionActionWithoutCall"
+                    );
+                    assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(firstSetPageLoadActions);
+                    assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(secondSetPageLoadActions);
+                    assertThat(layout.getLayoutOnLoadActions().get(2).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(thirdSetPageLoadActions);
+                    assertThat(layout.getLayoutOnLoadActions().get(3).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
+                            .hasSameElementsAs(fourthSetPageLoadActions);
+                    Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
+                    for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
+                        flatOnLoadActions.addAll(actions);
+                    }
+                    for (DslActionDTO action : flatOnLoadActions) {
+                        assertThat(action.getId()).isNotBlank();
+                        assertThat(action.getName()).isNotBlank();
+                        assertThat(action.getTimeoutInMillisecond()).isNotZero();
+                    }
+                })
+                .verifyComplete();
+
+        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
+            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
+        });
+
+        StepVerifier
+                .create(actionDTOMono)
+                .assertNext(tuple -> {
+                    assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                })
+                .verifyComplete();
+    }
+
+
+    /**
+     * This test is meant for the older string based on page load logic that persists today for older deployments.
+     * The expectation is the same as the previous test, except that only valid global references are marked to run on page load.
+     * (Please refer point #6 in this list)
+     * This test adds some actions in the page and attaches a few of those in the dynamic bindings in the widgets
+     * in the layout. An action attached in the widget also has two dependencies on other actions. One of those
+     * has been explicitly marked to NOT run on page load. This test asserts the following :
+     * 1. All the actions which must be executed on page load have been recognized correctly
+     * 2. The sequence of the action execution takes into account the action dependencies
+     * 3. An action which has been marked to not execute on page load does not get added to the on page load order
+     * 4. Async and sync JS functions when called with a .data reference are marked to run on load
+     * 5. Async and sync JS function when called as function calls are ignored to be marked on page load
+     * 6. A string that happens to match an action reference DOES GET INCORRECTLY marked to run on page load
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getActionsExecuteOnLoadWithoutAstLogic() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(Mockito.anyString(), Mockito.anyInt())).thenCallRealMethod();
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("ActionsExecuteOnLoad Test Page2");
+
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutValidPageId-TestWithoutAst");
+
+        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+
+        Mono<LayoutDTO> testMono = createComplexAppForExecuteOnLoad(pageMono);
+
         StepVerifier
                 .create(testMono)
                 .assertNext(layout -> {
@@ -524,19 +1077,25 @@ public class LayoutServiceTest {
                             "aGetAction",
                             "hiddenAction1",
                             "hiddenAction2",
-                            "hiddenAction4"
+                            "hiddenAction4",
+                            "anIgnoredAction",
+                            "aDBAction",
+                            "aPostAction",
+                            "anotherPostAction",
+                            "ignoredAction1",
+                            "ignoredAction2",
+                            "ignoredAction3",
+                            "ignoredAction4"
                     );
 
                     Set<String> secondSetPageLoadActions = Set.of(
                             "aTableAction",
-                            "aDBAction",
                             "anotherDBAction"
                     );
 
                     Set<String> thirdSetPageLoadActions = Set.of(
                             "aPostActionWithAutoExec",
-                            "Collection.anAsyncCollectionActionWithoutCall",
-                            "Collection.aSyncCollectionActionWithoutCall"
+                            "Collection.anAsyncCollectionActionWithoutCall"
                     );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
@@ -558,14 +1117,14 @@ public class LayoutServiceTest {
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
             return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId("aPostAction", page.getId(), AclPermission.MANAGE_ACTIONS));
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
         });
 
         StepVerifier
                 .create(actionDTOMono)
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
-                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                    assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -633,7 +1192,7 @@ public class LayoutServiceTest {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+                    return layoutActionService.updateLayout(page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
 
         StepVerifier
@@ -660,8 +1219,6 @@ public class LayoutServiceTest {
         app.setName("newApplication-testIncorrectMustacheExpressionInBinding-Test");
 
         PageDTO page = createPage(app, testPage).block();
-        String pageId = page.getId();
-        String layoutId = page.getLayouts().get(0).getId();
 
         Mono<LayoutDTO> testMono = Mono.just(page)
                 .flatMap(page1 -> {
@@ -708,7 +1265,7 @@ public class LayoutServiceTest {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+                    return layoutActionService.updateLayout(page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
 
         StepVerifier
