@@ -6,7 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.NewPageService;
