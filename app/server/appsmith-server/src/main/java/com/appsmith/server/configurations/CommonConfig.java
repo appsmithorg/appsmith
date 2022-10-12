@@ -62,7 +62,10 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
+    @Value("${appsmith.rts.url:http://localhost:8091}")
+    private String rtsBaseDomain;
     private List<String> allowedDomains;
+
 
     @Bean
     public Scheduler scheduler() {
