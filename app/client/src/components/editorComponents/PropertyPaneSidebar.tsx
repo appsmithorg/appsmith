@@ -82,25 +82,18 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
 
-  const overridePaneWidth = (width: number) => {
-    props.onWidthChange(width);
-    props.onDragEnd && props.onDragEnd();
-  };
-
-  useEffect(() => {
-    if (isAppSettingsPaneOpen) {
-      storePreviousPaneWidth(props.width);
-      storeWasExplorerPinned(isExplorerPinned);
-      if (isExplorerPinned) {
-        dispatch(setExplorerActiveAction(false));
-        dispatch(setExplorerPinnedAction(false));
-      }
-      overridePaneWidth(APP_SETTINGS_PANE_WIDTH);
-    } else {
-      wasExplorerPinned && dispatch(setExplorerPinnedAction(true));
-      overridePaneWidth(previousPaneWidth);
-    }
-  }, [isAppSettingsPaneOpen]);
+  // useEffect(() => {
+  //   if (isAppSettingsPaneOpen) {
+  //     storePreviousPaneWidth(props.width);
+  //     storeWasExplorerPinned(isExplorerPinned);
+  //     if (isExplorerPinned) {
+  //       dispatch(setExplorerActiveAction(false));
+  //       dispatch(setExplorerPinnedAction(false));
+  //     }
+  //   } else {
+  //     wasExplorerPinned && dispatch(setExplorerPinnedAction(true));
+  //   }
+  // }, [isAppSettingsPaneOpen]);
 
   /**
    * renders the property pane:
@@ -163,8 +156,13 @@ export const PropertyPaneSidebar = memo((props: Props) => {
           className={classNames({
             "h-full p-0 overflow-y-auto min-w-72": true,
             "max-w-104": !isAppSettingsPaneOpen,
+            "transition-all duration-300": isAppSettingsPaneOpen,
           })}
-          style={{ width: props.width }}
+          style={{
+            width: isAppSettingsPaneOpen
+              ? APP_SETTINGS_PANE_WIDTH
+              : props.width,
+          }}
         >
           {propertyPane}
         </div>

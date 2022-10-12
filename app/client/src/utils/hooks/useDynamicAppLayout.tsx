@@ -20,9 +20,11 @@ import { APP_MODE } from "entities/App";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
+import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -38,6 +40,7 @@ export const useDynamicAppLayout = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
   /**
    * calculates min height
@@ -89,11 +92,16 @@ export const useDynamicAppLayout = () => {
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
-    // if preview mode is on, we don't need to subtract the Property Pane width
-    if (isPreviewMode === false) {
+    // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
+    if (isPreviewMode === false && !isAppSettingsPaneOpen) {
       const propertyPaneWidth = domPropertyPane?.clientWidth || 0;
 
       calculatedWidth -= propertyPaneWidth;
+    }
+
+    // if app setting pane is open, we need to subtract the width of app setting page width
+    if (isAppSettingsPaneOpen === true) {
+      calculatedWidth -= APP_SETTINGS_PANE_WIDTH;
     }
 
     // if explorer is closed or its preview mode, we don't need to subtract the EE width
@@ -178,6 +186,7 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,
+    isAppSettingsPaneOpen,
   ]);
 
   return isCanvasInitialized;
