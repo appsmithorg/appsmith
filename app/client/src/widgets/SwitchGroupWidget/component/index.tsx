@@ -120,7 +120,7 @@ const SwitchGroupComponent = React.forwardRef<
           options.length > 0 &&
           options.map((option: OptionProps) => (
             <StyledSwitch
-              accentColor={accentColor}
+              $accentColor={accentColor}
               alignIndicator={alignment}
               checked={(selected || []).includes(option.value)}
               disabled={disabled}

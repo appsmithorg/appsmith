@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useDrag } from "react-use-gesture";
 import { AppState } from "@appsmith/reducers";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import EventEmitter from "utils/EventEmitter";
 import {
@@ -12,7 +11,6 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -20,6 +18,7 @@ import {
   GridDefaults,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
+import { getParentToOpenSelector } from "selectors/widgetSelectors";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
@@ -333,6 +332,7 @@ interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
   batchUpdate: (height: number) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
+  style?: CSSProperties;
 }
 
 const getSnappedValues = (
@@ -353,6 +353,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     minDynamicHeight,
     onMaxHeightSet,
     onMinHeightSet,
+    style,
     ...props
   }) => {
     const widgetId = props.widgetId;
@@ -366,8 +367,9 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
     );
 
-    const canvasWidgets = useSelector(getCanvasWidgets);
-    const parentWidgetToSelect = getParentToOpenIfAny(widgetId, canvasWidgets);
+    const parentWidgetToSelect = useSelector(
+      getParentToOpenSelector(props.widgetId),
+    );
     const showTableFilterPane = useShowTableFilterPane();
     const { setIsResizing } = useWidgetDragResize();
     const isResizing = useSelector(
@@ -601,6 +603,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       rightColumn,
       topRow,
     } = props;
+
     const styles: CSSProperties = useMemo(
       () => ({
         position: "absolute",
@@ -627,7 +630,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     );
 
     return (
-      <StyledDynamicHeightOverlay style={styles}>
+      <StyledDynamicHeightOverlay style={style ?? styles}>
         <div
           style={{
             display: isOverlayToBeDisplayed ? "block" : "none",

@@ -42,14 +42,13 @@ import {
   isDynamicHeightEnabledForWidget,
   isDynamicHeightWithLimitsEnabledForWidget,
 } from "./WidgetUtils";
-import DynamicHeightOverlay, {
-  DynamicHeightOverlayStyle,
-} from "components/editorComponents/DynamicHeightOverlay";
+import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
 import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import DynamicHeightContainer from "./DynamicHeightContainer";
+import { CSSProperties } from "styled-components";
 
 /***
  * BaseWidget
@@ -447,10 +446,7 @@ abstract class BaseWidget<
     );
   }
 
-  addDynamicHeightOverlay(
-    content: ReactNode,
-    style?: DynamicHeightOverlayStyle,
-  ) {
+  addDynamicHeightOverlay(content: ReactNode, style?: CSSProperties) {
     const updateDynamicHeight = () => {
       requestAnimationFrame(() => {
         setTimeout(() => {
@@ -498,6 +494,7 @@ abstract class BaseWidget<
           minDynamicHeight={getWidgetMinDynamicHeight(this.props)}
           onMaxHeightSet={onMaxHeightSet}
           onMinHeightSet={onMinHeightSet}
+          style={style}
         />
         {content}
       </>

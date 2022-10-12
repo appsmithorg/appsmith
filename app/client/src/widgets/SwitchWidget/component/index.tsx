@@ -60,7 +60,7 @@ const SwitchLabel = styled.div<{
 `;
 
 export const StyledSwitch = styled(Switch)<{
-  accentColor: string;
+  $accentColor: string;
   inline?: boolean;
 }>`
   &.${Classes.CONTROL} {
@@ -69,22 +69,22 @@ export const StyledSwitch = styled(Switch)<{
 
   &.${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ accentColor }) => `${accentColor}`} !important;
-      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+      background: ${({ $accentColor }) => `${$accentColor}`} !important;
+      border: 1px solid ${({ $accentColor }) => `${$accentColor}`} !important;
     }
 
     &:hover input:checked:not(:disabled) ~ .bp3-control-indicator {
-      background: ${({ accentColor }) =>
-        `${darkenColor(accentColor)}`} !important;
-      border: 1px solid ${({ accentColor }) =>
-        `${darkenColor(accentColor)}`} !important;
+      background: ${({ $accentColor }) =>
+        `${darkenColor($accentColor)}`} !important;
+      border: 1px solid ${({ $accentColor }) =>
+        `${darkenColor($accentColor)}`} !important;
     }
   }
 
   &.${Classes.SWITCH} {
     ${({ inline }) => (!!inline ? "" : "width: 100%;")}
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ accentColor }) => `${accentColor}`} !important;
+      background: ${({ $accentColor }) => `${$accentColor}`} !important;
     }
   }
 `;
@@ -110,7 +110,7 @@ function SwitchComponent({
   return (
     <SwitchComponentContainer accentColor={accentColor}>
       <StyledSwitch
-        accentColor={accentColor}
+        $accentColor={accentColor}
         alignIndicator={switchAlignClass}
         checked={isSwitchedOn}
         className={

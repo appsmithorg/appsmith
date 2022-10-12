@@ -41,13 +41,13 @@ export interface LabelContainerProps {
 
 export interface StyledLabelProps {
   color?: string;
-  compact: boolean;
+  $compact: boolean;
   disabled?: boolean;
   fontSize?: string;
   fontStyle?: string;
-  hasHelpText: boolean;
+  $hasHelpText: boolean;
   position?: LabelPosition;
-  isDynamicHeightEnabled?: boolean;
+  $isDynamicHeightEnabled?: boolean;
 }
 
 interface TooltipIconProps {
@@ -160,15 +160,17 @@ export const StyledTooltip = styled(Tooltip)`
 
 export const StyledLabel = styled(Label)<StyledLabelProps>`
   &&& {
-    ${({ compact, hasHelpText, position }) => {
-      if (!position && !compact) return;
+    ${({ $compact, $hasHelpText, position }) => {
+      if (!position && !$compact) return;
       if (
         position === LabelPosition.Left ||
-        ((!position || position === LabelPosition.Auto) && compact)
+        ((!position || position === LabelPosition.Auto) && $compact)
       )
         return `margin-bottom: 0px; margin-right: ${LABEL_DEFAULT_GAP}`;
       return `margin-bottom: ${LABEL_DEFAULT_GAP}; ${
-        hasHelpText ? `margin-right: ${LABEL_DEFAULT_GAP}` : "margin-right: 0px"
+        $hasHelpText
+          ? `margin-right: ${LABEL_DEFAULT_GAP}`
+          : "margin-right: 0px"
       }`;
     }};
     ${({ color, disabled, fontSize, fontStyle }) => `
@@ -185,8 +187,8 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
     `}
   }
 
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled
+  ${({ $isDynamicHeightEnabled }) =>
+    $isDynamicHeightEnabled
       ? "&& { text-overflow: initial; white-space: initial; }"
       : ""};
 `;
@@ -266,17 +268,17 @@ const LabelWithTooltip = React.forwardRef<
         position="top"
       >
         <StyledLabel
+          $compact={compact}
+          $hasHelpText={!!helpText}
+          $isDynamicHeightEnabled={isDynamicHeightEnabled}
           className={`${
             loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
           } ${className}`}
           color={color}
-          compact={compact}
           disabled={disabled}
           elementRef={labelRef}
           fontSize={fontSize}
           fontStyle={fontStyle}
-          hasHelpText={!!helpText}
-          isDynamicHeightEnabled={isDynamicHeightEnabled}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           position={position}

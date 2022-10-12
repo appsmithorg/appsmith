@@ -41,15 +41,17 @@ export function ClickContentToOpenPropPane({
     e.stopPropagation();
   };
 
+  const styles = {
+    width: "100%",
+    height: "100%",
+  };
+
   return (
     <div
       onClick={stopEventPropagation}
       onClickCapture={clickToSelectWidget}
       onMouseOver={handleMouseOver}
-      style={{
-        width: "100%",
-        height: "100%",
-      }}
+      style={styles}
     >
       {children}
     </div>

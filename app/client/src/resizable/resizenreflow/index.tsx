@@ -21,11 +21,11 @@ import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/edito
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 
-const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
+const ResizeWrapper = styled(animated.div)<{ $prevents: boolean }>`
   display: block;
   & {
     * {
-      pointer-events: ${(props) => !props.prevents && "none"};
+      pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
 `;
@@ -515,8 +515,8 @@ export function ReflowResizable(props: ResizableProps) {
     >
       {(_props) => (
         <ResizeWrapper
+          $prevents={pointerEvents}
           className={props.className}
-          prevents={pointerEvents}
           ref={resizableRef}
           style={_props}
         >

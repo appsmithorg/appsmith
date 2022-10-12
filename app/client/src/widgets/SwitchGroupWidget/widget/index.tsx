@@ -1,6 +1,6 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { xor } from "lodash";
+import { isString, xor } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -377,6 +377,7 @@ class SwitchGroupWidget extends BaseWidget<
         )
       }}`,
       value: `{{this.selectedValues}}`,
+      santisedOptions: `{{ (()=>{ console.log("SwitchGroup:, this.options); if(_.isString(this.options)) { try { return JSON.parse(this.options); } catch(e) { return this.options; } } else return this.options; })() }}`,
     };
   }
 
@@ -385,7 +386,6 @@ class SwitchGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {
-    super.componentDidUpdate(prevProps);
     if (
       xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
         .length > 0
@@ -424,6 +424,15 @@ class SwitchGroupWidget extends BaseWidget<
 
     const { componentHeight } = this.getComponentDimensions();
 
+    // TODO(abhinav): Not sure why we have to do this.
+    // Check with the App Viewers Pod
+    let _options = options;
+    if (isString(options)) {
+      try {
+        _options = JSON.parse(options as string);
+      } catch (e) {}
+    }
+
     return (
       <SwitchGroupComponent
         accentColor={accentColor}
@@ -442,7 +451,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelWidth={this.getLabelWidth()}
         maxDynamicHeight={this.props.maxDynamicHeight}
         onChange={this.handleSwitchStateChange}
-        options={options}
+        options={_options}
         required={isRequired}
         selected={selectedValues}
         valid={isValid}
