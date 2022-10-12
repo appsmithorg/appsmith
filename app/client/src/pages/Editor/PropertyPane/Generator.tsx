@@ -128,10 +128,58 @@ const generatePropertyControl = (
   });
 };
 
+function evaluateHiddenProperty(
+  config: readonly PropertyPaneConfig[],
+  widgetProps: any,
+) {
+  const finalConfig: PropertyPaneConfig[] = [];
+  for (const conf of config) {
+    const sectionConfig = conf as PropertyPaneSectionConfig;
+    const controlConfig = conf as PropertyPaneControlConfig;
+    if (sectionConfig.sectionName) {
+      const isSectionHidden =
+        sectionConfig.hidden &&
+        sectionConfig.hidden(
+          widgetProps,
+          sectionConfig.propertySectionPath || "",
+        );
+      if (!isSectionHidden) {
+        const children = evaluateHiddenProperty(
+          sectionConfig.children,
+          widgetProps,
+        );
+        if (children.length > 0) {
+          finalConfig.push({
+            ...sectionConfig,
+            children,
+          });
+        }
+      }
+    } else if (controlConfig.controlType) {
+      const isControlHidden =
+        controlConfig.hidden &&
+        controlConfig.hidden(widgetProps, controlConfig.propertyName);
+      if (!isControlHidden) {
+        finalConfig.push(conf);
+      }
+    }
+  }
+  return finalConfig;
+}
+
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
-  const searchResults = searchProperty(props.config, props.searchQuery);
+  // console.log("bla", props.searchQuery, props.config, searchResults);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const searchResults = searchProperty(props.config, props.searchQuery);
   const [isSearchResultEmpty, setIsSearchResultEmpty] = useState(false);
+  // const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+
+  // const finalProps = evaluateHiddenProperty(props.config, widgetProps);
+  // const searchResults = searchProperty(finalProps, props.searchQuery);
+  // const isSearchResultEmpty = searchResults.length === 0;
+
+  // console.log("bla config", props.config, finalProps);
+  // console.log("bla widgetProps", widgetProps);
 
   useEffect(() => {
     if (props.searchQuery) {

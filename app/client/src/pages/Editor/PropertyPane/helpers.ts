@@ -35,13 +35,29 @@ export function searchProperty(
   const fuseConfig = {
     threshold: 0.2,
     distance: 100,
+    location: 0,
     includeMatches: true,
     keys: ["sectionName", "children.label", "label", "children.children.label"],
+    includeScore: true,
+    // useExtendedSearch: true,
+    // keys: [
+    //   { name: "sectionName", weight: 0.1 },
+    //   { name: "children.label", weight: 0.3 },
+    //   { name: "label", weight: 0.3 },
+    //   { name: "children.children.label", weight: 0.3 },
+    // ],
+    // ignoreFieldNorm: true,
+    // sortFn: (a: { score: number }, b: { score: number }) => {
+    //   console.log("bla sort", a, b);
+    //   return a.score - b.score;
+    // },
   };
   const fuse = new Fuse(config, fuseConfig);
   const searchResults = fuse.search(searchQuery) as FuseResultWithMatches<
     PropertyPaneConfig
   >[];
+
+  console.log("bla searchRes", searchResults);
 
   const res = [];
   for (const result of searchResults) {
@@ -57,8 +73,46 @@ export function searchProperty(
     res.push(x);
   }
 
+  console.log("bla searchRe2", searchResults);
+
   return res;
 }
+
+// export function searchProperty(
+//   config: readonly PropertyPaneConfig[],
+//   searchQuery?: string,
+// ) {
+//   if (!searchQuery) return config;
+
+//   const startsWithResults = [];
+//   const containsResults = [];
+
+//   for (const conf of config) {
+//     if ((conf as PropertyPaneSectionConfig).sectionName) {
+//       const sectionName = (conf as PropertyPaneSectionConfig).sectionName.toLowerCase();
+//       if (sectionName.startsWith(searchQuery)) {
+//         startsWithResults.push(conf);
+//       } else if (sectionName.includes(searchQuery)) {
+//         containsResults.push(conf);
+//       } else {
+//         const children: any =
+//           searchProperty(conf.children || [], searchQuery) || [];
+//         if (children.length > 0) {
+//           containsResults.push({ ...conf, children });
+//         }
+//       }
+//     } else if ((conf as PropertyPaneControlConfig).label) {
+//       const label = (conf as PropertyPaneControlConfig).label.toLowerCase();
+//       if (label.startsWith(searchQuery)) {
+//         startsWithResults.push(conf);
+//       } else if (label.includes(searchQuery)) {
+//         containsResults.push(conf);
+//       }
+//     }
+//   }
+
+//   return [...startsWithResults, ...containsResults];
+// }
 
 export function updateConfigPaths(
   config: PropertyPaneConfig[],
