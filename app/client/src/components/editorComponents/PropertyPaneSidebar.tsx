@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
-import React, { memo, useEffect, useRef, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import React, { memo, useEffect, useRef, useMemo } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -19,11 +19,6 @@ import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
-import {
-  setExplorerActiveAction,
-  setExplorerPinnedAction,
-} from "actions/explorerActions";
-import { getExplorerPinned } from "selectors/explorerSelector";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 
 type Props = {
@@ -33,11 +28,8 @@ type Props = {
 };
 
 export const PropertyPaneSidebar = memo((props: Props) => {
-  const dispatch = useDispatch();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
-  const [previousPaneWidth, storePreviousPaneWidth] = useState(props.width);
-  const [wasExplorerPinned, storeWasExplorerPinned] = useState<boolean>();
 
   const {
     onMouseDown,
@@ -52,11 +44,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   );
 
   const isPreviewMode = useSelector(previewModeSelector);
-  // const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
-  const isExplorerPinned = useSelector(getExplorerPinned);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget Id,
@@ -82,26 +72,13 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
 
-  // useEffect(() => {
-  //   if (isAppSettingsPaneOpen) {
-  //     storePreviousPaneWidth(props.width);
-  //     storeWasExplorerPinned(isExplorerPinned);
-  //     if (isExplorerPinned) {
-  //       dispatch(setExplorerActiveAction(false));
-  //       dispatch(setExplorerPinnedAction(false));
-  //     }
-  //   } else {
-  //     wasExplorerPinned && dispatch(setExplorerPinnedAction(true));
-  //   }
-  // }, [isAppSettingsPaneOpen]);
-
   /**
    * renders the property pane:
-   * 0. if isAppSettingsPaneOpen -> AppSettingsPane
-   * 1. if no widget is selected -> CanvasPropertyPane
-   * 2. if more than one widget is selected -> MultiWidgetPropertyPane
-   * 3. if user is dragging for selection -> CanvasPropertyPane
-   * 4. if only one widget is selected -> WidgetPropertyPane
+   * 1. if isAppSettingsPaneOpen -> AppSettingsPane
+   * 2. if no widget is selected -> CanvasPropertyPane
+   * 3. if more than one widget is selected -> MultiWidgetPropertyPane
+   * 4. if user is dragging for selection -> CanvasPropertyPane
+   * 5. if only one widget is selected -> WidgetPropertyPane
    */
   const propertyPane = useMemo(() => {
     switch (true) {

@@ -6,7 +6,6 @@ import { PopoverPosition } from "@blueprintjs/core";
 import { TooltipComponent, Button, Size } from "design-system";
 
 import { Colors } from "constants/Colors";
-import { setExplorerPinnedAction } from "actions/explorerActions";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
@@ -18,7 +17,6 @@ export function CanvasPropertyPane() {
   const dispatch = useDispatch();
 
   const openAppSettingsPane = () => {
-    dispatch(setExplorerPinnedAction(false));
     dispatch(openAppSettingsPaneAction());
   };
 
