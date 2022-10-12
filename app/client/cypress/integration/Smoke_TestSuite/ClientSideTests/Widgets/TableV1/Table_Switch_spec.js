@@ -1,9 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/swtchTableDsl.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 
 describe("Table Widget and Switch binding Functionality", function() {
   before(() => {
