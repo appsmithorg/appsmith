@@ -32,6 +32,7 @@ import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
+  Callout,
   Case,
   Icon,
   IconSize,
@@ -42,7 +43,6 @@ import {
   TooltipComponent,
 } from "design-system";
 import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,

@@ -144,4 +144,5 @@ public class FieldName {
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+    public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
 }
