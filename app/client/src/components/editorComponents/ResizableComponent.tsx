@@ -116,7 +116,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       canResizeVertically = true;
 
     // this is required for list widget so that template have no collision
-    if (props.ignoreCollision)
+    if (props.ignoreCollision || props.isFlexChild)
       return {
         canResizeHorizontally,
         canResizeVertically,
