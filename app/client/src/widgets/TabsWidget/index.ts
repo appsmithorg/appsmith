@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -13,7 +14,10 @@ export const CONFIG = {
   canvasHeightOffset: (props: WidgetProps): number =>
     props.shouldShowTabs === true ? 4 : 0,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   defaults: {
     rows: 40,

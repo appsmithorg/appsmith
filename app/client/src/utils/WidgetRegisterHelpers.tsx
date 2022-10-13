@@ -77,5 +77,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     payload: _config,
   });
 
-  WidgetFactory.storeWidgetConfig(config.type, _config);
+  const factoryConfig = { ..._config, canvasHeightOffset: undefined };
+
+  WidgetFactory.storeWidgetConfig(config.type, factoryConfig);
 };

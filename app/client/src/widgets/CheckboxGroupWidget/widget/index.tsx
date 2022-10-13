@@ -494,24 +494,13 @@ class CheckboxGroupWidget extends BaseWidget<
         .filter((option) => !options.includes(option))
         .concat(options.filter((option) => !prevOptions.includes(option)));
 
-      // TODO(abhinav): Not sure why we have to do this.
-      // Stuff breaks after release merge, fixing it here.
-      let _selectedValues = this.props.selectedValues;
-      if (!Array.isArray(_selectedValues)) {
-        if (
-          this.props.defaultSelectedValues &&
-          this.props.defaultSelectedValues.length &&
-          !Array.isArray(this.props.defaultSelectedValues)
-        ) {
-          _selectedValues = [this.props.defaultSelectedValues];
-        } else {
-          _selectedValues = [];
-        }
-      }
-
-      const selectedValues = _selectedValues.filter(
+      let selectedValues = this.props.selectedValues.filter(
         (selectedValue: string) => !diffOptions.includes(selectedValue),
       );
+      // if selectedValues empty, and options have changed, set defaultSelectedValues
+      if (!selectedValues.length && this.props.defaultSelectedValues.length) {
+        selectedValues = this.props.defaultSelectedValues;
+      }
 
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
         triggerPropertyName: "onSelectionChange",

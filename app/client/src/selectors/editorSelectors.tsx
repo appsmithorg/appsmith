@@ -415,42 +415,7 @@ const generateOccupiedSpacesMap = (
 // returns occupied spaces
 export const getOccupiedSpaces = createSelector(
   getWidgets,
-  (
-    widgets: CanvasWidgetsReduxState,
-  ): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
-    const occupiedSpaces: {
-      [containerWidgetId: string]: OccupiedSpace[];
-    } = {};
-    // Get all widgets with type "CONTAINER_WIDGET" and has children
-    const containerWidgets: FlattenedWidgetProps[] = Object.values(
-      widgets,
-    ).filter((widget) => widget.children && widget.children.length > 0);
-
-    // If we have any container widgets
-    if (containerWidgets) {
-      containerWidgets.forEach((containerWidget: FlattenedWidgetProps) => {
-        const containerWidgetId = containerWidget.widgetId;
-        // Get child widgets for the container
-        // TODO: PERF_FIX (abhinav): This is iterating over all widgets for every widget which has children
-        // We can optimise this by iterating through the children for each widget which has children
-        const childWidgets = Object.keys(widgets).filter(
-          (widgetId) =>
-            containerWidget.children &&
-            containerWidget.children.indexOf(widgetId) > -1 &&
-            !widgets[widgetId].detachFromLayout,
-        );
-        // Get the occupied spaces in this container
-        // Assign it to the containerWidgetId key in occupiedSpaces
-        occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
-          containerWidgetId,
-          childWidgets.map((widgetId) => widgets[widgetId]),
-        );
-      });
-    }
-
-    // Return undefined if there are no occupiedSpaces.
-    return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
-  },
+  generateOccupiedSpacesMap,
 );
 
 export const getOccupiedSpacesGroupedByParentCanvas = createSelector(

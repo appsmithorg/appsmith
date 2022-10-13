@@ -2,10 +2,14 @@ import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
 import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Text",

@@ -1,9 +1,12 @@
 import {
   PropertyPaneConfig,
+  PropertyPaneConfigTypes,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures/WidgetFeaturesRegistry";
 import { generateReactKey } from "./generators";
+
 import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
 
 /* This function recursively parses the property pane configuration and
@@ -63,14 +66,25 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 export function enhancePropertyPaneConfig(
   config: PropertyPaneConfig[],
   features?: WidgetFeatures,
+  configType?: PropertyPaneConfigTypes,
 ) {
-  // Enhance property pane for dynamic height feature
-  if (features && features.dynamicHeight) {
-    config.splice(
-      1,
-      0,
-      PropertyPaneConfigTemplates.DYNAMIC_HEIGHT as PropertyPaneConfig,
-    );
+  if (features) {
+    Object.values(RegisteredWidgetFeatures).forEach((feature) => {
+      // Enhance property pane for dynamic height feature
+      const shouldEnhanceWithFeatureConfigs =
+        features[feature] &&
+        features[feature].enabled &&
+        (features[feature].propertyPaneConfigType === configType ||
+          configType === undefined);
+
+      if (shouldEnhanceWithFeatureConfigs) {
+        config.splice(
+          1,
+          0,
+          PropertyPaneConfigTemplates[feature] as PropertyPaneConfig,
+        );
+      }
+    });
   }
 
   return config;

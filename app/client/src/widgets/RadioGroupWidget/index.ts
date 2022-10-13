@@ -2,6 +2,7 @@ import IconSVG from "./icon.svg";
 import { Alignment } from "@blueprintjs/core";
 import Widget from "./widget";
 import { LabelPosition } from "components/constants";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,7 +10,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   searchTags: ["choice"],
   defaults: {

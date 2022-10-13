@@ -1,11 +1,15 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Checkbox Group",

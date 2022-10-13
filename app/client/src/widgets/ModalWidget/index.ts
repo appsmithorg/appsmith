@@ -13,6 +13,7 @@ import {
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -21,7 +22,10 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   searchTags: ["dialog", "popup", "notification"],
   defaults: {

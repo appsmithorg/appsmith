@@ -4,6 +4,8 @@ import Widget, { JSONFormWidgetProps } from "./widget";
 import { ButtonVariantTypes } from "components/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
+
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
 };
@@ -14,7 +16,10 @@ const RESET_BUTTON_DEFAULT_STYLES = {
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   canvasHeightOffset: 6,
   type: Widget.getWidgetType(),

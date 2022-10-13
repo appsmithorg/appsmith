@@ -2,10 +2,14 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Switch Group", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )

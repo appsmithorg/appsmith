@@ -1,10 +1,14 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Input",

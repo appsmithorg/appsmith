@@ -2,6 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,7 +11,10 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["input", "rte"],
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",

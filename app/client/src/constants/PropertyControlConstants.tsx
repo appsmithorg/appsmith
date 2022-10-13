@@ -89,6 +89,8 @@ export type PropertyPaneControlConfig = {
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;
+  onBlur?: () => void; // TODO(abhinav): Find an appropriate argument to pass
+  onFocus?: () => void; // TODO(abhinav): Find an appropriate argument to pass
 };
 
 type ValidationConfigParams = {
@@ -135,4 +137,9 @@ export type PropertyPaneConfig =
 
 export interface ActionValidationConfigMap {
   [configPropety: string]: ValidationConfig;
+}
+
+export enum PropertyPaneConfigTypes {
+  STYLE = "STYLE",
+  CONTENT = "CONTENT",
 }

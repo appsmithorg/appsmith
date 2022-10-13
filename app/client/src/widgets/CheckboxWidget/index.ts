@@ -2,10 +2,14 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Checkbox",

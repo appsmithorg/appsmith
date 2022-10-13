@@ -238,7 +238,7 @@ const PropertyControl = memo((props: Props) => {
           }
         },
       );
-      allUpdates[propertyName] = propertyValue;
+
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget properties were updated",

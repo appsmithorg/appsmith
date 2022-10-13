@@ -500,6 +500,15 @@ abstract class BaseWidget<
       </>
     );
   }
+
+  getCanvasView(): ReactNode {
+    let content = this.getPageView();
+    if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
+      content = this.addDynamicHeightContainer(content);
+    }
+    return this.addErrorBoundary(content);
+  }
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -594,14 +603,6 @@ abstract class BaseWidget<
   }
 
   abstract getPageView(): ReactNode;
-
-  getCanvasView(): ReactNode {
-    let content = this.getPageView();
-    if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
-      content = this.addDynamicHeightContainer(content);
-    }
-    return this.addErrorBoundary(content);
-  }
 
   // TODO(abhinav): Maybe make this a pure component to bailout from updating altogether.
   // This would involve making all widgets which have "states" to not have states,

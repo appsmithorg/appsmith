@@ -137,7 +137,6 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
-    super.componentDidUpdate(prevProps);
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -147,6 +146,7 @@ class JSONFormWidget extends BaseWidget<
     }
 
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,

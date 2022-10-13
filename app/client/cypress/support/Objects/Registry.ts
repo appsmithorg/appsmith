@@ -12,7 +12,6 @@ import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 
-
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
   static get AggregateHelper(): AggregateHelper {
@@ -109,7 +108,7 @@ export class ObjectsRegistry {
     }
     return ObjectsRegistry.gitSync__;
   }
-  
+
   private static fakerHelper__: FakerHelper;
   static get FakerHelper(): FakerHelper {
     if (ObjectsRegistry.fakerHelper__ === undefined) {

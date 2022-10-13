@@ -1,0 +1,5 @@
+export enum DynamicHeight {
+  AUTO_HEIGHT = "AUTO_HEIGHT",
+  FIXED = "FIXED",
+  AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS",
+}

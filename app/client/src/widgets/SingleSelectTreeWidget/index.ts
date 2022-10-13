@@ -2,10 +2,14 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   type: Widget.getWidgetType(),
   name: "TreeSelect",

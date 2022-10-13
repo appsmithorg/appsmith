@@ -1,6 +1,9 @@
 import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
 import React from "react";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import {
+  PropertyPaneConfig,
+  PropertyPaneConfigTypes,
+} from "constants/PropertyControlConstants";
 
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { RenderMode } from "constants/WidgetConstants";
@@ -76,7 +79,7 @@ class WidgetFactory {
       loadingProperties &&
         this.loadingProperties.set(widgetType, loadingProperties);
 
-      if (propertyPaneConfig) {
+      if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneConfig,
           features,
@@ -100,6 +103,7 @@ class WidgetFactory {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneContentConfig,
           features,
+          PropertyPaneConfigTypes.CONTENT,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -120,6 +124,7 @@ class WidgetFactory {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneStyleConfig,
           features,
+          PropertyPaneConfigTypes.STYLE,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(

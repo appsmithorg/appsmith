@@ -2,6 +2,7 @@ import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { PropertyPaneConfigTypes } from "constants/PropertyControlConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,7 +11,10 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      enabled: true,
+      propertyPaneConfigType: PropertyPaneConfigTypes.CONTENT,
+    },
   },
   searchTags: ["group"],
   defaults: {

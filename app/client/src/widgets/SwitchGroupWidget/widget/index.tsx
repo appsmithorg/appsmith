@@ -1,6 +1,6 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { isString, xor } from "lodash";
+import { xor } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -423,15 +423,6 @@ class SwitchGroupWidget extends BaseWidget<
 
     const { componentHeight } = this.getComponentDimensions();
 
-    // TODO(abhinav): Not sure why we have to do this.
-    // Check with the App Viewers Pod
-    let _options = options;
-    if (isString(options)) {
-      try {
-        _options = JSON.parse(options as string);
-      } catch (e) {}
-    }
-
     return (
       <SwitchGroupComponent
         accentColor={accentColor}
@@ -450,7 +441,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelWidth={this.getLabelWidth()}
         maxDynamicHeight={this.props.maxDynamicHeight}
         onChange={this.handleSwitchStateChange}
-        options={_options}
+        options={options}
         required={isRequired}
         selected={selectedValues}
         valid={isValid}
