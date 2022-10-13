@@ -62,6 +62,8 @@ export class HomePage {
     "[data - cy= t--workspace-leave - button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
+  private _leaveWorkspace = "//span[text()='Leave Workspace']";
+  private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']"
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
@@ -395,4 +397,23 @@ export class HomePage {
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
   }
+
+  //Maps to leaveworkspace in command.js
+  public leaveWorkspace(workspaceName: string) {
+    cy.get(this._workspaceList(workspaceName))
+      .scrollIntoView()
+      .should("be.visible");
+      cy.get
+      (this._optionsIcon).first()
+      .click({ force: true });
+    cy.xpath(this._leaveWorkspace).click({ force: true });
+    cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
+    cy.wait("@leaveWorkspaceApiCall").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    this.agHelper.ValidateToastMessage("You have successfully left the workspace");
+  }
+  
 }
