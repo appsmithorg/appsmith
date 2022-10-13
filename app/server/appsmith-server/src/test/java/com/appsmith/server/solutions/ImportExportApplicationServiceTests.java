@@ -21,11 +21,11 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -485,7 +485,7 @@ public class ImportExportApplicationServiceTests {
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action))
                             .then(layoutActionService.createSingleAction(action2))
-                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
+                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
                 .cache();
@@ -2232,7 +2232,7 @@ public class ImportExportApplicationServiceTests {
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action))
                             .then(layoutActionService.createSingleAction(action2))
-                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
+                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
                 .cache();
