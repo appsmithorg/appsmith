@@ -211,10 +211,6 @@ abstract class BaseWidget<
     this.context?.deleteMetaWidgets?.({
       creatorId: [this.props.widgetId],
     });
-
-    console.log({
-      unmounts: this.props.widgetId,
-    });
   };
 
   getWidgetCache = () => {
