@@ -16,7 +16,6 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { DraftValueType } from "rc-select/lib/Select";
-import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -436,7 +435,6 @@ class MultiSelectWidget extends BaseWidget<
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
-        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isValid={this.props.isValid}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}

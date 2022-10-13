@@ -66,7 +66,6 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
 
 export interface CheckboxGroupContainerProps {
   compactMode: boolean;
-  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -79,9 +78,6 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   & .select-all {
     white-space: nowrap;
   }
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface SelectAllProps {
@@ -155,7 +151,6 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelWidth?: number;
   accentColor: string;
   borderRadius: string;
-  maxDynamicHeight?: number;
 }
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
@@ -199,7 +194,6 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     <CheckboxGroupContainer
       compactMode={compactMode}
       data-testid="checkboxgroup-container"
-      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
     >
       {labelText && (

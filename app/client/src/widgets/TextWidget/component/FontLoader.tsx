@@ -6,15 +6,11 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const FontLoader = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
+function FontLoader(props: Props) {
   const fontFamily = useGoogleFont(props.fontFamily);
 
-  return (
-    <div ref={ref} style={{ fontFamily, height: "100%" }}>
-      {props.children}
-    </div>
-  );
-});
+  return <div style={{ fontFamily, height: "100%" }}>{props.children}</div>;
+}
 
 FontLoader.displayName = "FontLoader";
 

@@ -13,7 +13,6 @@ import LabelWithTooltip, {
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
-  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -23,9 +22,6 @@ export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface StyledRadioGroupProps {
@@ -40,7 +36,7 @@ export interface StyledRadioGroupProps {
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "auto")};
+  height: ${({ inline }) => (inline ? "32px" : "100%")};
 
   .${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
@@ -99,7 +95,6 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     <RadioGroupContainer
       compactMode={compactMode}
       data-testid="radiogroup-container"
-      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
     >
       {labelText && (

@@ -134,7 +134,7 @@ function SingleSelectTreeComponent({
   const [filter, setFilter] = useState(filterText ?? "");
 
   const labelRef = useRef<HTMLDivElement>(null);
-  const _menu = useRef<HTMLDivElement>(null);
+  const _menu = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 

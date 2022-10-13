@@ -425,7 +425,6 @@ export interface SelectComponentProps extends ComponentProps {
   isDynamicHeightEnabled?: boolean;
   isLoading: boolean;
   isFilterable: boolean;
-  innerRef?: React.RefObject<HTMLDivElement>;
   isValid: boolean;
   width: number;
   dropDownWidth: number;
@@ -445,4 +444,4 @@ export interface SelectComponentProps extends ComponentProps {
   resetFilterTextOnClose?: boolean;
 }
 
-export default SelectComponent;
+export default React.memo(SelectComponent);

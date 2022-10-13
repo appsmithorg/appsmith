@@ -16,7 +16,7 @@ import { ComponentProps } from "widgets/BaseComponent";
   It suffices for our target browsers
   More info: https://css-tricks.com/line-clampin/
 */
-``;
+
 interface RateContainerProps {
   isDisabled: boolean;
 }

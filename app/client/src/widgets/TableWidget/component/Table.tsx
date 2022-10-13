@@ -415,7 +415,7 @@ export function Table(props: TableProps) {
         </Scrollbars>
       </div>
       <ScrollIndicator
-        containerRef={tableBodyRef as React.MutableRefObject<HTMLDivElement>}
+        containerRef={tableBodyRef}
         mode="LIGHT"
         top={props.editMode ? "70px" : "73px"}
       />
