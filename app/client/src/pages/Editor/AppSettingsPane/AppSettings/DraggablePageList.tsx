@@ -1,6 +1,7 @@
 import { setPageOrder } from "actions/pageActions";
 import { Page } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
+import { Colors } from "constants/Colors";
 import { ControlIcons, DraggableList } from "design-system";
 import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
@@ -17,11 +18,13 @@ function PageListHeader(props: {
 }) {
   const DragIcon = ControlIcons.DRAG_CONTROL;
   const dragContainerRef = useRef(null);
+
+  const bgColor = `bg-[${Colors.GRAY_200.toLowerCase()}]`;
   return (
     <div
       className={classNames({
         "h-9 flex items-center cursor-pointer": true,
-        "bg-[#e7e7e7]": props.selectedPage === props.page.pageId,
+        [bgColor]: props.selectedPage === props.page.pageId,
       })}
       onClick={() => {
         props.onPageSelect(props.page.pageId);
@@ -32,14 +35,21 @@ function PageListHeader(props: {
         onClick={(e) => e.stopPropagation()}
         ref={dragContainerRef}
       >
-        <DragIcon color="#b3b3b3" cursor="move" height={20} width={20} />
+        <DragIcon
+          color={Colors.GRAY_400}
+          cursor="move"
+          height={20}
+          width={20}
+        />
       </div>
       {props.page.isDefault ? (
-        <DefaultPageIcon color="#393939" height={17} width={18} />
+        <DefaultPageIcon color={Colors.GRAY_800} height={17} width={18} />
       ) : (
-        <PageIcon color="#393939" height={17} width={18} />
+        <PageIcon color={Colors.GRAY_800} height={17} width={18} />
       )}
-      <div className="font-medium pl-1">{props.page.pageName}</div>
+      <div className="font-medium pl-1 text-ellipsis whitespace-nowrap overflow-hidden">
+        {props.page.pageName}
+      </div>
     </div>
   );
 }

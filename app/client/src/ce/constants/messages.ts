@@ -1257,15 +1257,19 @@ export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 export const APP_SETTINGS_PANE_HEADER = () => "Settings";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
+export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
 export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
   "App name, icon and share";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
+export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme Settings";
 export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
   "Set theme, color and font";
 
+export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
+export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
 export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
 export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";

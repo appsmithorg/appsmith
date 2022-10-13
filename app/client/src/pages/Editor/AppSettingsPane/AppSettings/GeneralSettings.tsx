@@ -5,6 +5,7 @@ import {
   GENERAL_SETTINGS_APP_NAME_LABEL,
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
+import { Colors } from "constants/Colors";
 import { AppIconName, TextInput, IconSelector } from "design-system";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
@@ -17,6 +18,7 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { checkRegex } from "utils/validation/CheckRegex";
+import { specialCharacterCheckRegex } from "../Utils";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
@@ -71,7 +73,7 @@ function GeneralSettings() {
 
   return (
     <>
-      <div className="pb-1 text-[#575757]">
+      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
         {GENERAL_SETTINGS_APP_NAME_LABEL()}
       </div>
       <div className="pb-2.5">
@@ -89,7 +91,7 @@ function GeneralSettings() {
           readOnly={isSavingAppName}
           type="input"
           validator={checkRegex(
-            /^[A-Za-z0-9\s\-]+$/,
+            specialCharacterCheckRegex,
             URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsAppNameValid,
@@ -98,7 +100,7 @@ function GeneralSettings() {
         />
       </div>
 
-      <div className="pb-1 text-[#575757]">
+      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
         {GENERAL_SETTINGS_APP_ICON_LABEL()}
       </div>
       <IconSelectorWrapper className="pb-4">

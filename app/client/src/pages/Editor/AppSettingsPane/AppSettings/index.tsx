@@ -10,11 +10,16 @@ import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
+  GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER_DESC,
+  PAGE_SETTINGS_SECTION_CONTENT_HEADER,
+  PAGE_SETTINGS_SECTION_HEADER,
+  THEME_SETTINGS_SECTION_CONTENT_HEADER,
   THEME_SETTINGS_SECTION_HEADER,
   THEME_SETTINGS_SECTION_HEADER_DESC,
 } from "ce/constants/messages";
+import { Colors } from "constants/Colors";
 
 export enum AppSettingsTabs {
   General,
@@ -32,14 +37,14 @@ const Wrapper = styled.div`
 `;
 
 const SectionContent = styled.div`
-  box-shadow: -1px 0 0 0 #e0dede;
+  box-shadow: -1px 0 0 0 ${Colors.ALTO2};
 `;
 
-const TabHeaderText = styled.div`
+const HeaderText = styled.div`
   height: 48px;
 `;
 
-const ThemeTabContentWrapper = styled.div`
+const ThemeContentWrapper = styled.div`
   height: calc(100% - 48px);
   overflow-y: overlay;
 `;
@@ -94,10 +99,12 @@ function AppSettings() {
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
         ))}
-        <div className="border-t-[1px] border-[#d7d7d7]" />
-        <TabHeaderText className="leading-[3rem] font-medium px-4">
-          Page settings
-        </TabHeaderText>
+        <div
+          className={`border-t-[1px] border-[${Colors.ALTO_4.toLowerCase()}]`}
+        />
+        <HeaderText className="leading-[3rem] font-medium px-4">
+          {PAGE_SETTINGS_SECTION_HEADER()}
+        </HeaderText>
         <DraggablePageList
           onPageSelect={(pageId: string) =>
             setSelectedTab({
@@ -115,9 +122,9 @@ function AppSettings() {
             case AppSettingsTabs.General:
               return (
                 <div className="px-4">
-                  <TabHeaderText className="leading-[3rem] font-medium">
-                    General settings
-                  </TabHeaderText>
+                  <HeaderText className="leading-[3rem] font-medium">
+                    {GENERAL_SETTINGS_SECTION_CONTENT_HEADER()}
+                  </HeaderText>
                   <GeneralSettings />
                 </div>
               );
@@ -125,25 +132,27 @@ function AppSettings() {
               return (
                 <>
                   <div className="px-4">
-                    <TabHeaderText className="leading-[3rem] font-medium">
-                      Theme settings
-                    </TabHeaderText>
+                    <HeaderText className="leading-[3rem] font-medium">
+                      {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
+                    </HeaderText>
                   </div>
-                  <ThemeTabContentWrapper>
+                  <ThemeContentWrapper>
                     <ThemePropertyPane />
-                  </ThemeTabContentWrapper>
+                  </ThemeContentWrapper>
                 </>
               );
             case AppSettingsTabs.Page:
-              return selectedTab.page ? (
-                <div className="px-4">
-                  <TabHeaderText className="leading-[3rem] font-medium">
-                    Page settings
-                  </TabHeaderText>
-                  <PageSettings page={selectedTab.page} />
-                </div>
-              ) : (
-                <div>Page not found</div>
+              return (
+                selectedTab.page && (
+                  <div className="px-4">
+                    <HeaderText className="leading-[3rem] font-medium text-ellipsis whitespace-nowrap overflow-hidden">
+                      {selectedTab.page.pageName +
+                        " " +
+                        PAGE_SETTINGS_SECTION_CONTENT_HEADER()}
+                    </HeaderText>
+                    <PageSettings page={selectedTab.page} />
+                  </div>
+                )
               );
           }
         })()}

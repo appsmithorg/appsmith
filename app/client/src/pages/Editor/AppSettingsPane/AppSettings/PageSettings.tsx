@@ -12,6 +12,7 @@ import {
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
+import { Colors } from "constants/Colors";
 import { TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
@@ -23,7 +24,7 @@ import {
 } from "selectors/editorSelectors";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import { checkRegex } from "utils/validation/CheckRegex";
-import { getUrlPreview } from "../Utils";
+import { getUrlPreview, specialCharacterCheckRegex } from "../Utils";
 
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
@@ -87,7 +88,7 @@ function PageSettings(props: { page: Page }) {
 
   return (
     <>
-      <div className="pb-1 text-[#575757]">
+      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
         {PAGE_SETTINGS_PAGE_NAME_LABEL()}
       </div>
       <div className="pb-2.5">
@@ -104,7 +105,7 @@ function PageSettings(props: { page: Page }) {
           readOnly={isPageLoading}
           type="input"
           validator={checkRegex(
-            /^[A-Za-z0-9\s\-]+$/,
+            specialCharacterCheckRegex,
             URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsPageNameValid,
@@ -113,11 +114,11 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <div className="pb-1 text-[#575757]">
+      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
         {PAGE_SETTINGS_PAGE_URL_LABEL()}
       </div>
       {appNeedsUpdate && (
-        <div className="pb-1 text-[#575757]">
+        <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
           {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1()}{" "}
           <ManualUpgrades inline>
             <a>
@@ -141,7 +142,7 @@ function PageSettings(props: { page: Page }) {
           readOnly={appNeedsUpdate || isPageLoading}
           type="input"
           validator={checkRegex(
-            /^[A-Za-z0-9\s\-]+$/,
+            specialCharacterCheckRegex,
             URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             false,
             setIsCustomSlugValid,
@@ -150,7 +151,9 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <div className="pt-2 pb-2.5 text-[#575757] text-xs leading-extra-tight break-all">
+      <div
+        className={`pt-2 pb-2.5 text-[${Colors.GRAY_700.toLowerCase()}] text-xs leading-extra-tight break-all`}
+      >
         <p>
           {location.protocol}
           {"//"}
@@ -158,7 +161,9 @@ function PageSettings(props: { page: Page }) {
           {Array.isArray(pathPreview) && (
             <>
               {pathPreview[0]}
-              <strong className="text-[#393939]">{pathPreview[1]}</strong>
+              <strong className={`text-[${Colors.GRAY_800.toLowerCase()}]`}>
+                {pathPreview[1]}
+              </strong>
               {pathPreview[2]}
               {pathPreview[3]}
             </>
@@ -168,7 +173,9 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       <div className="pb-2 flex justify-between content-center">
-        <div className="text-[#575757]">{PAGE_SETTINGS_HIDE_PAGE_NAV()}</div>
+        <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
+          {PAGE_SETTINGS_HIDE_PAGE_NAV()}
+        </div>
         <AdsSwitch
           checked={isHidden}
           className="mb-0"
@@ -185,7 +192,7 @@ function PageSettings(props: { page: Page }) {
 
       {!page.isDefault && (
         <div className="pb-4 flex justify-between content-center">
-          <div className="text-[#575757]">
+          <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
             {PAGE_SETTINGS_SET_AS_HOMEPAGE()}
           </div>
           <AdsSwitch

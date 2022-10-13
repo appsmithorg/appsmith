@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { Colors } from "constants/Colors";
 import { Icon, IconName, IconSize } from "design-system";
 import React from "react";
 import styled from "styled-components";
@@ -17,11 +18,14 @@ const StyledWrapper = styled.div`
 
 class SectionHeader extends React.Component<SectionHeaderProps> {
   render(): React.ReactNode {
+    const hoverBgColor = `hover:bg-[${Colors.GREY_200.toLowerCase()}]`;
+    const bgColor = `bg-[${Colors.GREY_200.toLowerCase()}]`;
     return (
       <StyledWrapper
         className={classNames({
-          "flex flex-row items-center hover:bg-[#e7e7e7] cursor-pointer": true,
-          "bg-[#e7e7e7]": this.props.isSelected,
+          "flex flex-row items-center cursor-pointer": true,
+          [hoverBgColor]: true,
+          [bgColor]: this.props.isSelected,
         })}
         onClick={this.props.onClick}
       >
