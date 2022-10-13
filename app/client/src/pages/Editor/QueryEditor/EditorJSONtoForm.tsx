@@ -20,10 +20,10 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
-import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import {
   Button,
+  Callout,
   Category,
   Icon as AdsIcon,
   IconSize,
