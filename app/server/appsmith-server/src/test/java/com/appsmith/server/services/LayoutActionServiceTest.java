@@ -543,7 +543,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testIsNameAllowed_withRepeatedActionName_throwsError() {
+    public void testIsNameAllowed_withRepeatedActionCollectionName_throwsError() {
         Mockito.doReturn(Flux.empty()).when(newActionService).getUnpublishedActions(Mockito.any());
 
         ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
