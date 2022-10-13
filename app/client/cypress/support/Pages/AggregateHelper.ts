@@ -60,8 +60,8 @@ export class AggregateHelper {
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let pageid: string;
-    let layoutId;
+    let pageid: string, layoutId, appId: string | null;
+    appId = localStorage.getItem("applicationId");
     cy.url().then((url) => {
       pageid = url
         .split("/")[5]
@@ -75,7 +75,12 @@ export class AggregateHelper {
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
-          "api/v1/layouts/" + layoutId + "/pages/" + pageid,
+          "api/v1/layouts/" +
+            layoutId +
+            "/pages/" +
+            pageid +
+            "?applicationId=" +
+            appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
@@ -136,9 +141,10 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      locator = selector.startsWith("//") || selector.startsWith("(//")
-        ? cy.xpath(selector, { timeout: timeout })
-        : cy.get(selector, { timeout: timeout });
+      locator =
+        selector.startsWith("//") || selector.startsWith("(//")
+          ? cy.xpath(selector, { timeout: timeout })
+          : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
     return locator;
   }
@@ -307,6 +313,11 @@ export class AggregateHelper {
       });
 
     this.Sleep(); //for selected value to reflect!
+  }
+
+  public SelectFromMutliTree(dropdownOption: string) {
+    this.GetNClick(this.locator._dropDownMultiTreeSelect);
+    this.GetNClick(this.locator._dropDownMultiTreeValue(dropdownOption));
   }
 
   public SelectFromDropDown(

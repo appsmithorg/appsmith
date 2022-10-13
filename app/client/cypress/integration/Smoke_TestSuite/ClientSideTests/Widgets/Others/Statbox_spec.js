@@ -2,9 +2,16 @@ const dsl = require("../../../../../fixtures/StatboxDsl.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const data = require("../../../../../fixtures/example.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Statbox Widget Functionality", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 

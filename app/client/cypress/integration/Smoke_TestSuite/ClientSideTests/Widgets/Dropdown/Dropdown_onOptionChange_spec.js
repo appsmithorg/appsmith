@@ -5,7 +5,6 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 
 describe("Dropdown Widget Functionality", function() {
   before(() => {
