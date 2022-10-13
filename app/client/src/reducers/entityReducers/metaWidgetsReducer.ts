@@ -8,7 +8,7 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { getMetaWidgetChildrenIds } from "utils/metaWidgetReducerUtils";
 
-export type MetaCanvasWidgetsReduxState = {
+export type MetaWidgetsReduxState = {
   [widgetId: string]: FlattenedWidgetProps;
 };
 
@@ -32,11 +32,11 @@ type MetaWidgetPropertyUpdate = {
   value: unknown;
 };
 
-const initialState: MetaCanvasWidgetsReduxState = {};
+const initialState: MetaWidgetsReduxState = {};
 
-const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
+const metaWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.MODIFY_META_WIDGETS]: (
-    state: MetaCanvasWidgetsReduxState,
+    state: MetaWidgetsReduxState,
     action: ReduxAction<ModifyMetaWidgetPayload>,
   ) => {
     const {
@@ -69,7 +69,7 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
     return state;
   },
   [ReduxActionTypes.DELETE_META_WIDGETS]: (
-    state: MetaCanvasWidgetsReduxState,
+    state: MetaWidgetsReduxState,
     action: ReduxAction<DeleteMetaWidgetsPayload>,
   ) => {
     const { creatorIds } = action.payload;
@@ -88,4 +88,4 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
   },
 });
 
-export default metaCanvasWidgetsReducer;
+export default metaWidgetsReducer;

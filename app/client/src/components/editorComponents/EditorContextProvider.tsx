@@ -34,7 +34,7 @@ import {
 import {
   ModifyMetaWidgetPayload,
   DeleteMetaWidgetsPayload,
-} from "reducers/entityReducers/metaCanvasWidgetsReducer";
+} from "reducers/entityReducers/metaWidgetsReducer";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;

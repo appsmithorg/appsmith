@@ -53,7 +53,6 @@ import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
-import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 export interface CopiedWidgetGroup {

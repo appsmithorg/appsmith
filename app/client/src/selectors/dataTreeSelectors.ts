@@ -7,11 +7,7 @@ import {
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import {
-  getMetaCanvasWidgets,
-  getWidgets,
-  getWidgetsMeta,
-} from "sagas/selectors";
+import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import {
   DataTree,
   DataTreeFactory,
@@ -33,7 +29,7 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginEditorConfigs,
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
-  getMetaCanvasWidgets,
+  getMetaWidgets,
   (
     actions,
     jsActions,
@@ -44,7 +40,7 @@ export const getUnevaluatedDataTree = createSelector(
     editorConfigs,
     pluginDependencyConfig,
     selectedAppThemeProperty,
-    metaCanvasWidgets,
+    metaWidgets,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -57,7 +53,7 @@ export const getUnevaluatedDataTree = createSelector(
       editorConfigs,
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
-      metaCanvasWidgets,
+      metaWidgets,
     });
   },
 );

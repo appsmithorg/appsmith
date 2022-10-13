@@ -1,7 +1,7 @@
-import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export function getMetaWidgetChildrenIds(
-  metaWidgets: MetaCanvasWidgetsReduxState,
+  metaWidgets: MetaWidgetsReduxState,
   parentIds: string[],
 ): string[] {
   const childrenIds: string[] = [];
@@ -15,7 +15,7 @@ export function getMetaWidgetChildrenIds(
 }
 
 function getMetaWidgetByCreatorId(
-  metaWidgets: MetaCanvasWidgetsReduxState,
+  metaWidgets: MetaWidgetsReduxState,
   parentId: string,
 ): string[] {
   const metaWidgetIds: string[] = [];

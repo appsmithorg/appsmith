@@ -61,7 +61,7 @@ import SettingsReducer, {
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
-import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -118,7 +118,7 @@ export interface AppState {
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
-    metaCanvasWidgets: MetaCanvasWidgetsReduxState;
+    metaWidgets: MetaWidgetsReduxState;
     actions: ActionDataState;
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;

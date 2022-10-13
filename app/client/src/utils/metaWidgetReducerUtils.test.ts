@@ -1,7 +1,7 @@
-import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { getMetaWidgetChildrenIds } from "utils/metaWidgetReducerUtils";
 
-const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
+const metaWidgets: MetaWidgetsReduxState = {
   p4clz8naty: {
     isVisible: true,
     defaultImage: "https://assets.appsmith.com/widgets/default.png",
@@ -1064,7 +1064,7 @@ const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
 describe("getMetaWidgetChildrenIds", () => {
   it("should return all child meta widgets after executing getMetaWidgetChildrenIds", async () => {
     expect(
-      getMetaWidgetChildrenIds(metaCanvasWidgets, ["dam7gf64so"]).sort(),
-    ).toStrictEqual(Object.keys(metaCanvasWidgets).sort());
+      getMetaWidgetChildrenIds(metaWidgets, ["dam7gf64so"]).sort(),
+    ).toStrictEqual(Object.keys(metaWidgets).sort());
   });
 });

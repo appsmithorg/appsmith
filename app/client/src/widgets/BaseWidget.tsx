@@ -38,7 +38,7 @@ import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { FlattenedWidgetProps } from "./constants";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 
 /***
  * BaseWidget
