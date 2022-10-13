@@ -24,7 +24,7 @@ export default class BaseController {
   serverErrorMessaage = "Something went wrong";
   sendResponse(
     response: Response,
-    result: unknown,
+    result?: unknown,
     message?: string,
     code: number = StatusCodes.OK
   ): Response<ResponseData> {
