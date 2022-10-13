@@ -8,12 +8,15 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
 import FormTextField from "components/utils/ReduxFormTextField";
-import FormMessage, {
-  MessageAction,
+import {
+  Button,
+  FormGroup,
+  FormMessage,
   FormMessageProps,
-} from "components/ads/formFields/FormMessage";
+  MessageAction,
+  Size,
+} from "design-system";
 import Spinner from "components/editorComponents/Spinner";
-import { Button, FormGroup, Size } from "design-system";
 
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
