@@ -303,16 +303,18 @@ export function getWidgetChildrenIds(
   return childrenIds;
 }
 
-export function getAllListWidgetIds(widgets: FlattenedWidgetProps[]): string[] {
-  const listWidgetIds: string[] = [];
+export function getAllMetaWidgetCreatorIds(
+  widgets: FlattenedWidgetProps[],
+): string[] {
+  const creatorIds: string[] = [];
 
   widgets.forEach((widget) => {
-    if (widget.type === "LIST_WIDGET_V2") {
-      listWidgetIds.push(widget.widgetId);
+    if (widget.hasMetaWidgets) {
+      creatorIds.push(widget.widgetId);
     }
   });
 
-  return listWidgetIds;
+  return creatorIds;
 }
 
 export function getMetaWidgetChildrenIds(

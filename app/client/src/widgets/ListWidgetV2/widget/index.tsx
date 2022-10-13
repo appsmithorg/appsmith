@@ -279,7 +279,6 @@ class ListWidget extends BaseWidget<
     const updates: ModifyMetaWidgetPayload = {
       addOrUpdate: metaWidgets,
       deleteIds: removedMetaWidgetIds,
-      creatorId: this.props.widgetId,
     };
 
     if (mainCanvasWidget) {

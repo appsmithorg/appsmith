@@ -199,6 +199,7 @@ abstract class BaseWidget<
     this.context.modifyMetaWidgets?.({
       ...modifications,
       propertyUpdates: updatedPropertyUpdates,
+      creatorId: widgetId,
     });
   };
 

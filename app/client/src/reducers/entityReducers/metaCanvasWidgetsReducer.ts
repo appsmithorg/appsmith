@@ -23,8 +23,9 @@ export type ModifyMetaWidgetPayload = {
   propertyUpdates?: MetaWidgetPropertyUpdate[];
   creatorId?: string;
 };
-export type BulkDeleteMetaWidgetPayload = {
+export type DeleteMetaWidgetsPayload = {
   metaWidgetIds: string[];
+  creatorId: string[];
 };
 type MetaWidgetPropertyUpdate = {
   path: string;
@@ -68,10 +69,13 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.BULK_DELETE_META_WIDGETS]: (
     state: MetaCanvasWidgetsReduxState,
-    action: ReduxAction<BulkDeleteMetaWidgetPayload>,
+    action: ReduxAction<DeleteMetaWidgetsPayload>,
   ) => {
-    action.payload.metaWidgetIds.forEach((metaWidgetId) => {
-      delete state[metaWidgetId];
+    const { creatorId, metaWidgetIds } = action.payload;
+    metaWidgetIds.forEach((metaWidgetId) => {
+      if (creatorId.includes(state[metaWidgetId].creatorId)) {
+        delete state[metaWidgetId];
+      }
     });
 
     return state;

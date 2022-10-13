@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  BulkDeleteMetaWidgetPayload,
+  DeleteMetaWidgetsPayload,
   ModifyMetaWidgetPayload,
 } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
@@ -14,11 +14,13 @@ export const modifyMetaWidgets = (payload: ModifyMetaWidgetPayload) => ({
 
 export const deleteMetaWidgets = (
   widgetIds: string[] = [],
-): ReduxAction<BulkDeleteMetaWidgetPayload> => {
+  parentIds: string[] = [],
+): ReduxAction<DeleteMetaWidgetsPayload> => {
   return {
     type: ReduxActionTypes.BULK_DELETE_META_WIDGETS,
     payload: {
       metaWidgetIds: widgetIds,
+      creatorId: parentIds,
     },
   };
 };
