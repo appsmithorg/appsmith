@@ -41,8 +41,10 @@ export const DraggableListControl = <TItem extends BaseItemProps>(
   const onPanelEdit = (index: number) => {
     if (onEdit) {
       currentIndex = index;
-      dispatch(setSelectedPropertyPanel({ path: propertyName, index }));
       onEdit(index);
+      setTimeout(() => {
+        dispatch(setSelectedPropertyPanel({ path: propertyName, index }));
+      }, 0);
     }
   };
 
