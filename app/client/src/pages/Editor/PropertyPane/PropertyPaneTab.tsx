@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
+import { TabComponent, TabProp, TabTitle } from "design-system";
 import { Tab, TabList, Tabs } from "react-tabs";
 
 const StyledTabComponent = styled(TabComponent)`
