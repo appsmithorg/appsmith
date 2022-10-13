@@ -29,7 +29,7 @@ import {
   formatCurrencyNumber,
   limitDecimalValue,
 } from "../component/utilities";
-import { mergeWidgetConfig } from "utils/helpers";
+import { getLocale, mergeWidgetConfig } from "utils/helpers";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   getLocaleDecimalSeperator,
@@ -279,10 +279,12 @@ class CurrencyInputWidget extends BaseInputWidget<
   formatText() {
     if (!!this.props.text) {
       try {
-        const formattedValue = formatCurrencyNumber(
-          this.props.decimals,
-          this.props.text,
-        );
+        /**
+         * Since we are restricting default value to only have "." decimal separator,
+         * hence we directly convert it to the current locale
+         */
+        const floatVal = parseFloat(this.props.text);
+        const formattedValue = Intl.NumberFormat(getLocale()).format(floatVal);
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
