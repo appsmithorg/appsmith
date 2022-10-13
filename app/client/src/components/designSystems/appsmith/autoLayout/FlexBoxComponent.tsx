@@ -1,6 +1,6 @@
-import { isArray } from "lodash";
 import React, { ReactNode } from "react";
 import styled from "styled-components";
+import { isArray } from "lodash";
 
 import { AppState } from "ce/reducers";
 import {
@@ -61,13 +61,11 @@ function FlexBoxComponent(props: FlexBoxProps) {
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
 
-  // const layoutProps = useMemo(
-  //   () => getLayoutProperties(props.direction, props.alignment, props.spacing),
-  //   [props.direction, props.alignment, props.spacing],
-  // );
   const { autoLayoutDragDetails, dragDetails, flexHighlight } = useSelector(
     (state: AppState) => state.ui.widgetDragResize,
   );
+
+  const isCurrentCanvasDragging = dragDetails?.draggedOn === props.widgetId;
 
   const draggedWidgets: string[] = isArray(autoLayoutDragDetails)
     ? autoLayoutDragDetails.map((each) => each.widgetId)
@@ -94,12 +92,12 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
   const renderChildren = () => {
     if (!props.children) return null;
+    if (!props.useAutoLayout) return props.children;
     if (
-      !props.useAutoLayout ||
       direction === LayoutDirection.Horizontal ||
       !(props.flexLayers && props.flexLayers.length)
     ) {
-      if (flexHighlight && dragDetails.draggedOn === props.widgetId) {
+      if (flexHighlight && isCurrentCanvasDragging) {
         const previewNode = getPreviewNode();
         const filteredChildren = (props.children as any)?.filter(
           (child: any) => {
@@ -110,12 +108,11 @@ function FlexBoxComponent(props: FlexBoxProps) {
             );
           },
         );
-        const allChildren = [
-          ...filteredChildren.slice(0, flexHighlight?.index),
+        return addInPosition(
+          filteredChildren,
+          flexHighlight?.index,
           previewNode,
-          ...filteredChildren.slice(flexHighlight?.index),
-        ];
-        return allChildren;
+        );
       } else {
         return props.children;
       }
@@ -130,104 +127,87 @@ function FlexBoxComponent(props: FlexBoxProps) {
         map[(child as JSX.Element).props?.widgetId] = child;
       }
     }
-    let childCount = 0,
-      index = 0;
-    let highLightAdded = false;
-    const layers: any[] = [];
-    // TODO: Add highlight index within a layer to the data model to simplify this logic.
-    for (const layer of props.flexLayers) {
-      const { children, hasFillChild } = layer;
-      let start = [],
-        center = [],
-        end = [];
-      if (!children || !children.length) {
-        const previewNode = getPreviewNode();
-        start.push(previewNode);
-      }
 
-      for (const child of children) {
-        if (
-          flexHighlight &&
-          !highLightAdded &&
-          index === flexHighlight.layerIndex &&
-          childCount === flexHighlight.index &&
-          dragDetails.draggedOn === props.widgetId
-        ) {
-          const previewNode = getPreviewNode();
-          if (flexHighlight.alignment === "start") {
-            start.push(previewNode);
-          } else if (flexHighlight.alignment === "center") {
-            center.push(previewNode);
-          } else {
-            end.push(previewNode);
-          }
-          highLightAdded = true;
+    const previewNode = getPreviewNode();
+    const layers: any[] = processLayers(map, previewNode);
 
-          if (flexHighlight.isNewLayer) {
-            layers.push(
-              <AutoLayoutLayer
-                center={center}
-                direction={direction}
-                end={end}
-                hasFillChild={layer.hasFillChild}
-                index={index}
-                isMobile={isMobile}
-                key={index}
-                start={start}
-                widgetId={props.widgetId}
-              />,
-            );
-            index += 1;
-            start = [];
-            center = [];
-            end = [];
-          }
-        }
-        childCount++;
-        const widget = map[child.id];
-        if (hasFillChild) {
-          start.push(widget);
-          continue;
-        }
-        if (child.align === "end") end.push(widget);
-        else if (child.align === "center") center.push(widget);
-        else start.push(widget);
-        if (
-          flexHighlight &&
-          !highLightAdded &&
-          !flexHighlight.isNewLayer &&
-          index === flexHighlight.layerIndex &&
-          childCount === flexHighlight.index &&
-          dragDetails.draggedOn === props.widgetId
-        ) {
-          const previewNode = getPreviewNode();
-          if (flexHighlight.alignment === "start") {
-            start.push(previewNode);
-          } else if (flexHighlight.alignment === "center") {
-            center.push(previewNode);
-          } else {
-            end.push(previewNode);
-          }
-          highLightAdded = true;
-        }
-      }
-      layers.push(
+    if (flexHighlight?.isNewLayer && isCurrentCanvasDragging) {
+      return addInPosition(
+        layers,
+        flexHighlight.layerIndex !== undefined
+          ? flexHighlight.layerIndex
+          : layers.length,
         <AutoLayoutLayer
-          center={center}
+          center={[]}
           direction={direction}
-          end={end}
-          hasFillChild={layer.hasFillChild}
-          index={index}
+          end={[]}
+          hasFillChild={false}
+          index={layers.length}
           isMobile={isMobile}
-          key={index}
-          start={start}
+          key={layers.length}
+          start={[previewNode]}
           widgetId={props.widgetId}
         />,
       );
-      index += 1;
     }
+
     return layers;
   };
+
+  function processLayers(map: { [key: string]: any }, previewNode: any) {
+    return props.flexLayers
+      ?.map((layer: FlexLayer, index: number) => {
+        const { children, hasFillChild } = layer;
+        let start = [],
+          center = [],
+          end = [];
+        if (!children || !children.length) return null;
+
+        for (const child of children) {
+          const widget = map[child.id];
+          if (hasFillChild) {
+            start.push(widget);
+            continue;
+          }
+          if (child.align === "end") end.push(widget);
+          else if (child.align === "center") center.push(widget);
+          else start.push(widget);
+        }
+
+        if (
+          isCurrentCanvasDragging &&
+          !flexHighlight?.isNewLayer &&
+          index === flexHighlight?.layerIndex
+        ) {
+          const pos = flexHighlight?.rowIndex || 0;
+          if (flexHighlight?.alignment === "start")
+            start = addInPosition(start, pos, previewNode);
+          else if (flexHighlight?.alignment === "center")
+            center = addInPosition(center, pos, previewNode);
+          else if (flexHighlight?.alignment === "end")
+            end = addInPosition(end, pos, previewNode);
+        }
+
+        return (
+          <AutoLayoutLayer
+            center={center}
+            direction={direction}
+            end={end}
+            hasFillChild={layer.hasFillChild}
+            index={index}
+            isMobile={isMobile}
+            key={index}
+            start={start}
+            widgetId={props.widgetId}
+          />
+        );
+      })
+      ?.filter((layer) => layer !== null);
+  }
+
+  function addInPosition(arr: any[], index: number, item: any): any[] {
+    return [...arr.slice(0, index), item, ...arr.slice(index)];
+  }
 
   return (
     <FlexContainer

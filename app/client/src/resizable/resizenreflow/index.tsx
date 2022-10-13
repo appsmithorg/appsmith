@@ -19,7 +19,7 @@ import {
 import { getNearestParentCanvas } from "utils/generators";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
-import { ResponsiveBehavior } from "components/constants";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 
 const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
   display: block;
@@ -158,6 +158,7 @@ type ResizableProps = {
   zWidgetId?: string;
   isFlexChild?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
+  direction?: LayoutDirection;
 };
 
 export function ReflowResizable(props: ResizableProps) {
@@ -497,7 +498,8 @@ export function ReflowResizable(props: ResizableProps) {
       to={{
         width:
           props.isFlexChild &&
-          props.responsiveBehavior === ResponsiveBehavior.Fill
+          props.responsiveBehavior === ResponsiveBehavior.Fill &&
+          props.direction === LayoutDirection.Vertical
             ? "auto"
             : widgetWidth,
         height: widgetHeight,

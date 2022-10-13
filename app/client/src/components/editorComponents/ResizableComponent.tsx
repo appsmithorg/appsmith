@@ -48,6 +48,7 @@ import {
   isWidgetSelected,
   isMultiSelectedWidget,
 } from "selectors/widgetSelectors";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -225,6 +226,12 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
+  const disabledHorizontalHandles =
+    props.isFlexChild &&
+    props.responsiveBehavior === ResponsiveBehavior.Fill &&
+    props.direction === LayoutDirection.Vertical
+      ? ["left", "right", "bottomLeft", "bottomRight", "topLeft", "topRight"]
+      : [];
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -236,9 +243,11 @@ export const ResizableComponent = memo(function ResizableComponent(
       topRight: TopRightHandleStyles,
       bottomLeft: BottomLeftHandleStyles,
     };
-
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    let handlesToOmit = get(props, "disabledResizeHandles", []);
+    if (disabledHorizontalHandles && disabledHorizontalHandles.length)
+      handlesToOmit = [...handlesToOmit, ...disabledHorizontalHandles];
+    return omit(allHandles, handlesToOmit);
+  }, [props, disabledHorizontalHandles]);
 
   const isEnabled =
     !isDragging &&
@@ -274,6 +283,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
+      direction={props.direction}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}

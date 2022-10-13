@@ -25,6 +25,7 @@ export interface HighlightInfo {
   isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
   index: number; // index of the child in props.children.
   layerIndex?: number; // index of layer in props.flexLayers.
+  rowIndex?: number; // index of highlight within a horizontal layer.
   alignment: FlexLayerAlignment; // alignment of the child in the layer.
   posX: number; // x position of the highlight.
   posY: number; // y position of the highlight.
@@ -150,7 +151,7 @@ export const useAutoLayoutHighlights = ({
      * 3. Discount dragged blocks and empty layers from the calculation.
      * 4. hide the dragged blocks and empty layers.
      */
-    cleanUpTempStyles(); // TODO: is this needed?
+    cleanUpTempStyles();
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       const draggedBlocks = getDraggedBlocks();
       if (!draggedBlocks || !draggedBlocks.length) return [];
@@ -181,7 +182,7 @@ export const useAutoLayoutHighlights = ({
         );
       }
     }
-    // console.log("#### highlights: ", highlights);
+    // console.log("#### highlights", highlights);
     return highlights;
   };
 
@@ -395,6 +396,7 @@ export const useAutoLayoutHighlights = ({
       width: verticalFlex ? rect?.width : OFFSET_WIDTH,
       height: verticalFlex ? OFFSET_WIDTH : rect.height,
       isVertical: !verticalFlex,
+      rowIndex: 0,
     };
   }
 
@@ -407,7 +409,7 @@ export const useAutoLayoutHighlights = ({
     const arr: HighlightInfo[] = [];
     const childRects: DOMRect[] = [];
     let index = childCount;
-
+    let rowIndex = 0;
     for (const child of children) {
       const el = getDomElement(child);
       if (!el) continue;
@@ -424,8 +426,10 @@ export const useAutoLayoutHighlights = ({
         width: OFFSET_WIDTH,
         height: childRect?.height,
         isVertical: true,
+        rowIndex,
       });
       index += 1;
+      rowIndex += 1;
     }
 
     // A highlight after the last child.
@@ -440,9 +444,15 @@ export const useAutoLayoutHighlights = ({
       width: OFFSET_WIDTH,
       height: lastRect?.height,
       isVertical: true,
+      rowIndex,
     });
     return arr;
   }
+
+  /**
+   * END AUTO LAYOUT OFFSET CALCULATION
+   */
+
   const debouncedDispatch = debounce((pos: HighlightInfo) => {
     dispatch({
       type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
@@ -452,10 +462,6 @@ export const useAutoLayoutHighlights = ({
       },
     });
   }, 5);
-
-  /**
-   * END AUTO LAYOUT OFFSET CALCULATION
-   */
 
   const highlightDropPosition = (e: any, moveDirection: ReflowDirection) => {
     if (!useAutoLayout) return;
