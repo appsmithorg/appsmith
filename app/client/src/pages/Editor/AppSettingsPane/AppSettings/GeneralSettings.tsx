@@ -77,8 +77,14 @@ function GeneralSettings() {
       <div className="pb-2.5">
         <TextInput
           fill
+          // undefined sent implicitly - parameter "icon"
           onBlur={() => updateAppSettings()}
           onChange={setApplicationName}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              updateAppSettings();
+            }
+          }}
           placeholder="App name"
           readOnly={isSavingAppName}
           type="input"

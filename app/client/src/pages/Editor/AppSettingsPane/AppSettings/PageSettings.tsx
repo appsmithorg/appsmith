@@ -95,6 +95,11 @@ function PageSettings(props: { page: Page }) {
           fill
           onBlur={savePageName}
           onChange={setPageName}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              savePageName();
+            }
+          }}
           placeholder="Page name"
           readOnly={isPageLoading}
           type="input"
@@ -127,6 +132,11 @@ function PageSettings(props: { page: Page }) {
           fill
           onBlur={saveCustomSlug}
           onChange={setCustomSlug}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              saveCustomSlug();
+            }
+          }}
           placeholder="Page URL"
           readOnly={appNeedsUpdate || isPageLoading}
           type="input"
