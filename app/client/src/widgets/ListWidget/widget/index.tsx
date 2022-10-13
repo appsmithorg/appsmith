@@ -26,7 +26,7 @@ import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-import propertyPaneConfig, {
+import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
@@ -56,13 +56,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
   };
-
-  /**
-   * returns the property pane config of the widget
-   */
-  static getPropertyPaneConfig() {
-    return propertyPaneConfig;
-  }
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -893,6 +886,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         {shouldPaginate &&
           (serverSidePaginationEnabled ? (
             <ServerSideListPagination
+              accentColor={this.props.accentColor}
+              borderRadius={this.props.borderRadius}
+              boxShadow={this.props.boxShadow}
+              disabled={false && this.props.renderMode === RenderModes.CANVAS}
               nextPageClick={() => this.onPageChange(pageNo + 1)}
               pageNo={this.props.pageNo}
               prevPageClick={() => this.onPageChange(pageNo - 1)}

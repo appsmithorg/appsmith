@@ -41,6 +41,14 @@ jobs:
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
+  test-shared-modules:
+    name: shared-modules
+    uses: ./.github/workflows/shared-modules.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+    
+
   fat-container-test:
     needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
@@ -103,8 +111,8 @@ jobs:
         uses: martijnhols/actions-cache/restore@v3
         with:
           path: |
-            ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+            ~/combined_failed_spec_fat
+          key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
@@ -113,7 +121,7 @@ jobs:
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec)
+          failed_spec_env=$(cat ~/combined_failed_spec_fat)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -333,28 +341,28 @@ jobs:
         if: failure()
         run: echo "::set-output name=run_result::failedtest" > ~/run_result
 
-      # Create a directory ~/failed_spec and add a dummy file
+      # Create a directory ~/failed_spec_fat and add a dummy file
       # This will ensure upload and download steps are successfull
       - name: Create direcotrs for failed tests
         if: always()
         run: |
-          mkdir -p  ~/failed_spec
-          echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
+          mkdir -p  ~/failed_spec_fat
+          echo  "empty" >> ~/failed_spec_fat/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
       - name: Incase of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec/failed_spec-${{ matrix.job }}
+          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_fat/failed_spec-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: failed-spec
-          path: ~/failed_spec
+          name: failed-spec-fat
+          path: ~/failed_spec_fat
 
       # Force store previous run result to cache
       - name: Store the previous run result
@@ -373,7 +381,7 @@ jobs:
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
-            ~/failed_spec
+            ~/failed_spec_fat
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
@@ -390,7 +398,7 @@ jobs:
         with:
           path: |
             app/client/cypress/snapshots/
-          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
@@ -813,11 +821,24 @@ jobs:
         with:
           name: failed-spec
           path: ~/failed_spec
+      
+      # Download failed_spec list for all jobs
+      - uses: actions/download-artifact@v2
+        if: needs.ui-test.result
+        id: download_fat
+        with:
+          name: failed-spec-fat
+          path: ~/failed_spec_fat
 
       # Incase for any uti-test job failure, create combined failed spec
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
+    
+      # Incase for any fat-container job failure, create combined failed spec
+      - name: "combine all specs for fat"
+        if: needs.fat-container-test.result != 'success'
+        run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat
 
       # Force save the failed spec list into a cache
       - name: Store the combined run result
@@ -826,6 +847,17 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec
+          key: ${{ github.run_id }}-"ui-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+      
+      # Force save the fat failed spec list into a cache
+      - name: Store the combined run result for fat
+        if: needs.ui-test.result
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/combined_failed_spec_fat
           key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
@@ -838,6 +870,15 @@ jobs:
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
+     
+      # Upload combined failed fat spec list to a file
+      # This is done for debugging.
+      - name: upload combined failed spec
+        if: needs.ui-test.result
+        uses: actions/upload-artifact@v2
+        with:
+          name: combined_failed_spec_fat
+          path: ~/combined_failed_spec_fat
 
       # Update check run called "ui-test-result"
       - name: Mark ui-test-result job as complete
