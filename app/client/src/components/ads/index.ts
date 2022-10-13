@@ -3,10 +3,5 @@ export * from "./Callout";
 
 export * from "./common";
 
-export { default as FilePicker } from "./FilePicker";
-export * from "./FilePicker";
-
-export { default as FilePickerV2 } from "./FilePickerV2";
-
 export { default as Table } from "./Table";
 export * from "./Table";
