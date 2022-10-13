@@ -143,7 +143,7 @@ import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/WidgetFeatures/autoHeight/contants";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {

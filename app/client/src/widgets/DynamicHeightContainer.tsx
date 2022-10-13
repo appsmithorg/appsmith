@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useRef, useState } from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import styled from "styled-components";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/WidgetFeatures/autoHeight/contants";
 
 const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};

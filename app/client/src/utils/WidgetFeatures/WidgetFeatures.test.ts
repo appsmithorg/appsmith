@@ -1,9 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  DynamicHeight,
-  hideDynamicHeightPropertyControl,
-} from "./WidgetFeatures";
+import { DynamicHeight } from "./autoHeight/contants";
+import { hideDynamicHeightPropertyControl } from "./autoHeight/propertyValidationFunctions";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,

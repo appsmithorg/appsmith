@@ -31,7 +31,7 @@ import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/WidgetFeatures/autoHeight/contants";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 
