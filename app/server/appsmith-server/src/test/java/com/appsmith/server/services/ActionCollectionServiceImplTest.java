@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -79,7 +78,7 @@ public class ActionCollectionServiceImplTest {
     private PolicyGenerator policyGenerator;
     @MockBean
     NewPageService newPageService;
-    @SpyBean
+    @MockBean
     LayoutActionService layoutActionService;
     @MockBean
     ActionCollectionRepository actionCollectionRepository;
@@ -198,15 +197,9 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(newPageService.findById(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
-
-        Mockito.when(newActionService.getUnpublishedActions(Mockito.any()))
-                .thenReturn(Flux.empty());
-
-        ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
-        mockActionCollectionDTO.setName("testCollection");
-
-        Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
-                .thenReturn(Flux.just(mockActionCollectionDTO));
+        Mockito
+                .when(layoutActionService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(false));
 
         Mockito
                 .when(actionCollectionRepository
