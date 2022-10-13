@@ -13,6 +13,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.EnvironmentVariable;
+import com.appsmith.server.domains.Environment;
 
 import lombok.Getter;
 
@@ -119,6 +120,10 @@ public enum AclPermission {
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
     MANAGE_ENVIRONMENT_VARIABLES("manage:environmentVariables", EnvironmentVariable.class),
+    READ_ENVIRONMENT_VARIABLES("read:environmentVariables", EnvironmentVariable.class),
+    MANAGE_ENVIRONMENTS("manage:environments", Environment.class),
+    READ_ENVIRONMENTS("read:environments", Environment.class),
+    EXECUTE_ENVIRONMENTS("execute:environments", Environment.class),
     ;
 
 

@@ -36,4 +36,6 @@ public interface Url {
     String THEME_URL = BASE_URL + VERSION + "/themes";
     String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
     String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
+    String ENVIRONMENT_URL = BASE_URL + VERSION + "/environment";
+    String ENVIRONMENT_VARIABLE_URL = BASE_URL + VERSION + "/environment-variable";
 }

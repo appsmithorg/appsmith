@@ -17,4 +17,7 @@ public interface CustomEnvironmentVariableRepositoryCE extends AppsmithRepositor
 
     Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission);
 
+    Flux<EnvironmentVariable> findNonDeletedVariablesByEnvironmentIds(List<String> envIds, AclPermission aclPermission);
+
+    Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId, AclPermission aclPermission);
 }

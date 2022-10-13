@@ -19,6 +19,8 @@ public interface EnvironmentVariableServiceCE extends CrudService<EnvironmentVar
 
     Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission);
 
+    Flux<EnvironmentVariable> findEnvironmentVariableByWorkspaceId(String workspaceId, AclPermission aclPermission);
+
     // Write
 
     Mono<EnvironmentVariable> save(EnvironmentVariable envVariable);

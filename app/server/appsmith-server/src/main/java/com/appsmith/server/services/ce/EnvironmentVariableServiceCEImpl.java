@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.EnvironmentVariable;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -46,6 +47,16 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
         return repository.findByEnvironmentId(envId, aclPermission).filter(envVar -> !envVar.isDeleted());
     }
 
+    @Override
+    public Flux<EnvironmentVariable> findEnvironmentVariableByWorkspaceId(String workspaceId, AclPermission aclPermission) {
+        if (workspaceId == null) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        return repository.findByWorkspaceId(workspaceId, aclPermission)
+                .switchIfEmpty(Flux.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
+    }
+
     // Write
     @Override
     public Mono<EnvironmentVariable> save(EnvironmentVariable envVariable) {
@@ -71,7 +82,7 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT_VARIABLE, id)));
 
         // scope for analytics event to be added.
-        return environmentVariableMono.map(environmentVariable ->  {
+        return environmentVariableMono.map(environmentVariable -> {
             repository.archive(environmentVariable);
             return environmentVariable;
         });

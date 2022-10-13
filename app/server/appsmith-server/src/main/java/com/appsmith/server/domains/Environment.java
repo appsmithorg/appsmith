@@ -1,6 +1,5 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -8,25 +7,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 @Getter
 @Setter
-@NoArgsConstructor
 @Document
-public class EnvironmentVariable extends BaseDomain {
-
-
-    String environmentId;
-
-    String applicationId;
+@NoArgsConstructor
+public class Environment extends BaseDomain {
 
     String workspaceId;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String name;
 
-    //subject to type change;
-
-    @Encrypted
-    String value;
-
+    public void sanitiseToExportDBObject() {
+        this.sanitiseToExportBaseObject();
+     }
 }
