@@ -24,16 +24,10 @@ import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  getSelectedWidget,
-  getWidget,
-  getWidgets,
-  getMetaCanvasWidgets,
-} from "./selectors";
+import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllMetaWidgetCreatorIds,
   getAllWidgetsInTree,
-  getMetaWidgetChildrenIds,
   resizeCanvasToLowestWidget,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
@@ -47,7 +41,6 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 import { deleteMetaWidgets } from "actions/metaWidgetActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -230,19 +223,6 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
-      let childMetaWidgetIds: string[] = [];
-      if (widget.hasMetaWidgets) {
-        const metaWidgets: MetaCanvasWidgetsReduxState = yield select(
-          getMetaCanvasWidgets,
-        );
-
-        const listChildMetaWidgetIds: string[] = yield call(
-          getMetaWidgetChildrenIds,
-          metaWidgets,
-          [widget.widgetId],
-        );
-        childMetaWidgetIds = [...listChildMetaWidgetIds];
-      }
       const updatedObj: UpdatedDSLPostDelete = yield call(
         getUpdatedDslAfterDeletingWidget,
         widgetId,
@@ -250,7 +230,13 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       );
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        yield put(deleteMetaWidgets(childMetaWidgetIds, [widget.widgetId]));
+        if (widget.hasMetaWidgets) {
+          yield put(
+            deleteMetaWidgets({
+              creatorId: [widget.widgetId],
+            }),
+          );
+        }
         yield put(updateAndSaveLayout(finalWidgets));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
@@ -294,22 +280,10 @@ function* deleteAllSelectedWidgetsSaga(
       }),
     );
     const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
-    const listWidgetIds: string[] = yield call(
+    const metaCreatorWidgetIds: string[] = yield call(
       getAllMetaWidgetCreatorIds,
       flattenedWidgets,
     );
-    let childMetaWidgetIds: string[] = [];
-    if (listWidgetIds.length) {
-      const metaWidgets: MetaCanvasWidgetsReduxState = yield select(
-        getMetaCanvasWidgets,
-      );
-      const listChildMetaWidgetIds: string[] = yield call(
-        getMetaWidgetChildrenIds,
-        metaWidgets,
-        listWidgetIds,
-      );
-      childMetaWidgetIds = [...listChildMetaWidgetIds];
-    }
 
     const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
@@ -351,8 +325,13 @@ function* deleteAllSelectedWidgetsSaga(
         mainCanvasMinHeight,
       );
     }
-    yield put(deleteMetaWidgets(childMetaWidgetIds, listWidgetIds));
-
+    if (metaCreatorWidgetIds.length) {
+      yield put(
+        deleteMetaWidgets({
+          creatorId: metaCreatorWidgetIds,
+        }),
+      );
+    }
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");

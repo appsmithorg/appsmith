@@ -56,6 +56,9 @@ function MetaWidgetContextProvider({
 
   const getWidgetCache =
     metaEditorContextProps.getWidgetCache ?? editorContextProps.getWidgetCache;
+  const deleteMetaWidgets =
+    metaEditorContextProps.deleteMetaWidgets ??
+    editorContextProps.deleteMetaWidgets;
 
   const contextValue = useMemo(
     () => ({
@@ -71,6 +74,7 @@ function MetaWidgetContextProvider({
       modifyMetaWidgets,
       setWidgetCache,
       getWidgetCache,
+      deleteMetaWidgets,
     }),
     [
       executeAction,
@@ -85,6 +89,7 @@ function MetaWidgetContextProvider({
       modifyMetaWidgets,
       setWidgetCache,
       getWidgetCache,
+      deleteMetaWidgets,
     ],
   );
 

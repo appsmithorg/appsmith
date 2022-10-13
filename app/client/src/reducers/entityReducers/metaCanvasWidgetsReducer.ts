@@ -6,6 +6,7 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
+import { getMetaWidgetChildrenIds } from "utils/metaReducerUtils";
 
 export type MetaCanvasWidgetsReduxState = {
   [widgetId: string]: FlattenedWidgetProps;
@@ -24,7 +25,6 @@ export type ModifyMetaWidgetPayload = {
   creatorId?: string;
 };
 export type DeleteMetaWidgetsPayload = {
-  metaWidgetIds: string[];
   creatorId: string[];
 };
 type MetaWidgetPropertyUpdate = {
@@ -67,11 +67,13 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
 
     return state;
   },
-  [ReduxActionTypes.BULK_DELETE_META_WIDGETS]: (
+  [ReduxActionTypes.DELETE_META_WIDGETS]: (
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<DeleteMetaWidgetsPayload>,
   ) => {
-    const { creatorId, metaWidgetIds } = action.payload;
+    const { creatorId } = action.payload;
+    const metaWidgetIds: string[] = getMetaWidgetChildrenIds(state, creatorId);
+
     metaWidgetIds.forEach((metaWidgetId) => {
       if (creatorId.includes(state[metaWidgetId].creatorId)) {
         delete state[metaWidgetId];

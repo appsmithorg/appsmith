@@ -13,14 +13,10 @@ export const modifyMetaWidgets = (payload: ModifyMetaWidgetPayload) => ({
 });
 
 export const deleteMetaWidgets = (
-  widgetIds: string[] = [],
-  parentIds: string[] = [],
+  payload: DeleteMetaWidgetsPayload,
 ): ReduxAction<DeleteMetaWidgetsPayload> => {
   return {
-    type: ReduxActionTypes.BULK_DELETE_META_WIDGETS,
-    payload: {
-      metaWidgetIds: widgetIds,
-      creatorId: parentIds,
-    },
+    type: ReduxActionTypes.DELETE_META_WIDGETS,
+    payload,
   };
 };

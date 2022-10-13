@@ -317,34 +317,6 @@ export function getAllMetaWidgetCreatorIds(
   return creatorIds;
 }
 
-export function getMetaWidgetChildrenIds(
-  metaWidgets: MetaCanvasWidgetsReduxState,
-  parentIds: string[],
-): string[] {
-  const childrenIds: string[] = [];
-
-  parentIds.forEach((parentId) => {
-    const metaIds = getMetaWidgetByCreatorId(metaWidgets, parentId);
-    childrenIds.push(...metaIds);
-  });
-
-  return childrenIds;
-}
-
-function getMetaWidgetByCreatorId(
-  metaWidgets: MetaCanvasWidgetsReduxState,
-  parentId: string,
-): string[] {
-  const metaWidgetIds: string[] = [];
-
-  Object.keys(metaWidgets).forEach((metaWidgetId) => {
-    if (metaWidgets[metaWidgetId].creatorId === parentId) {
-      metaWidgetIds.push(metaWidgetId);
-    }
-  });
-  return metaWidgetIds;
-}
-
 export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
 /**
  * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values

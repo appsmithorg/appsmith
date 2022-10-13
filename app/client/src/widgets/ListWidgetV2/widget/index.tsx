@@ -239,6 +239,9 @@ class ListWidget extends BaseWidget<
     //   this.addPrivateWidgetsForChildren(this.props);
     // }
   }
+  componentWillUnmount(): void {
+    this.deleteMetaWidgets();
+  }
 
   generateMetaWidgets = (
     prevFlattenedChildCanvasWidgets?: WidgetBaseProps["flattenedChildCanvasWidgets"],

@@ -207,6 +207,16 @@ abstract class BaseWidget<
     this.context?.setWidgetCache?.(this.props.widgetId, data);
   };
 
+  deleteMetaWidgets = () => {
+    this.context?.deleteMetaWidgets?.({
+      creatorId: [this.props.widgetId],
+    });
+
+    console.log({
+      unmounts: this.props.widgetId,
+    });
+  };
+
   getWidgetCache = () => {
     return this.context?.getWidgetCache?.(this.props.widgetId);
   };
