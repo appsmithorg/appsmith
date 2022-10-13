@@ -50,6 +50,7 @@ export const FlexContainer = styled.div<{
 
   overflow: ${({ overflow }) =>
     overflow?.indexOf("wrap") === -1 ? overflow : "hidden"};
+  overflow-y: auto;
   padding: 4px;
 `;
 

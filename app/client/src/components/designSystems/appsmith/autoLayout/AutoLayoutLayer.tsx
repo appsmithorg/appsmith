@@ -39,8 +39,7 @@ const SubWrapper = styled.div<{
   flex: 1 1 33.3%;
   display: flex;
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
-  align-items: ${({ flexDirection }) =>
-    flexDirection === FlexDirection.Column ? "flex-start" : "center"};
+  align-items: "flex-start";
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
 `;
 
