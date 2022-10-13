@@ -9,8 +9,8 @@ import {
   Overflow,
 } from "components/constants";
 import { useSelector } from "react-redux";
-import AutoLayoutLayer from "./AutoLayoutLayer";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import AutoLayoutLayer from "./AutoLayoutLayer";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -120,7 +120,9 @@ function FlexBoxComponent(props: FlexBoxProps) {
     }
 
     const layers =
-      flexHighlight?.isNewLayer && flexHighlight?.layerIndex
+      flexHighlight?.isNewLayer &&
+      flexHighlight?.layerIndex &&
+      flexHighlight.layerIndex > props.flexLayers.length
         ? [
             ...props.flexLayers.slice(0, flexHighlight?.index),
             { children: [], hasFillChild: false },
@@ -166,6 +168,21 @@ function FlexBoxComponent(props: FlexBoxProps) {
         if (child.align === "end") end.push(widget);
         else if (child.align === "center") center.push(widget);
         else start.push(widget);
+        if (
+          flexHighlight &&
+          index === flexHighlight.layerIndex &&
+          childCount === flexHighlight.index &&
+          dragDetails.draggedOn === props.widgetId
+        ) {
+          const previewNode = getPreviewNode();
+          if (flexHighlight.alignment === "start") {
+            start.push(previewNode);
+          } else if (flexHighlight.alignment === "center") {
+            center.push(previewNode);
+          } else {
+            end.push(previewNode);
+          }
+        }
       }
       return (
         <AutoLayoutLayer

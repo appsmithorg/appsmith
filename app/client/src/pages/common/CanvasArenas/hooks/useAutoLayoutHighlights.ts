@@ -11,6 +11,7 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { debounce } from "lodash";
 import { useDispatch } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
@@ -442,6 +443,15 @@ export const useAutoLayoutHighlights = ({
     });
     return arr;
   }
+  const debouncedDispatch = debounce((pos: HighlightInfo) => {
+    dispatch({
+      type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
+      payload: {
+        flexHighlight: pos,
+        blocksToDraw,
+      },
+    });
+  }, 50);
 
   /**
    * END AUTO LAYOUT OFFSET CALCULATION
@@ -453,13 +463,7 @@ export const useAutoLayoutHighlights = ({
       e,
       moveDirection,
     );
-    dispatch({
-      type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
-      payload: {
-        flexHighlight: pos,
-        blocksToDraw,
-      },
-    });
+    debouncedDispatch(pos);
     // console.log({ pos });
 
     if (!pos) return;

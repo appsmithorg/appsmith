@@ -3,6 +3,19 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
+import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
+import DraggableComponent from "components/editorComponents/DraggableComponent";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import ResizableComponent from "components/editorComponents/ResizableComponent";
+import SnipeableComponent from "components/editorComponents/SnipeableComponent";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import {
   CSSUnit,
   PositionType,
@@ -10,39 +23,22 @@ import {
   RenderModes,
   WidgetType,
 } from "constants/WidgetConstants";
-import React, { Component, ReactNode } from "react";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { get, memoize } from "lodash";
-import DraggableComponent from "components/editorComponents/DraggableComponent";
-import SnipeableComponent from "components/editorComponents/SnipeableComponent";
-import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
-import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
+import React, { Component, ReactNode } from "react";
 import shallowequal from "shallowequal";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import AppsmithConsole from "utils/AppsmithConsole";
 import {
   DataTreeEvaluationProps,
-  EVAL_ERROR_PATH,
   EvaluationError,
+  EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
-import {
-  AlignItems,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "components/constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { CanvasWidgetStructure } from "./constants";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
-import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 
 /***
  * BaseWidget
