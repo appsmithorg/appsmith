@@ -40,14 +40,6 @@ public class CustomEnvironmentVariableRepositoryCEImpl extends BaseAppsmithRepos
     }
 
     @Override
-    public Flux<EnvironmentVariable> findNonDeletedVariablesByEnvironmentIds(List<String> envIds, AclPermission aclPermission) {
-        Criteria environmentIdCriterion = where(fieldName(QEnvironmentVariable.environmentVariable.environmentId)).in(envIds);
-        Criteria deleteCriteria = where(fieldName(QEnvironmentVariable.environmentVariable.deletedAt)).is(null);
-
-        return queryAll(List.of(environmentIdCriterion, deleteCriteria), aclPermission);
-    }
-
-    @Override
     public Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
         Criteria environmentIdCriteria = where(fieldName(QEnvironmentVariable.environmentVariable.environmentId)).is(workspaceId);
 

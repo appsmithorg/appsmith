@@ -34,23 +34,12 @@ public class EnvironmentServiceCEImpl extends BaseService<EnvironmentRepository,
 
     @Override
     public Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
-        if (workspaceId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER));
-        }
-
-        return repository.findByWorkspaceId(workspaceId, aclPermission).switchIfEmpty(Flux.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
+        return repository.findByWorkspaceId(workspaceId, aclPermission);
     }
 
     @Override
     public Mono<Environment> findById(String id, AclPermission aclPermission) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        return repository.findById(id, aclPermission).switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
+        return repository.findById(id, aclPermission);
     }
-
-
-
 
 }

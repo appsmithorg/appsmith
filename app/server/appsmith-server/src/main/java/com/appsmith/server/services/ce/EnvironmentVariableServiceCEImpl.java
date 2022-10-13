@@ -22,10 +22,16 @@ import javax.validation.Validator;
 import java.util.List;
 
 @Slf4j
-public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVariableRepository, EnvironmentVariable, String> implements EnvironmentVariableServiceCE {
+public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVariableRepository, EnvironmentVariable, String>
+        implements EnvironmentVariableServiceCE {
 
     @Autowired
-    public EnvironmentVariableServiceCEImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, EnvironmentVariableRepository repository, AnalyticsService analyticsService) {
+    public EnvironmentVariableServiceCEImpl(Scheduler scheduler,
+                                            Validator validator,
+                                            MongoConverter mongoConverter,
+                                            ReactiveMongoTemplate reactiveMongoTemplate,
+                                            EnvironmentVariableRepository repository,
+                                            AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
     }
@@ -44,17 +50,24 @@ public class EnvironmentVariableServiceCEImpl extends BaseService<EnvironmentVar
 
     @Override
     public Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission) {
-        return repository.findByEnvironmentId(envId, aclPermission).filter(envVar -> !envVar.isDeleted());
+        return repository.findByEnvironmentId(envId, aclPermission);
     }
 
     @Override
-    public Flux<EnvironmentVariable> findEnvironmentVariableByWorkspaceId(String workspaceId, AclPermission aclPermission) {
-        if (workspaceId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-        }
+    public Flux<EnvironmentVariable> findEnvironmentVariableByEnvironmentId(String envId) {
+        return  findByEnvironmentId(envId, AclPermission.READ_ENVIRONMENT_VARIABLES)
+                .filter(envVar -> !envVar.isDeleted());
+    }
 
-        return repository.findByWorkspaceId(workspaceId, aclPermission)
-                .switchIfEmpty(Flux.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
+    @Override
+    public Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
+        return repository.findByWorkspaceId(workspaceId, aclPermission);
+    }
+
+    @Override
+    public Flux<EnvironmentVariable> findEnvironmentVariableByWorkspaceId(String workspaceId) {
+        return findByWorkspaceId(workspaceId, AclPermission.READ_ENVIRONMENT_VARIABLES)
+                .filter(envVar -> !envVar.isDeleted());
     }
 
     // Write

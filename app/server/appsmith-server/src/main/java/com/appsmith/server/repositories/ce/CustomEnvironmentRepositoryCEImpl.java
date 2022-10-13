@@ -31,7 +31,7 @@ public class CustomEnvironmentRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Environment> findById(String id, AclPermission aclPermission) {
-        return Mono.just(new Environment());
+        return super.findById(id, aclPermission);
     }
 
 }

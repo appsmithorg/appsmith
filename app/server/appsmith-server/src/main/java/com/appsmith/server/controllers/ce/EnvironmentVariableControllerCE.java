@@ -31,15 +31,17 @@ public class EnvironmentVariableControllerCE {
         this.environmentVariableService = environmentVariableService;
     }
 
-    @GetMapping("/{envVarId}")
-    public Mono<ResponseDTO<EnvironmentVariableDTO>> getEnvVarById(@PathVariable String envVarId) {
-        return environmentVariableService.findById(envVarId, AclPermission.MANAGE_ENVIRONMENT_VARIABLES)
-                .map(envVar -> new ResponseDTO<>(HttpStatus.OK.value(), EnvironmentVariableDTO.createDTOFromEnvironmentVariable(envVar), null));
-    }
 
     @GetMapping("/workspace/{workspaceId}")
     public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByWorkspaceId(@PathVariable String workspaceId) {
-        return environmentVariableService.findEnvironmentVariableByWorkspaceId(workspaceId, AclPermission.READ_ENVIRONMENT_VARIABLES)
+        return environmentVariableService.findEnvironmentVariableByWorkspaceId(workspaceId)
+                .collectList()
+                .map(envVarList -> new ResponseDTO(HttpStatus.OK.value(), envVarList, null));
+    }
+
+    @GetMapping("/environment/{environmentId}")
+    public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByEnvironmentId(@PathVariable String environmentId) {
+        return environmentVariableService.findEnvironmentVariableByEnvironmentId(environmentId)
                 .collectList()
                 .map(envVarList -> new ResponseDTO(HttpStatus.OK.value(), envVarList, null));
     }
