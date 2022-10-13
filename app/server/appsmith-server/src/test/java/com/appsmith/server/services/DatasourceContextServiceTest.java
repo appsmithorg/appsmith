@@ -228,7 +228,7 @@ public class DatasourceContextServiceTest {
         doReturn(Mono.just("connection_1")).doReturn(Mono.just("connection_2")).when(spyMockPluginExecutor).datasourceCreate(any());
 
         Datasource datasource = new Datasource();
-        datasource.setId("id1");
+        datasource.setId("id2");
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         Object monitor = new Object();
