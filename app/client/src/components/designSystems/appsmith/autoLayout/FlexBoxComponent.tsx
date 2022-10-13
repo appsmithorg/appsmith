@@ -69,6 +69,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
     (state: AppState) => state.ui.widgetDragResize,
   );
 
+  const draggedWidgets: string[] = isArray(autoLayoutDragDetails)
+    ? autoLayoutDragDetails.map((each) => each.widgetId)
+    : [];
+
   const getPreviewNode = () => {
     return React.createElement(() => {
       const height = autoLayoutDragDetails
@@ -97,11 +101,19 @@ function FlexBoxComponent(props: FlexBoxProps) {
     ) {
       if (flexHighlight && dragDetails.draggedOn === props.widgetId) {
         const previewNode = getPreviewNode();
-        const totalChildren = (props.children as any).length;
+        const filteredChildren = (props.children as any)?.filter(
+          (child: any) => {
+            return (
+              draggedWidgets.indexOf(
+                (child as JSX.Element)?.props?.widgetId,
+              ) === -1
+            );
+          },
+        );
         const allChildren = [
-          ...(props.children as any).slice(0, flexHighlight?.index),
+          ...filteredChildren.slice(0, flexHighlight?.index),
           previewNode,
-          ...(props.children as any).slice(flexHighlight?.index, totalChildren),
+          ...filteredChildren.slice(flexHighlight?.index),
         ];
         return allChildren;
       } else {
@@ -118,11 +130,14 @@ function FlexBoxComponent(props: FlexBoxProps) {
         map[(child as JSX.Element).props?.widgetId] = child;
       }
     }
-    let childCount = 0;
+    let childCount = 0,
+      index = 0;
     let highLightAdded = false;
-    return props.flexLayers.map((layer: FlexLayer, index: number) => {
+    const layers: any[] = [];
+    // TODO: Add highlight index within a layer to the data model to simplify this logic.
+    for (const layer of props.flexLayers) {
       const { children, hasFillChild } = layer;
-      const start = [],
+      let start = [],
         center = [],
         end = [];
       if (!children || !children.length) {
@@ -147,6 +162,26 @@ function FlexBoxComponent(props: FlexBoxProps) {
             end.push(previewNode);
           }
           highLightAdded = true;
+
+          if (flexHighlight.isNewLayer) {
+            layers.push(
+              <AutoLayoutLayer
+                center={center}
+                direction={direction}
+                end={end}
+                hasFillChild={layer.hasFillChild}
+                index={index}
+                isMobile={isMobile}
+                key={index}
+                start={start}
+                widgetId={props.widgetId}
+              />,
+            );
+            index += 1;
+            start = [];
+            center = [];
+            end = [];
+          }
         }
         childCount++;
         const widget = map[child.id];
@@ -176,7 +211,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           highLightAdded = true;
         }
       }
-      return (
+      layers.push(
         <AutoLayoutLayer
           center={center}
           direction={direction}
@@ -187,9 +222,11 @@ function FlexBoxComponent(props: FlexBoxProps) {
           key={index}
           start={start}
           widgetId={props.widgetId}
-        />
+        />,
       );
-    });
+      index += 1;
+    }
+    return layers;
   };
 
   return (

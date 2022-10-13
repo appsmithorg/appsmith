@@ -451,7 +451,7 @@ export const useAutoLayoutHighlights = ({
         blocksToDraw,
       },
     });
-  }, 50);
+  }, 5);
 
   /**
    * END AUTO LAYOUT OFFSET CALCULATION
