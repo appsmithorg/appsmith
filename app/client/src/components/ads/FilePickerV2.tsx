@@ -4,7 +4,6 @@ import { ReactComponent as UploadSuccessIcon } from "assets/icons/ads/upload_suc
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import { Variant } from "./common";
-import { Toaster } from "./Toast";
 import {
   createMessage,
   ERROR_FILE_TOO_LARGE,
@@ -18,6 +17,7 @@ import {
   Size,
   Text,
   TextType,
+  Toaster,
   TooltipComponent,
 } from "design-system";
 import {

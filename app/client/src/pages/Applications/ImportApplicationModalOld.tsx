@@ -6,7 +6,7 @@ import { useSelector } from "store";
 import { SetProgress, FileType } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import { importApplication } from "actions/applicationActions";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "@appsmith/constants/messages";
 import FilePickerV2 from "components/ads/FilePickerV2";
