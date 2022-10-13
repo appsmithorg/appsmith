@@ -118,22 +118,9 @@ function FlexBoxComponent(props: FlexBoxProps) {
         map[(child as JSX.Element).props?.widgetId] = child;
       }
     }
-
-    const layers =
-      flexHighlight?.isNewLayer &&
-      flexHighlight?.layerIndex &&
-      flexHighlight.layerIndex > props.flexLayers.length
-        ? [
-            ...props.flexLayers.slice(0, flexHighlight?.index),
-            { children: [], hasFillChild: false },
-            ...props.flexLayers.slice(
-              flexHighlight?.index,
-              props.flexLayers.length,
-            ),
-          ]
-        : props.flexLayers;
     let childCount = 0;
-    return layers.map((layer: FlexLayer, index: number) => {
+    let highLightAdded = false;
+    return props.flexLayers.map((layer: FlexLayer, index: number) => {
       const { children, hasFillChild } = layer;
       const start = [],
         center = [],
@@ -146,6 +133,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       for (const child of children) {
         if (
           flexHighlight &&
+          !highLightAdded &&
           index === flexHighlight.layerIndex &&
           childCount === flexHighlight.index &&
           dragDetails.draggedOn === props.widgetId
@@ -158,6 +146,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           } else {
             end.push(previewNode);
           }
+          highLightAdded = true;
         }
         childCount++;
         const widget = map[child.id];
@@ -170,6 +159,8 @@ function FlexBoxComponent(props: FlexBoxProps) {
         else start.push(widget);
         if (
           flexHighlight &&
+          !highLightAdded &&
+          !flexHighlight.isNewLayer &&
           index === flexHighlight.layerIndex &&
           childCount === flexHighlight.index &&
           dragDetails.draggedOn === props.widgetId
@@ -182,6 +173,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           } else {
             end.push(previewNode);
           }
+          highLightAdded = true;
         }
       }
       return (
