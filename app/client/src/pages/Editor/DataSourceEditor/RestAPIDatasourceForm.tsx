@@ -44,6 +44,7 @@ import {
   createMessage,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
+  INVALID_URL,
 } from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
@@ -332,6 +333,22 @@ class DatasourceRestAPIEditor extends React.Component<
     );
   };
 
+  urlValidator = (value: string) => {
+    const validationRegex = "^(http|https)://";
+    if (value) {
+      const regex = new RegExp(validationRegex);
+
+      return regex.test(value)
+        ? { isValid: true, message: "" }
+        : {
+            isValid: false,
+            message: createMessage(INVALID_URL),
+          };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
   render = () => {
     return (
       <>
@@ -440,6 +457,7 @@ class DatasourceRestAPIEditor extends React.Component<
             "TEXT",
             false,
             true,
+            this.urlValidator,
           )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("headers")}>
@@ -785,6 +803,7 @@ class DatasourceRestAPIEditor extends React.Component<
             "TEXT",
             false,
             false,
+            this.urlValidator,
           )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("authentication.clientId")}>
@@ -1030,6 +1049,7 @@ class DatasourceRestAPIEditor extends React.Component<
     dataType: "TEXT" | "PASSWORD" | "NUMBER",
     encrypted: boolean,
     isRequired: boolean,
+    fieldValidator?: (value: string) => { isValid: boolean; message: string },
   ) {
     return (
       <FormControl
@@ -1045,6 +1065,7 @@ class DatasourceRestAPIEditor extends React.Component<
           conditionals: {},
           placeholderText: placeholderText,
           formName: DATASOURCE_REST_API_FORM,
+          validator: fieldValidator,
         }}
         formName={DATASOURCE_REST_API_FORM}
         multipleConfig={[]}
