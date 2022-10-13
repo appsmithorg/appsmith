@@ -17,7 +17,7 @@ import {
   getSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import { setFocusableField } from "actions/editorContextActions";
-import { getSelectedWidgets } from "selectors/ui";
+import { getSelectedWidgets, isDatasourceInViewMode } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { FocusEntity } from "navigation/FocusEntity";
@@ -47,11 +47,13 @@ import {
   setSelectedPropertyTabIndex,
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
+import { setDatasourceViewMode } from "actions/datasourceActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
   ApiPaneResponseTabs = "ApiPaneResponseTabs",
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
+  DatasourceViewMode = "DatasourceViewMode",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
   QueryPaneResponseTabs = "QueryPaneResponseTabs",
   QueryPaneResponseHeight = "QueryPaneResponseHeight",
@@ -91,6 +93,14 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.CanvasDebuggerTabs,
       selector: getSelectedCanvasDebuggerTab,
       setter: setCanvasDebuggerSelectedTab,
+    },
+  ],
+  [FocusEntity.DATASOURCE]: [
+    {
+      name: FocusElement.DatasourceViewMode,
+      selector: isDatasourceInViewMode,
+      setter: setDatasourceViewMode,
+      defaultValue: true,
     },
   ],
   [FocusEntity.JS_OBJECT]: [

@@ -33,7 +33,7 @@ import {
   changeDatasource,
   createDatasourceFromForm,
   fetchDatasourceStructure,
-  setDatsourceEditorMode,
+  setDatasourceViewMode,
   updateDatasourceSuccess,
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
@@ -347,9 +347,7 @@ function* updateDatasourceSaga(
           queryParams,
         ),
       );
-      yield put(
-        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
-      );
+      yield put(setDatasourceViewMode(true));
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
@@ -656,12 +654,7 @@ function* createDatasourceFromFormSaga(
       });
       // Todo: Refactor later.
       // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
-      yield put(
-        setDatsourceEditorMode({
-          id: response.data.id,
-          viewMode: false,
-        }),
-      );
+      yield put(setDatasourceViewMode(false));
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
         variant: Variant.success,
@@ -823,9 +816,7 @@ function* storeAsDatasourceSaga() {
   );
 
   // Set datasource page to edit mode
-  yield put(
-    setDatsourceEditorMode({ id: createdDatasource.id, viewMode: false }),
-  );
+  yield put(setDatasourceViewMode(false));
 
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE,
