@@ -7,21 +7,21 @@ export function getMetaWidgetChildrenIds(
   const childrenIds: string[] = [];
 
   parentIds.forEach((parentId) => {
-    const metaIds = getMetaWidgetByCreatorId(metaWidgets, parentId);
+    const metaIds = getMetaWidgetIdsByCreatorId(metaWidgets, parentId);
     childrenIds.push(...metaIds);
   });
 
   return childrenIds;
 }
 
-function getMetaWidgetByCreatorId(
+function getMetaWidgetIdsByCreatorId(
   metaWidgets: MetaWidgetsReduxState,
-  parentId: string,
+  creatorId: string,
 ): string[] {
   const metaWidgetIds: string[] = [];
 
   Object.keys(metaWidgets).forEach((metaWidgetId) => {
-    if (metaWidgets[metaWidgetId].creatorId === parentId) {
+    if (metaWidgets[metaWidgetId].creatorId === creatorId) {
       metaWidgetIds.push(metaWidgetId);
     }
   });
