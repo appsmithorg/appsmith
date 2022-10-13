@@ -93,17 +93,25 @@ export const useDynamicAppLayout = () => {
     let calculatedWidth = screenWidth - scrollbarWidth();
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
-    if (isPreviewMode === false && !isAppSettingsPaneOpen) {
+    if (
+      isPreviewMode === false &&
+      !isAppSettingsPaneOpen &&
+      appMode === APP_MODE.EDIT
+    ) {
       calculatedWidth -= propertyPaneWidth;
     }
 
     // if app setting pane is open, we need to subtract the width of app setting page width
-    if (isAppSettingsPaneOpen === true) {
+    if (isAppSettingsPaneOpen === true && appMode === APP_MODE.EDIT) {
       calculatedWidth -= APP_SETTINGS_PANE_WIDTH;
     }
 
     // if explorer is closed or its preview mode, we don't need to subtract the EE width
-    if (isExplorerPinned === true && !isPreviewMode) {
+    if (
+      isExplorerPinned === true &&
+      !isPreviewMode &&
+      appMode === APP_MODE.EDIT
+    ) {
       calculatedWidth -= explorerWidth;
     }
 
