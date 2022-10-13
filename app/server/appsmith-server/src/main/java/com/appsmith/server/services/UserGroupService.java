@@ -6,6 +6,8 @@ import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface UserGroupService extends CrudService<UserGroup, String> {
 
     Mono<UserGroupDTO> removeUsers(UsersForGroupDTO removeUsersFromGroupDTO);
@@ -14,5 +16,5 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
 
     Mono<UserGroupDTO> getGroupById(String id);
 
-    Mono<UserGroupDTO> inviteUsers(UsersForGroupDTO inviteUsersToGroupDTO, String originHeader);
+    Mono<List<UserGroupDTO>> inviteUsers(UsersForGroupDTO inviteUsersToGroupDTO, String originHeader);
 }

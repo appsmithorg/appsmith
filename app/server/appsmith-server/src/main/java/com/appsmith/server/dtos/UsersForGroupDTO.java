@@ -6,7 +6,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotNull;
@@ -22,7 +21,7 @@ public class UsersForGroupDTO {
     Set<String> usernames;
 
     @NotNull
-    String groupId;
+    Set<String> groupIds;
 
     public static Mono<Boolean> validate(UsersForGroupDTO usersForGroupDTO) {
         // validate the input
@@ -30,10 +29,10 @@ public class UsersForGroupDTO {
             return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST));
         }
 
-        String id = usersForGroupDTO.getGroupId();
+        Set<String> ids = usersForGroupDTO.getGroupIds();
         Set<String> usernames = usersForGroupDTO.getUsernames();
 
-        if (!StringUtils.hasText(id)) {
+        if (CollectionUtils.isEmpty(ids)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.GROUP_ID));
         }
         if (CollectionUtils.isEmpty(usernames)) {

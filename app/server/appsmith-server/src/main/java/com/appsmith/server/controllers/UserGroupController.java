@@ -81,7 +81,7 @@ public class UserGroupController {
     }
 
     @PostMapping("/invite")
-    public Mono<ResponseDTO<UserGroupDTO>> inviteUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO,
+    public Mono<ResponseDTO<List<UserGroupDTO>>> inviteUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO,
                                                      @RequestHeader("Origin") String originHeader) {
         return service.inviteUsers(inviteUsersToGroupDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));

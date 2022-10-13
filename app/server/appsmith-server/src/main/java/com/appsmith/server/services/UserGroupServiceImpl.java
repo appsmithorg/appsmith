@@ -19,14 +19,17 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuples;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
+import static com.appsmith.server.constants.FieldName.GROUP_ID;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -176,16 +180,17 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Mono<UserGroupDTO> inviteUsers(UsersForGroupDTO inviteUsersToGroupDTO, String originHeader) {
+    public Mono<List<UserGroupDTO>> inviteUsers(UsersForGroupDTO inviteUsersToGroupDTO, String originHeader) {
 
-        String id = inviteUsersToGroupDTO.getGroupId();
+        Set<String> ids = inviteUsersToGroupDTO.getGroupIds();
         Set<String> usernames = inviteUsersToGroupDTO.getUsernames();
 
         return validate(inviteUsersToGroupDTO)
                 // Now that we have validated the input, we can start the process of adding users to the group.
-                .flatMap(bool -> repository.findById(id, ADD_USERS_TO_USER_GROUPS))
+                .flatMapMany(bool -> repository.findAllByIds(ids, ADD_USERS_TO_USER_GROUPS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "add users to group")))
-                .flatMap(userGroup -> {
+                .collectList()
+                .flatMap(userGroups -> {
 
                     // TODO: Handle adding a username which doesn't exist by creating a new user.
                     Mono<Set<String>> toBeAddedUserIdsMono = userService.findAllByUsernameIn(usernames)
@@ -195,14 +200,17 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
                     // add the users to the group
                     // TODO : Add handling for sending emails intimating the users about the invite.
-                    Mono<UserGroup> updateUsersInGroupMono = toBeAddedUserIdsMono
-                            .flatMap(userIds -> {
+                    Flux<UserGroup> updateUsersInGroupsMono = Flux.fromIterable(userGroups)
+                            .zipWith(toBeAddedUserIdsMono.repeat())
+                            .flatMap(tuple -> {
+                                UserGroup userGroup = tuple.getT1();
+                                Set<String> userIds = tuple.getT2();
                                 userGroup.getUsers().addAll(userIds);
-                                return super.update(id, userGroup);
+                                return super.update(userGroup.getId(), userGroup);
                             })
                             .cache();
 
-                    Flux<PermissionGroup> userGroupRolesFlux = permissionGroupService.findAllByAssignedToGroupIdsIn(Set.of(id))
+                    Flux<PermissionGroup> userGroupRolesFlux = permissionGroupService.findAllByAssignedToGroupIdsIn(ids)
                             .cache();
 
                     // Get roles for the group, and if there are any, then invalidate the cache for the newly added users
@@ -225,14 +233,23 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             // In case there are no roles associated with the group, then return an empty list.
                             .switchIfEmpty(Mono.just(new ArrayList<>()));
 
-                    Mono<List<UserCompactDTO>> usersInGroupMono = updateUsersInGroupMono
-                            .flatMap(updatedUserGroup -> getUsersCompactForTheGroup(updatedUserGroup));
+                    Mono<Map<String, List<UserCompactDTO>>> usersInGroupMapMono = updateUsersInGroupsMono
+                            .flatMap(updatedUserGroup ->
+                                    getUsersCompactForTheGroup(updatedUserGroup)
+                                            .map(usersList -> Tuples.of(updatedUserGroup.getId(), usersList))
+                            )
+                            .collectMap(tuple -> tuple.getT1(), tuple -> tuple.getT2());
 
-                    return Mono.zip(invalidateCacheOfUsersMono, rolesInfoMono, usersInGroupMono)
+                    return Mono.zip(invalidateCacheOfUsersMono, rolesInfoMono, usersInGroupMapMono)
                             .flatMap(tuple -> {
                                 List<PermissionGroupInfoDTO> rolesInfoList = tuple.getT2();
-                                List<UserCompactDTO> usersList = tuple.getT3();
-                                return generateUserGroupDTO(userGroup, rolesInfoList, usersList);
+                                Map<String, List<UserCompactDTO>> usersInGroupMap = tuple.getT3();
+                                return Flux.fromIterable(userGroups)
+                                        .flatMap(userGroup -> {
+                                            List<UserCompactDTO> usersList = usersInGroupMap.get(userGroup.getId());
+                                            return generateUserGroupDTO(userGroup, rolesInfoList, usersList);
+                                        })
+                                        .collectList();
                             });
                 });
     }
@@ -240,7 +257,14 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     @Override
     public Mono<UserGroupDTO> removeUsers(UsersForGroupDTO removeUsersFromGroupDTO) {
 
-        String id = removeUsersFromGroupDTO.getGroupId();
+        Set<String> ids = removeUsersFromGroupDTO.getGroupIds();
+
+        // The service level function supports removal of users from only one group today.
+        if (CollectionUtils.isEmpty(ids) || ids.size() != 1) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, GROUP_ID));
+        }
+
+        String id = ids.stream().findFirst().get();
         Set<String> usernames = removeUsersFromGroupDTO.getUsernames();
 
         return validate(removeUsersFromGroupDTO)

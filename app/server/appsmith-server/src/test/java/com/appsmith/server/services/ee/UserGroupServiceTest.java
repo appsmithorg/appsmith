@@ -428,9 +428,43 @@ public class UserGroupServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void addUserToGroup_1valid_1invalidGroupId() {
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : addUsersToGroupValid";
+        String description = "Test Group Description : addUsersToGroupValid";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroup createdGroup = userGroupService.create(userGroup).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId(), "invalid-group-id"));
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .assertNext(groups -> {
+                    // assert that the user got added to only the allowed user group.
+                    assertThat(groups).hasSize(1);
+                    UserGroupDTO group = groups.get(0);
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group.getId());
+                    assertEquals(createdGroup.getTenantId(), group.getTenantId());
+                    assertEquals(createdGroup.getName(), group.getName());
+                    assertEquals(createdGroup.getDescription(), group.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group.getUsers().size());
+                    assertEquals(api_user.getId(), group.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group.getUsers().get(0).getUsername());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void invalidAddUserToGroup_emptyUsernames() {
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
-        inviteUsersToGroupDTO.setGroupId("groupId");
+        inviteUsersToGroupDTO.setGroupIds(Set.of("groupId"));
 
         StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -451,11 +485,13 @@ public class UserGroupServiceTest {
         UserGroup createdGroup = userGroupService.create(userGroup).block();
 
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
-        inviteUsersToGroupDTO.setGroupId(createdGroup.getId());
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
         inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
 
         StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
-                .assertNext(group -> {
+                .assertNext(groups -> {
+                    assertThat(groups).hasSize(1);
+                    UserGroupDTO group = groups.get(0);
                     // assert that updated group did not edit the existing settings
                     assertEquals(createdGroup.getId(), group.getId());
                     assertEquals(createdGroup.getTenantId(), group.getTenantId());
@@ -469,6 +505,59 @@ public class UserGroupServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addUsersToGroupsValid_WithoutRoles() {
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : addUsersToGroupValid";
+        String description = "Test Group Description : addUsersToGroupValid";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroup createdGroup = userGroupService.create(userGroup).block();
+
+        UserGroup userGroup2 = new UserGroup();
+        String name2 = "Test Group 2 : addUsersToGroupValid";
+        String description2 = "Test Group Description 2 : addUsersToGroupValid";
+        userGroup2.setName(name2);
+        userGroup2.setDescription(description2);
+
+        UserGroup createdGroup2 = userGroupService.create(userGroup2).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId(), createdGroup2.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .assertNext(groups -> {
+                    assertThat(groups).hasSize(2);
+                    UserGroupDTO group1 = groups.get(0);
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group1.getId());
+                    assertEquals(createdGroup.getTenantId(), group1.getTenantId());
+                    assertEquals(createdGroup.getName(), group1.getName());
+                    assertEquals(createdGroup.getDescription(), group1.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group1.getUsers().size());
+                    assertEquals(api_user.getId(), group1.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group1.getUsers().get(0).getUsername());
+
+                    UserGroupDTO group2 = groups.get(1);
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup2.getId(), group2.getId());
+                    assertEquals(createdGroup2.getTenantId(), group2.getTenantId());
+                    assertEquals(createdGroup2.getName(), group2.getName());
+                    assertEquals(createdGroup2.getDescription(), group2.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group2.getUsers().size());
+                    assertEquals(api_user.getId(), group2.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group2.getUsers().get(0).getUsername());
+                })
+                .verifyComplete();
     }
 
     // TODO: Add tests for groups with roles and then adding users to the group.
@@ -490,7 +579,7 @@ public class UserGroupServiceTest {
     @WithUserDetails(value = "api_user")
     public void invalidRemoveUserToGroup_emptyUsernames() {
         UsersForGroupDTO removeUsersFromGroupDTO = new UsersForGroupDTO();
-        removeUsersFromGroupDTO.setGroupId("groupId");
+        removeUsersFromGroupDTO.setGroupIds(Set.of("groupId"));
 
         StepVerifier.create(userGroupService.removeUsers(removeUsersFromGroupDTO))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -511,7 +600,7 @@ public class UserGroupServiceTest {
         UserGroup createdGroup = userGroupService.create(userGroup).block();
 
         UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
-        usersForGroupDTO.setGroupId(createdGroup.getId());
+        usersForGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
         usersForGroupDTO.setUsernames(Set.of("api_user"));
 
         // Add API User

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -38,5 +39,11 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
                 null,
                 NO_RECORD_LIMIT
         );
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByIds(Set<String> ids, AclPermission aclPermission) {
+        Criteria criteria = where(fieldName(QUserGroup.userGroup.id)).in(ids);
+        return queryAll(List.of(criteria), aclPermission);
     }
 }
