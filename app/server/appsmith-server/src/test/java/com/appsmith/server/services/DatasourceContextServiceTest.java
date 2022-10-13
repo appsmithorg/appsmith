@@ -28,7 +28,6 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -233,20 +232,16 @@ public class DatasourceContextServiceTest {
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         Object monitor = new Object();
-        Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
-                spyMockPluginExecutor, monitor);
-        Mono<DatasourceContext<?>> dsContextMono2 = datasourceContextService.getCachedDatasourceContextMono(datasource,
-                spyMockPluginExecutor, monitor);
-        Mono<Tuple2<DatasourceContext, DatasourceContext<?>>> zipMono = Mono.zip(dsContextMono1, dsContextMono2);
-        StepVerifier.create(zipMono)
-                .assertNext(tuple -> {
-                    DatasourceContext<?> dsContext1 = tuple.getT1();
-                    DatasourceContext<?> dsContext2 = tuple.getT2();
-                    /* They can only be equal if the `datasourceCreate` method was called only once */
-                    assertEquals(dsContext1.getConnection(), dsContext2.getConnection());
-                    assertEquals("connection_1", dsContext1.getConnection());
-                })
-                .verifyComplete();
+        DatasourceContext<?> dsContext1 = (DatasourceContext<?>) datasourceContextService
+                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor)
+                .block();
+        DatasourceContext<?> dsContext2 = (DatasourceContext<?>) datasourceContextService
+                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor)
+                .block();
+
+        /* They can only be equal if the `datasourceCreate` method was called only once */
+        assertEquals(dsContext1.getConnection(), dsContext2.getConnection());
+        assertEquals("connection_1", dsContext1.getConnection());
     }
 
     /**
