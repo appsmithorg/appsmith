@@ -178,4 +178,5 @@ public class FieldName {
     public static final String AUDIT_LOG_FILTER_EVENT_DELIMITER = "_";
     public static final String AUDIT_LOG_APP_MODE_EDIT = "edit";
     public static final String AUDIT_LOG_APP_MODE_VIEW = "view";
+    public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
 }
