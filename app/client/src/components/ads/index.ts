@@ -13,5 +13,3 @@ export { default as EditableTextWrapper } from "./EditableTextSubComponent";
 
 export { default as Table } from "./Table";
 export * from "./Table";
-
-export * from "./Toast";

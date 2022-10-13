@@ -40,6 +40,7 @@ import {
   MenuItem,
   MenuItemProps,
   Size,
+  Toaster,
   Text,
   TextType,
   TooltipComponent,
@@ -61,7 +62,6 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
