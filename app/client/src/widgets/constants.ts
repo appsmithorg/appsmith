@@ -1,7 +1,5 @@
 import { IconNames } from "@blueprintjs/icons";
 import {
-  AlignItems,
-  JustifyContent,
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,

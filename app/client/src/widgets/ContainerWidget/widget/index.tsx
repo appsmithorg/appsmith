@@ -16,11 +16,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import {
-  LayoutDirection,
-  Positioning,
-  ResponsiveBehavior,
-} from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
@@ -217,10 +213,6 @@ export class ContainerWidget extends BaseWidget<
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.props.positioning !== Positioning.Fixed;
-    childWidget.direction =
-      this.props.positioning === Positioning.Vertical
-        ? LayoutDirection.Vertical
-        : LayoutDirection.Horizontal;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
