@@ -1,6 +1,7 @@
 import { AppState } from "@appsmith/reducers";
 import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { createSelector } from "reselect";
+import { getIsResizing } from "./widgetSelectors";
 
 export const getReflow = (state: AppState): widgetReflow =>
   state.ui.widgetReflow;
@@ -23,12 +24,14 @@ export const getIsReflowEffectedSelector = (
 ) => {
   return createSelector(
     (state: AppState) => state.ui.widgetDragResize.dragDetails,
-    (dragDetails) => {
+    getIsResizing,
+    (dragDetails, isResizing) => {
       return (
-        widgetId &&
-        dragDetails &&
-        !!dragDetails.draggedOn &&
-        dragDetails.draggedOn === widgetId &&
+        ((widgetId &&
+          dragDetails &&
+          !!dragDetails.draggedOn &&
+          dragDetails.draggedOn === widgetId) ||
+          isResizing) &&
         reflowed
       );
     },
