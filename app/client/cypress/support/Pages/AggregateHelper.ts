@@ -74,7 +74,12 @@ export class AggregateHelper {
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
-          "api/v1/layouts/" + layoutId + "/pages/" + pageid + "?applicationId=" + appId,
+          "api/v1/layouts/" +
+            layoutId +
+            "/pages/" +
+            pageid +
+            "?applicationId=" +
+            appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
@@ -307,6 +312,11 @@ export class AggregateHelper {
       });
 
     this.Sleep(); //for selected value to reflect!
+  }
+
+  public SelectFromMutliTree(dropdownOption: string) {
+    this.GetNClick(this.locator._dropDownMultiTreeSelect);
+    this.GetNClick(this.locator._dropDownMultiTreeValue(dropdownOption));
   }
 
   public SelectFromDropDown(
