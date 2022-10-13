@@ -672,6 +672,10 @@ export default [
                       icon: "ITALICS_FONT",
                       value: "ITALIC",
                     },
+                    {
+                      icon: "UNDERLINE",
+                      value: "UNDERLINE",
+                    },
                   ],
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -1700,10 +1704,6 @@ export default [
           {
             icon: "ITALICS_FONT",
             value: "ITALIC",
-          },
-          {
-            icon: "UNDERLINE",
-            value: "UNDERLINE",
           },
         ],
         isBindProperty: false,
