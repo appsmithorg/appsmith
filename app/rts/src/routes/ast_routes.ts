@@ -21,7 +21,7 @@ router.post(
   astController.getIdentifierDataFromMultipleScripts
 );
 router.post(
-  "/refactor",
+  "/entity-refactor",
   AstRules.getScriptValidator(),
   validator.validateRequest,
   astController.entityRefactorController
