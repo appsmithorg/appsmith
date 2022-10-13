@@ -39,7 +39,7 @@ import { DebugButton } from "./Debugger/DebugCTA";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
-import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
+import { TAB_MIN_HEIGHT } from "design-system";
 import { theme } from "constants/DefaultTheme";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";

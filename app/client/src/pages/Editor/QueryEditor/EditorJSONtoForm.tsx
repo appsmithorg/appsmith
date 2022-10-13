@@ -30,12 +30,12 @@ import {
   SearchSnippet,
   Size,
   Spinner,
+  TabComponent,
   Text,
   TextType,
   TooltipComponent,
 } from "design-system";
 import styled from "constants/DefaultTheme";
-import { TabComponent } from "components/ads/Tabs";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";

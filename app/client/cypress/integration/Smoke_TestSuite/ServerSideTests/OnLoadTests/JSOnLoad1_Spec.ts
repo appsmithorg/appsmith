@@ -124,6 +124,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.SelectEntityByName(jsName as string);
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
+    agHelper.Sleep(6000); //incase toast appears
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
