@@ -221,7 +221,6 @@ export class ContainerWidget extends BaseWidget<
       this.props.positioning === Positioning.Vertical
         ? LayoutDirection.Vertical
         : LayoutDirection.Horizontal;
-    childWidget.isFlexChild = this.props.positioning !== Positioning.Fixed;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
