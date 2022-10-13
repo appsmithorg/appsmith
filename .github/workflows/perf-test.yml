@@ -9,8 +9,6 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
-  repository_dispatch:
-    types: [perf-test-command]
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -195,12 +193,19 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      - name: Get the performance-infra branch/ref
+        id: perf_infra_ref
+        run: |
+          ref=${{ github.event.client_payload.slash_command.args.named.ref }}
+          if [[ -z "$ref" ]]; then ref="main"; fi
+          echo ::set-output name=ref::$ref
+
       - name: Checkout Performance Infra code
         uses: actions/checkout@v3
         with:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
-          ref: main
+          ref: ${{ steps.perf_infra_ref.outputs.ref }}
           path: app/client/perf
 
       - name: Installing performance tests dependencies
@@ -241,24 +246,10 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       - uses: actions/upload-artifact@v2
+        if: success() || failure()
         with:
           name: performance-summaries
           path: app/client/perf/traces
-
-      - name: Read summary file
-        id: read_summary
-        uses: andstor/file-reader-action@v1
-        with:
-          path: app/client/perf/traces/reports/summary.md
-
-      - name: Add a comment with the results on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body: |
-            UI Performance test run logs and artifacts: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.sha }}`.
-            Results: ${{ steps.read_summary.outputs.contents }}
 
         # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result

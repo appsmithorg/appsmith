@@ -1,25 +1,29 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.EntityDependencyNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 public class ActionDependencyEdge {
-    String source;
-    String target;
+
+    EntityDependencyNode sourceNode;
+    EntityDependencyNode targetNode;
 
     @Override
     public int hashCode() {
+        if (sourceNode == null || targetNode == null) {
+            return 0;
+        }
+
         return new HashCodeBuilder()
-                .append(source)
-                .append(target)
+                .append(sourceNode.getReferenceString())
+                .append(targetNode.getReferenceString())
                 .toHashCode();
     }
 
@@ -28,9 +32,13 @@ public class ActionDependencyEdge {
         if (obj instanceof ActionDependencyEdge) {
             final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
 
+            if (sourceNode == null || targetNode == null || actionDependencyEdge.sourceNode == null || actionDependencyEdge.targetNode == null) {
+                return false;
+            }
+
             return new EqualsBuilder()
-                    .append(source, actionDependencyEdge.source)
-                    .append(target, actionDependencyEdge.target)
+                    .append(sourceNode.getReferenceString(), actionDependencyEdge.sourceNode.getReferenceString())
+                    .append(targetNode.getReferenceString(), actionDependencyEdge.targetNode.getReferenceString())
                     .isEquals();
         } else {
             return false;
@@ -39,6 +47,9 @@ public class ActionDependencyEdge {
 
     @Override
     public String toString() {
-        return source + " : " + target;
+        if (sourceNode == null || targetNode == null) {
+            return "";
+        }
+        return sourceNode.getReferenceString() + " : " + targetNode.getReferenceString();
     }
 }
