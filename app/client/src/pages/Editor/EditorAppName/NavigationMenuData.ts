@@ -174,11 +174,6 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
     },
-    // {
-    //   text: "Shortcuts",
-    //   type: MenuTypes.MENU,
-    //   isVisible: true,
-    // },
     {
       text: "Help",
       type: MenuTypes.PARENT,

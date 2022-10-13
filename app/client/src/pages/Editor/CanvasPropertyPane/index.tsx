@@ -32,13 +32,14 @@ export function CanvasPropertyPane() {
           <TooltipComponent
             content={
               <>
-                <div>Update your app theme, URL</div>and other settings
+                <p className="text-center">Update your app theme, URL</p>
+                <p className="text-center">and other settings</p>
               </>
             }
             position={PopoverPosition.BOTTOM}
           >
             <Button
-              className="!bg-white !border-[#716e6e] !text-[#716e6e]"
+              className={`!bg-white !border-[${Colors.DOVE_GRAY2.toLowerCase()}] !text-[${Colors.DOVE_GRAY2.toLowerCase()}]`}
               fill
               onClick={openAppSettingsPane}
               size={Size.medium}
