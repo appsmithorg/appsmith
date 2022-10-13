@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Collapse, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Icon as AdsIcon, IconName, IconSize } from "design-system";
@@ -32,10 +32,6 @@ const TopBorder = styled.div`
   margin-bottom: 24px;
 `;
 
-interface ComponentState {
-  isOpen: boolean;
-}
-
 interface ComponentProps {
   children: any;
   title: string;
@@ -49,51 +45,88 @@ interface ComponentProps {
 
 type Props = ComponentProps;
 
-class Collapsible extends React.Component<Props, ComponentState> {
-  constructor(props: Props) {
-    super(props);
+function Collapsible(props: Props) {
+  const { children, headerIcon, title } = props;
+  const [isOpen, setIsOpen] = useState(props.defaultIsOpen || false);
 
-    this.state = {
-      isOpen: props.defaultIsOpen || false,
-    };
-  }
+  return (
+    <>
+      <TopBorder className="t--collapse-top-border" />
+      <SectionContainer
+        className="t--collapse-section-container"
+        data-cy={`section-${title}`}
+        data-replay-id={`section-${title}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <SectionLabel>
+          {title}
+          {headerIcon && (
+            <AdsIcon
+              fillColor={headerIcon.color}
+              name={headerIcon.name}
+              size={IconSize.MEDIUM}
+            />
+          )}
+        </SectionLabel>
+        <Icon
+          icon={isOpen ? "chevron-up" : "chevron-down"}
+          iconSize={16}
+          style={{ color: "#2E3D49" }}
+        />
+      </SectionContainer>
 
-  render() {
-    const { children, headerIcon, title } = this.props;
-    const { isOpen } = this.state;
-
-    return (
-      <>
-        <TopBorder className="t--collapse-top-border" />
-        <SectionContainer
-          className="t--collapse-section-container"
-          data-cy={`section-${title}`}
-          data-replay-id={`section-${title}`}
-          onClick={() => this.setState({ isOpen: !this.state.isOpen })}
-        >
-          <SectionLabel>
-            {title}
-            {headerIcon && (
-              <AdsIcon
-                fillColor={headerIcon.color}
-                name={headerIcon.name}
-                size={IconSize.MEDIUM}
-              />
-            )}
-          </SectionLabel>
-          <Icon
-            icon={isOpen ? "chevron-up" : "chevron-down"}
-            iconSize={16}
-            style={{ color: "#2E3D49" }}
-          />
-        </SectionContainer>
-
-        <Collapse isOpen={this.state.isOpen} keepChildrenMounted>
-          {children}
-        </Collapse>
-      </>
-    );
-  }
+      <Collapse isOpen={isOpen} keepChildrenMounted>
+        {children}
+      </Collapse>
+    </>
+  );
 }
+
+// class Collapsible extends React.Component<Props, ComponentState> {
+//   constructor(props: Props) {
+//     super(props);
+
+//     this.state = {
+//       isOpen: props.defaultIsOpen || false,
+//     };
+//   }
+
+//   render() {
+//     const { children, headerIcon, title } = this.props;
+//     const { isOpen } = this.state;
+
+//     return (
+//       <>
+//         <TopBorder className="t--collapse-top-border" />
+//         <SectionContainer
+//           className="t--collapse-section-container"
+//           data-cy={`section-${title}`}
+//           data-replay-id={`section-${title}`}
+//           onClick={() => this.setState({ isOpen: !this.state.isOpen })}
+//         >
+//           <SectionLabel>
+//             {title}
+//             {headerIcon && (
+//               <AdsIcon
+//                 fillColor={headerIcon.color}
+//                 name={headerIcon.name}
+//                 size={IconSize.MEDIUM}
+//               />
+//             )}
+//           </SectionLabel>
+//           <Icon
+//             icon={isOpen ? "chevron-up" : "chevron-down"}
+//             iconSize={16}
+//             style={{ color: "#2E3D49" }}
+//           />
+//         </SectionContainer>
+
+//         <Collapse isOpen={this.state.isOpen} keepChildrenMounted>
+//           {children}
+//         </Collapse>
+//       </>
+//     );
+//   }
+// }
 
 export default Collapsible;
