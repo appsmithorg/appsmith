@@ -295,23 +295,21 @@ describe("Theme validation usecases", function() {
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
-    cy.get("[style='background-color: rgb(255, 193, 61);']")
-      .last()
+    cy.get("[style='background-color: rgb(126, 34, 206);']")
+      .first()
       .click();
     cy.wait(2000);
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(255, 193, 61)");
+      .and("eq", "rgb(126, 34, 206)");
   });
 
   it("6. Publish the App and validate Theme across the app", function() {
     cy.PublishtheApp();
     //Bug Form backgroud colour reset in Publish mode
-    /*
-        cy.get(formWidgetsPage.formD)
+    cy.get(formWidgetsPage.formD)
             .should("have.css", "background-color")
-            .and("eq", "rgb(255, 193, 61)");
-            */
+            .and("eq", "rgb(126, 34, 206)");
     cy.get(".bp3-button:contains('Sub')")
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
