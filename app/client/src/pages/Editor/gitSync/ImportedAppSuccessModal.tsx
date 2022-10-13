@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import Dialog from "components/ads/DialogComponent";
 import styled, { useTheme } from "styled-components";
-import { Text, TextType } from "design-system";
+import { DialogComponent as Dialog, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import {
   createMessage,

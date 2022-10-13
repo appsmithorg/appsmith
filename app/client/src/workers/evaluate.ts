@@ -13,6 +13,7 @@ import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export type EvalResult = {
   result: any;
@@ -159,6 +160,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
       dataTree,
       context?.requestId,
       skipEntityFunctions,
+      context?.eventType,
     );
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
@@ -218,6 +220,7 @@ export type EvaluateContext = {
   thisContext?: Record<string, any>;
   globalContext?: Record<string, any>;
   requestId?: string;
+  eventType?: EventType;
 };
 
 export const getUserScriptToEvaluate = (
