@@ -1,58 +1,53 @@
-import { AppState } from "@appsmith/reducers";
-import { focusWidget } from "actions/widgetActions";
+import React, { useContext, memo, useMemo } from "react";
 import {
-  AlignItems,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "components/constants";
+  WidgetOperations,
+  WidgetRowCols,
+  WidgetProps,
+} from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { GridDefaults } from "constants/WidgetConstants";
-import { get, omit } from "lodash";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
-import React, { memo, useContext, useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import Resizable from "resizable/resizenreflow";
 import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
-import {
-  getParentToOpenSelector,
-  isCurrentWidgetFocused,
-  isCurrentWidgetLastSelected,
-  isMultiSelectedWidget,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+  UIElementSize,
+  computeFinalRowCols,
+  computeRowCols,
+} from "./ResizableUtils";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { useSelector } from "react-redux";
+import { AppState } from "@appsmith/reducers";
+import Resizable from "resizable/resizenreflow";
+import { omit, get } from "lodash";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
-  WidgetOperations,
-  WidgetProps,
-  WidgetRowCols,
-} from "widgets/BaseWidget";
-import { DropTargetContext } from "./DropTargetComponent";
-import {
-  computeFinalRowCols,
-  computeRowCols,
-  UIElementSize,
-} from "./ResizableUtils";
-import {
-  BottomHandleStyles,
-  BottomLeftHandleStyles,
-  BottomRightHandleStyles,
+  VisibilityContainer,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
+  BottomHandleStyles,
   TopLeftHandleStyles,
   TopRightHandleStyles,
-  VisibilityContainer,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { focusWidget } from "actions/widgetActions";
+import { GridDefaults } from "constants/WidgetConstants";
+import { DropTargetContext } from "./DropTargetComponent";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { getParentToOpenSelector } from "selectors/widgetSelectors";
+import {
+  isCurrentWidgetFocused,
+  isCurrentWidgetLastSelected,
+  isWidgetSelected,
+  isMultiSelectedWidget,
+} from "selectors/widgetSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -61,14 +56,8 @@ export type ResizableComponentProps = WidgetProps & {
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
 ) {
-  const [componentWidth, setComponentWidth] = useState<number>(0);
-  const [componentHeight, setComponentHeight] = useState<number>(0);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-
-  const isHorizontallyStretched =
-    props.direction === LayoutDirection.Vertical &&
-    props.alignItems === AlignItems.Stretch;
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -99,77 +88,18 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isParentWidgetSelected = useSelector(
     isCurrentWidgetLastSelected(parentWidgetToSelect?.widgetId || ""),
   );
-  const isWidgetFocused: boolean = isFocused || isLastSelected || isSelected;
-
-  useEffect(() => {
-    // Set initial dimensions
-    // if (props.widgetName.toLowerCase().includes("button"))
-    //   console.log(`#### ${props.widgetName} : Initial dimensions`);
-    setComponentWidth(
-      props.useAutoLayout && isHorizontallyStretched
-        ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
-        : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
-            2 * props.paddingOffset,
-    );
-    setComponentHeight(
-      (props.bottomRow - props.topRow) * props.parentRowSpace -
-        2 * props.paddingOffset,
-    );
-  }, [props.useAutoLayout, props.direction, props.alignItems]);
-
-  useEffect(() => {
-    // if (props.widgetName.toLowerCase().includes("button"))
-    //   console.log(`#### ${props.widgetName} : Manual resize`);
-    setComponentWidth(
-      props.useAutoLayout && isHorizontallyStretched
-        ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
-        : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
-            2 * props.paddingOffset,
-    );
-    setComponentHeight(
-      (props.bottomRow - props.topRow) * props.parentRowSpace -
-        2 * props.paddingOffset,
-    );
-  }, [props.topRow, props.bottomRow, props.leftColumn, props.rightColumn]);
-
-  useEffect(() => {
-    // if (props.widgetName.toLowerCase().includes("button"))
-    //   console.log(`#### ${props.widgetName} : Parent resize`);
-    if (!props.useAutoLayout) {
-      setComponentWidth(
-        (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
-          2 * props.paddingOffset,
-      );
-      setComponentHeight(
-        (props.bottomRow - props.topRow) * props.parentRowSpace -
-          2 * props.paddingOffset,
-      );
-    } else {
-      if (isHorizontallyStretched) {
-        setComponentWidth(
-          64 * props.parentColumnSpace - 2 * props.paddingOffset,
-        );
-      }
-    }
-  }, [props.parentColumnSpace, props.parentRowSpace, props.useAutoLayout]);
+  const isWidgetFocused = isFocused || isLastSelected || isSelected;
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
-  // const dimensions: UIElementSize = {
-  //   width:
-  //     useAutoLayout &&
-  //     direction === LayoutDirection.Vertical &&
-  //     alignItems === AlignItems.Stretch
-  //       ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
-  //       : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
-  //         2 * props.paddingOffset,
-  //   height:
-  //     (props.bottomRow - props.topRow) * props.parentRowSpace -
-  //     2 * props.paddingOffset,
-  // };
-
-  // console.log(`#### ${props.widgetName} : width - ${componentWidth}`);
-  // console.log(`#### ${props.widgetName} : bottomRow - ${props.bottomRow}`);
+  const dimensions: UIElementSize = {
+    width:
+      (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+      2 * props.paddingOffset,
+    height:
+      (props.bottomRow - props.topRow) * props.parentRowSpace -
+      2 * props.paddingOffset,
+  };
 
   // onResize handler
   const getResizedPositions = (
@@ -177,10 +107,9 @@ export const ResizableComponent = memo(function ResizableComponent(
     position: XYCord,
   ) => {
     const delta: UIElementSize = {
-      height: newDimensions.height - componentHeight,
-      width: newDimensions.width - componentWidth,
+      height: newDimensions.height - dimensions.height,
+      width: newDimensions.width - dimensions.width,
     };
-
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
     let canResizeHorizontally = true,
       canResizeVertically = true;
@@ -231,12 +160,11 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Update widget, if both of the above are true.
   const updateSize = (newDimensions: UIElementSize, position: XYCord) => {
     // Get the difference in size of the widget, before and after resizing.
-    // console.log(`#### ${props.widgetName} : update size`);
     const delta: UIElementSize = {
-      height: newDimensions.height - componentHeight,
-      width: newDimensions.width - componentWidth,
+      height: newDimensions.height - dimensions.height,
+      width: newDimensions.width - dimensions.width,
     };
-    // console.log(`#### ${props.widgetName} : delta - ${delta.height}`);
+
     // Get the updated Widget rows and columns props
     // False, if there is collision
     // False, if none of the rows and cols have changed.
@@ -245,8 +173,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       position,
       props,
     );
-    // console.log("#### new row cols");
-    // console.log(newRowCols);
+
     if (newRowCols) {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, {
@@ -281,8 +208,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
       widgetType: props.type,
-      startHeight: componentHeight,
-      startWidth: componentWidth,
+      startHeight: dimensions.height,
+      startWidth: dimensions.width,
       endHeight: newDimensions.height,
       endWidth: newDimensions.width,
     });
@@ -298,21 +225,6 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
-  let disabledHorizontalHandles: string[] = [];
-  if (
-    props.useAutoLayout &&
-    props.direction === LayoutDirection.Vertical &&
-    props.responsiveBehavior === ResponsiveBehavior.Fill
-  ) {
-    disabledHorizontalHandles = [
-      "left",
-      "right",
-      "bottomLeft",
-      "bottomRight",
-      "topLeft",
-      "topRight",
-    ];
-  }
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -324,14 +236,11 @@ export const ResizableComponent = memo(function ResizableComponent(
       topRight: TopRightHandleStyles,
       bottomLeft: BottomLeftHandleStyles,
     };
-    let handlesToOmit = get(props, "disabledResizeHandles", []);
-    // if (disabledResizeHandles && disabledResizeHandles.length)
-    //   handlesToOmit = [...handlesToOmit, ...disabledResizeHandles];
-    handlesToOmit = [...handlesToOmit, ...disabledHorizontalHandles];
-    return omit(allHandles, handlesToOmit);
-  }, [props, disabledHorizontalHandles]);
 
-  const isEnabled: boolean =
+    return omit(allHandles, get(props, "disabledResizeHandles", []));
+  }, [props]);
+
+  const isEnabled =
     !isDragging &&
     isWidgetFocused &&
     !props.resizeDisabled &&
@@ -359,17 +268,17 @@ export const ResizableComponent = memo(function ResizableComponent(
       updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
+
   return (
     <Resizable
       allowResize={!isMultiSelected}
-      componentHeight={componentHeight}
-      componentWidth={componentWidth}
-      direction={props.direction}
+      componentHeight={dimensions.height}
+      componentWidth={dimensions.width}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
-      isWrapper={props.isWrapper}
+      isFlexChild={props.isFlexChild}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}
@@ -377,7 +286,6 @@ export const ResizableComponent = memo(function ResizableComponent(
       responsiveBehavior={props.responsiveBehavior}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
       updateBottomRow={updateBottomRow}
-      useAutoLayout={props.useAutoLayout}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
       zWidgetId={props.widgetId}

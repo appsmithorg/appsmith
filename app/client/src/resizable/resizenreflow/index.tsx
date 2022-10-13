@@ -19,7 +19,7 @@ import {
 import { getNearestParentCanvas } from "utils/generators";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import { ResponsiveBehavior } from "components/constants";
 
 const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
   display: block;
@@ -156,9 +156,7 @@ type ResizableProps = {
   gridProps: GridProps;
   zWidgetType?: string;
   zWidgetId?: string;
-  useAutoLayout?: boolean;
-  isWrapper?: boolean;
-  direction?: LayoutDirection;
+  isFlexChild?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
 };
 
@@ -249,13 +247,6 @@ export function ReflowResizable(props: ResizableProps) {
           canHorizontalMove = true,
           bottomMostRow = 0,
           movementLimitMap: MovementLimitMap | undefined = {};
-
-        if (!props?.useAutoLayout && resizedPositions) {
-          const isColliding = checkForCollision(resizedPositions);
-          if (isColliding) {
-            return prevState;
-          }
-        }
 
         if (resizedPositions) {
           //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
@@ -482,16 +473,15 @@ export function ReflowResizable(props: ResizableProps) {
       snapGrid={props.snapGrid}
     />
   ));
-  // Don't alter dimensions on temp reflow in children of auto layouts
+
   const widgetWidth =
-    reflowedPosition?.width === undefined || props?.useAutoLayout
+    reflowedPosition?.width === undefined
       ? newDimensions.width
       : reflowedPosition.width - 2 * WIDGET_PADDING;
   const widgetHeight =
-    reflowedPosition?.height === undefined || props?.useAutoLayout
+    reflowedPosition?.height === undefined
       ? newDimensions.height
       : reflowedPosition.height - 2 * WIDGET_PADDING;
-
   return (
     <Spring
       config={{
@@ -506,13 +496,11 @@ export function ReflowResizable(props: ResizableProps) {
       immediate={newDimensions.reset ? true : false}
       to={{
         width:
-          props.isWrapper ||
-          (props.useAutoLayout &&
-            props.direction === LayoutDirection.Vertical &&
-            props.responsiveBehavior === ResponsiveBehavior.Fill)
+          props.isFlexChild &&
+          props.responsiveBehavior === ResponsiveBehavior.Fill
             ? "auto"
             : widgetWidth,
-        height: props.isWrapper ? "auto" : widgetHeight,
+        height: widgetHeight,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}
     >
