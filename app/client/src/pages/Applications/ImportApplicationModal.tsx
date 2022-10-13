@@ -1,7 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { useSelector } from "store";
-import { FileType, SetProgress } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import {
   importApplication,
@@ -18,12 +17,14 @@ import {
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
-import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
 import {
   DialogComponent as Dialog,
+  FileType,
+  FilePickerV2,
   Icon,
   IconSize,
+  SetProgress,
   Text,
   TextType,
 } from "design-system";
