@@ -123,7 +123,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName(jsName as string);
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
-    deployMode.DeployApp();
+    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
@@ -309,39 +309,56 @@ describe("JSObjects OnLoad Actions tests", function() {
 
       deployMode.DeployApp();
 
-      //One Quotes confirmation - for API true
-      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
-      agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear("Quotes was cancelled");
+      //Commenting & changnig flow since either of confirmation modals can appear first!
 
-      //Another for API called via JS callQuotes()
-      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      // //Confirmation - first JSObj then API
+      // agHelper.AssertElementVisible(
+      //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
+      // );
+      // agHelper.ClickButton("No");
+      // agHelper.WaitUntilToastDisappear(
+      //   `${jsName + ".callTrump"} was cancelled`,
+      // ); //When Confirmation is NO validate error toast!
+
+      agHelper.ClickButton("No");
+      agHelper.AssertContains("was cancelled");
+
+      //One Quotes confirmation - for API true
+      // agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      // agHelper.ClickButton("No");
+      // agHelper.WaitUntilToastDisappear("Quotes was cancelled");
+
+      agHelper.ClickButton("No");
+      agHelper.AssertContains("was cancelled");
+
+      // //Another for API called via JS callQuotes()
+      // agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      // agHelper.ClickButton("No");
+
       agHelper.ClickButton("No");
       //agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
-      //Confirmation - first JSObj then API
-      agHelper.AssertElementVisible(
-        jsEditor._dialogBody((jsName as string) + ".callTrump"),
-      );
-      agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear(
-        `${jsName + ".callTrump"} was cancelled`,
-      ); //When Confirmation is NO validate error toast!
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
       agHelper.RefreshPage();
-      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      // agHelper.AssertElementVisible(
+      //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
+      // );
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
-      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      agHelper.Sleep();
+      //agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
-      agHelper.AssertElementVisible(
-        jsEditor._dialogBody((jsName as string) + ".callTrump"),
-      );
+      //agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
-      agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
+      agHelper.Sleep(500);
+      //agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       agHelper.ClickButton("Yes");
 
       agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
@@ -362,20 +379,18 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("10. Tc #1912 - API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No");
-    agHelper.AssertContains("Quotes was cancelled");
+    agHelper.AssertContains("was cancelled"); //agHelper.AssertContains("Quotes was cancelled");
 
     agHelper.WaitUntilAllToastsDisappear();
-    agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No"); //Ask Favour abt below
     //agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
 
-    agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".callTrump"),
-    );
+    agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     agHelper.ClickButton("No");
-    agHelper.AssertContains(`${jsName + ".callTrump"} was cancelled`);
+    agHelper.AssertContains("was cancelled");
     ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);
