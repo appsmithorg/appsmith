@@ -5,7 +5,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -21,8 +20,6 @@ import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -31,6 +28,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +52,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +62,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.mongodb.assertions.Assertions.assertNull;
@@ -103,6 +99,9 @@ public class LayoutActionServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    RefactoringSolution refactoringSolution;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -372,233 +371,6 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void refactorActionName() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("beforeNameChange");
-        action.setPageId(testPage.getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "firstWidget");
-        JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-        dsl.put("dynamicBindingPathList", temp);
-        dsl.put("testField", "{{ \tbeforeNameChange.data }}");
-        final JSONObject innerObjectReference = new JSONObject();
-        innerObjectReference.put("k", "{{\tbeforeNameChange.data}}");
-        dsl.put("innerObjectReference", innerObjectReference);
-        final JSONArray innerArrayReference = new JSONArray();
-        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tbeforeNameChange.data}}")));
-        dsl.put("innerArrayReference", innerArrayReference);
-
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-        layout.setPublishedDsl(dsl);
-
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
-
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
-
-
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
-        refactorActionNameDTO.setPageId(testPage.getId());
-        refactorActionNameDTO.setLayoutId(firstLayout.getId());
-        refactorActionNameDTO.setOldName("beforeNameChange");
-        refactorActionNameDTO.setNewName("PostNameChange");
-        refactorActionNameDTO.setActionId(createdAction.getId());
-
-        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
-
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
-
-        StepVerifier
-                .create(postNameChangeActionMono)
-                .assertNext(updatedAction -> {
-
-                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
-
-                    DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
-                    assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
-
-                    dsl.put("testField", "{{ \tPostNameChange.data }}");
-                    innerObjectReference.put("k", "{{\tPostNameChange.data}}");
-                    innerArrayReference.clear();
-                    innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
-                    assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void refactorActionName_forGitConnectedAction_success() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("beforeNameChange");
-        action.setPageId(gitConnectedPage.getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "firstWidget");
-        JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-        dsl.put("dynamicBindingPathList", temp);
-        dsl.put("testField", "{{ \tbeforeNameChange.data }}");
-        final JSONObject innerObjectReference = new JSONObject();
-        innerObjectReference.put("k", "{{\tbeforeNameChange.data}}");
-        dsl.put("innerObjectReference", innerObjectReference);
-        final JSONArray innerArrayReference = new JSONArray();
-        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tbeforeNameChange.data}}")));
-        dsl.put("innerArrayReference", innerArrayReference);
-
-        Layout layout = gitConnectedPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-        layout.setPublishedDsl(dsl);
-
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
-
-        LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), gitConnectedPage.getApplicationId(), layout.getId(), layout, branchName).block();
-
-
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
-        refactorActionNameDTO.setPageId(gitConnectedPage.getId());
-        refactorActionNameDTO.setLayoutId(firstLayout.getId());
-        refactorActionNameDTO.setOldName("beforeNameChange");
-        refactorActionNameDTO.setNewName("PostNameChange");
-        refactorActionNameDTO.setActionId(createdAction.getId());
-
-        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
-
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
-
-        StepVerifier
-                .create(postNameChangeActionMono)
-                .assertNext(updatedAction -> {
-
-                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
-
-                    DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
-                    assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
-
-                    dsl.put("testField", "{{ \tPostNameChange.data }}");
-                    innerObjectReference.put("k", "{{\tPostNameChange.data}}");
-                    innerArrayReference.clear();
-                    innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
-                    assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
-                    assertThat(updatedAction.getDefaultResources()).isNotNull();
-                    assertThat(updatedAction.getDefaultResources().getActionId()).isEqualTo(updatedAction.getId());
-                    assertThat(updatedAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedApp.getId());
-                    assertThat(updatedAction.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void refactorActionNameToDeletedName() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("Query1");
-        action.setPageId(testPage.getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        Layout layout = testPage.getLayouts().get(0);
-
-        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
-
-        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
-
-        applicationPageService.publish(testPage.getApplicationId(), true).block();
-
-        newActionService.deleteUnpublishedAction(firstAction.getId()).block();
-
-        // Create another action with the same name as the erstwhile deleted action
-        action.setId(null);
-        ActionDTO secondAction = layoutActionService.createSingleAction(action).block();
-
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
-        refactorActionNameDTO.setPageId(testPage.getId());
-        refactorActionNameDTO.setLayoutId(firstLayout.getId());
-        refactorActionNameDTO.setOldName("Query1");
-        refactorActionNameDTO.setNewName("NewActionName");
-        refactorActionNameDTO.setActionId(firstAction.getId());
-
-        layoutActionService.refactorActionName(refactorActionNameDTO).block();
-
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
-
-        StepVerifier
-                .create(postNameChangeActionMono)
-                .assertNext(updatedAction -> {
-
-                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("NewActionName");
-
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testRefactorActionName_withInvalidName_throwsError() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("beforeNameChange");
-        action.setPageId(testPage.getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "firstWidget");
-        JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-        dsl.put("dynamicBindingPathList", temp);
-        dsl.put("testField", "{{ beforeNameChange.data }}");
-
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-        layout.setPublishedDsl(dsl);
-
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
-
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
-
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
-        refactorActionNameDTO.setPageId(testPage.getId());
-        assert firstLayout != null;
-        refactorActionNameDTO.setLayoutId(firstLayout.getId());
-        refactorActionNameDTO.setOldName("beforeNameChange");
-        refactorActionNameDTO.setNewName("!PostNameChange");
-        assert createdAction != null;
-        refactorActionNameDTO.setActionId(createdAction.getId());
-
-        final Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
-
-        StepVerifier
-                .create(layoutDTOMono)
-                .expectErrorMatches(e -> e instanceof AppsmithException &&
-                        AppsmithError.INVALID_ACTION_NAME.getMessage().equalsIgnoreCase(e.getMessage()))
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void actionExecuteOnLoadChangeOnUpdateLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -774,83 +546,6 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void refactorDuplicateActionName() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        String name = "duplicateName";
-
-        ActionDTO action = new ActionDTO();
-        action.setName(name);
-        action.setPageId(testPage.getId());
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "firstWidget");
-        JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-        dsl.put("dynamicBindingPathList", temp);
-        dsl.put("testField", "{{ duplicateName.data }}");
-
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-        layout.setPublishedDsl(dsl);
-
-        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
-
-        ActionDTO duplicateName = new ActionDTO();
-        duplicateName.setName(name);
-        duplicateName.setPageId(testPage.getId());
-        duplicateName.setActionConfiguration(actionConfiguration);
-        duplicateName.setDatasource(datasource);
-
-        NewAction duplicateNameCompleteAction = new NewAction();
-        duplicateNameCompleteAction.setUnpublishedAction(duplicateName);
-        duplicateNameCompleteAction.setPublishedAction(new ActionDTO());
-        duplicateNameCompleteAction.getPublishedAction().setDatasource(new Datasource());
-        duplicateNameCompleteAction.setWorkspaceId(duplicateName.getWorkspaceId());
-        duplicateNameCompleteAction.setPluginType(duplicateName.getPluginType());
-        duplicateNameCompleteAction.setPluginId(duplicateName.getPluginId());
-        duplicateNameCompleteAction.setTemplateId(duplicateName.getTemplateId());
-        duplicateNameCompleteAction.setProviderId(duplicateName.getProviderId());
-        duplicateNameCompleteAction.setDocumentation(duplicateName.getDocumentation());
-        duplicateNameCompleteAction.setApplicationId(duplicateName.getApplicationId());
-
-        // Now save this action directly in the repo to create a duplicate action name scenario
-        actionRepository.save(duplicateNameCompleteAction).block();
-
-        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
-
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
-        refactorActionNameDTO.setPageId(testPage.getId());
-        refactorActionNameDTO.setLayoutId(firstLayout.getId());
-        refactorActionNameDTO.setOldName("duplicateName");
-        refactorActionNameDTO.setNewName("newName");
-        refactorActionNameDTO.setActionId(firstAction.getId());
-
-        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
-
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(firstAction.getId(), READ_ACTIONS);
-
-        StepVerifier
-                .create(postNameChangeActionMono)
-                .assertNext(updatedAction -> {
-
-                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("newName");
-
-                    DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
-                    assertThat(actionDTO.getName()).isEqualTo("newName");
-
-                    dsl.put("testField", "{{ newName.data }}");
-                    assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void duplicateActionNameCreation() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -879,188 +574,6 @@ public class LayoutActionServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_USER_ERROR.getMessage(name, FieldName.NAME)))
                 .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void tableWidgetKeyEscapeRefactorName() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "Table1");
-        dsl.put("type", "TABLE_WIDGET");
-        Map primaryColumns = new HashMap<String, Object>();
-        JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
-        primaryColumns.put("_id", jsonObject);
-        primaryColumns.put("_class", jsonObject);
-        dsl.put("primaryColumns", primaryColumns);
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-
-        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
-
-        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
-        refactorNameDTO.setPageId(testPage.getId());
-        refactorNameDTO.setLayoutId(layout.getId());
-        refactorNameDTO.setOldName("Table1");
-        refactorNameDTO.setNewName("NewNameTable1");
-
-        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
-
-        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
-
-        StepVerifier
-                .create(Mono.zip(widgetRenameMono, pageFromRepoMono))
-                .assertNext(tuple -> {
-                    LayoutDTO updatedLayout = tuple.getT1();
-                    PageDTO pageFromRepo = tuple.getT2();
-
-                    String widgetName = (String) updatedLayout.getDsl().get("widgetName");
-                    assertThat(widgetName).isEqualTo("NewNameTable1");
-
-                    Map primaryColumns1 = (Map) updatedLayout.getDsl().get("primaryColumns");
-                    assertThat(primaryColumns1.keySet()).containsAll(Set.of(FieldName.MONGO_UNESCAPED_ID, FieldName.MONGO_UNESCAPED_CLASS));
-
-                    Map primaryColumns2 = (Map) pageFromRepo.getLayouts().get(0).getDsl().get("primaryColumns");
-                    assertThat(primaryColumns2.keySet()).containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void simpleWidgetNameRefactor() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "Table1");
-        dsl.put("type", "TABLE_WIDGET");
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-
-        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
-
-        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
-        refactorNameDTO.setPageId(testPage.getId());
-        refactorNameDTO.setLayoutId(layout.getId());
-        refactorNameDTO.setOldName("Table1");
-        refactorNameDTO.setNewName("NewNameTable1");
-
-        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
-
-        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
-
-        StepVerifier
-                .create(Mono.zip(widgetRenameMono, pageFromRepoMono))
-                .assertNext(tuple -> {
-                    LayoutDTO updatedLayout = tuple.getT1();
-                    PageDTO pageFromRepo = tuple.getT2();
-
-                    String widgetName = (String) updatedLayout.getDsl().get("widgetName");
-                    assertThat(widgetName).isEqualTo("NewNameTable1");
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testRefactorWidgetName_forDefaultWidgetsInList_updatesBothWidgetsAndTemplateReferences() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "List1");
-        dsl.put("type", "LIST_WIDGET");
-        JSONObject template = new JSONObject();
-        template.put("oldWidgetName", "irrelevantContent");
-        dsl.put("template", template);
-        final JSONArray children = new JSONArray();
-        final JSONObject defaultWidget = new JSONObject();
-        defaultWidget.put("widgetName", "oldWidgetName");
-        defaultWidget.put("type", "TEXT_WIDGET");
-        children.add(defaultWidget);
-        dsl.put("children", children);
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-
-        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
-
-        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
-        refactorNameDTO.setPageId(testPage.getId());
-        refactorNameDTO.setLayoutId(layout.getId());
-        refactorNameDTO.setOldName("oldWidgetName");
-        refactorNameDTO.setNewName("newWidgetName");
-
-        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
-
-        StepVerifier
-                .create(widgetRenameMono)
-                .assertNext(updatedLayout -> {
-                    assertTrue(((Map) updatedLayout.getDsl().get("template")).containsKey("newWidgetName"));
-                    assertEquals("newWidgetName",
-                            ((Map) (((List) updatedLayout.getDsl().get("children")).get(0))).get("widgetName"));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        // Set up table widget in DSL
-        JSONObject dsl = new JSONObject();
-        dsl.put("widgetName", "Table1");
-        dsl.put("type", "TABLE_WIDGET");
-        Layout layout = testPage.getLayouts().get(0);
-        layout.setDsl(dsl);
-
-        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
-
-        // Create an action collection that refers to the table
-        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
-        actionCollectionDTO1.setName("testCollection1");
-        actionCollectionDTO1.setPageId(testPage.getId());
-        actionCollectionDTO1.setApplicationId(testApp.getId());
-        actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
-        actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
-        ActionDTO action1 = new ActionDTO();
-        action1.setName("testAction1");
-        action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("\tTable1");
-        actionCollectionDTO1.setBody("\tTable1");
-        actionCollectionDTO1.setActions(List.of(action1));
-        actionCollectionDTO1.setPluginType(PluginType.JS);
-
-        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
-
-        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
-        refactorNameDTO.setPageId(testPage.getId());
-        refactorNameDTO.setLayoutId(layout.getId());
-        refactorNameDTO.setOldName("Table1");
-        refactorNameDTO.setNewName("NewNameTable1");
-
-        LayoutDTO updatedLayout = layoutActionService.refactorWidgetName(refactorNameDTO).block();
-
-        assert createdActionCollectionDTO1 != null;
-        final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO1.getId());
-        final Optional<String> optional = createdActionCollectionDTO1.getDefaultToBranchedActionIdsMap().values().stream().findFirst();
-        assert optional.isPresent();
-        final Mono<NewAction> actionMono = newActionService.findById(optional.get());
-
-        StepVerifier
-                .create(Mono.zip(actionCollectionMono, actionMono))
-                .assertNext(tuple -> {
-                    final ActionCollection actionCollection = tuple.getT1();
-                    final NewAction action = tuple.getT2();
-                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("\tNewNameTable1");
-                    final ActionDTO unpublishedAction = action.getUnpublishedAction();
-                    assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
-                    final Optional<String> first = unpublishedAction.getJsonPathKeys().stream().findFirst();
-                    assert first.isPresent();
-                    assertThat(first.get()).isEqualTo("\tNewNameTable1");
-                    assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("\tNewNameTable1");
-                })
-                .verifyComplete();
     }
 
     @SneakyThrows
@@ -1250,64 +763,6 @@ public class LayoutActionServiceTest {
                     final DslActionDTO secondSetAction = updatedLayout.getLayoutOnLoadActions().get(1).iterator().next();
                     assertThat(secondSetAction.getName()).isEqualTo("secondAction");
 
-                })
-                .verifyComplete();
-
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testRefactorCollection_withModifiedName_ignoresName() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
-        originalActionCollectionDTO.setName("originalName");
-        originalActionCollectionDTO.setApplicationId(testApp.getId());
-        originalActionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
-        originalActionCollectionDTO.setPageId(testPage.getId());
-        originalActionCollectionDTO.setPluginId(jsDatasource.getPluginId());
-        originalActionCollectionDTO.setPluginType(PluginType.JS);
-
-        ActionDTO action1 = new ActionDTO();
-        action1.setName("testAction1");
-        action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("Table1");
-
-        originalActionCollectionDTO.setActions(List.of(action1));
-
-        final ActionCollectionDTO dto = layoutCollectionService.createCollection(originalActionCollectionDTO).block();
-
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        assert dto != null;
-        actionCollectionDTO.setId(dto.getId());
-        actionCollectionDTO.setBody("body");
-        actionCollectionDTO.setName("newName");
-
-        RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO = new RefactorActionNameInCollectionDTO();
-        refactorActionNameInCollectionDTO.setActionCollection(actionCollectionDTO);
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO(
-                dto.getActions().get(0).getId(),
-                testPage.getId(),
-                testPage.getLayouts().get(0).getId(),
-                "testAction1",
-                "newTestAction",
-                "originalName"
-        );
-        refactorActionNameInCollectionDTO.setRefactorAction(refactorActionNameDTO);
-
-        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = layoutCollectionService
-                .refactorAction(refactorActionNameInCollectionDTO)
-                .then(actionCollectionService.getById(dto.getId())
-                        .zipWith(newActionService.findById(dto.getActions().get(0).getId())));
-
-        StepVerifier.create(tuple2Mono)
-                .assertNext(tuple -> {
-                    final ActionCollectionDTO actionCollectionDTOResult = tuple.getT1().getUnpublishedCollection();
-                    final NewAction newAction = tuple.getT2();
-                    assertEquals("originalName", actionCollectionDTOResult.getName());
-                    assertEquals("body", actionCollectionDTOResult.getBody());
-                    assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
-                    assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
                 })
                 .verifyComplete();
 
@@ -1638,11 +1093,10 @@ public class LayoutActionServiceTest {
         refactorActionNameDTO.setPageId(testPage.getId());
         refactorActionNameDTO.setActionId(createdAction.getId());
 
-        Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
+        Mono<LayoutDTO> layoutDTOMono = refactoringSolution.refactorActionName(refactorActionNameDTO);
         StepVerifier.create(layoutDTOMono.map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
                 .expectNext(1)
                 .verifyComplete();
-
 
         // updateAction to see if the error persists
         actionDTO.setName("finalActionName");

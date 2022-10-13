@@ -8,7 +8,7 @@ let themeBackgroudColor;
 let themeFont;
 
 describe("Theme validation usecases", function() {
-  it("Drag and drop form widget and validate Default font and list of font validation", function() {
+  it("1. Drag and drop form widget and validate Default font and list of font validation", function() {
     cy.log("Login Successful");
     cy.reload(); // To remove the rename tooltip
     cy.get(explorer.addWidget).click();
@@ -133,7 +133,7 @@ describe("Theme validation usecases", function() {
     cy.contains("Color").click({ force: true });
   });
 
-  it("Publish the App and validate Font across the app", function() {
+  it("2. Publish the App and validate Font across the app", function() {
     cy.PublishtheApp();
     cy.get(".bp3-button:contains('Sub')").should(
       "have.css",
@@ -157,7 +157,7 @@ describe("Theme validation usecases", function() {
     );
   });
 
-  it("Validate Default Theme change across application", function() {
+  it("3. Validate Default Theme change across application", function() {
     cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
@@ -194,7 +194,7 @@ describe("Theme validation usecases", function() {
       });
   });
 
-  it("Publish the App and validate Default Theme across the app", function() {
+  it("4. Publish the App and validate Default Theme across the app", function() {
     cy.PublishtheApp();
     /* Bug Form backgroud colour reset in Publish mode
         cy.get(formWidgetsPage.formD)
@@ -214,7 +214,7 @@ describe("Theme validation usecases", function() {
       });
   });
 
-  it("Validate Theme change across application", function() {
+  it("5. Validate Theme change across application", function() {
     cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
@@ -304,7 +304,7 @@ describe("Theme validation usecases", function() {
       .and("eq", "rgb(255, 193, 61)");
   });
 
-  it("Publish the App and validate Theme across the app", function() {
+  it("6. Publish the App and validate Theme across the app", function() {
     cy.PublishtheApp();
     //Bug Form backgroud colour reset in Publish mode
     /*
