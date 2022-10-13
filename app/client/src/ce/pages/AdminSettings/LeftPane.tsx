@@ -1,15 +1,19 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router";
+import { Icon, IconSize } from "design-system";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
     props.theme.homePage.leftPane.width +
     props.theme.homePage.leftPane.leftPadding}px;
-  padding: 0px 0px 0px ${(props) => props.theme.homePage.leftPane.leftPadding}px;
+  padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
 `;
 
 export const HeaderContainer = styled.div``;
@@ -28,6 +32,7 @@ export const CategoryList = styled.ul`
   margin: 0;
   padding: 0 0 0 16px;
   list-style-type: none;
+  width: 264px;
 `;
 
 export const CategoryItem = styled.li``;
@@ -35,11 +40,13 @@ export const CategoryItem = styled.li``;
 export const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
   padding: 8px 16px;
-  display: block;
   background-color: ${(props) =>
     props.$active ? props.theme.colors.menuItem.hoverBg : ""};
   font-weight: ${(props) => (props.$active ? 500 : 400)};
   text-transform: capitalize;
+  display: flex;
+  gap: 12px;
+
   && {
     color: ${(props) =>
       props.$active
@@ -50,6 +57,10 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
     text-decoration: none;
     background-color: ${(props) => props.theme.colors.menuItem.hoverBg};
     color: ${(props) => props.theme.colors.menuItem.hoverText};
+  }
+
+  & div {
+    align-self: center;
   }
 `;
 
@@ -90,7 +101,10 @@ export function Categories({
                   })
             }
           >
-            {config.title}
+            <div>
+              {config?.icon && <Icon name={config?.icon} size={IconSize.XL} />}
+            </div>
+            <div>{config.title}</div>
           </StyledLink>
           {showSubCategory && (
             <Categories
@@ -108,6 +122,7 @@ export function Categories({
 
 export default function LeftPane() {
   const categories = getSettingsCategory();
+  const featureFlags = useSelector(selectFeatureFlags);
   const { category, selected: subCategory } = useParams() as any;
   return (
     <Wrapper>
@@ -119,6 +134,30 @@ export default function LeftPane() {
         currentCategory={category}
         currentSubCategory={subCategory}
       />
+
+      {featureFlags.AUDIT_LOGS && (
+        <>
+          <HeaderContainer>
+            <StyledHeader>Enterprise</StyledHeader>
+          </HeaderContainer>
+          <CategoryList data-testid="t--enterprise-settings-category-list">
+            {featureFlags.AUDIT_LOGS && (
+              <CategoryItem>
+                <StyledLink
+                  $active={category === "audit-logs"}
+                  data-testid="t--enterprise-settings-category-item-audit-logs"
+                  to="/settings/audit-logs"
+                >
+                  <div>
+                    <Icon name="lock-2-line" size={IconSize.XL} />
+                  </div>
+                  <div>Audit logs</div>
+                </StyledLink>
+              </CategoryItem>
+            )}
+          </CategoryList>
+        </>
+      )}
     </Wrapper>
   );
 }
