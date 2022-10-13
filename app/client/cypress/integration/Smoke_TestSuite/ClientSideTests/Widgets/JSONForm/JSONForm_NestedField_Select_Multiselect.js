@@ -6,9 +6,19 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const fieldPrefix = ".t--jsonformfield";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSONForm select field", () => {
-  before(() => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("1. JSONForm select field - precondition", () => {
     const schema = {
       object: {
         select: "GREEN",
@@ -34,7 +44,7 @@ describe("JSONForm select field", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
   });
 
-  it("should open the menu", () => {
+  it("2. should open the menu", () => {
     // Click select field in object
     cy.get(`${fieldPrefix}-object-select label`).click({ force: true });
     // Menu should open up
@@ -46,7 +56,7 @@ describe("JSONForm select field", () => {
     cy.get(".bp3-select-popover.select-popover-wrapper").should("exist");
   });
 
-  it("menu items should be selectable", () => {
+  it("3. menu items should be selectable", () => {
     // Select field in object
     cy.get(`${fieldPrefix}-object-select label`).click({ force: true });
     // Click blue option
@@ -67,10 +77,8 @@ describe("JSONForm select field", () => {
     // Verify if blue option is selected
     cy.get(`${fieldPrefix}-array-0--select .select-button`).contains("Blue");
   });
-});
 
-describe("JSONForm multiselect field", () => {
-  before(() => {
+  it("4. JSONForm multiselect field - precondition", () => {
     const schema = {
       object: {
         multiselect: "GREEN",
@@ -96,7 +104,7 @@ describe("JSONForm multiselect field", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Multiselect$/);
   });
 
-  it("should open the menu", () => {
+  it("5. should open the menu", () => {
     // Open multiselect in object
     cy.get(`${fieldPrefix}-object-multiselect`)
       .find(".rc-select-selection-search-input")
@@ -118,7 +126,7 @@ describe("JSONForm multiselect field", () => {
     cy.get(".rc-virtual-list").should("exist");
   });
 
-  it("menu items should be selectable", () => {
+  it("6. menu items should be selectable", () => {
     // Open multiselect in object
     cy.get(`${fieldPrefix}-object-multiselect`)
       .find(".rc-select-selection-search-input")

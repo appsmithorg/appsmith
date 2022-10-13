@@ -9,15 +9,14 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,17 +25,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -70,8 +72,6 @@ public class CurlImporterServiceTest {
 
     String workspaceId;
 
-    @Before
-    @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
@@ -161,6 +161,7 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportAction_EmptyLex() {
+        setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
@@ -182,6 +183,7 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
+        setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -762,7 +764,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/get");
-        assertHeaders(action, new Property("Accept", "application/json"));
+        assertHeaders(action,new Property("Accept", "application/json"));
         assertEmptyBody(action);
     }
 
@@ -837,7 +839,6 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
 
@@ -848,6 +849,24 @@ public class CurlImporterServiceTest {
                 .verifyError();
     }
 
+    @Test
+    public void checkActionConfigurationFormDataForApiContentKey() {
+        final String API_CONTENT_TYPE = "apiContentType";
+        String cURLCommand = "curl -X POST https://mockurl.com -H \"Content-Type: application/json\" -d '{\"productId\": 123456, \"quantity\": 100}'";
+        String contentType = "application/json";
+        String name = "actionName";
+
+        ActionDTO actionDTO = curlImporterService.curlToAction(cURLCommand, name);
+        assertThat(actionDTO).isNotNull();
+        assertThat(actionDTO.getActionConfiguration()).isNotNull();
+        Map<String, Object> map =  actionDTO.getActionConfiguration().getFormData();
+
+        assert(map != null);
+        assert(!map.isEmpty());
+        assert(map.containsKey(API_CONTENT_TYPE));
+        assert(map.get(API_CONTENT_TYPE).equals(contentType));
+
+    }
     // Assertion utilities for working with Action assertions.
     private static void assertMethod(ActionDTO action, HttpMethod method) {
         assertThat(action.getActionConfiguration().getHttpMethod()).isEqualByComparingTo(method);
@@ -874,7 +893,63 @@ public class CurlImporterServiceTest {
     }
 
     private static void assertHeaders(ActionDTO action, Property... headers) {
-        assertThat(action.getActionConfiguration().getHeaders()).containsExactlyInAnyOrder(headers);
+        // this implementation only works if Property has a subclass of object which works implements equal function.
+        // let's compare sizes of both first
+        if (action.getActionConfiguration().getHeaders().size() != headers.length) {
+            assert(false);
+        }
+        HashMap<String, List<Object>> headerStore = new HashMap<>();
+
+        // create a map of headers with header-property-key as keys and ArrayList of property-header-values as values.
+        for (Property property : action.getActionConfiguration().getHeaders()) {
+            String key = property.getKey().toLowerCase();
+
+            if (!headerStore.containsKey(key)) {
+                // using linkedList to achieve O(1) removal time
+                headerStore.put(key, new LinkedList<>());
+            }
+            headerStore.get(key).add(property.getValue());
+        }
+
+        // placeholder variable
+        List<Object> headerStorePropertyList;
+
+        // compare the hashMap headerStore with the varargs header
+        for ( int i = 0; i < headers.length; i++) {
+            String key = headers[i].getKey().toLowerCase();
+
+            if (!headerStore.containsKey(key)) {
+                assert(false);
+            }
+
+            boolean matchFound = false;
+            headerStorePropertyList = headerStore.get(key);
+            for (int listIndex = 0; listIndex < headerStorePropertyList.size(); listIndex++) {
+                if (!headerStorePropertyList.get(listIndex).equals(headers[i].getValue())) {
+                    continue;
+                }
+
+                // we keep removing the entries that have matched so that in the end we have zero entries in the headerStore.
+                headerStorePropertyList.remove(listIndex);
+                if (headerStorePropertyList.isEmpty()) {
+                    headerStore.remove(key);
+                }
+                matchFound = true;
+                break;
+            }
+
+            if (matchFound) {
+                continue;
+            }
+
+            assert(false);
+        }
+
+        // if headerStore has keys then it would mean that there are more headers than expected;
+        if (headerStore.size() != 0) {
+            assert(false);
+        }
+        // if all header matches then only it will reach here.
     }
 
     private static void assertEmptyBody(ActionDTO action) {

@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
-import { TabComponent, TabProp } from "components/ads/Tabs";
-import { Text, TextType } from "design-system";
+import { TabComponent, TabProp, Text, TextType } from "design-system";
 import { Icon } from "@blueprintjs/core";
-// import { Link } from "react-router-dom";
 import General from "./General";
 import { Colors } from "constants/Colors";
 import GitConfig from "./GitConfig";
@@ -23,9 +21,11 @@ const LinkToApplications = styled.div`
   margin-bottom: 35px;
   display: inline-block;
   width: auto;
+
   &:hover {
     text-decoration: none;
   }
+
   svg {
     cursor: pointer;
   }

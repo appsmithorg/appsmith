@@ -15,28 +15,28 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 public class DatasourceContextServiceTest {
@@ -106,9 +106,9 @@ public class DatasourceContextServiceTest {
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertEquals(password, authentication.getPassword());
+                    assertEquals(password, authentication.getPassword());
                     DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertEquals(encryptionService.encryptString(password), encryptedAuthentication.getPassword());
+                    assertEquals(encryptionService.encryptString(password), encryptedAuthentication.getPassword());
                 })
                 .verifyComplete();
     }
@@ -151,9 +151,9 @@ public class DatasourceContextServiceTest {
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertNull(authentication.getPassword());
+                    assertNull(authentication.getPassword());
                     DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
-                    Assert.assertNull(encryptedAuthentication.getPassword());
+                    assertNull(encryptedAuthentication.getPassword());
                 })
                 .verifyComplete();
     }

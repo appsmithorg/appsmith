@@ -10,16 +10,18 @@ class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
-    return [...contentConfig, ...styleConfig];
-  }
-
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      value: undefined,
+    };
   }
 
   onCodeDetected = (value: string) => {
@@ -37,7 +39,7 @@ class CodeScannerWidget extends BaseWidget<
       <CodeScannerComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        buttonColor={this.props.buttonColor}
+        buttonColor={this.props.buttonColor || this.props.accentColor}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         isDisabled={this.props.isDisabled}

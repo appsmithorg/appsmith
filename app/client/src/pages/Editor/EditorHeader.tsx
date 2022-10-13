@@ -25,7 +25,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { EditInteractionKind, SavingState } from "components/ads/EditableText";
+import { EditInteractionKind, SavingState } from "design-system";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
@@ -84,7 +84,6 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import { inviteModalLinks } from "@appsmith/constants/forms";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -462,7 +461,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                 bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
-              links={inviteModalLinks}
               message={createMessage(INVITE_USERS_MESSAGE)}
               placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
               title={

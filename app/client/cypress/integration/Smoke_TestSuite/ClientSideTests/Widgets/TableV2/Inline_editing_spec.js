@@ -2,11 +2,15 @@ const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
@@ -257,6 +261,9 @@ describe("Table widget inline editing functionality", () => {
       "contain.value",
       "Save / Discard",
     );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
+    );
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
 
@@ -267,6 +274,9 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
       "Save / Discard",
+    );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
     );
     cy.get(
       `.t--property-control-columns .t--uber-editable-checkbox input+span`,
@@ -280,6 +290,9 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
       "Save / Discard",
+    );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
     );
     cy.editColumn("step");
     cy.get(".t--property-control-editable .bp3-switch span").click();
@@ -412,7 +425,7 @@ describe("Table widget inline editing functionality", () => {
     cy.saveTableCellValue(0, 0);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
-      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅",      "action": ""    }  }]`,
+      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
     );
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
@@ -657,14 +670,9 @@ describe("Table widget inline editing functionality", () => {
         expect(text).to.equal("discarded!!");
       });
   });
-});
-
-describe("Table widget inline editing functionality with Text wrapping functionality", () => {
-  beforeEach(() => {
-    cy.addDsl(dsl);
-  });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
+    cy.addDsl(dsl);
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);

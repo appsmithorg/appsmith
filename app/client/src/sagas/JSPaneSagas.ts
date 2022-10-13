@@ -52,7 +52,7 @@ import {
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
@@ -83,6 +83,8 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
+import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -419,7 +421,13 @@ export function* handleExecuteJSFunctionSaga(data: {
       text:
         (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       variant: Variant.danger,
-      showDebugButton: true,
+      showDebugButton: {
+        component: DebugButton,
+        componentProps: {
+          className: "t--toast-debug-button",
+          source: "TOAST",
+        },
+      },
     });
   }
 }
@@ -481,6 +489,9 @@ function* handleUpdateJSCollectionBody(
       if (isValidResponse) {
         // @ts-expect-error: response is of type unknown
         yield put(updateJSCollectionBodySuccess({ data: response?.data }));
+        checkAndLogErrorsIfCyclicDependency(
+          (response.data as JSCollection).errorReports,
+        );
       }
     }
   } catch (error) {

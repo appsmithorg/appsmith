@@ -34,7 +34,8 @@ server {
   server_tokens off;
 
   root /opt/appsmith/editor;
-  index index.html index.htm;
+  index index.html;
+  error_page 404 /;
 
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
   add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
@@ -70,6 +71,11 @@ server {
 
   location / {
     try_files \$uri /index.html =404;
+  }
+
+  # If the path has an extension at the end, then respond with 404 status if the file not found.
+  location ~ \.[a-z]+$ {
+    try_files \$uri =404;
   }
 
   location /api {

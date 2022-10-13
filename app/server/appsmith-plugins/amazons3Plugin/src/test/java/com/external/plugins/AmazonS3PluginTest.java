@@ -22,9 +22,8 @@ import com.external.plugins.constants.AmazonS3Action;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
@@ -74,12 +73,12 @@ import static com.external.utils.TemplateUtils.FILE_PICKER_MULTIPLE_FILES_DATA_E
 import static com.external.utils.TemplateUtils.LIST_FILES_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.LIST_OF_FILES_STRING;
 import static com.external.utils.TemplateUtils.READ_FILE_TEMPLATE_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -94,7 +93,7 @@ public class AmazonS3PluginTest {
     @InjectMocks
     private AmazonS3Plugin amazonS3Plugin;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         accessKey   = "access_key";
         secretKey   = "secret_key";
@@ -160,7 +159,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    Assert.assertNotEquals(0, res.size());
+                    assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
                     assertTrue(errorList.get(0).contains("Mandatory parameter 'Secret Key' is empty"));

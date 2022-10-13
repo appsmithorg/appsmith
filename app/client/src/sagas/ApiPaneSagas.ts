@@ -59,12 +59,13 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   createMessage,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import {
+  getContentTypeHeaderValue,
   getIndextoUpdate,
   parseUrlForQueryParams,
   queryParamsRegEx,
@@ -256,10 +257,7 @@ function* updateExtraFormDataSaga() {
 
   const headers: Array<{ key: string; value: string }> =
     get(values, "actionConfiguration.headers") || [];
-  const contentTypeValue: string =
-    headers.find(
-      (h: { key: string; value: string }) => h.key === CONTENT_TYPE_HEADER_KEY,
-    )?.value || "";
+  const contentTypeValue: string = getContentTypeHeaderValue(headers);
 
   let rawApiContentType;
 
