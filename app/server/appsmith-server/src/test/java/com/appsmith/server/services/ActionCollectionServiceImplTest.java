@@ -79,12 +79,7 @@ public class ActionCollectionServiceImplTest {
     private PolicyGenerator policyGenerator;
     @MockBean
     NewPageService newPageService;
-<<<<<<< Updated upstream
-    @MockBean
-=======
-
     @SpyBean
->>>>>>> Stashed changes
     LayoutActionService layoutActionService;
     @MockBean
     ActionCollectionRepository actionCollectionRepository;
