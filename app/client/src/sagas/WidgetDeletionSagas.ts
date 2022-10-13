@@ -233,7 +233,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (widget.hasMetaWidgets) {
           yield put(
             deleteMetaWidgets({
-              creatorId: [widget.widgetId],
+              creatorIds: [widget.widgetId],
             }),
           );
         }
@@ -328,7 +328,7 @@ function* deleteAllSelectedWidgetsSaga(
     if (metaCreatorWidgetIds.length) {
       yield put(
         deleteMetaWidgets({
-          creatorId: metaCreatorWidgetIds,
+          creatorIds: metaCreatorWidgetIds,
         }),
       );
     }
