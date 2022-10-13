@@ -5,6 +5,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.constants.EnvVariables;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
@@ -363,7 +364,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     /**
-     * Sends analytics events after a new authentication method is added or removed.
+     * Sends analytics events after an admin setting update.
      *
      * @param user              The user who triggered the event.
      * @param originalVariables Already existing env variables
@@ -374,11 +375,16 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         // Generate analytics event properties template(s) according to the env variable changes
         List<Map<String, Object>> analyticsEvents = getAnalyticsEvents(originalVariables, changes, new ArrayList<>());
 
+        // We cannot send sensitive information present as values in env to the analytics
+        // Values are filtered and only variable names are sent
+        Map<String, Object> analyticsProperties = Map.of(FieldName.UPDATED_INSTANCE_SETTINGS, changes.keySet());
+        Mono<User> sendAnalyticsMono = Mono.empty();
         // Currently supporting only one authentication method update in one env update call
         if (!analyticsEvents.isEmpty()) {
-            return analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0)).then();
+            sendAnalyticsMono = analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0));
         }
-        return Mono.empty();
+        // A general INSTANCE_SETTING_UPDATED event is also sent for all admin settings changes
+        return sendAnalyticsMono.then(analyticsService.sendObjectEvent(AnalyticsEvents.INSTANCE_SETTING_UPDATED, user, analyticsProperties)).then();
     }
 
     /**

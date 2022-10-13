@@ -6219,6 +6219,8 @@ depd@~1.1.2:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
+    react-dnd "^9.3.4"
+    react-dnd-html5-backend "^9.3.4"
     react-redux "^7.2.4"
     react-router-dom "^6.3.0"
     react-table "^7.8.0"

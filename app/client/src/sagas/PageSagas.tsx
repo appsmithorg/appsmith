@@ -36,6 +36,7 @@ import PageApi, {
   FetchPageResponse,
   FetchPublishedPageRequest,
   PageLayout,
+  SavePageRequest,
   SavePageResponse,
   SavePageResponseData,
   SetPageOrderRequest,
@@ -91,7 +92,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -383,12 +384,16 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const editorConfigs:
     | {
+        applicationId: string;
         pageId: string;
         layoutId: string;
       }
     | undefined = yield select(getEditorConfigs) as any;
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
-  const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
+  const savePageRequest: SavePageRequest = getLayoutSavePayload(
+    widgets,
+    editorConfigs,
+  );
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SAVE_PAGE_API,
     {
