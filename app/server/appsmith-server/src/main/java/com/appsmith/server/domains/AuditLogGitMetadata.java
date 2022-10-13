@@ -6,5 +6,7 @@ import lombok.Data;
 public class AuditLogGitMetadata {
     String branch;
 
-    String defaultBranch;
+    String repoType;
+
+    String repoURL;
 }

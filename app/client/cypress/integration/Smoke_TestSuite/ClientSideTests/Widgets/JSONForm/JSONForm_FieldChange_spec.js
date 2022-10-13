@@ -7,7 +7,6 @@ describe("JSON Form Widget Field Change", () => {
   before(() => {
     cy.addDsl(dslWithSchema);
   });
-
   it("modifies field type text to number", () => {
     cy.openPropertyPane("jsonformwidget");
 

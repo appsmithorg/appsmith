@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -49,8 +50,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     protected final MongoConverter mongoConverter;
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
-
-    protected final static int NO_RECORD_LIMIT = -1;
 
     @Autowired
     public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
@@ -315,6 +314,38 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .matching(query)
                 .all()
                 .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
+    }
+
+    public Flux<T> queryAllWithoutPermissions(List<Criteria> criterias,
+                                                List<String> includeFields,
+                                                Sort sort,
+                                                int limit) {
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        Query query = new Query();
+        if (!CollectionUtils.isEmpty(includeFields)) {
+            for (String includeField : includeFields) {
+                query.fields().include(includeField);
+            }
+        }
+
+        if (limit != NO_RECORD_LIMIT) {
+            query.limit(limit);
+        }
+        Criteria andCriteria = new Criteria();
+
+        criteriaList.add(notDeleted());
+
+        andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
+
+        query.addCriteria(andCriteria);
+        if (sort != null) {
+            query.with(sort);
+        }
+
+        return mongoOperations.query(this.genericDomain)
+                .matching(query)
+                .all()
+                .map(obj -> obj);
     }
 
     public T setUserPermissionsInObject(T obj, Set<String> permissionGroups) {

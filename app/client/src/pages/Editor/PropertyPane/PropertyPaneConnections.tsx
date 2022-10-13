@@ -174,7 +174,8 @@ const OptionContentWrapper = styled.div<{
     margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 
-  &:hover {
+  &:hover,
+  &.highlighted {
     background-color: ${(props) =>
       !props.hasError && props.theme.colors.dropdown.hovered.bg};
   }
@@ -269,8 +270,12 @@ function OptionNode(props: any) {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (!props.isSelectedNode) return;
-    if (e.key === " " || e.key === "Enter") onClick();
+    if (!props.isSelectedNode && !props.isHighlighted) return;
+    if (
+      (props.isSelectedNode || props.isHighlighted) &&
+      (e.key === " " || e.key === "Enter")
+    )
+      onClick();
   };
 
   useEffect(() => {
@@ -278,14 +283,16 @@ function OptionNode(props: any) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [props.isSelectedNode]);
+  }, [props.isSelectedNode, props.isHighlighted]);
 
   return (
     <OptionWrapper
+      className={`t--dropdown-option`}
       fillIconColor={!entityInfo?.datasourceName}
       hasError={!!entityInfo?.hasError}
     >
       <OptionContentWrapper
+        className={`${props.isHighlighted ? "highlighted" : ""}`}
         hasError={!!entityInfo?.hasError}
         isSelected={props.isSelectedNode}
         onClick={onClick}
@@ -433,6 +440,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         renderOption={(optionProps: RenderDropdownOptionType) => {
           return (
             <OptionNode
+              isHighlighted={optionProps.isHighlighted}
               isSelectedNode={optionProps.isSelectedNode}
               option={optionProps.option}
             />
@@ -469,6 +477,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         renderOption={(optionProps: RenderDropdownOptionType) => {
           return (
             <OptionNode
+              isHighlighted={optionProps.isHighlighted}
               isSelectedNode={optionProps.isSelectedNode}
               option={optionProps.option}
             />

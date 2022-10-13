@@ -7,7 +7,9 @@ import {
   BOTTOM_BAR_CLEAR_BTN,
   BOTTOM_BAR_SAVE_BTN,
   BOTTOM_BAR_SAVE_MESSAGE,
+  NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
+import NoDataFound from "assets/images/empy-state.png";
 
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -189,11 +191,38 @@ export const LoaderText = styled.div`
   text-align: center;
 `;
 
+const NoResultsText = styled.div`
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--appsmith-color-black-700);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: 600;
+
+  img {
+    margin-bottom: 8px;
+  }
+`;
+
 export const Loader = ({ loaderText }: { loaderText?: string }) => {
   return (
     <LoaderContainer>
       <Spinner />
       <LoaderText>{loaderText}</LoaderText>
     </LoaderContainer>
+  );
+};
+
+export const EmptyDataState = ({ page }: { page: string }) => {
+  return <NoResultsText>{`There are no ${page} added`}</NoResultsText>;
+};
+
+export const EmptySearchResult = () => {
+  return (
+    <NoResultsText>
+      <img alt="No data" src={NoDataFound} />
+      <div>{createMessage(NO_SEARCH_DATA_TEXT)}</div>
+    </NoResultsText>
   );
 };

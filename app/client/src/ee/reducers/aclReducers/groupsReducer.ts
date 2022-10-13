@@ -94,4 +94,33 @@ export const groupsReducers = {
     ),
     isLoading: false,
   }),
+  [ReduxActionTypes.ADD_USERS_IN_GROUP]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.ADD_USERS_IN_GROUP_ERROR]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.ADD_USERS_IN_GROUP_SUCCESS]: (state: any, action: any) => ({
+    ...state,
+    selectedGroup: action.payload,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.REMOVE_USERS_FROM_GROUP]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.REMOVE_USERS_FROM_GROUP_ERROR]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.REMOVE_USERS_FROM_GROUP_SUCCESS]: (
+    state: any,
+    action: any,
+  ) => ({
+    ...state,
+    selectedGroup: action.payload,
+    isLoading: false,
+  }),
 };

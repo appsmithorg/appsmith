@@ -56,3 +56,19 @@ export const createRole = (payload: { name: string }) => ({
   type: ReduxActionTypes.CREATE_ACL_ROLE,
   payload,
 });
+
+export const addUsersInGroup = (usernames: string[], groupId: string) => ({
+  type: ReduxActionTypes.ADD_USERS_IN_GROUP,
+  payload: {
+    usernames,
+    groupId,
+  },
+});
+
+export const removeUsersFromGroup = (usernames: string[], groupId: string) => ({
+  type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
+  payload: {
+    usernames,
+    groupId,
+  },
+});

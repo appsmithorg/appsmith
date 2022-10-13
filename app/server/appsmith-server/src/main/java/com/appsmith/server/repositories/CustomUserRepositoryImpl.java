@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
 @Component
 @Slf4j
 public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl implements CustomUserRepository {
@@ -19,8 +21,9 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     }
 
     @Override
-    public Flux<String> getAllUserEmail() {
+    public Flux<String> getAllUserEmail(String defaultTenantId) {
         Query query = new Query();
+        query.addCriteria(where(fieldName(QUser.user.tenantId)).is(defaultTenantId));
         query.fields().include(fieldName(QUser.user.email));
         return mongoOperations.find(query, User.class).map(User::getEmail);
     }

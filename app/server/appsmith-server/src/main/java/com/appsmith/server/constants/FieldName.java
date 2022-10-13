@@ -152,6 +152,7 @@ public class FieldName {
     public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
     public static final String LOGGED_IN = "logged_in";
     public static final String LOGGED_OUT = "logged_out";
@@ -175,4 +176,6 @@ public class FieldName {
     public static final String SUCCESS = "success";
     public static final String FAILED = "failed";
     public static final String AUDIT_LOG_FILTER_EVENT_DELIMITER = "_";
+    public static final String AUDIT_LOG_APP_MODE_EDIT = "edit";
+    public static final String AUDIT_LOG_APP_MODE_VIEW = "view";
 }

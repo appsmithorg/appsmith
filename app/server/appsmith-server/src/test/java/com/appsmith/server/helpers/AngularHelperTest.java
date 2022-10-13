@@ -2,7 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;

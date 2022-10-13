@@ -15,8 +15,10 @@ export const RENAME_SUCCESSFUL = () => `Rename successful`;
 export const GROUP_UPDATED_SUCCESS = () => `Group updated successfully`;
 export const SUCCESSFULLY_SAVED = () => `Successfully Saved`;
 export const ENTER_GROUP_NAME = () => `Enter group name`;
-export const ACTIVE_ROLES = () => `Active Roles`;
-export const ALL_ROLES = () => `All Roles`;
+export const ACTIVE_ENTITIES = (entity: string) => `Active ${entity}s`;
+export const ALL_ENTITIES = (entity: string) => `All ${entity}s`;
+export const ADD_ENTITY = (entity: string) => `Add ${entity}`;
+export const REMOVE_ENTITY = (entity: string) => `Remove ${entity}`;
 export const DELETE_USER = () => `Delete`;
 export const DELETE_GROUP = () => `Delete`;
 export const DELETE_ROLE = () => `Delete`;
@@ -34,3 +36,10 @@ export const BOTTOM_BAR_SAVE_MESSAGE = () => `These changes will affect the user
 aspects of the application. Are you sure?`;
 export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
 export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;
+export const ACL_INVITE_MODAL_TITLE = () => `Add Users`;
+export const ACL_INVITE_MODAL_MESSAGE = () =>
+  `Add email id(s) and select group(s)`;
+/*export const INVITE_USERS_MESSAGE = () => `Invite users or user groups`;
+export const INVITE_USERS_PLACEHOLDER = () => `Enter email address or group`;
+export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
+  `Invalid Email address(es) or user group(s) found`;*/

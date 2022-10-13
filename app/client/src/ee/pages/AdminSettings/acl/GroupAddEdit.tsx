@@ -22,11 +22,12 @@ import { useHistory } from "react-router";
 import { BaseAclProps, GroupEditProps, Permissions, UserProps } from "./types";
 import { Position, Spinner } from "@blueprintjs/core";
 import {
+  ACL_INVITE_MODAL_MESSAGE,
+  ACL_INVITE_MODAL_TITLE,
   ADD_USERS,
   ARE_YOU_SURE,
   createMessage,
   DELETE_GROUP,
-  INVITE_USERS_SUBMIT_BUTTON_TEXT,
   NO_USERS_MESSAGE,
   RENAME_GROUP,
   SEARCH_PLACEHOLDER,
@@ -37,7 +38,11 @@ import {
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
 import { useDispatch } from "react-redux";
-import { updateGroupName } from "@appsmith/actions/aclActions";
+import {
+  addUsersInGroup,
+  removeUsersFromGroup,
+  updateGroupName,
+} from "@appsmith/actions/aclActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getFilteredData } from "./utils/getFilteredData";
 
@@ -137,7 +142,7 @@ export function GroupAddEdit(props: GroupEditProps) {
   useEffect(() => {
     const saving = removedActiveGroups.length > 0 || addedAllGroups.length > 0;
     dispatch({
-      type: ReduxActionTypes.ACL_GROUP_IS_SAVING,
+      type: ReduxActionTypes.ACL_IS_SAVING,
       payload: {
         isSaving: saving,
       },
@@ -250,6 +255,16 @@ export function GroupAddEdit(props: GroupEditProps) {
     history.push(`/settings/groups`);
   };
 
+  const onFormSubmitHandler = ({ ...values }) => {
+    dispatch(
+      addUsersInGroup(
+        values.users ? values.users.split(",") : [],
+        values.permissionGroupId || selected.id,
+      ),
+    );
+    setShowModal(false);
+  };
+
   const columns = [
     {
       Header: "",
@@ -280,9 +295,10 @@ export function GroupAddEdit(props: GroupEditProps) {
         const onOptionSelect = () => {
           if (showConfirmationText) {
             const updatedData = users.filter((user) => {
-              return user.userId !== data.userId;
+              return user.username !== data.username;
             });
             setUsers(updatedData);
+            dispatch(removeUsersFromGroup([data.username], selected.id));
           } else {
             setShowOptions(true);
             setShowConfirmationText(true);
@@ -370,6 +386,7 @@ export function GroupAddEdit(props: GroupEditProps) {
           activeGroups={permissions.roles}
           addedAllGroups={addedAllGroups}
           allGroups={permissions.allRoles}
+          entityName="role"
           onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveGroups}
@@ -431,12 +448,14 @@ export function GroupAddEdit(props: GroupEditProps) {
           disableEmailSetup: true,
           disableManageUsers: true,
           disableUserList: true,
-          isMultiSelectDropdown: true,
           disableDropdown: true,
+          message: createMessage(ACL_INVITE_MODAL_MESSAGE),
+          onSubmitHandler: onFormSubmitHandler,
         }}
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={createMessage(INVITE_USERS_SUBMIT_BUTTON_TEXT)}
+        selected={selected}
+        title={createMessage(ACL_INVITE_MODAL_TITLE)}
         trigger
       />
     </div>

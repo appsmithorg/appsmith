@@ -13,20 +13,21 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
@@ -40,7 +41,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -66,7 +67,7 @@ public class PermissionGroupServiceTest {
 
     String superAdminPermissionGroupId = null;
 
-    @Before
+    @BeforeEach
     public void setup() {
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
@@ -169,7 +170,8 @@ public class PermissionGroupServiceTest {
 
         StepVerifier.create(listMono)
                 .assertNext(list -> {
-                    assertThat(list.size()).isEqualTo(4);
+                    // 3 default roles per user (user@test, api_user, and new user created in setup) + 1 super admin role
+                    assertThat(list.size()).isEqualTo(10);
 
                     // Assert that instance admin roles are returned
                     assertThat(list.stream()
@@ -181,19 +183,16 @@ public class PermissionGroupServiceTest {
                     // Assert that workspace roles are returned
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
+                            .collect(Collectors.toSet()))
+                            .hasSize(3);
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
+                            .collect(Collectors.toSet()))
+                            .hasSize(3);
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
+                            .collect(Collectors.toSet()))
+                            .hasSize(3);
                 })
                 .verifyComplete();
 
@@ -254,7 +253,7 @@ public class PermissionGroupServiceTest {
         PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
 
         Mono<PermissionGroup> deletePermissionGroupMono = permissionGroupService.archiveById(createdRole.getId())
-                        .then(permissionGroupService.findById(createdRole.getId(), READ_PERMISSION_GROUPS));
+                .then(permissionGroupService.findById(createdRole.getId(), READ_PERMISSION_GROUPS));
 
         StepVerifier.create(deletePermissionGroupMono)
                 .expectNextCount(0)

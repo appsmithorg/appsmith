@@ -8,6 +8,7 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { RenderMode } from "constants/WidgetConstants";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 interface IframeContainerProps {
   borderColor?: string;
@@ -50,6 +51,8 @@ const OverlayDiv = styled.div`
   width: 100%;
   height: 100%;
 `;
+
+const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 export interface IframeComponentProps extends ComponentProps {
   renderMode: RenderMode;
@@ -149,6 +152,11 @@ function IframeComponent(props: IframeComponentProps) {
         <iframe
           allow="camera; microphone"
           ref={frameRef}
+          sandbox={
+            disableIframeWidgetSandbox
+              ? undefined
+              : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts allow-top-navigation-by-user-activation"
+          }
           src={source}
           srcDoc={srcDoc}
           title={title}

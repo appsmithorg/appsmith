@@ -30,7 +30,6 @@ public enum FeatureFlagEnum {
     GIT,
     GIT_IMPORT,
     APP_TEMPLATE,
-    PROPERTY_PANE_GROUPING,
     TEMPLATES_PHASE_2,
 
     // Put EE flags below this line, to avoid conflicts.

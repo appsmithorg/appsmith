@@ -15,12 +15,22 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
     propertyValue: any,
     isUpdatedViaKeyboard?: boolean,
   ) {
-    if (!_.isNil(this.props.onPropertyChange))
+    if (
+      this.props.propertyValue === undefined &&
+      propertyValue === this.props.defaultValue
+    ) {
+      return;
+    }
+    if (
+      !_.isNil(this.props.onPropertyChange) &&
+      this.props.propertyValue !== propertyValue
+    ) {
       this.props.onPropertyChange(
         propertyName,
         propertyValue,
         isUpdatedViaKeyboard,
       );
+    }
   }
   deleteProperties(propertyPaths: string[]) {
     if (this.props.deleteProperties) {

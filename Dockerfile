@@ -27,7 +27,6 @@ RUN apt-get update \
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
     wget -O /tmp/keycloak/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/16.1.1/keycloak-16.1.1.tar.gz
 
-# Install MongoDB v4.0.5, Redis, NodeJS - Service Layer
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get remove wget -y
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \

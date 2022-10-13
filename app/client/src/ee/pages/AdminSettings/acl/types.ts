@@ -47,6 +47,7 @@ export type ActiveAllGroupsProps = {
   removedActiveGroups: Array<any>;
   onAddGroup?: (group: any) => void;
   onRemoveGroup: (group: any) => void;
+  entityName: string;
 };
 
 export type GroupProps = BaseAclProps & {
@@ -76,6 +77,7 @@ export type ListingProps = {
   listMenuItems: MenuItemProps[];
   keyAccessor: string;
   isLoading: boolean;
+  emptyState?: JSX.Element;
 };
 
 export type PageHeaderProps = {
@@ -90,20 +92,18 @@ export type PageHeaderProps = {
   onEditTitle?: (name: string) => void;
 };
 
-export type UserProps = {
+export type UserProps = BaseAclProps & {
   isChangingRole: boolean;
   isDeleting: boolean;
-  name: string;
   groups: BaseAclProps[];
   roles: BaseAclProps[];
   username: string;
-  userId: string;
   roleName?: string;
 };
 
 export type UserEditProps = {
   selectedUser: UserProps;
-  onDelete: (userId: string) => void;
+  onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
 };

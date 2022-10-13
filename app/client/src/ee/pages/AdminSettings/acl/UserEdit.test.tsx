@@ -58,7 +58,7 @@ describe("<UserEdit />", () => {
     );
     expect(confirmationText[0]).toHaveTextContent("Are you sure?");
     await userEvent.dblClick(menu[0]);
-    expect(props.onDelete).toHaveBeenCalledWith(selectedUser.userId);
+    expect(props.onDelete).toHaveBeenCalledWith(selectedUser.id);
     expect(window.location.pathname).toEqual("/settings/users");
   });
   it("should search and filter users groups on search", async () => {

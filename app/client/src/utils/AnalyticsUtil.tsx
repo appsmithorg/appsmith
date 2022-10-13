@@ -262,6 +262,8 @@ export type EventName =
   | "JS_OBJECT_CREATED"
   | "JS_OBJECT_FUNCTION_ADDED"
   | "JS_OBJECT_FUNCTION_RUN"
+  | "SHOW_BINDINGS_TRIGGERED"
+  | "BINDING_COPIED"
   | AUDIT_LOGS_EVENT_NAMES;
 
 export type AUDIT_LOGS_EVENT_NAMES =
@@ -287,6 +289,7 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
