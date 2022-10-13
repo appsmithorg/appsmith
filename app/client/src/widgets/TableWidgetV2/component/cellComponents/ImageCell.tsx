@@ -2,7 +2,7 @@ import React from "react";
 import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { BaseCellComponentProps } from "../Constants";
+import { BaseCellComponentProps, ImageSize } from "../Constants";
 
 /*
  * Function to split the CSV of image url's
@@ -26,6 +26,7 @@ type renderImageType = BaseCellComponentProps & {
   value: unknown;
   onClick?: () => void;
   isSelected?: boolean;
+  imageSize?: ImageSize;
 };
 
 export function ImageCell(props: renderImageType) {

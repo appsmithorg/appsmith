@@ -163,6 +163,10 @@ export interface SelectCellProperties {
   resetFilterTextOnClose?: boolean;
 }
 
+export interface ImageCellProperties {
+  imageSize?: ImageSize;
+}
+
 export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -175,7 +179,6 @@ export interface BaseCellProperties {
   borderRadius: string;
   boxShadow: string;
   isCellVisible: boolean;
-  imageSize: ImageSize;
 }
 
 export interface CellLayoutProperties
@@ -186,6 +189,7 @@ export interface CellLayoutProperties
     URLCellProperties,
     MenuButtonCellProperties,
     SelectCellProperties,
+    ImageCellProperties,
     BaseCellProperties {}
 
 export type MenuItems = Record<
@@ -447,7 +451,6 @@ export type BaseCellComponentProps = {
   fontStyle?: string;
   textColor?: string;
   textSize?: string;
-  imageSize?: ImageSize;
 };
 
 export enum CheckboxState {

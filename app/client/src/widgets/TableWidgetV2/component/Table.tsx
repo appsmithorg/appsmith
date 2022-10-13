@@ -21,7 +21,6 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
-  ImageSize,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -84,7 +83,6 @@ interface TableProps {
   boxShadow?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
-  imageSize?: ImageSize;
   primaryColumnId?: string;
 }
 

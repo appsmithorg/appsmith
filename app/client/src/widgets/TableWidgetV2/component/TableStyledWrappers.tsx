@@ -392,7 +392,6 @@ export const CellWrapper = styled.div<{
       IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};
   }
   .image-cell {
-    // width: 100%;
     height: ${(props) =>
       props.imageSize ? ImageSizes[props.imageSize] : ImageSizes.DEFAULT};
     margin: 0 5px 0 0;

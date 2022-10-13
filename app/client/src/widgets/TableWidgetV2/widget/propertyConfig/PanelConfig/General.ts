@@ -254,7 +254,6 @@ export const GeneralStyle = {
       ],
       isBindProperty: false,
       isTriggerProperty: false,
-      validation: { type: ValidationTypes.TEXT },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.IMAGE]);
       },
