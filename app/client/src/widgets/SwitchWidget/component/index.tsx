@@ -51,6 +51,7 @@ const SwitchLabel = styled.div<{
   font-style: ${
     labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
   };
+  text-decoration: ${labelStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   `}
 `;
 

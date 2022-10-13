@@ -335,10 +335,6 @@ class MultiSelectWidget extends BaseWidget<
                 icon: "ITALICS_FONT",
                 value: "ITALIC",
               },
-              {
-                icon: "UNDERLINE",
-                value: "UNDERLINE",
-              },
             ],
             isJSConvertible: true,
             isBindProperty: true,

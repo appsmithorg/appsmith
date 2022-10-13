@@ -46,6 +46,8 @@ export const CheckboxLabel = styled.div<{
   font-style: ${
     labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
   };
+  text-decoration: ${(props) =>
+    labelStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline": ""};
   `}
 `;
 
