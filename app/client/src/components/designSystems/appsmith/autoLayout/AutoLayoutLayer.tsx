@@ -2,7 +2,6 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 
 import { FlexDirection, LayoutDirection } from "components/constants";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -18,6 +17,7 @@ export interface AutoLayoutLayerProps {
   hasFillChild?: boolean;
   index: number;
   widgetId: string;
+  isMobile?: boolean;
 }
 
 const LayoutLayerContainer = styled.div<{
@@ -68,7 +68,6 @@ function getInverseDirection(direction: LayoutDirection): LayoutDirection {
 }
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
-  const isMobile = useIsMobileDevice();
   const flexDirection = getFlexDirection(getInverseDirection(props.direction));
   return (
     <LayoutLayerContainer
@@ -77,7 +76,7 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     >
       <StartWrapper
         flexDirection={flexDirection}
-        wrap={props.hasFillChild && isMobile}
+        wrap={props.hasFillChild && props.isMobile}
       >
         {props.start}
       </StartWrapper>

@@ -10,6 +10,7 @@ import {
 } from "components/constants";
 import { useSelector } from "react-redux";
 import AutoLayoutLayer from "./AutoLayoutLayer";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -36,6 +37,7 @@ export const FlexContainer = styled.div<{
   direction?: LayoutDirection;
   stretchHeight: boolean;
   overflow: Overflow;
+  isMobile?: boolean;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ direction }) =>
@@ -48,13 +50,14 @@ export const FlexContainer = styled.div<{
   width: 100%;
   height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
 
-  overflow: ${({ overflow }) =>
-    overflow?.indexOf("wrap") === -1 ? overflow : "hidden"};
-  overflow-y: auto;
+  overflow: "hidden";
+  overflow-y: ${({ isMobile }) => (isMobile ? "auto" : "hidden")};
   padding: 4px;
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {
+  // TODO: set isMobile as a prop at the top level
+  const isMobile = useIsMobileDevice();
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
 
@@ -171,6 +174,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           end={end}
           hasFillChild={layer.hasFillChild}
           index={index}
+          isMobile={isMobile}
           key={index}
           start={start}
           widgetId={props.widgetId}
@@ -183,6 +187,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
       direction={direction}
+      isMobile={isMobile}
       overflow={props.overflow}
       stretchHeight={props.stretchHeight}
       useAutoLayout={props.useAutoLayout}
