@@ -209,7 +209,7 @@ abstract class BaseWidget<
 
   deleteMetaWidgets = () => {
     this.context?.deleteMetaWidgets?.({
-      creatorId: [this.props.widgetId],
+      creatorIds: [this.props.widgetId],
     });
   };
 

@@ -1,5 +1,5 @@
 import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
-import { getMetaWidgetChildrenIds } from "utils/metaReducerUtils";
+import { getMetaWidgetChildrenIds } from "utils/metaWidgetReducerUtils";
 
 const metaCanvasWidgets: MetaCanvasWidgetsReduxState = {
   p4clz8naty: {
