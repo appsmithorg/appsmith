@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen } from "test/testUtils";
-import DynamicTextFieldControl from "./DynamicTextFieldControl";
+import FormControl from "./FormControl";
 import { reduxForm } from "redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import { PluginType } from "entities/Action";
@@ -23,22 +23,22 @@ describe("DynamicTextFieldControl", () => {
     mockCodemirrorRender();
   });
   it("renders template menu correctly", () => {
+    const config = {
+      actionName: "TestAction",
+      configProperty: "actionConfiguration.body",
+      controlType: "DYNAMIC_TEXT_FIELD_CONTROL",
+      evaluationSubstitutionType: EvaluationSubstitutionType.TEMPLATE,
+      formName: "TestForm",
+      id: "test",
+      isValid: true,
+      label: "TestAction body",
+      onPropertyChange: jest.fn(),
+      pluginId: "123",
+      responseType: "TABLE",
+    };
     render(
       <ReduxFormDecorator>
-        <DynamicTextFieldControl
-          actionName="TestAction"
-          configProperty="actionConfiguration.body"
-          controlType="DYNAMIC_TEXT_FIELD_CONTROL"
-          createTemplate={jest.fn()}
-          evaluationSubstitutionType={EvaluationSubstitutionType.TEMPLATE}
-          formName="TestForm"
-          id={"test"}
-          isValid
-          label={"TestAction body"}
-          onPropertyChange={jest.fn()}
-          pluginId="123"
-          responseType={"TABLE"}
-        />
+        <FormControl config={config} formName={"TestForm"} />
       </ReduxFormDecorator>,
       {
         url: "/?showTemplate=true",
@@ -66,12 +66,14 @@ describe("DynamicTextFieldControl", () => {
     );
     const createTemplateButton = screen.getByText("Create");
     userEvent.click(createTemplateButton);
-    // Test each word separately because they are in different spans
-    expect(screen.getByText("test")).toBeDefined();
-    expect(screen.getByText("plugin")).toBeDefined();
-    expect(screen.getByText("template")).toBeDefined();
+
     waitFor(async () => {
       await expect(screen.findByText("Create")).toBeNull();
+
+      // Test each word separately because they are in different spans
+      expect(screen.getByText("test")).toBeDefined();
+      expect(screen.getByText("plugin")).toBeDefined();
+      expect(screen.getByText("template")).toBeDefined();
     });
   });
 });
