@@ -106,7 +106,7 @@ const Datasources = React.memo(() => {
       className={"datasources"}
       entityId="datasources_section"
       icon={null}
-      isDefaultExpanded={isDatasourcesOpen === null ? true : isDatasourcesOpen}
+      isDefaultExpanded={isDatasourcesOpen === null ? false : isDatasourcesOpen}
       isSticky
       name="Datasources"
       onCreate={addDatasource}

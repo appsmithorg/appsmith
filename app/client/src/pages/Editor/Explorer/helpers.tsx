@@ -153,9 +153,7 @@ export const saveExplorerStatus = (
 ): void => {
   const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
   const state = localStorage.getItem(storageItemName);
-  let data = {
-    pages: true,
-  } as ExplorerStateType;
+  let data = {} as ExplorerStateType;
   if (state !== null) {
     data = JSON.parse(state);
   }
