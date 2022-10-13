@@ -6,6 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
@@ -86,6 +87,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     private final TenantRepository tenantRepository;
     private final ConfigRepository configRepository;
     private final PluginRepository pluginRepository;
+    private final CommonConfig commonConfig;
 
     private static int RECORD_LIMIT = 200;
     public static String DELIMITER = ",";
@@ -179,7 +181,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     public Mono<AuditLog> logEvent(AnalyticsEvents event, Object resource, Map<String, Object> properties) {
         boolean isInstanceSettingEvent = AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event);
         String resourceClassName = isInstanceSettingEvent ? AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName() : resource.getClass().getSimpleName();
-        boolean isLogEvent = isAuditLogEnabled && AuditLogEvents.eventMap.containsKey(event.getEventName()) && AuditLogEvents.resourceMap.containsKey(resourceClassName);
+        boolean isLogEvent = !commonConfig.isCloudHosting() && AuditLogEvents.eventMap.containsKey(event.getEventName()) && AuditLogEvents.resourceMap.containsKey(resourceClassName);
         AuditLog auditLog = new AuditLog();
 
         if (!isLogEvent) {
