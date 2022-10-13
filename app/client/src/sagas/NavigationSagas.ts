@@ -90,7 +90,7 @@ function* setStateOfPath(path: string, hash?: string) {
       const { defaultValue, subTypes } = selectorInfo;
       if (subType && subTypes && subType in subTypes) {
         yield put(selectorInfo.setter(subTypes[subType].defaultValue));
-      } else if (defaultValue) {
+      } else if (defaultValue !== undefined) {
         yield put(selectorInfo.setter(defaultValue));
       }
     }
