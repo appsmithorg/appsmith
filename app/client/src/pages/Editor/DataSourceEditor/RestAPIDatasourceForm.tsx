@@ -50,7 +50,7 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import Callout from "components/ads/Callout";
+import { Callout } from "design-system";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "actions/pageActions";
