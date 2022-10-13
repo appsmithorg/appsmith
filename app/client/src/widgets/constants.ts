@@ -58,8 +58,7 @@ interface LayoutProps {
   positioning?: Positioning;
   useAutoLayout?: boolean;
   direction?: LayoutDirection;
-  justifyContent?: JustifyContent;
-  alignItems?: AlignItems;
+  isFlexChild?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
 }
 

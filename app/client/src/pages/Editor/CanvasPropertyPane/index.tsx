@@ -53,6 +53,8 @@ const PositioningOptions = () => {
               updates: {
                 modify: {
                   positioning: (option as DropdownOption).value,
+                  useAutoLayout:
+                    (option as DropdownOption).value !== Positioning.Fixed,
                   direction: isVerticalStack
                     ? LayoutDirection.Vertical
                     : LayoutDirection.Horizontal,

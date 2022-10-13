@@ -17,11 +17,9 @@ import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import {
-  Alignment,
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
-  Spacing,
 } from "components/constants";
 import {
   generatePositioningConfig,
@@ -32,14 +30,10 @@ import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
-  ContainerWidgetState
+  WidgetState
 > {
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
-    this.state = {
-      useAutoLayout: false,
-      direction: LayoutDirection.Horizontal,
-    };
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
@@ -164,29 +158,12 @@ export class ContainerWidget extends BaseWidget<
 
   componentDidMount(): void {
     super.componentDidMount();
-    this.updatePositioningInformation();
   }
 
   componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
     super.componentDidUpdate(prevProps);
-    if (this.props.positioning !== prevProps.positioning) {
-      this.updatePositioningInformation();
-      this.updateWrappers();
-    }
+    if (this.props.positioning !== prevProps.positioning) this.updateWrappers();
   }
-
-  updatePositioningInformation = (): void => {
-    if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
-      this.setState({ useAutoLayout: false });
-    else
-      this.setState({
-        useAutoLayout: true,
-        direction:
-          this.props.positioning === Positioning.Vertical
-            ? LayoutDirection.Vertical
-            : LayoutDirection.Horizontal,
-      });
-  };
 
   updateWrappers = (): void => {
     if (this.props.positioning === Positioning.Vertical) {
@@ -237,11 +214,13 @@ export class ContainerWidget extends BaseWidget<
 
     childWidget.parentId = this.props.widgetId;
     // Pass layout controls to children
-    childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = childWidget.direction || this.state.direction;
-    childWidget.positioning = this.props.positioning;
-    childWidget.alignment = this.props.alignment;
-    childWidget.spacing = this.props.spacing;
+    childWidget.positioning =
+      childWidget?.positioning || this.props.positioning;
+    childWidget.useAutoLayout = this.props.positioning !== Positioning.Fixed;
+    childWidget.direction =
+      this.props.positioning === Positioning.Vertical
+        ? LayoutDirection.Vertical
+        : LayoutDirection.Horizontal;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -251,7 +230,7 @@ export class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      this.state.useAutoLayout
+      this.props.positioning !== Positioning.Fixed
         ? this.props.children
         : sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
@@ -296,16 +275,8 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
-  alignment?: Alignment;
-  spacing?: Spacing;
-  direction?: LayoutDirection;
   removeWrappers?: (id: string) => void;
   addWrappers?: (id: string) => void;
-}
-
-export interface ContainerWidgetState extends WidgetState {
-  useAutoLayout: boolean;
-  direction: LayoutDirection;
 }
 
 export default connect(null, mapDispatchToProps)(ContainerWidget);

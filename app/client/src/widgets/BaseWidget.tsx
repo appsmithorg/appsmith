@@ -389,7 +389,7 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          if (this.props.useAutoLayout) content = this.makeFlex(content);
+          if (this.props.isFlexChild) content = this.makeFlex(content);
           else content = this.makePositioned(content);
         }
         return content;
@@ -399,7 +399,7 @@ abstract class BaseWidget<
         content = this.getWidgetComponent();
         if (this.props.isVisible) {
           content = this.addErrorBoundary(content);
-          if (this.props.useAutoLayout) content = this.makeFlex(content);
+          if (this.props.isFlexChild) content = this.makeFlex(content);
           else if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
@@ -441,7 +441,7 @@ abstract class BaseWidget<
     isDeletable: true,
     resizeDisabled: false,
     disablePropertyPane: false,
-    useAutoLayout: false,
+    isFlexChild: false,
   };
 }
 
@@ -494,9 +494,8 @@ export interface WidgetPositionProps extends WidgetRowCols {
   // MODAL_WIDGET is also detached from layout.
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
-  useAutoLayout?: boolean;
+  isFlexChild?: boolean;
   direction?: LayoutDirection;
-  alignItems?: AlignItems;
   responsiveBehavior?: ResponsiveBehavior;
 }
 

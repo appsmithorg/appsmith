@@ -73,10 +73,8 @@ class CanvasWidget extends ContainerWidget {
     // Pass layout controls to children
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
-    childWidget.useAutoLayout = this.state.useAutoLayout;
-    childWidget.direction = childWidget?.direction || this.state.direction;
-    childWidget.justifyContent = this.props.justifyContent;
-    childWidget.alignItems = this.props.alignItems;
+    childWidget.isFlexChild = this.props.useAutoLayout;
+    childWidget.direction = this.props.direction;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -98,12 +96,12 @@ class CanvasWidget extends ContainerWidget {
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={this.state.direction}
+              direction={this.props.direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
               snapRows={snapRows}
-              useAutoLayout={this.state.useAutoLayout}
+              useAutoLayout={this.props.useAutoLayout}
               widgetId={props.widgetId}
               widgetName={props.widgetName}
             />
@@ -125,15 +123,15 @@ class CanvasWidget extends ContainerWidget {
         />
         {/* without the wrapping div onClick events are triggered twice */}
         <FlexBoxComponent
-          direction={this.state.direction}
+          direction={this.props.direction}
           flexLayers={this.props.flexLayers || []}
           overflow={
-            this.state.direction === LayoutDirection.Horizontal
+            this.props.direction === LayoutDirection.Horizontal
               ? Overflow.Wrap
               : Overflow.NoWrap
           }
           stretchHeight={stretchFlexBox}
-          useAutoLayout={this.state.useAutoLayout}
+          useAutoLayout={this.props.useAutoLayout || false}
           widgetId={this.props.widgetId}
         >
           {this.renderChildren()}
@@ -152,8 +150,7 @@ class CanvasWidget extends ContainerWidget {
 
     const style: CSSProperties = {
       width: "100%",
-      height:
-        this.props.positioning !== Positioning.Fixed ? "100%" : `${height}px`,
+      height: this.props.useAutoLayout ? "100%" : `${height}px`,
       background: "none",
       position: "relative",
     };
