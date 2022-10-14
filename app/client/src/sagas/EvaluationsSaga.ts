@@ -66,7 +66,7 @@ import {
   TriggerMeta,
 } from "./ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
@@ -272,6 +272,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       dynamicTrigger,
       callbackData,
       globalContext,
+      eventType,
     },
   );
 
@@ -378,6 +379,7 @@ interface ResponsePayload {
     resolve?: unknown;
   };
   success: boolean;
+  eventType?: EventType;
 }
 
 /*
@@ -398,6 +400,7 @@ function* executeTriggerRequestSaga(
       subRequestId: requestData.subRequestId,
     },
     success: false,
+    eventType,
   };
   try {
     responsePayload.data.resolve = yield call(

@@ -1,8 +1,9 @@
 /// <reference types="Cypress" />
 
 const dsl = require("../../../../fixtures/defaultMetadataDsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 import {
   WIDGET,
@@ -28,6 +29,13 @@ const widgetsToTest = {
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset action`, function() {
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
+
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
     before(() => {
       cy.addDsl(dsl);
     });

@@ -18,7 +18,7 @@ import {
   selectWidgetInitAction,
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   createMessage,
   SELECT_ALL_WIDGETS_MSG,
