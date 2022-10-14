@@ -4,6 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PluginDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.RemotePluginWorkspaceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -18,10 +19,12 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -86,6 +89,22 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                         remotePlugin.getPluginName(),
                         remotePlugin.getPackageName(),
                         remotePlugin.getVersion());
+    }
+
+    public Mono<List<PluginDTO>> getAllPluginIconLocation() {
+        return this.repository.findAll().map(this::makePluginDTO).collectList();
+    }
+
+    public Mono<PluginDTO> getPluginIconLocation(String pluginId) {
+        return this.repository.findById(pluginId).map(this::makePluginDTO);
+    }
+
+    private PluginDTO makePluginDTO(Plugin plugin) {
+        PluginDTO pluginDTO = new PluginDTO();
+        pluginDTO.setType(plugin.getType());
+        pluginDTO.setName(plugin.getName());
+        pluginDTO.populateTransientFields(plugin);
+        return pluginDTO;
     }
 
 }
