@@ -109,19 +109,6 @@ export function stepSizeValidation(
     };
   }
 
-  const minValue = props.min;
-  const maxValue = props.max;
-
-  const sliderRange = maxValue - minValue;
-
-  if (stepValue > sliderRange) {
-    return {
-      isValid: false,
-      parsed: undefined,
-      messages: [`This value must be less than ${sliderRange}`],
-    };
-  }
-
   const minRange = props.minRange;
 
   if (stepValue > minRange) {
