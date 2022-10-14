@@ -84,7 +84,7 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(3000);
     agHelper.AssertContains("resolved");
   });
-  it.only("verifies code execution order when using setTimeout", () => {
+  it("verifies code execution order when using setTimeout", () => {
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
