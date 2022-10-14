@@ -198,20 +198,13 @@ const getFunctionalParamNamesFromNode = (
 // Memoize the ast generation code to improve performance.
 // Since this will be used by both the server and the client, we want to prevent regeneration of ast
 // for the the same code snippet
-export const getAST = memoize(
-  (
-    code: string,
-    comments: Array<Comment> = [],
-    options?: AstOptions
-  ): ASTComment => {
-    let ast = parse(code, {
-      ...options,
-      ecmaVersion: ECMA_VERSION,
-      onComment: comments,
-    });
-    return { ast, comments };
-  }
-);
+export const getAST = memoize((code: string, options?: AstOptions) => {
+  let ast = parse(code, {
+    ...options,
+    ecmaVersion: ECMA_VERSION,
+  });
+  return ast;
+});
 
 /**
  * An AST based extractor that fetches all possible references in a given
@@ -231,7 +224,6 @@ export const extractIdentifierInfoFromCode = (
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
 ): IdentifierInfo => {
-
   try {
     let ast: Node = { end: 0, start: 0, type: "" };
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
@@ -245,25 +237,24 @@ export const extractIdentifierInfoFromCode = (
       let result = function() { return 123; }() -> is valid
     */
     const wrappedCode = wrapCode(sanitizedScript);
-    let result = getAST(wrappedCode);
-    ast = result.ast;
+    ast = getAST(wrappedCode);
     let { references, functionalParams, variableDeclarations }: NodeList =
-    ancestorParsing(ast);
-  const referencesArr = Array.from(references).filter((reference) => {
-    // To remove references derived from declared variables and function params,
-    // We extract the topLevelIdentifier Eg. Api1.name => Api1
-    const topLevelIdentifier = toPath(reference)[0];
-    return !(
-      functionalParams.has(topLevelIdentifier) ||
-      variableDeclarations.has(topLevelIdentifier) ||
-      has(invalidIdentifiers, topLevelIdentifier)
-    );
-  });
-  return {
-    references: referencesArr,
-    functionalParams: Array.from(functionalParams),
-    variables: Array.from(variableDeclarations),
-  };
+      ancestorParsing(ast);
+    const referencesArr = Array.from(references).filter((reference) => {
+      // To remove references derived from declared variables and function params,
+      // We extract the topLevelIdentifier Eg. Api1.name => Api1
+      const topLevelIdentifier = toPath(reference)[0];
+      return !(
+        functionalParams.has(topLevelIdentifier) ||
+        variableDeclarations.has(topLevelIdentifier) ||
+        has(invalidIdentifiers, topLevelIdentifier)
+      );
+    });
+    return {
+      references: referencesArr,
+      functionalParams: Array.from(functionalParams),
+      variables: Array.from(variableDeclarations),
+    };
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
@@ -275,7 +266,6 @@ export const extractIdentifierInfoFromCode = (
     }
     throw e;
   }
-  
 };
 
 export const entityRefactorFromCode = (
@@ -283,55 +273,53 @@ export const entityRefactorFromCode = (
   oldName: string,
   newName: string,
   invalidIdentifiers?: Record<string, unknown>
-): string => {
-  // List of all references found
-  const references = new Set<string>();
-  // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
-  const variableDeclarations = new Set<string>();
-  // List of functional params declared within the script. All identifiers and member expressions derived from functional params will be removed
-  let functionalParams = new Set<string>();
+): Record<string, string | number> |string => {
   let ast: Node = { end: 0, start: 0, type: "" };
-  let comments: Array<Comment> = new Array();
+  //Copy of code to refactor
+  let refactorCode: string = code;
+  //Difference in length of oldName and newName
+  let nameLengthDiff: number = newName.length - oldName.length;
+  //Offset index used for deciding location of oldName.
+  let refactorOffset: number = 0;
+  //
+  let refactorCount: number = 0;
   try {
     const sanitizedScript = sanitizeScript(code, 2);
-    /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
-        Some syntax won't be valid unless they're at the RHS of a statement.
-        Since we're assigning all code/script to RHS during evaluation, we do the same here.
-        So that during ast parse, those errors are neglected.
-     */
-    /* e.g. IIFE without braces
-       function() { return 123; }() -> is invalid
-       let result = function() { return 123; }() -> is valid
-     */
-    //const wrappedCode = wrapCode(sanitizedScript);
-    const result = getAST(sanitizedScript);
-    ast = result.ast;
-    comments = result.comments;
-    let { references, functionalParams, variableDeclarations, nodeList }: NodeList =
-      ancestorParsing(ast);
-
+    const ast = getAST(sanitizedScript);
+    let {
+      references,
+      functionalParams,
+      variableDeclarations,
+      nodeList,
+    }: NodeList = ancestorParsing(ast);
     let identifierArray = Array.from(nodeList) as Array<IdentifierNode>;
     const referencesArr = Array.from(references).filter((reference, index) => {
-      // To remove references derived from declared variables and function params,
-      // We extract the topLevelIdentifier Eg. Api1.name => Api1
       const topLevelIdentifier = toPath(reference)[0];
       let shouldUpdateNode = !(
         functionalParams.has(topLevelIdentifier) ||
         variableDeclarations.has(topLevelIdentifier) ||
         has(invalidIdentifiers, topLevelIdentifier)
       );
+      //check if nodde should be updated
       if (shouldUpdateNode && identifierArray[index].name === oldName) {
-        identifierArray[index].name = newName;
+        //Replace the oldName by newName
+        //Get start index from node and get subarray from index 0 till start
+        //Append above with new name
+        //Append substring from end index from the node till end of string
+        //Offset variable is used to alter the position based on `refactorOffset`
+        refactorCode =
+          refactorCode.substring(
+            0,
+            identifierArray[index].start + refactorOffset
+          ) +
+          newName +
+          refactorCode.substring(identifierArray[index].end + refactorOffset);
+        refactorOffset += nameLengthDiff;
+        ++refactorCount;
       }
       return shouldUpdateNode;
     });
-    // // Attach comments to AST nodes
-    astravel.attachComments(ast, comments);
-    // // Format it and write the result to stdout
-    var formattedCode = generate(ast, {
-      comments: true,
-    });
-    return formattedCode;
+    return { script: refactorCode, count: refactorCount };
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
@@ -442,8 +430,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
-    const result = getAST(wrappedCode, [],{ locations: true });
-    ast = result.ast;
+    ast = getAST(wrappedCode, { locations: true });
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
@@ -617,6 +604,6 @@ const ancestorParsing = (ast: Node): NodeList => {
     references,
     functionalParams,
     variableDeclarations,
-    nodeList
+    nodeList,
   };
 };
