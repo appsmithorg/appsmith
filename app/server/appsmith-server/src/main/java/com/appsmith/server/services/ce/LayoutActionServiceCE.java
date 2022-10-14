@@ -5,8 +5,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
@@ -19,16 +17,6 @@ public interface LayoutActionServiceCE {
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
 
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO, String branchName);
-
-    Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO);
-
-    Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO, String branchName);
-
-    Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO);
-
-    Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO, String branchName);
-
-    Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName);
 
     Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName);
 

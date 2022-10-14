@@ -8,7 +8,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { RouteComponentProps } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import Table from "components/ads/Table";
+import { Table } from "design-system";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,

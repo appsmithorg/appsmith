@@ -19,6 +19,7 @@ jobs:
             Workflow: `${{ github.workflow }}`.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
+            Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-63465d4789020c7ac296d08d?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
 
   server-build:
     name: server-build
@@ -207,6 +208,7 @@ jobs:
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_AUDITLOG_ENABLED=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             fatcontainer
 
@@ -334,6 +336,19 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+    
+      - name: Collect fat conatianer logs
+        if: always()
+        working-directory: "."
+        run: |
+          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+      # Upload docker logs
+      - name: Upload failed test list artifact
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: dockerlogs
+          path: ~/dockerlogs.txt
 
       # Set status = failedtest
       - name: Set fail if there are test failures
@@ -560,6 +575,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
         run: |
           ls -l
           ls -l scripts/
@@ -591,8 +607,10 @@ jobs:
       # Start rts
       - name: Start RTS Server
         if: steps.run_result.outputs.run_result != 'success'
+        working-directory: ./app/rts
         run: |
-          cd app/rts && ./start-server.sh
+          cp .env.example .env        
+          ./start-server.sh &
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'

@@ -5,7 +5,6 @@ import SyntaxHighlighter from "react-syntax-highlighter/dist/cjs/prism-light";
 import sql from "react-syntax-highlighter/dist/cjs/languages/prism/sql";
 import { prism } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { TabbedViewContainer } from "pages/Editor/APIEditor/CommonEditorForm";
-import { TabComponent } from "components/ads/Tabs";
 import {
   EditorModes,
   EditorSize,
@@ -13,7 +12,7 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-import { Button, Size } from "design-system";
+import { Button, Size, TabComponent } from "design-system";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -37,7 +36,7 @@ import {
   SNIPPET_INSERT,
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
