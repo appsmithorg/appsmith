@@ -95,6 +95,20 @@ export const DATA_TREE_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
+  removeValue: function(key: string) {
+    return {
+      type: ActionTriggerType.REMOVE_VALUE,
+      payload: { key },
+      executionType: ExecutionType.PROMISE,
+    };
+  },
+  clearStore: function() {
+    return {
+      type: ActionTriggerType.CLEAR_STORE,
+      executionType: ExecutionType.PROMISE,
+      payload: null,
+    };
+  },
   download: function(data: string, name: string, type: string) {
     return {
       type: ActionTriggerType.DOWNLOAD,

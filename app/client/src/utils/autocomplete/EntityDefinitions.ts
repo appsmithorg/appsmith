@@ -727,6 +727,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Store key value data locally",
     "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
+  removeValue: {
+    "!doc": "Remove key value data locally",
+    "!type": "fn(key: string) -> +Promise[:t=[!0.<i>.:t]]",
+  },
+  clearStore: {
+    "!doc": "Clear all key value data locally",
+    "!type": "fn() -> +Promise[:t=[!0.<i>.:t]]",
+  },
   download: {
     "!doc": "Download anything as a file",
     "!type":
