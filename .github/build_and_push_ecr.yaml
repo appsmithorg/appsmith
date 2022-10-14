@@ -80,3 +80,4 @@ jobs:
           git add manifests/manifest.yaml
           git commit -m "${{ env.COMMIT_MESSAGE }}"
           git push
+
