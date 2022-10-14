@@ -13,8 +13,8 @@ import {
 import { getSettingsSavingState } from "selectors/settingsSelectors";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { CalloutV2 } from "design-system";
-import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
+import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
+import { CalloutV2, Toaster } from "design-system";
 import {
   BodyContainer,
   Info,
@@ -32,7 +32,7 @@ import {
   REDIRECT_URL_TOOLTIP,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "components/ads";
+import { Variant } from "components/ads";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SAML_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 

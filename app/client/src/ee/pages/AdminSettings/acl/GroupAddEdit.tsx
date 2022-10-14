@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Toaster, Variant } from "components/ads";
+import { Variant } from "components/ads";
 import {
   Button,
   HighlightText,
@@ -8,9 +8,12 @@ import {
   Menu,
   MenuItem,
   MenuItemProps,
+  TabComponent,
+  Table,
+  TabProp,
+  Toaster,
 } from "design-system";
 import styled from "styled-components";
-import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { PageHeader } from "./PageHeader";
 import ProfileImage from "pages/common/ProfileImage";

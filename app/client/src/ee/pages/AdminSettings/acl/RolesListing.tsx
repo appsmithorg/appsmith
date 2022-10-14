@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { Toaster, Variant } from "components/ads";
-import { HighlightText, MenuItemProps } from "design-system";
+import { Variant } from "components/ads";
+import { HighlightText, MenuItemProps, Toaster } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import {

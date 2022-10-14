@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { Toaster, Variant } from "components/ads";
-import { MenuItemProps } from "design-system";
-import { TabComponent, TabProp } from "components/ads/Tabs";
+import { Variant } from "components/ads";
+import { MenuItemProps, TabComponent, TabProp, Toaster } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
