@@ -38,7 +38,7 @@ import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { FlattenedWidgetProps } from "./constants";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 
 /***
  * BaseWidget
@@ -199,11 +199,18 @@ abstract class BaseWidget<
     this.context.modifyMetaWidgets?.({
       ...modifications,
       propertyUpdates: updatedPropertyUpdates,
+      creatorId: widgetId,
     });
   };
 
   setWidgetCache = (data: unknown) => {
     this.context?.setWidgetCache?.(this.props.widgetId, data);
+  };
+
+  deleteMetaWidgets = () => {
+    this.context?.deleteMetaWidgets?.({
+      creatorIds: [this.props.widgetId],
+    });
   };
 
   getWidgetCache = () => {
@@ -476,6 +483,7 @@ export interface WidgetBaseProps {
   referencedWidgetId?: string;
   requiresFlatWidgetChildren?: boolean;
   hasMetaWidgets?: boolean;
+  creatorId?: string;
 }
 
 export type WidgetRowCols = {

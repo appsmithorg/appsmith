@@ -26,6 +26,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
+  getAllMetaWidgetCreatorIds,
   getAllWidgetsInTree,
   resizeCanvasToLowestWidget,
   updateListWidgetPropertiesOnChildDelete,
@@ -40,6 +41,7 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { deleteMetaWidgets } from "actions/metaWidgetActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -228,6 +230,13 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       );
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
+        if (widget.hasMetaWidgets) {
+          yield put(
+            deleteMetaWidgets({
+              creatorIds: [widget.widgetId],
+            }),
+          );
+        }
         yield put(updateAndSaveLayout(finalWidgets));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
@@ -271,6 +280,11 @@ function* deleteAllSelectedWidgetsSaga(
       }),
     );
     const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
+    const metaCreatorWidgetIds: string[] = yield call(
+      getAllMetaWidgetCreatorIds,
+      flattenedWidgets,
+    );
+
     const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;
@@ -311,7 +325,13 @@ function* deleteAllSelectedWidgetsSaga(
         mainCanvasMinHeight,
       );
     }
-
+    if (metaCreatorWidgetIds.length) {
+      yield put(
+        deleteMetaWidgets({
+          creatorIds: metaCreatorWidgetIds,
+        }),
+      );
+    }
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");

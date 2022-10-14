@@ -27,8 +27,14 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
-import { modifyMetaWidgets } from "actions/metaWidgetActions";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import {
+  modifyMetaWidgets,
+  deleteMetaWidgets,
+} from "actions/metaWidgetActions";
+import {
+  ModifyMetaWidgetPayload,
+  DeleteMetaWidgetsPayload,
+} from "reducers/entityReducers/metaWidgetsReducer";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -61,6 +67,7 @@ export type EditorContextType = {
   // TODO (ashit) - Use generics instead of unknown
   setWidgetCache?: (widgetId: string, data: unknown) => void;
   getWidgetCache?: (widgetId: string) => unknown;
+  deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -84,6 +91,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
   const {
     batchUpdateWidgetProperty,
     children,
+    deleteMetaWidgets,
     deleteWidgetProperty,
     disableDrag,
     executeAction,
@@ -111,6 +119,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       modifyMetaWidgets,
       setWidgetCache,
       getWidgetCache,
+      deleteMetaWidgets,
     }),
     [
       executeAction,
@@ -125,6 +134,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       modifyMetaWidgets,
       setWidgetCache,
       getWidgetCache,
+      deleteMetaWidgets,
     ],
   );
   return (
@@ -154,6 +164,7 @@ const mapDispatchToProps = {
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
   modifyMetaWidgets,
+  deleteMetaWidgets,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

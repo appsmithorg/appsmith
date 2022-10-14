@@ -302,6 +302,20 @@ export function getWidgetChildrenIds(
   return childrenIds;
 }
 
+export function getAllMetaWidgetCreatorIds(
+  widgets: FlattenedWidgetProps[],
+): string[] {
+  const creatorIds: string[] = [];
+
+  widgets.forEach((widget) => {
+    if (widget.hasMetaWidgets) {
+      creatorIds.push(widget.widgetId);
+    }
+  });
+
+  return creatorIds;
+}
+
 export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
 /**
  * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
