@@ -6,6 +6,11 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "./generators";
 import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
 
+export enum PropertyPaneConfigTypes {
+  STYLE = "STYLE",
+  CONTENT = "CONTENT",
+}
+
 /* This function recursively parses the property pane configuration and
    adds random hash values as `id`.
 
@@ -63,14 +68,20 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 export function enhancePropertyPaneConfig(
   config: PropertyPaneConfig[],
   features?: WidgetFeatures,
+  configType?: PropertyPaneConfigTypes,
 ) {
   // Enhance property pane for dynamic height feature
-  if (features && features.dynamicHeight) {
-    config.splice(
-      1,
-      0,
-      PropertyPaneConfigTemplates.DYNAMIC_HEIGHT as PropertyPaneConfig,
-    );
+  if (
+    configType === undefined ||
+    configType === PropertyPaneConfigTypes.CONTENT
+  ) {
+    if (features && features.dynamicHeight) {
+      config.splice(
+        1,
+        0,
+        PropertyPaneConfigTemplates.DYNAMIC_HEIGHT as PropertyPaneConfig,
+      );
+    }
   }
 
   return config;

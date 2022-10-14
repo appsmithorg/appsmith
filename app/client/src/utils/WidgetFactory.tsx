@@ -10,6 +10,7 @@ import {
   addPropertyConfigIds,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
+  PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
 
@@ -76,7 +77,7 @@ class WidgetFactory {
       loadingProperties &&
         this.loadingProperties.set(widgetType, loadingProperties);
 
-      if (propertyPaneConfig) {
+      if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneConfig,
           features,
@@ -100,6 +101,7 @@ class WidgetFactory {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneContentConfig,
           features,
+          PropertyPaneConfigTypes.CONTENT,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -120,6 +122,7 @@ class WidgetFactory {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneStyleConfig,
           features,
+          PropertyPaneConfigTypes.STYLE,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
