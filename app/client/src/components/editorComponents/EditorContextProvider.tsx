@@ -67,7 +67,7 @@ export type EditorContextType = {
   // TODO (ashit) - Use generics instead of unknown
   setWidgetCache?: (widgetId: string, data: unknown) => void;
   getWidgetCache?: (widgetId: string) => unknown;
-  deleteMetaWidgets?: (creatorId: DeleteMetaWidgetsPayload) => void;
+  deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
