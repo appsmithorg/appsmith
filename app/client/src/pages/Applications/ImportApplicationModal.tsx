@@ -1,7 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { useSelector } from "store";
-import { FileType, SetProgress } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import {
   importApplication,
@@ -18,16 +17,22 @@ import {
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
-import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system";
-import { Icon, IconSize } from "design-system";
+import {
+  DialogComponent as Dialog,
+  FileType,
+  FilePickerV2,
+  Icon,
+  IconSize,
+  SetProgress,
+  Text,
+  TextType,
+} from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";

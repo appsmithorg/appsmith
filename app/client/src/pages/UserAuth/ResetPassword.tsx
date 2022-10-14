@@ -9,12 +9,14 @@ import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/utils/ReduxFormTextField";
-import FormMessage, {
-  MessageAction,
+import {
+  Button,
+  FormMessage,
   FormMessageProps,
-} from "components/ads/formFields/FormMessage";
+  MessageAction,
+  Size,
+} from "design-system";
 import Spinner from "components/editorComponents/Spinner";
-import { Button, Size } from "design-system";
 
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";

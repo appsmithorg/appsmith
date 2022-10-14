@@ -828,7 +828,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         <ReactTableComponent
           accentColor={this.props.accentColor}
           applyFilter={this.updateFilters}
+          borderColor={this.props.borderColor}
           borderRadius={this.props.borderRadius}
+          borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
@@ -858,6 +860,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
+          primaryColumnId={this.props.primaryColumnId}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}
@@ -874,6 +877,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
+          variant={this.props.variant}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
           width={componentWidth}
