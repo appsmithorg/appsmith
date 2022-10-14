@@ -2045,6 +2045,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     .peek(newPage -> newPage.setGitSyncId(null))
                     .collect(Collectors.toList());
             applicationJson.setPageList(importedNewPageList);
+            // Remove the pages from the exported Application inside the json based on the pagesToImport
+            applicationJson.getExportedApplication().setPages(applicationPageList);
+            applicationJson.getExportedApplication().setPublishedPages(applicationPageList);
 //            if (!CollectionUtils.isEmpty(applicationJson.getExportedApplication().getPages())) {
 //                applicationJson.getExportedApplication().getPages().addAll(applicationPageList);
 //            } else {

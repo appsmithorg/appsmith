@@ -270,7 +270,10 @@ jobs:
           APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
           APPSMITH_AUDITLOG_ENABLED: true
+<<<<<<< HEAD
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+=======
+>>>>>>> bbe4b7453e47e4254ab4d1446b2f86e825d35802
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
@@ -791,7 +794,10 @@ jobs:
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_AUDITLOG_ENABLED=true \
+<<<<<<< HEAD
             --add-host=host.docker.internal:host-gateway \
+=======
+>>>>>>> bbe4b7453e47e4254ab4d1446b2f86e825d35802
             fatcontainer
 
       - name: Use Node.js 16.14.0
@@ -1221,9 +1227,13 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+<<<<<<< HEAD
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
           APPSMITH_AUDITLOG_ENABLED: true
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+=======
+          APPSMITH_AUDITLOG_ENABLED: true
+>>>>>>> bbe4b7453e47e4254ab4d1446b2f86e825d35802
         run: |
           ls -l
           ls -l scripts/
