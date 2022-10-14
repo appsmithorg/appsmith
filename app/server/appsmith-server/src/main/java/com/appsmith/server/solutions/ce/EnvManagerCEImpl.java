@@ -143,8 +143,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             PermissionGroupService permissionGroupService,
                             ConfigService configService,
                             UserUtils userUtils,
-                            TenantService tenantService,
-                            ObjectMapper objectMapper) {
+                            TenantService tenantService) {
 
         this.sessionUserService = sessionUserService;
         this.userService = userService;
@@ -161,7 +160,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.configService = configService;
         this.userUtils = userUtils;
         this.tenantService = tenantService;
-        this.objectMapper = objectMapper;
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
     /**

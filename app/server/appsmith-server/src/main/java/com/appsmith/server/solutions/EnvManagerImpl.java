@@ -39,11 +39,10 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           PermissionGroupService permissionGroupService,
                           ConfigService configService,
                           UserUtils userUtils,
-                          TenantService tenantService,
-                          ObjectMapper objectMapper) {
+                          TenantService tenantService) {
 
         super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
                 emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+                userUtils, tenantService);
     }
 }
