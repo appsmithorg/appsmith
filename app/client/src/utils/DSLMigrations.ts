@@ -62,7 +62,7 @@ import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigratio
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
 import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
-import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMIgrations";
+import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
