@@ -36,7 +36,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   CONTEXT_DELETE,

@@ -8,7 +8,7 @@ import {
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
@@ -17,6 +17,7 @@ import {
   ActionTriggerFunctionNames,
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -87,7 +88,13 @@ export const logActionExecutionError = (
   Toaster.show({
     text: errorMessage,
     variant: Variant.danger,
-    showDebugButton: !!triggerPropertyName,
+    showDebugButton: !!triggerPropertyName && {
+      component: DebugButton,
+      componentProps: {
+        className: "t--toast-debug-button",
+        source: "TOAST",
+      },
+    },
   });
 };
 
