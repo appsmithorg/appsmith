@@ -75,6 +75,7 @@ export function getMetaWidgetChildrenIdsRecursively(
   }
   return childrenIds;
 }
+
 export const getMetaWidgetCreatorIds = (
   metaWidgets: MetaWidgetsReduxState,
   metaWidgetIds: string[],
