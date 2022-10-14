@@ -15,6 +15,7 @@ import {
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
 import { Plugin } from "api/PluginApi";
+import log from "loglevel";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -23,22 +24,28 @@ function* handleRouteChange(
   action: ReduxAction<{ pathname: string; hash?: string }>,
 ) {
   const { hash, pathname } = action.payload;
-  if (previousPath) {
-    // store current state
-    yield call(storeStateOfPath, previousPath, previousHash);
-    // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
-    if (shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash)) {
-      yield call(storeStateOfPath, previousPath);
+  try {
+    if (previousPath) {
+      // store current state
+      yield call(storeStateOfPath, previousPath, previousHash);
+      // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
+      if (
+        shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash)
+      ) {
+        yield call(storeStateOfPath, previousPath);
+      }
     }
+    // Check if it should restore the stored state of the path
+    if (shouldSetState(previousPath, pathname, previousHash, hash)) {
+      // restore old state for new path
+      yield call(setStateOfPath, pathname, hash);
+    }
+  } catch (e) {
+    log.error("Error in focus change", e);
+  } finally {
+    previousPath = pathname;
+    previousHash = hash;
   }
-  // Check if it should restore the stored state of the path
-  if (shouldSetState(previousPath, pathname, previousHash, hash)) {
-    // restore old state for new path
-    yield call(setStateOfPath, pathname, hash);
-  }
-
-  previousPath = pathname;
-  previousHash = hash;
 }
 
 function* storeStateOfPath(path: string, hash?: string) {
@@ -98,11 +105,7 @@ function* setStateOfPath(path: string, hash?: string) {
 }
 
 function* getEntitySubType(entityInfo: FocusEntityInfo) {
-  if (
-    [FocusEntity.API, FocusEntity.QUERY, FocusEntity.JS_OBJECT].includes(
-      entityInfo.entity,
-    )
-  ) {
+  if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
     const action: Action = yield select(getAction, entityInfo.id);
     const plugin: Plugin = yield select(getPlugin, action.pluginId);
     return plugin.packageName;
