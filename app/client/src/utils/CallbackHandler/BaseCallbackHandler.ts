@@ -1,35 +1,14 @@
 import { CallbackHandlerEventType } from "./CallbackHandlerEventType";
 
-type CallbackHandlerBaseEvents = Record<CallbackHandlerEventType, any[]>;
+export type CallbackHandlerBaseEvents = Record<CallbackHandlerEventType, any[]>;
 
 type CallbackHandlersCallback = (...args: any) => void;
 
-class SingletonCallbackHandler<T extends CallbackHandlerBaseEvents> {
-  private static instance: SingletonCallbackHandler<CallbackHandlerBaseEvents>;
-  private readonly events = new Map<keyof T, CallbackHandlersCallback[]>();
-
-  /**
-   * The SingletonCallbackHandler's constructor should always be private to prevent direct
-   * construction calls with the `new` operator.
-   */
-  /* eslint-disable @typescript-eslint/no-empty-function */
-  private constructor() {}
-
-  /**
-   * The static method that controls the access to the singleton instance.
-   *
-   * This implementation let you subclass the Singleton class while keeping
-   * just one instance of each subclass around.
-   */
-  public static getInstance(): SingletonCallbackHandler<
-    CallbackHandlerBaseEvents
-  > {
-    if (!SingletonCallbackHandler.instance) {
-      SingletonCallbackHandler.instance = new SingletonCallbackHandler();
-    }
-
-    return SingletonCallbackHandler.instance;
-  }
+abstract class BaseCallbackHandler {
+  private readonly events = new Map<
+    keyof CallbackHandlerBaseEvents,
+    CallbackHandlersCallback[]
+  >();
 
   /**
    *Add an event listener
@@ -39,7 +18,9 @@ class SingletonCallbackHandler<T extends CallbackHandlerBaseEvents> {
    */
   add(
     type: CallbackHandlerEventType,
-    callback: (...args: T[CallbackHandlerEventType]) => void,
+    callback: (
+      ...args: CallbackHandlerBaseEvents[CallbackHandlerEventType]
+    ) => void,
   ) {
     const callbacks = this.events.get(type) || [];
     callbacks.push(callback);
@@ -54,7 +35,9 @@ class SingletonCallbackHandler<T extends CallbackHandlerBaseEvents> {
    */
   remove(
     type: CallbackHandlerEventType,
-    callback: (...args: T[CallbackHandlerEventType]) => void,
+    callback: (
+      ...args: CallbackHandlerBaseEvents[CallbackHandlerEventType]
+    ) => void,
   ) {
     const callbacks = this.events.get(type) || [];
     this.events.set(
@@ -78,7 +61,10 @@ class SingletonCallbackHandler<T extends CallbackHandlerBaseEvents> {
    *@ param args the parameters needed to process the callback
    * @returns {@code this}
    */
-  emit(type: CallbackHandlerEventType, ...args: T[CallbackHandlerEventType]) {
+  emit(
+    type: CallbackHandlerEventType,
+    ...args: CallbackHandlerBaseEvents[CallbackHandlerEventType]
+  ) {
     const callbacks = this.events.get(type) || [];
     callbacks.forEach((fn) => {
       fn(...args);
@@ -96,4 +82,4 @@ class SingletonCallbackHandler<T extends CallbackHandlerBaseEvents> {
   }
 }
 
-export default SingletonCallbackHandler.getInstance();
+export default BaseCallbackHandler;
