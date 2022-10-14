@@ -350,6 +350,8 @@ class TabsWidget extends BaseWidget<
       (item) => item.widgetId === selectedTabWidgetId,
     )[0];
     childWidgetData.positioning = selectedTabProps?.positioning;
+    childWidgetData.useAutoLayout =
+      selectedTabProps?.positioning !== Positioning.Fixed;
     childWidgetData.direction =
       selectedTabProps?.positioning === Positioning.Vertical
         ? LayoutDirection.Vertical
