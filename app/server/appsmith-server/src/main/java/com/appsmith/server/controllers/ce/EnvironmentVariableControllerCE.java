@@ -1,8 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.dtos.EnvironmentVariableDTO;
 import com.appsmith.server.domains.EnvironmentVariable;
 import com.appsmith.server.dtos.ResponseDTO;
 
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -34,6 +31,7 @@ public class EnvironmentVariableControllerCE {
 
     @GetMapping("/workspace/{workspaceId}")
     public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByWorkspaceId(@PathVariable String workspaceId) {
+
         return environmentVariableService.findEnvironmentVariableByWorkspaceId(workspaceId)
                 .collectList()
                 .map(envVarList -> new ResponseDTO(HttpStatus.OK.value(), envVarList, null));
@@ -41,6 +39,7 @@ public class EnvironmentVariableControllerCE {
 
     @GetMapping("/environment/{environmentId}")
     public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByEnvironmentId(@PathVariable String environmentId) {
+
         return environmentVariableService.findEnvironmentVariableByEnvironmentId(environmentId)
                 .collectList()
                 .map(envVarList -> new ResponseDTO(HttpStatus.OK.value(), envVarList, null));
