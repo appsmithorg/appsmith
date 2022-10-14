@@ -25,7 +25,7 @@ const store = mockStore({
         properties: {
           colors: {
             primaryColor: "#553DE9",
-            backgroundColor: "#F6F6F6",
+            backgroundColor: "#F8FAFC",
           },
         },
       },

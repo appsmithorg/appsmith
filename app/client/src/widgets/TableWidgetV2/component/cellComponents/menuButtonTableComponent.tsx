@@ -76,6 +76,7 @@ interface BaseStyleProps {
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
   textColor?: string;
+  compactMode?: string;
 }
 
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
@@ -88,6 +89,12 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   border: 1.2px solid #ebebeb;
   border-radius: 0;
   box-shadow: none !important;
+  min-height: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "30px"};
+  font-size: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "12px" : "14px"};
+  line-height: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "28px"};
 
   ${({ buttonColor, buttonVariant, theme }) => `
     &:enabled {
@@ -269,6 +276,7 @@ interface PopoverTargetButtonProps {
   iconAlign?: Alignment;
   isDisabled?: boolean;
   label?: string;
+  compactMode?: string;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -277,6 +285,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     boxShadow,
     buttonColor,
     buttonVariant,
+    compactMode,
     iconAlign,
     iconName,
     isDisabled,
@@ -290,6 +299,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       boxShadow={boxShadow}
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
+      compactMode={compactMode}
       disabled={isDisabled}
       fill
       icon={iconAlign !== Alignment.RIGHT ? iconName : undefined}
@@ -314,6 +324,7 @@ export interface MenuButtonComponentProps {
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
   rowIndex: number;
+  compactMode?: string;
 }
 
 function MenuButtonTableComponent(props: MenuButtonComponentProps) {
@@ -321,6 +332,7 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
     borderRadius = "0px",
     boxShadow,
     boxShadowColor,
+    compactMode,
     iconAlign,
     iconName,
     isCompact,
@@ -365,6 +377,7 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
           boxShadowColor={boxShadowColor}
           buttonColor={menuColor}
           buttonVariant={menuVariant}
+          compactMode={compactMode}
           iconAlign={iconAlign}
           iconName={iconName}
           isDisabled={isDisabled}
