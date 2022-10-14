@@ -60,7 +60,9 @@ import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-co
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Callout,
+  CalloutV2,
   Button,
+  ScrollIndicator,
   Size,
   Text,
   TextType,
@@ -72,7 +74,6 @@ import { Variant } from "components/ads/common";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import { Callout, CalloutV2, ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { fetchWorkspace } from "actions/workspaceActions";
 import { useHistory } from "react-router-dom";
