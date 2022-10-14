@@ -1,5 +1,8 @@
-package com.appsmith.server.domains;
+package com.appsmith.server.dtos;
 
+import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserState;
 import lombok.Data;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,7 +18,7 @@ import java.util.Set;
  * change/evolve in the future, as long as pre-existing JSON session data can be safely deserialized.
  */
 @Data
-public class UserSession {
+public class UserSessionDTO {
 
     private String userId;
 
@@ -48,7 +51,7 @@ public class UserSession {
     /**
      * We don't expect this class to be instantiated outside this class. Remove this constructor when needed.
      */
-    private UserSession() {}
+    private UserSessionDTO() {}
 
     /**
      * Given an authentication token, typically from a Spring Security context, create a UserSession object. This
@@ -56,8 +59,8 @@ public class UserSession {
      * @param authentication The token to create the UserSession from. Usually an instance of UsernamePasswordAuthenticationToken or Oauth2AuthenticationToken.
      * @return A UserSession object representing the user's session, with details from the given token.
      */
-    public static UserSession fromToken(Authentication authentication) {
-        final UserSession session = new UserSession();
+    public static UserSessionDTO fromToken(Authentication authentication) {
+        final UserSessionDTO session = new UserSessionDTO();
         final User user = (User) authentication.getPrincipal();
 
         session.userId = user.getId();
