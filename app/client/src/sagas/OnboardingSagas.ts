@@ -29,7 +29,7 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { Workspaces } from "constants/workspaceConstants";
 import {
@@ -78,6 +78,7 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { shouldBeDefined } from "utils/helpers";
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
+import store from "store";
 import {
   createMessage,
   ONBOARDING_SKIPPED_FIRST_TIME_USER,
@@ -410,6 +411,7 @@ function* endFirstTimeUserOnboardingSaga() {
     hideProgressBar: false,
     variant: Variant.success,
     dispatchableAction: {
+      dispatch: store.dispatch,
       type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
       payload: firstTimeUserExperienceAppId,
     },
