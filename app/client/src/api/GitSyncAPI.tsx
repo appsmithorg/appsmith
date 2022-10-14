@@ -140,7 +140,7 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static disconnectGit({ applicationId }: { applicationId: string }) {
+  static revokeGit({ applicationId }: { applicationId: string }) {
     return Api.post(`${GitSyncAPI.baseURL}/disconnect/app/${applicationId}`);
   }
 
