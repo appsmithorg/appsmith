@@ -141,20 +141,18 @@ export default function LeftPane() {
             <StyledHeader>Enterprise</StyledHeader>
           </HeaderContainer>
           <CategoryList data-testid="t--enterprise-settings-category-list">
-            {featureFlags.AUDIT_LOGS && (
-              <CategoryItem>
-                <StyledLink
-                  $active={category === "audit-logs"}
-                  data-testid="t--enterprise-settings-category-item-audit-logs"
-                  to="/settings/audit-logs"
-                >
-                  <div>
-                    <Icon name="lock-2-line" size={IconSize.XL} />
-                  </div>
-                  <div>Audit logs</div>
-                </StyledLink>
-              </CategoryItem>
-            )}
+            <CategoryItem>
+              <StyledLink
+                $active={category === "audit-logs"}
+                data-testid="t--enterprise-settings-category-item-audit-logs"
+                to="/settings/audit-logs"
+              >
+                <div>
+                  <Icon name="lock-2-line" size={IconSize.XL} />
+                </div>
+                <div>Audit logs</div>
+              </StyledLink>
+            </CategoryItem>
           </CategoryList>
         </>
       )}
