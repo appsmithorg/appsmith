@@ -16,8 +16,6 @@ public interface EnvManagerCE {
 
     Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes);
 
-    Mono<Void> validateConfigChanges(User user, Map<String, String> changes);
-
     Map<String, String> parseToMap(String content);
 
     Mono<Map<String, String>> getAll();

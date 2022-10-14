@@ -31,7 +31,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.parser.JSONParser;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -127,8 +126,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final Set<String> VARIABLE_WHITELIST = Stream.of(EnvVariables.values())
             .map(Enum::name)
             .collect(Collectors.toUnmodifiableSet());
-
-    private static final JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     public EnvManagerCEImpl(SessionUserService sessionUserService,
                             UserService userService,
@@ -318,7 +315,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     field.setAccessible(true);
                     field.set(tenantConfiguration, value);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    // Catch the error, log it and then do nothing.
+                    log.error("Got error while parsing the JSON annotations from TenantConfiguration class. Cause: ", e);
                 }
             }
         }
@@ -443,12 +441,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
                 });
     }
-
-    @Override
-    public Mono<Void> validateConfigChanges(User user, Map<String, String> changes) {
-        return Mono.empty();
-    }
-
+    
     /**
      * Sends analytics events after a new authentication method is added or removed.
      *
