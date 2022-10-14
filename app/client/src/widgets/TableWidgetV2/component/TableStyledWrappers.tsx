@@ -417,14 +417,15 @@ export const CellWrapper = styled.div<{
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
   background: ${(props) => props.cellBackground};
 
-  &:hover, .selected-row & {
+  &:hover,
+  .selected-row & {
     background: ${(props) =>
       props.cellBackground ? darkenColor(props.cellBackground, 5) : ""};
   }
   font-size: ${(props) => props.textSize};
 
   padding: ${(props) =>
-  props.disablePadding
+    props.disablePadding
       ? 0
       : `${
           props.compactMode
