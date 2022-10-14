@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const locators = ObjectsRegistry.CommonLocators;
 
 describe("Tests setTimeout API", function() {
   it("Executes showAlert after 3 seconds and uses default value", () => {
@@ -82,5 +83,39 @@ describe("Tests setTimeout API", function() {
     jsEditor.RunJSObj();
     agHelper.Sleep(3000);
     agHelper.AssertContains("resolved");
+  });
+  it.only("verifies code execution order when using setTimeout", () => {
+    jsEditor.CreateJSObject(
+      `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1: (x) => {
+            console.log("Hey there!");
+            setTimeout(() => console.log("Working!"), 3000);
+            console.log("Bye!");
+        },
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: true,
+      },
+    );
+    agHelper.Sleep(2000);
+    agHelper.GetNClick(locators._debuggerIcon);
+    agHelper.GetNClick(jsEditor._logsTab);
+    jsEditor.RunJSObj();
+    agHelper.GetNAssertContains(locators._debuggerLogMessage, "Hey there!");
+    agHelper.GetNAssertContains(locators._debuggerLogMessage, "Bye!");
+    agHelper.GetNAssertContains(
+      locators._debuggerLogMessage,
+      "Working!",
+      "not.exist",
+      100,
+    );
+    agHelper.Sleep(3000);
+    agHelper.GetNAssertContains(locators._debuggerLogMessage, "Working!");
   });
 });
