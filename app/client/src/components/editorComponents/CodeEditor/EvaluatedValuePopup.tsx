@@ -10,10 +10,13 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import { ScrollIndicator, TooltipComponent as Tooltip } from "design-system";
+import {
+  ScrollIndicator,
+  Toaster,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { Toaster } from "components/ads/Toast";
 import {
   Button,
   Classes,

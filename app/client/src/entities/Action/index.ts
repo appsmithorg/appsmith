@@ -108,6 +108,7 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
 };
 export interface StoredDatasource {
   id: string;
+  pluginId?: string;
 }
 
 export interface BaseAction {
