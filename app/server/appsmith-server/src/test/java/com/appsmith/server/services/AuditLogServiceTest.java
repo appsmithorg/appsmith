@@ -113,8 +113,6 @@ public class AuditLogServiceTest {
      * This will help us continuously ship code without affecting production instances.
      * TODO: Remove this once the feature is fully ready to ship.
      */
-    @Value("${appsmith.auditlog.enabled:false}")
-    private boolean isAuditLogEnabled;
     @Autowired
     AuditLogService auditLogService;
 
@@ -186,9 +184,6 @@ public class AuditLogServiceTest {
     @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() throws IOException {
-
-        // Run the tests only if Audit Logs is enabled on the instance
-        assumeTrue(isAuditLogEnabled);
 
         // If the env file does not exist NoSuchFileException will be thrown from some of the test cases
         // We create empty file to handle this situation primarily in CI
