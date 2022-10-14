@@ -200,11 +200,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     public Mono<Datasource> update(String id, Datasource datasource) {
         // since there was no datasource update differentiator between server invoked due to refresh token,
         // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
-        // since the base controller uses the default method from CRUD interface, we are adding keys manually for the user invoked flow
+        // adding a default false value here, the value is true only when the user calls the update event from datasource controller, else it's false.
         return update(id, datasource, Boolean.FALSE);
     }
 
-    public Mono<Datasource> update(String id, Datasource datasource, Boolean isServerRefreshedUpdate) {
+    public Mono<Datasource> update(String id, Datasource datasource, Boolean isUserRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -227,15 +227,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(savedDatasource -> {
-
-                    // this key will present in the analytics as a diff b/w server and user invoked flows
-                    String isDatasourceUpdateServerInvokedKey = "isDatasourceUpdateServerInvoked";
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
-
-                    if (isServerRefreshedUpdate.equals(Boolean.TRUE)) {
-                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.TRUE);
+                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
                     } else {
-                        analyticsProperties.put(isDatasourceUpdateServerInvokedKey, Boolean.FALSE);
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
                     }
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
                 })
