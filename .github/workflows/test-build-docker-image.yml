@@ -270,10 +270,7 @@ jobs:
           APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
           APPSMITH_AUDITLOG_ENABLED: true
-<<<<<<< HEAD
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
-=======
->>>>>>> bbe4b7453e47e4254ab4d1446b2f86e825d35802
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
