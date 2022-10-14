@@ -162,7 +162,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
+  public DragDropWidgetNVerify(widgetType: string, x: number = 200, y: number =200) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
