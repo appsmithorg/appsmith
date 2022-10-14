@@ -140,6 +140,69 @@ export default [
         isTriggerProperty: false,
       },
       {
+        propertyName: "circles",
+        label: "Circles to draw on Map",
+        controlType: "INPUT_TEXT",
+        inputType: "ARRAY",
+        helpText: "Draws circles on the map",
+        placeholderText:
+          '[{ ["lat": "val1", "long": "val2"], "options:"{"radius":"val3"}}]',
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.ARRAY,
+          params: {
+            children: {
+              type: ValidationTypes.OBJECT,
+              params: {
+                required: true,
+                allowedKeys: [
+                  {
+                    name: "lat",
+                    type: ValidationTypes.NUMBER,
+                    params: {
+                      min: -90,
+                      max: 90,
+                      default: 0,
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "long",
+                    type: ValidationTypes.NUMBER,
+                    params: {
+                      min: -180,
+                      max: 180,
+                      default: 0,
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "options",
+                    type: ValidationTypes.OBJECT,
+                    allowedKeys: [
+                      {
+                        name: "radius",
+                        type: ValidationTypes.NUMBER,
+                      },
+                      {
+                        name: "title",
+                        type: ValidationTypes.TEXT,
+                      },
+                      {
+                        name: "color",
+                        type: ValidationTypes.TEXT,
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      },
+      {
         propertyName: "isVisible",
         label: "Visible",
         helpText: "Controls the visibility of the widget",
@@ -154,6 +217,17 @@ export default [
         label: "Animate Loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        propertyName: "allowZoom",
+        label: "Show Zoom control",
+        controlType: "SWITCH",
+        helpText: "Controls the visibility of the zoom controls",
         defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,
@@ -206,6 +280,33 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+      },
+    ],
+  },
+  {
+    sectionName: "Styles",
+    children: [
+      {
+        propertyName: "borderRadius",
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "boxShadow",
+        label: "Box Shadow",
+        helpText:
+          "Enables you to cast a drop shadow from the frame of the widget",
+        controlType: "BOX_SHADOW_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

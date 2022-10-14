@@ -9,11 +9,12 @@ import {
   Marker,
   Popup,
   useMapEvents,
+  Circle,
 } from "react-leaflet";
 
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import { Icon, LatLngExpression } from "leaflet";
-import { MarkerProps } from "../constants";
+import { CircleProps, MarkerProps, PolygonProps } from "../constants";
 
 export interface LeafletComponentProps {
   lat: number;
@@ -36,6 +37,8 @@ export interface LeafletComponentProps {
   };
   defaultMarkers?: Array<MarkerProps>;
   markers?: Array<MarkerProps>;
+  circles?: Array<CircleProps>;
+  polygins?: Array<PolygonProps>;
   selectedMarker?: {
     lat: number;
     long: number;
@@ -142,6 +145,7 @@ const MyLeafLetComponent = (props: any) => {
       scrollWheelZoom
       style={{ height: "100%", width: "100%" }}
       zoom={props.zoom}
+      zoomControl={props.allowZoom}
     >
       <TileLayer attribution={props.attribution} url={props.url} />
       {Array.isArray(props.markers) &&
@@ -171,6 +175,22 @@ const MyLeafLetComponent = (props: any) => {
           >
             <Popup>{props.markerText}</Popup>
           </Marker>
+        ))}
+      {Array.isArray(props.circles) &&
+        props.circles.map((circle: CircleProps, index: number) => (
+          <Circle
+            center={[Number(circle.lat), Number(circle.long)]}
+            key={index}
+            pathOptions={{
+              color: circle.options?.color ? circle.options.color : "red",
+              fillColor: circle.options?.fillColor
+                ? circle.options.fillColor
+                : "red",
+            }}
+            radius={circle.options?.radius ? circle.options?.radius : 0}
+          >
+            <Popup>{props.markerText}</Popup>
+          </Circle>
         ))}
       <AddMarker {...props} />
     </MapContainer>

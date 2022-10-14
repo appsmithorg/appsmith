@@ -112,6 +112,7 @@ class LeafletWidget extends BaseWidget<LeafletWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         center={this.getCenter()}
+        circles={this.props.circles}
         clickedMarkerCentered={this.props.clickedMarkerCentered}
         defaultMarkers={this.props.defaultMarkers}
         enableCreateMarker={this.props.enableCreateMarker}

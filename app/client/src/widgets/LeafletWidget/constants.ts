@@ -7,3 +7,22 @@ export interface MarkerProps {
   description?: string;
   color?: string;
 }
+export interface CircleProps {
+  lat: number;
+  long: number;
+  radius: number;
+  title?: string;
+  description?: string;
+  options?: CircleOptions;
+}
+export interface CircleOptions {
+  radius: number;
+  color?: string;
+  fillColor?: string;
+}
+export interface PolygonProps {
+  path: [];
+  title?: string;
+  description?: string;
+  color?: string;
+}
