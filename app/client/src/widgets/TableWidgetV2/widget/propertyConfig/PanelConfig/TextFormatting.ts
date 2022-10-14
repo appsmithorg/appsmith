@@ -15,6 +15,7 @@ export default {
     {
       propertyName: "textSize",
       label: "Text Size",
+      helpText: "Controls the size of text in the column",
       controlType: "DROP_DOWN",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -61,6 +62,7 @@ export default {
     {
       propertyName: "fontStyle",
       label: "Emphasis",
+      helpText: "Controls the style of the text in the column",
       controlType: "BUTTON_TABS",
       options: [
         {
@@ -106,6 +108,7 @@ export default {
           ? "Horizontal Alignment"
           : "Text Align";
       },
+      helpText: "Sets the horizontal alignment of the content in the column",
       controlType: "ICON_TABS",
       fullWidth: true,
       options: [
@@ -151,6 +154,7 @@ export default {
     {
       propertyName: "verticalAlignment",
       label: "Vertical Alignment",
+      helpText: "Sets the vertical alignment of the content in the column",
       controlType: "ICON_TABS",
       fullWidth: true,
       options: [

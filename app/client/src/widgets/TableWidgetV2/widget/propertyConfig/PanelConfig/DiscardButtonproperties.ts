@@ -23,6 +23,7 @@ export default {
         {
           propertyName: "discardActionLabel",
           label: "Text",
+          helpText: "Sets the label text of the button",
           controlType: "TABLE_COMPUTE_VALUE",
           dependencies: ["primaryColumns"],
           isBindProperty: true,
@@ -37,6 +38,7 @@ export default {
         {
           propertyName: "onDiscard",
           label: "onDiscard",
+          helpText: "Triggers an action when the discard button is clicked",
           controlType: "ACTION_SELECTOR",
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             const baseProperty = getBasePropertyPath(propertyPath);
@@ -69,6 +71,7 @@ export default {
         {
           propertyName: "isDiscardDisabled",
           label: "Disabled",
+          helpText: "Disables clicks to the discard button",
           defaultValue: false,
           controlType: "SWITCH",
           customJSControl: "TABLE_COMPUTE_VALUE",

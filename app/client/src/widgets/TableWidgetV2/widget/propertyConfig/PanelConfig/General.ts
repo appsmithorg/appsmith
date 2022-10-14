@@ -35,6 +35,7 @@ export default {
     {
       propertyName: "isDisabled",
       label: "Disabled",
+      helpText: "Controls the disabled state of the button",
       defaultValue: false,
       controlType: "SWITCH",
       customJSControl: "TABLE_COMPUTE_VALUE",

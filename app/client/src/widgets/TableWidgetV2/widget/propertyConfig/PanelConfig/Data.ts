@@ -167,6 +167,7 @@ export default {
     {
       propertyName: "inputFormat",
       label: "Original Date Format",
+      helpText: "Date format of incoming data to the column",
       controlType: "DROP_DOWN",
       options: [
         {
@@ -295,6 +296,7 @@ export default {
     {
       propertyName: "outputFormat",
       label: "Display Date Format",
+      helpText: "Date format to be shown to users",
       controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,

@@ -37,6 +37,7 @@ export default [
       {
         propertyName: "textSize",
         label: "Text Size",
+        helpText: "Controls the size of text in the column",
         controlType: "DROP_DOWN",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
@@ -70,6 +71,7 @@ export default [
       {
         propertyName: "fontStyle",
         label: "Emphasis",
+        helpText: "Controls the style of the text in the column",
         controlType: "BUTTON_TABS",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
@@ -91,6 +93,7 @@ export default [
       {
         propertyName: "horizontalAlignment",
         label: "Text Align",
+        helpText: "Sets the horizontal alignment of the content in the column",
         controlType: "ICON_TABS",
         fullWidth: true,
         updateHook: updateColumnStyles,
@@ -123,6 +126,7 @@ export default [
       {
         propertyName: "verticalAlignment",
         label: "Vertical Alignment",
+        helpText: "Sets the vertical alignment of the content in the column",
         controlType: "ICON_TABS",
         fullWidth: true,
         updateHook: updateColumnStyles,
@@ -160,6 +164,7 @@ export default [
       {
         propertyName: "cellBackground",
         label: "Cell Background Color",
+        helpText: "Changes the background color of the cell",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
@@ -181,6 +186,7 @@ export default [
       {
         propertyName: "textColor",
         label: "Text Color",
+        helpText: "Controls the color of text in the column",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
