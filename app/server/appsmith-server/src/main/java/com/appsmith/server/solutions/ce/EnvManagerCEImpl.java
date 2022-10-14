@@ -30,6 +30,7 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -113,7 +114,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final TenantService tenantService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -142,7 +143,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             PermissionGroupService permissionGroupService,
                             ConfigService configService,
                             UserUtils userUtils,
-                            TenantService tenantService) {
+                            TenantService tenantService,
+                            ObjectMapper objectMapper) {
 
         this.sessionUserService = sessionUserService;
         this.userService = userService;
@@ -159,6 +161,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.configService = configService;
         this.userUtils = userUtils;
         this.tenantService = tenantService;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -442,7 +445,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
                 });
     }
-    
+
     /**
      * Sends analytics events after an admin setting update.
      *

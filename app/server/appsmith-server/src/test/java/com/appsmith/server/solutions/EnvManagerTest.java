@@ -17,12 +17,12 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -76,6 +76,9 @@ public class EnvManagerTest {
     @MockBean
     private TenantService tenantService;
 
+    @MockBean
+    private ObjectMapper objectMapper;
+
     EnvManager envManager;
 
     @BeforeEach
@@ -94,7 +97,8 @@ public class EnvManagerTest {
                 permissionGroupService,
                 configService,
                 userUtils,
-                tenantService);
+                tenantService,
+                objectMapper);
     }
 
     @Test

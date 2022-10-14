@@ -16,6 +16,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -38,10 +39,11 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           PermissionGroupService permissionGroupService,
                           ConfigService configService,
                           UserUtils userUtils,
-                          TenantService tenantService) {
+                          TenantService tenantService,
+                          ObjectMapper objectMapper) {
 
         super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
                 emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService);
+                userUtils, tenantService, objectMapper);
     }
 }
