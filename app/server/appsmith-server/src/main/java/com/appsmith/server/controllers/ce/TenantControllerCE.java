@@ -29,7 +29,7 @@ public class TenantControllerCE {
      *
      * @return
      */
-    @GetMapping("/config")
+    @GetMapping("/current")
     public Mono<ResponseDTO<TenantConfiguration>> getTenantConfig() {
         return service.getTenantConfiguration()
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));

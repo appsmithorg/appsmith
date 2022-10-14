@@ -131,7 +131,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, THEME_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/config")
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current")
                 )
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**").permitAll()
