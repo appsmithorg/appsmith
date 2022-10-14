@@ -24,7 +24,6 @@ stacks
 
 # helm dependencies
 deploy/helm/charts
-deploy/helm/Chart.lock
 
 # yalc files
 ## This is for integrating design-system changes during development
