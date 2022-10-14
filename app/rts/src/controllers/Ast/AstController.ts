@@ -68,7 +68,7 @@ export default class AstController extends BaseController {
     try {
       // By default the application eval version is set to be 2
       const { script, evalVersion = 2 }: ScriptToIdentifiersType = req.body;
-      const data = await AstService.refactorEntity(
+      const data = await AstService.entityRefactor(
         req.body.script,
         req.body.oldName,
         req.body.newName

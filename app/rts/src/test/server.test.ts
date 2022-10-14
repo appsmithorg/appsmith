@@ -26,7 +26,7 @@ const entityRefactor = [
   },
   {
     script:
-    "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+      "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
     oldName: "ApiNever",
     newName: "ApiForever",
   },
@@ -91,12 +91,20 @@ describe("AST tests", () => {
   });
 
   entityRefactor.forEach(async (input, index) => {
-    it(`Entity refactor test case ${index+1}`, async () => {
+    it(`Entity refactor test case ${index + 1}`, async () => {
       const expectedResponse = [
-        { script: "ApiForever", count: 1},
-        { script: "ApiForever.data", count: 1},
-        { script: "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiForever.data; \n if(true) { return ApiForever }}", count: 2},
-        { script: "//ApiNever  \n function ApiNever(abc) {let ApiNever = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}", count: 0}
+        { script: "ApiForever", count: 1 },
+        { script: "ApiForever.data", count: 1 },
+        {
+          script:
+            "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiForever.data; \n if(true) { return ApiForever }}",
+          count: 2,
+        },
+        {
+          script:
+            "//ApiNever  \n function ApiNever(abc) {let ApiNever = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+          count: 0,
+        },
       ];
 
       await supertest(app)
@@ -107,8 +115,12 @@ describe("AST tests", () => {
         .expect(200)
         .then((response) => {
           expect(response.body.success).toEqual(true);
-          expect(response.body.data.script).toEqual(expectedResponse[index].script);
-          expect(response.body.data.count).toEqual(expectedResponse[index].count);
+          expect(response.body.data.script).toEqual(
+            expectedResponse[index].script
+          );
+          expect(response.body.data.count).toEqual(
+            expectedResponse[index].count
+          );
         });
     });
   });

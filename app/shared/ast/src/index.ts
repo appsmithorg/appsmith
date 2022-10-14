@@ -1,7 +1,5 @@
 import acorn, { parse, Node, SourceLocation, Options, Comment } from "acorn";
-import { ancestor, simple, full } from "acorn-walk";
-import { generate } from "astring";
-import astravel from "astravel";
+import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants/ast";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
@@ -92,11 +90,6 @@ type NodeList = {
   functionalParams: Set<string>;
   variableDeclarations: Set<string>;
   nodeList: Array<IdentifierNode>;
-};
-
-type ASTComment = {
-  ast: Node;
-  comments: Array<Comment>;
 };
 
 // https://github.com/estree/estree/blob/master/es5.md#property
@@ -198,13 +191,9 @@ const getFunctionalParamNamesFromNode = (
 // Memoize the ast generation code to improve performance.
 // Since this will be used by both the server and the client, we want to prevent regeneration of ast
 // for the the same code snippet
-export const getAST = memoize((code: string, options?: AstOptions) => {
-  let ast = parse(code, {
-    ...options,
-    ecmaVersion: ECMA_VERSION,
-  });
-  return ast;
-});
+export const getAST = memoize((code: string, options?: AstOptions) =>
+  parse(code, { ...options, ecmaVersion: ECMA_VERSION })
+);
 
 /**
  * An AST based extractor that fetches all possible references in a given
@@ -224,8 +213,9 @@ export const extractIdentifierInfoFromCode = (
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
 ): IdentifierInfo => {
+
+  let ast: Node = { end: 0, start: 0, type: "" };
   try {
-    let ast: Node = { end: 0, start: 0, type: "" };
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
        Some syntax won't be valid unless they're at the RHS of a statement.
@@ -269,23 +259,23 @@ export const extractIdentifierInfoFromCode = (
 };
 
 export const entityRefactorFromCode = (
-  code: string,
+  script: string,
   oldName: string,
   newName: string,
   invalidIdentifiers?: Record<string, unknown>
-): Record<string, string | number> |string => {
+): Record<string, string | number> | string => {
   let ast: Node = { end: 0, start: 0, type: "" };
-  //Copy of code to refactor
-  let refactorCode: string = code;
+  //Copy of script to refactor
+  let refactorScript: string = script;
   //Difference in length of oldName and newName
   let nameLengthDiff: number = newName.length - oldName.length;
   //Offset index used for deciding location of oldName.
   let refactorOffset: number = 0;
-  //
+  //Count of refactors on the script
   let refactorCount: number = 0;
   try {
-    const sanitizedScript = sanitizeScript(code, 2);
-    const ast = getAST(sanitizedScript);
+    const sanitizedScript = sanitizeScript(script, 2);
+    ast = getAST(sanitizedScript);
     let {
       references,
       functionalParams,
@@ -307,19 +297,19 @@ export const entityRefactorFromCode = (
         //Append above with new name
         //Append substring from end index from the node till end of string
         //Offset variable is used to alter the position based on `refactorOffset`
-        refactorCode =
-          refactorCode.substring(
+        refactorScript =
+          refactorScript.substring(
             0,
             identifierArray[index].start + refactorOffset
           ) +
           newName +
-          refactorCode.substring(identifierArray[index].end + refactorOffset);
+          refactorScript.substring(identifierArray[index].end + refactorOffset);
         refactorOffset += nameLengthDiff;
         ++refactorCount;
       }
       return shouldUpdateNode;
     });
-    return { script: refactorCode, count: refactorCount };
+    return { script: refactorScript, count: refactorCount };
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list

@@ -21,7 +21,7 @@ export default class AstService {
     });
     
   }
-  static async refactorEntity(
+  static async entityRefactor(
     script,
     oldName,
     newName,
