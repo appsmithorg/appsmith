@@ -135,7 +135,9 @@ export function Table(props: TableProps) {
     [columnString],
   );
   const pageCount =
-    props.serverSidePaginationEnabled && props.totalRecordsCount
+    props.serverSidePaginationEnabled &&
+    props.totalRecordsCount &&
+    props?.data?.length
       ? /*
       For serverSidePaginationEnabled we are taking props.data.length as the page size.
       As props.pageSize is being set by the visible number of rows in the table (without scrolling),
