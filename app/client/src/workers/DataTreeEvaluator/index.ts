@@ -30,7 +30,6 @@ import {
   DataTreeDiff,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
-  getValidatedTree,
   isAction,
   isDynamicLeaf,
   isJSAction,
@@ -38,12 +37,9 @@ import {
   removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
-  validateWidgetProperty,
-  validateActionProperty,
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
   getAllPaths,
-  resetValidationErrorsForEntityProperty,
 } from "workers/evaluationUtils";
 import _, { get } from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -86,6 +82,11 @@ import {
 } from "workers/JSObject";
 import { lintTree } from "workers/Lint";
 import { isJSObjectFunction } from "workers/JSObject/utils";
+import {
+  getValidatedTree,
+  validateActionProperty,
+  validateAndParseWidgetProperty,
+} from "./validationUtils";
 
 type SortedDependencies = Array<string>;
 
@@ -98,6 +99,11 @@ export default class DataTreeEvaluator {
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
+  /**
+   * This contains raw evaluated value without any validation or parsing.
+   * This is used for revalidation as we do not store the raw validated value.
+   */
+  unParsedEvalTree: DataTree = {};
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
   oldUnEvalTree: DataTree = {};
@@ -133,6 +139,22 @@ export default class DataTreeEvaluator {
   ) {
     this.allActionValidationConfig = allActionValidationConfig;
     this.widgetConfigMap = widgetConfigMap;
+  }
+
+  getEvalTree() {
+    return this.evalTree;
+  }
+
+  setEvalTree(evalTree: DataTree) {
+    this.evalTree = evalTree;
+  }
+
+  getUnParsedEvalTree() {
+    return this.unParsedEvalTree;
+  }
+
+  setUnParsedEvalTree(unParsedEvalTree: DataTree) {
+    this.unParsedEvalTree = unParsedEvalTree;
   }
 
   /**
@@ -205,7 +227,8 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = getValidatedTree(evaluatedTree);
+
+    this.setEvalTree(getValidatedTree(evaluatedTree));
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = klona(localUnEvalTree);
@@ -213,7 +236,7 @@ export default class DataTreeEvaluator {
     const lintStart = performance.now();
     lintTree({
       unEvalTree: localUnEvalTree,
-      evalTree: this.evalTree,
+      evalTree: this.getEvalTree(),
       sortedDependencies: this.sortedDependencies,
       extraPathsToLint: [],
     });
@@ -241,7 +264,7 @@ export default class DataTreeEvaluator {
     };
     this.logs.push({ timeTakenForFirstTree });
     return {
-      evalTree: this.evalTree,
+      evalTree: this.getEvalTree(),
       jsUpdates,
       evalMetaUpdates,
     };
@@ -364,7 +387,10 @@ export default class DataTreeEvaluator {
     const evalStart = performance.now();
 
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
-    const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
+    const evaluationOrder: string[] = [];
+    let nonDynamicFieldValidationOrderSet = new Set<string>();
+
+    subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
       if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
@@ -373,10 +399,23 @@ export default class DataTreeEvaluator {
         if (!_.isFunction(evalPropValue)) {
           _.set(this.evalTree, propertyPath, unEvalPropValue);
         }
-        return true;
+        evaluationOrder.push(propertyPath);
+      } else {
+        /**
+         * if the non dynamic value changes that should trigger revalidation like tabs.tabsObj then we store it in nonDynamicFieldValidationOrderSet
+         */
+        if (this.inverseValidationDependencyMap[propertyPath]) {
+          nonDynamicFieldValidationOrderSet = new Set([
+            ...nonDynamicFieldValidationOrderSet,
+            ...this.inverseValidationDependencyMap[propertyPath],
+          ]);
+        }
       }
-      return false;
     });
+
+    const nonDynamicFieldValidationOrder = [
+      ...nonDynamicFieldValidationOrderSet,
+    ];
 
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
@@ -400,6 +439,11 @@ export default class DataTreeEvaluator {
     );
     const evalStop = performance.now();
 
+    this.reValidateTree(
+      nonDynamicFieldValidationOrder,
+      this.getUnParsedEvalTree(),
+    );
+
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = klona(localUnEvalTree);
@@ -415,7 +459,9 @@ export default class DataTreeEvaluator {
     const lintStop = performance.now();
 
     const totalEnd = performance.now();
-    this.evalTree = newEvalTree;
+
+    this.setEvalTree(newEvalTree);
+
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
       findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
@@ -693,7 +739,7 @@ export default class DataTreeEvaluator {
           }
           if (isWidget(entity) && !isATriggerPath) {
             if (propertyPath) {
-              const parsedValue = this.validateAndParseWidgetProperty({
+              const parsedValue = validateAndParseWidgetProperty({
                 fullPropertyPath,
                 widget: entity,
                 currentTree,
@@ -708,6 +754,7 @@ export default class DataTreeEvaluator {
                 fullPropertyPath,
                 parsedValue,
                 propertyPath,
+                evalPropertyValue,
               });
 
               if (!option.skipRevalidation) {
@@ -1028,79 +1075,11 @@ export default class DataTreeEvaluator {
     }
   }
 
-  validateAndParseWidgetProperty({
-    currentTree,
-    evalPropertyValue,
-    fullPropertyPath,
-    unEvalPropertyValue,
-    widget,
-  }: {
-    fullPropertyPath: string;
-    widget: DataTreeWidget;
-    currentTree: DataTree;
-    evalPropertyValue: any;
-    unEvalPropertyValue: string;
-  }): any {
-    const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-    if (isPathADynamicTrigger(widget, propertyPath)) {
-      // TODO find a way to validate triggers
-      return unEvalPropertyValue;
-    }
-    const validation = widget.validationPaths[propertyPath];
-
-    const { isValid, messages, parsed, transformed } = validateWidgetProperty(
-      validation,
-      evalPropertyValue,
-      widget,
-      propertyPath,
-    );
-    /**
-     * 
-     * if isValid then evaluatedValue = parsed
-        if invalid then
-          if transformed value is undefined then evaluatedValue = evalPropertyValue
-          else evaluatedValue = transformed
-     *  
-     */
-
-    const evaluatedValue = isValid
-      ? parsed
-      : _.isUndefined(transformed)
-      ? evalPropertyValue
-      : transformed;
-    const safeEvaluatedValue = removeFunctions(evaluatedValue);
-    _.set(
-      widget,
-      getEvalValuePath(fullPropertyPath, {
-        isPopulated: false,
-        fullPath: false,
-      }),
-      safeEvaluatedValue,
-    );
-
-    if (!isValid) {
-      const evalErrors: EvaluationError[] =
-        messages?.map((message) => {
-          return {
-            raw: unEvalPropertyValue,
-            errorMessage: message || "",
-            errorType: PropertyEvaluationErrorType.VALIDATION,
-            severity: Severity.ERROR,
-          };
-        }) ?? [];
-      addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
-    } else {
-      // if valid then reset validation error
-      resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
-    }
-
-    return parsed;
-  }
-
   setParsedValue({
     currentTree,
     entity,
     evalMetaUpdates,
+    evalPropertyValue,
     fullPropertyPath,
     parsedValue,
     propertyPath,
@@ -1111,6 +1090,7 @@ export default class DataTreeEvaluator {
     fullPropertyPath: string;
     parsedValue: unknown;
     propertyPath: string;
+    evalPropertyValue: unknown;
   }) {
     const overwriteObj = overrideWidgetProperties({
       entity,
@@ -1125,6 +1105,8 @@ export default class DataTreeEvaluator {
     }
     // setting parseValue in dataTree
     _.set(currentTree, fullPropertyPath, parsedValue);
+    // setting evalPropertyValue in unParsedEvalTree
+    _.set(this.getUnParsedEvalTree(), fullPropertyPath, evalPropertyValue);
   }
 
   reValidateWidgetDependentProperty({
@@ -1141,7 +1123,7 @@ export default class DataTreeEvaluator {
         fullPropertyPath
       ];
       pathsToRevalidate.forEach((fullPath) => {
-        this.validateAndParseWidgetProperty({
+        validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
           widget,
           currentTree,
@@ -1153,6 +1135,27 @@ export default class DataTreeEvaluator {
         });
       });
     }
+  }
+
+  reValidateTree(
+    nonDynamicFieldValidationOrder: string[],
+    currentTree: DataTree,
+  ) {
+    nonDynamicFieldValidationOrder.forEach((fullPropertyPath) => {
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        fullPropertyPath,
+      );
+      const entity = currentTree[entityName];
+
+      if (isWidget(entity) && !isPathADynamicTrigger(entity, propertyPath)) {
+        console.log("$$$-reValidateTree", fullPropertyPath);
+        this.reValidateWidgetDependentProperty({
+          widget: entity,
+          currentTree,
+          fullPropertyPath,
+        });
+      }
+    });
   }
 
   // validates the user input saved as action property based on a validationConfig
