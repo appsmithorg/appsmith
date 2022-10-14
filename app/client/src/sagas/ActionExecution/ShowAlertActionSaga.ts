@@ -1,5 +1,5 @@
 import { ToastTypeOptions, Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
   ActionTriggerType,

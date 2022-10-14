@@ -45,7 +45,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Datasource } from "entities/Datasource";
 import omit from "lodash/omit";
 import {

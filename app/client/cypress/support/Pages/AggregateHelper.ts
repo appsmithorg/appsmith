@@ -315,6 +315,11 @@ export class AggregateHelper {
     this.Sleep(); //for selected value to reflect!
   }
 
+  public SelectFromMutliTree(dropdownOption: string) {
+    this.GetNClick(this.locator._dropDownMultiTreeSelect);
+    this.GetNClick(this.locator._dropDownMultiTreeValue(dropdownOption));
+  }
+
   public SelectFromDropDown(
     dropdownOption: string,
     insideParent = "",

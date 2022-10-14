@@ -18,6 +18,7 @@ import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import { TableVariant, TableVariantTypes } from "../constants";
 
 const OFFSET_WITHOUT_HEADER = 40;
 const OFFSET_WITH_HEADER = 80;
@@ -34,12 +35,17 @@ export const TableWrapper = styled.div<{
   isHeaderVisible?: boolean;
   borderRadius: string;
   boxShadow?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  isResizingColumn?: boolean;
+  variant?: TableVariant;
 }>`
   width: 100%;
   height: 100%;
   background: white;
-  border: ${({ boxShadow }) =>
-    boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
+  border-style: solid;
+  border-width: ${({ borderWidth }) => `${borderWidth}px`};
+  border-color: ${({ borderColor }) => borderColor};
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
@@ -65,7 +71,6 @@ export const TableWrapper = styled.div<{
     border-spacing: 0;
     color: ${Colors.THUNDER};
     position: relative;
-    background: ${Colors.ATHENS_GRAY_DARKER};
     display: table;
     width: 100%;
     ${hideScrollbar};
@@ -92,17 +97,31 @@ export const TableWrapper = styled.div<{
       &.selected-row {
         background: ${({ accentColor }) =>
           `${lightenColor(accentColor)}`} !important;
+
+        &:hover {
+          background: ${({ accentColor }) =>
+            `${lightenColor(accentColor, "0.9")}`} !important;
+        }
       }
       &:hover {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
+        background: var(--wds-color-bg-hover) !important;
       }
     }
     .th,
     .td {
       margin: 0;
-      border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-      border-right: 1px solid ${Colors.GEYSER_LIGHT};
+      border-bottom: ${(props) =>
+        props.variant === TableVariantTypes.DEFAULT ||
+        props.variant === undefined ||
+        props.variant === TableVariantTypes.VARIANT3
+          ? `1px solid var(--wds-color-border-onaccent)`
+          : `1px solid transparent`};
+      border-right: ${(props) =>
+        props.variant === TableVariantTypes.DEFAULT ||
+        props.variant === undefined ||
+        props.isResizingColumn
+          ? `1px solid var(--wds-color-border-onaccent)`
+          : `1px solid transparent`};
       position: relative;
       font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
@@ -125,13 +144,23 @@ export const TableWrapper = styled.div<{
         }
       }
     }
+
+    .th {
+      font-size: 14px;
+    }
+
+    .thead:hover .th {
+      border-right: 1px solid var(--wds-color-border-onaccent);
+    }
+
     .th {
       padding: 0 10px 0 0;
       height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       line-height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
-      background: ${Colors.ATHENS_GRAY_DARKER};
+      background: var(--wds-color-bg);
+      font-weight: bold;
     }
     .td {
       min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
@@ -154,7 +183,6 @@ export const TableWrapper = styled.div<{
     text-overflow: ellipsis;
     overflow: hidden;
     color: ${Colors.OXFORD_BLUE};
-    font-weight: 500;
     padding-left: 10px;
     &.sorted {
       padding-left: 5px;
@@ -171,6 +199,8 @@ export const TableWrapper = styled.div<{
     }
   }
   .hidden-header {
+    opacity: 0.6;
+
     ${invisible};
   }
   .column-menu {
@@ -248,8 +278,8 @@ export const PaginationWrapper = styled.div`
   width: 100%;
   justify-content: flex-end;
   align-items: center;
-  padding: 8px 20px;
-  color: ${Colors.GRAY};
+  padding: 8px;
+  color: var(--wds-color-text-light);
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -258,8 +288,13 @@ export const PaginationItemWrapper = styled.div<{
   borderRadius: string;
   accentColor: string;
 }>`
-  background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
-  border: 1px solid ${Colors.ALTO2};
+  background: ${(props) =>
+    props.disabled ? `var(--wds-color-bg-disabled)` : `var(--wds-color-bg)`};
+  border: 1px solid
+    ${(props) =>
+      props.disabled
+        ? `var(--wds-color-border-disabled)`
+        : `var(--wds-color-border)`};
   box-sizing: border-box;
   width: 24px;
   height: 24px;
@@ -267,12 +302,29 @@ export const PaginationItemWrapper = styled.div<{
   justify-content: center;
   align-items: center;
   margin: 0 4px;
-  pointer-events: ${(props) => props.disabled && "none"};
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   border-radius: ${({ borderRadius }) => borderRadius};
-  &:hover {
-    border-color: ${({ accentColor }) => accentColor};
+
+  & > * {
+    pointer-events: ${(props) => props.disabled && "none"};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
   }
+
+  & svg {
+    fill: ${(props) =>
+      props.disabled
+        ? `var(--wds-color-icon-disabled)`
+        : `var(--wds-color-icon)`};
+  }
+  ${({ disabled }) =>
+    !disabled &&
+    `&:hover {
+    border-color: var(--wds-color-border-hover);
+    background-color: var(--wds-color-bg-hover);
+  }`}
 `;
 
 export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
@@ -312,6 +364,9 @@ export const ActionWrapper = styled.div<{ disabled: boolean }>`
 
 export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
   ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
+  align-items: center;
+  display: flex;
+}
 `;
 
 export const TableStyles = css<{
@@ -334,6 +389,7 @@ export const CellWrapper = styled.div<{
   textColor?: string;
   cellBackground?: string;
   textSize?: string;
+  disablePadding?: boolean;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -357,11 +413,21 @@ export const CellWrapper = styled.div<{
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
   background: ${(props) => props.cellBackground};
+
+  &:hover, .selected-row & {
+    background: ${(props) =>
+      props.cellBackground ? darkenColor(props.cellBackground, 5) : ""};
+  }
   font-size: ${(props) => props.textSize};
 
   padding: ${(props) =>
-    props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
-    10px;
+    props.disablePadding
+      ? 0
+      : `${
+          props.compactMode
+            ? `${TABLE_SIZES[props.compactMode].VERTICAL_PADDING}px 10px`
+            : `${0}px 10px`
+        }`};
   line-height: ${CELL_WRAPPER_LINE_HEIGHT}px;
   .${Classes.POPOVER_WRAPPER} {
     width: 100%;
@@ -448,7 +514,7 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{
           background: ${props.accentColor};
           &:hover {
             background: ${darkenColor(props.accentColor)};
-          } 
+          }
             `
         : `
           border: 1px solid ${Colors.GREY_3};
@@ -505,12 +571,15 @@ export const TableHeaderInnerWrapper = styled.div<{
   width: number;
   tableSizes: TableSizes;
   backgroundColor?: Color;
+  variant?: TableVariant;
 }>`
   position: relative;
   display: flex;
   width: 100%;
   height: 100%;
-  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+  border-bottom: ${(props) =>
+    props.variant !== "VARIANT2" &&
+    `1px solid var(--wds-color-border-onaccent)`};
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
@@ -518,7 +587,17 @@ export const CommonFunctionsMenuWrapper = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  height: 100%;
+
+  & .bp3-popover-target,
+  & .bp3-popover-wrapper {
+    height: 100%;
+  }
+
+  & .bp3-popover-target {
+    display: flex;
+    align-items: center;
+  }
 `;
 
 export const TableHeaderContentWrapper = styled.div`

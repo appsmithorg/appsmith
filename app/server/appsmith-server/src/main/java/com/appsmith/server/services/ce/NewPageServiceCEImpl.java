@@ -222,7 +222,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         }
                     }
                     return Mono.just(application);
-                }).flatMap(application -> {
+                })
+                .flatMap(application -> {
                     if (markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
                         return userDataService.updateLastUsedAppAndWorkspaceList(application)
@@ -581,8 +582,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, isViewMode, true);
         } else if (StringUtils.hasLength(pageId)) {
             return findRootApplicationIdFromNewPage(branchName, pageId)
-                    .flatMap(rootApplicationId -> findApplicationPagesByApplicationIdViewModeAndBranch(rootApplicationId, branchName, isViewMode, true))
-                    ;
+                    .flatMap(rootApplicationId -> findApplicationPagesByApplicationIdViewModeAndBranch(rootApplicationId, branchName, isViewMode, true));
         } else {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }
