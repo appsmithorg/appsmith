@@ -185,9 +185,6 @@ public class AuditLogServiceTest {
     @WithUserDetails(value = "api_user")
     public void setup() throws IOException {
 
-        // Run the tests only if Audit Logs is enabled on the instance
-        //assumeTrue(isAuditLogEnabled);
-
         // If the env file does not exist NoSuchFileException will be thrown from some of the test cases
         // We create empty file to handle this situation primarily in CI
         Path envFilePath = Path.of(commonConfig.getEnvFilePath());

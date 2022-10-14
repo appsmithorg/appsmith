@@ -69,13 +69,6 @@ import static org.apache.commons.lang.WordUtils.capitalize;
 @RequiredArgsConstructor
 public class AuditLogServiceImpl implements AuditLogService {
 
-    /**
-     * Temporarily using configuration value to control logging.
-     * This will help us continuously ship code without affecting production instances.
-     * TODO: Remove this once the feature is fully ready to ship.
-     */
-    @Value("${appsmith.auditlog.enabled:false}")
-    private boolean isAuditLogEnabled;
     private final AuditLogRepository repository;
     private final WorkspaceRepository workspaceRepository;
     private final ApplicationRepository applicationRepository;
