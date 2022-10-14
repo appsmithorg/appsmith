@@ -33,7 +33,7 @@ describe("Repo Limit Exceeded Error Modal", function() {
       );
       cy.get(gitSyncLocators.contactSalesButton).should("exist");
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
-        Cypress.env("MESSAGES").DISCONNECT_CAUSE_APPLICATION_BREAK(),
+        Cypress.env("MESSAGES").REVOKE_CAUSE_APPLICATION_BREAK(),
       );
 
       // learn more link checking
