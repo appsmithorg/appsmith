@@ -673,14 +673,14 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
   ${methodName} authentication method is enabled
 `;
 
-export const DISCONNECT_EXISTING_REPOSITORIES = () =>
-  "Disconnect existing repositories";
-export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+export const REVOKE_EXISTING_REPOSITORIES = () =>
+  "Revoke Existing Repositories";
+export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
   `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
-export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
 export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
@@ -691,9 +691,9 @@ export const NONE_REVERSIBLE_MESSAGE = () =>
   "This action is non-reversible. Please proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
   "Please contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
-export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
-  "Disconnecting your repository might cause the application to break.";
-export const DISCONNECT_GIT = () => "Revoke access";
+export const REVOKE_CAUSE_APPLICATION_BREAK = () =>
+  "Revoking your repository might cause the application to break.";
+export const REVOKE_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
 export const REVOKE = () => "REVOKE";
 export const REVOKE_ACCESS = () => "REVOKE ACCESS";
