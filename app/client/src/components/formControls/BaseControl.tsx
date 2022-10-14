@@ -82,6 +82,7 @@ export interface ControlData {
   sectionName?: string;
   disabled?: boolean;
   staticDependencyPathList?: string[];
+  validator?: (value: string) => { isValid: boolean; message: string };
 }
 export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;

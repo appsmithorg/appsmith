@@ -1,10 +1,15 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import { isPermitted } from "pages/Applications/permissionHelpers";
-import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { TabComponent, TabProp } from "components/ads/Tabs";
-import { Text, TextType, IconName } from "design-system";
+import {
+  DialogComponent as Dialog,
+  TabComponent,
+  TabProp,
+  Text,
+  TextType,
+  IconName,
+} from "design-system";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
@@ -47,7 +52,6 @@ type FormDialogComponentProps = {
   selected?: any;
   tabs?: any[];
   options?: any[];
-  links?: any[];
   placeholder?: string;
 };
 
@@ -137,7 +141,6 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         <Form
           {...props.customProps}
           applicationId={props.applicationId}
-          links={props.links}
           message={props.message}
           onCancel={() => setIsOpen(false)}
           placeholder={props.placeholder}

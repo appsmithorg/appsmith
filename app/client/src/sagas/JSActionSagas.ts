@@ -32,14 +32,13 @@ import {
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
   JS_ACTION_COPY_SUCCESS,
   ERROR_JS_ACTION_COPY_FAIL,
   JS_ACTION_DELETE_SUCCESS,
-  JS_ACTION_CREATED_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
@@ -95,10 +94,6 @@ export function* createJSCollectionSaga(
       AnalyticsUtil.logEvent("JS_OBJECT_CREATED", {
         name: actionName,
         from: actionPayload.payload.from,
-      });
-      Toaster.show({
-        text: createMessage(JS_ACTION_CREATED_SUCCESS, actionName),
-        variant: Variant.success,
       });
 
       AppsmithConsole.info({
