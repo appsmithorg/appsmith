@@ -19,11 +19,24 @@ export const AclWrapper = styled.div`
 
   .scrollable-wrapper {
     height: 100%;
+
+    &.role-edit-wrapper {
+      .react-tabs__tab-panel {
+        height: calc(100% - 120px);
+        overflow: unset;
+
+        .save-button-bar {
+          bottom: 4px;
+          width: calc(100% - 10px);
+          flex-shrink: 0;
+        }
+      }
+    }
   }
 `;
 
 export const SaveButtonBarWrapper = styled.div`
-  position: fixed;
+  position: sticky;
   bottom: 0;
   height: ${(props) => props.theme.settings.footerHeight}px;
   box-shadow: ${(props) => props.theme.settings.footerShadow};
@@ -33,13 +46,10 @@ export const SaveButtonBarWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  width: calc(
-    100% - ${(props) => props.theme.homePage.leftPane.width}px -
-      ${(props) => props.theme.homePage.main.marginLeft}px - 30px
-  );
+  width: 100%;
 `;
 
-export const TabsWrapper = styled.div`
+export const TabsWrapper = styled.div<{ isSaving?: boolean }>`
   overflow: auto;
   height: calc(100% - 80px);
   .react-tabs__tab-list {
@@ -47,7 +57,8 @@ export const TabsWrapper = styled.div`
     padding: 36px 0 0;
   }
   .react-tabs__tab-panel {
-    height: calc(100% - 128px);
+    height: ${({ isSaving }) =>
+      isSaving ? `calc(100% - 128px - 80px)` : `calc(100% - 128px)`};
   }
 `;
 
@@ -138,7 +149,7 @@ export function SaveButtonBar({
   onSave: () => void;
 }) {
   return (
-    <SaveButtonBarWrapper>
+    <SaveButtonBarWrapper className="save-button-bar">
       <SaveButtonBarText>
         {createMessage(BOTTOM_BAR_SAVE_MESSAGE)}
       </SaveButtonBarText>

@@ -29,7 +29,7 @@ export type RoleResponsePayload = BaseAclProps & {
   userPermissions: string[];
 };
 
-export type CreateRoleResponse = ApiResponse<RoleResponsePayload>;
+export type RoleResponse = ApiResponse<RoleResponsePayload>;
 
 export type GroupResponsePayload = BaseAclProps & {
   new: boolean;
@@ -39,7 +39,7 @@ export type GroupResponsePayload = BaseAclProps & {
   roles: BaseAclProps[];
 };
 
-export type CreateGroupResponse = ApiResponse<GroupResponsePayload>;
+export type GroupResponse = ApiResponse<GroupResponsePayload>;
 
 export class AclApi extends Api {
   static users = "/v1/users";
@@ -77,21 +77,16 @@ export class AclApi extends Api {
     return result;
   }
 
-  static async cloneAclGroup(payload: any): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(AclApi.userGroups);
-    const clonedData = {
-      ...payload,
-      id: uniqueId("pg"),
-      name: `Copy of ${payload.name}`,
-    };
-    const updatedResponse = [...response.data, clonedData];
-    response.data = updatedResponse;
-    return response;
-  }
-
   /* Updated */
   static async fetchAclRoles(): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.get(AclApi.roles);
+    return response;
+  }
+
+  static async fetchSingleRole(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(`${AclApi.roles}/configure/${payload.id}`);
     return response;
   }
 
@@ -102,6 +97,18 @@ export class AclApi extends Api {
 
   static async deleteAclRole(id: string): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.delete(`${AclApi.roles}/${id}`);
+    return response;
+  }
+
+  static async cloneAclRole(payload: any): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.roles);
+    const clonedData = {
+      ...payload,
+      id: uniqueId("pg"),
+      name: `Copy of ${payload.name}`,
+    };
+    const updatedResponse = [...response.data, clonedData];
+    response.data = updatedResponse;
     return response;
   }
 
@@ -138,6 +145,18 @@ export class AclApi extends Api {
     return response;
   }
 
+  static async cloneAclGroup(payload: any): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.userGroups);
+    const clonedData = {
+      ...payload,
+      id: uniqueId("pg"),
+      name: `Copy of ${payload.name}`,
+    };
+    const updatedResponse = [...response.data, clonedData];
+    response.data = updatedResponse;
+    return response;
+  }
+
   static async addUsersInGroup(
     payload: any,
   ): Promise<AxiosPromise<ApiResponse>> {
@@ -156,27 +175,8 @@ export class AclApi extends Api {
   }
 
   /* to be re-checked*/
-  static async fetchSingleRole(
-    payload: FetchSingleDataPayload,
-  ): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(`${AclApi.roles}/${payload.id}`);
-    return response;
-  }
-
   static async updateAclRole(payload: any): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.put(`${AclApi.roles}/${payload.id}`);
-    return response;
-  }
-
-  static async cloneAclRole(payload: any): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(AclApi.roles);
-    const clonedData = {
-      ...payload,
-      id: uniqueId("pg"),
-      name: `Copy of ${payload.name}`,
-    };
-    const updatedResponse = [...response.data, clonedData];
-    response.data = updatedResponse;
     return response;
   }
 

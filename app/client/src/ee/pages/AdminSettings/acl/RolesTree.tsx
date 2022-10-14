@@ -1,11 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Column, useTable, useExpanded, Row } from "react-table";
-import { Icon, IconSize, Spinner } from "design-system";
+import { Column, useTable, useExpanded } from "react-table";
+import { Icon, IconSize, Spinner, Toaster } from "design-system";
 import { Checkbox } from "@blueprintjs/core";
 import { HighlightText } from "design-system";
-import { getParentId } from "./utils/reactTableUtils";
-import EmptyDataState from "components/utils/EmptyDataState";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
 import {
@@ -13,990 +11,20 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { RoleTreeProps } from "./types";
-/* import { replayHighlightClass } from "globalStyles/portals"; */
+import { EmptyDataState, EmptySearchResult, SaveButtonBar } from "./components";
+import {
+  createMessage,
+  SUCCESSFULLY_SAVED,
+} from "@appsmith/constants/messages";
+import { Variant } from "components/ads";
+import _ from "lodash";
 
-type hashtableType = {
-  [key: string]: Array<{
-    id: string;
-    type: string;
-    permission: string;
-  }>;
-};
-
-export const hashtable: hashtableType = {
-  "org1-edit": [
-    {
-      id: "app1",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "page1",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "query1",
-      type: "query",
-      permission: "edit",
-    },
-  ],
-  "org1-create": [
-    {
-      id: "app1",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "page1",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "query1",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "app1",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "page1",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "query1",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "app1",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "page1",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "query1",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "app1",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page1",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query1",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "org1",
-      type: "org",
-      permission: "edit",
-    },
-    {
-      id: "org1",
-      type: "org",
-      permission: "view",
-    },
-    {
-      id: "org1",
-      type: "org",
-      permission: "delete",
-    },
-  ],
-  "org200-create": [
-    {
-      id: "org200",
-      type: "org",
-      permission: "edit",
-    },
-    {
-      id: "org200",
-      type: "org",
-      permission: "view",
-    },
-    {
-      id: "org200",
-      type: "org",
-      permission: "delete",
-    },
-    {
-      id: "app101",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app101",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app101",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app101",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page101",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page101",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page101",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page101",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query101",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query101",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query101",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query101",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app102",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app102",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app102",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app102",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page102",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page102",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page102",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page102",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query102",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query102",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query102",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query102",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1020",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1020",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1020",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1020",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app103",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app103",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app103",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app103",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page103",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page103",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page103",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page103",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query103",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query103",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query103",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query103",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1030",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1030",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1030",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1030",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app104",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app104",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app104",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app104",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page104",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page104",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page104",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page104",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query104",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query104",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query104",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query104",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1040",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1040",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1040",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1040",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app105",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app105",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app105",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app105",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page105",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page105",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page105",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page105",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query105",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query105",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query105",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query105",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1050",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1050",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1050",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1050",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app106",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app106",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app106",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app106",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page106",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page106",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page106",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page106",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "page107",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page107",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page107",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page107",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query106",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query106",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query106",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query106",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1060",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1060",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1060",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1060",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query107",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query107",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query107",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query107",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1070",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1070",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1070",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1070",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app108",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app108",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app108",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app108",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page108",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page108",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page108",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page108",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query108",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query108",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query108",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query108",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1080",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1080",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1080",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1080",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app109",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app109",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app109",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app109",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page109",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page109",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page109",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page109",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query109",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query109",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query109",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query109",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1090",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1090",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1090",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1090",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app109",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page109",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query109",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "app110",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app110",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app110",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app110",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page110",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page110",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page110",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page110",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query110",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query110",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query110",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query110",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1010",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1010",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1010",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1010",
-      type: "query",
-      permission: "view",
-    },
-
-    {
-      id: "app111",
-      type: "app",
-      permission: "create",
-    },
-    {
-      id: "app111",
-      type: "app",
-      permission: "edit",
-    },
-    {
-      id: "app111",
-      type: "app",
-      permission: "delete",
-    },
-    {
-      id: "app111",
-      type: "app",
-      permission: "view",
-    },
-    {
-      id: "page111",
-      type: "page",
-      permission: "create",
-    },
-    {
-      id: "page111",
-      type: "page",
-      permission: "edit",
-    },
-    {
-      id: "page111",
-      type: "page",
-      permission: "delete",
-    },
-    {
-      id: "page111",
-      type: "page",
-      permission: "view",
-    },
-    {
-      id: "query111",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query111",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query111",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query111",
-      type: "query",
-      permission: "view",
-    },
-    {
-      id: "query1011",
-      type: "query",
-      permission: "create",
-    },
-    {
-      id: "query1011",
-      type: "query",
-      permission: "edit",
-    },
-    {
-      id: "query1011",
-      type: "query",
-      permission: "delete",
-    },
-    {
-      id: "query1011",
-      type: "query",
-      permission: "view",
-    },
-  ],
-};
+let dataToBeSent: any[] = [];
 
 const CheckboxWrapper = styled.div`
   display: inline-block;
   width: 100%;
-  line-height: 24px;
+  height: 36px;
   &.hover-state {
     .bp3-control-indicator {
       opacity: 0.4;
@@ -1009,50 +37,20 @@ const CheckboxWrapper = styled.div`
   }
 `;
 
-/*const StyledCheckbox = styled(Checkbox)<{ indeterminate: boolean }>`
-  &.hover-state .${replayHighlightClass} {
-    opacity: 0.4;
-  }
-
-  input:checked + .${replayHighlightClass} {
-    background-color: var(--appsmith-color-black-700);
-  }
-
-  .${replayHighlightClass} {
-    width: 14px;
-    height: 14px;
-    border: 1.8px solid var(--appsmith-color-black-700);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    &:after {
-      width: 4px;
-      height: 8px;
-      left: 3.5px;
-      ${(props) =>
-        props.indeterminate
-          ? `
-        border-width: 0 2px 0px 0px;
-        transform: rotate(90deg);
-      `
-          : ``}
-    }
-`;*/
-
 const StyledTable = styled.table`
   width: 100%;
   text-align: left;
   // margin: 30px 0;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: fixed;
 
   thead {
     position: sticky;
     top: 0;
     background: var(--appsmith-color-black-0);
     z-index: 1;
-    height: 48px;
+    height: 40px;
 
     th {
       color: var(--appsmith-color-black-700);
@@ -1062,62 +60,63 @@ const StyledTable = styled.table`
       line-height: 1.5;
       letter-spacing: -0.24px;
       text-align: center;
+      width: 10%;
 
       &:first-child {
         text-align: left;
         max-width: 692px;
+        width: auto;
       }
     }
   }
 
   tbody {
     tr {
-      &.shown {
-        height: 24px;
-        td {
-          color: var(--appsmith-color-black-800);
-          font-size: 14px;
-          font-weight: normal;
-          line-height: 1.31;
-          letter-spacing: -0.24px;
+      height: 44px;
+      td {
+        color: var(--appsmith-color-black-800);
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.31;
+        letter-spacing: -0.24px;
+        padding: 0;
+        text-align: center;
+
+        label {
+          display: unset;
           padding: 0;
-          text-align: center;
+          top: 8px;
 
-          label {
-            display: unset;
-            padding: 0;
+          input {
+            display: none;
+          }
 
-            input {
-              display: none;
-            }
-
-            .bp3-control-indicator {
-              margin: auto;
-            }
+          .bp3-control-indicator {
+            margin: auto;
           }
         }
+      }
 
-        &:hover {
-          td {
+      &:hover {
+        td {
+          div {
+            background: var(--appsmith-color-black-100);
+          }
+          &:first-child {
+            background: none;
+
             div {
-              background: var(--appsmith-color-black-100);
-            }
-            &:first-child {
               background: none;
-
-              div {
-                background: none;
-                .text-wrapper {
-                  background: var(--appsmith-color-black-100);
-                }
+              .text-wrapper {
+                background: var(--appsmith-color-black-100);
               }
             }
           }
         }
       }
-      &.hidden {
-        display: none;
-      }
+    }
+    &.hidden {
+      display: none;
     }
   }
 `;
@@ -1136,12 +135,20 @@ const ResourceCellWrapper = styled.div`
     text-align: left;
     display: flex;
     width: 100%;
-    line-height: 24px;
     align-items: center;
     padding-left: 12px;
+    height: 100%;
+    overflow: hidden;
 
     > div:first-child {
       margin: 0 8px 0 0;
+    }
+
+    span {
+      display: -webkit-inline-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
     }
   }
 `;
@@ -1152,7 +159,7 @@ const Delimeter = styled.div`
   padding-right: 12px;
   text-align: center;
   width: 15px;
-  height: 36px;
+  height: 44px;
   margin: 0 12px 0 6px;
 `;
 
@@ -1164,47 +171,32 @@ const CentralizedWrapper = styled.div`
   height: 250px;
 `;
 
+const TableWrapper = styled.div<{ isSaving?: boolean }>`
+  overflow-y: scroll;
+  ${({ isSaving }) =>
+    isSaving
+      ? `height: calc(100% - 84px); margin-bottom: 16px;`
+      : `height: 100%;`}
+`;
+
 const IconTypes: any = {
-  organization: "",
-  application: "",
-  "page-home": (
+  Workspace: "",
+  Application: "",
+  Datasource: "",
+  HomePage: (
     <MenuIcons.DEFAULT_HOMEPAGE_ICON
       color={Colors.GREEN_1}
       height="16"
       width="16"
     />
   ),
-  "page-other": (
+  NewPage: (
     <MenuIcons.PAGE_ICON color={Colors.GRAY_700} height="16" width="16" />
   ),
-  query: <ApiMethodIcon type="GET" />,
+  NewAction: <ApiMethodIcon type="GET" />,
   "js-object": JsFileIconV2,
 };
 
-let openTrees: Record<string, boolean> = {};
-const getExpandedTrees = (data: any, pIndex?: string) => {
-  data.map((item: any, index: any) => {
-    if (item.treeOpen) {
-      openTrees = {
-        ...openTrees,
-        [pIndex ? `${pIndex}.${index}` : `${index}`]: true,
-      };
-      if (item.subRows?.length > 0) {
-        const subTree = getExpandedTrees(
-          item.subRows,
-          pIndex ? `${pIndex}.${index}` : `${index}`,
-        );
-        openTrees = {
-          ...openTrees,
-          ...subTree,
-        };
-      }
-    }
-  });
-  return openTrees;
-};
-
-/* TODO: Performance improvements */
 function Table({
   columns,
   data,
@@ -1212,6 +204,8 @@ function Table({
   loaderComponent,
   noDataComponent,
   searchValue,
+  updateMyData,
+  updateTabCount,
 }: {
   columns: any;
   data: any;
@@ -1219,6 +213,8 @@ function Table({
   loaderComponent?: JSX.Element;
   noDataComponent?: JSX.Element;
   searchValue?: string;
+  updateMyData?: (value: any, cellId: string, rowId: any) => void;
+  updateTabCount?: (val: number) => void;
 }) {
   const {
     flatRows,
@@ -1228,115 +224,27 @@ function Table({
     prepareRow,
     rows,
     toggleAllRowsExpanded,
-    toggleRowExpanded,
   } = useTable(
     {
+      autoResetExpanded: false,
       columns,
       data,
       preExpandedRows: data,
-      initialState: {
-        expanded: getExpandedTrees(data),
-      },
+      updateMyData,
     },
     useExpanded,
   );
 
-  const expandedMapRef = useRef<Record<string, boolean> | null>(null);
-  const parentMapRef = useRef<Record<string, boolean>>({});
-
   useEffect(() => {
-    if (searchValue && searchValue.trim().length > 0) {
-      expandedMapRef.current = findRows();
-      if (expandedMapRef.current) {
-        toggleAllRowsExpanded(false);
-        for (const key in expandedMapRef.current) {
-          toggleRowExpanded([key], true);
-        }
-      }
-    } else {
-      const initialTreeState = getExpandedTrees(data);
-      for (const key in initialTreeState) {
-        toggleRowExpanded([key], true);
-      }
+    if (searchValue !== "") {
+      updateTabCount?.(
+        flatRows.filter((item: any) =>
+          item.values?.name?.toLowerCase().includes(searchValue?.toLowerCase()),
+        ).length,
+      );
+      toggleAllRowsExpanded(true);
     }
-  }, [searchValue]);
-
-  /**
-   * Finds the rows that match the search value and returns a map of the rows that match
-   * @returns {Record<string, boolean>} expandedMap - map of expanded rows
-   */
-  const findRows = (): Record<string, boolean> => {
-    const rows = flatRows.filter((row: Row<any>) =>
-      row.original.name.includes(searchValue?.toLocaleLowerCase()),
-    );
-    return buildExpandedMap(rows);
-  };
-
-  /**
-   * Function to build the expanded map from search results
-   * @param rows array of react-table rows
-   * @returns map of expanded rows with keys as row ids and values as true just how react-table wants it.
-   */
-  const buildExpandedMap = (rows: Row<object>[]) => {
-    /*
-    To build the expanded map, we need to have the row path.
-    The row path is the path to the row in the tree.
-    Example: If the tree is: [{name: "A", subRows: [{name: "B"}, {name: "C"}]}, {name: "D"}]
-    The row path for the first row is "0" and the row path for the second row is "1" and so on.
-    The row path for the subRows is again "0.0" and "0.1" and so on.
-    So for "C" the row path is 0.0.1.
-    So now with this row path "0.0.1" we have to expand all its parent rows and add it in the expanded map.
-    Hence this function. And the result will be like this: {"0":true, "0.0":true, "0.0.1":true}
-    */
-    return rows
-      .map((row: Row<object>) => row.id)
-      .map((row: string) => {
-        return row
-          .split(".")
-          .reduce(
-            (
-              rowMap: Record<string, boolean>,
-              _row: string,
-              index: number,
-              array: string[],
-            ) => {
-              const key = array.slice(0, index + 1).join(".");
-              rowMap[key] = true;
-              return rowMap;
-            },
-            {},
-          );
-      })
-      .reduce((result, row) => ({ ...result, ...row }), {});
-  };
-
-  /**
-   *
-   * @param row - table row object
-   * @returns {string} className to show or hide the row
-   */
-  const getRowVisibility = (row: Row): string => {
-    /* The expanded map is built from the search results.
-       If the row is not in the expanded map, it should be hidden.
-       But on click of the row, it should get expanded and show its child rows.
-       Since the child rows won't be in the expanded map, I have to check if the parent row is in the expanded map.
-       If it is, then I can show the child rows.
-       This logic is to show the child rows when the parent row is expanded.
-     */
-    const parentId = getParentId(row.id, row.depth);
-
-    if (parentId) {
-      parentMapRef.current[parentId] = true;
-    }
-
-    const shouldHide =
-      searchValue &&
-      expandedMapRef.current &&
-      !expandedMapRef.current[row.id] &&
-      !parentMapRef.current[parentId];
-
-    return shouldHide ? "hidden" : "shown";
-  };
+  }, [flatRows, searchValue]);
 
   return (
     <StyledTable {...getTableProps()} data-testid="t--role-table">
@@ -1368,14 +276,10 @@ function Table({
           rows.map((row) => {
             prepareRow(row);
             return (
-              <tr
-                {...row.getRowProps()}
-                className={searchValue ? getRowVisibility(row) : "shown"}
-                key={row.id}
-              >
+              <tr {...row.getRowProps()} key={row.id}>
                 {row.cells.map((cell, index) => {
                   return (
-                    <td {...cell.getCellProps()} key={index /*cell.row.id*/}>
+                    <td {...cell.getCellProps()} key={index}>
                       {cell.render("Cell")}
                     </td>
                   );
@@ -1387,7 +291,13 @@ function Table({
           <tr>
             <td className="no-border" colSpan={columns?.length}>
               <CentralizedWrapper>
-                {noDataComponent ? noDataComponent : <EmptyDataState />}
+                {searchValue !== "" ? (
+                  <EmptySearchResult />
+                ) : noDataComponent ? (
+                  noDataComponent
+                ) : (
+                  <EmptyDataState page="entities" />
+                )}
               </CentralizedWrapper>
             </td>
           </tr>
@@ -1397,12 +307,240 @@ function Table({
   );
 }
 
+export const makeData = (data: any) => {
+  return data.map((dt: any) => {
+    return dt?.entities?.map((d: any) => {
+      const { children, editable, enabled, ...restData } = d;
+      if (false) {
+        editable;
+      }
+      return {
+        ...restData,
+        type: dt.type,
+        ...(dt.type === "Header"
+          ? {
+              id: "Header",
+            }
+          : { permissions: enabled }),
+        ...(d.children ? { subRows: makeData(children) } : {}),
+      };
+    });
+  })[0];
+};
+
+export function getSearchData(data: any, searchValue: string) {
+  return data.filter((item: any) => {
+    if (item.subRows) {
+      item.subRows = getSearchData(item.subRows, searchValue);
+    }
+    return (
+      item.subRows?.length > 0 ||
+      item.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  });
+}
+
+export function getEntireHoverMap(hoverMap: any, key: string) {
+  const currentKeyMap = hoverMap?.[key] || [];
+  let finalMap: any[] = [
+    {
+      id: key.split("_")[0],
+      p: key.split("_")[1],
+    },
+  ];
+  for (const map of currentKeyMap) {
+    finalMap = _.unionWith(
+      finalMap,
+      getEntireHoverMap(hoverMap, `${map?.id}_${map?.p}`),
+      _.isEqual,
+    );
+  }
+  return finalMap;
+}
+
+export function traverseSubRows(subrows: any[], map: any): any {
+  return subrows?.some((sr: any) => {
+    return sr.id === map.id || (sr.subRows && traverseSubRows(sr.subRows, map));
+  });
+}
+
+export function updateSubRows(
+  map: any,
+  rows: any[],
+  mapPIndex: number,
+  value: any,
+): any {
+  const returnData = rows.map((subRow: any) => {
+    if (map.id === subRow.id) {
+      if (subRow.type !== "Header") {
+        const replaceDataIndex = dataToBeSent.findIndex(
+          (a: any) => a.id === subRow.id,
+        );
+        if (replaceDataIndex > -1) {
+          dataToBeSent[replaceDataIndex] = {
+            ...subRow,
+            permissions: subRow?.permissions?.map((r: number, rI: number) => {
+              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+            }),
+          };
+        } else {
+          dataToBeSent.push({
+            ...subRow,
+            permissions: subRow?.permissions?.map((r: number, rI: number) => {
+              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+            }),
+          });
+        }
+      }
+      return {
+        ...subRow,
+        permissions: subRow?.permissions?.map((r: number, rI: number) => {
+          return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+        }),
+      };
+    } else {
+      if (
+        (traverseSubRows(subRow.subRows, map) || !subRow.subRows) &&
+        !dataToBeSent.some((a) => a.id === subRow.id) &&
+        subRow.type !== "Header"
+      ) {
+        dataToBeSent.push({
+          ...subRow,
+          permissions: subRow?.permissions?.map((r: number, rI: number) => {
+            return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+          }),
+        });
+      }
+      return subRow.subRows
+        ? {
+            ...subRow,
+            subRows: traverseSubRows(subRow.subRows, map)
+              ? updateSubRows(map, subRow.subRows, mapPIndex, value)
+              : subRow.subRows,
+          }
+        : subRow;
+    }
+  });
+  return returnData;
+}
+
+export function updateCheckbox(
+  rowData: any,
+  value: any,
+  hoverMap: any[],
+  permissions: any,
+) {
+  let updatedRow: any = rowData;
+
+  for (const map of hoverMap) {
+    const mapPIndex = permissions.indexOf(map.p);
+    updatedRow = {
+      ...updatedRow,
+      ...(map.id === updatedRow.id && updatedRow.permissions
+        ? {
+            permissions: updatedRow?.permissions?.map(
+              (r: number, rI: number) => {
+                return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+              },
+            ),
+          }
+        : {}),
+      ...(updatedRow.subRows
+        ? {
+            subRows: traverseSubRows(updatedRow.subRows, map)
+              ? updateSubRows(map, updatedRow.subRows, mapPIndex, value)
+              : updatedRow.subRows,
+          }
+        : {}),
+    };
+  }
+  if (updatedRow.type !== "Header") {
+    dataToBeSent.push({
+      id: updatedRow.id,
+      permissions: updatedRow.permissions,
+      type: updatedRow.type,
+      name: updatedRow.name,
+    });
+  }
+  return updatedRow;
+}
+
+export function updateData(
+  oldData: any,
+  newValue: any,
+  cellId: string,
+  rowId: string,
+  tabData: any,
+) {
+  // console.time("Execution Time");
+  const updatedData = [...oldData];
+  const currentCellId = cellId.split("_");
+
+  const rowIdArray: string[] = rowId.split(".");
+  const rowDataToUpdate = oldData.find(
+    (d: any, i: number) => i === parseInt(rowIdArray[0]),
+  );
+
+  if (rowDataToUpdate) {
+    if (currentCellId[0] === rowDataToUpdate.id) {
+      // console.log("parent");
+      const { hoverMap, permissions } = tabData;
+      updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
+        rowDataToUpdate,
+        newValue,
+        getEntireHoverMap(hoverMap, cellId),
+        permissions,
+      );
+    } else if (updatedData[parseInt(rowIdArray[0])]?.subRows) {
+      // console.log("child");
+      const subRowId = rowIdArray.slice(1).join(".");
+      updatedData[parseInt(rowIdArray[0])] = {
+        ...updatedData[parseInt(rowIdArray[0])],
+        subRows: updateData(
+          updatedData[parseInt(rowIdArray[0])]?.subRows,
+          newValue,
+          cellId,
+          subRowId,
+          tabData,
+        ),
+      };
+    }
+  }
+  // console.timeEnd("Execution Time");
+  return updatedData;
+}
+
 export default function RolesTree(props: RoleTreeProps) {
-  const { noData, searchValue = "", tabData } = props;
+  const { searchValue = "", tabData } = props;
+  const [filteredData, setFilteredData] = useState([]);
+  const dataFromProps = makeData([tabData?.data]) || [];
+  const [data, setData] = useState(dataFromProps);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    dataToBeSent = [];
+  }, []);
+
+  useEffect(() => {
+    if (searchValue && searchValue.trim().length > 0) {
+      const currentData = JSON.parse(JSON.stringify(data));
+      const result = getSearchData(currentData, searchValue);
+      setFilteredData(result);
+    } else {
+      setFilteredData([]);
+    }
+  }, [searchValue]);
+
+  useEffect(() => {
+    if (JSON.stringify(data) === JSON.stringify(dataFromProps)) {
+      setIsSaving(false);
+    }
+  }, [data]);
+
   const columns: Array<Column> = [
     {
       Header: "Resource Permissions",
-      accessor: "Resource Permissions",
+      accessor: "name",
       Cell: function CellContent(cellProps: any) {
         const del: JSX.Element[] = [];
         for (let i = 0; i < cellProps.row.depth; i++) {
@@ -1418,7 +556,12 @@ export default function RolesTree(props: RoleTreeProps) {
             )}
             <div className="text-wrapper">
               {cellProps.cell.row.original.type
-                ? IconTypes[cellProps.cell.row.original.type]
+                ? IconTypes[
+                    cellProps.cell.row.original.type === "NewPage" &&
+                    cellProps.cell.row.original.isDefault
+                      ? "HomePage"
+                      : cellProps.cell.row.original.type
+                  ]
                 : null}
               <HighlightText
                 highlight={searchValue}
@@ -1442,72 +585,148 @@ export default function RolesTree(props: RoleTreeProps) {
         );
       },
     },
-    ...tabData.permission.map((column: any, index: any) => ({
-      Header: column,
-      accessor: column,
+    ...tabData?.permissions?.map((column: any, i: any) => ({
+      Header: column.replace("_", " "),
+      accessor: `permissions[${i}]`,
       Cell: function CellContent(cellProps: any) {
-        const removeHoverClass = (id: string) => {
-          const values = hashtable[id];
-
-          document.getElementById(id)?.classList.remove("hover-state");
-
-          values?.map((item: any) => {
-            document
-              .getElementById(`${item.id}-${item.permission}`)
-              ?.classList.remove("hover-state");
-          });
+        const {
+          row: { id: rowId },
+          updateMyData,
+          value,
+        } = cellProps;
+        const [isChecked, setIsChecked] = React.useState(
+          value === 1 ? true : false,
+        );
+        const removeHoverClass = (id: string, rIndex: number) => {
+          const values = getEntireHoverMap(tabData.hoverMap, id);
+          for (const val of values) {
+            const allEl = document.querySelectorAll(
+              `[data-cellId="${val.id}_${val.p}"]`,
+            );
+            const el =
+              allEl.length > 1
+                ? allEl[rIndex]
+                : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
+                ? allEl[0]
+                : null;
+            el?.classList.remove("hover-state");
+          }
         };
 
-        const addHoverClass = (id: string) => {
-          const values = hashtable[id];
-
-          document.getElementById(id)?.classList.add("hover-state");
-
-          values?.map((item: any) => {
-            document
-              .getElementById(`${item.id}-${item.permission}`)
-              ?.classList.add("hover-state");
-          });
+        const addHoverClass = (id: string, rIndex: number) => {
+          const values = getEntireHoverMap(tabData.hoverMap, id);
+          for (const val of values) {
+            const allEl = document.querySelectorAll(
+              `[data-cellId="${val.id}_${val.p}"]`,
+            );
+            const el =
+              allEl.length > 1
+                ? allEl[rIndex]
+                : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
+                ? allEl[0]
+                : null;
+            el?.classList.add("hover-state");
+          }
         };
-        return (
+
+        const onChangeHandler = (e: any, cellId: string) => {
+          setIsChecked(e.target.checked);
+          updateMyData(e.target.checked, cellId, rowId);
+        };
+
+        return cellProps.cell.row.original.permissions &&
+          cellProps.cell.row.original.permissions[i] !== -1 ? (
           <CheckboxWrapper
-            data-testid={`${cellProps.cell.row.original.id}-${column}`}
-            id={`${cellProps.cell.row.original.id}-${column}`}
+            data-cellid={`${cellProps.cell.row.original.id}_${column}`}
+            data-rowid={parseInt(rowId.split(".")[0])}
+            data-testid={`${cellProps.cell.row.original.id}_${column}`}
             onMouseOut={() =>
-              removeHoverClass(`${cellProps.cell.row.original.id}-${column}`)
+              removeHoverClass(
+                `${cellProps.cell.row.original.id}_${column}`,
+                parseInt(rowId.split(".")[0]),
+              )
             }
             onMouseOver={() =>
-              addHoverClass(`${cellProps.cell.row.original.id}-${column}`)
+              addHoverClass(
+                `${cellProps.cell.row.original.id}_${column}`,
+                parseInt(rowId.split(".")[0]),
+              )
             }
           >
-            {cellProps.cell.row.original.permission[index] !== 0 ? (
-              <Checkbox
-                defaultChecked={
-                  [1, 3].indexOf(
-                    cellProps.cell.row.original.permission[index],
-                  ) > -1
-                    ? true
-                    : false
-                }
-                /* id={`${cellProps.cell.row.original.id}-${column}`} */
-                indeterminate={
-                  cellProps.cell.row.original.permission[index] === 3
-                    ? true
-                    : false
-                }
-              />
-            ) : (
-              <div>&nbsp;</div>
-            )}
+            <Checkbox
+              checked={isChecked}
+              /*disabled={
+                cellProps.cell.row.original.editable[i]] === 0 ? true : false
+              }
+              id={`${cellProps.cell.row.original.id}-${column}`} */
+              indeterminate={
+                cellProps.cell.row.original.permissions[i] === 3 ? true : false
+              }
+              onChange={(e: any) =>
+                onChangeHandler(
+                  e,
+                  `${cellProps.cell.row.original.id}_${column}`,
+                )
+              }
+              value={`${cellProps.cell.row.original.id}_${column}`}
+            />
+          </CheckboxWrapper>
+        ) : (
+          <CheckboxWrapper
+            data-cellid={`${cellProps.cell.row.original.id}_${column}`}
+            data-rowid={parseInt(rowId.split(".")[0])}
+          >
+            &nbsp;
           </CheckboxWrapper>
         );
       },
     })),
   ];
 
-  const data = noData ? [] : tabData.data;
+  const onSaveChanges = () => {
+    /*console.log(dataToBeSent, props.currentTabName);*/
+    Toaster.show({
+      text: createMessage(SUCCESSFULLY_SAVED),
+      variant: Variant.success,
+    });
+    setIsSaving(false);
+    dataToBeSent = [];
+  };
+
+  const onClearChanges = () => {
+    setIsSaving(false);
+    setData(dataFromProps);
+    dataToBeSent = [];
+  };
+
+  /* We need to keep the table from resetting the pageIndex when we
+     Update data. So we can keep track of that flag with a ref.
+
+     When our cell renderer calls updateMyData, we'll use
+     the rowIndex, columnId and new value to update the
+     original data */
+  const updateMyData = (newValue: any, cellId: string, rowId: any) => {
+    dataToBeSent = [];
+    setIsSaving(true);
+    setData((old: any[]) => {
+      return updateData(old, newValue, cellId, rowId, tabData);
+    });
+  };
 
   return (
-    <Table columns={columns} data={data} searchValue={props.searchValue} />
+    <>
+      <TableWrapper isSaving={isSaving}>
+        <Table
+          columns={columns}
+          data={searchValue !== "" ? filteredData : data}
+          searchValue={props.searchValue}
+          updateMyData={updateMyData}
+          updateTabCount={props.updateTabCount}
+        />
+      </TableWrapper>
+      {isSaving && (
+        <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
+      )}
+    </>
   );
 }

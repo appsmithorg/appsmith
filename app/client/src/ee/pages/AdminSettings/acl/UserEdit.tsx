@@ -320,7 +320,7 @@ export function UserEdit(props: UserEditProps) {
           </Menu>
         </Container>
       </Header>
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
+      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}

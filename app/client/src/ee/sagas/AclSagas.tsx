@@ -1,7 +1,7 @@
 import AclApi, {
-  CreateGroupResponse,
-  CreateRoleResponse,
   FetchSingleDataPayload,
+  GroupResponse,
+  RoleResponse,
 } from "@appsmith/api/AclApi";
 import {
   ReduxAction,
@@ -150,7 +150,7 @@ export function* fetchAclGroupSagaById(
 
 export function* createAclGroupSaga(action: ReduxAction<any>) {
   try {
-    const response: [CreateGroupResponse, ApiResponse] = yield all([
+    const response: [GroupResponse, ApiResponse] = yield all([
       AclApi.createAclGroup(action.payload),
       AclApi.fetchAclRoles(),
     ]);
@@ -305,9 +305,7 @@ export function* fetchAclRoleSagaById(
 
 export function* createAclRoleSaga(action: ReduxAction<any>) {
   try {
-    const response: CreateRoleResponse = yield AclApi.createAclRole(
-      action.payload,
-    );
+    const response: RoleResponse = yield AclApi.createAclRole(action.payload);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {

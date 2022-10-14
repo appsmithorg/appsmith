@@ -424,7 +424,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       <BackButton />
       <PageHeader
         buttonText={createMessage(ADD_USERS)}
-        isEditingTitle={selected.new}
+        isEditingTitle={selected?.new || false}
         isTitleEditable
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}
@@ -433,7 +433,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
         title={selected.name}
       />
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
+      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}

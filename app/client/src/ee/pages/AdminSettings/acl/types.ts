@@ -9,6 +9,8 @@ export type RoleProps = BaseAclProps & {
      isAppsmithProvided: boolean; */
   description?: string;
   new?: boolean;
+  tabs?: any;
+  userPermissions?: string[];
 };
 
 export type RoleEditProps = {
@@ -19,12 +21,12 @@ export type RoleEditProps = {
 
 export type RoleTableResponse = {
   data: RoleTable[];
-  permission: string[];
+  permissions: string[];
   name: string;
 };
 
 export type RoleTable = BaseAclProps & {
-  permission: number[];
+  permissions: number[];
   subRows?: RoleTable[];
   treeOpen?: boolean;
   type?: string;
@@ -35,6 +37,8 @@ export type RoleTreeProps = {
   expanded?: any;
   searchValue?: string;
   noData?: boolean;
+  updateTabCount?: (val: number) => void;
+  currentTabName: string;
 };
 
 export type ActiveAllGroupsProps = {
