@@ -9,7 +9,7 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
-import { ColumnTypes, EditableCell } from "../constants";
+import { ColumnTypes, EditableCell, TableVariant } from "../constants";
 import { useCallback } from "react";
 
 export interface ColumnMenuOptionProps {
@@ -83,11 +83,17 @@ interface ReactTableComponentProps {
   borderRadius: string;
   boxShadow?: string;
   isEditableCellValid?: boolean;
+  borderColor?: string;
+  borderWidth?: number;
+  variant?: TableVariant;
+  primaryColumnId?: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
   const {
     applyFilter,
+    borderColor,
+    borderWidth,
     columns,
     columnWidthMap,
     compactMode,
@@ -113,6 +119,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     pageNo,
     pageSize,
     prevPageClick,
+    primaryColumnId,
     searchKey,
     searchTableData,
     selectAllRow,
@@ -125,6 +132,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     triggerRowSelection,
     unSelectAllRow,
     updatePageNo,
+    variant,
     widgetId,
     widgetName,
     width,
@@ -266,7 +274,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     <Table
       accentColor={props.accentColor}
       applyFilter={applyFilter}
+      borderColor={borderColor}
       borderRadius={props.borderRadius}
+      borderWidth={borderWidth}
       boxShadow={props.boxShadow}
       columnWidthMap={columnWidthMap}
       columns={columns}
@@ -293,6 +303,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      primaryColumnId={primaryColumnId}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -304,6 +315,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updatePageNo={updatePageNo}
+      variant={variant}
       widgetId={widgetId}
       widgetName={widgetName}
       width={width}
@@ -347,6 +359,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.width === next.width &&
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
+    prev.borderWidth === next.borderWidth &&
+    prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
     equal(prev.columnWidthMap, next.columnWidthMap) &&
     equal(prev.tableData, next.tableData) &&
@@ -354,6 +368,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
     equal(prev.editableCell, next.editableCell) &&
-    prev.isEditableCellValid === next.isEditableCellValid
+    prev.isEditableCellValid === next.isEditableCellValid &&
+    prev.variant === next.variant &&
+    prev.primaryColumnId === next.primaryColumnId
   );
 });

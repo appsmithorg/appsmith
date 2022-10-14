@@ -269,6 +269,7 @@ jobs:
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
@@ -512,6 +513,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
         run: |
           ls -l
           ls -l scripts/
@@ -529,6 +531,14 @@ jobs:
         run: |
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
+
+      # Start rts
+      - name: Start RTS Server
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: ./app/rts
+        run: |
+          cp .env.example .env        
+          ./start-server.sh &
 
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -778,6 +788,7 @@ jobs:
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_AUDITLOG_ENABLED=true \
             fatcontainer
 
       - name: Use Node.js 16.14.0
@@ -1168,6 +1179,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
         run: |
           ls -l
           ls -l scripts/

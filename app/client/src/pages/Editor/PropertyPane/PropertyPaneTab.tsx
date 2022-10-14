@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
+import { TabComponent, TabProp, TabTitle } from "design-system";
 import { Tab, TabList, Tabs } from "react-tabs";
 
 const StyledTabComponent = styled(TabComponent)`
@@ -14,6 +14,7 @@ const StyledTabComponent = styled(TabComponent)`
 
   .react-tabs__tab-panel {
     overflow: initial;
+    padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
   }
 `;
 

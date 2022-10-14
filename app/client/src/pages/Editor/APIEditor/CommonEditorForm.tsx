@@ -28,10 +28,11 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
+  Callout,
   Case,
   Icon,
   IconSize,
@@ -42,7 +43,6 @@ import {
   TooltipComponent,
 } from "design-system";
 import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -185,7 +185,7 @@ export const BindingText = styled.span`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 16px 30px;
+  padding: 18px 30px;
   height: 100%;
   ${FormLabel} {
     padding: 0px;
