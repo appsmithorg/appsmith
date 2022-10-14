@@ -19,6 +19,12 @@ map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
 }
+
+map \$http_x_forwarded_host \$origin_host {
+  default \$http_x_forwarded_host;
+  '' \$host;
+}
+
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
 
@@ -47,23 +53,23 @@ server {
   }
 
   location /supervisor/ {
-      proxy_http_version 1.1;
-      proxy_buffering    off;
-      proxy_max_temp_file_size 0;
-      proxy_redirect    off;
-      proxy_set_header  Host             \$http_host/supervisor/;
-      proxy_set_header  X-Real-IP        \$remote_addr;
-      proxy_set_header  X-Forwarded-For  \$proxy_add_x_forwarded_for;
-      proxy_set_header 	X-Forwarded-Proto \$origin_scheme;
-      proxy_set_header 	X-Forwarded-Host \$http_host;
-      proxy_set_header   Connection       "";
-      proxy_pass http://localhost:9001/;
-      auth_basic "Protected";
-      auth_basic_user_file /etc/nginx/passwords;
+    proxy_http_version 1.1;
+    proxy_buffering    off;
+    proxy_max_temp_file_size 0;
+    proxy_redirect    off;
+    proxy_set_header  Host              \$http_host/supervisor/;
+    proxy_set_header  X-Real-IP         \$remote_addr;
+    proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header  X-Forwarded-Proto \$origin_scheme;
+    proxy_set_header  X-Forwarded-Host  \$origin_host;
+    proxy_set_header  Connection        "";
+    proxy_pass http://localhost:9001/;
+    auth_basic "Protected";
+    auth_basic_user_file /etc/nginx/passwords;
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
-  proxy_set_header X-Forwarded-Host \$host;
+  proxy_set_header X-Forwarded-Host \$origin_host;
 
   client_max_body_size 100m;
 
@@ -85,7 +91,7 @@ server {
   }
 
   # If the path has an extension at the end, then respond with 404 status if the file not found.
-  location ~ \.[a-z]+$ {
+  location ~ ^/(?!supervisor/).*\.[a-z]+$ {
     try_files \$uri =404;
   }
 

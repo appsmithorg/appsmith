@@ -1331,7 +1331,7 @@ Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
 
 Cypress.Commands.add("readTableV2LinkPublish", (rowNum, colNum) => {
   const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
-  const bgUrl = cy.get(selector).should("have.css", "background-image");
+  const bgUrl = cy.get(selector).should("have.attr", "src");
   return bgUrl;
 });
 

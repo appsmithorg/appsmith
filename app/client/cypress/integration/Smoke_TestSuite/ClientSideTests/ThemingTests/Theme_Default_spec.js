@@ -63,7 +63,7 @@ describe("Theme validation for default data", function() {
     cy.colorMouseover(0, "Primary Color");
     cy.validateColor(0, "#553DE9");
     cy.colorMouseover(1, "Background Color");
-    cy.validateColor(1, "#F6F6F6");
+    cy.validateColor(1, "#F8FAFC");
   });
 
   it("Validate Default Theme change across application", function() {
