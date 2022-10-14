@@ -59,6 +59,7 @@ import {
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  Callout,
   Button,
   Size,
   Text,

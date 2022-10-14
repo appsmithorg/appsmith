@@ -12,6 +12,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -287,6 +288,30 @@ public class PermissionGroupServiceTest {
                 .verifyComplete();
 
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testFindConfigurableRoleById() {
+        String mockName = "mock-name";
+        PermissionGroup mockPermissionGroup = new PermissionGroup();
+        mockPermissionGroup.setName(mockName);
+
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(mockPermissionGroup)
+                .flatMap(permissionGroup -> permissionGroupService.findById(permissionGroup.getId(), READ_PERMISSION_GROUPS))
+                .block();
+
+        Mono<RoleViewDTO> roleViewDTOMono = permissionGroupService.findConfigurableRoleById(createdPermissionGroup.getId());
+
+        StepVerifier
+                .create(roleViewDTOMono)
+                .assertNext(roleViewDTO -> {
+                    assertThat(roleViewDTO).isNotNull();
+                    assertThat(roleViewDTO.getId()).isEqualTo(createdPermissionGroup.getId());
+                    assertThat(roleViewDTO.getName()).isEqualTo(createdPermissionGroup.getName());
+                    assertThat(roleViewDTO.getUserPermissions()).isEqualTo(createdPermissionGroup.getUserPermissions());
+                })
+                .verifyComplete();
     }
 
 }

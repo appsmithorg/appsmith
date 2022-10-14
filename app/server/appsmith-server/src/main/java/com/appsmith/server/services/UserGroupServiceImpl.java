@@ -156,6 +156,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         modelMapper.map(userGroup, userGroupDTO);
         userGroupDTO.setRoles(rolesInfoList);
         userGroupDTO.setUsers(usersList);
+        userGroupDTO.populateTransientFields(userGroup);
         return Mono.just(userGroupDTO);
     }
 

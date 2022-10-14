@@ -356,7 +356,9 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
         // Let the users be the same as that of super admins in the group
         userGroup.setUsers(superAdminIds);
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroup createdGroup = userGroupService.create(userGroup)
+                .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), READ_USER_GROUPS))
+                .block();
 
         // Manually set the roles of the group
         createdRole.setAssignedToGroupIds(Set.of(createdGroup.getId()));
@@ -371,6 +373,7 @@ public class UserGroupServiceTest {
                     assertEquals(createdGroup.getTenantId(), group.getTenantId());
                     assertEquals(createdGroup.getName(), group.getName());
                     assertEquals(createdGroup.getDescription(), group.getDescription());
+                    assertEquals(createdGroup.getUserPermissions(), group.getUserPermissions());
 
                     // Assert that the api_user is returned properly.
                     group.getUsers().stream().
