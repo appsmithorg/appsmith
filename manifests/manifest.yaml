@@ -1,0 +1,40 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appsmith-service
+spec:
+  selector:
+    matchLabels:
+      app: appsmith-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: appsmith-service
+    spec:
+      containers:
+        -   name: appsmith-service
+            image: 265010348044.dkr.ecr.us-east-1.amazonaws.com/appsmith-service:eks-dev-6576ef1b-1665672073
+            imagePullPolicy: Always
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "250m"
+              limits:
+                memory: "1Gi"
+                cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appsmith-service
+spec:
+  selector:
+    app: appsmith-service
+  ports:
+    -   name: http
+        port: 80 #port of this service. Cluster members talk via this port
+        targetPort: 80 #where container is actually running
+  type: ClusterIP

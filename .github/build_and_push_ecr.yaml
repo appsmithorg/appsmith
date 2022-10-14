@@ -1,0 +1,82 @@
+name: Build & Push to ECR
+on:
+  push:
+    branches:
+      - eks-dev
+      - main
+      - master
+    paths-ignore:
+      - "manifests/**"
+jobs:
+
+  dev_build_and_push_to_ecr:
+    name: dev_build_and_push_to_ecr
+    runs-on: ubuntu-20.04
+    env:
+      development_account: 265010348044
+      main_account: 335455662015
+      branch_name: ${{ github.head_ref || github.ref_name }}
+      aws_region: us-east-1
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+
+      - name: Generate image tag
+        id: image-tag
+        run: |
+          branch=${GITHUB_REF##*/}
+          sha=$(echo $GITHUB_SHA | head -c 8)
+          ts=$(date +%s)
+          echo "::set-output name=tag::${branch}-${sha}-${ts}"
+          echo "::set-output name=repository::${GITHUB_REPOSITORY#*/}"
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Configure Production AWS Credentials
+        if: ${{ env.branch_name == 'main' || env.branch_name == 'master' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ env.main_account }}:role/github_actions_role
+          aws-region: ${{ env.aws_region }}
+
+      - name: Configure Dev AWS Credentials
+        if: ${{ env.branch_name == 'eks-dev' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ env.development_account }}:role/github_actions_role
+          aws-region: ${{ env.aws_region }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build & Push Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ steps.image-tag.outputs.repository }}
+          IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
+          NPM_TOKEN: ${{ secrets.SHAPEWAYS_ACCESS_TOKEN_PACKAGES_RO }}
+        run: |
+          aws ecr describe-repositories --repository-names ${ECR_REPOSITORY} || aws ecr create-repository --repository-name ${ECR_REPOSITORY}
+          DOCKER_BUILDKIT=1 docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Commit Tag
+        env:
+          COMMIT_MESSAGE: "Update image tag to ${{ steps.image-tag.outputs.tag }}"
+          COMMIT_AUTHOR: "GitHub Actions"
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ steps.image-tag.outputs.repository }}
+          IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
+        run: |
+          sed -i "s#$ECR_REGISTRY/$ECR_REPOSITORY:.*#$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG#" ./manifests/manifest.yaml
+          git config --global --add safe.directory "/__w/$ECR_REPOSITORY/$ECR_REPOSITORY"
+          git config --global user.name "${{ env.COMMIT_AUTHOR }}"
+          git config --global user.email "gh_action@github.noreply.github.com"
+          git add manifests/manifest.yaml
+          git commit -m "${{ env.COMMIT_MESSAGE }}"
+          git push
