@@ -4,8 +4,6 @@ import styled from "styled-components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system";
 
@@ -122,7 +120,6 @@ export function Categories({
 
 export default function LeftPane() {
   const categories = getSettingsCategory();
-  const featureFlags = useSelector(selectFeatureFlags);
   const { category, selected: subCategory } = useParams() as any;
   return (
     <Wrapper>
@@ -134,28 +131,25 @@ export default function LeftPane() {
         currentCategory={category}
         currentSubCategory={subCategory}
       />
-
-      {featureFlags.AUDIT_LOGS && (
-        <>
-          <HeaderContainer>
-            <StyledHeader>Enterprise</StyledHeader>
-          </HeaderContainer>
-          <CategoryList data-testid="t--enterprise-settings-category-list">
-            <CategoryItem>
-              <StyledLink
-                $active={category === "audit-logs"}
-                data-testid="t--enterprise-settings-category-item-audit-logs"
-                to="/settings/audit-logs"
-              >
-                <div>
-                  <Icon name="lock-2-line" size={IconSize.XL} />
-                </div>
-                <div>Audit logs</div>
-              </StyledLink>
-            </CategoryItem>
-          </CategoryList>
-        </>
-      )}
+      <>
+        <HeaderContainer>
+          <StyledHeader>Enterprise</StyledHeader>
+        </HeaderContainer>
+        <CategoryList data-testid="t--enterprise-settings-category-list">
+          <CategoryItem>
+            <StyledLink
+              $active={category === "audit-logs"}
+              data-testid="t--enterprise-settings-category-item-audit-logs"
+              to="/settings/audit-logs"
+            >
+              <div>
+                <Icon name="lock-2-line" size={IconSize.XL} />
+              </div>
+              <div>Audit logs</div>
+            </StyledLink>
+          </CategoryItem>
+        </CategoryList>
+      </>
     </Wrapper>
   );
 }
