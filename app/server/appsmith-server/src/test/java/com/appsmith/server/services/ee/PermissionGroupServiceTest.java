@@ -137,6 +137,14 @@ public class PermissionGroupServiceTest {
                     assertThat(permissionGroup1.getPolicies()).containsAll(
                             Set.of(managePgPolicy, readPgPolicy, deletePgPolicy, assignPgPolicy, unassignPgPolicy)
                     );
+
+                    assertThat(permissionGroup1.getUserPermissions()).contains(
+                            MANAGE_PERMISSION_GROUPS.getValue(),
+                            READ_PERMISSION_GROUPS.getValue(),
+                            DELETE_PERMISSION_GROUPS.getValue(),
+                            ASSIGN_PERMISSION_GROUPS.getValue(),
+                            UNASSIGN_PERMISSION_GROUPS.getValue()
+                    );
                 })
                 .verifyComplete();
     }
@@ -194,6 +202,13 @@ public class PermissionGroupServiceTest {
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
                             .collect(Collectors.toSet()))
                             .hasSize(3);
+
+                    // Assert that user permissions is returned for all the permission groups
+                    list.stream()
+                            .forEach(permissionGroupInfoDTO -> {
+                                assertThat(permissionGroupInfoDTO.getUserPermissions()).isNotEmpty();
+                                assertThat(permissionGroupInfoDTO.getUserPermissions()).contains(READ_PERMISSION_GROUPS.getValue());
+                            });
                 })
                 .verifyComplete();
 

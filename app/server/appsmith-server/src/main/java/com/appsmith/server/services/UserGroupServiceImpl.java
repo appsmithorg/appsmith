@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.GROUP_ID;
@@ -106,12 +107,13 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     userGroupWithPolicy = generateAndSetUserGroupPolicies(defaultTenant, userGroupWithPolicy);
 
                     return super.create(userGroupWithPolicy);
-                });
+                })
+                .flatMap(savedUserGroup -> repository.findById(savedUserGroup.getId(), READ_USER_GROUPS));
     }
 
     @Override
     public Mono<UserGroup> update(String id, UserGroup resource) {
-        return repository.findById(id, AclPermission.MANAGE_USER_GROUPS)
+        return repository.findById(id, MANAGE_USER_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update user groups")))
                 .flatMap(userGroup -> {
                     // The update API should only update the name and description of the group. The fields should not be
@@ -119,7 +121,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     userGroup.setName(resource.getName());
                     userGroup.setDescription(resource.getDescription());
                     return super.update(id, userGroup);
-                });
+                })
+                .flatMap(savedUserGroup -> repository.findById(savedUserGroup.getId(), MANAGE_USER_GROUPS));
     }
 
     @Override

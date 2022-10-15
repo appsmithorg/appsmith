@@ -159,7 +159,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                         permissionGroup1.setPolicies(policiesWithoutEditPermission);
                         return repository.save(permissionGroup1);
                     }
-                    return Mono.just(permissionGroup1);
+                    // If this is not a default created role, then return the role as is from the DB
+                    return repository.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS);
                 });
     }
 
