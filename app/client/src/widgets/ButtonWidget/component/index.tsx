@@ -21,7 +21,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { ThemeProp, Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
