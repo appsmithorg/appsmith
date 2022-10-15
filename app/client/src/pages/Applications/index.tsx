@@ -350,6 +350,13 @@ const textIconStyles = (props: { color: string; hover: string }) => {
   `;
 };
 
+/* TODO: uncomment once tenant api is integrated */
+
+/*
+const tenantPermissions = useSelector(getTenantPermissions);
+const canCreateWorkspace = isPermitted(tenantPermissions, [PERMISSION_TYPE.CREATE_WORKSPACES]);
+*/
+
 function WorkspaceMenuItem({
   isFetchingApplications,
   selected,
@@ -410,7 +417,7 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {!isFetchingApplications && fetchedUserWorkspaces && (
+          {!isFetchingApplications && fetchedUserWorkspaces && false && (
             <MenuItem
               cypressSelector="t--workspace-new-workspace-auto-create"
               icon="plus"
