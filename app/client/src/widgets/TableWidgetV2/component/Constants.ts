@@ -37,6 +37,12 @@ export enum VerticalAlignmentTypes {
   CENTER = "CENTER",
 }
 
+export enum ImageSizes {
+  DEFAULT = "32px",
+  MEDIUM = "64px",
+  LARGE = "128px",
+}
+
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -91,6 +97,7 @@ export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
 export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
+export type ImageSize = keyof typeof ImageSizes;
 
 export interface ReactTableFilter {
   column: string;
@@ -156,6 +163,10 @@ export interface SelectCellProperties {
   resetFilterTextOnClose?: boolean;
 }
 
+export interface ImageCellProperties {
+  imageSize?: ImageSize;
+}
+
 export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -178,6 +189,7 @@ export interface CellLayoutProperties
     URLCellProperties,
     MenuButtonCellProperties,
     SelectCellProperties,
+    ImageCellProperties,
     BaseCellProperties {}
 
 export type MenuItems = Record<
@@ -319,6 +331,7 @@ export interface ColumnProperties
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
+  imageSize?: ImageSize;
 }
 
 export const ConditionFunctions: {
@@ -416,15 +429,15 @@ export enum ALIGN_ITEMS {
 }
 
 export enum IMAGE_HORIZONTAL_ALIGN {
-  LEFT = "left",
+  LEFT = "flex-start",
   CENTER = "center",
-  RIGHT = "right",
+  RIGHT = "flex-end",
 }
 
 export enum IMAGE_VERTICAL_ALIGN {
-  TOP = "top",
+  TOP = "flex-start",
   CENTER = "center",
-  BOTTOM = "bottom",
+  BOTTOM = "flex-end",
 }
 
 export type BaseCellComponentProps = {
