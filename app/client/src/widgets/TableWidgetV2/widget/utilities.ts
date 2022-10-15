@@ -420,6 +420,7 @@ export const getCellProperties = (
         columnProperties.isDiscardDisabled,
         rowIndex,
       ),
+      imageSize: getPropertyValue(columnProperties.imageSize, rowIndex, true),
       isFilterable: getBooleanPropertyValue(
         columnProperties.isFilterable,
         rowIndex,

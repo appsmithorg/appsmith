@@ -1,3 +1,22 @@
+## Redis parameters
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  replica:
+    replicaCount: 1
+
+mongodb:
+  enabled: true
+  service:
+    nameOverride: appsmith-mongodb
+  auth:
+    rootUser: root
+    rootPassword : password
+  replicaCount: 2
+  architecture: "replicaset"
+  replicaSetName: rs0
+
 ## @section Global parameters
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
@@ -35,7 +54,7 @@ strategyType: RollingUpdate
 image:
   registry: index.docker.io
   repository: appsmith/appsmith-ce
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 ## ServiceAccount
