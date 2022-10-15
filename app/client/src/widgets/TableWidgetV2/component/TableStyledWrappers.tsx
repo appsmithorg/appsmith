@@ -11,6 +11,8 @@ import {
   CellAlignment,
   VerticalAlignment,
   scrollbarOnHoverCSS,
+  ImageSize,
+  ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
@@ -390,6 +392,7 @@ export const CellWrapper = styled.div<{
   cellBackground?: string;
   textSize?: string;
   disablePadding?: boolean;
+  imageSize?: ImageSize;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -414,7 +417,8 @@ export const CellWrapper = styled.div<{
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
   background: ${(props) => props.cellBackground};
 
-  &:hover, .selected-row & {
+  &:hover,
+  .selected-row & {
     background: ${(props) =>
       props.cellBackground ? darkenColor(props.cellBackground, 5) : ""};
   }
@@ -447,19 +451,19 @@ export const CellWrapper = styled.div<{
   .image-cell-wrapper {
     width: 100%;
     height: 100%;
-  }
-  .image-cell {
-    width: 100%;
-    height: 100%;
-    margin: 0 5px 0 0;
-    ${BORDER_RADIUS}
-    background-position-x: ${(props) =>
+    display: flex;
+    align-items: ${(props) =>
+      props.verticalAlignment && IMAGE_VERTICAL_ALIGN[props.verticalAlignment]};
+    justify-content: ${(props) =>
       props.horizontalAlignment &&
       IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};
-    background-position-y: ${(props) =>
-      props.verticalAlignment && IMAGE_VERTICAL_ALIGN[props.verticalAlignment]};
-    background-repeat: no-repeat;
-    background-size: contain;
+  }
+  .image-cell {
+    height: ${(props) =>
+      props.imageSize ? ImageSizes[props.imageSize] : ImageSizes.DEFAULT};
+    margin: 0 5px 0 0;
+    ${BORDER_RADIUS}
+    object-fit: contain;
   }
   video {
     ${BORDER_RADIUS}
