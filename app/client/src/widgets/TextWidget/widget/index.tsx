@@ -255,7 +255,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                regex: /^(?![<|{{]).+/,
+                regex: /^((?![<|{{]).+){0,1}/,
               },
             },
             dependencies: ["overflow"],
