@@ -1,7 +1,12 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -12,6 +17,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
@@ -45,4 +52,32 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                 });
     }
 
+    @Override
+    public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
+        return repository.findById(tenantId, MANAGE_TENANT)
+                .flatMap(tenant -> {
+                    TenantConfiguration oldtenantConfiguration = tenant.getTenantConfiguration();
+                    if (oldtenantConfiguration == null) {
+                        oldtenantConfiguration = new TenantConfiguration();
+                    }
+                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldtenantConfiguration);
+                    tenant.setTenantConfiguration(oldtenantConfiguration);
+                    return repository.updateById(tenantId, tenant, MANAGE_TENANT);
+                });
+    }
+
+    @Override
+    public Mono<Tenant> findById(String tenantId, AclPermission permission) {
+        return repository.findById(tenantId, permission)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
+    }
+
+    /*
+     *  For now, returning an empty tenantConfiguration object in this class. Will enhance this function once we
+     *  start saving other pertinent environment variables in the tenant collection
+     */
+    @Override
+    public Mono<TenantConfiguration> getTenantConfiguration() {
+        return Mono.just(new TenantConfiguration());
+    }
 }
