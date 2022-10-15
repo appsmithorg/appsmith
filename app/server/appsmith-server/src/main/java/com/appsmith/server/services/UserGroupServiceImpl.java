@@ -84,7 +84,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Mono<UserGroup> create(UserGroup userGroup) {
+    public Mono<UserGroupDTO> createGroup(UserGroup userGroup) {
         Mono<Boolean> isCreateAllowedMono = sessionUserService.getCurrentUser()
                 .flatMap(user -> tenantService.findById(user.getTenantId(), CREATE_PERMISSION_GROUPS))
                 .map(tenant -> TRUE)
@@ -108,11 +108,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
                     return super.create(userGroupWithPolicy);
                 })
-                .flatMap(savedUserGroup -> repository.findById(savedUserGroup.getId(), READ_USER_GROUPS));
+                .flatMap(savedUserGroup -> getGroupById(savedUserGroup.getId()));
     }
 
     @Override
-    public Mono<UserGroup> update(String id, UserGroup resource) {
+    public Mono<UserGroupDTO> updateGroup(String id, UserGroup resource) {
         return repository.findById(id, MANAGE_USER_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update user groups")))
                 .flatMap(userGroup -> {
@@ -122,7 +122,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     userGroup.setDescription(resource.getDescription());
                     return super.update(id, userGroup);
                 })
-                .flatMap(savedUserGroup -> repository.findById(savedUserGroup.getId(), MANAGE_USER_GROUPS));
+                .flatMap(savedUserGroup -> getGroupById(savedUserGroup.getId()));
     }
 
     @Override

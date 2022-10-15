@@ -103,7 +103,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        Mono<UserGroup> createUserGroupMono = userGroupService.create(userGroup)
+        Mono<UserGroup> createUserGroupMono = userGroupService.createGroup(userGroup)
                 // Assert that the created role is also editable by the user who created it
                 .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), MANAGE_USER_GROUPS));
 
@@ -149,7 +149,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        Mono<UserGroup> createUserGroupMono = userGroupService.create(userGroup);
+        Mono<UserGroupDTO> createUserGroupMono = userGroupService.createGroup(userGroup);
 
         StepVerifier.create(createUserGroupMono)
                 .expectErrorMatches(throwable ->
@@ -169,7 +169,7 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        userGroupService.create(userGroup).block();
+        userGroupService.createGroup(userGroup).block();
 
         Mono<List<UserGroup>> listMono = userGroupService.get(new LinkedMultiValueMap<>()).collectList();
 
@@ -213,7 +213,7 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        UserGroup createdUserGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(userGroup).block();
 
         Mono<UserGroup> deleteGroupMono = userGroupService.archiveById(createdUserGroup.getId())
                 .then(userGroupService.findById(createdUserGroup.getId(), READ_USER_GROUPS));
@@ -234,7 +234,7 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UserGroup update = new UserGroup();
         name = "Updated Name";
@@ -242,7 +242,7 @@ public class UserGroupServiceTest {
         update.setName(name);
         update.setDescription(description);
 
-        Mono<UserGroup> deleteGroupMono = userGroupService.update(createdGroup.getId(), update)
+        Mono<UserGroup> deleteGroupMono = userGroupService.updateGroup(createdGroup.getId(), update)
                 .then(userGroupService.findById(createdGroup.getId(), READ_USER_GROUPS));
 
         String finalName = name;
@@ -290,12 +290,12 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UserGroup update = new UserGroup();
         update.setUsers(Set.of("invalid-user-id"));
 
-        Mono<UserGroup> deleteGroupMono = userGroupService.update(createdGroup.getId(), update)
+        Mono<UserGroup> deleteGroupMono = userGroupService.updateGroup(createdGroup.getId(), update)
                 .then(userGroupService.findById(createdGroup.getId(), READ_USER_GROUPS));
 
         String finalName = name;
@@ -356,7 +356,7 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
         // Let the users be the same as that of super admins in the group
         userGroup.setUsers(superAdminIds);
-        UserGroup createdGroup = userGroupService.create(userGroup)
+        UserGroup createdGroup = userGroupService.createGroup(userGroup)
                 .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), READ_USER_GROUPS))
                 .block();
 
@@ -438,7 +438,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
         inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
@@ -485,7 +485,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
         inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
@@ -519,7 +519,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UserGroup userGroup2 = new UserGroup();
         String name2 = "Test Group 2 : addUsersToGroupValid";
@@ -600,7 +600,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
         usersForGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
