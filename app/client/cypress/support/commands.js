@@ -1006,7 +1006,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
   cy.intercept("GET", "/api/v1/app-templates").as("fetchTemplate");
-  cy.intercept("POST", "/api/v1/app-templates").as("importTemplate");
+  cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
+  cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
