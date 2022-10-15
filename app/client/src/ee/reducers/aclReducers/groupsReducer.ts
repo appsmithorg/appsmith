@@ -104,7 +104,9 @@ export const groupsReducers = {
   }),
   [ReduxActionTypes.ADD_USERS_IN_GROUP_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    selectedGroup: action.payload,
+    selectedGroup: Array.isArray(action.payload)
+      ? action.payload[0]
+      : action.payload,
     isLoading: false,
   }),
   [ReduxActionTypes.REMOVE_USERS_FROM_GROUP]: (state: any) => ({
@@ -120,7 +122,9 @@ export const groupsReducers = {
     action: any,
   ) => ({
     ...state,
-    selectedGroup: action.payload,
+    selectedGroup: Array.isArray(action.payload)
+      ? action.payload[0]
+      : action.payload,
     isLoading: false,
   }),
 };
