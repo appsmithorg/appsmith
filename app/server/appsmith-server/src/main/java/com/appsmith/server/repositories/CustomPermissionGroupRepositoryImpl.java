@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -36,6 +37,18 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 List.of(criteria),
                 includeFields,
                 null,
+                null,
+                NO_RECORD_LIMIT
+        );
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission) {
+        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
+        return queryAll(
+                List.of(criteria),
+                null,
+                permission,
                 null,
                 NO_RECORD_LIMIT
         );

@@ -7,12 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserCompactDTO {
+public class PermissionGroupCompactDTO {
 
     String id;
 
-    String username;
-
     String name;
-
 }

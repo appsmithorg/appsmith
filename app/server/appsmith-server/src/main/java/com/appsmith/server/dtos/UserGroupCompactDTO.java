@@ -5,14 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserCompactDTO {
+@AllArgsConstructor
+public class UserGroupCompactDTO {
 
     String id;
 
-    String username;
-
     String name;
-
 }
