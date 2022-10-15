@@ -9,6 +9,13 @@ type ScriptToIdentifiersType = {
   evalVersion?: number;
 };
 
+type entityRefactorType = {
+  script: string;
+  oldName: string;
+  newName: string;
+  evalVersion?: number;
+};
+
 type MultipleScriptToIdentifiersType = {
   scripts: string[];
   evalVersion?: number;
@@ -67,11 +74,13 @@ export default class AstController extends BaseController {
   async entityRefactorController(req: Request, res: Response) {
     try {
       // By default the application eval version is set to be 2
-      const { script }: ScriptToIdentifiersType = req.body;
+      const { script, oldName, newName, evalVersion }: entityRefactorType =
+        req.body;
       const data = await AstService.entityRefactor(
-        req.body.script,
-        req.body.oldName,
-        req.body.newName
+        script,
+        oldName,
+        newName,
+        evalVersion
       );
       return super.sendResponse(res, data);
     } catch (err) {

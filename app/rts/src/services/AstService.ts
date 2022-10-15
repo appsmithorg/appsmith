@@ -25,6 +25,7 @@ export default class AstService {
     script,
     oldName,
     newName,
+    evalVersion
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
@@ -32,6 +33,7 @@ export default class AstService {
           script,
           oldName,
           newName,
+          evalVersion
         );
 
         resolve(refactoredCode);

@@ -229,7 +229,7 @@ export const extractIdentifierInfoFromCode = (
     const wrappedCode = wrapCode(sanitizedScript);
     ast = getAST(wrappedCode);
     let { references, functionalParams, variableDeclarations }: NodeList =
-      ancestorParsing(ast);
+      ancestorWalk(ast);
     const referencesArr = Array.from(references).filter((reference) => {
       // To remove references derived from declared variables and function params,
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
@@ -262,6 +262,7 @@ export const entityRefactorFromCode = (
   script: string,
   oldName: string,
   newName: string,
+  evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
 ): Record<string, string | number> | string => {
   let ast: Node = { end: 0, start: 0, type: "" };
@@ -274,14 +275,14 @@ export const entityRefactorFromCode = (
   //Count of refactors on the script
   let refactorCount: number = 0;
   try {
-    const sanitizedScript = sanitizeScript(script, 2);
+    const sanitizedScript = sanitizeScript(script, evaluationVersion);
     ast = getAST(sanitizedScript);
     let {
       references,
       functionalParams,
       variableDeclarations,
       nodeList,
-    }: NodeList = ancestorParsing(ast);
+    }: NodeList = ancestorWalk(ast);
     let identifierArray = Array.from(nodeList) as Array<IdentifierNode>;
     const referencesArr = Array.from(references).filter((reference, index) => {
       const topLevelIdentifier = toPath(reference)[0];
@@ -494,7 +495,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   return invalidTopLevelMemberExpressionsArray;
 };
 
-const ancestorParsing = (ast: Node): NodeList => {
+const ancestorWalk = (ast: Node): NodeList => {
   //List of all nodes
   const nodeList = new Array<IdentifierNode>();
   // List of all references found
