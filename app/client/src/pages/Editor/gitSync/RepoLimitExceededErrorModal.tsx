@@ -26,13 +26,13 @@ import {
   CONTACT_SUPPORT,
   CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
-  DISCONNECT_CAUSE_APPLICATION_BREAK,
-  DISCONNECT_EXISTING_REPOSITORIES,
-  DISCONNECT_EXISTING_REPOSITORIES_INFO,
+  REVOKE_CAUSE_APPLICATION_BREAK,
+  REVOKE_EXISTING_REPOSITORIES_INFO,
   LEARN_MORE,
   REPOSITORY_LIMIT_REACHED,
   REPOSITORY_LIMIT_REACHED_INFO,
   REVOKE_ACCESS,
+  REVOKE_EXISTING_REPOSITORIES,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
 import { get } from "lodash";
@@ -77,10 +77,15 @@ const ApplicationWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
   justify-content: space-between;
+
+  & > div {
+    max-width: 60%;
+  }
 `;
 
 const TextWrapper = styled.div`
   display: block;
+  word-break: break-word;
 `;
 
 const AppListContainer = styled.div`
@@ -229,12 +234,12 @@ function RepoLimitExceededErrorModal() {
           </ButtonContainer>
           <div style={{ marginTop: theme.spaces[15] }}>
             <Text color={Colors.BLACK} type={TextType.H1}>
-              {createMessage(DISCONNECT_EXISTING_REPOSITORIES)}
+              {createMessage(REVOKE_EXISTING_REPOSITORIES)}
             </Text>
           </div>
           <div style={{ marginTop: theme.spaces[3], width: 410 }}>
             <Text color={Colors.BLACK} type={TextType.P1}>
-              {createMessage(DISCONNECT_EXISTING_REPOSITORIES_INFO)}
+              {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
             </Text>
           </div>
           <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px 0` }}>
@@ -249,7 +254,7 @@ function RepoLimitExceededErrorModal() {
                 style={{ marginRight: theme.spaces[2] }}
                 type={TextType.P3}
               >
-                {createMessage(DISCONNECT_CAUSE_APPLICATION_BREAK)}
+                {createMessage(REVOKE_CAUSE_APPLICATION_BREAK)}
               </Text>
               <Link
                 className="t--learn-more-repo-limit-modal"

@@ -6,7 +6,7 @@ import {
   collapsibleTabRequiredPropKeys,
   TabComponent,
   TabProp,
-} from "components/ads/Tabs";
+} from "design-system";
 import { getCurrentDebuggerTab } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";

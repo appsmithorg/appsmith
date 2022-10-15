@@ -24,14 +24,21 @@ import {
 import { Text as BlueprintText } from "@blueprintjs/core";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
-import Callout from "components/ads/Callout";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import { Button, Category, Icon, Size, Text, TextType } from "design-system";
+import {
+  Button,
+  Callout,
+  Category,
+  Icon,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";

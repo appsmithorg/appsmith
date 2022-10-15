@@ -63,7 +63,7 @@ import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   getCurrentAppGitMetaData,
@@ -624,7 +624,7 @@ function* disconnectGitSaga() {
       name: string;
     } = yield select(getDisconnectingGitApplication);
     const currentApplicationId: string = yield select(getCurrentApplicationId);
-    response = yield GitSyncAPI.disconnectGit({
+    response = yield GitSyncAPI.revokeGit({
       applicationId: application.id,
     });
     const isValidResponse: boolean = yield validateResponse(
@@ -862,9 +862,8 @@ function* discardChanges() {
     if (isValidResponse) {
       yield put(discardChangesSuccess(response.data));
       // const applicationId: string = response.data.id;
-      const pageId: string = response.data.pages.filter(
-        (page: any) => page.isDefault,
-      )[0].id;
+      const pageId: string =
+        response.data?.pages?.find((page: any) => page.isDefault)?.id || "";
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ pageId, branch }), "_self");
@@ -911,7 +910,7 @@ export default function* gitSyncSagas() {
     ),
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
-    takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
+    takeLatest(ReduxActionTypes.REVOKE_GIT, disconnectGitSaga),
     takeLatest(
       ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
       importAppFromGitSaga,

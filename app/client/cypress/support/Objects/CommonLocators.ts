@@ -148,4 +148,9 @@ export class CommonLocators {
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
+  _dropDownMultiTreeValue = (dropdownOption: string) =>
+    "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
+    dropdownOption +
+    "']";
+  _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
 }
