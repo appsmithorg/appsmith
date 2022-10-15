@@ -6211,18 +6211,21 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.25":
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.25.tgz#a4762cf01b779de79fbf89afb2c8732bd382d3e5"
-  integrity sha512-wYKuspbhlGGC5zNpo1yTtbuzy05+5Gktw2PE43vVunMljK94GutNpyvdzNbO9ePw6ZUKLk+KFPngO7igsGY7kA==
+"design-system@npm:@appsmithorg/design-system@1.0.27":
+  version "1.0.27"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.27.tgz#5c30c9d2e336ca993539225009c4cf45b41c1387"
+  integrity sha512-a/eyZzJY3N9l55w2TjKmt/VgnmC9Sa8jpq1yekta9X3SNKLayfCk4PU7Sjd6p9mJDikZRl+otJWkGKl1pvbtYg==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
+    react-dnd "^9.3.4"
+    react-dnd-html5-backend "^9.3.4"
     react-redux "^7.2.4"
     react-router-dom "^6.3.0"
     react-table "^7.8.0"
     react-tabs "3.1.1"
+    react-toastify "^5.5.0"
     redux-form "8.2.6"
     remixicon-react "^1.0.0"
     tinycolor2 "^1.4.2"
@@ -7374,6 +7377,13 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
 fast-xml-parser@^3.17.5:
   version "3.17.5"
   resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-3.17.5.tgz"
+
+fastdom@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/fastdom/-/fastdom-1.0.11.tgz#f22984f9df6b9a6081e5ce2e49cfb5525daf198a"
+  integrity sha512-jl9MwXDFxhg354W4E3s1UMsLh3HWFuVMQiRUlXpHckcHRXQvUe76yzBf1Z7b+x5Ci4TUJ1KmynI9alGUXG95IQ==
+  dependencies:
+    strictdom "^1.0.1"
 
 fastq@^1.6.0:
   version "1.13.0"
@@ -14260,6 +14270,11 @@ strict-event-emitter@^0.2.0:
   resolved "https://registry.npmjs.org/strict-event-emitter/-/strict-event-emitter-0.2.0.tgz"
   dependencies:
     events "^3.3.0"
+
+strictdom@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/strictdom/-/strictdom-1.0.1.tgz#189de91649f73d44d59b8432efa68ef9d2659460"
+  integrity sha512-cEmp9QeXXRmjj/rVp9oyiqcvyocWab/HaoN4+bwFeZ7QzykJD6L3yD4v12K1x0tHpqRqVpJevN3gW7kyM39Bqg==
 
 string-argv@^0.3.1:
   version "0.3.1"

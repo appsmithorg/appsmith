@@ -59,7 +59,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   createMessage,
   ERROR_ACTION_RENAME_FAIL,

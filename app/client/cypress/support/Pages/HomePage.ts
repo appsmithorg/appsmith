@@ -45,8 +45,7 @@ export class HomePage {
   private _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item";
-  private _buildFromScratchActionCard = ".t--BuildFromScratch";
-  _buildFromDataTableActionCard = ".t--GenerateCRUDPage";
+  _buildFromDataTableActionCard = "[data-cy='generate-app']";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
   _appHoverIcon = (action: string) => ".t--application-" + action + "-link";
@@ -63,6 +62,8 @@ export class HomePage {
     "[data - cy= t--workspace-leave - button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
+  private _leaveWorkspace = "//span[text()='Leave Workspace']";
+  private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']"
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
@@ -187,7 +188,6 @@ export class HomePage {
     cy.get(this.locator._loading).should("not.exist");
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
-    cy.get(this._buildFromScratchActionCard).click();
     //this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
   }
 
@@ -397,4 +397,23 @@ export class HomePage {
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
   }
+
+  //Maps to leaveworkspace in command.js
+  public leaveWorkspace(workspaceName: string) {
+    cy.get(this._workspaceList(workspaceName))
+      .scrollIntoView()
+      .should("be.visible");
+      cy.get
+      (this._optionsIcon).first()
+      .click({ force: true });
+    cy.xpath(this._leaveWorkspace).click({ force: true });
+    cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
+    cy.wait("@leaveWorkspaceApiCall").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    this.agHelper.ValidateToastMessage("You have successfully left the workspace");
+  }
+  
 }
