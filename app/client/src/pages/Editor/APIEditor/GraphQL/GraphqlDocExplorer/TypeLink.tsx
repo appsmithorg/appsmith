@@ -5,6 +5,7 @@ import { ExplorerContext } from "./contexts/explorer";
 import { renderType } from "./utils";
 
 import { noop } from "utils/AppsmithUtils";
+import { TypeLinkWrapper } from "./css";
 
 type TypeLinkProps = {
   /**
@@ -21,15 +22,14 @@ export default function TypeLink(props: TypeLinkProps) {
   }
 
   return renderType(props.type, (namedType) => (
-    <a
-      className="graphiql-doc-explorer-type-name"
-      href="#"
+    <TypeLinkWrapper
+      className="t--gql-type-name"
       onClick={(event) => {
         event.preventDefault();
         push({ name: namedType.name, def: namedType });
       }}
     >
       {namedType.name}
-    </a>
+    </TypeLinkWrapper>
   ));
 }

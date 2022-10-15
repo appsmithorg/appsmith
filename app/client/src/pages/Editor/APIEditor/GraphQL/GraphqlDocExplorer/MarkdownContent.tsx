@@ -1,5 +1,6 @@
 import React from "react";
 import Markdown from "markdown-it";
+import { MarkdownContentWrapper } from "./css";
 
 type MarkdownContentProps = {
   description: string;
@@ -13,9 +14,12 @@ export default class MarkdownContent {
   });
 
   static render(props: MarkdownContentProps) {
-    return (
-      <div
-        className={`graphiql-markdown-${props.type}`}
+    return props.type === "description" ? (
+      <MarkdownContentWrapper
+        dangerouslySetInnerHTML={{ __html: this.md.render(props.description) }}
+      />
+    ) : (
+      <MarkdownContentWrapper
         dangerouslySetInnerHTML={{ __html: this.md.render(props.description) }}
       />
     );

@@ -1,9 +1,17 @@
+import { Icon } from "@blueprintjs/core";
 import { isType } from "graphql";
 import React, { ReactNode, useContext } from "react";
 import { ExplorerContext } from "./contexts/explorer";
 import FieldDocumentation from "./FieldDocumentation";
 import SchemaDocumentation from "./SchemaDocumentation";
 import TypeDocumentation from "./TypeDocumentation";
+import { Text, TextType } from "design-system";
+import {
+  DocExploreHeader,
+  DocExplorerContent,
+  DocExplorerSection,
+  IconContainer,
+} from "./css";
 
 const DocExplorer = (props: any) => {
   const { isFetching, schema } = props;
@@ -56,31 +64,27 @@ const DocExplorer = (props: any) => {
   }
 
   return (
-    <section
-      aria-label="Documentation Explorer"
-      className="graphiql-doc-explorer"
-    >
-      <div className="graphiql-doc-explorer-header">
-        <div className="graphiql-doc-explorer-header-content">
-          {prevName && (
-            <a
-              aria-label={`Go back to ${prevName}`}
-              className="graphiql-doc-explorer-back"
-              href="#"
-              onClick={pop}
-            >
-              back button
-              {prevName}
-            </a>
-          )}
-          <div className="graphiql-doc-explorer-title">{navItem.name}</div>
-        </div>
-        <div className="graphiql-doc-explorer-search">
-          {/* <Search key={navItem.name} /> */}
-        </div>
-      </div>
-      <div className="graphiql-doc-explorer-content">{content}</div>
-    </section>
+    <DocExplorerSection aria-label="Documentation Explorer">
+      <DocExploreHeader>
+        <IconContainer
+          className="t--gql-back-explorer"
+          onClick={pop}
+          showPointer={!!prevName}
+        >
+          {prevName && <Icon icon="chevron-left" iconSize={16} />}
+        </IconContainer>
+        <Text
+          style={{ color: "#0c0000", lineHeight: "14px", flexGrow: "1" }}
+          type={TextType.P1}
+        >
+          {navItem.name}
+        </Text>
+      </DocExploreHeader>
+      {/* <div className="graphiql-doc-explorer-search">
+        <Search key={navItem.name} />
+      </div> */}
+      <DocExplorerContent>{content}</DocExplorerContent>
+    </DocExplorerSection>
   );
 };
 

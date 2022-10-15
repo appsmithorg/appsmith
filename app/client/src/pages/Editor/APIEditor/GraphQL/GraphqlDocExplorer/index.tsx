@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect } from "react";
 import { buildClientSchema } from "graphql";
-// import { GraphqlSchemaExplorer } from "./css";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import {
@@ -14,6 +13,7 @@ import { fetchActionStructure } from "actions/apiPaneActions";
 import ExplorerContextProvider from "./contexts/explorer";
 import Explorer from "./Explorer";
 import schemaJSON from "./schema.json";
+import { ExplorerWrapper } from "./css";
 
 type GraphqlDocExplorer = {
   actionId: string;
@@ -73,10 +73,13 @@ const GraphqlDocExplorer = (props: GraphqlDocExplorer) => {
       actionId={props.actionId}
       datasourceId={props.datasourceId}
     >
-      <Explorer
-        isFetching={isFetching}
-        schema={buildClientSchema(schema || schemaJSON)}
-      />
+      <ExplorerWrapper>
+        <Explorer
+          className="graphiql-doc-explorer"
+          isFetching={isFetching}
+          schema={buildClientSchema(schema || schemaJSON)}
+        />
+      </ExplorerWrapper>
     </ExplorerContextProvider>
   );
 };

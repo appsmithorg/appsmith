@@ -19,6 +19,8 @@ import FieldLink from "./FieldLink";
 import ExplorerSection from "./ExplorerSection";
 import TypeLink from "./TypeLink";
 import MarkdownContent from "./MarkdownContent";
+import { MultipleArgumentsWrapper, FieldItemWrapper } from "./css";
+import { Button } from "design-system";
 
 function ImplementsInterfaces({ type }: { type: GraphQLNamedType }) {
   if (!isObjectType(type)) {
@@ -28,9 +30,7 @@ function ImplementsInterfaces({ type }: { type: GraphQLNamedType }) {
   return interfaces.length > 0 ? (
     <ExplorerSection title="Implements">
       {type.getInterfaces().map((implementedInterface) => (
-        <div key={implementedInterface.name}>
-          <TypeLink type={implementedInterface} />
-        </div>
+        <TypeLink key={implementedInterface.name} type={implementedInterface} />
       ))}
     </ExplorerSection>
   ) : null;
@@ -76,14 +76,19 @@ function Fields({ type }: { type: GraphQLNamedType }) {
             ))}
           </ExplorerSection>
         ) : (
-          <button
+          <Button
+            category="tertiary"
+            fill
             onClick={() => {
               setShowDeprecated(true);
             }}
+            size="large"
+            tag="button"
+            text="Show Deprecated Arguments"
             type="button"
           >
             Show Deprecated Fields
-          </button>
+          </Button>
         )
       ) : null}
     </>
@@ -96,33 +101,26 @@ function Field({ field }: { field: ExplorerFieldDef }) {
       ? field.args.filter((arg: any) => !arg.deprecationReason)
       : [];
   return (
-    <div className="graphiql-doc-explorer-item">
-      <div>
-        <FieldLink field={field} />
-        {args.length > 0 ? (
-          <>
-            (
-            <span>
-              {args.map((arg: any) =>
-                args.length === 1 ? (
-                  <Argument arg={arg} inline key={arg.name} />
-                ) : (
-                  <div
-                    className="graphiql-doc-explorer-argument-multiple"
-                    key={arg.name}
-                  >
-                    <Argument arg={arg} inline />
-                  </div>
-                ),
-              )}
-            </span>
-            )
-          </>
-        ) : null}
-        {": "}
-        <TypeLink type={field.type} />
-        <DefaultValue field={field} />
-      </div>
+    <FieldItemWrapper>
+      <FieldLink field={field} />
+      {args.length > 0 ? (
+        <>
+          (
+          {args.map((arg: any) =>
+            args.length === 1 ? (
+              <Argument arg={arg} inline key={arg.name} />
+            ) : (
+              <MultipleArgumentsWrapper key={arg.name}>
+                <Argument arg={arg} inline />
+              </MultipleArgumentsWrapper>
+            ),
+          )}
+          )
+        </>
+      ) : null}
+      {": "}
+      <TypeLink type={field.type} />
+      <DefaultValue field={field} />
       {field.description
         ? MarkdownContent.render({
             description: field.description,
@@ -130,7 +128,7 @@ function Field({ field }: { field: ExplorerFieldDef }) {
           })
         : null}
       <DeprecationReason description={field.deprecationReason} />
-    </div>
+    </FieldItemWrapper>
   );
 }
 
@@ -168,14 +166,19 @@ function EnumValues({ type }: { type: GraphQLNamedType }) {
             ))}
           </ExplorerSection>
         ) : (
-          <button
+          <Button
+            category="tertiary"
+            fill
             onClick={() => {
               setShowDeprecated(true);
             }}
+            size="large"
+            tag="button"
+            text="Show Deprecated Arguments"
             type="button"
           >
             Show Deprecated Values
-          </button>
+          </Button>
         )
       ) : null}
     </>
@@ -184,7 +187,7 @@ function EnumValues({ type }: { type: GraphQLNamedType }) {
 
 function EnumValue({ value }: { value: GraphQLEnumValue }) {
   return (
-    <div className="graphiql-doc-explorer-item">
+    <FieldItemWrapper>
       <div className="graphiql-doc-explorer-enum-value">{value.name}</div>
       {value.description
         ? MarkdownContent.render({
@@ -198,7 +201,7 @@ function EnumValue({ value }: { value: GraphQLEnumValue }) {
             type: "deprecation",
           })
         : null}
-    </div>
+    </FieldItemWrapper>
   );
 }
 
@@ -217,9 +220,7 @@ function PossibleTypes({
       title={isInterfaceType(type) ? "Implementations" : "Possible Types"}
     >
       {schema.getPossibleTypes(type).map((possibleType) => (
-        <div key={possibleType.name}>
-          <TypeLink type={possibleType} />
-        </div>
+        <TypeLink key={possibleType.name} type={possibleType} />
       ))}
     </ExplorerSection>
   );

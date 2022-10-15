@@ -5,6 +5,7 @@ import DefaultValue from "./DefaultValue";
 import TypeLink from "./TypeLink";
 
 import MarkdownContent from "./MarkdownContent";
+import { ArgumentDefNameWrapper, DefinitionWrapper } from "./css";
 
 type ArgumentProps = {
   /**
@@ -31,18 +32,18 @@ export default function Argument({
   showDefaultValue,
 }: ArgumentProps) {
   const definition = (
-    <span>
-      <span className="graphiql-doc-explorer-argument-name">{arg.name}</span>
-      {": "}
+    <DefinitionWrapper>
+      <ArgumentDefNameWrapper>{arg.name}</ArgumentDefNameWrapper>
+      {" : "}
       <TypeLink type={arg.type} />
       {showDefaultValue !== false && <DefaultValue field={arg} />}
-    </span>
+    </DefinitionWrapper>
   );
   if (inline) {
     return definition;
   }
   return (
-    <div className="graphiql-doc-explorer-argument">
+    <div>
       {definition}
       {arg.description
         ? MarkdownContent.render({
@@ -51,10 +52,8 @@ export default function Argument({
           })
         : null}
       {arg.deprecationReason ? (
-        <div className="graphiql-doc-explorer-argument-deprecation">
-          <div className="graphiql-doc-explorer-argument-deprecation-label">
-            Deprecated
-          </div>
+        <div>
+          <div>Deprecated</div>
           {MarkdownContent.render({
             description: arg.deprecationReason,
             type: "deprecation",

@@ -2,6 +2,7 @@ import React from "react";
 import { astFromValue, print, ValueNode } from "graphql";
 
 import { ExplorerFieldDef } from "./contexts/explorer";
+import { DefaultValueWrapper } from "./css";
 
 const printDefault = (ast?: ValueNode | null): string => {
   if (!ast) {
@@ -28,9 +29,9 @@ export default function DefaultValue({ field }: DefaultValueProps) {
   return (
     <>
       {" = "}
-      <span className="graphiql-doc-explorer-default-value">
+      <DefaultValueWrapper className="graphiql-doc-explorer-default-value">
         {printDefault(ast)}
-      </span>
+      </DefaultValueWrapper>
     </>
   );
 }

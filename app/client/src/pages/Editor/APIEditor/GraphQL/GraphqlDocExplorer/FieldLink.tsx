@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { noop } from "utils/AppsmithUtils";
 import { ExplorerFieldDef, ExplorerContext } from "./contexts/explorer";
+import { FieldLinkWrapper } from "./css";
 
 type FieldLinkProps = {
   /**
@@ -13,15 +14,14 @@ export default function FieldLink(props: FieldLinkProps) {
   const { push = noop } = useContext(ExplorerContext) || {};
 
   return (
-    <a
-      className="graphiql-doc-explorer-field-name"
-      href="#"
+    <FieldLinkWrapper
+      className="t--gql-field-name"
       onClick={(event) => {
         event.preventDefault();
         push({ name: props.field.name, def: props.field });
       }}
     >
       {props.field.name}
-    </a>
+    </FieldLinkWrapper>
   );
 }

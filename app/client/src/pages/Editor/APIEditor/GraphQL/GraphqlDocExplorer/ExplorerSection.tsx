@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { ExplorerSectionWrapper, ExplorerSectionTitleWrapper } from "./css";
 
 type ExplorerSectionProps = {
   children: ReactNode;
@@ -24,15 +25,13 @@ type ExplorerSectionProps = {
 export default function ExplorerSection(props: ExplorerSectionProps) {
   // const Icon = TYPE_TO_ICON[props.title];
   return (
-    <div>
-      <div className="graphiql-doc-explorer-section-title">
+    <ExplorerSectionWrapper>
+      <ExplorerSectionTitleWrapper>
         {/* <Icon /> */}
         {props.title}
-      </div>
-      <div className="graphiql-doc-explorer-section-content">
-        {props.children}
-      </div>
-    </div>
+      </ExplorerSectionTitleWrapper>
+      <div className="t--gql-section-content">{props.children}</div>
+    </ExplorerSectionWrapper>
   );
 }
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { DirectiveNode } from "graphql";
+import { DirectiveWrapper } from "./css";
 
 type DirectiveProps = {
   /**
@@ -9,9 +10,5 @@ type DirectiveProps = {
 };
 
 export default function Directive({ directive }: DirectiveProps) {
-  return (
-    <span className="graphiql-doc-explorer-directive">
-      @{directive.name.value}
-    </span>
-  );
+  return <DirectiveWrapper>@{directive.name.value}</DirectiveWrapper>;
 }

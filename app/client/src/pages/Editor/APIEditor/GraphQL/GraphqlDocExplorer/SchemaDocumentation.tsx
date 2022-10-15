@@ -4,6 +4,7 @@ import { GraphQLSchema } from "graphql";
 import ExplorerSection from "./ExplorerSection";
 import TypeLink from "./TypeLink";
 import MarkdownContent from "./MarkdownContent";
+import { SchemaElementWrapper } from "./css";
 
 type SchemaDocumentationProps = {
   /**
@@ -26,28 +27,23 @@ export default function SchemaDocumentation(props: SchemaDocumentationProps) {
         type: "description",
       })}
       <ExplorerSection title="Root Types">
-        {queryType ? (
-          <div>
-            <span className="graphiql-doc-explorer-root-type">query</span>
-            {": "}
+        {queryType && (
+          <SchemaElementWrapper>
+            <span className="t--gql-root-type">query : </span>
             <TypeLink type={queryType} />
-          </div>
-        ) : null}
+          </SchemaElementWrapper>
+        )}
         {mutationType && (
-          <div>
-            <span className="graphiql-doc-explorer-root-type">mutation</span>
-            {": "}
+          <SchemaElementWrapper>
+            <span className="t--gql-root-type">mutation : </span>
             <TypeLink type={mutationType} />
-          </div>
+          </SchemaElementWrapper>
         )}
         {subscriptionType && (
-          <div>
-            <span className="graphiql-doc-explorer-root-type">
-              subscription
-            </span>
-            {": "}
+          <SchemaElementWrapper>
+            <span className="t--gql-root-type">subscription : </span>
             <TypeLink type={subscriptionType} />
-          </div>
+          </SchemaElementWrapper>
         )}
       </ExplorerSection>
     </>
