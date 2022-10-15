@@ -21,6 +21,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
+import com.appsmith.server.solutions.roles.dtos.ActionResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.BaseView;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -129,6 +130,7 @@ public class WorkspaceResourcesTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         actionToCreate.setActionConfiguration(actionConfiguration);
         actionToCreate.setDatasource(createdDatasource);
+        actionToCreate.setPluginId(restApiPlugin.getId());
 
         createdActionDto = layoutActionService.createAction(actionToCreate).block();
     }
@@ -312,6 +314,7 @@ public class WorkspaceResourcesTest {
                     assertThat(createdActionEntityView.getEntities().size()).isEqualTo(1);
                     BaseView createdActionView = createdActionEntityView.getEntities().get(0);
                     assertThat(createdActionView.getId()).isEqualTo(createdActionDto.getId());
+                    assertThat(((ActionResourceDTO)createdActionView).getPluginId()).isEqualTo(createdActionDto.getPluginId());
                     // assert that only the edit, view and delete permissions in this view are present and all of them are turned on for this action. The rest are disabled
                     perms = List.of(-1,1,1,1,-1,-1);
                     assertThat(createdActionView.getEnabled()).isEqualTo(perms);
@@ -397,6 +400,7 @@ public class WorkspaceResourcesTest {
                     assertThat(createdActionEntityView.getEntities().size()).isEqualTo(1);
                     BaseView createdActionView = createdActionEntityView.getEntities().get(0);
                     assertThat(createdActionView.getId()).isEqualTo(createdActionDto.getId());
+                    assertThat(((ActionResourceDTO)createdActionView).getPluginId()).isEqualTo(createdActionDto.getPluginId());
                     // assert that only execute permission is present and is turned off for this action. The rest are disabled
                     perms = List.of(0,-1,-1,-1,-1);
                     assertThat(createdActionView.getEnabled()).isEqualTo(perms);
@@ -486,6 +490,7 @@ public class WorkspaceResourcesTest {
                     assertThat(createdActionEntityView.getEntities().size()).isEqualTo(1);
                     BaseView createdActionView = createdActionEntityView.getEntities().get(0);
                     assertThat(createdActionView.getId()).isEqualTo(createdActionDto.getId());
+                    assertThat(((ActionResourceDTO)createdActionView).getPluginId()).isEqualTo(createdActionDto.getPluginId());
                     // assert that only execute permission is present and is turned on for this action. The rest are disabled
                     perms = List.of(1,-1,-1,-1,-1);
                     assertThat(createdActionView.getEnabled()).isEqualTo(perms);
