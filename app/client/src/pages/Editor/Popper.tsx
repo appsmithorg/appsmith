@@ -28,6 +28,7 @@ export type PopperProps = {
     position?: string;
   };
   placement: Placement;
+  fixedPlacement?: boolean;
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
   disablePopperEvents?: boolean;
@@ -129,7 +130,9 @@ export default (props: PopperProps) => {
           },
           modifiers: {
             flip: {
-              behavior: ["right", "left", "bottom", "top"],
+              behavior: props.fixedPlacement
+                ? []
+                : ["right", "left", "bottom", "top"],
             },
             keepTogether: {
               enabled: false,

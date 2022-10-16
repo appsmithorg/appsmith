@@ -72,6 +72,7 @@ class DynamicTextControl extends BaseControl<
           dataTreePath={dataTreePath}
           disabled={this.props.disabled}
           evaluationSubstitutionType={evaluationSubstitutionType}
+          fixedPopperPlacement
           mode={mode}
           name={this.props.configProperty}
           placeholder={placeholderText}

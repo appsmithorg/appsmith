@@ -134,6 +134,7 @@ export type EditorStyleProps = {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
   blockCompletions?: FieldEntityInformation["blockCompletions"];
+  fixedPopperPlacement?: boolean;
 };
 /**
  *  line => Line to which the gutter is added
@@ -904,6 +905,7 @@ class CodeEditor extends Component<Props, State> {
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
+          fixedPopperPlacement={this.props.fixedPopperPlacement}
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}

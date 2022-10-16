@@ -204,6 +204,7 @@ interface Props {
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
+  fixedPopperPlacement?: boolean;
   entity?: FieldEntityInformation;
   popperZIndex?: Indices;
 }
@@ -498,6 +499,7 @@ function EvaluatedValuePopup(props: Props) {
   return (
     <Wrapper ref={wrapperRef}>
       <Popper
+        fixedPlacement={props.fixedPopperPlacement}
         isOpen={props.isOpen || contentHovered}
         modifiers={modifiers}
         placement={placement}
