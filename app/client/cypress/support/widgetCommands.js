@@ -1127,6 +1127,23 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   cy.wait(1000);
 });
 
+
+Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType,index) => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .eq(index)
+    .trigger("mouseover", { force: true })
+    .wait(500);
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
+    .eq(index)
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   if (widgetType === "List1Copy") {
     cy.SearchEntityandOpen(widgetType);
@@ -1520,4 +1537,24 @@ Cypress.Commands.add("moveToContentTab", () => {
   cy.get(commonlocators.propertyContent)
     .first()
     .click({ force: true });
+});
+
+Cypress.Commands.add("changeLayoutHeight", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .should("be.visible")
+    .click({force:true});
+  cy.get(locator)
+    .click({force: true});
+  cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+});
+
+Cypress.Commands.add("checkDefaultValue", (endp,value) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .within(() => {
+    cy.contains(value);
+    });
 });
