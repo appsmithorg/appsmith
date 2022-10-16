@@ -128,11 +128,17 @@ function* evaluateTreeSaga(
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const {
+    entityConfigCollection,
+    unEvalDataTree,
+  }: {
+    unEvalDataTree: unknown;
+    entityConfigCollection: DataTree;
+  } = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
 
-  log.debug({ unevalTree });
+  log.debug({ unevalTree: unEvalDataTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -142,7 +148,8 @@ function* evaluateTreeSaga(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     {
-      unevalTree,
+      unevalTree: unEvalDataTree,
+      entityConfigCollection,
       widgetTypeConfigMap,
       widgets,
       theme,
@@ -212,7 +219,7 @@ function* evaluateTreeSaga(
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
-      unevalTree,
+      unEvalDataTree,
       updatedDataTree,
       evaluationOrder,
       isCreateFirstTree,
@@ -262,13 +269,16 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
-  const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const { dataTree: unEvalTree, entityConfigCollection } = yield select(
+    getUnevaluatedDataTree,
+  );
   log.debug({ execute: dynamicTrigger });
   const { isFinishedChannel } = yield call(
     worker.duplexRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     {
       dataTree: unEvalTree,
+      entityConfigCollection,
       dynamicTrigger,
       callbackData,
       globalContext,
@@ -495,9 +505,15 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const {
+    entityConfigCollection,
+  }: {
+    entityConfigCollection: DataTree;
+  } = yield select(getUnevaluatedDataTree);
+
+  const entity = entityConfigCollection[props.widgetName];
   // @ts-expect-error: We have a typeMismatch for validationPaths
-  const validation = unevalTree[props.widgetName].validationPaths[property];
+  const validation = entity.validationPaths[property];
   const response: unknown = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,

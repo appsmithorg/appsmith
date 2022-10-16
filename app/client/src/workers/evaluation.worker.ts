@@ -95,6 +95,7 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
           allActionValidationConfig,
+          entityConfigCollection,
           shouldReplay = true,
           theme,
           unevalTree,
@@ -123,6 +124,7 @@ ctx.addEventListener(
             );
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
+              entityConfigCollection,
             );
             isCreateFirstTree = true;
             evaluationOrder = dataTreeEvaluator.sortedDependencies;

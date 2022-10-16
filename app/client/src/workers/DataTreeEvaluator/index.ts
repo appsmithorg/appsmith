@@ -133,7 +133,7 @@ export default class DataTreeEvaluator {
    * @return {*}
    * @memberof DataTreeEvaluator
    */
-  createFirstTree(unEvalTree: DataTree) {
+  createFirstTree(unEvalTree: unknown, entityConfigCollection: DataTree) {
     const totalStart = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     let localUnEvalTree = klona(unEvalTree);
@@ -142,8 +142,10 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parsedCollections = parseJSActions(this, entityConfigCollection);
     jsUpdates = parsedCollections.jsUpdates;
+
+    // TODO: Remove this method
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
@@ -156,7 +158,7 @@ export default class DataTreeEvaluator {
       dependencyMap,
       invalidReferencesMap,
       triggerFieldDependencyMap,
-    } = createDependencyMap(this, localUnEvalTree);
+    } = createDependencyMap(this, entityConfigCollection);
     this.dependencyMap = dependencyMap;
     this.triggerFieldDependencyMap = triggerFieldDependencyMap;
     this.invalidReferencesMap = invalidReferencesMap;
@@ -171,7 +173,7 @@ export default class DataTreeEvaluator {
     // Evaluate
     const evaluateStart = performance.now();
     const { evalMetaUpdates, evaluatedTree } = this.evaluateTree(
-      localUnEvalTree,
+      entityConfigCollection,
       this.resolvedFunctions,
       this.sortedDependencies,
     );

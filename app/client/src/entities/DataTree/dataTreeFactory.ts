@@ -161,26 +161,33 @@ export class DataTreeFactory {
     theme,
     widgets,
     widgetsMeta,
-  }: DataTreeSeed): DataTree {
-    const dataTree: DataTree = {};
+  }: DataTreeSeed): { dataTree: unknown; entityConfigCollection: DataTree } {
+    const dataTree: Record<string, unknown> = {};
+    const entityConfigCollection: DataTree = {};
     const start = performance.now();
     const startActions = performance.now();
 
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
       const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
-      dataTree[action.config.name] = generateDataTreeAction(
-        action,
-        editorConfig,
-        dependencyConfig,
-      );
+      const {
+        dataTree: actionDataTree,
+        entityConfig: actionEntityConfig,
+      } = generateDataTreeAction(action, editorConfig, dependencyConfig);
+      dataTree[action.config.name] = actionDataTree;
+      entityConfigCollection[action.config.name] = actionEntityConfig;
     });
     const endActions = performance.now();
 
     const startJsActions = performance.now();
 
     jsActions.forEach((js) => {
-      dataTree[js.config.name] = generateDataTreeJSAction(js);
+      const {
+        dataTree: jsActionDataTree,
+        entityConfig: jsActionEntityConfig,
+      } = generateDataTreeJSAction(js);
+      dataTree[js.config.name] = jsActionDataTree;
+      entityConfigCollection[js.config.name] = jsActionEntityConfig;
     });
     const endJsActions = performance.now();
 
@@ -202,7 +209,10 @@ export class DataTreeFactory {
       store: { ...appData.store.persistent, ...appData.store.transient },
       theme,
     } as DataTreeAppsmith;
-    (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
+
+    (entityConfigCollection.appsmith as DataTreeAppsmith).ENTITY_TYPE =
+      ENTITY_TYPE.APPSMITH;
+
     const end = performance.now();
 
     const out = {
@@ -214,6 +224,6 @@ export class DataTreeFactory {
 
     log.debug("### Create unevalTree timing", out);
 
-    return dataTree;
+    return { unEvalDataTree, entityConfigCollection };
   }
 }

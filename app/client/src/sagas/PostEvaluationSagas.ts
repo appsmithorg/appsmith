@@ -293,7 +293,7 @@ export function* evalErrorHandler(
 }
 
 export function* logSuccessfulBindings(
-  unEvalTree: DataTree,
+  unEvalTree: unknown,
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,

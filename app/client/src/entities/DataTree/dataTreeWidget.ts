@@ -19,9 +19,10 @@ import { setOverridingProperty } from "./utils";
 const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
-  dataTreeWidgetWithoutMetaProps: DataTreeWidget;
+  dataTreeWidgetWithoutMetaProps: unknown;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
+  entityConfig: DataTreeWidget;
 } => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
@@ -132,12 +133,20 @@ const generateDataTreeWidgetWithoutMeta = (
    */
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {},
-    widget,
-    unInitializedDefaultProps,
-    // defaultMetaProps,
-    // widgetMetaProps,
-    derivedProps,
     {
+      dataTree: {
+        widget,
+        unInitializedDefaultProps,
+        derivedProps,
+      },
+    },
+  );
+
+  return {
+    dataTreeWidgetWithoutMetaProps,
+    overridingMetaPropsMap,
+    defaultMetaProps,
+    entityConfig: {
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
       dynamicBindingPathList,
@@ -157,11 +166,6 @@ const generateDataTreeWidgetWithoutMeta = (
         ...widget.privateWidgets,
       },
     },
-  );
-  return {
-    dataTreeWidgetWithoutMetaProps,
-    overridingMetaPropsMap,
-    defaultMetaProps,
   };
 };
 
@@ -191,6 +195,7 @@ export const generateDataTreeWidget = (
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
     defaultMetaProps,
+    entityConfig,
     overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
@@ -215,5 +220,5 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
-  return dataTreeWidget;
+  return { dataTree: dataTreeWidget, entityConfig };
 };

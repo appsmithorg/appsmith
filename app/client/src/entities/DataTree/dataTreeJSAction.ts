@@ -11,7 +11,7 @@ const reg = /this\./g;
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
-): DataTreeJSAction => {
+): { dataTree: unknown; entityConfig: DataTreeJSAction } => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
@@ -53,18 +53,22 @@ export const generateDataTreeJSAction = (
     }
   }
   return {
-    ...variableList,
-    name: js.config.name,
-    actionId: js.config.id,
-    pluginType: js.config.pluginType,
-    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body: removeThisReference,
-    meta: meta,
-    bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
-    reactivePaths: { ...bindingPaths },
-    dynamicBindingPathList: dynamicBindingPathList,
-    variables: listVariables,
-    dependencyMap: dependencyMap,
-    ...actionsData,
+    dataTree: {
+      ...variableList,
+      ...actionsData,
+    },
+    entityConfig: {
+      name: js.config.name,
+      actionId: js.config.id,
+      pluginType: js.config.pluginType,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      body: removeThisReference,
+      meta: meta,
+      bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
+      reactivePaths: { ...bindingPaths },
+      dynamicBindingPathList: dynamicBindingPathList,
+      variables: listVariables,
+      dependencyMap: dependencyMap,
+    },
   };
 };
