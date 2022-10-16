@@ -181,13 +181,8 @@ class DatasourceRestAPIEditor extends React.Component<
   componentDidUpdate() {
     if (!this.props.formData) return;
 
-    if (this.state.confirmDelete) {
-      const delayConfirmDeleteToFalse = _.debounce(
-        () => this.setState({ confirmDelete: false }),
-        2200,
-      );
-
-      delayConfirmDeleteToFalse();
+    if (this.state.confirmDelete && !this.props.isDeleting) {
+      this.setState({ confirmDelete: false });
     }
 
     const { authType } = this.props.formData;
