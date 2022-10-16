@@ -86,6 +86,7 @@ export class EntityExplorer {
     cy.get(this.locator._newPage)
       .first()
       .click();
+    cy.get("[data-cy='add-page']").click();
     this.agHelper.ValidateNetworkStatus("@createPage", 201);
   }
 
@@ -161,7 +162,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
+  public DragDropWidgetNVerify(widgetType: string, x: number = 200, y: number =200) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))

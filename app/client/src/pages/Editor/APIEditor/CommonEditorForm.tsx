@@ -9,7 +9,12 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationField, SuggestedWidget } from "api/ActionAPI";
-import { Action, isGraphqlPlugin, PaginationType } from "entities/Action";
+import {
+  Action,
+  isGraphqlPlugin,
+  PaginationType,
+  SlashCommand,
+} from "entities/Action";
 import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
@@ -23,19 +28,21 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
+  Callout,
+  Case,
   Icon,
   IconSize,
+  SearchSnippet,
   Size,
   Text,
-  Case,
   TextType,
+  TooltipComponent,
 } from "design-system";
 import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -50,14 +57,13 @@ import { Datasource } from "entities/Datasource";
 import equal from "fast-deep-equal/es6";
 
 import { Colors } from "constants/Colors";
-import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
-import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
+import { executeCommandAction } from "../../../actions/apiPaneActions";
 
 const Form = styled.form`
   position: relative;
@@ -179,7 +185,7 @@ export const BindingText = styled.span`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 16px 30px;
+  padding: 18px 30px;
   height: 100%;
   ${FormLabel} {
     padding: 0px;
@@ -576,6 +582,18 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
 
+  function handleSearchSnippetClick() {
+    dispatch(
+      executeCommandAction({
+        actionType: SlashCommand.NEW_SNIPPET,
+        args: {
+          entityId: currentActionConfig?.id,
+          entityType: ENTITY_TYPE.ACTION,
+        },
+      }),
+    );
+  }
+
   return (
     <>
       <CloseEditor />
@@ -592,9 +610,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 name={currentActionConfig ? currentActionConfig.name : ""}
                 pageId={pageId}
               />
-              <SearchSnippets
+              <SearchSnippet
                 entityId={currentActionConfig?.id}
                 entityType={ENTITY_TYPE.ACTION}
+                onClick={handleSearchSnippetClick}
               />
               <Button
                 className="t--apiFormRunBtn"

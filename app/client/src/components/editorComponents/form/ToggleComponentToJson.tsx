@@ -12,7 +12,7 @@ import { connect, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { change } from "redux-form";
-import { JSToggleButton } from "components/ads";
+import { JSToggleButton } from "design-system";
 
 type Props = {
   viewType: ViewTypes;

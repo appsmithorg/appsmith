@@ -1,19 +1,16 @@
 import React, { useCallback, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
 import {
   getDisconnectDocUrl,
   getDisconnectingGitApplication,
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  disconnectGit,
-  setIsDisconnectGitModalOpen,
-} from "actions/gitSyncActions";
+import { revokeGit, setIsDisconnectGitModalOpen } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
   Button,
   Category,
+  DialogComponent as Dialog,
   Icon,
   IconSize,
   Size,
@@ -86,8 +83,8 @@ function DisconnectGitModal() {
 
   const onDisconnectGit = useCallback(() => {
     setIsRevoking(true);
-    dispatch(disconnectGit());
-  }, [dispatch, disconnectGit]);
+    dispatch(revokeGit());
+  }, [dispatch, revokeGit]);
 
   const theme = useTheme() as Theme;
 

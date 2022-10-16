@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Toaster, Variant } from "components/ads";
-import { Icon, IconSize, Menu } from "design-system";
+import { Variant } from "components/ads";
+import { Icon, IconSize, Menu, Toaster } from "design-system";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import {

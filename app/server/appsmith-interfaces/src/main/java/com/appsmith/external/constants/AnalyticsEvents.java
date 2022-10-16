@@ -20,6 +20,7 @@ public enum AnalyticsEvents {
     UPDATE_LAYOUT,
     PUBLISH_APPLICATION("publish_APPLICATION"),
     FORK,
+    PAGE_REORDER,
     GENERATE_CRUD_PAGE("generate_CRUD_PAGE"),
     CREATE_SUPERUSER,
     SUBSCRIBE_MARKETING_EMAILS,
@@ -52,6 +53,7 @@ public enum AnalyticsEvents {
     GIT_MERGE_CHECK,
     GIT_FETCH,
     AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured"),
+    INSTANCE_SETTING_UPDATED,
     GENERATE_SSH_KEY("generate_SSH_KEY"),
     UNIT_EXECUTION_TIME,
 

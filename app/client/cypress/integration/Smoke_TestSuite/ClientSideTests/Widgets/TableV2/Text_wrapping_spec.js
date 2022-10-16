@@ -1,8 +1,15 @@
 const dsl = require("../../../../../fixtures/Table/TextWrappingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table Widget text wrapping functionality", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 

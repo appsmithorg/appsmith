@@ -1,9 +1,6 @@
 const omnibar = require("../../../../locators/Omnibar.json");
 const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -119,7 +116,6 @@ describe("Omnibar functionality test cases", () => {
     cy.get(".t--js-action-name-edit-field")
       .type(jsObjectName)
       .wait(1000);
-    agHelper.AssertContains("created successfully");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle)
       .eq(1)

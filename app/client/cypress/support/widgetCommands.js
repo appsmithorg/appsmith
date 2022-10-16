@@ -942,9 +942,7 @@ Cypress.Commands.add("DeleteModal", () => {
 
 Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   let pageId;
-  cy.get(pages.AddPage)
-    .first()
-    .click({ force: true });
+  cy.CreatePage();
   cy.wait("@createPage").then((xhr) => {
     expect(xhr.response.body.responseMeta.status).to.equal(201);
     if (pageName) {
@@ -956,9 +954,6 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
       cy.get(pages.editName).click({ force: true });
       cy.get(pages.editInput).type(pageName + "{enter}");
       cy.wrap(pageId).as("currentPageId");
-    }
-    if (navigateToCanvasPage) {
-      cy.get(generatePage.buildFromScratchActionCard).click();
     }
     cy.get("#loading").should("not.exist");
   });
@@ -1336,7 +1331,7 @@ Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
 
 Cypress.Commands.add("readTableV2LinkPublish", (rowNum, colNum) => {
   const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
-  const bgUrl = cy.get(selector).should("have.css", "background-image");
+  const bgUrl = cy.get(selector).should("have.attr", "src");
   return bgUrl;
 });
 
@@ -1460,6 +1455,15 @@ Cypress.Commands.add("editTableCell", (x, y) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
   ).should("exist");
+});
+
+Cypress.Commands.add("editTableSelectCell", (x, y) => {
+  cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
+    .invoke("show")
+    .click({ force: true });
+  cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .select-button`).should(
+    "exist",
+  );
 });
 
 Cypress.Commands.add("makeColumnEditable", (column) => {

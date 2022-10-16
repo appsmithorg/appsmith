@@ -137,8 +137,16 @@ public class FieldName {
     public static final String EVENT_DATA = "eventData";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
-    public static final String VIEW_MODE = "viewMode";
+    public static final String APP_MODE = "appMode";
+    public static final String PAGE_ORDER = "order";
     public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String WEBSITE = "website";
+    public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+
+    // this key will present in the analytics as a diff b/w server and user invoked flows
+    public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
+    public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
+
 }

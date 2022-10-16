@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
@@ -27,6 +25,20 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
+
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+
     let selectedRow;
 
     /*
@@ -46,8 +58,11 @@ export default {
       });
     }
 
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
-
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     return _.omit(selectedRow, keysToBeOmitted);
   },
   //
@@ -60,6 +75,18 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
     let triggeredRow;
 
     /*
@@ -80,8 +107,11 @@ export default {
       });
     }
 
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
-
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     return _.omit(triggeredRow, keysToBeOmitted);
   },
   //
@@ -100,8 +130,23 @@ export default {
     }
 
     const rows = props.filteredTableData || props.processedTableData || [];
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
-
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
@@ -241,11 +286,7 @@ export default {
             try {
               computedValues = JSON.parse(column.computedValue);
             } catch (e) {
-              console.error(
-                e,
-                "Error parsing column computedValue: ",
-                column.computedValue,
-              );
+              /* do nothing */
             }
           } else if (_.isArray(column.computedValue)) {
             computedValues = column.computedValue;
@@ -403,8 +444,10 @@ export default {
         try {
           const _a = a.toString().toLowerCase();
           const _b = b.toString().toLowerCase();
-
-          return _a.length === _a.lastIndexOf(_b) + _b.length;
+          return (
+            _a.lastIndexOf(_b) >= 0 &&
+            _a.length === _a.lastIndexOf(_b) + _b.length
+          );
         } catch (e) {
           return false;
         }
@@ -508,7 +551,23 @@ export default {
   },
   //
   getUpdatedRows: (props, moment, _) => {
-    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
+    const primaryColumns = props.primaryColumns;
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
     /*
      * case 1. If transientTableData is not empty, return aray of updated row.
      * case 2. If transientTableData is empty, return empty array

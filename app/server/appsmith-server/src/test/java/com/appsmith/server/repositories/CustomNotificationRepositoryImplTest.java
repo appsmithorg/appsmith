@@ -4,13 +4,12 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.Notification;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -23,9 +22,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 public class CustomNotificationRepositoryImplTest {
@@ -33,7 +33,7 @@ public class CustomNotificationRepositoryImplTest {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    @After
+    @AfterEach
     public void afterTest() {
         notificationRepository.deleteAll();
     }
@@ -68,9 +68,9 @@ public class CustomNotificationRepositoryImplTest {
 
         // check that fetched notifications have isRead=false
         StepVerifier.create(listMono).assertNext(notifications -> {
-            Assert.assertEquals(2, notifications.size());
-            Assert.assertEquals(false, notifications.get(0).getIsRead());
-            Assert.assertEquals(false, notifications.get(1).getIsRead());
+            assertEquals(2, notifications.size());
+            assertEquals(false, notifications.get(0).getIsRead());
+            assertEquals(false, notifications.get(1).getIsRead());
         }).verifyComplete();
     }
 
@@ -97,9 +97,9 @@ public class CustomNotificationRepositoryImplTest {
 
         // check that fetched notifications have isRead=true
         StepVerifier.create(listMono).assertNext(notifications -> {
-            Assert.assertEquals(2, notifications.size());
-            Assert.assertEquals(true, notifications.get(0).getIsRead());
-            Assert.assertEquals(true, notifications.get(1).getIsRead());
+            assertEquals(2, notifications.size());
+            assertEquals(true, notifications.get(0).getIsRead());
+            assertEquals(true, notifications.get(1).getIsRead());
         }).verifyComplete();
     }
 
@@ -126,9 +126,9 @@ public class CustomNotificationRepositoryImplTest {
 
         // check that fetched notifications have isRead=true
         StepVerifier.create(listMono).assertNext(notifications -> {
-            Assert.assertEquals(2, notifications.size());
-            Assert.assertEquals(false, notifications.get(0).getIsRead());
-            Assert.assertEquals(false, notifications.get(1).getIsRead());
+            assertEquals(2, notifications.size());
+            assertEquals(false, notifications.get(0).getIsRead());
+            assertEquals(false, notifications.get(1).getIsRead());
         }).verifyComplete();
     }
 
@@ -142,7 +142,7 @@ public class CustomNotificationRepositoryImplTest {
         Mono<Tuple3<Notification, Notification, Notification>> tuple2Mono = Mono.zip(
                 saveMono1, saveMono2, saveMono3
         ).flatMap(objects ->
-            notificationRepository.updateIsReadByForUsername("abc",true).thenReturn(objects)
+                notificationRepository.updateIsReadByForUsername("abc", true).thenReturn(objects)
         );
 
         // now get the notifications we created
@@ -157,13 +157,13 @@ public class CustomNotificationRepositoryImplTest {
 
         // check that fetched notifications have isRead=true
         StepVerifier.create(mapMono).assertNext(notificationCollectionMap -> {
-            Assert.assertEquals(2, notificationCollectionMap.size()); // should contain map of two keys
+            assertEquals(2, notificationCollectionMap.size()); // should contain map of two keys
 
             Notification forEfg = notificationCollectionMap.get("efg").iterator().next();
-            Assert.assertEquals(false, forEfg.getIsRead()); // this should be still unread
+            assertEquals(false, forEfg.getIsRead()); // this should be still unread
 
             notificationCollectionMap.get("abc").iterator().forEachRemaining(notification -> {
-                Assert.assertEquals(true, notification.getIsRead());
+                assertEquals(true, notification.getIsRead());
             });
         }).verifyComplete();
     }
@@ -211,13 +211,13 @@ public class CustomNotificationRepositoryImplTest {
         StepVerifier.create(mapMono).assertNext(authorIdNotificationMap -> {
             assertThat(authorIdNotificationMap.size()).isEqualTo(2);
             assertThat(authorIdNotificationMap.get(authorOneId).size()).isEqualTo(2);
-            for(Notification notification: authorIdNotificationMap.get(authorOneId)) {
+            for (Notification notification : authorIdNotificationMap.get(authorOneId)) {
                 CommentNotification commentNotification = (CommentNotification) notification;
                 // should have updated name
                 assertThat(commentNotification.getComment().getAuthorName()).isEqualTo("New name");
             }
             assertThat(authorIdNotificationMap.get(authorTwoId).size()).isEqualTo(1);
-            for(Notification notification: authorIdNotificationMap.get(authorTwoId)) {
+            for (Notification notification : authorIdNotificationMap.get(authorTwoId)) {
                 CommentNotification commentNotification = (CommentNotification) notification;
                 // name should be unchanged
                 assertThat(commentNotification.getComment().getAuthorName()).isEqualTo(oldName);

@@ -1,6 +1,7 @@
 import { EmbeddedRestDatasource } from "entities/Datasource";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import _ from "lodash";
+import { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import { Plugin } from "api/PluginApi";
 
 export enum PluginType {
@@ -96,6 +97,7 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
 };
 export interface StoredDatasource {
   id: string;
+  pluginId?: string;
 }
 
 export interface BaseAction {
@@ -114,6 +116,7 @@ export interface BaseAction {
   confirmBeforeExecute?: boolean;
   eventData?: any;
   messages: string[];
+  errorReports?: Array<LayoutOnLoadActionErrors>;
 }
 
 interface BaseApiAction extends BaseAction {
