@@ -21,9 +21,6 @@ public class Environment extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String name;
 
-    @Transient
-    List<EnvironmentVariable> environmentVariableList;
-
 
     public void sanitiseToExportDBObject() {
         this.sanitiseToExportBaseObject();
