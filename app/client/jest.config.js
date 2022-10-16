@@ -33,6 +33,9 @@ module.exports = {
   globals: {
     "ts-jest": {
       isolatedModules: true,
+      babelConfig: {
+        plugins: ["babel-plugin-transform-import-meta"],
+      },
     },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
@@ -77,7 +80,9 @@ module.exports = {
 
       disableTelemetry: "DISABLE_TELEMETRY" === "" || "DISABLE_TELEMETRY",
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
-      disableIframeWidgetSandbox: parseConfig("__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__"),
+      disableIframeWidgetSandbox: parseConfig(
+        "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
+      ),
     },
   },
 };
