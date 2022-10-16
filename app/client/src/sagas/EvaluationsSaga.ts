@@ -66,7 +66,7 @@ import {
   TriggerMeta,
 } from "./ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
@@ -78,7 +78,11 @@ import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  LogObject,
+  UserLogObject,
+} from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   logActionExecutionError,
@@ -98,7 +102,6 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { LogObject, UserLogObject } from "workers/UserLog";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
@@ -269,6 +272,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       dynamicTrigger,
       callbackData,
       globalContext,
+      eventType,
     },
   );
 
@@ -375,6 +379,7 @@ interface ResponsePayload {
     resolve?: unknown;
   };
   success: boolean;
+  eventType?: EventType;
 }
 
 /*
@@ -395,6 +400,7 @@ function* executeTriggerRequestSaga(
       subRequestId: requestData.subRequestId,
     },
     success: false,
+    eventType,
   };
   try {
     responsePayload.data.resolve = yield call(

@@ -62,7 +62,7 @@ import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions"
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
@@ -139,7 +139,6 @@ import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
-import { matchGeneratePagePath } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 
@@ -363,7 +362,7 @@ export function removeDynamicBindingProperties(
   dynamicBindingPathList: DynamicPath[],
 ) {
   /*
-  we are doing this because when you toggle js off we only 
+  we are doing this because when you toggle js off we only
   receive the  `primaryColumns.` properties not the `derivedColumns.`
   properties therefore we need just a hard-codded check.
   (TODO) - Arsalan remove this primaryColumns check when the Table widget v2 is live.
@@ -1594,11 +1593,7 @@ function* pasteWidgetSaga(
 
   const pageId: string = yield select(getCurrentPageId);
 
-  if (
-    copiedWidgetGroups &&
-    copiedWidgetGroups.length > 0 &&
-    matchGeneratePagePath(window.location.pathname)
-  ) {
+  if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
     history.push(builderURL({ pageId }));
   }
 

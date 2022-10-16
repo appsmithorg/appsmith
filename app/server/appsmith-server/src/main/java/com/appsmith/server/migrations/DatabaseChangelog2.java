@@ -1,7 +1,9 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
@@ -23,7 +25,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
@@ -47,7 +48,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -111,6 +111,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
@@ -2612,6 +2613,47 @@ public class DatabaseChangelog2 {
         }
 
         softDeletePlugin(mongockTemplate, rapidApiPlugin);
+    }
+
+    @ChangeSet(order = "035", id = "add-tenant-admin-permissions-instance-admin", author = "")
+    public void addTenantAdminPermissionsToInstanceAdmin(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query instanceConfigurationQuery = new Query();
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+
+        String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
+
+        Query permissionGroupQuery = new Query();
+        permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+
+        PermissionGroup instanceAdminPGBeforeChanges = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
+
+        // Give read permission to instanceAdminPg to all the users who have been assigned this permission group
+        Map<String, Policy> readPermissionGroupPolicyMap = Map.of(
+                READ_PERMISSION_GROUPS.getValue(),
+                Policy.builder()
+                        .permission(READ_PERMISSION_GROUPS.getValue())
+                        .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
+                        .build()
+        );
+        PermissionGroup instanceAdminPG = policyUtils.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
+
+        // Now add admin permissions to the tenant
+        Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
+                .map(permission -> new Permission(defaultTenant.getId(), permission))
+                .collect(Collectors.toSet());
+        HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());
+        permissions.addAll(tenantPermissions);
+        instanceAdminPG.setPermissions(permissions);
+        mongockTemplate.save(instanceAdminPG);
+
+        Map<String, Policy> tenantPolicy = policyUtils.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
+        Tenant updatedTenant = policyUtils.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        mongockTemplate.save(updatedTenant);
     }
 
     private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
