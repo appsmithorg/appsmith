@@ -68,13 +68,6 @@ export function validateAndParseWidgetProperty({
     safeEvaluatedValue,
   );
 
-  console.log("$$$-validateAndParseWidgetProperty", {
-    isValid,
-    messages,
-    parsed,
-    transformed,
-  });
-
   if (!isValid) {
     const evalErrors: EvaluationError[] =
       messages?.map((message) => {

@@ -407,7 +407,7 @@ export default class DataTreeEvaluator {
         if (this.inverseValidationDependencyMap[propertyPath]) {
           nonDynamicFieldValidationOrderSet = new Set([
             ...nonDynamicFieldValidationOrderSet,
-            ...this.inverseValidationDependencyMap[propertyPath],
+            propertyPath,
           ]);
         }
       }
@@ -439,10 +439,7 @@ export default class DataTreeEvaluator {
     );
     const evalStop = performance.now();
 
-    this.reValidateTree(
-      nonDynamicFieldValidationOrder,
-      this.getUnParsedEvalTree(),
-    );
+    this.reValidateTree(nonDynamicFieldValidationOrder, newEvalTree);
 
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
@@ -1114,9 +1111,9 @@ export default class DataTreeEvaluator {
     fullPropertyPath,
     widget,
   }: {
-    currentTree: DataTree;
     fullPropertyPath: string;
     widget: DataTreeWidget;
+    currentTree: DataTree;
   }) {
     if (this.inverseValidationDependencyMap[fullPropertyPath]) {
       const pathsToRevalidate = this.inverseValidationDependencyMap[
@@ -1127,7 +1124,8 @@ export default class DataTreeEvaluator {
           fullPropertyPath: fullPath,
           widget,
           currentTree,
-          evalPropertyValue: get(currentTree, fullPath),
+          // we supply non-transformed evaluated value
+          evalPropertyValue: get(this.getUnParsedEvalTree(), fullPath),
           unEvalPropertyValue: (get(
             this.oldUnEvalTree,
             fullPath,
@@ -1146,13 +1144,11 @@ export default class DataTreeEvaluator {
         fullPropertyPath,
       );
       const entity = currentTree[entityName];
-
       if (isWidget(entity) && !isPathADynamicTrigger(entity, propertyPath)) {
-        console.log("$$$-reValidateTree", fullPropertyPath);
         this.reValidateWidgetDependentProperty({
           widget: entity,
-          currentTree,
           fullPropertyPath,
+          currentTree,
         });
       }
     });
