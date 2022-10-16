@@ -1,7 +1,7 @@
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { PERMISSION_TYPE } from "pages/Applications/permissionHelpers";
 import { put } from "redux-saga/effects";
 
