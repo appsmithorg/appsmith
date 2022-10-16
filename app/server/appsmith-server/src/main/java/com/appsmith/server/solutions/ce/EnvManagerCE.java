@@ -27,4 +27,5 @@ public interface EnvManagerCE {
     Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO);
 
     Mono<Void> download(ServerWebExchange exchange);
+
 }
