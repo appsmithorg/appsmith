@@ -43,7 +43,6 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { debounce } from "lodash";
 
 interface Props {
   datasource: Datasource;
