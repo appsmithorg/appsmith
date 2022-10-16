@@ -1552,6 +1552,14 @@ Cypress.Commands.add("changeLayoutHeight", (locator) => {
     );
 });
 
+Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .should("be.visible")
+    .click({force:true});
+  cy.get(locator)
+    .click({force: true});
+});
+
 Cypress.Commands.add("checkDefaultValue", (endp,value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .within(() => {
