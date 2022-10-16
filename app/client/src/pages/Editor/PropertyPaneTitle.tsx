@@ -8,10 +8,12 @@ import React, {
 } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import EditableText, {
+import {
+  EditableText,
   EditInteractionKind,
   SavingState,
-} from "components/ads/EditableText";
+  TooltipComponent,
+} from "design-system";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
@@ -21,7 +23,6 @@ import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEve
 
 import { WidgetType } from "constants/WidgetConstants";
 
-import { TooltipComponent } from "design-system";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";

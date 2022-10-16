@@ -44,6 +44,7 @@ describe("Canvas context widget selection", function() {
 
     //switch to page1
     ee.SelectEntityByName(page1, "Pages");
+    cy.wait(500);
 
     //verify the Camera1 is selected in page1
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);

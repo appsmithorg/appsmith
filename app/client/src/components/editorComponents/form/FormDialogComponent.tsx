@@ -2,9 +2,10 @@ import React, { ReactNode, useState, useEffect } from "react";
 import { isPermitted } from "pages/Applications/permissionHelpers";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { TabComponent, TabProp } from "components/ads/Tabs";
 import {
   DialogComponent as Dialog,
+  TabComponent,
+  TabProp,
   Text,
   TextType,
   IconName,

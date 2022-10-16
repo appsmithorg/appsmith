@@ -18,10 +18,17 @@ export enum FocusEntity {
   NONE = "NONE",
 }
 
+export enum FocusSubTypeEntity {}
+
+export type FocusEntityInfo = {
+  entity: FocusEntity;
+  id: string;
+};
+
 export function identifyEntityFromPath(
   path: string,
   hash?: string,
-): FocusEntity {
+): FocusEntityInfo {
   let appPath = path;
   if (hash) {
     appPath = path.split("#")[0];
@@ -49,19 +56,19 @@ export function identifyEntityFromPath(
     ],
   });
   if (!match) {
-    return FocusEntity.NONE;
+    return { entity: FocusEntity.NONE, id: "" };
   }
   if (match.params.apiId) {
-    return FocusEntity.API;
+    return { entity: FocusEntity.API, id: match.params.apiId };
   }
   if (match.params.queryId) {
-    return FocusEntity.QUERY;
+    return { entity: FocusEntity.QUERY, id: match.params.queryId };
   }
   if (match.params.collectionId) {
-    return FocusEntity.JS_OBJECT;
+    return { entity: FocusEntity.JS_OBJECT, id: match.params.collectionId };
   }
   if (match.params.pageId && hash) {
-    return FocusEntity.PROPERTY_PANE;
+    return { entity: FocusEntity.PROPERTY_PANE, id: hash };
   }
-  return FocusEntity.CANVAS;
+  return { entity: FocusEntity.CANVAS, id: "" };
 }

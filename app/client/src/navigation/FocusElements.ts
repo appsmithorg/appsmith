@@ -69,6 +69,7 @@ import { getWidgetsMeta } from "sagas/selectors";
 import { initialState as MetaDefaultState } from "reducers/entityReducers/metaReducer";
 import { setAllPropertySectionState } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
+import { PluginPackageName } from "entities/Action";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -100,6 +101,7 @@ type Config = {
   selector: (state: AppState) => unknown;
   setter: (payload: any) => ReduxAction<any>;
   defaultValue?: unknown;
+  subTypes?: Record<string, { defaultValue: unknown }>;
 };
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
@@ -246,6 +248,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getApiPaneConfigSelectedTabIndex,
       setter: setApiPaneConfigSelectedTabIndex,
       defaultValue: 0,
+      subTypes: {
+        [PluginPackageName.GRAPHQL]: {
+          defaultValue: 2,
+        },
+      },
     },
     {
       name: FocusElement.ApiPaneResponseTabs,

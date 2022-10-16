@@ -25,7 +25,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { EditInteractionKind, SavingState } from "components/ads/EditableText";
+import { EditInteractionKind, SavingState } from "design-system";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
