@@ -76,6 +76,9 @@ public class EnvManagerTest {
     @MockBean
     private TenantService tenantService;
 
+    @MockBean
+    private ObjectMapper objectMapper;
+
     EnvManager envManager;
 
     @BeforeEach
@@ -94,7 +97,8 @@ public class EnvManagerTest {
                 permissionGroupService,
                 configService,
                 userUtils,
-                tenantService);
+                tenantService,
+                objectMapper);
     }
 
     @Test
