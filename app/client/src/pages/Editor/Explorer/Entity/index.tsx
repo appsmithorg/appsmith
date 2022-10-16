@@ -242,7 +242,7 @@ export const Entity = forwardRef(
     };
 
     useEffect(() => {
-      open(isOpen);
+      if (isEntityOpen !== undefined) open(isOpen);
     }, [props.name]);
 
     /* eslint-enable react-hooks/exhaustive-deps */
@@ -251,10 +251,6 @@ export const Entity = forwardRef(
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {
         props.action && props.action(e);
-      }
-
-      if (props.onToggle) {
-        props.onToggle(!isOpen);
       }
     };
 
