@@ -2,8 +2,11 @@ import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system";
 import DebuggerLogs from "./DebuggerLogs";
-import { useDispatch } from "react-redux";
-import { showDebugger } from "actions/debuggerActions";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import EntityDeps from "./EntityDependecies";
@@ -18,6 +21,7 @@ import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { theme } from "constants/DefaultTheme";
+import { getSelectedCanvasDebuggerTab } from "selectors/editorContextSelectors";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -45,10 +49,6 @@ const Container = styled.div`
   }
 `;
 
-type DebuggerTabsProps = {
-  defaultIndex: number;
-};
-
 const DEBUGGER_TABS = [
   {
     key: DEBUGGER_TAB_KEYS.ERROR_TAB,
@@ -67,9 +67,13 @@ const DEBUGGER_TABS = [
   },
 ];
 
-function DebuggerTabs(props: DebuggerTabsProps) {
+function DebuggerTabs() {
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const selectedTab = useSelector(getSelectedCanvasDebuggerTab);
+  const setSelectedTab = (tabKey: string) => {
+    dispatch(setCanvasDebuggerSelectedTab(tabKey));
+  };
   const onClose = () => dispatch(showDebugger(false));
 
   return (
@@ -80,8 +84,9 @@ function DebuggerTabs(props: DebuggerTabsProps) {
     >
       <Resizer panelRef={panelRef} />
       <EntityBottomTabs
-        defaultIndex={props.defaultIndex}
         expandedHeight={theme.actionsBottomTabInitialHeight}
+        onSelect={setSelectedTab}
+        selectedTabKey={selectedTab}
         tabs={DEBUGGER_TABS}
       />
       <Icon

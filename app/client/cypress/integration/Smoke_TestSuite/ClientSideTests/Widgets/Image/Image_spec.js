@@ -22,6 +22,7 @@ describe("Image Widget Functionality", function() {
     );
     cy.testJsontext("defaultimage", this.data.defaultimage);
     cy.wait(1000);
+    cy.focused().blur();
     /**
      * @param{URL} ImageUrl
      */
