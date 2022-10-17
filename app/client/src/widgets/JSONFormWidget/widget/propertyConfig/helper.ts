@@ -10,7 +10,7 @@ import {
   HookResponse,
   FieldThemeStylesheet,
   ROOT_SCHEMA_KEY,
-} from "widgets/constants";
+} from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
