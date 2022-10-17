@@ -299,6 +299,22 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+
+    }
+
     /**
      * Test for DBRef after codec implementation
      */
