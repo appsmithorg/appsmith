@@ -30,8 +30,6 @@ export default {
   EmailFilterDropdown:
     ".audit-logs-filter.audit-logs-filter-dropdown.audit-logs-email-filter-dropdown",
   ResourceIdFilterText: ".audit-logs-filter.audit-logs-resource-id-filter",
-  DateFilterDropdown:
-    ".audit-logs-filter.audit-logs-filter-dropdown.audit-logs-date-filter-dropdown",
   OpenBlueprintPortal: ".bp3-overlay.bp3-overlay-open",
   EventFilterDropdownBlueprintPortal:
     ".bp3-popover.bp3-minimal.audit-logs-filter.audit-logs-filter-dropdown.audit-logs-event-filter-dropdown.none-shadow-popover",

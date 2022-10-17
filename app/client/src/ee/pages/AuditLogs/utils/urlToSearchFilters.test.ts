@@ -6,7 +6,7 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const url = `?emails=${email}`;
     const actual = urlToSearchFilters(url);
     const expected = {
-      emails: [{ id: email, value: email, label: email }],
+      emails: [email],
     };
     expect(actual).toEqual(expected);
   });
@@ -16,10 +16,7 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const url = `?emails=${email1},${email2}`;
     const actual = urlToSearchFilters(url);
     const expected = {
-      emails: [
-        { id: email1, value: email1, label: email1 },
-        { id: email2, value: email2, label: email2 },
-      ],
+      emails: [email1, email2],
     };
     expect(actual).toEqual(expected);
   });
@@ -29,7 +26,7 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const url = `?events=${event}`;
     const actual = urlToSearchFilters(url);
     const expected = {
-      events: [{ id: event, value: event, label: "Page created" }],
+      events: [event],
     };
     expect(actual).toEqual(expected);
   });
@@ -39,120 +36,30 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const url = `?events=${event1},${event2}`;
     const actual = urlToSearchFilters(url);
     const expected = {
-      events: [
-        { id: event1, value: event1, label: "Page created" },
-        { id: event2, value: event2, label: "Page updated" },
-      ],
+      events: [event1, event2],
     };
     expect(actual).toEqual(expected);
   });
 
   /* days */
-  it("returns correct values for all of the days search param", () => {
-    const cases = [0, 1, 2, 8, 31];
-    const actual = cases.map((d) => urlToSearchFilters(`?days=${d}`));
-    // const expected = cases.map((d) => ({ days: [toDate(d.toString())] })); /* for debugging */
-    const expected = [
-      {
-        days: [
-          {
-            label: "Select",
-            value: "0",
-            id: "no-value",
-          },
-        ],
-      },
-      {
-        days: [
-          {
-            label: "Today",
-            value: "1",
-            id: "today",
-          },
-        ],
-      },
-      {
-        days: [
-          {
-            label: "Yesterday",
-            value: "2",
-            id: "yesterday",
-          },
-        ],
-      },
-      {
-        days: [
-          {
-            label: "Last 7 days",
-            value: "8",
-            id: "last-7",
-          },
-        ],
-      },
-      {
-        days: [
-          {
-            label: "Last 30 days",
-            value: "31",
-            id: "last-30",
-          },
-        ],
-      },
-    ];
-
-    cases.forEach((_, i) => {
-      expect(actual[i]).toEqual(expected[i]);
-    });
+  it("returns correct values for all of the date search params", () => {
+    const url = "?startDate=12345&endDate=56789";
+    const actual = urlToSearchFilters(url);
+    const expected = {
+      startDate: [12345],
+      endDate: [56789],
+    };
+    expect(actual).toEqual(expected);
   });
-  it("returns default values for unsupported values of the days search param", () => {
-    const cases = [-1, 3, 10, 80, 310];
-    const actual = cases.map((d) => urlToSearchFilters(`?days=${d}`));
-    // const expected = cases.map((d) => ({ days: [toDate(d.toString())] })); /* for debugging */
+  it("returns correct values for missing date search params", () => {
+    const cases = ["?startDate=12345", "?endDate=56789"];
+    const actual = cases.map((d) => urlToSearchFilters(d));
     const expected = [
       {
-        days: [
-          {
-            label: "Select",
-            value: "0",
-            id: "no-value",
-          },
-        ],
+        startDate: [12345],
       },
       {
-        days: [
-          {
-            label: "Select",
-            value: "0",
-            id: "no-value",
-          },
-        ],
-      },
-      {
-        days: [
-          {
-            label: "Select",
-            value: "0",
-            id: "no-value",
-          },
-        ],
-      },
-      {
-        days: [
-          {
-            label: "Select",
-            value: "0",
-            id: "no-value",
-          },
-        ],
-      },
-      {
-        days: [
-          {
-            label: "Select",
-            value: "0",
-            id: "no-value",
-          },
-        ],
+        endDate: [56789],
       },
     ];
 
@@ -165,14 +72,14 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const sortOrder = "DESC";
     const actual = urlToSearchFilters(`?sortOrder=${sortOrder}`);
     const expected = {
-      sortOrder: [{ id: sortOrder, value: sortOrder, label: sortOrder }],
+      sortOrder: [sortOrder],
     };
     expect(actual).toEqual(expected);
 
     const test = "test";
     const actual2 = urlToSearchFilters(`?test=${test}`);
     const expected2 = {
-      test: [{ id: test, value: test, label: test }],
+      test: [test],
     };
     expect(actual2).toEqual(expected2);
   });
@@ -187,7 +94,7 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const url = `?a=te?st&b=te?st`;
     const actual = urlToSearchFilters(url);
     const expected = {
-      a: [{ id: "te", value: "te", label: "te" }],
+      a: ["te"],
       // /* This won't exist; Check sanitiseSearchParamString */
       // b: [{ id: "te", value: "te", label: "te" }],
     };
@@ -197,7 +104,7 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const url = `a=te?st&b=te?st`;
     const actual = urlToSearchFilters(url);
     const expected = {
-      a: [{ id: "te", value: "te", label: "te" }],
+      a: ["te"],
       // /* This won't exist; Check sanitiseSearchParamString */
       // b: [{ id: "te", value: "te", label: "te" }],
     };
@@ -221,44 +128,17 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
   it(`returns object with multiple keys`, () => {
     const emails = "user@appsmith.com";
     const events = "page.created,group.created";
-    const days = "8";
+    const startDate = "123456";
+    const endDate = "56789";
     const sortOrder = "DESC";
-    const url = `?emails=${emails}&events=${events}&days=${days}&sortOrder=${sortOrder}`;
+    const url = `?emails=${emails}&events=${events}&startDate=${startDate}&endDate=${endDate}&sortOrder=${sortOrder}`;
     const actual = urlToSearchFilters(url);
     const expected = {
-      emails: [
-        {
-          id: "user@appsmith.com",
-          label: "user@appsmith.com",
-          value: "user@appsmith.com",
-        },
-      ],
-      events: [
-        {
-          id: "page.created",
-          label: "Page created",
-          value: "page.created",
-        },
-        {
-          id: "group.created",
-          label: "Group created",
-          value: "group.created",
-        },
-      ],
-      days: [
-        {
-          id: "last-7",
-          label: "Last 7 days",
-          value: "8",
-        },
-      ],
-      sortOrder: [
-        {
-          id: "DESC",
-          label: "DESC",
-          value: "DESC",
-        },
-      ],
+      emails: ["user@appsmith.com"],
+      events: ["page.created", "group.created"],
+      startDate: [123456],
+      endDate: [56789],
+      sortOrder: ["DESC"],
     };
     expect(actual).toEqual(expected);
   });
@@ -267,20 +147,8 @@ describe("audit-logs/utils/urlToSearchFilters", () => {
     const url = "?emails=,,test@appsmith.com&events=,,page.created";
     const actual = urlToSearchFilters(url);
     const expected = {
-      emails: [
-        {
-          id: "test@appsmith.com",
-          label: "test@appsmith.com",
-          value: "test@appsmith.com",
-        },
-      ],
-      events: [
-        {
-          id: "page.created",
-          label: "Page created",
-          value: "page.created",
-        },
-      ],
+      emails: ["test@appsmith.com"],
+      events: ["page.created"],
     };
     expect(actual).toEqual(expected);
   });

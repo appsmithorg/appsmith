@@ -38,9 +38,15 @@ export function searchFiltersToUrl(
     searchStr += filters.dateSortOrder;
     final.push(searchStr);
   }
-  if (Object.keys(filters.days).length > 0) {
-    let searchStr = "days=";
-    searchStr += filters.days.value;
+  if (filters.startDate) {
+    let searchStr = "startDate=";
+    searchStr += filters.startDate;
+    final.push(searchStr);
+  }
+
+  if (filters.endDate) {
+    let searchStr = "endDate=";
+    searchStr += filters.endDate;
     final.push(searchStr);
   }
   return "?" + final.join("&");

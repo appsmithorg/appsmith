@@ -64,10 +64,7 @@ describe("Audit logs", () => {
         .find(locators.ResourceIdFilterText)
         .should("be.visible");
 
-      cy.get(locators.DateFilterContainer)
-        .should("be.visible")
-        .find(locators.DateFilterDropdown)
-        .should("be.visible");
+      cy.get(locators.DateFilterContainer).should("be.visible");
     });
 
     cy.get(locators.TableContainer)
