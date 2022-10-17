@@ -5,9 +5,9 @@ import {
   StyledNavigateToFieldWrapper,
 } from "components/propertyControls/StyledControls";
 import DividerComponent from "widgets/DividerWidget/component";
-import { FieldType } from "./constants";
-import { FieldsProps } from "./types";
-import { Field } from "./Field/Field";
+import { FieldType } from "../constants";
+import { FieldGroupProps } from "../types";
+import { Field } from "../Field";
 
 /**
  ******** Steps to add a new function *******
@@ -29,7 +29,7 @@ import { Field } from "./Field/Field";
  * 2. Attach fields to the new action in the getFieldFromValue function
  **/
 
-function Fields(props: FieldsProps) {
+function FieldGroup(props: FieldGroupProps) {
   const { fields, ...otherProps } = props;
 
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
@@ -83,7 +83,7 @@ function Fields(props: FieldsProps) {
               const selectorField = field[0];
               return (
                 <li key={index}>
-                  <Fields
+                  <FieldGroup
                     activeNavigateToTab={props.activeNavigateToTab}
                     additionalAutoComplete={props.additionalAutoComplete}
                     depth={props.depth + 1}
@@ -137,7 +137,7 @@ function Fields(props: FieldsProps) {
         }
         const selectorField = field[0];
         return (
-          <Fields
+          <FieldGroup
             activeNavigateToTab={props.activeNavigateToTab}
             depth={props.depth + 1}
             fields={field}
@@ -170,4 +170,4 @@ function Fields(props: FieldsProps) {
   }
 }
 
-export default Fields;
+export default FieldGroup;
