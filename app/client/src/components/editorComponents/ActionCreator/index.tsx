@@ -28,9 +28,9 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import Fields from "./Fields";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import FieldGroup from "./FieldGroup/FieldGroup";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
@@ -671,7 +671,7 @@ const ActionCreator = React.forwardRef(
 
     return (
       <TreeStructure ref={ref}>
-        <Fields
+        <FieldGroup
           activeNavigateToTab={activeTabNavigateTo}
           additionalAutoComplete={props.additionalAutoComplete}
           depth={1}

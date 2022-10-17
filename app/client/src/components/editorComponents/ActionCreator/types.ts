@@ -81,7 +81,7 @@ export type FieldProps = {
   navigateToSwitches: Array<SwitchType>;
 };
 
-export type FieldsProps = Omit<FieldProps, "field"> & {
+export type FieldGroupProps = Omit<FieldProps, "field"> & {
   fields: Array<Field>;
 };
 
