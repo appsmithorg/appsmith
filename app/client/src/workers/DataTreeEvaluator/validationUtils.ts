@@ -107,7 +107,7 @@ export function validateActionProperty(
   return validate(config, value, {}, "");
 }
 
-export function getValidatedTree(tree: DataTree) {
+export function getValidatedTree(tree: DataTree, unParseEvalTree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
@@ -115,7 +115,11 @@ export function getValidatedTree(tree: DataTree) {
     }
     const parsedEntity = { ...entity };
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = get(entity, property);
+      const value = get(
+        unParseEvalTree,
+        [entityKey, property],
+        entity[property],
+      );
       // Pass it through parse
       const { isValid, messages, parsed, transformed } = validateWidgetProperty(
         validation,

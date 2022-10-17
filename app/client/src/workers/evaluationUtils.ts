@@ -596,7 +596,6 @@ export const resetValidationErrorsForEntityProperty = (
     ) as EvaluationError[]).filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
-
     _.set(dataTree, errorPath, existingErrorsExceptValidation);
   }
   return dataTree;
