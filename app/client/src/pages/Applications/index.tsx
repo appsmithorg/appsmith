@@ -399,9 +399,10 @@ function LeftPane() {
   }
 
   const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = isPermitted(tenantPermissions, [
+  const canCreateWorkspace = isPermitted(
+    tenantPermissions,
     PERMISSION_TYPE.CREATE_WORKSPACES,
-  ]);
+  );
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
