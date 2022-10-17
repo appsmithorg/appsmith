@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
+
 
 public class DataTypeStringUtilsTest {
 
@@ -128,7 +128,6 @@ public class DataTypeStringUtilsTest {
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"Abracadabra").type());
         assertThat(DataType.INTEGER).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.NUMBER,"13").type());
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"\"literal\"").type());
-        assertThat(DataType.NULL_ARRAY).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.ARRAY,"[]").type());
 
         // End of line comments starting with // or # and ending with a newline character.
         assertThat(DataType.STRING).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING,"{//comment\n}").type());

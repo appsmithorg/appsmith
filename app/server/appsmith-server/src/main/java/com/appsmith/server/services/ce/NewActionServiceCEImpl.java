@@ -931,12 +931,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet().stream().findFirst();
                                     if (firstKeyOpt.isPresent()) {
                                         String firstKey = firstKeyOpt.get();
+                                        param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
                                         List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
                                         List<ClientDataType> dataTypesOfArrayElements =
                                                 individualTypes.stream()
-                                                        .filter(it-> it != null)
-                                                        .map( it -> ClientDataType.valueOf(it.toUpperCase()))
-                                                                .collect(Collectors.toList());
+                                                        .map(it -> ClientDataType.valueOf(String.valueOf(it).toUpperCase()))
+                                                        .collect(Collectors.toList());
                                         param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
                                     }
                                 }

@@ -25,6 +25,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.datatypes.PostgresSpecificDataTypes;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -822,7 +823,7 @@ public class PostgresPlugin extends BasePlugin {
             if (explicitCastDataTypes != null && explicitCastDataTypes.get(index - 1) != null) {
                 valueType = explicitCastDataTypes.get(index - 1);
             } else {
-                AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value);
+                AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value, PostgresSpecificDataTypes.pluginSpecificTypes);
                 valueType = appsmithType.type();
             }
 
@@ -872,6 +873,9 @@ public class PostgresPlugin extends BasePlugin {
                         preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
                         break;
                     }
+                    case NULL_ARRAY:
+                        preparedStatement.setArray(index, null);
+                        break;
                     case ARRAY: {
                         List arrayListFromInput = objectMapper.readValue(value, List.class);
                         if (arrayListFromInput.isEmpty()) {
