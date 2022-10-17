@@ -111,3 +111,14 @@ export type DataTreeForActionCreator = {
     meta?: Record<string, MetaArgs>;
   };
 };
+
+export type FieldGroupValueType = {
+  label: string;
+  fields: string[];
+  value?: string;
+  children?: TreeDropdownOption[];
+};
+
+export type FieldGroupConfig = {
+  [key: string]: FieldGroupValueType;
+};
