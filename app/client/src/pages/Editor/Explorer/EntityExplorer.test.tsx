@@ -39,7 +39,7 @@ describe("Entity Explorer tests", () => {
     );
   });
 
-  it("checks datasources section in explorer", () => {
+  it.skip("checks datasources section in explorer", () => {
     store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
