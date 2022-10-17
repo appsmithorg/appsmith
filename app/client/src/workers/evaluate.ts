@@ -8,7 +8,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
-import { enhanceDataTreeWithFunctions } from "./Actions";
+import { enhanceDataTreeWithFunctions, getAllAsyncFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
@@ -240,6 +240,21 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
+const referenceErrorRegex = /ReferenceError: ([a-zA-Z]+) is not defined/;
+
+function syncFieldErrorParser(message: string, dataTree: DataTree) {
+  const result = message.match(referenceErrorRegex);
+  if (result) {
+    const referencedIdentifier = result[1];
+    const asyncFunctions = getAllAsyncFunctions(dataTree);
+    if (asyncFunctions[referencedIdentifier]) {
+      return `Data fields cannot run actions like ${referencedIdentifier}, Please use trigger fields to execute such action`;
+    }
+    return message;
+  }
+  return message;
+}
+
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
@@ -297,7 +312,7 @@ export default function evaluateSync(
         (error as Error).message
       }`;
       errors.push({
-        errorMessage: errorMessage,
+        errorMessage: syncFieldErrorParser(errorMessage, dataTree),
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,

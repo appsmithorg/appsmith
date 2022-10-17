@@ -321,6 +321,27 @@ export const enhanceDataTreeWithFunctions = (
   return clonedDT;
 };
 
+export const getAllAsyncFunctions = (dataTree: DataTree) => {
+  const asyncFunctionNameMap: Record<string, string> = {};
+  Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
+    if (
+      typeof funcOrFuncCreator === "object" &&
+      "qualifier" in funcOrFuncCreator
+    ) {
+      Object.entries(dataTree).forEach(([entityName, entity]) => {
+        if (funcOrFuncCreator.qualifier(entity)) {
+          const funcName = `${funcOrFuncCreator.path ||
+            `${entityName}.${name}`}`;
+          _.set(asyncFunctionNameMap, funcName, funcName);
+        }
+      });
+    } else {
+      _.set(asyncFunctionNameMap, name, name);
+    }
+  });
+  return asyncFunctionNameMap;
+};
+
 /**
  * The Pusher function is created to decide the proper execution method
  * and payload of a platform action. It is bound to the platform functions and
