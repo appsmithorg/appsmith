@@ -67,7 +67,7 @@ export function identifyEntityFromPath(
     return { entity: FocusEntity.API, id: match.params.apiId };
   }
   if (match.params.datasourceId) {
-    return FocusEntity.DATASOURCE;
+    return { entity: FocusEntity.DATASOURCE, id: match.params.datasourceId };
   }
   if (match.params.queryId) {
     return { entity: FocusEntity.QUERY, id: match.params.queryId };

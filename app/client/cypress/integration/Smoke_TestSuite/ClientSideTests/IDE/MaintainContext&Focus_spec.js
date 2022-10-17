@@ -120,41 +120,30 @@ describe("MaintainContext&Focus", function() {
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
   });
-  // it("Datasource edit mode has to be maintained", () => {
-  //   ee.SelectEntityByName("Appsmith");
-  //   ee.SelectEntityByName("Github");
-  //   dataSources.AssertViewMode();
-  //   ee.SelectEntityByName("Appsmith");
-  //   dataSources.AssertEditMode();
-  // });
+  it("Datasource edit mode has to be maintained", () => {
+    ee.SelectEntityByName("Appsmith");
+    ee.SelectEntityByName("Github");
+    dataSources.AssertViewMode();
+    ee.SelectEntityByName("Appsmith");
+    dataSources.AssertEditMode();
+  });
   it("Datasource collapse state has to be maintained", () => {
+    // Create datasource 1
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.RenameWithInPane("Postgres1", false);
-    cy.get(".t--collapse-section-container")
-      .eq(1)
-      .click();
-    cy.get(".t--collapse-section-container")
-      .eq(1)
-      .find(".bp3-icon-chevron-up")
-      .should("be.visible");
+    // Expand section with index 1
+    dataSources.ExpandSection(1);
+    // Create and switch to datasource 2
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("MongoDB");
     agHelper.RenameWithInPane("Mongo1", false);
-    cy.get(".t--collapse-section-container")
-      .eq(1)
-      .find(".bp3-icon-chevron-up")
-      .should("not.be.visible");
-    cy.get(".t--collapse-section-container")
-      .get(1)
-      .within(() => {
-        cy.get(".bp3-icon-chevron-up").should("not.be.visible");
-      });
+    // Validate if section with index 1 is collapsed
+    dataSources.AssertSectionCollapseState(1, true);
+    // Switch back to datasource 1
+    dataSources.CreateNewQueryInDS("Postgres1");
     ee.SelectEntityByName("Postgres1");
-    cy.get(".t--collapse-section-container")
-      .get(1)
-      .within(() => {
-        cy.get(".bp3-icon-chevron-up").should("not.be.visible");
-      });
+    // Validate if section with index 1 is expanded
+    dataSources.AssertSectionCollapseState(1, false);
   });
 });

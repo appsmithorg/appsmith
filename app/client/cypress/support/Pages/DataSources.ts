@@ -17,6 +17,7 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
+  private _collapseContainer = ".t--collapse-section-container";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
   private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
@@ -225,6 +226,28 @@ export class DataSources {
 
   public EditDatasource() {
     this.agHelper.GetNClick(this._editButton);
+  }
+
+  public ExpandSection(index: number) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .click();
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .find(this.locator._chevronUp)
+      .should("be.visible");
+  }
+
+  public AssertSectionCollapseState(index: number, collapsed = false) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .within(() => {
+        if (collapsed) {
+          cy.get(this.locator._chevronUp).should("not.exist");
+        } else {
+          cy.get(this.locator._chevronUp).should("exist");
+        }
+      });
   }
 
   public NavigateToDSCreateNew() {
