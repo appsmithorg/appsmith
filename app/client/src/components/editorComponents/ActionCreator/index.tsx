@@ -24,7 +24,7 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import Fields from "./Fields";
+import FieldGroup from "./FieldGroup/FieldGroup";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
@@ -663,7 +663,7 @@ const ActionCreator = React.forwardRef(
 
     return (
       <TreeStructure ref={ref}>
-        <Fields
+        <FieldGroup
           activeNavigateToTab={activeTabNavigateTo}
           additionalAutoComplete={props.additionalAutoComplete}
           depth={1}
