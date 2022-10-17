@@ -454,6 +454,10 @@ export const useAutoLayoutHighlights = ({
    */
 
   const debouncedDispatch = debounce((pos: HighlightInfo) => {
+    dispatchTempHighlight(pos);
+  }, 5);
+
+  const dispatchTempHighlight = (pos: HighlightInfo) => {
     dispatch({
       type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
       payload: {
@@ -461,7 +465,7 @@ export const useAutoLayoutHighlights = ({
         blocksToDraw,
       },
     });
-  }, 5);
+  };
 
   const highlightDropPosition = (e: any, moveDirection: ReflowDirection) => {
     if (!useAutoLayout) return;
@@ -469,7 +473,7 @@ export const useAutoLayoutHighlights = ({
       e,
       moveDirection,
     );
-    debouncedDispatch(pos);
+    dispatchTempHighlight(pos);
     // console.log({ pos });
 
     if (!pos) return;
