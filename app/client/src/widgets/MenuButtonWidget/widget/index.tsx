@@ -195,7 +195,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Source Data",
             controlType: "INPUT_TEXT",
             placeholderText: "{{Table1.tableData}}",
-            inputType: "TEXT",
+            inputType: "ARRAY",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.ARRAY },
@@ -213,8 +213,9 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
             hidden: (props: MenuButtonWidgetProps) =>
-              props.menuItemsSource === MenuItemsSource.STATIC,
-            dependencies: ["menuItemsSource"],
+              props.menuItemsSource === MenuItemsSource.STATIC ||
+              !props.sourceData,
+            dependencies: ["menuItemsSource", "sourceData"],
             panelConfig: {
               editableTitle: false,
               titlePropertyName: "label",

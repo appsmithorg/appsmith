@@ -34,6 +34,11 @@ import orderBy from "lodash/orderBy";
 import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import {
+  MenuButtonComponentProps,
+  MenuItemsSource,
+  PopoverContentProps,
+} from "../constants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -237,46 +242,54 @@ const StyledMenu = styled(Menu)<{
   }
 `;
 
-export interface PopoverContentProps {
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
-  onItemClicked: (onClick: string | undefined) => void;
-  isCompact?: boolean;
-  borderRadius?: string;
-  backgroundColor?: string;
-}
-
 function PopoverContent(props: PopoverContentProps) {
   const {
     backgroundColor,
+    configureMenuItems,
     isCompact,
     menuItems: itemsObj,
+    menuItemsSource,
     onItemClicked,
+    sourceData,
   } = props;
 
-  if (!itemsObj) return <StyledMenu />;
-  const visibleItems = Object.keys(itemsObj)
-    .map((itemKey) => itemsObj[itemKey])
-    .filter((item) => item.isVisible === true);
+  if (menuItemsSource === MenuItemsSource.STATIC && !itemsObj)
+    return <StyledMenu />;
 
-  const items = orderBy(visibleItems, ["index"], ["asc"]);
+  if (menuItemsSource === MenuItemsSource.DYNAMIC && !sourceData?.length)
+    return <StyledMenu />;
 
-  const listItems = items.map((menuItem) => {
+  const getItems = () => {
+    let visibleItems;
+
+    if (menuItemsSource === MenuItemsSource.STATIC) {
+      visibleItems = Object.keys(itemsObj)
+        .map((itemKey) => itemsObj[itemKey])
+        .filter((item) => item.isVisible === true);
+
+      return orderBy(visibleItems, ["index"], ["asc"]);
+    } else if (
+      menuItemsSource === MenuItemsSource.DYNAMIC &&
+      sourceData?.length
+    ) {
+      const items = sourceData.map((item, index) => ({
+        ...item,
+        isVisible: item.isVisible || true,
+        isDisabled: item.isDisabled || false,
+        index: index,
+        widgetId: "",
+        label: item[configureMenuItems?.label],
+      }));
+
+      return items;
+    }
+  };
+
+  const items = getItems();
+
+  if (!items) return <StyledMenu />;
+
+  const listItems = items.map((menuItem: any) => {
     const {
       backgroundColor,
       iconAlign,
@@ -288,6 +301,7 @@ function PopoverContent(props: PopoverContentProps) {
       onClick,
       textColor,
     } = menuItem;
+
     if (iconAlign === Alignment.RIGHT) {
       return (
         <BaseMenuItem
@@ -302,6 +316,7 @@ function PopoverContent(props: PopoverContentProps) {
         />
       );
     }
+
     return (
       <BaseMenuItem
         backgroundColor={backgroundColor}
@@ -315,6 +330,7 @@ function PopoverContent(props: PopoverContentProps) {
       />
     );
   });
+
   return <StyledMenu backgroundColor={backgroundColor}>{listItems}</StyledMenu>;
 }
 
@@ -372,47 +388,11 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   );
 }
 
-export interface MenuButtonComponentProps {
-  label?: string;
-  isDisabled?: boolean;
-  isVisible?: boolean;
-  isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
-  menuVariant?: ButtonVariant;
-  menuColor?: string;
-  borderRadius: string;
-  boxShadow?: string;
-  iconName?: IconName;
-  iconAlign?: Alignment;
-  onItemClicked: (onClick: string | undefined) => void;
-  backgroundColor?: string;
-  placement?: ButtonPlacement;
-  width: number;
-  widgetId: string;
-  menuDropDownWidth: number;
-  renderMode?: RenderMode;
-}
-
 function MenuButtonComponent(props: MenuButtonComponentProps) {
   const {
     borderRadius,
     boxShadow,
+    configureMenuItems,
     iconAlign,
     iconName,
     isCompact,
@@ -421,10 +401,12 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     menuColor,
     menuDropDownWidth,
     menuItems,
+    menuItemsSource,
     menuVariant,
     onItemClicked,
     placement,
     renderMode,
+    sourceData,
     widgetId,
     width,
   } = props;
@@ -442,9 +424,12 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           <PopoverContent
             backgroundColor={menuColor}
             borderRadius={borderRadius}
+            configureMenuItems={configureMenuItems}
             isCompact={isCompact}
             menuItems={menuItems}
+            menuItemsSource={menuItemsSource}
             onItemClicked={onItemClicked}
+            sourceData={sourceData}
           />
         }
         disabled={isDisabled}

@@ -42,10 +42,12 @@ export const CONFIG = {
         index: 2,
       },
     },
+    sourceData: "",
     configureMenuItems: {
       label: "Configure Menu Items",
-      id: "configureMenuItemsPanel",
+      id: "config",
       config: {
+        id: "config",
         label: "{{currentItem.name}}",
         isVisible: true,
         isDisabled: false,
