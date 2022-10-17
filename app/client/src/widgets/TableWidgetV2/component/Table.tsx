@@ -30,7 +30,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
-import { EditableCell } from "../constants";
+import { EditableCell, TableVariant } from "../constants";
 import { TableBody } from "./TableBody";
 
 interface TableProps {
@@ -81,8 +81,11 @@ interface TableProps {
   accentColor: string;
   borderRadius: string;
   boxShadow?: string;
+  borderWidth?: number;
+  borderColor?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
+  variant?: TableVariant;
   primaryColumnId?: string;
 }
 
@@ -236,13 +239,17 @@ export function Table(props: TableProps) {
     <TableWrapper
       accentColor={props.accentColor}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      borderColor={props.borderColor}
       borderRadius={props.borderRadius}
+      borderWidth={props.borderWidth}
       boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}
+      isResizingColumn={isResizingColumn.current}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
+      variant={props.variant}
       width={props.width}
     >
       {isHeaderVisible && (
@@ -263,6 +270,7 @@ export function Table(props: TableProps) {
               backgroundColor={Colors.WHITE}
               serverSidePaginationEnabled={props.serverSidePaginationEnabled}
               tableSizes={tableSizes}
+              variant={props.variant}
               width={props.width}
             >
               <TableHeader
