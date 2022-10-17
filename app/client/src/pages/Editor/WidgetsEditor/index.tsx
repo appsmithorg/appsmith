@@ -12,7 +12,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
-import { flashElementsById } from "utils/helpers";
+import { quickScrollToWidget } from "utils/helpers";
 import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
@@ -64,7 +64,7 @@ function WidgetsEditor() {
       !guidedTourEnabled
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
-      flashElementsById(widgetIdFromURLHash);
+      quickScrollToWidget(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
     }

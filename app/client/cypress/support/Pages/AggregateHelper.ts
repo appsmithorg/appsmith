@@ -20,11 +20,10 @@ export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
   private isMac = Cypress.platform === "darwin";
-  private selectLineNRemove = `${
-    this.isMac
-      ? "{cmd}{shift}{leftArrow}{backspace}"
-      : "{shift}{home}{backspace}"
+  private selectLine = `${
+    this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
+  private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
   private selectChars = (noOfChars: number) =>
@@ -477,7 +476,8 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectLineNRemove);
+    locator.type(this.selectLine);
+    return locator.type(this.removeLine);
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -881,7 +881,11 @@ export class AggregateHelper {
   public AssertContains(
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    selector?: string,
   ) {
+    if (selector) {
+      return cy.contains(selector, text).should(exists);
+    }
     return cy.contains(text).should(exists);
   }
 
