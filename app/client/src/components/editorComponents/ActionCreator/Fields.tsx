@@ -117,6 +117,10 @@ const fieldConfigs: FieldConfigs = {
         case AppsmithFunction.resetWidget:
           defaultParams = `"",true`;
           break;
+        case AppsmithFunction.addMessageHandler:
+          defaultParams =
+            "() => { \n\t // add code here \n}, https://dev.appsmith.com";
+          break;
         default:
           break;
       }
