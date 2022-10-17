@@ -1,17 +1,10 @@
 import { Theme } from "constants/DefaultTheme";
 import { toast } from "react-toastify";
+import { Variant } from "design-system";
 
 export type ThemeProp = {
   theme: Theme;
 };
-
-export enum Variant {
-  success = "success",
-  info = "info",
-  warning = "warning",
-  danger = "danger",
-}
-
 export enum ToastTypeOptions {
   success = "success",
   info = "info",

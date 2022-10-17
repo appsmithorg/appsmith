@@ -2,8 +2,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
-import { Toaster } from "design-system";
-import { ThemeProp, Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
+import { ThemeProp } from "components/ads/common";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 

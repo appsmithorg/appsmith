@@ -4,8 +4,6 @@ import styled, { withTheme } from "styled-components";
 import { Classes, Menu, Position } from "@blueprintjs/core";
 import { Classes as Popover2Classes, Popover2 } from "@blueprintjs/popover2";
 import { noop } from "lodash";
-
-import { Variant } from "components/ads/common";
 import {
   CommonComponentProps,
   EditInteractionKind,
@@ -13,6 +11,7 @@ import {
   IconSize,
   SavingState,
   Toaster,
+  Variant,
 } from "design-system";
 import { ThemeProp } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";

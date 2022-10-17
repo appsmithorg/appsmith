@@ -20,8 +20,8 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { ThemeProp, Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { ThemeProp } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";

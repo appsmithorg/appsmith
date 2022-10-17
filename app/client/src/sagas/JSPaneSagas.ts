@@ -52,8 +52,7 @@ import {
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
