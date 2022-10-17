@@ -119,7 +119,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         } else if(params.getFirst(AuditLogConstants.START_DATE) != null && params.getFirst(AuditLogConstants.END_DATE) != null) {
             isDate = true;
             startDate = new Date(Long.parseLong(params.getFirst(AuditLogConstants.START_DATE)));
-            endDate = new Date(Long.parseLong(params.getFirst(AuditLogConstants.START_DATE)));
+            endDate = new Date(Long.parseLong(params.getFirst(AuditLogConstants.END_DATE)));
         }
 
         if(params.getFirst(AuditLogConstants.EVENTS) != null) {
@@ -476,6 +476,10 @@ public class AuditLogServiceImpl implements AuditLogService {
             setWorkspaceProperties(auditLog, workspace);
             return Mono.just(workspace);
         }
+        if(workspaceId == null) {
+            return Mono.empty();
+        }
+
         return workspaceRepository.findById(workspaceId)
                 .map(workspace -> {
                     setWorkspaceProperties(auditLog, workspace);

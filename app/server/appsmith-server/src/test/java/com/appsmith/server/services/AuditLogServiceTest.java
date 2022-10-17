@@ -302,7 +302,7 @@ public class AuditLogServiceTest {
                 .verifyComplete();
     }
 
-    private MultiValueMap<String, String> getAuditLogRequest(String emails, String events, String resourceType, String resourceId, String sortOrder, String cursor, String numberOfDays) {
+    private MultiValueMap<String, String> getAuditLogRequest(String emails, String events, String resourceType, String resourceId, String sortOrder, String cursor, String numberOfDays, String startDate, String endDate) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (emails != null && !emails.isEmpty()) {
             params.add(AuditLogConstants.EMAILS, emails);
@@ -330,6 +330,11 @@ public class AuditLogServiceTest {
 
         if (numberOfDays != null && !numberOfDays.isEmpty()) {
             params.add(AuditLogConstants.NUMBER_OF_DAYS, numberOfDays);
+        }
+
+        if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            params.add(AuditLogConstants.START_DATE, startDate);
+            params.add(AuditLogConstants.END_DATE, endDate);
         }
         return params;
     }
@@ -368,7 +373,7 @@ public class AuditLogServiceTest {
         Workspace updatedWorkspace = workspaceService.update(createdWorkspace.getId(), updateWorkspace).block();
         workspaceService.archiveById(createdWorkspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, null, resourceType, createdWorkspace.getId(), "1", null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, null, resourceType, createdWorkspace.getId(), "1", null, null, null, null);
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
@@ -396,7 +401,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withEventType_Success() {
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -413,12 +418,12 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withResourceId_Success() {
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.created", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.created", null, null, null, null, null, null, null);
 
         List<AuditLog> auditLogList = auditLogService.get(params).block();
         String resourceId = auditLogList.get(0).getResource().getId();
 
-        params = getAuditLogRequest(null, null, null, resourceId, null, null, null);
+        params = getAuditLogRequest(null, null, null, resourceId, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -434,7 +439,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withSingleAndOrMultipleUserEmails_Success() {
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, null, null, null, null, null, null);
 
         AuditLog auditLog = auditLogService.get(params).block().get(0);
         auditLog.setTimestamp(Instant.now());
@@ -452,7 +457,7 @@ public class AuditLogServiceTest {
         auditLog.getUser().setEmail("test@test.com");
         auditLogRepository.save(auditLog).block();
 
-        params = getAuditLogRequest("test@appsmith.com", null, null, null, null, null, null);
+        params = getAuditLogRequest("test@appsmith.com", null, null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -463,7 +468,7 @@ public class AuditLogServiceTest {
                 })
                 .verifyComplete();
 
-        params = getAuditLogRequest("test@appsmith.com,test@test.com", null, null, null, null, null, null);
+        params = getAuditLogRequest("test@appsmith.com,test@test.com", null, null, null, null, null, null, null, null);
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
@@ -478,7 +483,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withInvalidUser_EmptyResponseSuccess() {
-        MultiValueMap<String, String> params = getAuditLogRequest("test@appsmith.com", null, null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest("test@appsmith.com", null, null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -491,7 +496,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAuditLogs_withAllFilters_Success() {
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, null, null, null, null, null, null);
 
         // Add events for different user
         AuditLog auditLog = auditLogService.get(params).block().get(0);
@@ -510,7 +515,60 @@ public class AuditLogServiceTest {
         auditLog.getUser().setEmail("test@test.com");
         auditLogRepository.save(auditLog).block();
 
-        params = getAuditLogRequest("api_user,test@appsmith.com", "page.updated", null, null, null, null, "1");
+        params = getAuditLogRequest("api_user,test@appsmith.com", "page.updated", null, null, null, null, "1", null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs.size()).isGreaterThan(0);
+                    for (AuditLog log : auditLogs) {
+                        assertThat(log.getUser().getEmail()).isIn("api_user", "test@appsmith.com", "test@test.com");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAuditLogs_withAllFiltersDateRange_Success() {
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null,
+                "page.updated",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        // Add events for different user
+        AuditLog auditLog = auditLogService.get(params).block().get(0);
+        auditLog.setTimestamp(LocalDate.now().atStartOfDay().minusDays(1).toInstant(ZoneOffset.UTC));
+        auditLog.setId(null);
+        auditLog.getUser().setEmail("test@appsmith.com");
+        auditLogRepository.save(auditLog).block();
+
+        auditLog.setTimestamp(LocalDate.now().atStartOfDay().minusDays(1).toInstant(ZoneOffset.UTC));
+        auditLog.setId(null);
+        auditLog.getUser().setEmail("test@appsmith.com");
+        auditLogRepository.save(auditLog).block();
+
+        auditLog.setTimestamp(LocalDate.now().atStartOfDay().minusDays(2).toInstant(ZoneOffset.UTC));
+        auditLog.setId(null);
+        auditLog.getUser().setEmail("test@test.com");
+        auditLogRepository.save(auditLog).block();
+
+        params = getAuditLogRequest(
+                "api_user,test@appsmith.com",
+                "page.updated",
+                null,
+                null,
+                null,
+                null,
+                null,
+                String.valueOf(LocalDate.now().atStartOfDay().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli()),
+                String.valueOf(Instant.now().toEpochMilli()));
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -573,7 +631,7 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String resourceType = auditLogService.getResourceType(workspace);
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", resourceType, createdWorkspace.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", resourceType, createdWorkspace.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -624,7 +682,7 @@ public class AuditLogServiceTest {
         updateWorkspace.setName("AuditLogWorkspaceUpdated");
         Workspace updatedWorkspace = workspaceService.update(createdWorkspace.getId(), updateWorkspace).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.updated", resourceType, createdWorkspace.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.updated", resourceType, createdWorkspace.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -673,7 +731,7 @@ public class AuditLogServiceTest {
 
         Workspace deletedWorkspace = workspaceService.archiveById(workspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.deleted", resourceType, createdWorkspace.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.deleted", resourceType, createdWorkspace.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -724,7 +782,7 @@ public class AuditLogServiceTest {
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.created", resourceType, createdApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.created", resourceType, createdApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -783,7 +841,7 @@ public class AuditLogServiceTest {
         application.setName("AuditLogApplicationUpdated");
         Application updatedApplication = applicationService.update(application.getId(), application).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.updated", resourceType, createdApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.updated", resourceType, createdApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -841,7 +899,7 @@ public class AuditLogServiceTest {
 
         Application deletedApplication = applicationPageService.deleteApplication(createdApplication.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.deleted", resourceType, createdApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.deleted", resourceType, createdApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -899,7 +957,7 @@ public class AuditLogServiceTest {
         ApplicationImportDTO applicationImportDTO = importExportApplicationService.extractFileAndSaveApplication(createdWorkspace.getId(), filePart).block();
         Application createdApplication = applicationImportDTO.getApplication();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.imported", resourceType, createdApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.imported", resourceType, createdApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -957,7 +1015,7 @@ public class AuditLogServiceTest {
 
         ApplicationJson applicationJSon = importExportApplicationService.exportApplicationById(createdApplication.getId(), "").block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.exported", resourceType, createdApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.exported", resourceType, createdApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1015,7 +1073,7 @@ public class AuditLogServiceTest {
 
         Application clonedApplication = applicationPageService.cloneApplication(createdApplication.getId(), "").block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.cloned", resourceType, clonedApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.cloned", resourceType, clonedApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1078,7 +1136,7 @@ public class AuditLogServiceTest {
 
         Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdDestinationWorkspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1139,7 +1197,7 @@ public class AuditLogServiceTest {
 
         Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdWorkspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1201,7 +1259,7 @@ public class AuditLogServiceTest {
 
         Application deployedApplication = applicationPageService.publish(createdApplication.getId(), null, true).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.deployed", resourceType, createdApplication.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.deployed", resourceType, createdApplication.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1296,7 +1354,7 @@ public class AuditLogServiceTest {
 
         String resourceType = auditLogService.getResourceType(new NewPage());
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.created", resourceType, pageDTO.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.created", resourceType, pageDTO.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1365,7 +1423,7 @@ public class AuditLogServiceTest {
         newPage.getUnpublishedPage().setName("AuditLogPageUpdated");
         NewPage updatedPage = newPageService.update(newPage.getId(), newPage).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", resourceType, pageDTO.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", resourceType, pageDTO.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1428,7 +1486,7 @@ public class AuditLogServiceTest {
         pageDTO.setName("testUpdate2");
         newPageService.updatePage(page.getId(), pageDTO).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, page.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", null, page.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1461,7 +1519,7 @@ public class AuditLogServiceTest {
 
         applicationPageService.getPageByBranchAndDefaultPageId(createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, true).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.viewed", resourceType, createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.viewed", resourceType, createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1526,7 +1584,7 @@ public class AuditLogServiceTest {
 
         applicationPageService.getPageByBranchAndDefaultPageId(createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, false).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.viewed", resourceType, createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.viewed", resourceType, createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1589,7 +1647,7 @@ public class AuditLogServiceTest {
 
         String resourceType = auditLogService.getResourceType(new NewPage());
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.deleted", resourceType, pageDTO.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "page.deleted", resourceType, pageDTO.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1679,7 +1737,7 @@ public class AuditLogServiceTest {
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "datasource.created", resourceType, finalDatasource.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "datasource.created", resourceType, finalDatasource.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1732,7 +1790,7 @@ public class AuditLogServiceTest {
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "datasource.updated", resourceType, finalDatasource.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "datasource.updated", resourceType, finalDatasource.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1784,7 +1842,7 @@ public class AuditLogServiceTest {
 
         String resourceType = auditLogService.getResourceType(finalDatasource);
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "datasource.deleted", resourceType, finalDatasource.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "datasource.deleted", resourceType, finalDatasource.getId(), null, null, null, null, null);
 
         Plugin datasourcePlugin = pluginRepository.findById(deletedDatasource.getPluginId()).block();
 
@@ -1855,7 +1913,7 @@ public class AuditLogServiceTest {
 
         String resourceType = auditLogService.getResourceType(new NewAction());
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.created", resourceType, createdActionDTO.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.created", resourceType, createdActionDTO.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -1938,7 +1996,7 @@ public class AuditLogServiceTest {
         updateActionDTO.setName("AuditLogQueryUpdated");
         ActionDTO updatedActionDTO = layoutActionService.updateAction(createdActionDTO.getId(), updateActionDTO).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.updated", resourceType, createdActionDTO.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.updated", resourceType, createdActionDTO.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2027,7 +2085,7 @@ public class AuditLogServiceTest {
         updateActionDTO.setName("AuditLogQueryUpdated2");
         updatedActionDTO = layoutActionService.updateAction(createdActionDTO.getId(), updateActionDTO).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.updated", resourceType, createdActionDTO.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.updated", resourceType, createdActionDTO.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2070,7 +2128,7 @@ public class AuditLogServiceTest {
 
         layoutActionService.deleteUnpublishedAction(createdActionDTO.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.deleted", resourceType, createdActionDTO.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.deleted", resourceType, createdActionDTO.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2172,7 +2230,7 @@ public class AuditLogServiceTest {
 
         ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2279,7 +2337,7 @@ public class AuditLogServiceTest {
 
         ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2372,7 +2430,7 @@ public class AuditLogServiceTest {
 
         User createdUser = signupAndLoginUser(user).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "user.signed_up", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "user.signed_up", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2423,7 +2481,7 @@ public class AuditLogServiceTest {
 
         User createdUser = signupAndLoginUser(user).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "user.logged_in", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "user.logged_in", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2476,7 +2534,7 @@ public class AuditLogServiceTest {
 
         userService.inviteUsers(inviteUsersDTO, "https://test.com").block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "user.invited", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "user.invited", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2531,7 +2589,7 @@ public class AuditLogServiceTest {
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2622,7 +2680,7 @@ public class AuditLogServiceTest {
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2713,7 +2771,7 @@ public class AuditLogServiceTest {
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2803,7 +2861,7 @@ public class AuditLogServiceTest {
         // Test adding configuration
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2889,7 +2947,7 @@ public class AuditLogServiceTest {
 
         User createdUser = signupAndLoginUser(user).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "workspace.created", null, null, null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
@@ -2996,7 +3054,7 @@ public class AuditLogServiceTest {
         applicationPageService.deleteUnpublishedPage(createdPageDTO.getId()).block();
 
         String resourceType = auditLogService.getResourceType(new NewAction());
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.deleted", resourceType, createdAction.getId(), null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "query.deleted", resourceType, createdAction.getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.get(params))
