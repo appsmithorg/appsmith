@@ -108,6 +108,7 @@ export interface ButtonStyleProps {
   buttonVariant?: ButtonVariant;
   dimension?: number;
   hasOnClickAction?: boolean;
+  compactMode?: string;
 }
 
 export const StyledButton = styled((props) => (
@@ -119,16 +120,25 @@ export const StyledButton = styled((props) => (
       "boxShadow",
       "dimension",
       "hasOnClickAction",
+      "compactMode",
     ])}
   />
 ))<ThemeProp & ButtonStyleProps>`
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
-  min-height: 32px !important;
-  min-width: 32px !important;
+  min-height: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "30px"};
+  min-width: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "30px"};
+  font-size: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "12px" : "14px"};
+  line-height: ${({ compactMode }) =>
+    compactMode === "SHORT" ? "24px" : "28px"};
 
-  ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
+
+
+  ${({ buttonColor, buttonVariant, compactMode, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
@@ -177,7 +187,7 @@ export const StyledButton = styled((props) => (
           : "transparent"
       } !important;
       color: var(--wds-color-text-disabled) !important;
-      
+
       span {
         color: var(--wds-color-text-disabled) !important;
       }
@@ -213,8 +223,10 @@ export const StyledButton = styled((props) => (
     & > span > svg {
       height: 100%;
       width: 100%;
-      min-height: 16px;
-      min-width: 16px;
+      min-height:
+        ${compactMode === "SHORT" ? "14px" : "16px"};
+      min-width:
+        ${compactMode === "SHORT" ? "14px" : "16px"};
     }
   `}
 

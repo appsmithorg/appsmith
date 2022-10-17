@@ -38,6 +38,7 @@ import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
+import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -110,12 +111,10 @@ public class SecurityConfig {
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling()
-                    .authenticationEntryPoint(authenticationEntryPoint)
-                    .accessDeniedHandler(accessDeniedHandler)
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .authorizeExchange()
-                // All public URLs that should be served to anonymous users should also be defined in acl.rego file
-                // This is because the flow enters AclFilter as well and needs to be whitelisted there
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
@@ -131,7 +130,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, THEME_URL + "/**"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute")
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current")
                 )
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**").permitAll()
@@ -160,6 +160,7 @@ public class SecurityConfig {
 
     /**
      * This bean configures the parameters that need to be set when a Cookie is created for a logged in user
+     *
      * @return
      */
     @Bean
