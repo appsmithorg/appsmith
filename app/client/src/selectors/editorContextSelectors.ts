@@ -6,6 +6,8 @@ import {
 import { createSelector } from "reselect";
 import { generatePropertyKey } from "utils/editorContextUtils";
 import { getCurrentPageId } from "./editorSelectors";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 export const getFocusableField = (state: AppState) =>
   state.ui.editorContext.focusableField;
@@ -17,16 +19,20 @@ export const getIsCodeEditorFocused = createSelector(
   [
     getCurrentPageId,
     getFocusableField,
+    selectFeatureFlags,
     (_state: AppState, key: string | undefined) => key,
   ],
   (
     pageId: string,
     focusableField: string | undefined,
+    featureFlags: FeatureFlags,
     key: string | undefined,
   ): boolean => {
-    const propertyFieldKey = generatePropertyKey(key, pageId);
-    if (propertyFieldKey) {
-      return focusableField === propertyFieldKey;
+    if (featureFlags.CONTEXT_SWITCHING) {
+      const propertyFieldKey = generatePropertyKey(key, pageId);
+      if (propertyFieldKey) {
+        return focusableField === propertyFieldKey;
+      }
     }
     return false;
   },

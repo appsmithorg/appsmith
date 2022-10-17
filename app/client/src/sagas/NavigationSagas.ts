@@ -16,6 +16,8 @@ import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
 import { Plugin } from "api/PluginApi";
 import log from "loglevel";
+import FeatureFlags from "entities/FeatureFlags";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -25,26 +27,31 @@ function* handleRouteChange(
 ) {
   const { hash, pathname } = action.payload;
   try {
-    if (previousPath) {
-      // store current state
-      yield call(storeStateOfPath, previousPath, previousHash);
-      // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
-      if (
-        shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash)
-      ) {
-        yield call(storeStateOfPath, previousPath);
-      }
-    }
-    // Check if it should restore the stored state of the path
-    if (shouldSetState(previousPath, pathname, previousHash, hash)) {
-      // restore old state for new path
-      yield call(setStateOfPath, pathname, hash);
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    if (featureFlags.CONTEXT_SWITCHING) {
+      yield call(contextSwitchingSaga, pathname, hash);
     }
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
     previousPath = pathname;
     previousHash = hash;
+  }
+}
+
+function* contextSwitchingSaga(pathname: string, hash?: string) {
+  if (previousPath) {
+    // store current state
+    yield call(storeStateOfPath, previousPath, previousHash);
+    // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
+    if (shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash)) {
+      yield call(storeStateOfPath, previousPath);
+    }
+  }
+  // Check if it should restore the stored state of the path
+  if (shouldSetState(previousPath, pathname, previousHash, hash)) {
+    // restore old state for new path
+    yield call(setStateOfPath, pathname, hash);
   }
 }
 
