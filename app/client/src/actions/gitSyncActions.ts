@@ -385,6 +385,9 @@ export const initSSHKeyPairWithNull = () => ({
 export const importAppViaGitSuccess = () => ({
   type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS,
 });
+export const importAppViaGitStatusReset = () => ({
+  type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_STATUS_RESET,
+});
 
 // todo define type
 export const importAppViaGitError = (error: any) => ({
