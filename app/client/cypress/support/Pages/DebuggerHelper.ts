@@ -32,6 +32,7 @@ export class DebuggerHelper {
       [PageType.Query]: ".t--query-bottom-pane-container",
       [PageType.JsEditor]: ".t--js-editor-bottom-pane-container",
     },
+    _debuggerList: ".debugger-list",
   };
 
   ClickDebuggerIcon(
@@ -168,5 +169,13 @@ export class DebuggerHelper {
       .then(($text) => {
         expect($text).to.contains(message);
       });
+  }
+
+  DebuggerListDoesnotContain(text: string) {
+    this.agHelper.AssertContains(
+      text,
+      "not.exist",
+      this.locators._debuggerList,
+    );
   }
 }

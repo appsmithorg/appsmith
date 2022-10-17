@@ -153,5 +153,4 @@ export class CommonLocators {
     dropdownOption +
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
-  _debuggerList = ".debugger-list";
 }
