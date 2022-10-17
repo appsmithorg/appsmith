@@ -217,10 +217,6 @@ function* setUpTourAppSaga() {
       },
     }),
   );
-  // Hide the explorer initialy
-  yield put(setExplorerPinnedAction(false));
-  yield put(setExplorerActiveAction(false));
-  yield put(toggleLoader(false));
   if (!query) return;
   history.push(
     queryEditorIdURL({
@@ -228,6 +224,10 @@ function* setUpTourAppSaga() {
       queryId: query.config.id,
     }),
   );
+  // Hide the explorer initialy
+  yield put(setExplorerPinnedAction(false));
+  yield put(setExplorerActiveAction(false));
+  yield put(toggleLoader(false));
 }
 
 function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
@@ -369,7 +369,7 @@ function* selectWidgetSaga(
 
   if (widget) {
     // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas({ pageId, widgetId: widget.widgetId });
+    navigateToCanvas(pageId, widget.widgetId);
     yield put(selectWidgetInitAction(widget.widgetId));
     // Delay to wait for the fields to render
     yield delay(1000);
