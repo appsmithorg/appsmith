@@ -6,6 +6,7 @@ import {
   createMessage,
   DOWNLOAD,
   EXECUTE_A_QUERY,
+  EXECUTE_JS_FUNCTION,
   GET_GEO_LOCATION,
   NAVIGATE_TO,
   NO_ACTION,
@@ -25,6 +26,11 @@ export const FIELD_GROUP_CONFIG = {
   },
   [AppsmithFunction.integration]: {
     label: createMessage(EXECUTE_A_QUERY),
+    fields: [],
+  },
+  [AppsmithFunction.jsFunction]: {
+    label: createMessage(EXECUTE_JS_FUNCTION),
+    value: AppsmithFunction.jsFunction,
     fields: [],
   },
   [AppsmithFunction.navigateTo]: {
