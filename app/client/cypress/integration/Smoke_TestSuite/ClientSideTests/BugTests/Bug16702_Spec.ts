@@ -9,7 +9,11 @@ const locator = ObjectsRegistry.CommonLocators,
 
 const GRAPHQL_LIMIT_QUERY = `
   query {
-    launchesPast(limit: "__limit__", offset: "__offset__") {
+    launchesPast(limit:
+      "__limit__"
+      ,offset:
+      "__offset__"
+      ) {
       mission_name
       rocket {
         rocket_name
@@ -20,7 +24,7 @@ const GRAPHQL_RESPONSE = {
 };
 
 describe("Binding Expressions should not be truncated in Url and path extraction", function() {
-  it.skip("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function() {
+  it("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function() {
     const jsObjectBody = `export default {
       limitValue: 1,
       offsetValue: 1,
@@ -44,7 +48,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       //   expect(Cypress.dom.isDetached($el)).to.false;
       // })
       //.trigger("mouseover")
-      .click()
+      .dblclick()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "offsetValue");
     agHelper.Sleep(200);
@@ -58,7 +62,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__limit__")
       //.trigger("mouseover")
-      .click()
+      .dblclick()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "limitValue");
     agHelper.Sleep();
