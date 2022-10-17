@@ -52,6 +52,11 @@ export interface MenuButtonWidgetProps extends WidgetProps {
       isVisible: boolean;
       isDisabled: boolean;
       onMenuItemClick?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
     };
   };
   sourceData?: Array<Record<string, unknown>>;
@@ -102,6 +107,11 @@ export interface MenuButtonComponentProps {
       isVisible: boolean;
       isDisabled: boolean;
       onMenuItemClick?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
     };
   };
   sourceData?: Array<Record<string, unknown>>;
@@ -139,6 +149,11 @@ export interface PopoverContentProps {
       isVisible: boolean;
       isDisabled: boolean;
       onMenuItemClick?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
     };
   };
   sourceData?: Array<Record<string, unknown>>;

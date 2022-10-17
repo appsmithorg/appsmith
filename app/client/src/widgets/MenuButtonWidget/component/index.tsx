@@ -260,10 +260,8 @@ function PopoverContent(props: PopoverContentProps) {
     return <StyledMenu />;
 
   const getItems = () => {
-    let visibleItems;
-
     if (menuItemsSource === MenuItemsSource.STATIC) {
-      visibleItems = Object.keys(itemsObj)
+      const visibleItems = Object.keys(itemsObj)
         .map((itemKey) => itemsObj[itemKey])
         .filter((item) => item.isVisible === true);
 
@@ -272,16 +270,24 @@ function PopoverContent(props: PopoverContentProps) {
       menuItemsSource === MenuItemsSource.DYNAMIC &&
       sourceData?.length
     ) {
-      const items = sourceData.map((item, index) => ({
-        ...item,
-        isVisible: item.isVisible || true,
-        isDisabled: item.isDisabled || false,
-        index: index,
-        widgetId: "",
-        label: item[configureMenuItems?.label],
-      }));
+      const visibleItems = sourceData
+        .map((item, index) => ({
+          ...item,
+          isVisible: configureMenuItems?.config?.isVisible,
+          isDisabled: configureMenuItems?.config?.isDisabled,
+          index: index,
+          widgetId: "",
+          label: item[configureMenuItems?.config?.label],
+          onMenuItemClick: configureMenuItems?.config?.onMenuItemClick,
+          textColor: configureMenuItems?.config?.textColor,
+          backgroundColor: configureMenuItems?.config?.backgroundColor,
+          iconAlign: configureMenuItems?.config?.iconAlign,
+          iconColor: configureMenuItems?.config?.iconColor,
+          iconName: configureMenuItems?.config?.iconName,
+        }))
+        .filter((item) => item.isVisible === true);
 
-      return items;
+      return visibleItems;
     }
   };
 
