@@ -107,7 +107,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATIO
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
-import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
@@ -1589,7 +1589,7 @@ public class DatabaseChangelog2 {
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUP_MEMBERS))
                 .collect(Collectors.toSet());
         Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
@@ -2117,7 +2117,7 @@ public class DatabaseChangelog2 {
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
-        Policy readPermissionGroupPolicy = Policy.builder().permission(READ_PERMISSION_GROUPS.getValue())
+        Policy readPermissionGroupPolicy = Policy.builder().permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
@@ -2128,7 +2128,7 @@ public class DatabaseChangelog2 {
                 Set.of(
                         new Permission(savedPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS),
                         new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
-                        new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUPS)
+                        new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUP_MEMBERS)
                 )
         );
         savedPermissionGroup.setPermissions(permissions);
@@ -2634,9 +2634,9 @@ public class DatabaseChangelog2 {
 
         // Give read permission to instanceAdminPg to all the users who have been assigned this permission group
         Map<String, Policy> readPermissionGroupPolicyMap = Map.of(
-                READ_PERMISSION_GROUPS.getValue(),
+                READ_PERMISSION_GROUP_MEMBERS.getValue(),
                 Policy.builder()
-                        .permission(READ_PERMISSION_GROUPS.getValue())
+                        .permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
                         .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
                         .build()
         );
