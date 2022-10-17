@@ -12,6 +12,7 @@ export const getCurrentFocusInfo = createSelector(
   getFocusInfo,
   (_state: AppState, key: string) => key,
   (focusInfo: FocusHistory, key: string): FocusState => {
+    console.log(focusInfo, "focusInfo");
     return focusInfo[key];
   },
 );

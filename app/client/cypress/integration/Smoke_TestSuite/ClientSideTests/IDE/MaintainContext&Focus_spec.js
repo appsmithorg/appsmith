@@ -120,12 +120,41 @@ describe("MaintainContext&Focus", function() {
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
   });
-  it("Datasource edit mode has to be maintained", () => {
-    ee.SelectEntityByName("Appsmith");
-    dataSources.EditDatasource();
-    ee.SelectEntityByName("Github");
-    dataSources.AssertViewMode();
-    ee.SelectEntityByName("Appsmith");
-    dataSources.AssertEditMode();
+  // it("Datasource edit mode has to be maintained", () => {
+  //   ee.SelectEntityByName("Appsmith");
+  //   ee.SelectEntityByName("Github");
+  //   dataSources.AssertViewMode();
+  //   ee.SelectEntityByName("Appsmith");
+  //   dataSources.AssertEditMode();
+  // });
+  it("Datasource collapse state has to be maintained", () => {
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    agHelper.RenameWithInPane("Postgres1", false);
+    cy.get(".t--collapse-section-container")
+      .eq(1)
+      .click();
+    cy.get(".t--collapse-section-container")
+      .eq(1)
+      .find(".bp3-icon-chevron-up")
+      .should("be.visible");
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("MongoDB");
+    agHelper.RenameWithInPane("Mongo1", false);
+    cy.get(".t--collapse-section-container")
+      .eq(1)
+      .find(".bp3-icon-chevron-up")
+      .should("not.be.visible");
+    cy.get(".t--collapse-section-container")
+      .get(1)
+      .within(() => {
+        cy.get(".bp3-icon-chevron-up").should("not.be.visible");
+      });
+    ee.SelectEntityByName("Postgres1");
+    cy.get(".t--collapse-section-container")
+      .get(1)
+      .within(() => {
+        cy.get(".bp3-icon-chevron-up").should("not.be.visible");
+      });
   });
 });

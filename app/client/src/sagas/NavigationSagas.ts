@@ -136,6 +136,8 @@ function shouldSetState(
   const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
   const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
 
+  console.log(prevFocusEntity, "prevFocusEntity");
+  console.log(currFocusEntity, "currFocusEntity");
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(
