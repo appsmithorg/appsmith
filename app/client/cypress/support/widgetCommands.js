@@ -711,56 +711,104 @@ Cypress.Commands.add("tableV2ColumnPopertyUpdate", (colId, newColName) => {
 });
 
 Cypress.Commands.add("hideColumn", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
-    force: true,
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
+      $body.get(commonlocators.editPropBackButton).click();
+      cy.wait(500);
+    }
+
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("showColumn", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
-    force: true,
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
+      $body.get(commonlocators.editPropBackButton).click();
+      cy.wait(500);
+    }
+
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    cy.get(".draggable-header ")
+      .contains(colId)
+      .should("be.visible");
   });
-  cy.get(".draggable-header ")
-    .contains(colId)
-    .should("be.visible");
 });
 Cypress.Commands.add("deleteColumn", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn").click(
-    {
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
+      $body.get(commonlocators.editPropBackButton).click();
+      cy.wait(500);
+    }
+
+    cy.get(
+      "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
+    ).click({
       force: true,
-    },
-  );
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+  });
 });
 
 Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
-  cy.get(
-    "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--edit-column-btn",
-  ).click({
-    force: true,
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
+      $body.get(commonlocators.editPropBackButton).click();
+      cy.wait(500);
+    }
+
+    cy.get(
+      "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--edit-column-btn",
+    ).click({
+      force: true,
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("deleteJSONFormField", (fieldIdentifier) => {
-  cy.get(
-    "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
-  ).click({
-    force: true,
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
+      $body.get(commonlocators.editPropBackButton).click();
+      cy.wait(500);
+    }
+
+    cy.get(
+      "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
+    ).click({
+      force: true,
+    });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
   });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("makeColumnVisible", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
-    force: true,
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
+      $body.get(commonlocators.editPropBackButton).click();
+      cy.wait(500);
+    }
+
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    cy.wait(1000);
   });
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("addColumn", (colId) => {
@@ -790,11 +838,20 @@ Cypress.Commands.add("addColumnV2", (colId) => {
 });
 
 Cypress.Commands.add("editColumn", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
-    force: true,
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
+      $body.get(commonlocators.editPropBackButton).click();
+      cy.wait(500);
+    }
+
+    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
+      {
+        force: true,
+      },
+    );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1500);
   });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1500);
 });
 
 Cypress.Commands.add("readTextDataValidateCSS", (cssProperty, cssValue) => {

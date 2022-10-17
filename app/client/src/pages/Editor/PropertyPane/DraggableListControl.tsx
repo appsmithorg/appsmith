@@ -5,7 +5,7 @@ import {
   DroppableComponent,
   DroppableComponentProps,
 } from "components/propertyControls/DraggableListComponent";
-import React from "react";
+import React, { useRef } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyPanelIndex } from "selectors/editorContextSelectors";
@@ -20,12 +20,12 @@ export const DraggableListControl = <TItem extends BaseItemProps>(
   props: DraggableListControlProps<TItem>,
 ) => {
   const dispatch = useDispatch();
-  let currentIndex = -1;
+  const currentIndex = useRef<number>(-1);
   const defaultPanelIndex = useSelector(
     (state: AppState) =>
       getSelectedPropertyPanelIndex(state, props.propertyName),
     (left: any, right: any) => {
-      if (currentIndex !== left && left !== right) {
+      if (currentIndex.current !== left && left !== right) {
         return false;
       }
       return true;
@@ -40,7 +40,7 @@ export const DraggableListControl = <TItem extends BaseItemProps>(
 
   const onPanelEdit = (index: number) => {
     if (onEdit) {
-      currentIndex = index;
+      currentIndex.current = index;
       onEdit(index);
       setTimeout(() => {
         dispatch(setSelectedPropertyPanel({ path: propertyName, index }));
