@@ -21,8 +21,6 @@ import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
 } from "utils/layoutPropertiesUtils";
-import { connect } from "react-redux";
-import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -156,20 +154,6 @@ export class ContainerWidget extends BaseWidget<
     super.componentDidMount();
   }
 
-  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
-    super.componentDidUpdate(prevProps);
-    if (this.props.positioning !== prevProps.positioning) this.updateWrappers();
-  }
-
-  updateWrappers = (): void => {
-    if (this.props.positioning === Positioning.Vertical) {
-      this.props.addWrappers && this.props.addWrappers(this.props.widgetId);
-    } else {
-      this.props.removeWrappers &&
-        this.props.removeWrappers(this.props.widgetId);
-    }
-  };
-
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
@@ -255,11 +239,6 @@ export class ContainerWidget extends BaseWidget<
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => ({
-  removeWrappers: (id: string) => dispatch(removeWrappers(id)),
-  addWrappers: (id: string) => dispatch(addWrappers(id)),
-});
-
 export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
@@ -267,9 +246,6 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
-  removeWrappers?: (id: string) => void;
-  addWrappers?: (id: string) => void;
 }
 
-export default connect(null, mapDispatchToProps)(ContainerWidget);
-// export default ContainerWidget;
+export default ContainerWidget;

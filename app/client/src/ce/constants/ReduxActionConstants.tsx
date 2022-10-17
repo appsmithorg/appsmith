@@ -676,6 +676,7 @@ export const ReduxActionTypes = {
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
   REMOVE_CHILD_WRAPPERS: "REMOVE_CHILD_WRAPPERS",
   ADD_CHILD_WRAPPERS: "ADD_CHILD_WRAPPERS",
+  UPDATE_FILL_CHILD_LAYER: "UPDATE_FILL_CHILD_LAYER",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

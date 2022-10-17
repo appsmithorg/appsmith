@@ -51,6 +51,7 @@ import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
+import { ReduxAction } from "ce/constants/ReduxActionConstants";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -193,6 +194,20 @@ const PropertyControl = memo((props: Props) => {
     },
     [],
   );
+
+  const getAdditionalActionsToDispatch = (
+    propertyName: string,
+    propertyValue: any,
+  ): ReduxAction<any> | null => {
+    if (props.additionalAction) {
+      return props.additionalAction(
+        widgetProperties,
+        propertyName,
+        propertyValue,
+      );
+    }
+    return null;
+  };
 
   const getWidgetsOwnUpdatesOnPropertyChange = (
     propertyName: string,
@@ -379,10 +394,21 @@ const PropertyControl = memo((props: Props) => {
           );
         }
       }
+      const additionalAction = getAdditionalActionsToDispatch(
+        propertyName,
+        propertyValue,
+      );
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
         onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
+        // TODO: This is a temporary implementation.
+        // Replace it with Abhinav's implementation of the same functionality on dynamic height, when available.
+        if (additionalAction) {
+          setTimeout(() => {
+            dispatch(additionalAction);
+          }, 0);
+        }
       }
     },
     [widgetProperties],

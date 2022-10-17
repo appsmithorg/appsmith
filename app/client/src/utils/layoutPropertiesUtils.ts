@@ -1,3 +1,4 @@
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   AlignItems,
   Alignment,
@@ -96,10 +97,22 @@ export const generateResponsiveBehaviorConfig = (
       { label: "Fill", value: ResponsiveBehavior.Fill },
       { label: "Hug", value: ResponsiveBehavior.Hug },
     ],
-    isJSConvertible: true,
+    isJSConvertible: false,
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
+    additionalAction: (
+      props: any,
+      propertyName?: string,
+      propertyValue?: any,
+    ) => ({
+      type: ReduxActionTypes.UPDATE_FILL_CHILD_LAYER,
+      payload: {
+        widgetId: props.widgetId,
+        responsiveBehavior: propertyValue,
+      },
+    }),
+    dependencies: ["widgetId"],
   };
 };
 
@@ -165,6 +178,24 @@ export const generatePositioningConfig = (
     isBindProperty: true,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
+    additionalAction: (
+      props: any,
+      propertyName?: string,
+      propertyValue?: any,
+    ) => {
+      if (!propertyName || !propertyValue) return;
+      const positioning: Positioning = propertyValue as Positioning;
+      return {
+        type:
+          positioning === Positioning.Vertical
+            ? ReduxActionTypes.ADD_CHILD_WRAPPERS
+            : ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
+        payload: {
+          parentId: props.widgetId,
+        },
+      };
+    },
+    dependencies: ["widgetId"],
   };
 };
 
