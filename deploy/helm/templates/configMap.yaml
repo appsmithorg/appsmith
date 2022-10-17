@@ -1,3 +1,7 @@
+{{- $nameSpace := include "appsmith.namespace" . -}}
+{{- $mongoUser := .Values.mongodb.auth.rootUser -}}
+{{- $mongoPassword := .Values.mongodb.auth.rootPassword -}}
+{{- $mongoServicename := .Values.mongodb.service.nameOverride -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,7 +11,17 @@ metadata:
     {{- include "appsmith.labels" . | nindent 4 }}
 data:
   {{- range $key, $value := .Values.applicationConfig }}
+  {{- if and (eq "APPSMITH_MONGODB_URI" $key) ( not $value) }}
+  {{- if $.Values.mongodb.enabled }}
+  {{ $key }}: mongodb+srv://{{ $mongoUser }}:{{ $mongoPassword }}@{{ $mongoServicename }}.{{ $nameSpace }}.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
+  {{- end }}
+  {{- end }}
+  {{- if and (eq "APPSMITH_REDIS_URL" $key) ( not $value) }}
+  {{- if $.Values.redis.enabled }}
+  {{ $key }}: redis://appsmith-redis-master.{{ $nameSpace }}.svc.cluster.local:6379
+  {{- end }}
+  {{- end }}
   {{- if $value }}
-  {{ $key }}: {{ $value | quote }}		
+  {{ $key }}: {{ $value | quote }}
   {{- end }}
   {{- end }}
