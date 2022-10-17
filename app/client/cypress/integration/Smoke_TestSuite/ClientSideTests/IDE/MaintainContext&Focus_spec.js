@@ -8,6 +8,10 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 describe("MaintainContext&Focus", function() {
   it("Import the test application", () => {
     homePage.NavigateToHome();
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    cy.reload();
     homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();

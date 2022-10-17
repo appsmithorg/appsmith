@@ -69,16 +69,6 @@ export const getSelectedPropertyTabIndex = createSelector(
   },
 );
 
-// export const getIsCodeEditorFocused = createSelector(
-//   [getFocusableField, (_state: AppState, key: string | undefined) => key],
-//   (focusableField: string | undefined, key: string | undefined): boolean => {
-//     if (key) {
-//       return focusableField === key;
-//     }
-//     return false;
-//   },
-// );
-
 export const getshouldFocusPropertyPath = createSelector(
   [
     getFocusableField,
