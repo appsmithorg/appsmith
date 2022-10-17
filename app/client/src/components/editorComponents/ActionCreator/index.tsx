@@ -319,6 +319,11 @@ function getFieldFromValue(
       });
     }
 
+    /**
+     * The second field for navigateTo is dependent on activeTabNavigateTo value
+     * if PAGE_NAME then this field will be PAGE_SELECTOR_FIELD (default)
+     * if URL then this field will be URL_FIELD
+     **/
     if (
       requiredFunction === "navigateTo" &&
       activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL
