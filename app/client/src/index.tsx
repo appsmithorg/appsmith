@@ -16,6 +16,7 @@ import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "design-system";
 import localStorage from "utils/localStorage";
+export { ThemeProp } from "widgets/constants";
 import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
 import GlobalStyles from "globalStyles";

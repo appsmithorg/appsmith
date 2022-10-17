@@ -3,7 +3,6 @@ import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
 import { Toaster, Variant } from "design-system";
-import { ThemeProp } from "components/ads/common";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -33,6 +32,7 @@ import { redoShortCut, undoShortCut } from "utils/helpers";
 import { pageListEditorURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;

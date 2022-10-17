@@ -20,7 +20,6 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { ThemeProp } from "components/ads/common";
 import { Toaster, Variant } from "design-system";
 
 import ReCAPTCHA from "react-google-recaptcha";
@@ -42,6 +41,7 @@ import {
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
+import { ThemeProp } from "widgets/constants";
 
 const RecaptchaWrapper = styled.div`
   position: relative;

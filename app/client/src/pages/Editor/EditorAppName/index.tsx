@@ -13,12 +13,12 @@ import {
   Toaster,
   Variant,
 } from "design-system";
-import { ThemeProp } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
+import { ThemeProp } from "widgets/constants";
 
 type EditorAppNameProps = CommonComponentProps &
   ThemeProp & {
