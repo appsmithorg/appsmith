@@ -143,6 +143,8 @@ public class FieldName {
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String ENVIRONMENT_VARIABLE = "environmentVariable";
+    public static final String ENVIRONMENT_VARIABLE_ID = "environment_variable_id";
+    public static final String ENVIRONMENT_ID = "environment_id";
     public static final String ENVIRONMENT = "environment";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";

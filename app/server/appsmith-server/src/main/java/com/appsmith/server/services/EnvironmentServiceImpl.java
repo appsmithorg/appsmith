@@ -21,8 +21,9 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    EnvironmentRepository repository,
-                                   AnalyticsService analyticsService) {
+                                   AnalyticsService analyticsService,
+                                   EnvironmentVariableService environmentVariableService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, environmentVariableService);
     }
 }

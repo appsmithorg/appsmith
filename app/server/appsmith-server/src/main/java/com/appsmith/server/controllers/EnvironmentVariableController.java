@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping(Url.ENVIRONMENT_VARIABLE_URL)
-@Slf4j
 public class EnvironmentVariableController extends EnvironmentVariableControllerCE {
 
     public EnvironmentVariableController(EnvironmentVariableService environmentVariableService) {
