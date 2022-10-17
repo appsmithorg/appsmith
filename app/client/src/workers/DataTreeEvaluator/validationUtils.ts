@@ -30,7 +30,7 @@ export function validateAndParseWidgetProperty({
   currentTree: DataTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
-}): any {
+}): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   if (isPathADynamicTrigger(widget, propertyPath)) {
     // TODO find a way to validate triggers
@@ -44,31 +44,15 @@ export function validateAndParseWidgetProperty({
     widget,
     propertyPath,
   );
-  /**
-     * 
-     * if isValid then evaluatedValue = parsed
-        if invalid then
-          if transformed value is undefined then evaluatedValue = evalPropertyValue
-          else evaluatedValue = transformed
-     *  
-     */
 
-  const evaluatedValue = isValid
-    ? parsed
-    : isUndefined(transformed)
-    ? evalPropertyValue
-    : transformed;
-  const safeEvaluatedValue = removeFunctions(evaluatedValue);
-  set(
-    widget,
-    getEvalValuePath(fullPropertyPath, {
-      isPopulated: false,
-      fullPath: false,
-    }),
-    safeEvaluatedValue,
-  );
+  let evaluatedValue;
+  if (isValid) {
+    evaluatedValue = parsed;
+    // remove validation errors is already present
+    resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
+  } else {
+    evaluatedValue = isUndefined(transformed) ? evalPropertyValue : transformed;
 
-  if (!isValid) {
     const evalErrors: EvaluationError[] =
       messages?.map((message) => {
         return {
@@ -78,11 +62,19 @@ export function validateAndParseWidgetProperty({
           severity: Severity.ERROR,
         };
       }) ?? [];
+    // Add validation errors
     addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
-  } else {
-    // if valid then reset validation error
-    resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
   }
+  // set evaluated value
+  const safeEvaluatedValue = removeFunctions(evaluatedValue);
+  set(
+    widget,
+    getEvalValuePath(fullPropertyPath, {
+      isPopulated: false,
+      fullPath: false,
+    }),
+    safeEvaluatedValue,
+  );
 
   return parsed;
 }

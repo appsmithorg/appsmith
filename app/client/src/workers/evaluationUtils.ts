@@ -18,7 +18,7 @@ import {
   DataTreeJSAction,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -570,19 +570,13 @@ export const addErrorToEntityProperty = (
   const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
     entityName
   ];
-  const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
+  const logBlackList = get(dataTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
-    const existingErrors = _.get(
-      dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
-      [],
-    ) as EvaluationError[];
-    _.set(
-      dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
-      existingErrors.concat(errors),
-    );
+    const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
+    const existingErrors = get(dataTree, errorPath, []) as EvaluationError[];
+    set(dataTree, errorPath, existingErrors.concat(errors));
   }
+
   return dataTree;
 };
 
@@ -594,19 +588,16 @@ export const resetValidationErrorsForEntityProperty = (
     fullPropertyPath,
   );
   if (propertyPath) {
+    const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrorsExceptValidation = (_.get(
       dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      errorPath,
       [],
     ) as EvaluationError[]).filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
 
-    _.set(
-      dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
-      existingErrorsExceptValidation,
-    );
+    _.set(dataTree, errorPath, existingErrorsExceptValidation);
   }
   return dataTree;
 };
