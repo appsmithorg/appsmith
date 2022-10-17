@@ -62,6 +62,7 @@ describe("Fork a template to the current app", () => {
       .parent()
       .next()
       .click();
+    // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
     cy.get(template.templateViewForkButton).click();
     cy.wait("@fetchTemplate").should(
       "have.nested.property",
@@ -77,11 +78,6 @@ describe("Fork a template to the current app", () => {
 
   it("3. Fork template from page section", () => {
     cy.AddPageFromTemplate();
-    cy.wait("@fetchTemplate").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
@@ -103,7 +99,7 @@ describe("Fork a template to the current app", () => {
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath("//div[text()='Customer Support Dashboard']").click();
-    cy.wait("@importTemplate").should(
+    cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -116,7 +112,7 @@ describe("Fork a template to the current app", () => {
       .next()
       .click();
     cy.get(template.templateViewForkButton).click();
-    cy.wait("@getTemplatePages").should(
+    cy.wait("@fetchTemplate").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
