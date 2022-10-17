@@ -453,9 +453,9 @@ export const useAutoLayoutHighlights = ({
    * END AUTO LAYOUT OFFSET CALCULATION
    */
 
-  const debouncedDispatch = debounce((pos: HighlightInfo) => {
-    dispatchTempHighlight(pos);
-  }, 5);
+  // const debouncedDispatch = debounce((pos: HighlightInfo) => {
+  //   dispatchTempHighlight(pos);
+  // }, 5);
 
   const dispatchTempHighlight = (pos: HighlightInfo) => {
     dispatch({
