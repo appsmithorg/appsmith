@@ -137,15 +137,16 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     }
   },
   parse: (value: { value: string; additionalData?: any }) => {
+    const sources = isUndefined(value.additionalData)
+      ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
+      : value.additionalData.replaceAll(",", " ");
+    localStorage.setItem("ALLOWED_FRAME_ANCESTORS", sources);
+
     if (value.value === "ALLOW_EMBEDDING_EVERYWHERE") {
       return "*";
     } else if (value.value === "DISABLE_EMBEDDING_EVERYWHERE") {
       return "'none'";
     } else {
-      const sources = isUndefined(value.additionalData)
-        ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
-        : value.additionalData.replaceAll(",", " ");
-      localStorage.setItem("ALLOWED_FRAME_ANCESTORS", sources);
       return sources;
     }
   },

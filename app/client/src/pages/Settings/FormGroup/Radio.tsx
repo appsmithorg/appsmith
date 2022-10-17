@@ -100,6 +100,7 @@ function RadioFieldWrapper(
     componentProps.input.onChange &&
       componentProps.input.onChange({
         value: e.target.value,
+        additionalData: componentProps.input.value.additionalData,
       });
   }
 
