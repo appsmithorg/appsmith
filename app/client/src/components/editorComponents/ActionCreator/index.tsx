@@ -65,8 +65,10 @@ import {
   NAVIGATE_TO_TAB_OPTIONS,
   AppsmithFunction,
   FieldType,
+  AppsmithFunctionsWithFields,
 } from "./constants";
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
+import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
 const baseOptions: { label: string; value: string }[] = [
   {
@@ -165,7 +167,9 @@ function getFieldFromValue(
   getParentValue?: (changeValue: string) => string,
   dataTree?: DataTree,
 ): any[] {
+  // TODO - replace any
   const fields: any[] = [];
+
   if (!value) {
     return [
       {
@@ -175,12 +179,15 @@ function getFieldFromValue(
       },
     ];
   }
+
   let entity;
+
   if (isString(value)) {
     const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
     const entityProps = getEntityNameAndPropertyPath(trimmedVal);
     entity = dataTree && dataTree[entityProps.entityName];
   }
+
   if (entity && "ENTITY_TYPE" in entity) {
     if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
       fields.push({
@@ -250,6 +257,7 @@ function getFieldFromValue(
       }
       return fields;
     }
+
     if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
       const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
       if (matches.length === 0) {
@@ -292,135 +300,33 @@ function getFieldFromValue(
       return fields;
     }
   }
+
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
     value,
   });
-  if (value.indexOf("navigateTo") !== -1) {
-    fields.push({
-      field: FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD,
-    });
 
-    if (activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.PAGE_NAME) {
+  const functionMatch = AppsmithFunctionsWithFields.filter((func) =>
+    value.includes(func),
+  );
+  const requiredFunction = functionMatch[0];
+
+  if (functionMatch.length > 0) {
+    for (const field of FIELD_GROUP_CONFIG[requiredFunction].fields) {
       fields.push({
-        field: FieldType.PAGE_SELECTOR_FIELD,
-      });
-    } else {
-      fields.push({
-        field: FieldType.URL_FIELD,
+        field: field,
       });
     }
 
-    fields.push({
-      field: FieldType.QUERY_PARAMS_FIELD,
-    });
-    fields.push({
-      field: FieldType.NAVIGATION_TARGET_FIELD,
-    });
-  }
-
-  if (value.indexOf("showModal") !== -1) {
-    fields.push({
-      field: FieldType.SHOW_MODAL_FIELD,
-    });
-  }
-  if (value.indexOf("closeModal") !== -1) {
-    fields.push({
-      field: FieldType.CLOSE_MODAL_FIELD,
-    });
-  }
-  if (value.indexOf("showAlert") !== -1) {
-    fields.push(
-      {
-        field: FieldType.ALERT_TEXT_FIELD,
-      },
-      {
-        field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("storeValue") !== -1) {
-    fields.push(
-      {
-        field: FieldType.KEY_TEXT_FIELD,
-      },
-      {
-        field: FieldType.VALUE_TEXT_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("removeValue") !== -1) {
-    fields.push({
-      field: FieldType.KEY_TEXT_FIELD,
-    });
-  }
-  if (value.indexOf("resetWidget") !== -1) {
-    fields.push(
-      {
-        field: FieldType.WIDGET_NAME_FIELD,
-      },
-      {
-        field: FieldType.RESET_CHILDREN_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("download") !== -1) {
-    fields.push(
-      {
-        field: FieldType.DOWNLOAD_DATA_FIELD,
-      },
-      {
-        field: FieldType.DOWNLOAD_FILE_NAME_FIELD,
-      },
-      {
-        field: FieldType.DOWNLOAD_FILE_TYPE_FIELD,
-      },
-    );
-  }
-  if (value.indexOf("copyToClipboard") !== -1) {
-    fields.push({
-      field: FieldType.COPY_TEXT_FIELD,
-    });
-  }
-  if (value.indexOf("setInterval") !== -1) {
-    fields.push(
-      {
-        field: FieldType.CALLBACK_FUNCTION_FIELD,
-      },
-      {
-        field: FieldType.DELAY_FIELD,
-      },
-      {
-        field: FieldType.ID_FIELD,
-      },
-    );
-  }
-
-  if (value.indexOf("clearInterval") !== -1) {
-    fields.push({
-      field: FieldType.CLEAR_INTERVAL_ID_FIELD,
-    });
-  }
-
-  if (value.indexOf("getCurrentPosition") !== -1) {
-    fields.push({
-      field: FieldType.CALLBACK_FUNCTION_FIELD,
-    });
-  }
-
-  if (value.indexOf("postWindowMessage") !== -1) {
-    fields.push(
-      {
-        field: FieldType.MESSAGE_FIELD,
-      },
-      {
-        field: FieldType.SOURCE_FIELD,
-      },
-      {
-        field: FieldType.TARGET_ORIGIN_FIELD,
-      },
-    );
+    if (
+      requiredFunction === "navigateTo" &&
+      activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL
+    ) {
+      fields[2] = {
+        field: FieldType.URL_FIELD,
+      };
+    }
   }
 
   return fields;
@@ -615,6 +521,7 @@ function useIntegrationsOptionTree() {
   );
 }
 
+// TODO - move to utils file
 const isValueValidURL = (value: string) => {
   if (value) {
     const indices = [];
