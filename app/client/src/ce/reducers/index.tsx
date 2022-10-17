@@ -61,6 +61,9 @@ import SettingsReducer, {
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
+import tenantReducer, {
+  TenantReduxState,
+} from "@appsmith/reducers/tenantReducer";
 import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
 
@@ -70,6 +73,7 @@ export const reducerObject = {
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
+  tenant: tenantReducer,
 };
 
 export interface AppState {
@@ -141,4 +145,5 @@ export interface AppState {
     [key: string]: any;
   };
   settings: SettingsReduxState;
+  tenant: TenantReduxState;
 }
