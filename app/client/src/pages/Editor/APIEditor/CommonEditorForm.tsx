@@ -28,21 +28,22 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { TabComponent } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
   Callout,
   Case,
+  Classes,
   Icon,
   IconSize,
   SearchSnippet,
   Size,
+  TabComponent,
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
-import { Classes, Variant } from "components/ads/common";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,

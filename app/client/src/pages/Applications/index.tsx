@@ -49,6 +49,7 @@ import {
   AppIconCollection,
   Button,
   Category,
+  Classes,
   EditableText,
   EditInteractionKind,
   DialogComponent as Dialog,
@@ -67,7 +68,6 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
-import { Classes } from "components/ads/common";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {

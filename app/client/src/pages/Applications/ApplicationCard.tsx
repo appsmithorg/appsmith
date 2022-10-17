@@ -30,6 +30,7 @@ import {
   AppIconName,
   Button,
   Category,
+  Classes as CsClasses,
   ColorSelector,
   EditableText,
   EditInteractionKind,
@@ -58,7 +59,6 @@ import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
-import { Classes as CsClasses } from "components/ads/common";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Variant } from "components/ads/common";

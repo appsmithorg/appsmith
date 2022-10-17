@@ -20,11 +20,11 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
-import { Variant } from "components/ads/common";
 import {
   Button,
   Callout,
   Category,
+  Classes,
   Icon as AdsIcon,
   IconSize,
   SearchSnippet,
@@ -34,9 +34,9 @@ import {
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
 import styled from "constants/DefaultTheme";
-import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";

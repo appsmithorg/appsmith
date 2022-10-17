@@ -7,13 +7,14 @@ import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
 import {
+  CommonComponentProps,
   EditInteractionKind,
   Icon,
   IconSize,
   SavingState,
   Toaster,
 } from "design-system";
-import { CommonComponentProps, ThemeProp } from "components/ads/common";
+import { ThemeProp } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import EditableAppName from "./EditableAppName";
