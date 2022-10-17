@@ -56,14 +56,10 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final ActionCollectionService actionCollectionService;
     private final ResponseUtils responseUtils;
     private final LayoutActionService layoutActionService;
-
     private final ApplicationService applicationService;
-
     private final AstService astService;
-
     private final InstanceConfig instanceConfig;
     private final Boolean isRtsAccessible;
-
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
@@ -96,7 +92,6 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         this.isRtsAccessible = false;
 
     }
-
 
     @Override
     public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO) {
@@ -176,7 +171,6 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 })
                 .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
-
 
     /**
      * Assumption here is that the refactoring name provided is indeed unique and is fit to be replaced everywhere.
