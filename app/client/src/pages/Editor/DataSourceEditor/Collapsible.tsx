@@ -58,7 +58,6 @@ function Collapsible(props: Props) {
   );
 
   const setIsOpen = useCallback((open) => {
-    console.log(open, "setIsOpen");
     dispatch(setDatasourceCollapsible(title, open));
   }, []);
 

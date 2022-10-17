@@ -142,21 +142,6 @@ export const setDatasourceViewMode = (payload: boolean) => {
   };
 };
 
-// export const setPropertySectionState = (key: string, isOpen: boolean) => {
-//   return {
-//     type: ReduxActionTypes.SET_PROPERTY_SECTION_STATE,
-//     payload: { key, isOpen },
-//   };
-// };
-// export const setAllPropertySectionState = (payload: {
-//   [key: string]: boolean;
-// }) => {
-//   return {
-//     type: ReduxActionTypes.SET_ALL_PROPERTY_SECTION_STATE,
-//     payload,
-//   };
-// };
-
 export const setAllDatasourceCollapsible = (payload: {
   [key: string]: boolean;
 }) => {
