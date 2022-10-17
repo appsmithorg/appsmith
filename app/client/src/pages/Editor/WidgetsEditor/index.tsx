@@ -12,7 +12,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
-import { flashElementsById } from "utils/helpers";
+import { quickScrollToWidget } from "utils/helpers";
 import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
@@ -28,6 +28,7 @@ import {
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
 import PropertyPaneContainer from "./PropertyPaneContainer";
+import CanvasTopSection from "./EmptyCanvasSection";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -63,7 +64,7 @@ function WidgetsEditor() {
       !guidedTourEnabled
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
-      flashElementsById(widgetIdFromURLHash);
+      quickScrollToWidget(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
     }
@@ -108,17 +109,20 @@ function WidgetsEditor() {
         <>
           {guidedTourEnabled && <Guide />}
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div
-              className="relative flex flex-row w-full overflow-hidden"
-              data-testid="widgets-editor"
-              draggable
-              onClick={handleWrapperClick}
-              onDragStart={onDragStart}
-            >
-              <PageTabs />
-              <CanvasContainer />
-              <CrudInfoModal />
-              <Debugger />
+            <div className="relative flex flex-col w-full overflow-hidden">
+              <CanvasTopSection />
+              <div
+                className="relative flex flex-row w-full overflow-hidden"
+                data-testid="widgets-editor"
+                draggable
+                onClick={handleWrapperClick}
+                onDragStart={onDragStart}
+              >
+                <PageTabs />
+                <CanvasContainer />
+                <CrudInfoModal />
+                <Debugger />
+              </div>
             </div>
             <PropertyPaneContainer />
           </div>

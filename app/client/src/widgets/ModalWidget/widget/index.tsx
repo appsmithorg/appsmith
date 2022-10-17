@@ -13,91 +13,13 @@ import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "@appsmith/reducers";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { deselectAllInitAction } from "actions/widgetSelectionActions";
+import { deselectModalWidgetAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            helpText: "Enables scrolling for content inside the widget",
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "canOutsideClickClose",
-            label: "Quick Dismiss",
-            helpText: "Allows dismissing the modal when user taps outside",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "Triggers an action when the modal is closed",
-            propertyName: "onClose",
-            label: "onClose",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -225,7 +147,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    this.props.deselectAllWidgets();
+    setTimeout(() => {
+      this.props.deselectModalWidget(this.props.widgetId, this.props.children);
+    }, 0);
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -373,8 +297,11 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: { widgetId, callForDragOrResize, force },
     });
   },
-  deselectAllWidgets: () => {
-    dispatch(deselectAllInitAction());
+  deselectModalWidget: (
+    modalId: string,
+    modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
+  ) => {
+    dispatch(deselectModalWidgetAction(modalId, modalWidgetChildren));
   },
 });
 

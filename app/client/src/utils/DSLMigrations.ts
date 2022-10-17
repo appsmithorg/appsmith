@@ -60,6 +60,8 @@ import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/Curr
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
+import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
+import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1109,8 +1111,19 @@ export const transformDSL = (
 
   if (currentDSL.version === 61) {
     currentDSL = migrateChartWidgetReskinningData(currentDSL);
+    currentDSL.version = 62;
+  }
+
+  if (currentDSL.version === 62) {
+    currentDSL = MigrateSelectTypeWidgetDefaultValue(currentDSL);
+    currentDSL.version = 63;
+  }
+
+  if (currentDSL.version === 63) {
+    currentDSL = migrateMapChartWidgetReskinningData(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
+
   return currentDSL;
 };
 

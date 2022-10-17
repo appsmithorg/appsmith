@@ -6,8 +6,8 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -26,9 +26,9 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.codec.ByteBufferDecoder;
@@ -47,7 +47,7 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -63,14 +63,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class NewActionServiceCEImplTest {
-    
+
     NewActionServiceCE newActionService;
 
     @MockBean
@@ -120,7 +124,7 @@ public class NewActionServiceCEImplTest {
 
     private Map<String, Object> hints;
 
-    @Before
+    @BeforeEach
     public void setup() {
         newActionService = new NewActionServiceCEImpl(scheduler,
                 validator,
@@ -144,7 +148,7 @@ public class NewActionServiceCEImplTest {
                 permissionGroupService);
     }
 
-    @Before
+    @BeforeEach
     public void createContext() {
         final List<HttpMessageReader<?>> messageReaders = new ArrayList<>();
         messageReaders.add(new DecoderHttpMessageReader<>(new ByteBufferDecoder()));
@@ -283,26 +287,102 @@ public class NewActionServiceCEImplTest {
     }
 
     @Test
-    public void testExecuteAction_withParameterMapAndParamProperties_failsValidation() {
+    public void testExecuteAPIWithUsualOrderingOfTheParts() {
+        String usualOrderOfParts = "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"executeActionDTO\"\r\n" +
+                "\r\n" +
+                "{\"actionId\":\"63285a3388e48972c7519b18\",\"viewMode\":false,\"paramProperties\":{\"k0\":\"string\"}}\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"parameterMap\"\r\n" +
+                "\r\n" +
+                "{\"Input1.text\":\"k0\"}\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"k0\"; filename=\"blob\"\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "\r\n" +
+                "xyz\r\n" +
+                "--boundary--";
+
         MockServerHttpRequest mock = MockServerHttpRequest
                 .method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
-                .body("--boundary\r\n" +
-                        "Content-Disposition: form-data; name=\"executeActionDTO\"\r\n" + "\r\n" + "{\"viewMode\":false,\"paramProperties\":{\"k1\":\"String\",\"k2\":\"String\",\"k3\":\"Number\",\"k4\":\"Array\",\"k5\":\"File\"}}\r\n" +
-                        "--boundary\r\n"+
-                        "--boundary\r\n" +
-                        "Content-Disposition: form-data; name=\"parameterMap\"\r\n" + "\r\n" + "{\"k1\":\"DatePicker1.formattedDate\", \"k4\": \"%5BStringInput.text%2C%20NumberInput.text%2C%20DatePicker1.formattedDate%2C%20true%5D\", \"k2\":\"StringInput.text\", \"k5\":\"FilePicker1.files%5B1%5D\", \"k3\":\"NumberInput.text\"}\r\n" +
-                        "--boundary--\r\n");
+                .body(usualOrderOfParts);
 
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null);
+        NewActionServiceCE newActionServiceSpy = spy(newActionService);
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("test body");
+        mockResult.setTitle("test title");
+
+        NewAction newAction = new NewAction();
+        newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
+
 
         StepVerifier
                 .create(actionExecutionResultMono)
-                .expectErrorMatches(e-> e instanceof AppsmithException &&
-                        e.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ACTION_ID)))
-                .verify();
+                .assertNext(response -> {
+                    assertTrue(response.getIsExecutionSuccess());
+                    assertTrue(response instanceof ActionExecutionResult);
+                    assertEquals(mockResult.getBody().toString(), response.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteAPIWithParameterMapAsLastPart() {
+        String parameterMapAtLast = "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"executeActionDTO\"\r\n" +
+                "\r\n" +
+                "{\"actionId\":\"63285a3388e48972c7519b18\",\"viewMode\":false,\"paramProperties\":{\"k0\":\"string\"}}\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"k0\"; filename=\"blob\"\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "\r\n" +
+                "xyz\r\n" +
+                "--boundary\r\n" +
+                "Content-Disposition: form-data; name=\"parameterMap\"\r\n" +
+                "\r\n" +
+                "{\"Input1.text\":\"k0\"}\r\n" +
+                "--boundary--";
+
+        MockServerHttpRequest mock = MockServerHttpRequest
+                .method(HttpMethod.POST, URI.create("https://example.com"))
+                .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
+                .body(parameterMapAtLast);
+
+        final Flux<Part> partsFlux = BodyExtractors.toParts()
+                .extract(mock, this.context);
+
+        NewActionServiceCE newActionServiceSpy = spy(newActionService);
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("test body");
+        mockResult.setTitle("test title");
+
+        NewAction newAction = new NewAction();
+        newAction.setId("63285a3388e48972c7519b18");
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
+
+
+        StepVerifier
+                .create(actionExecutionResultMono)
+                .assertNext(response -> {
+                    assertTrue(response.getIsExecutionSuccess());
+                    assertTrue(response instanceof ActionExecutionResult);
+                    assertEquals(mockResult.getBody().toString(), response.getBody().toString());
+                })
+                .verifyComplete();
     }
 }

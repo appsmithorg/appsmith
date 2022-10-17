@@ -19,14 +19,13 @@ import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
-  DEBUGGER_TAB_KEYS,
   doesEntityHaveErrors,
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { setCurrentTab, showDebugger } from "actions/debuggerActions";
+import { showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
@@ -174,7 +173,8 @@ const OptionContentWrapper = styled.div<{
     margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 
-  &:hover {
+  &:hover,
+  &.highlighted {
     background-color: ${(props) =>
       !props.hasError && props.theme.colors.dropdown.hovered.bg};
   }
@@ -257,8 +257,6 @@ function OptionNode(props: any) {
     if (entityInfo?.hasError) {
       if (entityInfo?.type === ENTITY_TYPE.WIDGET) {
         dispatch(showDebugger(true));
-      } else {
-        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
       }
     }
     navigateToEntity(props.option.label);
@@ -269,8 +267,12 @@ function OptionNode(props: any) {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (!props.isSelectedNode) return;
-    if (e.key === " " || e.key === "Enter") onClick();
+    if (!props.isSelectedNode && !props.isHighlighted) return;
+    if (
+      (props.isSelectedNode || props.isHighlighted) &&
+      (e.key === " " || e.key === "Enter")
+    )
+      onClick();
   };
 
   useEffect(() => {
@@ -278,14 +280,16 @@ function OptionNode(props: any) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [props.isSelectedNode]);
+  }, [props.isSelectedNode, props.isHighlighted]);
 
   return (
     <OptionWrapper
+      className={`t--dropdown-option`}
       fillIconColor={!entityInfo?.datasourceName}
       hasError={!!entityInfo?.hasError}
     >
       <OptionContentWrapper
+        className={`${props.isHighlighted ? "highlighted" : ""}`}
         hasError={!!entityInfo?.hasError}
         isSelected={props.isSelectedNode}
         onClick={onClick}
@@ -433,6 +437,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         renderOption={(optionProps: RenderDropdownOptionType) => {
           return (
             <OptionNode
+              isHighlighted={optionProps.isHighlighted}
               isSelectedNode={optionProps.isSelectedNode}
               option={optionProps.option}
             />
@@ -469,6 +474,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         renderOption={(optionProps: RenderDropdownOptionType) => {
           return (
             <OptionNode
+              isHighlighted={optionProps.isHighlighted}
               isSelectedNode={optionProps.isSelectedNode}
               option={optionProps.option}
             />

@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, InputGroup } from "@blueprintjs/core";
+import { InputGroup } from "@blueprintjs/core";
 import { debounce } from "lodash";
-import { AnyStyledComponent } from "styled-components";
 
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
-import { ControlIcons } from "icons/ControlIcons";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "./cellComponents/AutoToolTipComponent";
 import {
@@ -24,21 +22,13 @@ import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../constants";
 
-const StyledRemoveIcon = styled(
-  ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
-)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  &.hide-icon {
-    display: none;
-  }
-`;
+import CloseIcon from "remixicon-react/CloseCircleFillIcon";
+import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 
 const LabelWrapper = styled.div`
   width: 95px;
   margin-left: 10px;
-  color: ${Colors.BLUE_BAYOUX};
+  color: var(--wds-color-text-light);
   font-size: 14px;
   font-weight: 500;
 `;
@@ -55,17 +45,28 @@ const DropdownWrapper = styled.div<{ width: number }>`
   margin-left: 10px;
 `;
 
-const StyledInputGroup = styled(InputGroup)`
-  background: ${Colors.WHITE};
-  border: 1px solid #d3dee3;
+const StyledInputGroup = styled(InputGroup)<{
+  borderRadius?: string;
+}>`
+  background: var(--wds-color-bg);
+  border: 1px solid var(--wds-color-border);
   box-sizing: border-box;
-  border-radius: 2px;
-  color: ${Colors.OXFORD_BLUE};
+  border-radius: ${(props) => props.borderRadius || "0"};
+  color: var(--wds-color-text);
   height: 32px;
-  width: 150px;
+  width: 120px;
   margin-left: 10px;
+  overflow: hidden;
+
   input {
     box-shadow: none;
+  }
+
+  input:focus {
+    box-shadow: none;
+  }
+  &:hover {
+    border-color: var(--wds-color-border-hover);
   }
 `;
 
@@ -74,20 +75,26 @@ const DatePickerWrapper = styled.div`
   width: 150px;
 `;
 
-const DropdownTrigger = styled.div`
+const DropdownTrigger = styled.div<{
+  borderRadius?: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   height: 32px;
-  background: ${Colors.WHITE};
-  border: 1px solid #d3dee3;
+  background: var(--wds-color-bg);
+  border: 1px solid var(--wds-color-border);
   box-sizing: border-box;
-  border-radius: 2px;
+  border-radius: ${(props) => props.borderRadius || "0"};
   font-size: 14px;
   padding: 5px 12px 7px;
-  color: ${Colors.OXFORD_BLUE};
+  color: var(--wds-color-text);
   cursor: pointer;
+
+  &:hover {
+    border-color: var(--wds-color-border-hover);
+  }
   &&& span {
     margin-right: 0;
   }
@@ -163,6 +170,15 @@ const typeOperatorsMap: Record<ReadOnlyColumnTypes, DropdownOption[]> = {
     { label: "is checked", value: "isChecked", type: "" },
     { label: "is unchecked", value: "isUnChecked", type: "" },
   ],
+  [ColumnTypes.SELECT]: [
+    { label: "contains", value: "contains", type: "input" },
+    { label: "does not contain", value: "doesNotContain", type: "input" },
+    { label: "starts with", value: "startsWith", type: "input" },
+    { label: "ends with", value: "endsWith", type: "input" },
+    { label: "is exactly", value: "isExactly", type: "input" },
+    { label: "empty", value: "empty", type: "" },
+    { label: "not empty", value: "notEmpty", type: "" },
+  ],
 };
 
 const operatorOptions: DropdownOption[] = [
@@ -179,6 +195,7 @@ const columnTypeNameMap: Record<ReadOnlyColumnTypes, string> = {
   [ReadOnlyColumnTypes.URL]: "Url",
   [ReadOnlyColumnTypes.CHECKBOX]: "Check",
   [ReadOnlyColumnTypes.SWITCH]: "Check",
+  [ReadOnlyColumnTypes.SELECT]: "Text",
 };
 
 function RenderOption(props: { type: string; title: string; active: boolean }) {
@@ -199,6 +216,7 @@ function RenderOptions(props: {
   value?: string | Condition;
   showType?: boolean;
   className?: string;
+  borderRadius?: string;
 }) {
   const [selectedValue, selectValue] = useState(props.placeholder);
   const configs = {
@@ -229,15 +247,20 @@ function RenderOptions(props: {
     openDirection: Directions.DOWN,
     trigger: {
       content: (
-        <DropdownTrigger className={props.className}>
-          <AutoToolTipComponentWrapper title={selectedValue}>
+        <DropdownTrigger
+          borderRadius={props.borderRadius}
+          className={props.className}
+        >
+          <AutoToolTipComponentWrapper disablePadding title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
-          <Icon color={Colors.SLATE_GRAY} icon="caret-down" iconSize={16} />
+          <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
         </DropdownTrigger>
       ),
     },
     skin: Skin.LIGHT,
+    borderRadius: props.borderRadius,
+    customizedDropdownId: "cascade-dropdown",
   };
   useEffect(() => {
     if (props.value && props.columns) {
@@ -260,6 +283,7 @@ function RenderInput(props: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  borderRadius?: string;
 }) {
   const debouncedOnChange = useCallback(debounce(props.onChange, 400), []);
   const [value, setValue] = useState(props.value);
@@ -273,6 +297,7 @@ function RenderInput(props: {
   }, [props.value]);
   return (
     <StyledInputGroup
+      borderRadius={props.borderRadius}
       className={props.className}
       defaultValue={value}
       onChange={onChange}
@@ -290,7 +315,11 @@ type CascadeFieldProps = {
   operator: Operator;
   index: number;
   hasAnyFilters: boolean;
-  applyFilter: (filter: ReactTableFilter, index: number) => void;
+  applyFilter: (
+    filter: ReactTableFilter,
+    index: number,
+    isOperatorChange: boolean,
+  ) => void;
   removeFilter: (index: number) => void;
   accentColor: string;
   borderRadius: string;
@@ -307,6 +336,7 @@ type CascadeFieldState = {
   showDateInput: boolean;
   isDeleted: boolean;
   isUpdate: boolean;
+  isOperatorChange: boolean;
 };
 
 const getConditions = (props: CascadeFieldProps) => {
@@ -373,6 +403,7 @@ function calculateInitialState(props: CascadeFieldProps) {
     showDateInput: showDateInput,
     isDeleted: false,
     isUpdate: false,
+    isOperatorChange: false,
   };
 }
 
@@ -425,6 +456,7 @@ function CaseCaseFieldReducer(
         ...state,
         operator: action.payload,
         isUpdate: true,
+        isOperatorChange: true,
       };
     case CascadeFieldActionTypes.UPDATE_FILTER:
       const calculatedState = calculateInitialState(action.payload);
@@ -491,6 +523,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     condition,
     conditions,
     isDeleted,
+    isOperatorChange,
     isUpdate,
     operator,
     showConditions,
@@ -500,7 +533,11 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   } = state;
   useEffect(() => {
     if (!isDeleted && isUpdate) {
-      applyFilter({ operator, column, condition, value }, index);
+      applyFilter(
+        { operator, column, condition, value },
+        index,
+        isOperatorChange,
+      );
     } else if (isDeleted) {
       removeFilter(index);
     }
@@ -510,6 +547,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     condition,
     value,
     isDeleted,
+    isOperatorChange,
     isUpdate,
     index,
     applyFilter,
@@ -524,18 +562,17 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   }, [props]);
   return (
     <FieldWrapper className="t--table-filter">
-      <StyledRemoveIcon
-        className={`t--table-filter-remove-btn ${
-          hasAnyFilters ? "" : "hide-icon"
+      <CloseIcon
+        className={`t--table-filter-remove-btn w-6 h-6 cursor-pointer ${
+          hasAnyFilters ? "" : "hidden"
         }`}
-        color={Colors.GRAY}
-        height={16}
+        color="var(--wds-color-icon)"
         onClick={handleRemoveFilter}
-        width={16}
       />
       {index === 1 ? (
         <DropdownWrapper width={95}>
           <RenderOptions
+            borderRadius={props.borderRadius}
             className="t--table-filter-operators-dropdown"
             columns={operatorOptions}
             placeholder="or"
@@ -548,8 +585,9 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
           {index === 0 ? "Where" : OperatorTypes[props.operator]}
         </LabelWrapper>
       )}
-      <DropdownWrapper width={150}>
+      <DropdownWrapper width={120}>
         <RenderOptions
+          borderRadius={props.borderRadius}
           className="t--table-filter-columns-dropdown"
           columns={props.columns}
           placeholder="Attribute"
@@ -561,6 +599,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showConditions ? (
         <DropdownWrapper width={200}>
           <RenderOptions
+            borderRadius={props.borderRadius}
             className="t--table-filter-conditions-dropdown"
             columns={conditions}
             placeholder=""
@@ -571,6 +610,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       ) : null}
       {showInput ? (
         <RenderInput
+          borderRadius={props.borderRadius}
           className="t--table-filter-value-input"
           onChange={onValueChange}
           value={value}
@@ -594,7 +634,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             shortcuts={false}
             timePrecision={TimePrecision.MINUTE}
             widgetId=""
-            withoutPortal
           />
         </DatePickerWrapper>
       ) : null}

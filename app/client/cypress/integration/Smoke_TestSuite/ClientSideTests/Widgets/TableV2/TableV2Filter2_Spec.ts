@@ -18,9 +18,22 @@ describe("Verify various Table_Filter combinations", function() {
   it("1. Adding Data to Table Widget", function() {
     ee.DragDropWidgetNVerify("tablewidgetv2", 250, 250);
     //propPane.EnterJSContext("Table Data", JSON.stringify(dataSet.TableInput));
-    propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(dataSet.TableInput))
+    propPane.UpdatePropertyFieldValue(
+      "Table Data",
+      JSON.stringify(dataSet.TableInput),
+    );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     agHelper.PressEscape();
+    /*
+      Changing id and orderAmount to "Plain Text" column type
+      so that the tests that depend on id and orderAmount
+      being "Plain Text" type do not fail.
+      From this PR onwards columns with number data (like id and orderAmount here)
+      will be auto-assigned as "NUMBER" type column
+    */
+    table.ChangeColumnTypeV2("id", "Plain Text");
+    table.ChangeColumnTypeV2("orderAmount", "Plain Text");
+
     deployMode.DeployApp();
   });
 
@@ -353,8 +366,8 @@ describe("Verify various Table_Filter combinations", function() {
     filterOnlyCondition("does not contain", "49");
     filterOnlyCondition("starts with", "1");
 
-    //Ends with - Open Bug 13334
-    //filterOnlyCondition('ends with', '1')
+    // Ends with - Open Bug 13334
+    filterOnlyCondition("ends with", "1");
 
     filterOnlyCondition("is exactly", "1");
     filterOnlyCondition("empty", "0");
@@ -412,6 +425,39 @@ describe("Verify various Table_Filter combinations", function() {
 
     table.OpenFilter();
     table.RemoveFilterNVerify("1", true, false);
+  });
+
+  it("14. Verify Table Filter for correct value in filter value input after removing second filter - Bug 12638", function() {
+    table.OpenNFilterTable("seq", "greater than", "5");
+
+    table.OpenNFilterTable("FirstName", "contains", "r", "AND", 1);
+
+    table.OpenNFilterTable("LastName", "contains", "son", "AND", 2);
+    table.agHelper.GetNClick(".t--table-filter-remove-btn", 1);
+    cy.wait(500);
+    cy.get(
+      ".t--table-filter:nth-child(2) .t--table-filter-value-input input[type=text]",
+    ).should("have.value", "son");
+    table.agHelper.GetNClick(".t--clear-all-filter-btn");
+    table.agHelper.GetNClick(".t--close-filter-btn");
+  });
+
+  it("15. Verify Table Filter operator for correct value after removing where clause condition - Bug 12642", function() {
+    table.OpenNFilterTable("seq", "greater than", "5");
+
+    table.OpenNFilterTable("FirstName", "contains", "r", "AND", 1);
+
+    table.OpenNFilterTable("LastName", "contains", "son", "AND", 2);
+    table.agHelper.GetNClick(".t--table-filter-operators-dropdown");
+    cy.get(".t--dropdown-option")
+      .contains("OR")
+      .click();
+    table.agHelper.GetNClick(".t--table-filter-remove-btn", 0);
+    cy.get(".t--table-filter-operators-dropdown div div span").should(
+      "contain",
+      "OR",
+    );
+    table.agHelper.GetNClick(".t--clear-all-filter-btn");
   });
 
   function filterOnlyCondition(

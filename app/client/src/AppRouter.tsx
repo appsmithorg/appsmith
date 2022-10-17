@@ -3,30 +3,30 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+  ADMIN_SETTINGS_CATEGORY_PATH,
+  ADMIN_SETTINGS_PATH,
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
   BASE_URL,
-  BUILDER_PATH,
   BUILDER_CUSTOM_PATH,
-  WORKSPACE_URL,
-  SIGN_UP_URL,
-  SIGNUP_SUCCESS_URL,
-  USER_AUTH_URL,
-  USERS_URL,
+  BUILDER_PATCH_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   PROFILE,
   SETUP,
-  VIEWER_PATH,
-  VIEWER_CUSTOM_PATH,
-  ADMIN_SETTINGS_PATH,
-  ADMIN_SETTINGS_CATEGORY_PATH,
-  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
-  BUILDER_PATH_DEPRECATED,
-  VIEWER_PATH_DEPRECATED,
+  SIGNUP_SUCCESS_URL,
+  SIGN_UP_URL,
   TEMPLATES_PATH,
+  USERS_URL,
+  USER_AUTH_URL,
+  VIEWER_CUSTOM_PATH,
   VIEWER_PATCH_PATH,
-  BUILDER_PATCH_PATH,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
+  WORKSPACE_URL,
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -60,6 +60,7 @@ import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
 import WDSPage from "components/wds/Showcase";
+import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -83,12 +84,13 @@ function AppRouter(props: {
   safeCrash: boolean;
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
+  getCurrentTenant: () => void;
   currentTheme: Theme;
   safeCrashCode?: ERROR_CODES;
   featureFlags: FeatureFlags;
   setTheme: (theme: ThemeMode) => void;
 }) {
-  const { getCurrentUser, getFeatureFlags } = props;
+  const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
     AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
     const stopListener = history.listen((location: any) => {
@@ -97,6 +99,7 @@ function AppRouter(props: {
     });
     getCurrentUser();
     getFeatureFlags();
+    getCurrentTenant();
     return stopListener;
   }, []);
 
@@ -192,6 +195,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
+  getCurrentTenant: () => dispatch(getCurrentTenant()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

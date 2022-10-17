@@ -38,13 +38,9 @@ import ApplicationCard from "./ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import Dialog from "components/ads/DialogComponent";
 import { User } from "constants/userConstants";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
-import {
-  CREATE_WORKSPACE_FORM_NAME,
-  inviteModalLinks,
-} from "@appsmith/constants/forms";
+import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -53,11 +49,16 @@ import {
   AppIconCollection,
   Button,
   Category,
+  EditableText,
+  EditInteractionKind,
+  DialogComponent as Dialog,
   Icon,
   IconName,
   IconSize,
   Menu,
   MenuItem,
+  notEmptyValidator,
+  SavingState,
   Size,
   Text,
   TextType,
@@ -74,11 +75,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
-import { notEmptyValidator } from "design-system";
 import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -88,11 +84,11 @@ import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers"
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
   createMessage,
-  NO_APPS_FOUND,
-  WORKSPACES_HEADING,
-  SEARCH_APPS,
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
+  NO_APPS_FOUND,
+  SEARCH_APPS,
+  WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
@@ -708,7 +704,6 @@ function ApplicationsSection(props: any) {
                   title={`Invite Users to ${workspace.name}`}
                 >
                   <Form
-                    links={inviteModalLinks}
                     message={createMessage(INVITE_USERS_MESSAGE)}
                     workspaceId={workspace.id}
                   />
@@ -734,7 +729,6 @@ function ApplicationsSection(props: any) {
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
                         canOutsideClickClose
-                        links={inviteModalLinks}
                         message={createMessage(INVITE_USERS_MESSAGE)}
                         placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                         title={`Invite Users to ${workspace.name}`}

@@ -7,6 +7,7 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -17,11 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bson.types.ObjectId;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -42,21 +44,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit tests for the PostgresPlugin
- */
+@Testcontainers
 public class MssqlPluginTest {
 
     MssqlPlugin.MssqlPluginExecutor pluginExecutor = new MssqlPlugin.MssqlPluginExecutor();
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
-    @ClassRule
+    @Container
     public static final MSSQLServerContainer container =
             new MSSQLServerContainer<>(
                     DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:1.0.3").asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
@@ -68,7 +68,7 @@ public class MssqlPluginTest {
     private static Integer port;
     private static String username, password;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws SQLException {
         address = container.getContainerIpAddress();
         port = container.getMappedPort(1433);
@@ -155,8 +155,24 @@ public class MssqlPluginTest {
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+
     }
 
     @Test
@@ -379,7 +395,7 @@ public class MssqlPluginTest {
 
                     // check if '?' is replaced by $i.
                     assertEquals("SELECT * FROM users where id = $1;",
-                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
 
                     PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
                     PsParameterDTO returnedPsParam =

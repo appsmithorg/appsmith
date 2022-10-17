@@ -1,8 +1,8 @@
-import { parse, Node, SourceLocation, Options } from 'acorn';
-import { ancestor, simple } from 'acorn-walk';
-import { ECMA_VERSION, NodeTypes } from './constants/ast';
-import { has, isFinite, isString, memoize, toPath } from 'lodash';
-import { isTrueObject, sanitizeScript } from './utils';
+import { parse, Node, SourceLocation, Options } from "acorn";
+import { ancestor, simple } from "acorn-walk";
+import { ECMA_VERSION, NodeTypes } from "./constants/ast";
+import { has, isFinite, isString, memoize, toPath } from "lodash";
+import { isTrueObject, sanitizeScript } from "./utils";
 
 /*
  * Valuable links:
@@ -90,7 +90,7 @@ export interface PropertyNode extends Node {
   type: NodeTypes.Property;
   key: LiteralNode | IdentifierNode;
   value: Node;
-  kind: 'init' | 'get' | 'set';
+  kind: "init" | "get" | "set";
 }
 
 // Node with location details
@@ -98,7 +98,7 @@ type NodeWithLocation<NodeType> = NodeType & {
   loc: SourceLocation;
 };
 
-type AstOptions = Omit<Options, 'ecmaVersion'>;
+type AstOptions = Omit<Options, "ecmaVersion">;
 
 /* We need these functions to typescript casts the nodes with the correct types */
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
@@ -196,23 +196,23 @@ export const getAST = memoize((code: string, options?: AstOptions) =>
  * @param code: The piece of script where references need to be extracted from
  */
 
-interface ExtractInfoFromCode {
+export interface IdentifierInfo {
   references: string[];
   functionalParams: string[];
   variables: string[];
 }
-export const extractInfoFromCode = (
+export const extractIdentifierInfoFromCode = (
   code: string,
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
-): ExtractInfoFromCode => {
+): IdentifierInfo => {
   // List of all references found
   const references = new Set<string>();
   // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
   const variableDeclarations = new Set<string>();
   // List of functional params declared within the script. All identifiers and member expressions derived from functional params will be removed
   let functionalParams = new Set<string>();
-  let ast: Node = { end: 0, start: 0, type: '' };
+  let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
@@ -377,7 +377,7 @@ export const getFunctionalParamsFromNode = (
 
 const constructFinalMemberExpIdentifier = (
   node: MemberExpressionNode,
-  child = ''
+  child = ""
 ): string => {
   const propertyAccessor = getPropertyAccessor(node.property);
   if (isIdentifierNode(node.object)) {
@@ -438,7 +438,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
   const variableDeclarations = new Set<string>();
   let functionalParams = new Set<string>();
-  let ast: Node = { end: 0, start: 0, type: '' };
+  let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
