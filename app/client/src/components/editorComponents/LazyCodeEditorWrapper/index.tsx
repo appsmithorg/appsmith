@@ -106,7 +106,9 @@ function CodeEditor(props: any) {
           containsCode={containsCode}
           containsObject={containsObject}
           isPlaceholder={isPlaceholder}
+          onFocus={handleFocus}
           onMouseEnter={handleFocus}
+          tabIndex={0}
         >
           <pre>{text}</pre>
         </HighlighedCodeContainer>

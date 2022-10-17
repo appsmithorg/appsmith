@@ -1,5 +1,5 @@
-import React, { useRef, RefObject, useCallback, useState } from "react";
-import { connect, useDispatch } from "react-redux";
+import React, { useRef, RefObject, useCallback } from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "@appsmith/reducers";
@@ -41,7 +41,6 @@ import {
 } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
-import { setCurrentTab } from "actions/debuggerActions";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import {
@@ -50,6 +49,15 @@ import {
 } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
+import {
+  getApiPaneResponsePaneHeight,
+  getApiPaneResponseSelectedTab,
+} from "selectors/apiPaneSelectors";
+import {
+  setApiPaneResponsePaneHeight,
+  setApiPaneResponseSelectedTab,
+} from "actions/apiPaneActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -58,8 +66,6 @@ export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
-  // Initial height of bottom tabs
-  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -260,10 +266,6 @@ const ResponseDataContainer = styled.div`
   }
 `;
 
-export const TableCellHeight = 39;
-// When action execution is triggered, open response container to height specified by this variable.
-export const ActionExecutionResizerHeight = 307;
-
 export const responseTabComponent = (
   responseType: string,
   output: any,
@@ -328,7 +330,7 @@ function ApiResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
     });
-    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setApiPaneResponseSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
   const onRunClick = () => {
@@ -337,10 +339,6 @@ function ApiResponseView(props: Props) {
       source: "API_PANE",
     });
   };
-
-  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
-    window.innerHeight,
-  );
 
   const messages = response?.messages;
   let responseHeaders = {};
@@ -363,6 +361,30 @@ function ApiResponseView(props: Props) {
     responseHeaders = {};
   }
 
+  const onResponseTabSelect = (tab: string) => {
+    updateActionResponseDisplayFormat({
+      id: apiId ? apiId : "",
+      field: "responseDisplayFormat",
+      value: tab,
+    });
+  };
+
+  const selectedTabIndex =
+    responseDataTypes &&
+    responseDataTypes.findIndex(
+      (dataType) => dataType.title === responseDisplayFormat?.title,
+    );
+
+  const selectedResponseTab = useSelector(getApiPaneResponseSelectedTab);
+  const updateSelectedResponseTab = useCallback((tabKey: string) => {
+    dispatch(setApiPaneResponseSelectedTab(tabKey));
+  }, []);
+
+  const responsePaneHeight = useSelector(getApiPaneResponsePaneHeight);
+  const updateResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setApiPaneResponsePaneHeight(height));
+  }, []);
+
   const responseTabs =
     responseDataTypes &&
     responseDataTypes.map((dataType, index) => {
@@ -373,24 +395,10 @@ function ApiResponseView(props: Props) {
         panelComponent: responseTabComponent(
           dataType.key,
           response?.body,
-          tableBodyHeight,
+          responsePaneHeight,
         ),
       };
     });
-
-  const onResponseTabSelect = (tab: any) => {
-    updateActionResponseDisplayFormat({
-      id: apiId ? apiId : "",
-      field: "responseDisplayFormat",
-      value: tab.title,
-    });
-  };
-
-  const selectedTabIndex =
-    responseDataTypes &&
-    responseDataTypes.findIndex(
-      (dataType) => dataType.title === responseDisplayFormat?.title,
-    );
 
   const tabs = [
     {
@@ -452,10 +460,9 @@ function ApiResponseView(props: Props) {
                   responseTabs.length > 0 &&
                   selectedTabIndex !== -1 ? (
                   <EntityBottomTabs
-                    defaultIndex={selectedTabIndex}
                     onSelect={onResponseTabSelect}
                     responseViewer
-                    selectedTabIndex={selectedTabIndex}
+                    selectedTabKey={responseDisplayFormat.value}
                     tabs={responseTabs}
                   />
                 ) : null}
@@ -538,12 +545,12 @@ function ApiResponseView(props: Props) {
   return (
     <ResponseContainer ref={panelRef}>
       <Resizer
+        initialHeight={responsePaneHeight}
+        onResizeComplete={(height: number) => {
+          updateResponsePaneHeight(height);
+        }}
         openResizer={isRunning}
         panelRef={panelRef}
-        setContainerDimensions={(height: number) =>
-          // TableCellHeight in this case is the height of one table cell in pixels.
-          setTableBodyHeightHeight(height - TableCellHeight)
-        }
         snapToHeight={ActionExecutionResizerHeight}
       />
       <SectionDivider />
@@ -613,7 +620,11 @@ function ApiResponseView(props: Props) {
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
+        <EntityBottomTabs
+          onSelect={updateSelectedResponseTab}
+          selectedTabKey={selectedResponseTab}
+          tabs={tabs}
+        />
       </TabbedViewWrapper>
     </ResponseContainer>
   );
