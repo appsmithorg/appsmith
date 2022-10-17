@@ -89,7 +89,7 @@ type NodeList = {
   references: Set<string>;
   functionalParams: Set<string>;
   variableDeclarations: Set<string>;
-  nodeList: Array<IdentifierNode>;
+  identifierList: Array<IdentifierNode>;
 };
 
 // https://github.com/estree/estree/blob/master/es5.md#property
@@ -267,7 +267,7 @@ export const entityRefactorFromCode = (
 ): Record<string, string | number> | string => {
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
-  let refactorScript: string = script;
+  let refactorScript = script;
   //Difference in length of oldName and newName
   let nameLengthDiff: number = newName.length - oldName.length;
   //Offset index used for deciding location of oldName.
@@ -281,9 +281,9 @@ export const entityRefactorFromCode = (
       references,
       functionalParams,
       variableDeclarations,
-      nodeList,
+      identifierList,
     }: NodeList = ancestorWalk(ast);
-    let identifierArray = Array.from(nodeList) as Array<IdentifierNode>;
+    let identifierArray = Array.from(identifierList) as Array<IdentifierNode>;
     const referencesArr = Array.from(references).filter((reference, index) => {
       const topLevelIdentifier = toPath(reference)[0];
       let shouldUpdateNode = !(
@@ -291,7 +291,7 @@ export const entityRefactorFromCode = (
         variableDeclarations.has(topLevelIdentifier) ||
         has(invalidIdentifiers, topLevelIdentifier)
       );
-      //check if nodde should be updated
+      //check if node should be updated
       if (shouldUpdateNode && identifierArray[index].name === oldName) {
         //Replace the oldName by newName
         //Get start index from node and get subarray from index 0 till start
@@ -496,8 +496,8 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
 };
 
 const ancestorWalk = (ast: Node): NodeList => {
-  //List of all nodes
-  const nodeList = new Array<IdentifierNode>();
+  //List of all Identifier nodes
+  const identifierList = new Array<IdentifierNode>();
   // List of all references found
   const references = new Set<string>();
   // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
@@ -543,7 +543,7 @@ const ancestorWalk = (ast: Node): NodeList => {
           break;
         }
       }
-      nodeList.push(node as IdentifierNode);
+      identifierList.push(node as IdentifierNode);
       if (isIdentifierNode(candidateTopLevelNode)) {
         // If the node is an Identifier, just save that
         references.add(candidateTopLevelNode.name);
@@ -595,6 +595,6 @@ const ancestorWalk = (ast: Node): NodeList => {
     references,
     functionalParams,
     variableDeclarations,
-    nodeList,
+    identifierList,
   };
 };
