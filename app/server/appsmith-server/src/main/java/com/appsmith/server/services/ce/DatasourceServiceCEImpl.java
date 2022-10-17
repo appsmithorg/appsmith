@@ -456,7 +456,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 })
                 .flatMap(datasource -> {
                     Map<String, String> eventData = Map.of(
-                            FieldName.WORKSPACE_ID, datasource.getId()
+                            FieldName.WORKSPACE_ID, datasource.getWorkspaceId()
                     );
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(datasource);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
