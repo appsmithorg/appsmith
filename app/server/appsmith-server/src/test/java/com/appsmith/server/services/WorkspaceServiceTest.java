@@ -64,7 +64,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
@@ -305,7 +305,7 @@ public class WorkspaceServiceTest {
                     adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId()));
 
-                    adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
 
                     adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
@@ -316,7 +316,7 @@ public class WorkspaceServiceTest {
                     developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
 
-                    developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
 
                     developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
@@ -326,7 +326,7 @@ public class WorkspaceServiceTest {
                     // Assert viewer permission group policies
                     viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
-                    viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
                     viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
