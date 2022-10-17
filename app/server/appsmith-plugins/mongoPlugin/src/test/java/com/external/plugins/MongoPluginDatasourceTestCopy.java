@@ -98,7 +98,7 @@ import static org.mockito.Mockito.when;
  */
 
 @Testcontainers
-public class MongoPluginTest {
+public class MongoPluginDatasourceTestCopy {
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
 
     private static String address;
@@ -108,8 +108,7 @@ public class MongoPluginTest {
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("mongo:4.4"))
-            .withExposedPorts(27017);
+    public static GenericContainer mongoContainer = new MongoTestContainer();
 
     @BeforeAll
     public static void setUp() {
@@ -118,76 +117,6 @@ public class MongoPluginTest {
         String uri = "mongodb://" + address + ":" + port;
         mongoClient = MongoClients.create(uri);
 
-        Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().
-                flatMap(collectionNamesList -> {
-                    if (collectionNamesList.size() == 0) {
-                        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
-                                "users");
-                        Mono.from(usersCollection.insertMany(List.of(
-                                new Document(Map.of(
-                                        "name", "Cierra Vega",
-                                        "gender", "F",
-                                        "age", 20,
-                                        "luckyNumber", 987654321L,
-                                        "dob", LocalDate.of(2018, 12, 31),
-                                        "netWorth", new BigDecimal("123456.789012"),
-                                        "updatedByCommand", false
-                                )),
-                                new Document(Map.of(
-                                        "name", "Alden Cantrell",
-                                        "gender", "M",
-                                        "age", 30,
-                                        "dob", new Date(0),
-                                        "netWorth", Decimal128.parse("123456.789012"),
-                                        "updatedByCommand", false,
-                                        "aLong", 9_000_000_000_000_000_000L,
-                                        "ts", new BSONTimestamp(1421006159, 4)
-                                )),
-                                new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
-                        ))).block();
-
-
-                        final MongoCollection<Document> addressCollection = mongoClient.getDatabase("test")
-                                .getCollection("address");
-                        Mono.from(addressCollection.insertMany(List.of(
-                                new Document(Map.of(
-                                        "user", new DBRef("test", "users", "1"),
-                                        "street", "First Street",
-                                        "city", "Line One",
-                                        "state", "UP"
-                                )),
-                                new Document(Map.of(
-                                        "user", new DBRef("AAA", "BBB", "2000"),
-                                        "street", "Second Street",
-                                        "city", "Line Two",
-                                        "state", "UP"
-                                ))
-                        ))).block();
-
-
-                        final MongoCollection<Document> teamCollection = mongoClient.getDatabase("test")
-                                .getCollection("teams");
-                        Mono.from(teamCollection.insertMany(List.of(
-                                new Document(Map.of(
-                                        "name", "Noisy Neighbours 2",
-                                        "goals_allowed", "20",
-                                        "goals_forwarded", "41",
-                                        "goal_difference", "+21",
-                                        "xGD", "-2.5",
-                                        "best_scoreline", "5-2"
-                                )),
-                                new Document(Map.of(
-                                        "name", "Red Side of the city",
-                                        "goals_allowed", "35",
-                                        "goals_forwarded", "28",
-                                        "goal_difference", "-7",
-                                        "xGD" , "+3.6",
-                                        "best_scoreline", "8-3"
-                                ))
-                        ))).block();
-                    }
-                    return Mono.empty();
-                }).block();
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -209,111 +138,7 @@ public class MongoPluginTest {
         return dsConfig;
     }
 
-    @Test
-    public void testConnectToMongo() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-
-        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-        StepVerifier.create(dsConnectionMono)
-                .assertNext(obj -> {
-                    MongoClient client = obj;
-                    assertNotNull(client);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testConnectToMongoWithoutUsername() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.setAuthentication(new DBAuth(DBAuth.Type.SCRAM_SHA_1, "", "", "admin"));
-        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
-        StepVerifier.create(dsConnectionMono)
-                .assertNext(Assertions::assertNotNull)
-                .verifyComplete();
-    }
-
-    /**
-     * 1. Test "testDatasource" method in MongoPluginExecutor class.
-     */
-    @Test
-    public void testDatasourceFail() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost("badHost");
-
-        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertFalse(datasourceTestResult.isSuccess());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testDatasourceFailWithInvalidDefaultDatabaseName() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getConnection().setDefaultDatabaseName("abcd");
-        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertFalse(datasourceTestResult.isSuccess());
-                })
-                .verifyComplete();
-    }
-
-    /*
-     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization.
-     */
-    @Test
-    public void testDatasourceWithUnauthorizedException() {
-        /*
-         * 1. Create mock exception of type: MongoCommandException.
-         *      - mock method getErrorCodeName() to return String "Unauthorized".
-         */
-        MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
-        when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
-        when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
-        when(mockMongoCommandException.getErrorMessage()).thenReturn("Mock error  : Expected 'something' , but got something else.\n" +
-                "Doc = [{find mockAction} {filter mockFilter} {limit 10} {$db mockDB} ...]");
-
-        /*
-         * 1. Spy MongoPluginExecutor class.
-         *      - On calling testDatasource(...) -> call the real method.
-         *      - On calling datasourceCreate(...) -> throw the mock exception defined above.
-         */
-        MongoPlugin.MongoPluginExecutor mongoPluginExecutor = new MongoPlugin.MongoPluginExecutor();
-        MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
-        /* Please check this out before modifying this line: https://stackoverflow
-         * .com/questions/11620103/mockito-trying-to-spy-on-method-is-calling-the-original-method
-         */
-        doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
-
-        /*
-         * 1. Test that MongoCommandException with error code "Unauthorized" is not successful because of invalid credentials.
-         */
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        StepVerifier
-                .create(spyMongoPluginExecutor.testDatasource(dsConfig))
-                .assertNext(datasourceTestResult -> {
-                    assertFalse(datasourceTestResult.isSuccess());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-
-        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
-
-        StepVerifier.create(testDatasourceMono)
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertTrue(datasourceTestResult.isSuccess());
-                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
-                })
-                .verifyComplete();
-
-    }
+    
 
     /**
      * Test for DBRef after codec implementation
@@ -905,163 +730,7 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
-    @Test
-    public void testTestDatasourceTimeoutError() {
-        String badHost = "mongo-bad-url.mongodb.net";
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        dsConfig.getEndpoints().get(0).setHost(badHost);
 
-        Mono<DatasourceTestResult> datasourceTestResult = pluginExecutor.testDatasource(dsConfig);
-
-        StepVerifier.create(datasourceTestResult)
-                .assertNext(result -> {
-                    assertFalse(result.isSuccess());
-                    assertTrue(result.getInvalids().size() == 1);
-                    assertTrue(result
-                            .getInvalids()
-                            .stream()
-                            .anyMatch(error -> error.contains(
-                                    "Connection timed out. Please check if the datasource configuration fields have " +
-                                            "been filled correctly."
-                            )));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testSslToggleMissingError() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getConnection().getSsl().setAuthType(null);
-
-        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor)
-                .map(executor -> executor.validateDatasource(datasourceConfiguration));
-
-
-        StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource " +
-                            "configuration form. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> expectedError.equals(error))
-                    );
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testSslDefault() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-
-        Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      filter: { age: { $gte: 30 } },\n" +
-                "      sort: { id: 1 },\n" +
-                "      limit: 10,\n" +
-                "    }");
-        actionConfiguration.setFormData(configMap);
-
-        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(),
-                datasourceConfiguration,
-                actionConfiguration));
-
-        StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    assertEquals(2, ((ArrayNode) result.getBody()).size());
-                    assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
-                    );
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testSslDisabled() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-
-        Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      filter: { age: { $gte: 30 } },\n" +
-                "      sort: { id: 1 },\n" +
-                "      limit: 10,\n" +
-                "    }");
-        actionConfiguration.setFormData(configMap);
-
-        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(),
-                datasourceConfiguration,
-                actionConfiguration));
-
-        StepVerifier.create(executeMono)
-                .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    assertEquals(2, ((ArrayNode) result.getBody()).size());
-                    assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
-                    );
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testSslEnabled() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ENABLED);
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-
-        Map<String, Object> configMap = new HashMap<>();
-        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      filter: { age: { $gte: 30 } },\n" +
-                "      sort: { id: 1 },\n" +
-                "      limit: 10,\n" +
-                "    }");
-        actionConfiguration.setFormData(configMap);
-
-        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(),
-                datasourceConfiguration,
-                actionConfiguration));
-
-        /*
-         * - This test case is exactly same as the one's used in DEFAULT and DISABLED tests.
-         * - Expect error here because testcontainer does not support SSL connection.
-         */
-        StepVerifier.create(executeMono)
-                .assertNext(result -> {
-                    assertFalse(result.getIsExecutionSuccess());
-                    assertEquals(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle(), result.getTitle());
-                })
-                .verifyComplete();
-    }
 
     @Test
     public void testBsonSmartSubstitution_withBSONValue() {
@@ -2878,19 +2547,7 @@ public class MongoPluginTest {
                 .verify();
     }
 
-    @Test
-    public void testValidateDatasource_withoutDefaultDBInURIString_returnsInvalid() {
-        final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("isUriString", "Yes"));
-        properties.add(new Property("uriString", "mongodb://user:pass@url.net/"));
-        datasourceConfiguration.setProperties(properties);
-
-        final Set<String> strings = pluginExecutor.validateDatasource(datasourceConfiguration);
-
-        assertEquals(1, strings.size());
-        assertTrue(strings.contains("Missing default database name."));
-    }
+  
 
     @Test
     public void testRegexStringQueryWithSmartSubstitution() {
