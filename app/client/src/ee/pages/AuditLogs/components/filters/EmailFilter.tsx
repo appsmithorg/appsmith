@@ -80,7 +80,7 @@ export default function EmailFilter(): JSX.Element {
   }
 
   return (
-    <Container>
+    <Container data-testid="t--audit-logs-email-filter-container">
       <Label>Users</Label>
       <Dropdown
         boundary="viewport"

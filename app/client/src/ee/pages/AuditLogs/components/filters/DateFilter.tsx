@@ -39,7 +39,7 @@ export default function DateFilter() {
   }
 
   return (
-    <Container>
+    <Container data-testid="t--audit-logs-date-filter-container">
       <Label>Date</Label>
       <Dropdown
         boundary="viewport"
