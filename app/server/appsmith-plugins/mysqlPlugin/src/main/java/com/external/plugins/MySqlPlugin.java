@@ -14,7 +14,6 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
@@ -667,23 +666,6 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             return invalids;
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> Mono.from(connection.close()))
-                    .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error -> {
-                        // We always expect to have an error object, but the error object may not be well formed
-                        final String errorMessage = error.getMessage() == null
-                                ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
-                                : error.getMessage();
-                        log.debug("Error when testing MySQL datasource. {}", errorMessage);
-                        return Mono.just(new DatasourceTestResult(errorMessage));
-                    })
-                    .subscribeOn(scheduler);
-
         }
 
         /**
