@@ -11,6 +11,7 @@ import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_TENANT_AUDIT_LOGS;
@@ -51,7 +52,7 @@ public enum AppsmithRole {
     ),
 
     // This is a role to create tenant admin policies. Since this is an internal construct, we wouldn't expose name and description
-    TENANT_ADMIN("", "", Set.of(CREATE_WORKSPACES, CREATE_PERMISSION_GROUPS, CREATE_USER_GROUPS, READ_TENANT_AUDIT_LOGS)),
+    TENANT_ADMIN("", "", Set.of(CREATE_WORKSPACES, CREATE_PERMISSION_GROUPS, CREATE_USER_GROUPS, READ_TENANT_AUDIT_LOGS, MANAGE_TENANT)),
 
     ;
 
