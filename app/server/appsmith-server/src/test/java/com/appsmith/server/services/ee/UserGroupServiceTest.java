@@ -398,19 +398,19 @@ public class UserGroupServiceTest {
                             );
 
                     // Assert that the role is returned properly.
-                    assertThat(group.getRoles())
-                            .containsExactly(
-                                    List.of(createdRole).stream()
-                                            .map(role -> {
-                                                PermissionGroupInfoDTO permissionGroupInfoDTO = new PermissionGroupInfoDTO();
-                                                permissionGroupInfoDTO.setId(role.getId());
-                                                permissionGroupInfoDTO.setName(role.getName());
-                                                permissionGroupInfoDTO.setDescription(role.getDescription());
-                                                return permissionGroupInfoDTO;
-                                            })
-                                            .collect(Collectors.toList())
-                                            .get(0)
-                            );
+                    assertThat(group.getRoles()).containsExactlyInAnyOrder(
+                            List.of(createdRole).stream()
+                                    .map(role -> {
+                                        PermissionGroupInfoDTO permissionGroupInfoDTO = new PermissionGroupInfoDTO();
+                                        permissionGroupInfoDTO.setId(role.getId());
+                                        permissionGroupInfoDTO.setName(role.getName());
+                                        permissionGroupInfoDTO.setDescription(role.getDescription());
+                                        permissionGroupInfoDTO.setUserPermissions(Set.of());
+                                        return permissionGroupInfoDTO;
+                                    })
+                                    .collect(Collectors.toList())
+                                    .get(0)
+                    );
 
                 })
                 .verifyComplete();
@@ -527,7 +527,7 @@ public class UserGroupServiceTest {
         userGroup2.setName(name2);
         userGroup2.setDescription(description2);
 
-        UserGroup createdGroup2 = userGroupService.create(userGroup2).block();
+        UserGroupDTO createdGroup2 = userGroupService.createGroup(userGroup2).block();
 
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
         inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId(), createdGroup2.getId()));

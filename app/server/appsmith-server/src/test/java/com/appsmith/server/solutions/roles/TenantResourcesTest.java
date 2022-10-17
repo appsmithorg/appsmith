@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
@@ -129,7 +130,7 @@ public class TenantResourcesTest {
         UserGroup userGroup = new UserGroup();
         String groupName = UUID.randomUUID().toString();
         userGroup.setName(groupName);
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         String roleName = UUID.randomUUID().toString();
