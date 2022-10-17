@@ -2,6 +2,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
+const apiPage = ObjectsRegistry.ApiPage;
+const deployMode = ObjectsRegistry.DeployMode;
 
 describe("Tests setTimeout API", function() {
   it("Executes showAlert after 3 seconds and uses default value", () => {
@@ -117,5 +119,100 @@ describe("Tests setTimeout API", function() {
     );
     agHelper.Sleep(3000);
     agHelper.GetNAssertContains(locators._debuggerLogMessage, "Working!");
+  });
+
+  it("Resolves promise after 3 seconds and shows alert", () => {
+    jsEditor.CreateJSObject(
+      `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1: (x) => {
+            new Promise((res, rej) => setTimeout(() => res("resolved"), 3000)).then((res) => {
+                showAlert(res);
+            });
+        },
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: true,
+      },
+    );
+    agHelper.Sleep(2000);
+    jsEditor.RunJSObj();
+    agHelper.Sleep(3000);
+    agHelper.AssertContains("resolved");
+  });
+  it("Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
+    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    jsEditor.CreateJSObject(
+      `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1: (x) => {
+            Api1.run((res) => {
+              setTimeout(() => {
+                showAlert(res.users[0].name);
+              }, 3000);
+            }, (error) => {
+              console.log(error);
+            });
+        },
+        myFun2: (x) => {
+          Api1.run().then((res) => {
+            setTimeout(() => {
+              showAlert(res.users[0].name);
+            }, 3000);
+          });
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: true,
+      },
+    );
+    jsEditor.RenameJSObjFromPane("Timeouts");
+    agHelper.Sleep(2000);
+    jsEditor.RunJSObj();
+    agHelper.Sleep(3000);
+    agHelper.AssertContains("Barty Crouch");
+    agHelper.Sleep(2000);
+    jsEditor.SelectFunctionDropdown("myFun2");
+    jsEditor.RunJSObj();
+    agHelper.Sleep(3000);
+    agHelper.AssertContains("Barty Crouch");
+  });
+  it("Verifies whether setTimeout executes on page load", () => {
+    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    jsEditor.CreateJSObject(
+      `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1: (x) => {
+            setTimeout(() => {
+              Api1.run().then(() => showAlert("Success!"));
+              Timeouts.myFun2();
+            }, 3000)
+        },
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: true,
+      },
+    );
+    jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
+    deployMode.DeployApp();
+    agHelper.Sleep(3000);
+    agHelper.AssertContains("Success!");
+    agHelper.Sleep(3000);
+    agHelper.AssertContains("Barty Crouch");
   });
 });
