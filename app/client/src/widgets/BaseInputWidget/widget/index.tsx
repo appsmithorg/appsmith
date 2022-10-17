@@ -342,6 +342,7 @@ class BaseInputWidget<
                 value: "ITALIC",
               },
             ],
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
