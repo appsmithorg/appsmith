@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -488,5 +489,19 @@ public class DynamoPluginTest {
                     assertTrue(errorList.get(0).contains("The security token included in the request is invalid."));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+
     }
 }
