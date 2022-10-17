@@ -28,6 +28,11 @@ export const AppsmithFunction = {
   ...APPSMITH_NAMESPACED_FUNCTIONS,
 };
 
+export const AppsmithFunctionsWithFields = [
+  APPSMITH_NAMESPACED_FUNCTIONS.getGeolocation,
+  ...Object.keys(APPSMITH_GLOBAL_FUNCTIONS),
+];
+
 export const RESET_CHILDREN_OPTIONS = [
   { label: "true", value: "true", id: "true" },
   { label: "false", value: "false", id: "false" },
