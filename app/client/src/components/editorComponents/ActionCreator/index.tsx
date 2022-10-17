@@ -31,28 +31,6 @@ import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
-import {
-  CLEAR_INTERVAL,
-  CLEAR_STORE,
-  CLOSE_MODAL,
-  COPY_TO_CLIPBOARD,
-  createMessage,
-  DOWNLOAD,
-  EXECUTE_A_QUERY,
-  EXECUTE_JS_FUNCTION,
-  GET_GEO_LOCATION,
-  NAVIGATE_TO,
-  NO_ACTION,
-  OPEN_MODAL,
-  POST_MESSAGE,
-  REMOVE_VALUE,
-  RESET_WIDGET,
-  SET_INTERVAL,
-  SHOW_MESSAGE,
-  STOP_WATCH_GEO_LOCATION,
-  STORE_VALUE,
-  WATCH_GEO_LOCATION,
-} from "@appsmith/constants/messages";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -68,90 +46,15 @@ import {
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
-const baseOptions: {
+const actionList: {
   label: string;
   value: string;
   children?: TreeDropdownOption[];
-}[] = [
-  {
-    label: createMessage(NO_ACTION),
-    value: AppsmithFunction.none,
-  },
-  {
-    label: createMessage(EXECUTE_A_QUERY),
-    value: AppsmithFunction.integration,
-    children: [],
-  },
-  {
-    label: createMessage(EXECUTE_JS_FUNCTION),
-    value: AppsmithFunction.jsFunction,
-    children: [],
-  },
-  {
-    label: createMessage(NAVIGATE_TO),
-    value: AppsmithFunction.navigateTo,
-  },
-  {
-    label: createMessage(SHOW_MESSAGE),
-    value: AppsmithFunction.showAlert,
-  },
-  {
-    label: createMessage(OPEN_MODAL),
-    value: AppsmithFunction.showModal,
-  },
-  {
-    label: createMessage(CLOSE_MODAL),
-    value: AppsmithFunction.closeModal,
-  },
-  {
-    label: createMessage(STORE_VALUE),
-    value: AppsmithFunction.storeValue,
-  },
-  {
-    label: createMessage(REMOVE_VALUE),
-    value: AppsmithFunction.removeValue,
-  },
-  {
-    label: createMessage(CLEAR_STORE),
-    value: AppsmithFunction.clearStore,
-  },
-  {
-    label: createMessage(DOWNLOAD),
-    value: AppsmithFunction.download,
-  },
-  {
-    label: createMessage(COPY_TO_CLIPBOARD),
-    value: AppsmithFunction.copyToClipboard,
-  },
-  {
-    label: createMessage(RESET_WIDGET),
-    value: AppsmithFunction.resetWidget,
-  },
-  {
-    label: createMessage(SET_INTERVAL),
-    value: AppsmithFunction.setInterval,
-  },
-  {
-    label: createMessage(CLEAR_INTERVAL),
-    value: AppsmithFunction.clearInterval,
-  },
-  {
-    label: createMessage(GET_GEO_LOCATION),
-    value: AppsmithFunction.getGeolocation,
-  },
-  {
-    label: createMessage(WATCH_GEO_LOCATION),
-    value: AppsmithFunction.watchGeolocation,
-  },
-  {
-    label: createMessage(STOP_WATCH_GEO_LOCATION),
-    value: AppsmithFunction.stopWatchGeolocation,
-  },
-  {
-    label: createMessage(POST_MESSAGE),
-    value: AppsmithFunction.postMessage,
-  },
-];
+}[] = Object.entries(FIELD_GROUP_CONFIG).map((action) => ({
+  label: action[1].label,
+  value: action[0],
+  children: action[1].children,
+}));
 
 function getFieldFromValue(
   value: string | undefined,
@@ -159,7 +62,6 @@ function getFieldFromValue(
   getParentValue?: (changeValue: string) => string,
   dataTree?: DataTree,
 ): any[] {
-  // TODO - replace any
   const fields: any[] = [];
 
   if (!value) {
@@ -378,31 +280,30 @@ function getIntegrationOptionsWithChildren(
       dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
     },
   };
+
   const queries = actions.filter(
     (action) => action.config.pluginType === PluginType.DB,
   );
+
   const apis = actions.filter(
     (action) =>
       action.config.pluginType === PluginType.API ||
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE,
   );
-  const option = baseOptions.find(
-    (option) => option.value === AppsmithFunction.integration,
-  );
 
-  const jsOption = baseOptions.find(
-    (option) => option.value === AppsmithFunction.jsFunction,
+  const integrationOption = actionList.find(
+    (action) => action.value === AppsmithFunction.integration,
   );
+  if (integrationOption) {
+    integrationOption.children = [createIntegrationOption];
 
-  if (option) {
-    option.children = [createIntegrationOption];
     apis.forEach((api) => {
-      (option.children as TreeDropdownOption[]).push({
+      (integrationOption.children as TreeDropdownOption[]).push({
         label: api.config.name,
         id: api.config.id,
         value: api.config.name,
-        type: option.value,
+        type: integrationOption.value,
         icon: getActionConfig(api.config.pluginType)?.getIcon(
           api.config,
           plugins[(api as any).config.datasource.pluginId],
@@ -410,12 +311,13 @@ function getIntegrationOptionsWithChildren(
         ),
       } as TreeDropdownOption);
     });
+
     queries.forEach((query) => {
-      (option.children as TreeDropdownOption[]).push({
+      (integrationOption.children as TreeDropdownOption[]).push({
         label: query.config.name,
         id: query.config.id,
         value: query.config.name,
-        type: option.value,
+        type: integrationOption.value,
         icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
@@ -423,8 +325,13 @@ function getIntegrationOptionsWithChildren(
       } as TreeDropdownOption);
     });
   }
+
+  const jsOption = actionList.find(
+    (action) => action.value === AppsmithFunction.jsFunction,
+  );
   if (jsOption) {
     jsOption.children = [createJSObject];
+
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
         const jsObject = ({
@@ -434,7 +341,9 @@ function getIntegrationOptionsWithChildren(
           type: jsOption.value,
           icon: JsFileIconV2,
         } as unknown) as TreeDropdownOption;
+
         ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
+
         if (jsObject) {
           //don't remove this will be used soon
           // const createJSFunction: TreeDropdownOption = {
@@ -450,14 +359,17 @@ function getIntegrationOptionsWithChildren(
           //   },
           // };
           jsObject.children = [];
+
           jsAction.config.actions.forEach((js: JSAction) => {
             const jsArguments = js.actionConfiguration.jsArguments;
             const argValue: Array<any> = [];
+
             if (jsArguments && jsArguments.length) {
               jsArguments.forEach((arg: Variable) => {
                 argValue.push(arg.value);
               });
             }
+
             const jsFunction = {
               label: js.name,
               id: js.id,
@@ -466,6 +378,7 @@ function getIntegrationOptionsWithChildren(
               icon: jsFunctionIcon,
               args: argValue,
             };
+
             (jsObject.children as TreeDropdownOption[]).push(
               (jsFunction as unknown) as TreeDropdownOption,
             );
@@ -474,7 +387,7 @@ function getIntegrationOptionsWithChildren(
       }
     });
   }
-  return baseOptions;
+  return actionList;
 }
 
 function useIntegrationsOptionTree() {
@@ -550,7 +463,6 @@ const ActionCreator = React.forwardRef(
     );
     const dataTree = useSelector(getDataTree);
     const integrationOptionTree = useIntegrationsOptionTree();
-    console.log(integrationOptionTree);
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const fields = getFieldFromValue(

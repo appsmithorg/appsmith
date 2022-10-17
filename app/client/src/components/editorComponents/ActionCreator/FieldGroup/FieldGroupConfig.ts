@@ -18,8 +18,9 @@ import {
   STORE_VALUE,
   WATCH_GEO_LOCATION,
 } from "../../../../ce/constants/messages";
+import { FieldGroupConfig } from "../types";
 
-export const FIELD_GROUP_CONFIG = {
+export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.none]: {
     label: createMessage(NO_ACTION),
     fields: [],
@@ -27,11 +28,13 @@ export const FIELD_GROUP_CONFIG = {
   [AppsmithFunction.integration]: {
     label: createMessage(EXECUTE_A_QUERY),
     fields: [],
+    children: [{ label: "", value: "" }],
   },
   [AppsmithFunction.jsFunction]: {
     label: createMessage(EXECUTE_JS_FUNCTION),
     value: AppsmithFunction.jsFunction,
     fields: [],
+    children: [{ label: "", value: "" }],
   },
   [AppsmithFunction.navigateTo]: {
     label: createMessage(NAVIGATE_TO),

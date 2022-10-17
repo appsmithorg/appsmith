@@ -104,3 +104,14 @@ export type AppsmithFunctionConfigValues = {
 export type AppsmithFunctionConfigType = {
   [key: string]: AppsmithFunctionConfigValues;
 };
+
+export type FieldGroupValueType = {
+  label: string;
+  fields: string[];
+  value?: string;
+  children?: TreeDropdownOption[];
+};
+
+export type FieldGroupConfig = {
+  [key: string]: FieldGroupValueType;
+};
