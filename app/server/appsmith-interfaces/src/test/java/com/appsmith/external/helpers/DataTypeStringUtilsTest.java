@@ -157,6 +157,7 @@ public class DataTypeStringUtilsTest {
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT, "{\"a\": 0}").type());
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT, "{\"a\": \"\"}").type());
         assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.OBJECT, "{\"a\": []}").type());
+        assertThat(DataType.ARRAY).isEqualByComparingTo(DataTypeServiceUtils.getAppsmithType(ClientDataType.ARRAY, "[]").type());
     }
 
     @Test

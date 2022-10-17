@@ -19,13 +19,7 @@ public class ArrayType implements AppsmithType {
     public boolean test(String s) {
         final String trimmedValue = s.trim();
 
-        if (trimmedValue.startsWith("[") && trimmedValue.endsWith("]")) {
-            String betweenBraces = trimmedValue.substring(1, trimmedValue.length() - 1);
-            String trimmedInputBetweenBraces = betweenBraces.trim();
-            return  (!trimmedInputBetweenBraces.isEmpty());
-        }
-
-        return false;
+        return (trimmedValue.startsWith("[") && trimmedValue.endsWith("]"));
     }
 
     @Override
