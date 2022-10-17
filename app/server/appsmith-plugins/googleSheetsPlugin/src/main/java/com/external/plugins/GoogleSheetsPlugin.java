@@ -8,7 +8,6 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -268,7 +267,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         @Override
         public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+            return Mono.empty().then();
         }
 
         @Override
@@ -279,12 +278,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             return Set.of();
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            // This plugin would not have the option to test
-            return Mono.just(new DatasourceTestResult());
         }
 
         @Override
@@ -370,8 +363,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         /**
          * This overridden implementation conforms to the form/JS mode data structure that was introduced in UQI
-         * @param formData form data from action configuration object
-         * @param mappedColumns column name map from template table to user defined table
+         *
+         * @param formData                     form data from action configuration object
+         * @param mappedColumns                column name map from template table to user defined table
          * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
          */
         @Override

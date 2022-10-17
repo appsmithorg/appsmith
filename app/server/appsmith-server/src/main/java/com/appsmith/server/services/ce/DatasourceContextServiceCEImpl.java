@@ -14,6 +14,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -36,7 +37,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final ConfigService configService;
 
     @Autowired
-    public DatasourceContextServiceCEImpl(DatasourceService datasourceService,
+    public DatasourceContextServiceCEImpl(@Lazy DatasourceService datasourceService,
                                           PluginService pluginService,
                                           PluginExecutorHelper pluginExecutorHelper,
                                           ConfigService configService) {
@@ -59,15 +60,15 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * value. Hence, even if multiple threads subscribe to the same source publisher they get the pre-computed cached
      * value instead of creating a new connection for each subscription of the source publisher.
      *
-     * @param datasource - datasource for which a new datasource context / connection needs to be created
+     * @param datasource     - datasource for which a new datasource context / connection needs to be created
      * @param pluginExecutor - plugin executor associated with the datasource's plugin
-     * @param monitor - unique monitor object per datasource id. Lock is acquired on this monitor object.
+     * @param monitor        - unique monitor object per datasource id. Lock is acquired on this monitor object.
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
     public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(Datasource datasource,
-                                                                  PluginExecutor<Object> pluginExecutor,
-                                                                  Object monitor) {
+                                                                               PluginExecutor<Object> pluginExecutor,
+                                                                               Object monitor) {
         synchronized (monitor) {
             /* Destroy any stale connection to free up resource */
             String datasourceId = datasource.getId();
