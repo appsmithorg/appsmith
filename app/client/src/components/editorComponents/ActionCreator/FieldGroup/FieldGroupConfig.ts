@@ -29,7 +29,17 @@ export const FIELD_GROUP_CONFIG = {
   },
   [AppsmithFunction.navigateTo]: {
     label: createMessage(NAVIGATE_TO),
-    fields: [],
+    fields: [
+      FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD,
+      /**
+       * The second field is dependent activeTabNavigateTo value
+       * if PAGE_NAME then this field will be PAGE_SELECTOR_FIELD (default)
+       * if URL then this field will be URL_FIELD
+       **/
+      FieldType.PAGE_SELECTOR_FIELD,
+      FieldType.QUERY_PARAMS_FIELD,
+      FieldType.NAVIGATION_TARGET_FIELD,
+    ],
   },
   [AppsmithFunction.showAlert]: {
     label: createMessage(SHOW_MESSAGE),
