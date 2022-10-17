@@ -16,10 +16,6 @@
 	"ignoreTestFiles": [
 		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js"
 	],
-	"env": { 
-    	"USERNAME": "nm5ex9+9yx28nik1wghw@sharklasers.com", 
-    	"PASSWORD": "12345678"
-  	},
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
 	"viewportWidth": 1400,
