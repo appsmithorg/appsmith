@@ -25,7 +25,7 @@ export const DocExplorerSection = styled.section`
   flex-grow: 1;
 `;
 
-export const DocExploreHeader = styled.div`
+export const DocExplorerHeader = styled.div`
   display: flex;
   height: 30px;
   width: 100%;
@@ -45,6 +45,16 @@ export const DocExplorerContent = styled.div`
   padding: 10px;
   margin-bottom: 20px;
   overflow-y: auto;
+`;
+
+export const DocExplorerErrorWrapper = styled.div`
+  color: ${Colors.ERROR_RED};
+  width: 100%;
+  text-align: center;
+`;
+
+export const DocExplorerLoading = styled.div`
+  color: ${Colors.GREY_5};
 `;
 
 export const ExplorerSectionWrapper = styled.div`

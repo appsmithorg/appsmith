@@ -29,9 +29,7 @@ export default function DefaultValue({ field }: DefaultValueProps) {
   return (
     <>
       {" = "}
-      <DefaultValueWrapper className="graphiql-doc-explorer-default-value">
-        {printDefault(ast)}
-      </DefaultValueWrapper>
+      <DefaultValueWrapper>{printDefault(ast)}</DefaultValueWrapper>
     </>
   );
 }

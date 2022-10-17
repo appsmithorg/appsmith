@@ -68,6 +68,19 @@ const GraphqlDocExplorer = (props: GraphqlDocExplorer) => {
     ? isFetchingDatasourceStructure
     : (action as EmbeddedApiAction).structure?.isFetching;
 
+  const error = props.datasourceId
+    ? datasourceStructure.error
+    : (action as EmbeddedApiAction).structure?.error;
+
+  let finalSchema;
+  let validationErrors;
+
+  try {
+    finalSchema = buildClientSchema(schema || schemaJSON);
+  } catch (err) {
+    validationErrors = err;
+  }
+
   return (
     <ExplorerContextProvider
       actionId={props.actionId}
@@ -75,9 +88,10 @@ const GraphqlDocExplorer = (props: GraphqlDocExplorer) => {
     >
       <ExplorerWrapper>
         <Explorer
-          className="graphiql-doc-explorer"
-          isFetching={isFetching}
-          schema={buildClientSchema(schema || schemaJSON)}
+          error={error}
+          isFetching={!!isFetching}
+          schema={finalSchema}
+          validationErrors={validationErrors}
         />
       </ExplorerWrapper>
     </ExplorerContextProvider>

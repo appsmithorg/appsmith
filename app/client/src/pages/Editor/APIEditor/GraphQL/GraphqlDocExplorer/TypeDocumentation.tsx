@@ -188,7 +188,7 @@ function EnumValues({ type }: { type: GraphQLNamedType }) {
 function EnumValue({ value }: { value: GraphQLEnumValue }) {
   return (
     <FieldItemWrapper>
-      <div className="graphiql-doc-explorer-enum-value">{value.name}</div>
+      <div>{value.name}</div>
       {value.description
         ? MarkdownContent.render({
             description: value.description,

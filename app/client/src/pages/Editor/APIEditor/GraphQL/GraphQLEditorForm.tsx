@@ -114,7 +114,7 @@ function GraphQLEditorForm(props: Props) {
     <CommonEditorForm
       {...props}
       bodyUIComponent={
-        <BodyWrapper className="graphiql-container">
+        <BodyWrapper className="t--gql-container">
           <QueryEditor
             dataTreePath={`${actionName}.config.body`}
             height="100%"

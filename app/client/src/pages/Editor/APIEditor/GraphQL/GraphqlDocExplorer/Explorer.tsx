@@ -7,17 +7,23 @@ import SchemaDocumentation from "./SchemaDocumentation";
 import TypeDocumentation from "./TypeDocumentation";
 import { Text, TextType } from "design-system";
 import {
-  DocExploreHeader,
   DocExplorerContent,
+  DocExplorerErrorWrapper,
+  DocExplorerHeader,
+  DocExplorerLoading,
   DocExplorerSection,
   IconContainer,
 } from "./css";
 
-const DocExplorer = (props: any) => {
-  const { isFetching, schema } = props;
-  //remove
-  const validationErrors: any = [];
-  let fetchError;
+type DocExplorerType = {
+  error?: any;
+  isFetching: boolean;
+  schema?: any;
+  validationErrors?: any;
+};
+
+const DocExplorer = (props: DocExplorerType) => {
+  const { error, isFetching, schema } = props;
   const explorerContextValue = useContext(ExplorerContext);
 
   if (!explorerContextValue) {
@@ -26,36 +32,33 @@ const DocExplorer = (props: any) => {
 
   const { pop, stack } = explorerContextValue;
 
-  const navItem = stack[stack.length - 1];
+  const stackItem = stack[stack.length - 1];
 
   let content: ReactNode = null;
-  if (fetchError) {
+  if (error) {
     content = (
-      <div className="graphiql-doc-explorer-error">Error fetching schema</div>
+      <DocExplorerErrorWrapper>Error fetching schema</DocExplorerErrorWrapper>
     );
-  } else if (validationErrors.length > 0) {
+  } else if (props.validationErrors) {
     content = (
-      <div className="graphiql-doc-explorer-error">
-        Schema is invalid: {validationErrors[0].message}
-      </div>
+      <DocExplorerErrorWrapper>
+        Schema is invalid: {props.validationErrors}
+      </DocExplorerErrorWrapper>
     );
   } else if (isFetching) {
-    // Schema is undefined when it is being loaded via introspection.
-    content = <div>Loading</div>;
+    content = <DocExplorerLoading>Loading</DocExplorerLoading>;
   } else if (!schema) {
-    // Schema is null when it explicitly does not exist, typically due to
-    // an error during introspection.
     content = (
-      <div className="graphiql-doc-explorer-error">
+      <DocExplorerErrorWrapper>
         No GraphQL schema available
-      </div>
+      </DocExplorerErrorWrapper>
     );
   } else if (stack.length === 1) {
     content = <SchemaDocumentation schema={schema} />;
-  } else if (isType(navItem.def)) {
-    content = <TypeDocumentation schema={schema} type={navItem.def} />;
-  } else if (navItem.def) {
-    content = <FieldDocumentation field={navItem.def} />;
+  } else if (isType(stackItem.def)) {
+    content = <TypeDocumentation schema={schema} type={stackItem.def} />;
+  } else if (stackItem.def) {
+    content = <FieldDocumentation field={stackItem.def} />;
   }
 
   let prevName;
@@ -65,7 +68,7 @@ const DocExplorer = (props: any) => {
 
   return (
     <DocExplorerSection aria-label="Documentation Explorer">
-      <DocExploreHeader>
+      <DocExplorerHeader>
         <IconContainer
           className="t--gql-back-explorer"
           onClick={pop}
@@ -77,12 +80,9 @@ const DocExplorer = (props: any) => {
           style={{ color: "#0c0000", lineHeight: "14px", flexGrow: "1" }}
           type={TextType.P1}
         >
-          {navItem.name}
+          {stackItem.name}
         </Text>
-      </DocExploreHeader>
-      {/* <div className="graphiql-doc-explorer-search">
-        <Search key={navItem.name} />
-      </div> */}
+      </DocExplorerHeader>
       <DocExplorerContent>{content}</DocExplorerContent>
     </DocExplorerSection>
   );
