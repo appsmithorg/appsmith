@@ -32,7 +32,7 @@ export const FIELD_GROUP_CONFIG = {
     fields: [
       FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD,
       /**
-       * The second field is dependent activeTabNavigateTo value
+       * The second field is dependent on activeTabNavigateTo value
        * if PAGE_NAME then this field will be PAGE_SELECTOR_FIELD (default)
        * if URL then this field will be URL_FIELD
        **/
