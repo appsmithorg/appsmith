@@ -36,6 +36,7 @@ import {
   Category,
   Icon,
   Size,
+  TAB_MIN_HEIGHT,
   Text,
   TextType,
 } from "design-system";
@@ -51,7 +52,6 @@ import {
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
 import { theme } from "constants/DefaultTheme";
-import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
