@@ -45,6 +45,18 @@ const PropertyPaneConfig = [
         },
       },
       {
+        propertyName: "infiniteScroll",
+        label: "Infinite scroll",
+        helpText: "Scrolls vertically, removes pagination",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
         propertyName: "animateLoading",
         label: "Animate Loading",
         controlType: "SWITCH",

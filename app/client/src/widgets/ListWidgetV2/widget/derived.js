@@ -26,6 +26,10 @@ export default {
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;
     const itemsCount = (props.listData || []).length;
 
+    if (props.infiniteScroll) {
+      return itemsCount;
+    }
+
     let gridGap = 0;
     try {
       gridGap = parseInt(props.gridGap);

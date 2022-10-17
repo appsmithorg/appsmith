@@ -1,54 +1,45 @@
+import React, { RefObject } from "react";
 import styled from "styled-components";
-import React, { RefObject, ReactNode, useMemo } from "react";
 
-import { ListWidgetProps } from "../constants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { generateClassName, getCanvasClassName } from "utils/generators";
-
-interface ListComponentProps {
-  children?: ReactNode;
-  shouldScrollContents?: boolean;
+type ListComponentProps = React.PropsWithChildren<{
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  componentRef: RefObject<HTMLDivElement>;
+  height: number;
+}>;
 
-  listData: Array<Record<string, unknown>>;
-  hasPagination?: boolean;
-  widgetId: string;
-}
+type StyledListContainerProps = Omit<ListComponentProps, "componentRef">;
 
-const GridContainer = styled.div<ListComponentProps>`
-  height: 100%;
+const StyledListContainer = styled.div<StyledListContainerProps>`
+  height: ${(props) => props.height}px;
   width: 100%;
   position: relative;
-  overflow: hidden;
   background: ${(props) => props.backgroundColor};
   border-radius: ${({ borderRadius }) => borderRadius};
-`;
-
-const ScrollableCanvasWrapper = styled.div<
-  ListWidgetProps<WidgetProps> & {
-    ref: RefObject<HTMLDivElement>;
-  }
->`
-  width: 100%;
-  height: 100%;
+  box-shadow: ${({ boxShadow }) => boxShadow};
+  overflow-y: auto;
 `;
 
 function ListComponent(props: ListComponentProps) {
-  // using memoized class name
-  const scrollableCanvasClassName = useMemo(() => {
-    return `${
-      props.shouldScrollContents ? `${getCanvasClassName()}` : ""
-    } ${generateClassName(props.widgetId)}`;
-  }, [props.widgetId]);
+  const {
+    backgroundColor,
+    borderRadius,
+    boxShadow,
+    componentRef,
+    height,
+  } = props;
 
   return (
-    <GridContainer {...props}>
-      <ScrollableCanvasWrapper className={scrollableCanvasClassName}>
-        {props.children}
-      </ScrollableCanvasWrapper>
-    </GridContainer>
+    <StyledListContainer
+      backgroundColor={backgroundColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
+      height={height}
+      ref={componentRef}
+    >
+      {props.children}
+    </StyledListContainer>
   );
 }
 

@@ -1,7 +1,15 @@
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
-import React from "react";
-import { get, isNumber, range, omit, isEmpty } from "lodash";
+import React, { createRef, RefObject } from "react";
+import {
+  elementScroll,
+  observeElementOffset,
+  observeElementRect,
+  VirtualItem,
+  Virtualizer,
+  VirtualizerOptions,
+} from "@tanstack/virtual-core";
+import { get, isNumber, range, omit, isEmpty, debounce } from "lodash";
 import { klona } from "klona";
 
 import derivedProperties from "./parseDerivedProperties";
@@ -10,7 +18,11 @@ import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import propertyPaneConfig from "./propertyConfig";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
+import {
+  CanvasWidgetStructure,
+  DSLWidget,
+  FlattenedWidgetProps,
+} from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
@@ -19,11 +31,7 @@ import {
   RenderModes,
   WidgetType,
 } from "constants/WidgetConstants";
-import BaseWidget, {
-  WidgetBaseProps,
-  WidgetOperation,
-  WidgetProps,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
@@ -93,6 +101,16 @@ type ListWidgetState = {
   page: number;
 };
 
+type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
+  shouldScrollContents?: boolean;
+};
+
+type VirtualizerInstance = Virtualizer<HTMLDivElement, HTMLDivElement>;
+type VirtualizerOptionsProps = VirtualizerOptions<
+  HTMLDivElement,
+  HTMLDivElement
+>;
+
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
 /* in the List Widget, "children.0.children.0.children.0.children" is the path to the list of all
@@ -111,6 +129,9 @@ class ListWidget extends BaseWidget<
 
   metaWidgetGenerator: MetaWidgetGenerator;
   prevMetaContainerNames: string[];
+  virtualizer?: VirtualizerInstance;
+  componentRef: RefObject<HTMLDivElement>;
+  prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   /**
    * returns the property pane config of the widget
    */
@@ -159,9 +180,18 @@ class ListWidget extends BaseWidget<
       widgetId: props.widgetId,
     });
     this.prevMetaContainerNames = [];
+    this.componentRef = createRef<HTMLDivElement>();
   }
 
   componentDidMount() {
+    if (this.props.infiniteScroll) {
+      this.initVirtualizer();
+
+      if (this.virtualizer) {
+        this.generateVirtualItems(this.virtualizer);
+      }
+    }
+
     if (this.props.serverSidePaginationEnabled && !this.props.pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
@@ -170,12 +200,30 @@ class ListWidget extends BaseWidget<
 
     // add privateWidgets to ListWidget
     this.addPrivateWidgetsForChildren(this.props);
-
-    this.generateMetaWidgets();
+    this.setupMetaWidgets();
   }
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
-    this.generateMetaWidgets(prevProps.flattenedChildCanvasWidgets);
+    this.prevFlattenedChildCanvasWidgets =
+      prevProps.flattenedChildCanvasWidgets;
+
+    if (this.hasTemplateBottomRowChanged()) {
+      if (this.virtualizer) {
+        this.virtualizer.measure();
+        this.virtualizer._didMount()();
+        this.virtualizer._willUpdate();
+      }
+    }
+
+    if (this.props.infiniteScroll) {
+      this.updateVirtualizer();
+    }
+
+    if (!prevProps.infiniteScroll && this.props.infiniteScroll) {
+      this.initVirtualizer();
+    }
+
+    this.setupMetaWidgets();
 
     // TODO: Call generateChildrenEntityDefinitions to update
 
@@ -210,51 +258,102 @@ class ListWidget extends BaseWidget<
         });
       }
     }
-
-    if (this.getMainContainer()?.bottomRow !== this.props.templateBottomRow) {
-      super.updateWidgetProperty(
-        "templateBottomRow",
-        this.getMainContainer()?.bottomRow,
-      );
-    }
-    // if (
-    //   get(this.props.childWidgets, "0.children.0.bottomRow") !==
-    //   get(prevProps.childWidgets, "0.children.0.bottomRow")
-    // ) {
-    //   this.props.updateWidgetMetaProperty(
-    //     "templateBottomRow",
-    //     get(this.props.childWidgets, "0.children.0.bottomRow"),
-    //     {
-    //       triggerPropertyName: "onPageSizeChange",
-    //       dynamicString: this.props.onPageSizeChange,
-    //       event: {
-    //         type: EventType.ON_PAGE_SIZE_CHANGE,
-    //       },
-    //     },
-    //   );
-    // }
-
-    // TODO: Update privateWidget field if there is a change in the List widget children
-    // if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
-    //   this.addPrivateWidgetsForChildren(this.props);
-    // }
   }
 
+  virtualizerOptions = (): VirtualizerOptionsProps | undefined => {
+    const scrollElement = this.componentRef.current;
+
+    // Refer: https://github.com/TanStack/virtual/blob/beta/packages/react-virtual/src/index.tsx
+    // for appropriate usage of the core api directly.
+
+    if (scrollElement) {
+      return {
+        count: this.props.listData?.length || 0,
+        estimateSize: () => this.getTemplateBottomRow() * 10,
+        getScrollElement: () => scrollElement,
+        observeElementOffset,
+        observeElementRect,
+        scrollToFn: elementScroll,
+        onChange: this.generateVirtualItems,
+        overscan: 2,
+      };
+    }
+  };
+
+  initVirtualizer = () => {
+    const options = this.virtualizerOptions();
+
+    if (options) {
+      this.virtualizer = new Virtualizer<HTMLDivElement, HTMLDivElement>(
+        options,
+      );
+    }
+  };
+
+  updateVirtualizer = () => {
+    const options = this.virtualizerOptions();
+
+    if (options && this.virtualizer) {
+      this.virtualizer.setOptions(options);
+      this.virtualizer._willUpdate();
+    }
+  };
+
+  unmountVirtualizer = () => {
+    if (this.virtualizer) {
+      const cleanup = this.virtualizer._didMount();
+      cleanup();
+      this.virtualizer = undefined;
+    }
+  };
+
+  remeasureVirtualizer = () => {
+    if (this.virtualizer) {
+      this.virtualizer.measure();
+      this.virtualizer._didMount()();
+      this.virtualizer._willUpdate();
+    }
+  };
+
+  generateVirtualItems = debounce((instance: VirtualizerInstance) => {
+    const virtualItems = instance.getVirtualItems();
+    const virtualListHeight = instance.getTotalSize();
+    const startIndex = virtualItems[0].index;
+    const endIndex = virtualItems[virtualItems.length - 1].index;
+
+    this.generateMetaWidgets(
+      startIndex,
+      endIndex,
+      virtualItems,
+      virtualListHeight,
+    );
+  }, 50);
+
+  setupMetaWidgets = () => {
+    if (!this.props.infiniteScroll) {
+      const { page } = this.state;
+      const { pageSize } = this.props;
+      const startIndex = pageSize * (page - 1);
+      const endIndex = startIndex + pageSize;
+      this.generateMetaWidgets(startIndex, endIndex);
+    }
+  };
+
   generateMetaWidgets = (
-    prevFlattenedChildCanvasWidgets?: WidgetBaseProps["flattenedChildCanvasWidgets"],
+    startIndex: number,
+    endIndex: number,
+    virtualItems?: VirtualItem<HTMLDivElement>[],
+    virtualListHeight?: number,
   ) => {
-    const { page } = this.state;
     const {
       dynamicPathMapList = {},
       flattenedChildCanvasWidgets = {},
       listData = [],
       mainCanvasId = "",
       mainContainerId = "",
-      pageSize,
     } = this.props;
 
-    const startIndex = pageSize * (page - 1);
-    const currentViewData = listData.slice(startIndex, startIndex + pageSize);
+    const currentViewData = listData.slice(startIndex, endIndex);
 
     const { metaWidgets, removedMetaWidgetIds } = this.metaWidgetGenerator
       .withOptions({
@@ -264,16 +363,22 @@ class ListWidget extends BaseWidget<
         data: currentViewData,
         dynamicPathMapList,
         gridGap: this.getGridGap(),
+        infiniteScroll: this.props.infiniteScroll ?? false,
         levelData: this.props.levelData,
-        prevTemplateWidgets: prevFlattenedChildCanvasWidgets,
+        prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
         primaryKey: "id",
+        scrollElement: this.componentRef.current,
         startIndex,
+        templateBottomRow: this.getTemplateBottomRow(),
+        virtualItems,
         widgetName: this.props.widgetName,
       })
       .generate();
 
     this.updateCurrentViewItems();
-    const mainCanvasWidget = this.generateMainCanvasMetaWidget();
+    const mainCanvasWidget = this.generateMainCanvasMetaWidget(
+      virtualListHeight,
+    );
     this.syncMetaContainerNames();
 
     const updates: ModifyMetaWidgetPayload = {
@@ -291,6 +396,10 @@ class ListWidget extends BaseWidget<
       this.props.isMetaWidget &&
       metaMainCanvasId !== this.props.children?.[0]?.widgetId
     ) {
+      // Inner list widget's cloned row's main canvas widget
+      // will have a new widgetId as it has to be different from the
+      // main template  canvas widgetId. This new widgetId has to be
+      // updated as the "children" of the inner List widget.
       updates.propertyUpdates = [
         {
           path: "children",
@@ -304,19 +413,29 @@ class ListWidget extends BaseWidget<
       updates.deleteIds.length ||
       updates.propertyUpdates?.length
     ) {
+      console.log("LISTV2 META", {
+        startIndex,
+        endIndex,
+        currentViewData,
+        metaWidgets,
+        virtualItems,
+        templateBottomRow: this.getTemplateBottomRow(),
+      });
       this.modifyMetaWidgets(updates);
     }
   };
 
-  generateMainCanvasMetaWidget = () => {
+  generateMainCanvasMetaWidget = (virtualListHeight?: number) => {
     const {
       ids: currMetaContainerIds,
       names: currMetaContainerNames,
     } = this.metaWidgetGenerator.getMetaContainers();
 
     if (!equal(this.prevMetaContainerNames, currMetaContainerNames)) {
-      const mainCanvasWidget = this.mainCanvasMetaWidget() as MetaWidget;
-      mainCanvasWidget.children = currMetaContainerIds;
+      const mainCanvasWidget = this.mainCanvasMetaWidget(virtualListHeight);
+      if (mainCanvasWidget) {
+        mainCanvasWidget.children = currMetaContainerIds;
+      }
 
       return mainCanvasWidget;
     }
@@ -348,20 +467,42 @@ class ListWidget extends BaseWidget<
     this.prevMetaContainerNames = [...currMetaContainerNames];
   };
 
-  getMainContainer = () => {
+  getMainContainer = (
+    passedFlattenedWidgets?: Record<string, FlattenedWidgetProps>,
+  ) => {
     const {
       mainContainerId = "",
       flattenedChildCanvasWidgets = {},
     } = this.props;
-    return flattenedChildCanvasWidgets[mainContainerId] || {};
+    return (
+      (passedFlattenedWidgets || flattenedChildCanvasWidgets)[
+        mainContainerId
+      ] || {}
+    );
   };
 
-  mainCanvasMetaWidget = () => {
+  getTemplateBottomRow = () => {
+    return this.getMainContainer()?.bottomRow;
+  };
+
+  hasTemplateBottomRowChanged = () => {
+    const prevContainer = this.getMainContainer(
+      this.prevFlattenedChildCanvasWidgets,
+    );
+    const currContainer = this.getMainContainer(
+      this.props.flattenedChildCanvasWidgets,
+    );
+
+    return prevContainer?.bottomRow !== currContainer?.bottomRow;
+  };
+
+  mainCanvasMetaWidget = (virtualListHeight?: number) => {
     const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
     const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
     const { shouldPaginate } = this.shouldPaginate();
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const metaMainCanvas = klona(mainCanvasWidget) ?? {};
+
     const { metaWidgetId, metaWidgetName } =
       this.metaWidgetGenerator.getContainerParentCache() || {};
 
@@ -375,11 +516,16 @@ class ListWidget extends BaseWidget<
     metaMainCanvas.minHeight = componentHeight;
     metaMainCanvas.rightColumn = componentWidth;
     metaMainCanvas.noPad = true;
-    metaMainCanvas.bottomRow = shouldPaginate
-      ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
-      : componentHeight;
 
-    return metaMainCanvas;
+    if (this.props.infiniteScroll) {
+      metaMainCanvas.bottomRow = virtualListHeight || componentHeight;
+    } else {
+      metaMainCanvas.bottomRow = shouldPaginate
+        ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
+        : componentHeight;
+    }
+
+    return metaMainCanvas as MetaWidget;
   };
 
   /**
@@ -530,30 +676,21 @@ class ListWidget extends BaseWidget<
   };
 
   /**
-   * paginate items
-   *
-   * @param children
-   */
-  paginateItems = (children: DSLWidget[]) => {
-    // return all children if serverside pagination
-    if (this.props.serverSidePaginationEnabled) return children;
-    const { page } = this.state;
-    const { perPage, shouldPaginate } = this.shouldPaginate();
-
-    if (shouldPaginate) {
-      return children.slice((page - 1) * perPage, page * perPage);
-    }
-
-    return children;
-  };
-
-  /**
    * 400
    * 200
    * can data be paginated
    */
   shouldPaginate = () => {
-    const { listData, pageSize, serverSidePaginationEnabled } = this.props;
+    const {
+      infiniteScroll = false,
+      listData,
+      pageSize,
+      serverSidePaginationEnabled,
+    } = this.props;
+
+    if (infiniteScroll) {
+      return { shouldPaginate: false, perPage: listData?.length };
+    }
 
     if (serverSidePaginationEnabled) {
       return { shouldPaginate: true, perPage: pageSize };
@@ -572,10 +709,13 @@ class ListWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     return (this.props.metaWidgetChildrenStructure || []).map(
       (childWidgetStructure) => {
-        const child = { ...childWidgetStructure };
+        const child: ExtendedCanvasWidgetStructure = {
+          ...childWidgetStructure,
+        };
         child.parentColumnSpace = this.props.parentColumnSpace;
         // This gets replaced in withWidgetProps.
         child.rightColumn = componentWidth;
+        child.shouldScrollContents = this.props.infiniteScroll;
         return WidgetFactory.createWidget(child, this.props.renderMode);
       },
     );
@@ -587,7 +727,7 @@ class ListWidget extends BaseWidget<
     const { id: metaWidgetId } = triggerPayload?.source || {};
 
     if (metaWidgetId) {
-      const { index } = this.metaWidgetGenerator.getPropsByMetaWidgetId(
+      const { index } = this.metaWidgetGenerator.getCacheByMetaWidgetId(
         metaWidgetId,
       );
       const { listData = [] } = this.props;
@@ -618,7 +758,7 @@ class ListWidget extends BaseWidget<
   ) => {
     const {
       templateWidgetId,
-    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.batchUpdateWidgetProperty?.(widgetId, updates, shouldReplay);
@@ -631,7 +771,7 @@ class ListWidget extends BaseWidget<
   ) => {
     const {
       templateWidgetId,
-    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.updateWidget?.(operation, widgetId, payload);
@@ -644,7 +784,7 @@ class ListWidget extends BaseWidget<
   ) => {
     const {
       templateWidgetId,
-    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.updateWidgetProperty?.(widgetId, propertyName, propertyValue);
@@ -656,7 +796,7 @@ class ListWidget extends BaseWidget<
   ) => {
     const {
       templateWidgetId,
-    } = this.metaWidgetGenerator.getPropsByMetaWidgetId(metaWidgetId);
+    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);
@@ -669,14 +809,12 @@ class ListWidget extends BaseWidget<
     const { componentHeight } = this.getComponentDimensions();
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
-    const mainChildContainer = this.getMainContainer();
-    const templateBottomRow = mainChildContainer.bottomRow;
     const templateHeight =
-      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+      this.getTemplateBottomRow() * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     if (this.props.isLoading) {
       return (
-        <ListComponentLoading className="">
+        <ListComponentLoading>
           {range(10).map((i) => (
             <div className="bp3-card bp3-skeleton" key={`skeleton-${i}`}>
               <h5 className="bp3-heading">
@@ -720,12 +858,11 @@ class ListWidget extends BaseWidget<
 
     return (
       <ListComponent
-        {...this.props}
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        hasPagination={shouldPaginate}
-        listData={this.props.listData || []}
+        componentRef={this.componentRef}
+        height={componentHeight}
       >
         <MetaWidgetContextProvider
           batchUpdateWidgetProperty={this.overrideBatchUpdateWidgetProperty}
@@ -776,6 +913,7 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   currentItemStructure?: Record<string, string>;
   dynamicPathMapList?: DynamicPathMapList;
   gridGap?: number;
+  infiniteScroll?: boolean;
   level?: number;
   levelData?: LevelData;
   listData?: Array<Record<string, unknown>>;
