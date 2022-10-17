@@ -13,6 +13,7 @@ import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs, { LogObject } from "./UserLog";
+import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 
 export type EvalResult = {
   result: any;
@@ -99,6 +100,8 @@ export function setupEvaluationEnvironment() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
+
+  interceptAndOverrideHttpRequest();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
