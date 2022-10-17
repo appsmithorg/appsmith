@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.TenantService;
@@ -30,7 +31,7 @@ public class TenantControllerCE {
      * @return
      */
     @GetMapping("/current")
-    public Mono<ResponseDTO<TenantConfiguration>> getTenantConfig() {
+    public Mono<ResponseDTO<Tenant>> getTenantConfig() {
         return service.getTenantConfiguration()
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
