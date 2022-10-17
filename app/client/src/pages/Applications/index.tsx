@@ -49,6 +49,8 @@ import {
   AppIconCollection,
   Button,
   Category,
+  EditableText,
+  EditInteractionKind,
   DialogComponent as Dialog,
   Icon,
   IconName,
@@ -56,6 +58,7 @@ import {
   Menu,
   MenuItem,
   notEmptyValidator,
+  SavingState,
   Size,
   Text,
   TextType,
@@ -72,10 +75,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";

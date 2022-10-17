@@ -42,7 +42,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import log from "loglevel";
 

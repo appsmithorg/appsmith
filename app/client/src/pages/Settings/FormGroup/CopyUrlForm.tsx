@@ -4,10 +4,9 @@ import { HelpIcons } from "icons/HelpIcons";
 import { UneditableField } from "design-system";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { TooltipComponent } from "design-system";
+import { Toaster, TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;

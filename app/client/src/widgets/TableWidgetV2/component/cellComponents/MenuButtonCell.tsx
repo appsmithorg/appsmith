@@ -15,6 +15,7 @@ interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
 function MenuButton({
   borderRadius,
   boxShadow,
+  compactMode,
   iconAlign,
   iconName,
   isCompact,
@@ -45,6 +46,7 @@ function MenuButton({
       <MenuButtonTableComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
+        compactMode={compactMode}
         iconAlign={iconAlign}
         iconName={iconName}
         isCompact={isCompact}

@@ -77,6 +77,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
@@ -256,13 +257,16 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
 
-                    Map<String, String> params = Map.of("resetUrl", resetUrl);
-                    return emailSender.sendMail(
-                            email,
-                            "Appsmith Password Reset",
-                            FORGOT_PASSWORD_EMAIL_TEMPLATE,
-                            params
-                    );
+                    Map<String, String> params = new HashMap<>();
+                    params.put("resetUrl", resetUrl);
+
+                    return updateTenantLogoInParams(params)
+                            .then(emailSender.sendMail(
+                                    email,
+                                    "Appsmith Password Reset",
+                                    FORGOT_PASSWORD_EMAIL_TEMPLATE,
+                                    params
+                            ));
                 })
                 .thenReturn(true);
     }
@@ -320,7 +324,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * This function can only be called via the forgot password route.
      *
      * @param encryptedToken The one-time token provided to the user for resetting the password
-     * @param user  The user object that contains the email & password fields in order to save the new password for the user
+     * @param user           The user object that contains the email & password fields in order to save the new password for the user
      * @return
      */
     @Override
@@ -560,9 +564,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Map<String, String> params = new HashMap<>();
         params.put("firstName", user.getName());
         params.put("inviteUrl", originHeader);
-        return emailSender
+        Mono<User> emailMono = emailSender
                 .sendMail(user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, params)
-                .thenReturn(user)
                 .onErrorResume(error -> {
                     // Swallowing this exception because we don't want this to affect the rest of the flow.
                     log.error(
@@ -570,8 +573,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             user.getEmail(),
                             Exceptions.unwrap(error)
                     );
-                    return Mono.just(user);
-                });
+                    return Mono.just(TRUE);
+                })
+                .thenReturn(user);
+
+        return updateTenantLogoInParams(params)
+                .then(Mono.defer(() -> emailMono));
     }
 
     @Override
@@ -662,7 +669,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                         "Appsmith: You have been added to a new workspace",
                                         USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
 
-                                return emailMono
+                                return updateTenantLogoInParams(params)
+                                        .then(Mono.defer(() -> emailMono))
                                         .thenReturn(existingUser);
                             })
                             .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));
@@ -724,7 +732,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     Mono<Boolean> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 
                     // We have sent out the emails. Just send back the saved user.
-                    return emailMono
+                    return updateTenantLogoInParams(params)
+                            .then(Mono.defer(() -> emailMono))
                             .thenReturn(createdUser);
                 });
     }
@@ -863,5 +872,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
         return repository.findAllByEmails(emails);
+    }
+
+    protected Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params) {
+        return Mono.just(params);
     }
 }

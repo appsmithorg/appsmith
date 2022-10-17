@@ -11,7 +11,7 @@ import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

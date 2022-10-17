@@ -31,6 +31,8 @@ import {
   Button,
   Category,
   ColorSelector,
+  EditableText,
+  EditInteractionKind,
   IconPositions,
   Icon,
   IconSelector,
@@ -39,15 +41,13 @@ import {
   MenuDivider,
   MenuItem,
   MenuItemProps,
+  SavingState,
   Size,
+  Toaster,
   Text,
   TextType,
   TooltipComponent,
 } from "design-system";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,
@@ -61,7 +61,6 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
