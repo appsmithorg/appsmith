@@ -185,6 +185,10 @@ export type EditorProps = EditorStyleProps &
     containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
+
+    // On focus and blur event handler
+    onEditorBlur?: () => void;
+    onEditorFocus?: () => void;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -561,6 +565,10 @@ class CodeEditor extends Component<Props, State> {
             hinter.showHint(cm, entityInformation, blockCompletions),
         );
     }
+
+    if (this.props.onEditorFocus) {
+      this.props.onEditorFocus();
+    }
   };
 
   handleEditorBlur = () => {
@@ -569,6 +577,9 @@ class CodeEditor extends Component<Props, State> {
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
     this.props.setCodeEditorLastFocus(this.props.dataTreePath);
+    if (this.props.onEditorBlur) {
+      this.props.onEditorBlur();
+    }
   };
 
   handleBeforeChange = (

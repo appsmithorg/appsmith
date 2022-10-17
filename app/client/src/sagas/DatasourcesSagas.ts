@@ -54,7 +54,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";

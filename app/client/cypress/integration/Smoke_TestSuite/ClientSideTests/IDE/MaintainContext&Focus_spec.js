@@ -10,6 +10,10 @@ const ee = ObjectsRegistry.EntityExplorer;
 describe("MaintainContext&Focus", function() {
   it("Import the test application", () => {
     homePage.NavigateToHome();
+    cy.intercept("GET", "/api/v1/users/features", {
+      fixture: "featureFlags.json",
+    }).as("featureFlags");
+    cy.reload();
     homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();
@@ -32,7 +36,6 @@ describe("MaintainContext&Focus", function() {
     cy.focusCodeInput(".t--property-control-text");
 
     cy.SearchEntityandOpen("Graphql_Query");
-    cy.contains(".react-tabs__tab", "Body").click();
     cy.focusCodeInput(".t--graphql-query-editor");
 
     cy.SearchEntityandOpen("Rest_Api_1");
@@ -55,6 +58,7 @@ describe("MaintainContext&Focus", function() {
     cy.SearchEntityandOpen("S3_Query");
     cy.wait(1000);
     cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data");
+    cy.wait(1000);
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("JSObject1");
@@ -65,7 +69,6 @@ describe("MaintainContext&Focus", function() {
     cy.SearchEntityandOpen("JSObject2");
     cy.wait(1000);
     cy.focusCodeInput(".js-editor");
-    cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("Mongo_Query");
     cy.wait(1000);
