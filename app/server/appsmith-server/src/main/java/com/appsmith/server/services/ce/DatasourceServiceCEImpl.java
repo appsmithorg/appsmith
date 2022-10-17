@@ -454,7 +454,14 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(datasource -> {
+                    Map<String, String> eventData = Map.of(
+                            FieldName.WORKSPACE_ID, datasource.getWorkspaceId()
+                    );
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(datasource);
+                    analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+                    return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
+                });
     }
 
     @Override
