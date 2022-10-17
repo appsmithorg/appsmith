@@ -274,8 +274,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                     {
                       helpText:
                         "Triggers an action when the menu item is clicked",
-                      propertyName: "onMenuItemClick",
-                      label: "onMenuItemClick",
+                      propertyName: "onClick",
+                      label: "onClick",
                       controlType: "ACTION_SELECTOR",
                       isJSConvertible: true,
                       isBindProperty: true,

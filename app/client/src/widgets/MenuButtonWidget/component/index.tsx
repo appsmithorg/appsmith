@@ -278,7 +278,7 @@ function PopoverContent(props: PopoverContentProps) {
           index: index,
           widgetId: "",
           label: item[configureMenuItems?.config?.label],
-          onMenuItemClick: configureMenuItems?.config?.onMenuItemClick,
+          onClick: configureMenuItems?.config?.onClick,
           textColor: configureMenuItems?.config?.textColor,
           backgroundColor: configureMenuItems?.config?.backgroundColor,
           iconAlign: configureMenuItems?.config?.iconAlign,
