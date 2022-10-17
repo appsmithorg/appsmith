@@ -34,7 +34,7 @@ import {
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 
 interface ReduxStateProps {
