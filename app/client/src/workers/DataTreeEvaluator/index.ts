@@ -413,10 +413,6 @@ export default class DataTreeEvaluator {
       }
     });
 
-    const nonDynamicFieldValidationOrder = [
-      ...nonDynamicFieldValidationOrderSet,
-    ];
-
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -439,7 +435,7 @@ export default class DataTreeEvaluator {
     );
     const evalStop = performance.now();
 
-    this.reValidateTree(nonDynamicFieldValidationOrder, newEvalTree);
+    this.reValidateTree([...nonDynamicFieldValidationOrderSet], newEvalTree);
 
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
