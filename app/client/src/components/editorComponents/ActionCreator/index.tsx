@@ -59,8 +59,6 @@ import {
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlags from "entities/FeatureFlags";
 import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
 import {
@@ -77,7 +75,11 @@ import {
 } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
-const baseOptions: { label: string; value: string }[] = [
+const baseOptions: {
+  label: string;
+  value: string;
+  children?: TreeDropdownOption[];
+}[] = [
   {
     label: createMessage(NO_ACTION),
     value: AppsmithFunction.none,
@@ -85,6 +87,12 @@ const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(EXECUTE_A_QUERY),
     value: AppsmithFunction.integration,
+    children: [],
+  },
+  {
+    label: createMessage(EXECUTE_JS_FUNCTION),
+    value: AppsmithFunction.jsFunction,
+    children: [],
   },
   {
     label: createMessage(NAVIGATE_TO),
@@ -151,22 +159,6 @@ const baseOptions: { label: string; value: string }[] = [
     value: AppsmithFunction.postMessage,
   },
 ];
-
-const getBaseOptions = (featureFlags: FeatureFlags) => {
-  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
-  if (isJSEditorEnabled) {
-    const jsOption = baseOptions.find(
-      (option: any) => option.value === AppsmithFunction.jsFunction,
-    );
-    if (!jsOption) {
-      baseOptions.splice(2, 0, {
-        label: createMessage(EXECUTE_JS_FUNCTION),
-        value: AppsmithFunction.jsFunction,
-      });
-    }
-  }
-  return baseOptions;
-};
 
 function getFieldFromValue(
   value: string | undefined,
@@ -378,14 +370,11 @@ function getIntegrationOptionsWithChildren(
   pageId: string,
   applicationId: string,
   plugins: any,
-  options: TreeDropdownOption[],
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
-  featureFlags: FeatureFlags,
 ) {
-  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
     value: "JSObject",
@@ -405,11 +394,11 @@ function getIntegrationOptionsWithChildren(
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE,
   );
-  const option = options.find(
+  const option = baseOptions.find(
     (option) => option.value === AppsmithFunction.integration,
   );
 
-  const jsOption = options.find(
+  const jsOption = baseOptions.find(
     (option) => option.value === AppsmithFunction.jsFunction,
   );
 
@@ -441,7 +430,7 @@ function getIntegrationOptionsWithChildren(
       } as TreeDropdownOption);
     });
   }
-  if (isJSEditorEnabled && jsOption) {
+  if (jsOption) {
     jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
@@ -492,13 +481,12 @@ function getIntegrationOptionsWithChildren(
       }
     });
   }
-  return options;
+  return baseOptions;
 }
 
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId) as string;
-  const featureFlags = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -511,7 +499,6 @@ function useIntegrationsOptionTree() {
     pageId,
     applicationId,
     pluginGroups,
-    getBaseOptions(featureFlags),
     actions,
     jsActions,
     {
@@ -529,7 +516,6 @@ function useIntegrationsOptionTree() {
       },
     },
     dispatch,
-    featureFlags,
   );
 }
 
@@ -571,6 +557,7 @@ const ActionCreator = React.forwardRef(
     );
     const dataTree = useSelector(getDataTreeForActionCreator);
     const integrationOptionTree = useIntegrationsOptionTree();
+    console.log(integrationOptionTree);
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const pageDropdownOptions = useSelector(getPageListAsOptions);
