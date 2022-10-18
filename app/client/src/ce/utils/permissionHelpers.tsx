@@ -30,7 +30,7 @@ export enum LOGIC_FILTER {
 }
 
 export const isPermitted = (
-  permissions: string[],
+  permissions: string[] = [],
   type: string | string[],
   filter: LOGIC_FILTER = LOGIC_FILTER.AND,
 ) => {
