@@ -11,6 +11,10 @@ import {
 import {
   switchDatasource,
   setDatsourceEditorMode,
+  removeTempDatasource,
+  deleteTempDSFromDraft,
+  toggleSaveActionFlag,
+  toggleSaveActionFromPopupFlag,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
@@ -36,6 +40,8 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -56,6 +62,7 @@ interface ReduxStateProps {
   applicationSlug: string;
   pageSlug: string;
   fromImporting?: boolean;
+  isDatasourceBeingSaved: boolean;
 }
 
 type Props = ReduxStateProps &
@@ -65,7 +72,28 @@ type Props = ReduxStateProps &
     pageId: string;
   }>;
 
-class DataSourceEditor extends React.Component<Props> {
+type State = {
+  showDialog: boolean;
+  unblock(): void;
+  navigation(): void;
+};
+
+class DataSourceEditor extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      showDialog: false,
+      unblock: () => {
+        return undefined;
+      },
+      navigation: () => {
+        return undefined;
+      },
+    };
+    this.closeDialog = this.closeDialog.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.onDiscard = this.onDiscard.bind(this);
+  }
   componentDidUpdate(prevProps: Props) {
     //Fix to prevent restapi datasource from being set in DatasourceDBForm in view mode
     //TODO: Needs cleanup
@@ -75,6 +103,11 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.datasourceId !== prevProps.datasourceId
     ) {
       this.props.switchDatasource(this.props.datasourceId);
+    }
+
+    // When save button is clicked in DS form, routes should be unblocked
+    if (this.props.isDatasourceBeingSaved) {
+      this.closeDialogAndUnblockRoutes();
     }
   }
   componentDidMount() {
@@ -110,6 +143,43 @@ class DataSourceEditor extends React.Component<Props> {
         });
       }
     }
+
+    // Block all routes from this page until the data is either saved or discarded
+    this.setState({
+      unblock: this.props.history.block((tx: any) => {
+        this.setState({
+          navigation: () => this.props.history.push(tx.pathname),
+          showDialog: true,
+        });
+        return false;
+      }),
+    });
+  }
+
+  componentWillUnmount() {
+    this.props.discardTempDatasource();
+    this.props.deleteTempDSFromDraft();
+    this.state.unblock();
+  }
+
+  closeDialog() {
+    this.setState({ showDialog: false });
+  }
+
+  onSave() {
+    this.props.toggleSaveActionFromPopupFlag(true);
+  }
+
+  onDiscard() {
+    this.closeDialogAndUnblockRoutes();
+    this.state.navigation();
+  }
+
+  closeDialogAndUnblockRoutes() {
+    this.closeDialog();
+    this.state.unblock();
+    this.props.toggleSaveActionFlag(false);
+    this.props.toggleSaveActionFromPopupFlag(false);
   }
 
   render() {
@@ -132,24 +202,32 @@ class DataSourceEditor extends React.Component<Props> {
     } = this.props;
 
     return (
-      <DataSourceEditorForm
-        applicationId={this.props.applicationId}
-        datasourceId={datasourceId}
-        formConfig={formConfig}
-        formData={formData}
-        formName={DATASOURCE_DB_FORM}
-        hiddenHeader={fromImporting}
-        isDeleting={isDeleting}
-        isNewDatasource={isNewDatasource}
-        isSaving={isSaving}
-        isTesting={isTesting}
-        openOmnibarReadMore={openOmnibarReadMore}
-        pageId={pageId}
-        pluginImage={pluginImages[pluginId]}
-        pluginType={pluginType}
-        setDatasourceEditorMode={setDatasourceEditorMode}
-        viewMode={viewMode && !fromImporting}
-      />
+      <div className="form--element">
+        <DataSourceEditorForm
+          applicationId={this.props.applicationId}
+          datasourceId={datasourceId}
+          formConfig={formConfig}
+          formData={formData}
+          formName={DATASOURCE_DB_FORM}
+          hiddenHeader={fromImporting}
+          isDeleting={isDeleting}
+          isNewDatasource={isNewDatasource}
+          isSaving={isSaving}
+          isTesting={isTesting}
+          openOmnibarReadMore={openOmnibarReadMore}
+          pageId={pageId}
+          pluginImage={pluginImages[pluginId]}
+          pluginType={pluginType}
+          setDatasourceEditorMode={setDatasourceEditorMode}
+          viewMode={viewMode && !fromImporting}
+        />
+        <SaveOrDiscardDatasourceModal
+          isOpen={this.state.showDialog}
+          onClose={this.closeDialog}
+          onDiscard={this.onDiscard}
+          onSave={this.onSave}
+        />
+      </div>
     );
   }
 }
@@ -175,7 +253,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: datasources.isDeleting,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
-    isNewDatasource: datasourcePane.newDatasource === datasourceId,
+    isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode:
       datasourcePane.viewMode[datasource?.id ?? ""] ?? !props.fromImporting,
@@ -186,6 +264,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     applicationId: props.applicationId ?? getCurrentApplicationId(state),
     applicationSlug,
     pageSlug,
+    isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
   };
 };
 
@@ -203,12 +282,21 @@ const mapDispatchToProps = (
     dispatch(setGlobalSearchQuery(text));
     dispatch(toggleShowGlobalSearchModal());
   },
+  discardTempDatasource: () => dispatch(removeTempDatasource()),
+  deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
+  toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
+  toggleSaveActionFromPopupFlag: (flag) =>
+    dispatch(toggleSaveActionFromPopupFlag(flag)),
 });
 
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
+  discardTempDatasource: () => void;
+  deleteTempDSFromDraft: () => void;
+  toggleSaveActionFlag: (flag: boolean) => void;
+  toggleSaveActionFromPopupFlag: (flag: boolean) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {

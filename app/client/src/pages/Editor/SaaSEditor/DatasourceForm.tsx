@@ -30,6 +30,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -45,6 +46,7 @@ interface StateProps extends JSONtoFormProps {
   hiddenHeader?: boolean; // for reconnect modal
   pageId?: string; // for reconnect modal
   pluginPackageName: string; // for reconnect modal
+  datasourceName: string;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -78,7 +80,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
   }
 
   getSanitizedData = () => {
-    return this.normalizeValues();
+    return {
+      ...this.normalizeValues(),
+      name: this.props.datasourceName,
+    };
   };
 
   renderDataSourceConfigForm = (sections: any) => {
@@ -129,16 +134,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             )}
           </Header>
         )}
-        {!viewMode ? (
+        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
           <>
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : null}
             {""}
           </>
-        ) : (
-          <Connected />
         )}
+        {viewMode && <Connected />}
         {/* Render datasource form call-to-actions */}
         {datasource && (
           <DatasourceAuth
@@ -184,7 +188,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDeleting: datasources.isDeleting,
     formData: formData,
     formConfig,
-    isNewDatasource: datasourcePane.newDatasource === datasourceId,
+    isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
     pageId: props.pageId || props.match?.params?.pageId,
     pluginImage: getPluginImages(state)[pluginId],
     pluginPackageName:
@@ -194,6 +198,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
     applicationId: getCurrentApplicationId(state),
+    datasourceName:
+      state.ui.datasourceName.name[props.match.params.datasourceId],
   };
 };
 

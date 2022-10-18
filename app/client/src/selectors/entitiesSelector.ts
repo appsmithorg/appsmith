@@ -203,6 +203,14 @@ export const getDatasourceDrafts = (state: AppState) => {
   return state.ui.datasourcePane.drafts;
 };
 
+export const getDatasourceName = (state: AppState, datasourceId: string) => {
+  return state.ui.datasourceName.name[datasourceId];
+};
+
+export const getUntitledDSSequenceNumber = (state: AppState): number => {
+  return state.entities.datasources.datasourceSequence;
+};
+
 export const getDatasourceDraft = (state: AppState, id: string) => {
   const drafts = state.ui.datasourcePane.drafts;
   if (id in drafts) return drafts[id];

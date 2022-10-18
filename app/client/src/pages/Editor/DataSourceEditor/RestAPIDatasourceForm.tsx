@@ -24,6 +24,7 @@ import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
+  createDatasourceFromForm,
   deleteDatasource,
   redirectAuthorizationCode,
   updateDatasource,
@@ -56,6 +57,7 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -82,6 +84,11 @@ interface DatasourceRestApiEditorProps {
   hiddenHeader?: boolean;
   responseStatus?: string;
   responseMessage?: string;
+  datasourceName: string;
+  createDatasource: (
+    data: Datasource,
+    onSuccess?: ReduxAction<unknown>,
+  ) => void;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -286,7 +293,14 @@ class DatasourceRestAPIEditor extends React.Component<
       appId: this.props.applicationId,
     });
 
-    this.props.updateDatasource(normalizedValues, onSuccess);
+    if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
+      return this.props.updateDatasource(normalizedValues, onSuccess);
+    }
+
+    this.props.createDatasource({
+      ...normalizedValues,
+      name: this.props.datasourceName,
+    });
   };
 
   createApiAction = () => {
@@ -397,6 +411,7 @@ class DatasourceRestAPIEditor extends React.Component<
             buttonStyle="DANGER"
             buttonVariant={ButtonVariantTypes.PRIMARY}
             className="t--delete-datasource"
+            disabled={datasourceId === TEMP_DATASOURCE_ID}
             loading={isDeleting}
             onClick={() => {
               this.state.confirmDelete
@@ -1203,6 +1218,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
+    datasourceName: state.ui.datasourceName.name[props.datasourceId],
   };
 };
 
@@ -1213,6 +1229,8 @@ const mapDispatchToProps = (dispatch: any) => {
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+    createDatasource: (formData: any) =>
+      dispatch(createDatasourceFromForm(formData)),
   };
 };
 

@@ -10,8 +10,12 @@ import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
-import { saveDatasourceName } from "actions/datasourceActions";
+import {
+  saveDatasourceName,
+  updateDatasourceName,
+} from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -40,12 +44,14 @@ function FormTitle(props: FormTitleProps) {
   const saveStatus: {
     isSaving: boolean;
     error: boolean;
+    name: string;
   } = useSelector((state: AppState) => {
     const id = currentDatasource ? currentDatasource.id : "";
 
     return {
       isSaving: state.ui.datasourceName.isSaving[id],
       error: state.ui.datasourceName.errors[id],
+      name: state.ui.datasourceName.name[id],
     };
   });
 
@@ -77,11 +83,30 @@ function FormTitle(props: FormTitleProps) {
 
   const handleDatasourceNameChange = useCallback(
     (name: string) => {
+      // Check if the datasource name equals "Untitled Datasource ABC" if no , use the name passed.
+      const datsourceName = name || "Untitled Datasource ABC";
       if (
         !isInvalidDatasourceName(name) &&
         currentDatasource &&
         currentDatasource.name !== name
       ) {
+        // if the currentDatasource id equals the temp datasource id,
+        // it means that you are about to create a new datasource hence saveDatasourceName would be dispatch
+        if (currentDatasource.id === TEMP_DATASOURCE_ID) {
+          dispatch(
+            saveDatasourceName({
+              id: currentDatasource?.id ?? "",
+              name: datsourceName,
+            }),
+          );
+        } else {
+          dispatch(
+            updateDatasourceName({
+              id: currentDatasource?.id ?? "",
+              name: datsourceName,
+            }),
+          );
+        }
         dispatch(saveDatasourceName({ id: currentDatasource?.id ?? "", name }));
       }
     },

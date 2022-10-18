@@ -17,6 +17,8 @@ import {
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
+  createDatasourceFromForm,
+  toggleSaveActionFlag,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
@@ -44,6 +46,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface Props {
   datasource: Datasource;
@@ -53,6 +56,7 @@ interface Props {
   pageId?: string;
   shouldRender: boolean;
   datasourceButtonConfiguration: string[] | undefined;
+  triggerSave?: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -103,6 +107,7 @@ function DatasourceAuth({
   isInvalid,
   pageId: pageIdProp,
   shouldRender,
+  triggerSave,
 }: Props) {
   const authType =
     formData &&
@@ -163,6 +168,12 @@ function DatasourceAuth({
     }
   }, [authType]);
 
+  useEffect(() => {
+    if (!!triggerSave && triggerSave) {
+      handleDefaultAuthDatasourceSave();
+    }
+  }, [triggerSave]);
+
   // selectors
   const {
     datasources: { isDeleting, isTesting, loading: isSaving },
@@ -199,6 +210,7 @@ function DatasourceAuth({
 
   // Handles default auth datasource saving
   const handleDefaultAuthDatasourceSave = () => {
+    dispatch(toggleSaveActionFlag(true));
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
@@ -206,26 +218,35 @@ function DatasourceAuth({
     });
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
-    dispatch(
-      updateDatasource(
-        getSanitizedFormData(),
-        !isGeneratePageInitiator && !isReconnectModelOpen
-          ? dispatch(redirectToNewIntegrations(pageId, getQueryParams()))
-          : undefined,
-      ),
-    );
+    if (datasource.id === TEMP_DATASOURCE_ID) {
+      dispatch(createDatasourceFromForm(getSanitizedFormData()));
+    } else {
+      // we dont need to redirect it to active ds list instead ds would be shown in view only mode
+      dispatch(updateDatasource(getSanitizedFormData()));
+    }
   };
 
   // Handles Oauth datasource saving
   const handleOauthDatasourceSave = () => {
-    dispatch(
-      updateDatasource(
-        getSanitizedFormData(),
-        pluginType
-          ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
-          : undefined,
-      ),
-    );
+    if (datasource.id === TEMP_DATASOURCE_ID) {
+      dispatch(
+        createDatasourceFromForm(
+          getSanitizedFormData(),
+          pluginType
+            ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+            : undefined,
+        ),
+      );
+    } else {
+      dispatch(
+        updateDatasource(
+          getSanitizedFormData(),
+          pluginType
+            ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+            : undefined,
+        ),
+      );
+    }
   };
 
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
@@ -236,6 +257,7 @@ function DatasourceAuth({
           buttonVariant={ButtonVariantTypes.PRIMARY}
           // accent="error"
           className="t--delete-datasource"
+          disabled={datasourceId === TEMP_DATASOURCE_ID}
           loading={isDeleting}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);

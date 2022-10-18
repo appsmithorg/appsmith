@@ -25,9 +25,11 @@ import {
 import {
   getDatasource,
   getDatasourceDraft,
+  getDatasourceName,
   getPluginForm,
   getGenerateCRUDEnabledPluginMap,
   getPluginPackageFromDatasourceId,
+  getUntitledDSSequenceNumber,
 } from "selectors/entitiesSelector";
 import {
   changeDatasource,
@@ -37,6 +39,7 @@ import {
   updateDatasourceSuccess,
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
+  createTempDatasourceFromForm,
 } from "actions/datasourceActions";
 import { ApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -94,6 +97,10 @@ import {
   integrationEditorURL,
   saasEditorDatasourceIdURL,
 } from "RouteBuilder";
+import {
+  DATASOURCE_NAME_DEFAULT_PREFIX,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -469,7 +476,7 @@ function* getOAuthAccessTokenSaga(
   }
 }
 
-function* saveDatasourceNameSaga(
+function* updateDatasourceNameSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
   try {
@@ -483,13 +490,13 @@ function* saveDatasourceNameSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS,
+        type: ReduxActionTypes.UPDATE_DATASOURCE_NAME_SUCCESS,
         payload: { ...response.data },
       });
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.SAVE_DATASOURCE_NAME_ERROR,
+      type: ReduxActionErrorTypes.UPDATE_DATASOURCE_NAME_ERROR,
       payload: { id: actionPayload.payload.id },
     });
   }
@@ -516,9 +523,13 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     yield select(getDatasource, actionPayload.payload.id),
     `Datasource not found for id - ${actionPayload.payload.id}`,
   );
+  const datasoureName: string = shouldBeDefined<string>(
+    yield select(getDatasourceName, actionPayload.payload.id),
+    ``,
+  );
   const payload = {
     ...actionPayload.payload,
-    name: datasource.name,
+    name: datasoureName,
     id: actionPayload.payload.id as any,
   };
 
@@ -615,8 +626,47 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 }
 
-function* createDatasourceFromFormSaga(
+function* createTempDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
+) {
+  const formConfig: Record<string, any>[] = yield select(
+    getPluginForm,
+    actionPayload.payload.pluginId,
+  );
+  const initialValues: unknown = yield call(getConfigInitialValues, formConfig);
+
+  const sequence: number = yield select(getUntitledDSSequenceNumber);
+
+  const payload = {
+    id: TEMP_DATASOURCE_ID,
+    name: DATASOURCE_NAME_DEFAULT_PREFIX + sequence,
+    type: (actionPayload.payload as any).type,
+    pluginId: actionPayload.payload.pluginId,
+    new: false,
+    datasourceConfiguration: {
+      properties: [],
+    },
+  };
+
+  if (!!initialValues && !!(initialValues as any).datasourceConfiguration) {
+    payload.datasourceConfiguration = (initialValues as any).datasourceConfiguration;
+  }
+
+  yield put({
+    type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+    payload,
+  });
+
+  yield put(
+    setDatsourceEditorMode({
+      id: payload.id,
+      viewMode: false,
+    }),
+  );
+}
+
+function* createDatasourceFromFormSaga(
+  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -634,8 +684,11 @@ function* createDatasourceFromFormSaga(
       formConfig,
     );
 
-    const payload = merge(initialValues, actionPayload.payload);
-    // @ts-expect-error: isConfigured does not exists on type Payload
+    const payload = _.omit(merge(initialValues, actionPayload.payload), [
+      "id",
+      "new",
+      "type",
+    ]);
     payload.isConfigured = false;
 
     const response: ApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
@@ -656,15 +709,36 @@ function* createDatasourceFromFormSaga(
       });
       // Todo: Refactor later.
       // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
-      yield put(
-        setDatsourceEditorMode({
-          id: response.data.id,
-          viewMode: false,
-        }),
-      );
+      if (response.data.id !== TEMP_DATASOURCE_ID) {
+        yield put(
+          setDatsourceEditorMode({
+            id: response.data.id,
+            viewMode: true,
+          }),
+        );
+      }
+
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
         variant: Variant.success,
+      });
+
+      if (actionPayload.onSuccess) {
+        if (
+          (actionPayload.onSuccess.payload as any).datasourceId ===
+          TEMP_DATASOURCE_ID
+        ) {
+          (actionPayload.onSuccess.payload as any).datasourceId =
+            response.data.id;
+        }
+        yield put(actionPayload.onSuccess);
+      }
+
+      yield put({
+        type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
+        payload: {
+          id: TEMP_DATASOURCE_ID,
+        },
       });
     }
   } catch (error) {
@@ -711,8 +785,8 @@ function* changeDatasourceSaga(
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
   const pageId: string = yield select(getCurrentPageId);
+  console.log("change: ", datasource, draft);
   let data;
-
   if (_.isEmpty(draft)) {
     data = datasource;
   } else {
@@ -806,10 +880,10 @@ function* storeAsDatasourceSaga() {
     filteredDatasourceHeaders,
   );
 
-  yield put(createDatasourceFromForm(datasource));
-  const createDatasourceSuccessAction: unknown = yield take(
-    ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
-  );
+  yield put(createTempDatasourceFromForm(datasource));
+  // const createDatasourceSuccessAction: unknown = yield take(
+  //   ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+  // );
   // @ts-expect-error: createDatasourceSuccessAction is of type unknown
   const createdDatasource = createDatasourceSuccessAction.payload;
 
@@ -1062,10 +1136,17 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
       createDatasourceFromFormSaga,
     ),
-    takeEvery(ReduxActionTypes.UPDATE_DATASOURCE_INIT, updateDatasourceSaga),
-    takeEvery(ReduxActionTypes.SAVE_DATASOURCE_NAME, saveDatasourceNameSaga),
     takeEvery(
-      ReduxActionErrorTypes.SAVE_DATASOURCE_NAME_ERROR,
+      ReduxActionTypes.CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS,
+      createTempDatasourceFromFormSaga,
+    ),
+    takeEvery(ReduxActionTypes.UPDATE_DATASOURCE_INIT, updateDatasourceSaga),
+    takeEvery(
+      ReduxActionTypes.UPDATE_DATASOURCE_NAME,
+      updateDatasourceNameSaga,
+    ),
+    takeEvery(
+      ReduxActionErrorTypes.UPDATE_DATASOURCE_NAME_ERROR,
       handleDatasourceNameChangeFailureSaga,
     ),
     takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
