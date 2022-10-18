@@ -511,7 +511,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               if (next.indexOf("currentItem") > -1) {
                 return (
                   prev +
-                  `{{((currentItem) => { ${next}})(JSON.parse('${escapedStringifiedListItem}'))}}`
+                  `{{((currentItem) => { ${next}})(JSON.parse(JSON.stringify(${escapedStringifiedListItem})))}}`
                 );
               }
               return prev + `{{${next}}}`;
