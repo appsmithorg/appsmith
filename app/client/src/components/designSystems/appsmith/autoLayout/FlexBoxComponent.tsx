@@ -38,6 +38,7 @@ export const FlexContainer = styled.div<{
   stretchHeight: boolean;
   overflow: Overflow;
   isMobile?: boolean;
+  isMainContainer: boolean;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ direction }) =>
@@ -51,7 +52,8 @@ export const FlexContainer = styled.div<{
   height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
 
   overflow: "hidden";
-  overflow-y: ${({ isMobile }) => (isMobile ? "auto" : "hidden")};
+  overflow-y: ${({ isMainContainer, isMobile }) =>
+    isMainContainer || isMobile ? "auto" : "hidden"};
   padding: 4px;
 `;
 
@@ -213,6 +215,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
       direction={direction}
+      isMainContainer={props.widgetId === "0"}
       isMobile={isMobile}
       overflow={props.overflow}
       stretchHeight={props.stretchHeight}
