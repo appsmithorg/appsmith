@@ -22,6 +22,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.ActionResourceDTO;
+import com.appsmith.server.solutions.roles.dtos.DatasourceResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.BaseView;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -365,6 +366,7 @@ public class WorkspaceResourcesTest {
                     BaseView createdDatasourceView = DatasourcesEntityView.getEntities().get(0);
                     assertThat(createdDatasourceView.getName()).isEqualTo(createdDatasource.getName());
                     assertThat(createdDatasourceView.getId()).isEqualTo(createdDatasource.getId());
+                    assertThat(((DatasourceResourceDTO)createdDatasourceView).getPluginId()).isEqualTo(createdDatasource.getPluginId());
                     // assert that all the permissions in this view are present and all of them are turned off for this datasource
                     perms = List.of(0,0,0,0,0);
                     assertThat(createdDatasourceView.getEnabled()).isEqualTo(perms);
@@ -454,6 +456,7 @@ public class WorkspaceResourcesTest {
                     BaseView createdDatasourceView = DatasourcesEntityView.getEntities().get(0);
                     assertThat(createdDatasourceView.getName()).isEqualTo(createdDatasource.getName());
                     assertThat(createdDatasourceView.getId()).isEqualTo(createdDatasource.getId());
+                    assertThat(((DatasourceResourceDTO)createdDatasourceView).getPluginId()).isEqualTo(createdDatasource.getPluginId());
                     // assert that all the permissions in this view are present and all of them are turned on for this datasource
                     // TODO : introduce create actions permission for datasources and introduce the same for all.
                     perms = List.of(1, 0, 1, 1, 1);
