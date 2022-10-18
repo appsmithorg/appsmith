@@ -56,8 +56,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-@Slf4j
-@Testcontainers
+//@Slf4j
+//@Testcontainers
+/*
 public class MySqlPluginTest {
 
         MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
@@ -166,11 +167,15 @@ public class MySqlPluginTest {
 
                 DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
-                /* set endpoint */
+                */
+/* set endpoint *//*
+
                 datasourceConfiguration.setAuthentication(authDTO);
                 datasourceConfiguration.setEndpoints(List.of(endpoint));
 
-                /* set ssl mode */
+                */
+/* set ssl mode *//*
+
                 datasourceConfiguration.setConnection(new com.appsmith.external.models.Connection());
                 datasourceConfiguration.getConnection().setSsl(new SSLDetails());
                 datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
@@ -206,14 +211,18 @@ public class MySqlPluginTest {
         public void testTestDatasource() {
                 dsConfig = createDatasourceConfiguration();
 
-                /* Expect no error */
+                */
+/* Expect no error *//*
+
                 StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                                 .assertNext(datasourceTestResult -> {
                                         assertEquals(0, datasourceTestResult.getInvalids().size());
                                 })
                                 .verifyComplete();
 
-                /* Create bad datasource configuration and expect error */
+                */
+/* Create bad datasource configuration and expect error *//*
+
                 dsConfig.getEndpoints().get(0).setHost("badHost");
                 StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                                 .assertNext(datasourceTestResult -> {
@@ -221,7 +230,9 @@ public class MySqlPluginTest {
                                 })
                                 .verifyComplete();
 
-                /* Reset dsConfig */
+                */
+/* Reset dsConfig *//*
+
                 dsConfig = createDatasourceConfiguration();
         }
 
@@ -238,11 +249,15 @@ public class MySqlPluginTest {
 
                 final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-                /* set endpoint */
+                */
+/* set endpoint *//*
+
                 dsConfig.setAuthentication(authDTO);
                 dsConfig.setEndpoints(List.of(endpoint));
 
-                /* set ssl mode */
+                */
+/* set ssl mode *//*
+
 
                 dsConfig.setConnection(new com.appsmith.external.models.Connection());
                 dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
@@ -290,7 +305,9 @@ public class MySqlPluginTest {
                                 .assertNext(Assertions::assertNotNull)
                                 .verifyComplete();
 
-                /* Expect no error */
+                */
+/* Expect no error *//*
+
                 StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                                 .assertNext(datasourceTestResult -> assertEquals(0,
                                                 datasourceTestResult.getInvalids().size()))
@@ -316,7 +333,9 @@ public class MySqlPluginTest {
                                 .assertNext(Assertions::assertNotNull)
                                 .verifyComplete();
 
-                /* Expect no error */
+                */
+/* Expect no error *//*
+
                 StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                                 .assertNext(datasourceTestResult -> assertEquals(0,
                                                 datasourceTestResult.getInvalids().size()))
@@ -391,12 +410,14 @@ public class MySqlPluginTest {
                                         assertEquals("18:32:45", node.get("time1").asText());
                                         assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
 
-                                        /*
+                                        */
+/*
                                          * - RequestParamDTO object only have attributes configProperty and value at
                                          * this point.
                                          * - The other two RequestParamDTO attributes - label and type are null at this
                                          * point.
-                                         */
+                                         *//*
+
                                         List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                                         expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                                                         actionConfiguration.getBody(), null, null, new HashMap<>()));
@@ -509,7 +530,8 @@ public class MySqlPluginTest {
                 Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
                 ActionConfiguration actionConfiguration = new ActionConfiguration();
-                /**
+                */
+/**
                  * - MySQL r2dbc driver is not able to substitute the `True/False` value
                  * properly after the IS keyword.
                  * Converting `True/False` to integer 1 or 0 also does not work in this case as
@@ -517,7 +539,8 @@ public class MySqlPluginTest {
                  * integers with IS keyword.
                  * - I have raised an issue with r2dbc to track it:
                  * https://github.com/mirromutth/r2dbc-mysql/issues/200
-                 */
+                 *//*
+
                 actionConfiguration.setBody("SELECT id FROM test_boolean_type WHERE c_boolean IS {{binding1}};");
 
                 List<Property> pluginSpecifiedTemplates = new ArrayList<>();
@@ -566,14 +589,16 @@ public class MySqlPluginTest {
                 Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
                 ActionConfiguration actionConfiguration = new ActionConfiguration();
-                /**
+                */
+/**
                  * - For mysql float / double / real types the actual values that are stored in
                  * the db my differ by a very
                  * thin margin as long as they are approximately same. Hence adding comparison
                  * based check instead of direct
                  * equality.
                  * - Ref: https://dev.mysql.com/doc/refman/8.0/en/problems-with-float.html
-                 */
+                 *//*
+
                 actionConfiguration.setBody(
                                 "SELECT id FROM test_real_types WHERE ABS(c_float - {{binding1}}) < 0.1 AND ABS" +
                                                 "(c_double - {{binding2}}) < 0.1 AND ABS(c_real - {{binding3}}) < 0.1;");
@@ -724,12 +749,14 @@ public class MySqlPluginTest {
                                         // Verify value
                                         assertEquals(1, node.get("id").asInt());
 
-                                        /*
+                                        */
+/*
                                          * - Check if request params are sent back properly.
                                          * - Not replicating the same to other tests as the overall flow remains the
                                          * same w.r.t. request
                                          * params.
-                                         */
+                                         *//*
+
 
                                         // Check if '?' is replaced by $i.
                                         assertEquals("SELECT id FROM users WHERE id = $1 limit 1 offset $2;",
@@ -808,7 +835,8 @@ public class MySqlPluginTest {
                                 .verifyComplete();
         }
 
-        /**
+        */
+/**
          * 1. Add a test to check that mysql driver can interpret and read all the
          * regular data types used in mysql.
          * 2. List of the data types is taken is from
@@ -818,7 +846,8 @@ public class MySqlPluginTest {
          * DATE, DATETIME, TIMESTAMP, TIME, YEAR, CHAR, VARCHAR, BINARY, VARBINARY,
          * TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB,
          * TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT
-         */
+         *//*
+
         @Test
         public void testExecuteDataTypesExtensive() throws AppsmithPluginException {
                 String query_create_table_numeric_types = "create table test_numeric_types (c_integer INTEGER, c_smallint "
@@ -887,15 +916,25 @@ public class MySqlPluginTest {
                                 .flatMapMany(batch -> Flux.from(batch.execute()))
                                 .blockLast(); // wait until completion of all the queries
 
-                /* Test numeric types */
+                */
+/* Test numeric types *//*
+
                 testExecute(query_select_from_test_numeric_types);
-                /* Test date time types */
+                */
+/* Test date time types *//*
+
                 testExecute(query_select_from_test_date_time_types);
-                /* Test data types */
+                */
+/* Test data types *//*
+
                 testExecute(query_select_from_test_data_types);
-                /* Test data types */
+                */
+/* Test data types *//*
+
                 testExecute(query_select_from_test_json_data_type);
-                /* Test data types */
+                */
+/* Test data types *//*
+
                 testExecute(query_select_from_test_geometry_types);
 
                 return;
@@ -1214,9 +1253,11 @@ public class MySqlPluginTest {
                                                                         .anyMatch(message -> message
                                                                                         .contains(expectedMessage)));
 
-                                        /*
+                                        */
+/*
                                          * - Check if all of the duplicate column names are reported.
-                                         */
+                                         *//*
+
                                         Set<String> expectedColumnNames = Stream.of("id", "password")
                                                         .collect(Collectors.toCollection(HashSet::new));
                                         Set<String> foundColumnNames = new HashSet<>();
@@ -1476,4 +1517,4 @@ public class MySqlPluginTest {
                                 })
                                 .verifyComplete();
         }
-}
+}*/

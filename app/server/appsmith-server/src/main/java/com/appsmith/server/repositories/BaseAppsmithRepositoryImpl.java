@@ -368,6 +368,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     });
         }
 
+        //return getAnonymousUserPermissionGroups();
 
         return userMono
                 .flatMap(userWithTenant -> Mono.zip(
