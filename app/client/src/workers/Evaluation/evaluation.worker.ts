@@ -376,6 +376,7 @@ function eventRequestHandler({
           evalOrder = setupUpdateTreeResponse.evalOrder;
           lintOrder = setupUpdateTreeResponse.lintOrder;
           unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
+          jsUpdates = setupUpdateTreeResponse.jsUpdates;
         }
       } catch (error) {
         console.error("ERROR IN UPDATING DEPENDENCY", error);

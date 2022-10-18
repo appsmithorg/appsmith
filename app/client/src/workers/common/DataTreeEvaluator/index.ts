@@ -312,6 +312,7 @@ export default class DataTreeEvaluator {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
     lintOrder: string[];
+    jsUpdates: Record<string, JSUpdate>;
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
 
@@ -356,6 +357,7 @@ export default class DataTreeEvaluator {
         unEvalUpdates: [],
         evalOrder: [],
         lintOrder: [],
+        jsUpdates: {},
       };
     }
     //find all differences which can lead to updating of dependency map
@@ -454,6 +456,7 @@ export default class DataTreeEvaluator {
       unEvalUpdates: translatedDiffs,
       evalOrder: evaluationOrder,
       lintOrder: union(evaluationOrder, extraPathsToLint),
+      jsUpdates,
     };
   }
 
