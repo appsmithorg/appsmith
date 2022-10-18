@@ -19,6 +19,7 @@ import {
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
+  setJsPaneConfigSelectedTabIndex,
   startExecutingJSFunction,
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
@@ -57,6 +58,7 @@ import {
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
+import { getJSPaneConfigSelectedTabIndex } from "selectors/jsPaneSelectors";
 import { EventLocation } from "utils/AnalyticsUtil";
 import {
   isPermitted,
@@ -73,7 +75,6 @@ type Props = JSFormProps;
 
 function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
-  const [mainTabIndex, setMainTabIndex] = useState(0);
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
@@ -231,6 +232,12 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     PERMISSION_TYPE.DELETE_ACTIONS,
   );
 
+  const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
+
+  const setSelectedConfigTab = useCallback((selectedIndex: number) => {
+    dispatch(setJsPaneConfigSelectedTabIndex(selectedIndex));
+  }, []);
+
   return (
     <FormWrapper>
       <JSObjectHotKeys
@@ -294,8 +301,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
           <SecondaryWrapper>
             <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
               <TabComponent
-                onSelect={setMainTabIndex}
-                selectedIndex={mainTabIndex}
+                onSelect={setSelectedConfigTab}
+                selectedIndex={selectedConfigTab}
                 tabs={[
                   {
                     key: "code",
