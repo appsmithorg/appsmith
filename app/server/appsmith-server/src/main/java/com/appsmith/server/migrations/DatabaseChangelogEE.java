@@ -9,6 +9,7 @@ import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -84,9 +85,9 @@ public class DatabaseChangelogEE {
     }
 
     @ChangeSet(order = "002", id = "add-index-user-groups", author = "")
-    public void addIndexOnUserGroupCollection(MongockTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addIndexOnUserGroupCollection(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
         Index tenantIdIndex = makeIndex("tenantId");
-        ensureIndexes(mongoTemplate, UserGroup.class, tenantIdIndex);
+        ensureIndexes(mongockTemplate, UserGroup.class, tenantIdIndex);
     }
 
     @ChangeSet(order = "003", id = "add-index-for-audit-logs", author = "", runAlways = true)
@@ -108,6 +109,19 @@ public class DatabaseChangelogEE {
 
         Index userEmailEventCompoundIndex = makeIndex("event", "user.email", "timestamp").named("userEmail_event_compound_index");
         ensureIndexes(mongockTemplate, AuditLog.class, userEmailEventCompoundIndex);
+    }
+    
+    @ChangeSet(order = "004", id = "add-brand-tenant-configuration", author = "")
+    public void addBrandTenantConfiguration(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        tenantConfiguration.setWhiteLabelLogo("https://assets.appsmith.com/appsmith-logo-full.png");
+        tenantConfiguration.setWhiteLabelEnable("false");
+        tenantConfiguration.setWhiteLabelFavicon("https://assets.appsmith.com/appsmith-favicon-orange.ico");
+        defaultTenant.setTenantConfiguration(tenantConfiguration);
+        mongockTemplate.save(defaultTenant);
     }
 
 }

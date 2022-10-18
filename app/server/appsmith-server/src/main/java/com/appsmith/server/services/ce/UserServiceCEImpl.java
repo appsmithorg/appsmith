@@ -261,11 +261,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     params.put("resetUrl", resetUrl);
 
                     return updateTenantLogoInParams(params)
-                            .then(emailSender.sendMail(
+                            .map(updatedParams -> emailSender.sendMail(
                                     email,
                                     "Appsmith Password Reset",
                                     FORGOT_PASSWORD_EMAIL_TEMPLATE,
-                                    params
+                                    updatedParams
                             ));
                 })
                 .thenReturn(true);
@@ -578,7 +578,21 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .thenReturn(user);
 
         return updateTenantLogoInParams(params)
-                .then(Mono.defer(() -> emailMono));
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        user.getEmail(),
+                        "Welcome to Appsmith",
+                        WELCOME_USER_EMAIL_TEMPLATE,
+                        updatedParams))
+                .onErrorResume(error -> {
+                    // Swallowing this exception because we don't want this to affect the rest of the flow.
+                    log.error(
+                            "Ignoring error: Unable to send welcome email to the user {}. Cause: ",
+                            user.getEmail(),
+                            Exceptions.unwrap(error)
+                    );
+                    return Mono.just(TRUE);
+                })
+                .thenReturn(user);
     }
 
     @Override
@@ -655,6 +669,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     User currentUser = tuple.getT3();
                     PermissionGroup permissionGroup = tuple.getT4();
 
+                    Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
                     return repository.findByEmail(username)
                             .flatMap(existingUser -> {
                                 // The user already existed, just send an email informing that the user has been added
@@ -663,14 +678,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                         existingUser.getEmail(), workspace.getName());
 
                                 // Email template parameters initialization below.
-                                Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
-
-                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
-                                        "Appsmith: You have been added to a new workspace",
-                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
 
                                 return updateTenantLogoInParams(params)
-                                        .then(Mono.defer(() -> emailMono))
+                                        .map(updatedParams -> emailSender.sendMail(
+                                                existingUser.getEmail(),
+                                                "Appsmith: You have been added to a new workspace",
+                                                USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE,
+                                                updatedParams))
                                         .thenReturn(existingUser);
                             })
                             .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));
@@ -729,11 +743,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     // Email template parameters initialization below.
                     Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
 
-                    Mono<Boolean> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
-
                     // We have sent out the emails. Just send back the saved user.
                     return updateTenantLogoInParams(params)
-                            .then(Mono.defer(() -> emailMono))
+                            .map(updatedParams -> emailSender.sendMail(
+                                    createdUser.getEmail(),
+                                    "Invite for Appsmith",
+                                    INVITE_USER_EMAIL_TEMPLATE,
+                                    updatedParams))
                             .thenReturn(createdUser);
                 });
     }
@@ -830,7 +846,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         isSuperUserMono
                 )
                 .map(tuple -> {
-                    final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
+                    final boolean isUsersEmpty = TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
                     Boolean isSuperUser = tuple.getT4();

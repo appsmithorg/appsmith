@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -23,11 +24,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -35,6 +38,8 @@ import java.util.Set;
 public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final UserDataService userDataService;
     private final UserRepository userRepository;
+    private final TenantService tenantService;
+    private static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo-full.png";
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -65,6 +70,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
         this.userDataService = userDataService;
         this.userRepository = repository;
+        this.tenantService = tenantService;
     }
 
     @Override
@@ -102,5 +108,20 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     @Override
     public Flux<User> findAllByUsernameIn(Set<String> usernames) {
         return repository.findAllByEmails(usernames);
+    }
+
+    @Override
+    protected Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params) {
+        return tenantService.getDefaultTenant()
+                .map(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    String logo = DEFAULT_APPSMITH_LOGO;
+                    if (Boolean.parseBoolean(tenantConfiguration.getWhiteLabelEnable()) && StringUtils.hasText(tenantConfiguration.getWhiteLabelLogo())) {
+                        logo = tenantConfiguration.getWhiteLabelLogo();
+                    }
+
+                    params.put("brandLogo", logo);
+                    return params;
+                });
     }
 }

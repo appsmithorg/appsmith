@@ -149,11 +149,11 @@ public enum AclPermission {
     ADD_USERS_TO_USER_GROUPS("addUsers:userGroups", UserGroup.class),
     REMOVE_USERS_FROM_USER_GROUPS("removeUsers:userGroups", UserGroup.class),
 
-    // AuditLogs Permission
-    READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),
-
     // Manage tenant permissions
     MANAGE_TENANT("manage:tenants", Tenant.class),
+
+    // AuditLogs Permission
+    READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),
     ;
 
 

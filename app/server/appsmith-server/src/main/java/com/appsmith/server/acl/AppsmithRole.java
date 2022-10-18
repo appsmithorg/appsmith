@@ -53,7 +53,6 @@ public enum AppsmithRole {
 
     // This is a role to create tenant admin policies. Since this is an internal construct, we wouldn't expose name and description
     TENANT_ADMIN("", "", Set.of(CREATE_WORKSPACES, CREATE_PERMISSION_GROUPS, CREATE_USER_GROUPS, READ_TENANT_AUDIT_LOGS, MANAGE_TENANT)),
-
     ;
 
     private Set<AclPermission> permissions;
