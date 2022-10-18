@@ -228,9 +228,7 @@ export default class DataTreeEvaluator {
     // Validate Widgets
     const validateStart = performance.now();
 
-    this.setEvalTree(
-      getValidatedTree(evaluatedTree, this.getUnParsedEvalTree()),
-    );
+    this.setEvalTree(getValidatedTree(evaluatedTree));
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = klona(localUnEvalTree);

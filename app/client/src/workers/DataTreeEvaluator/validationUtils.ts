@@ -107,7 +107,7 @@ export function validateActionProperty(
   return validate(config, value, {}, "");
 }
 
-export function getValidatedTree(tree: DataTree, unParseEvalTree: DataTree) {
+export function getValidatedTree(tree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
@@ -115,11 +115,7 @@ export function getValidatedTree(tree: DataTree, unParseEvalTree: DataTree) {
     }
     const parsedEntity = { ...entity };
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = get(
-        unParseEvalTree,
-        [entityKey, property],
-        entity[property],
-      );
+      const value = get(entity, property);
       // Pass it through parse
       const { isValid, messages, parsed, transformed } = validateWidgetProperty(
         validation,
@@ -158,12 +154,13 @@ export function getValidatedTree(tree: DataTree, unParseEvalTree: DataTree) {
             fullPath: false,
           }),
         );
-      } else {
-        resetValidationErrorsForEntityProperty(
-          tree,
-          `${entityKey}.${property}`,
-        );
       }
+      // else {
+      //   resetValidationErrorsForEntityProperty(
+      //     tree,
+      //     `${entityKey}.${property}`,
+      //   );
+      // }
     });
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
