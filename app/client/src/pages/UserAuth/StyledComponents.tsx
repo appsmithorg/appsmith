@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -67,16 +66,6 @@ export const AuthCardHeader = styled.header`
       font-size: ${(props) => props.theme.fontSizes[4]}px;
     }
     margin-bottom: ${(props) => props.theme.authCard.dividerSpacing}px;
-  }
-`;
-
-export const AuthCardNavLink = styled(Link)`
-  border-bottom: 1px solid transparent;
-  color: ${(props) => props.theme.colors.auth.link};
-  &:hover {
-    border-bottom: 1px solid ${(props) => props.theme.colors.auth.link};
-    text-decoration: none;
-    color: ${(props) => props.theme.colors.auth.link};
   }
 `;
 

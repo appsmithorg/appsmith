@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Redirect, useLocation } from "react-router-dom";
+import { Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
 import {
   InjectedFormProps,
@@ -31,7 +31,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import FormGroup from "components/ads/formFields/FormGroup";
-import { Button, FormMessage, Size } from "design-system";
+import { Button, FormMessage, Link, Size } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
@@ -44,7 +44,6 @@ import {
   SpacedSubmitForm,
   FormActions,
   AuthCardHeader,
-  AuthCardNavLink,
   SignUpLinkSection,
   ForgotPasswordLink,
 } from "pages/UserAuth/StyledComponents";
@@ -130,13 +129,14 @@ export function Login(props: LoginFormProps) {
       {!disableLoginForm && (
         <SignUpLinkSection>
           {createMessage(NEW_TO_APPSMITH)}
-          <AuthCardNavLink
+          <Link
             className="t--sign-up"
+            isPrimary
             style={{ marginLeft: props.theme.spaces[3] }}
             to={signupURL}
           >
             {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
-          </AuthCardNavLink>
+          </Link>
         </SignUpLinkSection>
       )}
       {showError && (
