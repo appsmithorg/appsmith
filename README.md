@@ -44,6 +44,7 @@ Build your UI with our drag and drop UI builder. Use 45+ pre-built, customizable
 <img alt="connect-data" src="static/gifs/Build-UI.gif" />
 </a>
 </p>
+<br>
 
 ### 2. Connect to your data
 
@@ -64,6 +65,7 @@ Connect the data to the UI by configuring the components. Where needed, you can 
 <img alt="connect-data" src="static/gifs/Bind-Data.gif" />
 </a>
 </p>
+<br>
 
 ### 4. Deploy your app
 
@@ -74,6 +76,7 @@ Deploy your app on our free, cloud-hosted version or to any platform of your cho
 <img alt="connect-data" src="static/gifs/Share-Apps.gif" />
 </a>
 </p>
+<br>
 
 ## Features
 
@@ -93,18 +96,18 @@ Appsmith makes it easy to create powerful utility applications organized across 
 
 ❇️ **Native integrations** available with the following databases. You can also connect with most other tools through the RESTful API plugin or using our SaaS connectors.
 
-- PostgresSQL
-- MongoDB
-- MySQL
-- Elasticsearch
-- DynamoDB
-- Redis
-- Microsoft SQL Server
+- [PostgresSQL](https://www.postgresql.org/download/)
+- [MongoDB](https://www.mongodb.com/try/download/community2)
+- [MySQL](https://www.mysql.com/downloads/)
+- [Elasticsearch](https://www.elastic.co/downloads/elasticsearch)
+- [DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
+- [Redis](https://redis.io/download/)
+- [Microsoft SQL Server](https://www.microsoft.com/en-in/sql-server/sql-server-downloads)
 - Firestore
 - Redshift
 - S3
-- Snowflake
-- ArangoDB
+- [Snowflake](https://docs.snowflake.com/en/user-guide/snowsql-install-config.html)
+- [ArangoDB](https://www.arangodb.com/download/)
 - SMTP
 
 🛠️ **API client and query builder** lets you run RESTful API, GraphQL, or database queries within connected datasources.
