@@ -3,7 +3,10 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import moment from "moment";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
+import {
+  _internalClearTimeout,
+  _internalSetTimeout,
+} from "../Evaluation/TimeoutOverride";
 
 class UserLog {
   private flushLogsTimerDelay = 0;
