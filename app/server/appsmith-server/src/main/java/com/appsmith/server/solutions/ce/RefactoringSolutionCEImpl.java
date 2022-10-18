@@ -371,6 +371,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     Mono<Set<String>> refactorNameInWidget(JsonNode widgetDsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
         boolean isRefactoredWidget = false;
+        boolean isRefactoredTemplate = false;
         String widgetName = "";
         // If the name of this widget matches the old name, replace the name
         if (widgetDsl.has(FieldName.WIDGET_NAME)) {
@@ -399,9 +400,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 }
             }
             if (newJsonNode != null) {
+                ((ObjectNode) newJsonNode).set(FieldName.WIDGET_NAME, new TextNode(newName));
                 // If such a pattern is found, remove that element and attach it back with the new name
                 ((ObjectNode) template).remove(fieldName);
                 ((ObjectNode) template).set(newName, newJsonNode);
+                isRefactoredTemplate = true;
             }
         }
 
@@ -415,15 +418,22 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             refactorDynamicBindingsMono = Flux.fromStream(StreamSupport.stream(dslDynamicBindingPathList.spliterator(), true))
                     .flatMap(dynamicBindingPath -> {
                         String key = dynamicBindingPath.get(FieldName.KEY).asText();
+                        if (widgetDsl.has(FieldName.WIDGET_TYPE) &&
+                                FieldName.LIST_WIDGET.equals(widgetDsl.get(FieldName.WIDGET_TYPE).asText()) &&
+                                key.contains(oldName)) {
+                            key = key.replace(oldName, newName);
+                            ((ObjectNode) dynamicBindingPath).set(FieldName.KEY, new TextNode(key));
+                        }
                         Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
+                        final String finalKey = key;
                         return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
                                 .flatMap(replacementMap -> {
                                     if (replacementMap.isEmpty()) {
                                         return Mono.empty();
                                     }
-                                    DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, key, replacementMap);
+                                    DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, finalKey, replacementMap);
                                     String entityPath = StringUtils.hasLength(finalWidgetName) ? finalWidgetName + "." : "";
-                                    return Mono.just(entityPath + key);
+                                    return Mono.just(entityPath + finalKey);
                                 });
                     })
                     .collect(Collectors.toSet());
@@ -431,10 +441,15 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
         final String finalWidgetNamePath = widgetName + ".widgetName";
         final boolean finalIsRefactoredWidget = isRefactoredWidget;
+        final boolean finalIsRefactoredTemplate = isRefactoredTemplate;
+        final String finalWidgetTemplatePath = widgetName + ".template";
         return refactorDynamicBindingsMono
                 .map(refactoredDynamicBindings -> {
                     if (Boolean.TRUE.equals(finalIsRefactoredWidget)) {
                         refactoredDynamicBindings.add(finalWidgetNamePath);
+                    }
+                    if (Boolean.TRUE.equals(finalIsRefactoredTemplate)) {
+                        refactoredDynamicBindings.add(finalWidgetTemplatePath);
                     }
                     return refactoredDynamicBindings;
                 });

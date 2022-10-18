@@ -5,7 +5,7 @@
   "dynamicBindingPathList": [],
   "children": [
     {
-      "widgetName": "newText",
+      "widgetName": "Text1",
       "type": "TEXT_WIDGET",
       "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
       "dynamicBindingPathList": [
@@ -36,7 +36,7 @@
           "key": "text"
         }
       ],
-      "text": "{{newText.text}}",
+      "text": "{{Text1.text}}",
       "key": "3pqpn28ba4",
       "widgetId": "2bensj901c",
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
@@ -59,9 +59,9 @@
           "widgetId": "bvixbymoxr",
           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
         },
-        "Text3": {
+        "newText": {
           "text": "{{List1.listData.map((currentItem) => currentItem.name)}}",
-          "widgetName": "Text3",
+          "widgetName": "newText",
           "type": "TEXT_WIDGET",
           "key": "3pqpn28ba4",
           "dynamicBindingPathList": [
@@ -80,7 +80,7 @@
           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
         },
         "Text4": {
-          "text": "{{List1.listData.map((currentItem, currentIndex) => {\n              return (function(){\n                return  currentItem.id + newText.text;\n              })();\n            })}}",
+          "text": "{{List1.listData.map((currentItem, currentIndex) => {\n              return (function(){\n                return  currentItem.id + Text1.text;\n              })();\n            })}}",
           "widgetName": "Text4",
           "type": "TEXT_WIDGET",
           "key": "3pqpn28ba4",
@@ -117,7 +117,7 @@
           "key": "template.Image1.image"
         },
         {
-          "key": "template.Text3.text"
+          "key": "template.newText.text"
         },
         {
           "key": "template.Text4.text"
@@ -177,7 +177,7 @@
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
                     },
                     {
-                      "widgetName": "Text3",
+                      "widgetName": "newText",
                       "type": "TEXT_WIDGET",
                       "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
                       "dynamicBindingPathList": [
@@ -211,7 +211,7 @@
                           "key": "borderRadius"
                         }
                       ],
-                      "text": "{{currentItem.id + newText.text}}",
+                      "text": "{{currentItem.id + Text1.text}}",
                       "key": "3pqpn28ba4",
                       "widgetId": "rtlyvpkvhc",
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
@@ -340,7 +340,7 @@
           "originalId": "task",
           "alias": "task",
           "label": "task",
-          "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( newText.text + \" \" + currentRow[\"task\"]))}}"
+          "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( Text1.text + \" \" + currentRow[\"task\"]))}}"
         },
         "status": {
           "id": "status",

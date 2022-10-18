@@ -311,6 +311,7 @@ class RefactoringSolutionCETest {
         action.setDatasource(datasource);
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "firstWidgetId");
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
         temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
@@ -591,6 +592,7 @@ class RefactoringSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "simpleRefactorId");
         dsl.put("widgetName", "Table1");
         dsl.put("type", "TABLE_WIDGET");
         Layout layout = testPage.getLayouts().get(0);
@@ -626,10 +628,13 @@ class RefactoringSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "testId");
         dsl.put("widgetName", "List1");
         dsl.put("type", "LIST_WIDGET");
         JSONObject template = new JSONObject();
-        template.put("oldWidgetName", "irrelevantContent");
+        JSONObject oldWidgetTemplate = new JSONObject();
+        oldWidgetTemplate.put("widgetName", "oldWidgetName");
+        template.put("oldWidgetName", oldWidgetTemplate);
         dsl.put("template", template);
         final JSONArray children = new JSONArray();
         final JSONObject defaultWidget = new JSONObject();
@@ -648,7 +653,7 @@ class RefactoringSolutionCETest {
         refactorNameDTO.setOldName("oldWidgetName");
         refactorNameDTO.setNewName("newWidgetName");
 
-        Mono<LayoutDTO> widgetRenameMono = refactoringSolution.refactorWidgetName(refactorNameDTO).cache();
+        Mono<LayoutDTO> widgetRenameMono = refactoringSolution.refactorWidgetName(refactorNameDTO);
 
         StepVerifier
                 .create(widgetRenameMono)
@@ -747,7 +752,7 @@ class RefactoringSolutionCETest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         assert dto != null;
         actionCollectionDTO.setId(dto.getId());
-        actionCollectionDTO.setBody("body");
+        actionCollectionDTO.setBody("export default { x: Table1 }");
         actionCollectionDTO.setName("newName");
 
         RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO = new RefactorActionNameInCollectionDTO();
@@ -772,7 +777,7 @@ class RefactoringSolutionCETest {
                     final ActionCollectionDTO actionCollectionDTOResult = tuple.getT1().getUnpublishedCollection();
                     final NewAction newAction = tuple.getT2();
                     assertEquals("originalName", actionCollectionDTOResult.getName());
-                    assertEquals("body", actionCollectionDTOResult.getBody());
+                    assertEquals("export default { x: Table1 }", actionCollectionDTOResult.getBody());
                     assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
                     assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
                 })

@@ -73,7 +73,7 @@ class RefactoringSolutionCEImplTest {
              InputStream finalStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewText.json")) {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
-            final String oldName = "Text1";
+            final String oldName = "Text3";
             Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
                     dslAsJsonNode,
                     oldName,
@@ -83,13 +83,10 @@ class RefactoringSolutionCEImplTest {
 
             StepVerifier.create(updatesMono)
                     .assertNext(updatedPaths -> {
-                        Assertions.assertThat(updatedPaths).hasSize(5);
+                        Assertions.assertThat(updatedPaths).hasSize(2);
                         Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
-                                "Text1.widgetName",
-                                "List1.template.Text4.text",
-                                "Text4.text",
-                                "Table1.primaryColumns.task.computedValue",
-                                "Text2.text");
+                                "Text3.widgetName",
+                                "List1.template");
                     })
                     .verifyComplete();
 
