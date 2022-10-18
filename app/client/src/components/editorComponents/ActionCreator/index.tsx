@@ -30,7 +30,7 @@ import {
 } from "selectors/widgetSelectors";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import FieldGroup from "./FieldGroup/FieldGroup";
+import FieldGroup from "./FieldGroup";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
