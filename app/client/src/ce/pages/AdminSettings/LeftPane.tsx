@@ -6,8 +6,6 @@ import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -123,22 +121,19 @@ export function Categories({
 export default function LeftPane() {
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
-  const user = useSelector(getCurrentUser);
-  const isSuperUser = user?.isSuperUser;
+
   return (
     <Wrapper>
-      {isSuperUser && (
-        <>
-          <HeaderContainer>
-            <StyledHeader>Admin Settings</StyledHeader>
-          </HeaderContainer>
-          <Categories
-            categories={categories}
-            currentCategory={category}
-            currentSubCategory={subCategory}
-          />
-        </>
-      )}
+      <>
+        <HeaderContainer>
+          <StyledHeader>Admin Settings</StyledHeader>
+        </HeaderContainer>
+        <Categories
+          categories={categories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
+      </>
       <>
         <HeaderContainer>
           <StyledHeader>Enterprise</StyledHeader>
