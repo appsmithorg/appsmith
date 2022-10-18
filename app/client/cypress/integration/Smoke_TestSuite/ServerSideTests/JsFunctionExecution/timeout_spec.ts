@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor;
 const agHelper = ObjectsRegistry.AggregateHelper;
-const locators = ObjectsRegistry.CommonLocators;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const debuggerHelper = ObjectsRegistry.DebuggerHelper;

@@ -107,8 +107,19 @@ export class DebuggerHelper {
     }
   }
 
-  DoesConsoleLogExist(text: string) {
-    this.agHelper.GetNAssertContains(this.locators._logMessage, text);
+  DoesConsoleLogExist(
+    text: string,
+    exists = true,
+    index?: number,
+    timeout?: number,
+  ) {
+    this.agHelper.GetNAssertContains(
+      this.locators._logMessage,
+      text,
+      exists,
+      index,
+      timeout,
+    );
   }
 
   LogStateContains(text: string, index?: number) {
