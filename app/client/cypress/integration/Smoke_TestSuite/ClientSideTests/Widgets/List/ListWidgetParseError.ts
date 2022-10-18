@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const { AggregateHelper: agHelper, CommonLocators } = ObjectsRegistry;
 
 describe("List Widget parse error test", () => {
-  it("Button onClick currentItem.task should through parse error", () => {
+  it("Button onClick currentItem.task shouldn't throw parse error", () => {
     cy.fixture("ListWidgetWithDataAndButtonDSL").then((val: any) => {
       agHelper.AddDsl(val);
     });
