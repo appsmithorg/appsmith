@@ -889,14 +889,15 @@ export class AggregateHelper {
     text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
     index?: number,
+    timeout?: number,
   ) {
     if (index)
-      return this.GetElement(selector)
+      return this.GetElement(selector, timeout)
         .eq(index)
         .contains(text)
         .should(exists);
     else
-      return this.GetElement(selector)
+      return this.GetElement(selector, timeout)
         .contains(text)
         .should(exists);
   }
