@@ -102,6 +102,7 @@ export const useReflow = (
     immediateExitContainer?: string,
     mousePosition?: OccupiedSpace,
   ) {
+    console.log("REFLOW WIDGET SPACES", widgetSpaces);
     const prevReflowState: PrevReflowState = {
       prevSpacesMap: getSpacesMapFromArray(prevPositions.current),
       prevCollidingSpaceMap: prevCollidingSpaces.current as CollidingSpaceMap,

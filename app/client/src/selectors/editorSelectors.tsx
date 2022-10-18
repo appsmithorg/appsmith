@@ -38,6 +38,11 @@ import {
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
+const getIsDraggingOrResizingOrDrawing = (state: AppState) =>
+  state.ui.widgetDragResize.isResizing ||
+  state.ui.widgetDragResize.isDragging ||
+  state.ui.widgetDragResize.isDrawing;
+
 const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
 export const getWidgetConfigs = (state: AppState) =>
@@ -524,7 +529,7 @@ export function getContainerWidgetSpacesSelectorWhileMoving(
 ) {
   return createSelector(
     getWidgets,
-    getIsDraggingOrResizing,
+    getIsDraggingOrResizingOrDrawing,
     (widgets: CanvasWidgetsReduxState, isDraggingOrResizing: boolean) => {
       return generateWidgetSpacesForContainer(
         widgets,

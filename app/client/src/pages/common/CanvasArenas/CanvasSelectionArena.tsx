@@ -19,6 +19,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
 import {
   CONTAINER_GRID_PADDING,
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { XYCord } from "./hooks/useCanvasDragging";
@@ -30,6 +31,8 @@ import {
   getSlidingCanvasName,
   getStickyCanvasName,
 } from "constants/componentClassNameConstants";
+import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
+import { ReflowDirection } from "reflow/reflowTypes";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -85,6 +88,27 @@ export function CanvasSelectionArena({
   );
   const currentPageId = useSelector(getCurrentPageId);
   const appLayout = useSelector(getCurrentApplicationLayout);
+
+  const draggingSpaces = [
+    {
+      top: 0,
+      left: 0,
+      right: 1,
+      bottom: 1,
+      id: "1",
+    },
+  ];
+
+  const gridProps = {
+    parentColumnSpace: snapColumnSpace,
+    parentRowSpace: snapRowSpace,
+    maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+    paddingOffset: 0,
+  };
+
+  const reflow = useRef<ReflowInterface>();
+  reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
+
   const throttledWidgetSelection = useCallback(
     throttle(
       (
@@ -216,6 +240,44 @@ export function CanvasSelectionArena({
         }
       };
 
+      let rectWidth = 0,
+        rectHeight = 0;
+
+      const triggerReflow = (selectionDimensions: SelectedArenaDimensions) => {
+        const strokeWidth = 1;
+        let direction: ReflowDirection = ReflowDirection.UNSET;
+
+        const width =
+          Math.round(
+            (selectionDimensions.width + strokeWidth) / snapColumnSpace,
+          ) * snapColumnSpace;
+
+        const height =
+          Math.round(
+            (selectionDimensions.height + strokeWidth) / snapRowSpace,
+          ) * snapRowSpace;
+
+        if (width !== rectWidth) {
+          if (width > rectWidth) {
+            direction = ReflowDirection.RIGHT;
+          } else {
+            direction = ReflowDirection.LEFT;
+          }
+          rectWidth = width;
+        }
+
+        if (height !== rectHeight) {
+          if (height > rectHeight) {
+            direction = ReflowDirection.BOTTOM;
+          } else {
+            direction = ReflowDirection.TOP;
+          }
+          rectHeight = height;
+        }
+
+        return direction;
+      };
+
       const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {
         if (stickyCanvasRef.current) {
           const strokeWidth = 1;
@@ -242,17 +304,43 @@ export function CanvasSelectionArena({
           );
 
           if (isDrawingModeEnabled) {
+            const direction = triggerReflow(selectionDimensions);
+
             canvasCtx.strokeRect(
               snappedXY.X - leftOffset - strokeWidth - CONTAINER_GRID_PADDING,
               snappedXY.Y - topOffset - strokeWidth - CONTAINER_GRID_PADDING,
 
-              Math.round(
-                (selectionDimensions.width + strokeWidth) / snapColumnSpace,
-              ) * snapColumnSpace,
-              Math.round(
-                (selectionDimensions.height + strokeWidth) / snapRowSpace,
-              ) * snapRowSpace,
+              rectWidth,
+              rectHeight,
             );
+
+            if (direction !== ReflowDirection.UNSET && reflow.current) {
+              const topRow = Math.floor(selectionDimensions.top / snapRowSpace);
+              const leftColumn = Math.floor(
+                selectionDimensions.left / snapColumnSpace,
+              );
+              const resizedPositions = [
+                {
+                  left: leftColumn,
+                  right: Math.floor(
+                    leftColumn + selectionDimensions.width / snapColumnSpace,
+                  ),
+                  top: topRow,
+                  bottom: Math.floor(
+                    topRow + selectionDimensions.height / snapRowSpace,
+                  ),
+                  id: "1",
+                  parentId: widgetId,
+                },
+              ];
+
+              console.log("REFLOW DIRECTION", direction);
+              console.log("REFLOW RESIZED POSITION", resizedPositions);
+              const {
+                isIdealToJumpContainer,
+                movementLimitMap,
+              } = reflow.current(resizedPositions, direction);
+            }
           } else {
             canvasCtx.strokeRect(
               selectionDimensions.left - strokeWidth - leftOffset,
