@@ -29,11 +29,15 @@
 
     <dependencies>
 
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-r2dbc</artifactId>
             <version>1.1.5.RELEASE</version>
             <exclusions>
+                <exclusion>
+                    <groupId>io.r2dbc</groupId>
+                    <artifactId>r2dbc-spi</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
@@ -47,7 +51,7 @@
                     <artifactId>reactive-streams</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>dev.miku</groupId>
@@ -92,8 +96,9 @@
         <dependency>
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-pool</artifactId>
-            <version>0.9.2.RELEASE</version>
-            <scope>provided</scope>
+<!--            <version>0.9.2.RELEASE</version>-->
+            <version>0.8.8.RELEASE</version>
+            <!--<scope>provided</scope>-->
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -141,6 +146,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!--<dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-spi</artifactId>
+            <version>0.8.6.RELEASE</version>
+        </dependency>-->
+
     </dependencies>
 
     <build>

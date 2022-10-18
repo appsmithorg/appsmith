@@ -75,7 +75,14 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PROTOCOL;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -272,7 +279,7 @@ public class MySqlPlugin extends BasePlugin {
                         return Mono.from(conn.validate(ValidationDepth.REMOTE));
                     })
                     //Mono.from(connection.validate(ValidationDepth.REMOTE))
-                    .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                    //.timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                     .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .flatMapMany(isValid -> {
                         if (isValid) {
@@ -347,13 +354,18 @@ public class MySqlPlugin extends BasePlugin {
                         request.setRequestParams(requestParams);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
+
+                        /*if (connection.get() != null) {
+                            connection.get().close();
+                        }*/
+
                         return result;
                     })
-                    .zipWith(Mono.just(connection.get().close()))
-                    .map(t2 -> {
-                        ActionExecutionResult res = t2.getT1();
-                        return res;
-                    })
+//                    .zipWith(Mono.just(connection.get().close()))
+//                    .map(t2 -> {
+//                        ActionExecutionResult res = t2.getT1();
+//                        return res;
+//                    })
                     .subscribeOn(scheduler);
 
         }
@@ -533,11 +545,11 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
-            StringBuilder urlBuilder = new StringBuilder();
+           /* StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 urlBuilder.append(datasourceConfiguration.getUrl());
             } else {
-                urlBuilder.append("r2dbc:mysql://");
+                urlBuilder.append("r2dbc:pool:mysql://");
                 final List<String> hosts = new ArrayList<>();
 
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
@@ -571,9 +583,9 @@ public class MySqlPlugin extends BasePlugin {
                     .option(ConnectionFactoryOptions.USER, authentication.getUsername())
                     .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
-            /*
+            *//*
              * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
-             */
+             *//*
             if (datasourceConfiguration.getConnection() == null
                     || datasourceConfiguration.getConnection().getSsl() == null
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
@@ -586,9 +598,9 @@ public class MySqlPlugin extends BasePlugin {
                 );
             }
 
-            /*
+            *//*
              * - By default, the driver configures SSL in the preferred mode.
-             */
+             *//*
             SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
             switch (sslAuthType) {
                 case PREFERRED:
@@ -603,7 +615,7 @@ public class MySqlPlugin extends BasePlugin {
 
                     break;
                 case DEFAULT:
-                    /* do nothing - accept default driver setting*/
+                    *//* do nothing - accept default driver setting*//*
 
                     break;
                 default:
@@ -615,9 +627,20 @@ public class MySqlPlugin extends BasePlugin {
                             )
                     );
             }
-
-            ConnectionFactory cf = ConnectionFactories.get(ob.build());
+*/
+            //ConnectionFactory cf = ConnectionFactories.get(ob.build());
             // Create a ConnectionPool for connectionFactory
+
+            ConnectionFactory cf = ConnectionFactories.get(ConnectionFactoryOptions.builder()
+                    .option(DRIVER,"pool")
+                    .option(PROTOCOL,"mysql") // driver identifier, PROTOCOL is delegated as DRIVER by the pool.
+                    .option(HOST, "test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com")
+                    .option(PORT, 3306)
+                    .option(USER, "admin")
+                    .option(PASSWORD,"Appsmith2020#")
+                    .option(DATABASE,"testdb")
+                    .build());
+
             ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(cf)
                     .maxIdleTime(Duration.ofMillis(1000))
                     .maxSize(20)
@@ -636,7 +659,7 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public void datasourceDestroy(ConnectionPool connection) {
 
-            if (connection != null) {
+            /*if (connection != null) {
                 Mono.from(connection.close())
                         .onErrorResume(exception -> {
                             log.debug("In datasourceDestroy function error mode.", exception);
@@ -644,7 +667,7 @@ public class MySqlPlugin extends BasePlugin {
                         })
                         .subscribeOn(scheduler)
                         .subscribe();
-            }
+            }*/
         }
 
         @Override
