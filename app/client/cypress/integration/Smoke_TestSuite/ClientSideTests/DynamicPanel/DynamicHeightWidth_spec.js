@@ -3,7 +3,7 @@ const dsl = require("../../../../fixtures/invisbleWidgetdsl.json");
 
 describe("Dynamic Height Width validation for Invisiblity", function () {
     before(() => {
-        cy.addDsl(invidsl);
+        cy.addDsl(dsl);
     });
     it("Validating visbility/invisiblity of widget with dynamic height feature", function () {
         //changing the Text Name and verifying

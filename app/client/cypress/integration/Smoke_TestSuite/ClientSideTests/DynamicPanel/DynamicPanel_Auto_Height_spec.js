@@ -15,9 +15,9 @@ describe("Dynamic Height Width validation", function () {
         cy.changeLayoutHeight(commonlocators.autoHeight);
         cy.get(".t--widget-containerwidget").invoke("css", "height")
             .then((height) => {
-                cy.get(".t--property-control-options-add").click();
                 cy.get(".t--widget-checkboxgroupwidget").invoke("css", "height")
                     .then((checkboxheight) => {
+                        cy.get(".t--property-control-options-add").click();
                         cy.wait("@updateLayout").should(
                             "have.nested.property",
                             "response.body.responseMeta.status",
