@@ -33,8 +33,16 @@ module.exports = {
   globals: {
     "ts-jest": {
       isolatedModules: true,
-      babelConfig: {
-        plugins: ["babel-plugin-transform-import-meta"],
+      diagnostics: {
+        ignoreCodes: [1343],
+      },
+      astTransformers: {
+        before: [
+          {
+            path: "node_modules/ts-jest-mock-import-meta",
+            options: { metaObjectReplacement: { url: "https://www.url.com" } },
+          },
+        ],
       },
     },
     APPSMITH_FEATURE_CONFIGS: {
