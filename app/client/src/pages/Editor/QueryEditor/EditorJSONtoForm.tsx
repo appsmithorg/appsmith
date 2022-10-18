@@ -1,4 +1,4 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { RefObject, useCallback, useRef } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -85,12 +85,10 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
-import { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "../../../api/PluginApi";
+import { Plugin, UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
@@ -104,12 +102,10 @@ import {
 import {
   responseTabComponent,
   InlineButton,
-  TableCellHeight,
   SectionDivider,
   CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
-  ActionExecutionResizerHeight,
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -118,6 +114,17 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
+import {
+  getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneResponsePaneHeight,
+  getQueryPaneResponseSelectedTab,
+} from "selectors/queryPaneSelectors";
+import {
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneResponsePaneHeight,
+  setQueryPaneResponseSelectedTab,
+} from "actions/queryPaneActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -494,9 +501,6 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
-    window.innerHeight,
-  );
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -765,16 +769,16 @@ export function EditorJSONtoForm(props: Props) {
         panelComponent: responseTabComponent(
           dataType.key,
           output,
-          tableBodyHeight,
+          // tableBodyHeight,
         ),
       };
     });
 
-  const onResponseTabSelect = (tab: any) => {
+  const onResponseTabSelect = (tabKey: string) => {
     updateActionResponseDisplayFormat({
       id: currentActionConfig?.id || "",
       field: "responseDisplayFormat",
-      value: tab.title,
+      value: tabKey,
     });
   };
 
@@ -808,7 +812,11 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+                  dispatch(
+                    setQueryPaneResponseSelectedTab(
+                      DEBUGGER_TAB_KEYS.ERROR_TAB,
+                    ),
+                  );
                 }}
                 secondHalfText={createMessage(
                   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
@@ -834,10 +842,9 @@ export function EditorJSONtoForm(props: Props) {
             responseBodyTabs.length > 0 &&
             selectedTabIndex !== -1 && (
               <EntityBottomTabs
-                defaultIndex={selectedTabIndex}
                 onSelect={onResponseTabSelect}
                 responseViewer
-                selectedTabIndex={selectedTabIndex}
+                selectedTabKey={responseDisplayFormat.value}
                 tabs={responseBodyTabs}
               />
             )}
@@ -905,6 +912,23 @@ export function EditorJSONtoForm(props: Props) {
     },
     [],
   );
+
+  const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
+
+  const setSelectedConfigTab = useCallback((selectedIndex: number) => {
+    dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
+  }, []);
+
+  const selectedResponseTab = useSelector(getQueryPaneResponseSelectedTab);
+
+  const setSelectedResponseTab = useCallback((tabKey: string) => {
+    dispatch(setQueryPaneResponseSelectedTab(tabKey));
+  }, []);
+
+  const responsePaneHeight = useSelector(getQueryPaneResponsePaneHeight);
+  const setResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setQueryPaneResponsePaneHeight(height));
+  }, []);
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -999,6 +1023,8 @@ export function EditorJSONtoForm(props: Props) {
                 </DocumentationLink>
               )}
               <TabComponent
+                onSelect={setSelectedConfigTab}
+                selectedIndex={selectedConfigTab}
                 tabs={[
                   {
                     key: EDITOR_TABS.QUERY,
@@ -1059,12 +1085,12 @@ export function EditorJSONtoForm(props: Props) {
 
             <TabbedViewContainer ref={panelRef}>
               <Resizable
+                initialHeight={responsePaneHeight}
+                onResizeComplete={(height: number) =>
+                  setResponsePaneHeight(height)
+                }
                 openResizer={isRunning}
                 panelRef={panelRef}
-                setContainerDimensions={(height: number) =>
-                  // TableCellHeight in this case is the height of one table cell in pixels.
-                  setTableBodyHeightHeight(height - TableCellHeight)
-                }
                 snapToHeight={ActionExecutionResizerHeight}
               />
               <SectionDivider />
@@ -1103,7 +1129,11 @@ export function EditorJSONtoForm(props: Props) {
                 </ResultsCount>
               )}
 
-              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
+              <EntityBottomTabs
+                onSelect={setSelectedResponseTab}
+                selectedTabKey={selectedResponseTab}
+                tabs={responseTabs}
+              />
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper

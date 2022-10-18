@@ -103,6 +103,7 @@ import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -397,6 +398,12 @@ function LeftPane() {
     userWorkspaces = loadingUserWorkspaces as any;
   }
 
+  const tenantPermissions = useSelector(getTenantPermissions);
+  const canCreateWorkspace = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.CREATE_WORKSPACES,
+  );
+
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
@@ -409,24 +416,28 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {!isFetchingApplications && fetchedUserWorkspaces && (
-            <MenuItem
-              cypressSelector="t--workspace-new-workspace-auto-create"
-              icon="plus"
-              onSelect={() =>
-                submitCreateWorkspaceForm(
-                  {
-                    name: getNextEntityName(
-                      "Untitled workspace ",
-                      fetchedUserWorkspaces.map((el: any) => el.workspace.name),
-                    ),
-                  },
-                  dispatch,
-                )
-              }
-              text={CREATE_WORKSPACE_FORM_NAME}
-            />
-          )}
+          {!isFetchingApplications &&
+            fetchedUserWorkspaces &&
+            canCreateWorkspace && (
+              <MenuItem
+                cypressSelector="t--workspace-new-workspace-auto-create"
+                icon="plus"
+                onSelect={() =>
+                  submitCreateWorkspaceForm(
+                    {
+                      name: getNextEntityName(
+                        "Untitled workspace ",
+                        fetchedUserWorkspaces.map(
+                          (el: any) => el.workspace.name,
+                        ),
+                      ),
+                    },
+                    dispatch,
+                  )
+                }
+                text={CREATE_WORKSPACE_FORM_NAME}
+              />
+            )}
           {userWorkspaces &&
             userWorkspaces.map((workspace: any) => (
               <WorkspaceMenuItem

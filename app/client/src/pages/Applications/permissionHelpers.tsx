@@ -1,4 +1,5 @@
 export enum PERMISSION_TYPE {
+  CREATE_WORKSPACE = "create:workspaces",
   MANAGE_WORKSPACE = "manage:workspaces",
   CREATE_APPLICATION = "manage:workspaceApplications",
   MANAGE_APPLICATION = "manage:applications",

@@ -54,12 +54,7 @@ export const ExplorerJSCollectionEntity = memo(
       }
     }, [pageId, jsAction.id, jsAction.name, location.pathname]);
 
-    const jsActionPermissions = jsAction.userPermissions || [
-      "read:actions",
-      "delete:actions",
-      "execute:actions",
-      "manage:actions",
-    ];
+    const jsActionPermissions = jsAction.userPermissions || [];
 
     const canDeleteJSAction = isPermitted(
       jsActionPermissions,
