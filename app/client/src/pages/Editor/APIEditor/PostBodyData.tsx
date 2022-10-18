@@ -166,9 +166,10 @@ const mapDispatchToProps = (dispatch: any) => ({
 export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
+  // Defaults to NONE when extraformData is empty
   const displayFormat = extraFormData["displayFormat"] || {
-    label: POST_BODY_FORMAT_OPTIONS.RAW,
-    value: POST_BODY_FORMAT_OPTIONS.RAW,
+    label: POST_BODY_FORMAT_OPTIONS.NONE,
+    value: POST_BODY_FORMAT_OPTIONS.NONE,
   };
   return {
     displayFormat,

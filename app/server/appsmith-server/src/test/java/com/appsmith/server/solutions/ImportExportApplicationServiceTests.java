@@ -3172,4 +3172,310 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
 
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void mergeApplication_gitConnectedApplicationSelectedSpecificPages_selectedPageAddedSuccessfully() {
+        //Create application connected to git
+        Application testApplication = new Application();
+        testApplication.setName("mergeApplication_gitConnectedApplicationSelectedSpecificPages_selectedPageAddedSuccessfully");
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("master");
+        gitData.setDefaultBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData);
+
+        Application application = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+
+        // Create branch for the application
+        testApplication = new Application();
+        testApplication.setName("mergeApplication_gitConnectedApplicationSelectedSpecificPages_selectedPageAddedSuccessfully1");
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+        gitData1.setBranchName("feature");
+        gitData1.setDefaultBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData1);
+
+        Application branchApp = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application2 -> {
+                    application2.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    return applicationService.save(application2);
+                }).block();
+
+        Mono<ApplicationJson> applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+
+        Application finalApplication = application;
+        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication = applicationJson
+                .flatMap(applicationJson1 -> importExportApplicationService.mergeApplicationJsonWithApplication(
+                        workspaceId,
+                        branchApp.getId(),
+                        "feature",
+                        applicationJson1,
+                        List.of("Page1"))
+                )
+                .flatMap(application2 -> {
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    return Mono.zip(Mono.just(application2), pageList, actionList, actionCollectionList);
+                });
+
+        StepVerifier
+                .create(importedApplication)
+                .assertNext(tuple -> {
+                    Application application3 = tuple.getT1();
+                    List<NewPage> pageList = tuple.getT2();
+                    List<NewAction> actionList = tuple.getT3();
+                    List<ActionCollection> actionCollectionList = tuple.getT4();
+
+                    assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
+                    assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
+
+                    // Verify the pages after merging the template
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getUnpublishedPage().getName()).containsAnyOf("Page1", "Page12");
+                        assertThat(newPage.getGitSyncId()).isNotNull();
+                    });
+
+                    NewPage page = pageList.stream().filter(newPage -> newPage.getUnpublishedPage().getName().equals("Page12")).collect(Collectors.toList()).get(0);
+                    // Verify the actions after merging the template
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedAction().getName()).containsAnyOf("api_wo_auth", "get_users", "run");
+                        assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(page.getId());
+                    });
+
+                    // Verify the actionCollections after merging the template
+                    actionCollectionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedCollection().getName()).containsAnyOf("JSObject1", "JSObject2");
+                        assertThat(newAction.getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void mergeApplication_gitConnectedApplicationSelectedAllPages_selectedPageAddedSuccessfully() {
+        //Create application connected to git
+        Application testApplication = new Application();
+        testApplication.setName("mergeApplication_gitConnectedApplicationSelectedAllPages_selectedPageAddedSuccessfully");
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("master");
+        gitData.setDefaultBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData);
+
+        Application application = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+
+        // Create branch for the application
+        testApplication = new Application();
+        testApplication.setName("mergeApplication_gitConnectedApplicationSelectedAllPages_selectedPageAddedSuccessfully1");
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+        gitData1.setBranchName("feature");
+        gitData1.setDefaultBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData1);
+
+        Application branchApp = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application2 -> {
+                    application2.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                    return applicationService.save(application2);
+                }).block();
+
+        Mono<ApplicationJson> applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+
+        Application finalApplication = application;
+        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication = applicationJson
+                .flatMap(applicationJson1 -> importExportApplicationService.mergeApplicationJsonWithApplication(
+                        workspaceId,
+                        branchApp.getId(),
+                        "feature",
+                        applicationJson1,
+                        List.of("Page1", "Page2"))
+                )
+                .flatMap(application2 -> {
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    return Mono.zip(Mono.just(application2), pageList, actionList, actionCollectionList);
+                });
+
+        StepVerifier
+                .create(importedApplication)
+                .assertNext(tuple -> {
+                    Application application3 = tuple.getT1();
+                    List<NewPage> pageList = tuple.getT2();
+                    List<NewAction> actionList = tuple.getT3();
+                    List<ActionCollection> actionCollectionList = tuple.getT4();
+
+                    assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
+                    assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
+
+                    // Verify the pages after merging the template
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getUnpublishedPage().getName()).containsAnyOf("Page1", "Page12", "Page2");
+                        assertThat(newPage.getGitSyncId()).isNotNull();
+                    });
+
+                    NewPage page = pageList.stream().filter(newPage -> newPage.getUnpublishedPage().getName().equals("Page12")).collect(Collectors.toList()).get(0);
+                    // Verify the actions after merging the template
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedAction().getName()).containsAnyOf("api_wo_auth", "get_users", "run");
+                        assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(page.getId());
+                    });
+
+                    // Verify the actionCollections after merging the template
+                    actionCollectionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedCollection().getName()).containsAnyOf("JSObject1", "JSObject2");
+                        assertThat(newAction.getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void mergeApplication_nonGitConnectedApplicationSelectedSpecificPages_selectedPageAddedSuccessfully() {
+        //Create application
+        Application application = new Application();
+        application.setName("mergeApplication_nonGitConnectedApplicationSelectedSpecificPages_selectedPageAddedSuccessfully");
+        application.setWorkspaceId(workspaceId);
+        application = applicationPageService.createApplication(application).block();
+
+        Mono<ApplicationJson> applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+
+        Application finalApplication = application;
+        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication = applicationJson
+                .flatMap(applicationJson1 -> importExportApplicationService.mergeApplicationJsonWithApplication(
+                        workspaceId,
+                        finalApplication.getId(),
+                        null,
+                        applicationJson1,
+                        List.of("Page1"))
+                )
+                .flatMap(application1 -> {
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    return Mono.zip(Mono.just(application1), pageList, actionList, actionCollectionList);
+                });
+
+
+        StepVerifier
+                .create(importedApplication)
+                .assertNext(tuple -> {
+                    Application application1 = tuple.getT1();
+                    List<NewPage> pageList = tuple.getT2();
+                    List<NewAction> actionList = tuple.getT3();
+                    List<ActionCollection> actionCollectionList = tuple.getT4();
+
+                    assertThat(application1.getId()).isEqualTo(finalApplication.getId());
+                    assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
+
+                    // Verify the pages after merging the template
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getUnpublishedPage().getName()).containsAnyOf("Page1", "Page12");
+                        assertThat(newPage.getGitSyncId()).isNotNull();
+                    });
+
+                    NewPage page = pageList.stream().filter(newPage -> newPage.getUnpublishedPage().getName().equals("Page12")).collect(Collectors.toList()).get(0);
+                    // Verify the actions after merging the template
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedAction().getName()).containsAnyOf("api_wo_auth", "get_users", "run");
+                        assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(page.getId());
+                    });
+
+                    // Verify the actionCollections after merging the template
+                    actionCollectionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedCollection().getName()).containsAnyOf("JSObject1", "JSObject2");
+                        assertThat(newAction.getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void mergeApplication_nonGitConnectedApplicationSelectedAllPages_selectedPageAddedSuccessfully() {
+        //Create application
+        Application application = new Application();
+        application.setName("mergeApplication_nonGitConnectedApplicationSelectedAllPages_selectedPageAddedSuccessfully");
+        application.setWorkspaceId(workspaceId);
+        application = applicationPageService.createApplication(application).block();
+
+        Mono<ApplicationJson> applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
+
+        Application finalApplication = application;
+        Mono<Tuple4<Application, List<NewPage>, List<NewAction>, List<ActionCollection>>> importedApplication = applicationJson
+                .flatMap(applicationJson1 -> importExportApplicationService.mergeApplicationJsonWithApplication(
+                        workspaceId,
+                        finalApplication.getId(),
+                        null,
+                        applicationJson1,
+                        List.of("Page1", "Page2"))
+                )
+                .flatMap(application1 -> {
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    return Mono.zip(Mono.just(application1), pageList, actionList, actionCollectionList);
+                });
+
+
+        StepVerifier
+                .create(importedApplication)
+                .assertNext(tuple -> {
+                    Application application1 = tuple.getT1();
+                    List<NewPage> pageList = tuple.getT2();
+                    List<NewAction> actionList = tuple.getT3();
+                    List<ActionCollection> actionCollectionList = tuple.getT4();
+
+                    assertThat(application1.getId()).isEqualTo(finalApplication.getId());
+                    assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
+
+                    // Verify the pages after merging the template
+                    pageList.forEach(newPage -> {
+                        assertThat(newPage.getUnpublishedPage().getName()).containsAnyOf("Page1", "Page12", "Page2");
+                        assertThat(newPage.getGitSyncId()).isNotNull();
+                    });
+
+                    NewPage page = pageList.stream().filter(newPage -> newPage.getUnpublishedPage().getName().equals("Page12")).collect(Collectors.toList()).get(0);
+                    // Verify the actions after merging the template
+                    actionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedAction().getName()).containsAnyOf("api_wo_auth", "get_users", "run");
+                        assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(page.getId());
+                    });
+
+                    // Verify the actionCollections after merging the template
+                    actionCollectionList.forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedCollection().getName()).containsAnyOf("JSObject1", "JSObject2");
+                        assertThat(newAction.getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
+                    });
+                })
+                .verifyComplete();
+    }
 }
