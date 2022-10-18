@@ -84,6 +84,8 @@ public class MssqlPlugin extends BasePlugin {
 
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
+    private static final long MS_SQL_DEFAULT_PORT = 1433L;
+
     public MssqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -513,6 +515,15 @@ public class MssqlPlugin extends BasePlugin {
         }
     }
 
+    public static long getPort(Endpoint endpoint) {
+
+        if (endpoint.getPort() == null) {
+            return MS_SQL_DEFAULT_PORT;
+        }
+
+        return endpoint.getPort();
+    }
+
     /**
      * This function is blocking in nature which connects to the database and creates a connection pool
      *
@@ -548,7 +559,7 @@ public class MssqlPlugin extends BasePlugin {
             urlBuilder
                     .append(endpoint.getHost())
                     .append(":")
-                    .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                    .append(getPort(endpoint))
                     .append(";");
         }
 

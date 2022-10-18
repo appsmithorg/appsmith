@@ -3,7 +3,7 @@ import { render, screen } from "test/testUtils";
 import FormControl from "./FormControl";
 import { reduxForm } from "redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { waitFor } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -51,7 +51,7 @@ describe("DynamicTextFieldControl", () => {
                   id: "123",
                   name: "testPlugin",
                   type: PluginType.DB,
-                  packageName: "DB",
+                  packageName: PluginPackageName.POSTGRES,
                   templates: {
                     CREATE: "test plugin template",
                   },
