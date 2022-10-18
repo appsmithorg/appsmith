@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -16,6 +17,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
@@ -297,6 +299,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -361,6 +364,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -435,6 +439,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -496,6 +501,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("null");
+        param.setClientDataType(ClientDataType.NULL);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -547,6 +553,7 @@ public class MssqlPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue(null);
+        param.setClientDataType(ClientDataType.NULL);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -640,6 +647,52 @@ public class MssqlPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNumericStringHavingLeadingZeroWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT {{binding1}} as numeric_string;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("098765");
+        param1.setClientDataType(ClientDataType.STRING);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[] {
+                                    "numeric_string"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray());
+
+                    // Verify value
+                    assertEquals(JsonNodeType.STRING, node.get("numeric_string").getNodeType());
+                    assertEquals(param1.getValue(), node.get("numeric_string").asText());
+
                 })
                 .verifyComplete();
     }
