@@ -1709,10 +1709,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
     const pageId: string = yield select(getCurrentPageId);
 
-    navigateToCanvas({
-      pageId,
-      widgetId: newWidget.newWidgetId,
-    });
+    navigateToCanvas(pageId);
   } catch (error) {
     log.error(error);
   }

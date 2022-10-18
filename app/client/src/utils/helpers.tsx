@@ -221,6 +221,22 @@ export const flashElementsById = (
   });
 };
 
+/**
+ * Scrolls to the widget of WidgetId without any animantion.
+ * @param widgetId
+ * @returns
+ */
+export const quickScrollToWidget = (widgetId?: string) => {
+  if (!widgetId) return;
+
+  setTimeout(() => {
+    const el = document.getElementById(widgetId);
+    if (el) {
+      el.scrollIntoView({ block: "center" });
+    }
+  }, 0);
+};
+
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed
   // while allowing all utf-8 characters

@@ -58,7 +58,11 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
+import {
+  captureInvalidDynamicBindingPath,
+  isNameValid,
+  quickScrollToWidget,
+} from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
@@ -118,6 +122,9 @@ import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
+import { getSelectedWidgets } from "selectors/ui";
+import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
+import { showModal } from "actions/widgetActions";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -235,6 +242,8 @@ export function* handleFetchedPage({
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
+    // restore selected widgets while loading the page.
+    yield call(restoreSelectedWidgetContext);
 
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
      */
@@ -1099,6 +1108,25 @@ export function* generateTemplatePageSaga(
   } catch (error) {
     yield put(generateTemplateError());
   }
+}
+
+function* restoreSelectedWidgetContext() {
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasWidgetsWithParentId,
+  );
+  if (!selectedWidgets.length) return;
+
+  if (
+    selectedWidgets.length === 1 &&
+    allWidgets[selectedWidgets[0]]?.type === "MODAL_WIDGET"
+  ) {
+    yield put(showModal(selectedWidgets[0], false));
+  } else if (allWidgets[selectedWidgets[0]]?.parentModalId) {
+    yield put(showModal(allWidgets[selectedWidgets[0]]?.parentModalId, false));
+  }
+
+  quickScrollToWidget(selectedWidgets[0]);
 }
 
 export default function* pageSagas() {

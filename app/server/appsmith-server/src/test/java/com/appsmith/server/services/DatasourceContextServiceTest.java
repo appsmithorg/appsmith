@@ -90,6 +90,7 @@ public class DatasourceContextServiceTest {
         datasource.setId("id1");
         datasource.setPluginId("mockPluginId");
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        datasource.setWorkspaceId("workspaceId");
 
         Object monitor = new Object();
         // Create one instance of datasource connection
