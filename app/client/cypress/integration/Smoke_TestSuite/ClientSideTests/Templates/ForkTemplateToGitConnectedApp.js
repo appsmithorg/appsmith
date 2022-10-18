@@ -72,12 +72,9 @@ describe("Fork a template to the current app", () => {
       "contain",
       "template added successfully",
     );
-
     // [Bug]: On forking a template the JS Objects are not cloned #17425
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
-
-    //
     cy.NavigateToHome();
     cy.get(homePage.searchInput)
       .clear()
@@ -96,10 +93,5 @@ describe("Fork a template to the current app", () => {
     cy.get(gitSyncLocators.commitButton).click();
     cy.wait(10000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.wait(2000);
-    cy.merge(mainBranch);
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.wait(2000);
-    cy.latestDeployPreview();
   });
 });
