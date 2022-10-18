@@ -893,8 +893,9 @@ export class AggregateHelper {
     selector: ElementType,
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    timeout?: number,
   ) {
-    return this.GetElement(selector)
+    return this.GetElement(selector, timeout)
       .contains(text)
       .should(exists);
   }

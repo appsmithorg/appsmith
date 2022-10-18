@@ -283,6 +283,14 @@ export function CurrentValueViewer(props: {
   evaluatedValue: any;
   hideLabel?: boolean;
   preparedStatementViewer?: boolean;
+  /** @param {number} [collapseStringsAfterLength=20]
+   * This collapses the values visible in (say json) after these many characters and shows ellipsis.
+   */
+  collapseStringsAfterLength?: number;
+  /** @param {string} [onCopyContentText=`Evaluated value copied to clipboard`]
+   * This parameter contains the string that is shown when the evaluatedValue is copied.
+   */
+  onCopyContentText?: string;
 }) {
   const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
   return (
