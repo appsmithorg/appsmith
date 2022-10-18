@@ -366,10 +366,9 @@ class CurrencyInputWidget extends BaseInputWidget<
 
   onStep = (direction: number) => {
     const value = Number(this.props.value) + direction;
-    const formattedValue = formatCurrencyNumber(
-      this.props.decimals,
-      String(value),
-    );
+
+    // Since value is always going to be a number therefore, directly converting it to the current locale
+    const formattedValue = Intl.NumberFormat(getLocale()).format(value);
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
