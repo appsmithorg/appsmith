@@ -242,7 +242,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     if (selected.name !== name) {
       dispatch(
         updateGroupName({
-          ...selected,
+          id: selected.id,
           name,
         }),
       );
@@ -431,7 +431,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
-        title={selected.name}
+        title={selected?.name || ""}
       />
       <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
         <TabComponent

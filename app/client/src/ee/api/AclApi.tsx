@@ -45,7 +45,8 @@ export class AclApi extends Api {
   static users = "/v1/users";
   static roles = "/v1/roles";
   static userGroups = "/v1/user-groups";
-  static inviteViaRoles = "v1/roles/assign";
+  static inviteViaRoles = "/v1/roles/assign";
+  static iconLocation = "/v1/plugins/icon-location";
 
   static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.get(AclApi.users);
@@ -92,6 +93,15 @@ export class AclApi extends Api {
 
   static async createAclRole(request: any): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.post(AclApi.roles, request);
+    return response;
+  }
+
+  static async updateAclRoleName(
+    payload: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(`${AclApi.roles}/${payload.id}`, {
+      name: payload.name,
+    });
     return response;
   }
 
@@ -171,6 +181,11 @@ export class AclApi extends Api {
       `${AclApi.userGroups}/removeUsers`,
       payload,
     );
+    return response;
+  }
+
+  static async fetchIconLocation(): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.iconLocation);
     return response;
   }
 

@@ -22,6 +22,7 @@ export const initialState: AclReduxState = {
     roles: [],
     groups: [],
   },
+  iconLocations: [],
 };
 
 export interface AclReduxState {
@@ -37,6 +38,7 @@ export interface AclReduxState {
     roles: any[];
     groups: any[];
   };
+  iconLocations: any[];
 }
 
 export const handlers = {

@@ -303,6 +303,31 @@ export function* fetchAclRoleSagaById(
   }
 }
 
+export function* updateRoleNameSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.updateAclRoleName(
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_ROLE_NAME_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_ROLE_NAME_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.UPDATE_ACL_ROLE_NAME_ERROR,
+    });
+  }
+}
+
 export function* createAclRoleSaga(action: ReduxAction<any>) {
   try {
     const response: RoleResponse = yield AclApi.createAclRole(action.payload);
@@ -446,33 +471,61 @@ export function* removeUsersFromGroupSaga(action: ReduxAction<any>) {
   }
 }
 
+export function* fetchIconLocationsSagas() {
+  try {
+    const response: ApiResponse = yield AclApi.fetchIconLocation();
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ICON_LOCATIONS_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.FETCH_ICON_LOCATIONS_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionTypes.FETCH_ICON_LOCATIONS_ERROR,
+    });
+  }
+}
+
 export function* InitAclSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
     yield all([
+      /* takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga), */
+      takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_USERS, fetchAclUsersSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserSagaById),
+      takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
+      takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
-      takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
-      // takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
-      takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
-      takeLatest(ReduxActionTypes.CREATE_ACL_ROLE, createAclRoleSaga),
-      takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
-      takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
-      takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
-      /*takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),*/
-      takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
-      takeLatest(
-        ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
-        fetchRolesForInviteSaga,
-      ),
       takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
       takeLatest(ReduxActionTypes.ADD_USERS_IN_GROUP, addUsersInGroupSaga),
       takeLatest(
         ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
         removeUsersFromGroupSaga,
+      ),
+      takeLatest(ReduxActionTypes.CREATE_ACL_ROLE, createAclRoleSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
+      takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
+      takeLatest(
+        ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
+        fetchRolesForInviteSaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.FETCH_ICON_LOCATIONS,
+        fetchIconLocationsSagas,
       ),
     ]);
   }

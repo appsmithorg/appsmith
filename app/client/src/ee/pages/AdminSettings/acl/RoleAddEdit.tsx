@@ -17,6 +17,9 @@ import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
 import { Spinner } from "@blueprintjs/core";
 import { RoleEditProps } from "./types";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { useDispatch } from "react-redux";
+import { updateRoleName } from "@appsmith/actions/aclActions";
 
 export function EachTab(key: string, searchValue: string, value: any) {
   const [tabCount, setTabCount] = useState<number>(0);
@@ -45,13 +48,15 @@ export function EachTab(key: string, searchValue: string, value: any) {
 export function RoleAddEdit(props: RoleEditProps) {
   const { isLoading, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const [pageTitle, setPageTitle] = useState(selected?.name || "");
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setPageTitle(selected?.name || "");
-  }, [selected]);
+    dispatch({
+      type: ReduxActionTypes.FETCH_ICON_LOCATIONS,
+    });
+  }, []);
 
   const onSearch = debounce((input: string) => {
     if (input.trim().length > 0) {
@@ -67,11 +72,18 @@ export function RoleAddEdit(props: RoleEditProps) {
   };
 
   const onEditTitle = (name: string) => {
-    setPageTitle(name);
-    Toaster.show({
-      text: createMessage(RENAME_SUCCESSFUL),
-      variant: Variant.success,
-    });
+    if (selected.name !== name) {
+      dispatch(
+        updateRoleName({
+          id: selected.id,
+          name,
+        }),
+      );
+      Toaster.show({
+        text: createMessage(RENAME_SUCCESSFUL),
+        variant: Variant.success,
+      });
+    }
   };
 
   const menuItems: MenuItemProps[] = [
@@ -113,7 +125,7 @@ export function RoleAddEdit(props: RoleEditProps) {
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
-        title={pageTitle}
+        title={selected.name || ""}
       />
       {tabs.length > 0 && (
         <TabsWrapper>

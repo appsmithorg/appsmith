@@ -18,6 +18,8 @@ import {
 } from "@appsmith/constants/messages";
 import { Variant } from "components/ads";
 import _ from "lodash";
+import { useSelector } from "react-redux";
+import { getIconLocations } from "@appsmith/selectors/aclSelectors";
 
 let dataToBeSent: any[] = [];
 
@@ -144,6 +146,12 @@ const ResourceCellWrapper = styled.div`
       margin: 0 8px 0 0;
     }
 
+    img {
+      margin: 0 8px 0 0;
+      width: 16px;
+      height: 16px;
+    }
+
     span {
       display: -webkit-inline-box;
       -webkit-line-clamp: 2;
@@ -180,9 +188,6 @@ const TableWrapper = styled.div<{ isSaving?: boolean }>`
 `;
 
 const IconTypes: any = {
-  Workspace: "",
-  Application: "",
-  Datasource: "",
   HomePage: (
     <MenuIcons.DEFAULT_HOMEPAGE_ICON
       color={Colors.GREEN_1}
@@ -194,7 +199,7 @@ const IconTypes: any = {
     <MenuIcons.PAGE_ICON color={Colors.GRAY_700} height="16" width="16" />
   ),
   NewAction: <ApiMethodIcon type="GET" />,
-  "js-object": JsFileIconV2,
+  ActionCollection: JsFileIconV2,
 };
 
 function Table({
@@ -510,12 +515,18 @@ export function updateData(
   return updatedData;
 }
 
+export const getIcon = (iconLocations: any[], pluginId: string) => {
+  const icon = iconLocations.find((d) => d.id === pluginId);
+  return <img alt={icon.name} src={icon.iconLocation} />;
+};
+
 export default function RolesTree(props: RoleTreeProps) {
   const { searchValue = "", tabData } = props;
   const [filteredData, setFilteredData] = useState([]);
   const dataFromProps = makeData([tabData?.data]) || [];
   const [data, setData] = useState(dataFromProps);
   const [isSaving, setIsSaving] = useState(false);
+  const iconLocations = useSelector(getIconLocations);
 
   useEffect(() => {
     dataToBeSent = [];
@@ -542,10 +553,22 @@ export default function RolesTree(props: RoleTreeProps) {
       Header: "Resource Permissions",
       accessor: "name",
       Cell: function CellContent(cellProps: any) {
+        const row = cellProps.cell.row.original;
+
+        const icon =
+          row.pluginId && iconLocations.length > 0
+            ? getIcon(iconLocations, row.pluginId)
+            : row.type
+            ? IconTypes[
+                row.type === "NewPage" && row.isDefault ? "HomePage" : row.type
+              ]
+            : null;
+
         const del: JSX.Element[] = [];
         for (let i = 0; i < cellProps.row.depth; i++) {
           del.push(<Delimeter key={i} />);
         }
+
         return cellProps.row.canExpand ? (
           <ResourceCellWrapper {...cellProps.row.getToggleRowExpandedProps()}>
             {cellProps.row.depth ? del : null}
@@ -555,31 +578,16 @@ export default function RolesTree(props: RoleTreeProps) {
               <Icon name="right-arrow-2" size={IconSize.XL} />
             )}
             <div className="text-wrapper">
-              {cellProps.cell.row.original.type
-                ? IconTypes[
-                    cellProps.cell.row.original.type === "NewPage" &&
-                    cellProps.cell.row.original.isDefault
-                      ? "HomePage"
-                      : cellProps.cell.row.original.type
-                  ]
-                : null}
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.original.name}
-              />
+              {icon}
+              <HighlightText highlight={searchValue} text={row.name} />
             </div>
           </ResourceCellWrapper>
         ) : (
           <ResourceCellWrapper className="flat-row">
             {cellProps.row.depth ? del : null}
             <div className="text-wrapper">
-              {cellProps.cell.row.original.type
-                ? IconTypes[cellProps.cell.row.original.type]
-                : null}
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.original.name}
-              />
+              {icon}
+              <HighlightText highlight={searchValue} text={row.name} />
             </div>
           </ResourceCellWrapper>
         );
@@ -594,6 +602,7 @@ export default function RolesTree(props: RoleTreeProps) {
           updateMyData,
           value,
         } = cellProps;
+        const row = cellProps.cell.row.original;
         const [isChecked, setIsChecked] = React.useState(
           value === 1 ? true : false,
         );
@@ -634,21 +643,20 @@ export default function RolesTree(props: RoleTreeProps) {
           updateMyData(e.target.checked, cellId, rowId);
         };
 
-        return cellProps.cell.row.original.permissions &&
-          cellProps.cell.row.original.permissions[i] !== -1 ? (
+        return row.permissions && row.permissions[i] !== -1 ? (
           <CheckboxWrapper
-            data-cellid={`${cellProps.cell.row.original.id}_${column}`}
+            data-cellid={`${row.id}_${column}`}
             data-rowid={parseInt(rowId.split(".")[0])}
-            data-testid={`${cellProps.cell.row.original.id}_${column}`}
+            data-testid={`${row.id}_${column}`}
             onMouseOut={() =>
               removeHoverClass(
-                `${cellProps.cell.row.original.id}_${column}`,
+                `${row.id}_${column}`,
                 parseInt(rowId.split(".")[0]),
               )
             }
             onMouseOver={() =>
               addHoverClass(
-                `${cellProps.cell.row.original.id}_${column}`,
+                `${row.id}_${column}`,
                 parseInt(rowId.split(".")[0]),
               )
             }
@@ -656,24 +664,17 @@ export default function RolesTree(props: RoleTreeProps) {
             <Checkbox
               checked={isChecked}
               /*disabled={
-                cellProps.cell.row.original.editable[i]] === 0 ? true : false
+                row.editable[i]] === 0 ? true : false
               }
-              id={`${cellProps.cell.row.original.id}-${column}`} */
-              indeterminate={
-                cellProps.cell.row.original.permissions[i] === 3 ? true : false
-              }
-              onChange={(e: any) =>
-                onChangeHandler(
-                  e,
-                  `${cellProps.cell.row.original.id}_${column}`,
-                )
-              }
-              value={`${cellProps.cell.row.original.id}_${column}`}
+              id={`${row.id}-${column}`} */
+              indeterminate={row.permissions[i] === 3 ? true : false}
+              onChange={(e: any) => onChangeHandler(e, `${row.id}_${column}`)}
+              value={`${row.id}_${column}`}
             />
           </CheckboxWrapper>
         ) : (
           <CheckboxWrapper
-            data-cellid={`${cellProps.cell.row.original.id}_${column}`}
+            data-cellid={`${row.id}_${column}`}
             data-rowid={parseInt(rowId.split(".")[0])}
           >
             &nbsp;

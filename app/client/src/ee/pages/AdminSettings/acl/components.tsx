@@ -29,6 +29,7 @@ export const AclWrapper = styled.div`
           bottom: 4px;
           width: calc(100% - 10px);
           flex-shrink: 0;
+          margin: auto;
         }
       }
     }

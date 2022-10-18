@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
+import { render, screen, waitFor } from "test/testUtils";
 import { GroupListing } from "./GroupsListing";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import userEvent from "@testing-library/user-event";
@@ -96,6 +96,25 @@ describe("<GroupListing />", () => {
     expect(window.location.pathname).toEqual(
       `/settings/groups/${userGroupTableData[0].id}`,
     );
+  });
+  it("should search and filter users groups on search", async () => {
+    renderComponent();
+    const searchInput = screen.getAllByTestId("t--acl-search-input");
+    expect(searchInput).toHaveLength(1);
+
+    const groups = screen.queryAllByText("Eng_New");
+    expect(groups).toHaveLength(1);
+
+    await userEvent.type(searchInput[0], "Design");
+    expect(searchInput[0]).toHaveValue("Design");
+
+    const searched = screen.queryAllByText("Design");
+    expect(searched).toHaveLength(1);
+
+    waitFor(() => {
+      const filtered = screen.queryAllByText("Eng_New");
+      return expect(filtered).toHaveLength(0);
+    });
   });
   it("should delete the group when Delete list menu item is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();

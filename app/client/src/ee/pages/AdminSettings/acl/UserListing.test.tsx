@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
+import { render, screen, waitFor } from "test/testUtils";
 import { UserListing } from "./UserListing";
 import { allUsers } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
@@ -109,6 +109,25 @@ describe("<UserListing />", () => {
       `/settings/users/${allUsers[0].id}`,
     );
   });
+  /*it("should search and filter users on search", async () => {
+    renderComponent();
+    const searchInput = screen.getAllByTestId("t--acl-search-input");
+    expect(searchInput).toHaveLength(1);
+
+    const groups = screen.queryAllByText("Ankita Kinger");
+    expect(groups).toHaveLength(1);
+
+    await userEvent.type(searchInput[0], "sivan");
+    expect(searchInput[0]).toHaveValue("sivan");
+
+    const searched = screen.queryAllByText("SS Sivan");
+    expect(searched).toHaveLength(1);
+
+    waitFor(() => {
+      const filtered = screen.queryAllByText("Ankita Kinger");
+      return expect(filtered).toHaveLength(0);
+    });
+  });*/
   it("should delete the user when Delete menu option is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();
     let user = queryByText(allUsers[0].username);

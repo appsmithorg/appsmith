@@ -61,6 +61,13 @@ describe("<UserEdit />", () => {
     expect(props.onDelete).toHaveBeenCalledWith(selectedUser.id);
     expect(window.location.pathname).toEqual("/settings/users");
   });
+  it("should contain two tabs", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    expect(tabs[0]).toHaveTextContent("Groups");
+    expect(tabs[1]).toHaveTextContent("Roles");
+  });
   it("should search and filter users groups on search", async () => {
     renderComponent();
     const searchInput = screen.getAllByTestId("t--acl-search-input");
@@ -77,6 +84,29 @@ describe("<UserEdit />", () => {
 
     waitFor(() => {
       const filtered = screen.queryAllByText("Administrator");
+      return expect(filtered).toHaveLength(0);
+    });
+  });
+  it("should search and filter roles on search", async () => {
+    renderComponent();
+    const searchInput = screen.getAllByTestId("t--acl-search-input");
+    expect(searchInput).toHaveLength(1);
+
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    tabs[1].click();
+
+    const groups = screen.queryAllByText("Administrator-PG");
+    expect(groups).toHaveLength(1);
+
+    await userEvent.type(searchInput[0], "test");
+    expect(searchInput[0]).toHaveValue("test");
+
+    const searched = screen.queryAllByText("Test_Admin-PG");
+    expect(searched).toHaveLength(1);
+
+    waitFor(() => {
+      const filtered = screen.queryAllByText("Administrator-PG");
       return expect(filtered).toHaveLength(0);
     });
   });

@@ -1,6 +1,10 @@
 import { FetchSingleDataPayload } from "@appsmith/api/AclApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { GroupProps, RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
+import {
+  BaseAclProps,
+  GroupProps,
+  RoleProps,
+} from "@appsmith/pages/AdminSettings/acl/types";
 
 export const getUserById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
@@ -17,7 +21,7 @@ export const getGroupById = (payload: FetchSingleDataPayload) => ({
   payload,
 });
 
-export const updateGroupName = (payload: GroupProps) => ({
+export const updateGroupName = (payload: BaseAclProps) => ({
   type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME,
   payload,
 });
@@ -39,6 +43,11 @@ export const createGroup = (payload: { name: string }) => ({
 
 export const getRoleById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_ROLE_BY_ID,
+  payload,
+});
+
+export const updateRoleName = (payload: BaseAclProps) => ({
+  type: ReduxActionTypes.UPDATE_ACL_ROLE_NAME,
   payload,
 });
 

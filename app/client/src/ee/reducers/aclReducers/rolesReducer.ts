@@ -57,6 +57,25 @@ export const rolesReducers = {
     roles: action.payload,
     isLoading: false,
   }),
+  [ReduxActionTypes.UPDATE_ACL_ROLE_NAME]: (state: any) => ({
+    ...state,
+    isSaving: true,
+  }),
+  [ReduxActionTypes.UPDATE_ACL_ROLE_NAME_ERROR]: (state: any) => ({
+    ...state,
+    isSaving: false,
+  }),
+  [ReduxActionTypes.UPDATE_ACL_ROLE_NAME_SUCCESS]: (
+    state: any,
+    action: any,
+  ) => ({
+    ...state,
+    selectedRole: {
+      ...state.selectedRole,
+      name: action.payload.name,
+    },
+    isSaving: false,
+  }),
   [ReduxActionTypes.UPDATE_ACL_ROLE]: (state: any) => ({
     ...state,
     isSaving: true,
@@ -83,6 +102,23 @@ export const rolesReducers = {
     roles: state.roles.filter(
       (role: RoleProps) => role.id !== action.payload.id,
     ),
+    isLoading: false,
+  }),
+  [ReduxActionTypes.FETCH_ICON_LOCATIONS]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.FETCH_ICON_LOCATIONS_SUCCESS]: (
+    state: any,
+    action: any,
+  ) => ({
+    ...state,
+    iconLocations: action.payload,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.FETCH_ICON_LOCATIONS_ERROR]: (state: any) => ({
+    ...state,
+    iconLocations: [],
     isLoading: false,
   }),
 };

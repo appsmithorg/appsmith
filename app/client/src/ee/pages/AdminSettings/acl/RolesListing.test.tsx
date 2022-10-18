@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
+import { render, screen, waitFor } from "test/testUtils";
 import { RolesListing } from "./RolesListing";
 import { rolesTableData } from "./mocks/RolesListingMock";
 import userEvent from "@testing-library/user-event";
@@ -117,6 +117,25 @@ describe("<RoleListing />", () => {
     expect(window.location.pathname).toEqual(
       `/settings/roles/${rolesTableData[0].id}`,
     );
+  });
+  it("should search and filter roles on search", async () => {
+    renderComponent();
+    const searchInput = screen.getAllByTestId("t--acl-search-input");
+    expect(searchInput).toHaveLength(1);
+
+    const groups = screen.queryAllByText("HR_Appsmith");
+    expect(groups).toHaveLength(1);
+
+    await userEvent.type(searchInput[0], "devops");
+    expect(searchInput[0]).toHaveValue("devops");
+
+    const searched = screen.queryAllByText("devops_design");
+    expect(searched).toHaveLength(1);
+
+    waitFor(() => {
+      const filtered = screen.queryAllByText("HR_Appsmith");
+      return expect(filtered).toHaveLength(0);
+    });
   });
   it("should delete the group when Delete list menu item is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();

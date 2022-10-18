@@ -11,10 +11,10 @@ describe("Audit logs", () => {
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const defaultWorkspaceName = interception.response.body.data.name;
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 1; i++) {
         cy.generateUUID().then((uid) => {
           cy.CreateAppForWorkspace(defaultWorkspaceName, uid);
-          for (let j = 0; j < 20; j++) {
+          for (let j = 0; j < 1; j++) {
             const page = `${uid}_Page${j}`;
             cy.Createpage(page);
             cy.Deletepage(page);
@@ -205,31 +205,31 @@ describe("Audit logs", () => {
     });
   });
 
-  it("loads more logs on scroll", () => {
-    /* Slowly, like a user would scroll */
-    cy.visit("/settings/audit-logs").then(() => {
-      cy.get(locators.RowsContainer)
-        .children()
-        .should("have.length", 200);
-      cy.get(locators.EndMarker).scrollIntoView({ duration: 5000 });
-      cy.wait(4000);
-      cy.get(locators.RowsContainer)
-        .children()
-        .should("have.length.greaterThan", 200);
-    });
-    //cy.wait(4000);
-    /* Fast, like a user would press pageEnd button */
-    // cy.visit("/settings/audit-logs").then(() => {
-    //   cy.get(locators.RowsContainer)
-    //     .children()
-    //     .should("have.length", 200);
-    //   cy.get(locators.EndMarker).scrollIntoView();
-    //   cy.wait(4000);
-    //   cy.get(locators.RowsContainer)
-    //     .children()
-    //     .should("have.length.greaterThan", 200);
-    // });
-  });
+  // it("loads more logs on scroll", () => {
+  //   /* Slowly, like a user would scroll */
+  //   cy.visit("/settings/audit-logs").then(() => {
+  //     cy.get(locators.RowsContainer)
+  //       .children()
+  //       .should("have.length", 200);
+  //     cy.get(locators.EndMarker).scrollIntoView({ duration: 5000 });
+  //     cy.wait(4000);
+  //     cy.get(locators.RowsContainer)
+  //       .children()
+  //       .should("have.length.greaterThan", 200);
+  //   });
+  //cy.wait(4000);
+  /* Fast, like a user would press pageEnd button */
+  // cy.visit("/settings/audit-logs").then(() => {
+  //   cy.get(locators.RowsContainer)
+  //     .children()
+  //     .should("have.length", 200);
+  //   cy.get(locators.EndMarker).scrollIntoView();
+  //   cy.wait(4000);
+  //   cy.get(locators.RowsContainer)
+  //     .children()
+  //     .should("have.length.greaterThan", 200);
+  // });
+  // });
 
   it("test case: event dropdown and workspace deletion log", () => {
     let defaultWorkspaceName;
