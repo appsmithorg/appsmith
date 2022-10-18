@@ -65,7 +65,7 @@ export class ContainerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          generatePositioningConfig(),
+          generatePositioningConfig(Positioning.Vertical),
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },

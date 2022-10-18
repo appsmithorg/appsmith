@@ -144,12 +144,19 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedWidgetAncestry = action.payload;
   },
-  [ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS]: (
+  [ReduxActionTypes.SELECT_AUTOLAYOUT_HIGHLIGHT]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ flexHighlight: HighlightInfo; blocksToDraw: any }>,
   ) => {
     state.flexHighlight = action.payload.flexHighlight;
     state.autoLayoutDragDetails = action.payload.blocksToDraw;
+  },
+  [ReduxActionTypes.CLEAR_HIGHLIGHT_SELECTION]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<any>,
+  ) => {
+    state.flexHighlight = undefined;
+    state.autoLayoutDragDetails = undefined;
   },
 });
 

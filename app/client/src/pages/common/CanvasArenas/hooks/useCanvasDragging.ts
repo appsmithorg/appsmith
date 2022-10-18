@@ -28,6 +28,7 @@ import {
 import ContainerJumpMetrics from "./ContainerJumpMetric";
 import {
   HighlightInfo,
+  HighlightSelectionPayload,
   useAutoLayoutHighlights,
 } from "./useAutoLayoutHighlights";
 import {
@@ -131,7 +132,9 @@ export const useCanvasDragging = (
   });
   const dispatch = useDispatch();
 
-  const highlights: HighlightInfo[] = calculateHighlights();
+  setTimeout(() => {
+    calculateHighlights();
+  }, 100);
 
   if (!isDragging || !isCurrentDraggedCanvas) {
     cleanUpTempStyles();
@@ -195,7 +198,6 @@ export const useCanvasDragging = (
         );
 
         const speed = 10 * movement; //current speed
-
         const acceleration = 10 * (speed - prevSpeed);
         mouseAttributesRef.current.prevAcceleration = acceleration;
         mouseAttributesRef.current.prevSpeed = speed;
@@ -351,11 +353,7 @@ export const useCanvasDragging = (
               }
               setDraggingCanvas();
               dispatch({
-                type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
-                payload: {
-                  flexHighlight: undefined,
-                  blocksToDraw: undefined,
-                },
+                type: ReduxActionTypes.CLEAR_HIGHLIGHT_SELECTION,
               });
             }
           }, 0);
@@ -413,6 +411,11 @@ export const useCanvasDragging = (
             prevSpeed < CONTAINER_JUMP_SPEED_THRESHOLD
           );
         };
+        // const getFlexMouseMoveDirection = (event: any): ReflowDirection => {
+        //   if (lastMousePosition) {
+
+        //   }
+        // };
         const getMouseMoveDirection = (event: any, minDelta = 0) => {
           if (lastMousePosition) {
             const deltaX = lastMousePosition.x - event.clientX,
@@ -567,7 +570,7 @@ export const useCanvasDragging = (
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
             };
-
+            // console.log("#### mouse move", delta);
             const drawingBlocks = blocksToDraw.map((each) => ({
               ...each,
               left: each.left + delta.left,
@@ -579,33 +582,47 @@ export const useCanvasDragging = (
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
               isNotColliding:
-                !dropDisabled &&
-                noCollision(
-                  { x: each.left, y: each.top },
-                  snapColumnSpace,
-                  snapRowSpace,
-                  { x: 0, y: 0 },
-                  each.columnWidth,
-                  each.rowHeight,
-                  each.widgetId,
-                  occSpaces,
-                  rowRef.current,
-                  GridDefaults.DEFAULT_GRID_COLUMNS,
-                  each.detachFromLayout,
-                ),
+                useAutoLayout ||
+                (!dropDisabled &&
+                  noCollision(
+                    { x: each.left, y: each.top },
+                    snapColumnSpace,
+                    snapRowSpace,
+                    { x: 0, y: 0 },
+                    each.columnWidth,
+                    each.rowHeight,
+                    each.widgetId,
+                    occSpaces,
+                    rowRef.current,
+                    GridDefaults.DEFAULT_GRID_COLUMNS,
+                    each.detachFromLayout,
+                  )),
             }));
-            if (rowDelta && slidingArenaRef.current) {
+            if (rowDelta && slidingArenaRef.current && !useAutoLayout) {
               isUpdatingRows = true;
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const dir: ReflowDirection = getMouseMoveDirection(e, 1);
+              currentDirection.current = getMouseMoveDirection(e, 1);
+              // console.log(
+              //   "#### mouse move dir",
+              //   currentDirection.current,
+              //   mouseAttributesRef?.current.prevSpeed,
+              //   mouseAttributesRef?.current.prevAcceleration,
+              // );
               triggerReflow(e, firstMove);
-              isCurrentDraggedCanvas &&
-                highlights.length &&
-                dir !== ReflowDirection.UNSET &&
-                highlightDropPosition(e, dir);
-              renderBlocks();
+              let payload: HighlightSelectionPayload | undefined;
+              if (
+                useAutoLayout &&
+                isCurrentDraggedCanvas &&
+                currentDirection.current !== ReflowDirection.UNSET
+              )
+                payload = highlightDropPosition(
+                  e,
+                  currentDirection.current,
+                  mouseAttributesRef?.current.prevAcceleration,
+                );
+              renderBlocks(payload);
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -613,6 +630,8 @@ export const useCanvasDragging = (
             };
             scrollObj.lastScrollTop = scrollParent?.scrollTop;
             scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
+            scrollObj.lastDeltaLeft = delta.left;
+            scrollObj.lastDeltaTop = delta.top;
           } else {
             onFirstMoveOnCanvas(e);
           }
@@ -671,7 +690,7 @@ export const useCanvasDragging = (
           },
         );
 
-        const renderBlocks = () => {
+        const renderBlocks = (payload?: HighlightSelectionPayload) => {
           if (
             slidingArenaRef.current &&
             isCurrentDraggedCanvas &&
@@ -692,6 +711,25 @@ export const useCanvasDragging = (
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
               });
+              if (payload) {
+                console.log("#### highlights", payload.highlights);
+                canvasCtx.fillStyle = "rgba(217, 89, 183, 0.3)";
+                payload.highlights.forEach((each) => {
+                  canvasCtx.fillRect(
+                    each.posX,
+                    each.posY,
+                    each.width,
+                    each.height,
+                  );
+                });
+                canvasCtx.fillStyle = "rgba(217, 89, 183, 1)";
+                canvasCtx.fillRect(
+                  payload.selectedHighlight.posX,
+                  payload.selectedHighlight.posY,
+                  payload.selectedHighlight.width,
+                  payload.selectedHighlight.height,
+                );
+              }
             }
             canvasCtx.restore();
           }

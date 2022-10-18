@@ -110,7 +110,7 @@ class TabsWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
-                    { ...generatePositioningConfig(Positioning.Fixed) },
+                    { ...generatePositioningConfig(Positioning.Vertical) },
                   ],
                 },
               ],

@@ -13,6 +13,7 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { AppState } from "ce/reducers";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -37,6 +38,7 @@ const FlexWidget = styled.div<{
   padding: number;
   zIndex: number;
   zIndexOnHover: number;
+  isCurrentCanvasDragging: boolean;
 }>`
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
@@ -55,6 +57,9 @@ const FlexWidget = styled.div<{
   &:hover {
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
+  margin: ${({ isCurrentCanvasDragging }) =>
+    isCurrentCanvasDragging ? "6px" : 0};
+  transition: margin 10ms;
 `;
 
 // TODO: update min width logic.
@@ -66,6 +71,12 @@ export function FlexComponent(props: AutoLayoutProps) {
   const onClickFn = useCallback(() => {
     clickToSelectWidget(props.widgetId);
   }, [props.widgetId, clickToSelectWidget]);
+
+  const { dragDetails } = useSelector(
+    (state: AppState) => state.ui.widgetDragResize,
+  );
+
+  const isCurrentCanvasDragging = dragDetails?.draggedOn !== undefined;
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -101,6 +112,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       componentHeight={props.componentHeight}
       componentWidth={props.componentWidth}
       id={props.widgetId}
+      isCurrentCanvasDragging={isCurrentCanvasDragging}
       isFillWidget={isFillWidget}
       isMobile={isMobile}
       minWidth={minWidth}

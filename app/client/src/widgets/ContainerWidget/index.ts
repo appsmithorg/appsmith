@@ -39,7 +39,7 @@ export const CONFIG = {
       ],
     },
     version: 1,
-    positioning: Positioning.Fixed,
+    positioning: Positioning.Vertical,
     responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {

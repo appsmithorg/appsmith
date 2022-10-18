@@ -43,7 +43,12 @@ export interface AutoLayoutHighlightProps {
   useAutoLayout?: boolean;
 }
 
-const OFFSET_WIDTH = 4;
+export interface HighlightSelectionPayload {
+  highlights: HighlightInfo[];
+  selectedHighlight: HighlightInfo;
+}
+
+const OFFSET_WIDTH = 8;
 
 export const useAutoLayoutHighlights = ({
   blocksToDraw,
@@ -246,7 +251,7 @@ export const useAutoLayoutHighlights = ({
         index: childCount,
         layerIndex: index - discardedLayers,
         posX: 0,
-        posY: rect.y - containerDimensions?.top,
+        posY: Math.max(rect.y - containerDimensions?.top - 4, 0),
         width: containerDimensions?.width,
         height: OFFSET_WIDTH,
         alignment: FlexLayerAlignment.Start,
@@ -390,7 +395,7 @@ export const useAutoLayoutHighlights = ({
           ? 0
           : alignment === FlexLayerAlignment.Center
           ? containerDimensions.width / 2
-          : containerDimensions?.width,
+          : containerDimensions?.width - 8,
       posY: rect.y - containerDimensions?.top,
       width: verticalFlex ? rect?.width : OFFSET_WIDTH,
       height: verticalFlex ? OFFSET_WIDTH : rect.height,
@@ -420,7 +425,7 @@ export const useAutoLayoutHighlights = ({
         index,
         layerIndex,
         alignment,
-        posX: childRect?.x - containerDimensions?.left,
+        posX: Math.max(childRect?.x - containerDimensions?.left - 8, 0),
         posY: childRect?.y - containerDimensions?.top,
         width: OFFSET_WIDTH,
         height: childRect?.height,
@@ -456,9 +461,9 @@ export const useAutoLayoutHighlights = ({
   //   dispatchTempHighlight(pos);
   // }, 5);
 
-  const dispatchTempHighlight = (pos: HighlightInfo) => {
+  const setTempHighlight = (pos: HighlightInfo) => {
     dispatch({
-      type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
+      type: ReduxActionTypes.SELECT_AUTOLAYOUT_HIGHLIGHT,
       payload: {
         flexHighlight: pos,
         blocksToDraw,
@@ -466,38 +471,44 @@ export const useAutoLayoutHighlights = ({
     });
   };
 
-  const highlightDropPosition = (e: any, moveDirection: ReflowDirection) => {
-    if (!useAutoLayout) return;
-    const pos: HighlightInfo | undefined = getHighlightPosition(
+  const clearTempHighlight = () => {
+    dispatch({
+      type: ReduxActionTypes.CLEAR_HIGHLIGHT_SELECTION,
+    });
+  };
+
+  const highlightDropPosition = (
+    e: any,
+    moveDirection: ReflowDirection,
+    acceleration: number,
+  ): HighlightSelectionPayload | undefined => {
+    if (!highlights) return;
+    // let highlightAdded = false;
+    const payload: HighlightSelectionPayload = getHighlightPayload(
       e,
       moveDirection,
     );
-    dispatchTempHighlight(pos);
-    // console.log({ pos });
+    if (!payload || !payload.selectedHighlight) return;
+    lastActiveHighlight = payload.selectedHighlight;
 
-    if (!pos) return;
-    lastActiveHighlight = pos;
-    if (dropPositionRef && dropPositionRef.current) {
-      dropPositionRef.current.style.opacity = "1";
-      dropPositionRef.current.style.top = (pos.posY || 0) + "px";
-      dropPositionRef.current.style.left =
-        (pos.posX > 6
-          ? Math.min(
-              pos.posX - 6,
-              containerDimensions.left + containerDimensions.width - 6,
-            )
-          : 0) + "px";
-      dropPositionRef.current.style.width = pos.width + "px";
-      dropPositionRef.current.style.height = pos.height + "px";
-      dropPositionRef.current.style.display = "block";
-    }
+    return payload;
+    // if (acceleration) {
+    //   console.log("#### acceleration", acceleration, highlightAdded);
+    //   if (acceleration > 0 && highlightAdded) {
+    //     highlightAdded = false;
+    //     clearTempHighlight();
+    //   } else if (!highlightAdded) {
+    //     highlightAdded = true;
+    //     setTempHighlight(pos);
+    //   }
+    // }
   };
 
-  const getHighlightPosition = (
+  const getHighlightPayload = (
     e: any,
     moveDirection?: ReflowDirection,
     val?: XYCord,
-  ): HighlightInfo => {
+  ): HighlightSelectionPayload => {
     let base: HighlightInfo[] = [];
     if (!highlights || !highlights.length)
       highlights = [
@@ -553,8 +564,8 @@ export const useAutoLayoutHighlights = ({
         calculateDistance(b, pos, moveDirection)
       );
     });
-
-    return arr[0];
+    // console.log("#### selected highlights", arr);
+    return { highlights: [...arr.slice(1)], selectedHighlight: arr[0] };
   };
 
   const calculateDistance = (
@@ -579,10 +590,14 @@ export const useAutoLayoutHighlights = ({
   const getDropInfo = (val: XYCord): HighlightInfo | undefined => {
     if (lastActiveHighlight) return lastActiveHighlight;
 
-    const pos = getHighlightPosition(null, undefined, val);
-    if (!pos) return;
-    lastActiveHighlight = pos;
-    return pos;
+    const payload: HighlightSelectionPayload = getHighlightPayload(
+      null,
+      undefined,
+      val,
+    );
+    if (!payload) return;
+    lastActiveHighlight = payload.selectedHighlight;
+    return payload.selectedHighlight;
   };
 
   return {
