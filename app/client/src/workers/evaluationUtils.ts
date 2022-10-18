@@ -21,7 +21,7 @@ import {
   DataTreeJSAction,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { get } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
@@ -893,7 +893,8 @@ export const isATriggerPath = (
 };
 
 class TransformError {
-  private referenceErrorRegex = /ReferenceError: ([a-zA-Z]+) is not defined/;
+  private typeErrorRegex = /TypeError: ([\w_]+\.[\w_]+) is not a function/;
+  private referenceErrorRegex = /ReferenceError: ([\w_]+) is not defined/;
   private asyncFunctionsNameMap: Record<string, string> = {};
 
   updateAsyncFunctions(dataTree: DataTree) {
@@ -901,15 +902,23 @@ class TransformError {
   }
 
   syncField(message: string) {
-    let transformedMessage = message;
-    const result = message.match(this.referenceErrorRegex);
-    if (result) {
-      const referencedIdentifier = result[1];
-      if (this.asyncFunctionsNameMap[referencedIdentifier]) {
-        transformedMessage = `${referencedIdentifier} action cannot be triggered from this field`;
+    const refMatchResult = message.match(this.referenceErrorRegex);
+    if (refMatchResult) {
+      const referencedIdentifier = refMatchResult[1];
+      if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
+        return `${referencedIdentifier} action cannot be triggered from this field`;
       }
     }
-    return transformedMessage;
+
+    const typeMatchResult = message.match(this.typeErrorRegex);
+    if (typeMatchResult) {
+      const referencedIdentifier = typeMatchResult[1];
+      if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
+        return `${referencedIdentifier} action cannot be triggered from this field`;
+      }
+    }
+
+    return message;
   }
 }
 
