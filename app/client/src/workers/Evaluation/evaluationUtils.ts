@@ -28,7 +28,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
-import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "../common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 
@@ -666,31 +666,6 @@ export const addErrorToEntityProperty = (
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
       existingErrors.concat(errors),
-    );
-  }
-  return dataTree;
-};
-
-export const removeLintErrorsFromEntityProperty = (
-  dataTree: DataTree,
-  fullPropertyPath: string,
-) => {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertyPath,
-  );
-  if (propertyPath) {
-    const existingNonLintErrors = (_.get(
-      dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
-      [],
-    ) as EvaluationError[]).filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
-    _.set(
-      dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
-      existingNonLintErrors,
     );
   }
   return dataTree;

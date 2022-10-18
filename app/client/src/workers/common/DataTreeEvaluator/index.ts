@@ -40,11 +40,10 @@ import {
   trimDependantChangePaths,
   validateWidgetProperty,
   validateActionProperty,
-  addWidgetPropertyDependencies,
   overrideWidgetProperties,
   getAllPaths,
-} from "workers/evaluationUtils";
-import _ from "lodash";
+} from "workers/Evaluation/evaluationUtils";
+import _, { union } from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
 import {
@@ -57,8 +56,8 @@ import evaluateSync, {
   EvalResult,
   EvaluateContext,
   evaluateAsync,
-} from "workers/evaluate";
-import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
+} from "workers/Evaluation/evaluate";
+import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import {
   Severity,
   SourceEntity,
@@ -77,13 +76,12 @@ import { EvalMetaUpdates } from "./types";
 import {
   updateDependencyMap,
   createDependencyMap,
-} from "workers/DependencyMap";
+} from "workers/common/DependencyMap";
 import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
-} from "workers/JSObject";
-import { lintTree } from "workers/Lint";
+} from "workers/Evaluation/JSObject";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -122,19 +120,16 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
-  /**
-   * This method takes unEvalTree as input and does following
-   * 1. parseJSActions and updates JS
-   * 2. Creates dependencyMap, sorted dependencyMap
-   * 3. Generates inverseDependencyTree
-   * 4. Finally, evaluates the unEvalTree and returns that with JSUpdates
-   *
-   * @param {DataTree} unEvalTree
-   * @return {*}
-   * @memberof DataTreeEvaluator
-   */
-  createFirstTree(unEvalTree: DataTree) {
-    const totalStart = performance.now();
+  setupFirstTree(
+    unEvalTree: DataTree,
+  ): {
+    jsUpdates: Record<string, JSUpdate>;
+    evalOrder: string[];
+    lintOrder: string[];
+    updatedUnevalTree: DataTree;
+  } {
+    // Start setup
+    // ****************************** Update localUneval
     // cloneDeep will make sure not to omit key which has value as undefined.
     let localUnEvalTree = klona(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -148,10 +143,11 @@ export default class DataTreeEvaluator {
       jsUpdates,
       localUnEvalTree,
     );
+    // ****************************** Generate All keys
     // set All keys
     this.allKeys = getAllPaths(localUnEvalTree);
+    // ****************************** Create DependencyMap
     // Create dependency map
-    const createDependencyStart = performance.now();
     const {
       dependencyMap,
       invalidReferencesMap,
@@ -160,62 +156,49 @@ export default class DataTreeEvaluator {
     this.dependencyMap = dependencyMap;
     this.triggerFieldDependencyMap = triggerFieldDependencyMap;
     this.invalidReferencesMap = invalidReferencesMap;
-    const createDependencyEnd = performance.now();
+    // ****************************** Create sorted dependencies
     // Sort
-    const sortDependenciesStart = performance.now();
     this.sortedDependencies = this.sortDependencies(this.dependencyMap);
-    const sortDependenciesEnd = performance.now();
+    // ****************************** Create inverse dependencies
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
 
+    // ** End setup
+    return {
+      jsUpdates,
+      evalOrder: this.sortedDependencies,
+      lintOrder: this.sortedDependencies,
+      updatedUnevalTree: localUnEvalTree,
+    };
+  }
+  /**
+   * This method takes unEvalTree as input and does following
+   * 1. parseJSActions and updates JS
+   * 2. Creates dependencyMap, sorted dependencyMap
+   * 3. Generates inverseDependencyTree
+   * 4. Finally, evaluates the unEvalTree and returns that with JSUpdates
+   *
+   * @param {DataTree} unEvalTree
+   * @return {*}
+   * @memberof DataTreeEvaluator
+   */
+  createFirstTree(
+    localUnEvalTree: DataTree,
+  ): {
+    evalTree: DataTree;
+    evalMetaUpdates: EvalMetaUpdates;
+  } {
     // Evaluate
-    const evaluateStart = performance.now();
     const { evalMetaUpdates, evaluatedTree } = this.evaluateTree(
       localUnEvalTree,
       this.resolvedFunctions,
       this.sortedDependencies,
     );
-    const evaluateEnd = performance.now();
     // Validate Widgets
-    const validateStart = performance.now();
     this.evalTree = getValidatedTree(evaluatedTree);
-    const validateEnd = performance.now();
-
     this.oldUnEvalTree = klona(localUnEvalTree);
-    // Lint
-    const lintStart = performance.now();
-    lintTree({
-      unEvalTree: localUnEvalTree,
-      evalTree: this.evalTree,
-      sortedDependencies: this.sortedDependencies,
-      extraPathsToLint: [],
-    });
-    const lintStop = performance.now();
-    const totalEnd = performance.now();
-    const timeTakenForFirstTree = {
-      total: (totalEnd - totalStart).toFixed(2),
-      createDependencies: (createDependencyEnd - createDependencyStart).toFixed(
-        2,
-      ),
-      sortDependencies: (sortDependenciesEnd - sortDependenciesStart).toFixed(
-        2,
-      ),
-      evaluate: (evaluateEnd - evaluateStart).toFixed(2),
-      validate: (validateEnd - validateStart).toFixed(2),
-      dependencies: {
-        map: JSON.parse(JSON.stringify(this.dependencyMap)),
-        inverseMap: JSON.parse(JSON.stringify(this.inverseDependencyMap)),
-        sortedList: JSON.parse(JSON.stringify(this.sortedDependencies)),
-        triggerFieldMap: JSON.parse(
-          JSON.stringify(this.triggerFieldDependencyMap),
-        ),
-      },
-      lint: (lintStop - lintStart).toFixed(2),
-    };
-    this.logs.push({ timeTakenForFirstTree });
     return {
       evalTree: this.evalTree,
-      jsUpdates,
       evalMetaUpdates,
     };
   }
@@ -245,20 +228,17 @@ export default class DataTreeEvaluator {
       }
     });
   }
-
-  updateDataTree(
+  setupUpdateTree(
     unEvalTree: DataTree,
   ): {
-    evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
-    jsUpdates: Record<string, JSUpdate>;
-    evalMetaUpdates: EvalMetaUpdates;
+    evalOrder: string[];
+    lintOrder: string[];
   } {
+    // Start setup
+    //.......................update localUnEval and derive jsupdates
     let localUnEvalTree = Object.assign({}, unEvalTree);
-    const totalStart = performance.now();
     let jsUpdates: Record<string, JSUpdate> = {};
-    // Calculate diff
-    const diffCheckTimeStart = performance.now();
     //update uneval tree from previously saved current state of collection
     this.updateLocalUnEvalTree(localUnEvalTree);
     //get difference in js collection body to be parsed
@@ -294,10 +274,9 @@ export default class DataTreeEvaluator {
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
-        evaluationOrder: [],
         unEvalUpdates: [],
-        jsUpdates: {},
-        evalMetaUpdates: [],
+        evalOrder: [],
+        lintOrder: [],
       };
     }
     //find all differences which can lead to updating of dependency map
@@ -310,9 +289,9 @@ export default class DataTreeEvaluator {
       differences,
       translatedDiffs,
     });
-    const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
-    const updateDependenciesStart = performance.now();
+
+    //****************************** UpdateDependency
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
@@ -326,11 +305,7 @@ export default class DataTreeEvaluator {
       unEvalDataTree: localUnEvalTree,
     });
 
-    const updateDependenciesStop = performance.now();
-
     this.applyDifferencesToEvalTree(differences);
-
-    const calculateSortOrderStart = performance.now();
 
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
       differences,
@@ -338,12 +313,6 @@ export default class DataTreeEvaluator {
       removedPaths,
       localUnEvalTree,
     );
-
-    const calculateSortOrderStop = performance.now();
-
-    // Evaluate
-    const evalStart = performance.now();
-
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
     const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
@@ -370,47 +339,30 @@ export default class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
+    // TODO: For some reason we are passing some reference which are getting mutated.
+    // Need to check why big api responses are getting split between two eval runs
+    this.oldUnEvalTree = klona(localUnEvalTree);
+    return {
+      unEvalUpdates: translatedDiffs,
+      evalOrder: evaluationOrder,
+      lintOrder: union(evaluationOrder, extraPathsToLint),
+    };
+  }
+
+  updateDataTree(
+    evaluationOrder: string[],
+  ): {
+    evalMetaUpdates: EvalMetaUpdates;
+  } {
+    //****************************** Evaluate
     const { evalMetaUpdates, evaluatedTree: newEvalTree } = this.evaluateTree(
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
     );
-    const evalStop = performance.now();
-
-    // TODO: For some reason we are passing some reference which are getting mutated.
-    // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(localUnEvalTree);
-
-    // Lint
-    const lintStart = performance.now();
-    lintTree({
-      unEvalTree: localUnEvalTree,
-      evalTree: newEvalTree,
-      sortedDependencies: evaluationOrder,
-      extraPathsToLint,
-    });
-    const lintStop = performance.now();
-
-    const totalEnd = performance.now();
     this.evalTree = newEvalTree;
-    const timeTakenForSubTreeEval = {
-      total: (totalEnd - totalStart).toFixed(2),
-      findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
-      updateDependencies: (
-        updateDependenciesStop - updateDependenciesStart
-      ).toFixed(2),
-      calculateSortOrder: (
-        calculateSortOrderStop - calculateSortOrderStart
-      ).toFixed(2),
-      evaluate: (evalStop - evalStart).toFixed(2),
-      lint: (lintStop - lintStart).toFixed(2),
-    };
-    this.logs.push({ timeTakenForSubTreeEval });
 
     return {
-      evaluationOrder,
-      unEvalUpdates: translatedDiffs,
-      jsUpdates,
       evalMetaUpdates,
     };
   }
@@ -509,91 +461,6 @@ export default class DataTreeEvaluator {
       }
     });
     return privateWidgets;
-  }
-
-  listEntityDependencies(
-    entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
-    entityName: string,
-  ): DependencyMap {
-    let dependencies: DependencyMap = {};
-
-    if (isWidget(entity)) {
-      // Adding the dynamic triggers in the dependency list as they need linting whenever updated
-      // we don't make it dependent on anything else
-      if (entity.dynamicTriggerPathList) {
-        Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
-          dependencies[`${entityName}.${key}`] = [];
-        });
-      }
-      const widgetDependencies = addWidgetPropertyDependencies({
-        entity,
-        entityName,
-      });
-
-      dependencies = {
-        ...dependencies,
-        ...widgetDependencies,
-      };
-    }
-
-    if (isAction(entity) || isJSAction(entity)) {
-      Object.entries(entity.dependencyMap).forEach(
-        ([path, entityDependencies]) => {
-          const actionDependentPaths: Array<string> = [];
-          const mainPath = `${entityName}.${path}`;
-          // Only add dependencies for paths which exist at the moment in appsmith world
-          if (this.allKeys.hasOwnProperty(mainPath)) {
-            // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
-            // a cyclical dependency.
-            entityDependencies.forEach((dependentPath) => {
-              const completePath = `${entityName}.${dependentPath}`;
-              if (this.allKeys.hasOwnProperty(completePath)) {
-                actionDependentPaths.push(completePath);
-              }
-            });
-            dependencies[mainPath] = actionDependentPaths;
-          }
-        },
-      );
-    }
-    if (isJSAction(entity)) {
-      // making functions dependent on their function body entities
-      if (entity.reactivePaths) {
-        Object.keys(entity.reactivePaths).forEach((propertyPath) => {
-          const existingDeps =
-            dependencies[`${entityName}.${propertyPath}`] || [];
-          const unevalPropValue = _.get(entity, propertyPath);
-          const unevalPropValueString =
-            !!unevalPropValue && unevalPropValue.toString();
-          const { jsSnippets } = getDynamicBindings(
-            unevalPropValueString,
-            entity,
-          );
-          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
-        });
-      }
-    }
-
-    if (isAction(entity) || isWidget(entity)) {
-      // add the dynamic binding paths to the dependency map
-      const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
-      if (dynamicBindingPathList.length) {
-        dynamicBindingPathList.forEach((dynamicPath) => {
-          const propertyPath = dynamicPath.key;
-          const unevalPropValue = _.get(entity, propertyPath);
-          const { jsSnippets } = getDynamicBindings(unevalPropValue);
-          const existingDeps =
-            dependencies[`${entityName}.${propertyPath}`] || [];
-          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
-        });
-      }
-    }
-
-    return dependencies;
   }
 
   evaluateTree(

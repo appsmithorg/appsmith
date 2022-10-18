@@ -9,7 +9,7 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "workers/evaluationUtils";
+} from "workers/Evaluation/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
 
 export type ExtraDef = Record<string, Def | string>;

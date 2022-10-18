@@ -14,7 +14,11 @@ import { getLastSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
+import {
+  isWidget,
+  isAction,
+  isJSAction,
+} from "workers/Evaluation/evaluationUtils";
 import history from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
 import store from "store";

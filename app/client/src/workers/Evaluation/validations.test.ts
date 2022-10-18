@@ -1,4 +1,7 @@
-import { validate, WIDGET_TYPE_VALIDATION_ERROR } from "workers/validations";
+import {
+  validate,
+  WIDGET_TYPE_VALIDATION_ERROR,
+} from "workers/Evaluation/validations";
 import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";

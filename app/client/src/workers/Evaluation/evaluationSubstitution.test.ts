@@ -1,4 +1,4 @@
-import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
+import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 describe("substituteDynamicBindingWithValues", () => {

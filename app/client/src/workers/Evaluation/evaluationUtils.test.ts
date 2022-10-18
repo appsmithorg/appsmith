@@ -20,7 +20,6 @@ import {
   getDataTreeWithoutPrivateWidgets,
   isPrivateEntityPath,
   makeParentsDependOnChildren,
-  removeLintErrorsFromEntityProperty,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
@@ -28,7 +27,7 @@ import { Diff } from "deep-diff";
 import _, { get, flatten } from "lodash";
 import { overrideWidgetProperties, findDatatype } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "../common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
 import InputWidget, {
@@ -138,15 +137,15 @@ const testDataTree: Record<string, DataTreeWidget> = {
     __evaluation__: {
       errors: {
         text: [
-          {
-            errorType: PropertyEvaluationErrorType.LINT,
-            raw:
-              " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
-            severity: Severity.ERROR,
-            errorMessage: "'Api24' is not defined.",
-            errorSegment: " const result = Api24",
-            originalBinding: "Api24",
-          },
+          // {
+          //   errorType: PropertyEvaluationErrorType.LINT,
+          //   raw:
+          //     " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+          //   severity: Severity.ERROR,
+          //   errorMessage: "'Api24' is not defined.",
+          //   // errorSegment: " const result = Api24",
+          //   // originalBinding: "Api24",
+          // },
         ],
       },
     },
@@ -275,15 +274,15 @@ describe("privateWidgets", () => {
         __evaluation__: {
           errors: {
             text: [
-              {
-                errorType: PropertyEvaluationErrorType.LINT,
-                raw:
-                  " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
-                severity: Severity.ERROR,
-                errorMessage: "'Api24' is not defined.",
-                errorSegment: " const result = Api24",
-                originalBinding: "Api24",
-              },
+              // {
+              //   errorType: PropertyEvaluationErrorType.LINT,
+              //   raw:
+              //     " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+              //   severity: Severity.ERROR,
+              //   errorMessage: "'Api24' is not defined.",
+              //   // errorSegment: " const result = Api24",
+              //   // originalBinding: "Api24",
+              // },
             ],
           },
         },
@@ -759,7 +758,7 @@ describe("removeLintErrorsFromEntityProperty", () => {
   it("returns correct result", function() {
     const dataTree: DataTree = { ...testDataTree };
     const path = "Button1.text";
-    removeLintErrorsFromEntityProperty(dataTree, path);
+    // removeLintErrorsFromEntityProperty(dataTree, path);
     expect(get(dataTree, `Button1.${EVAL_ERROR_PATH}[text]`)).toEqual([]);
   });
 });

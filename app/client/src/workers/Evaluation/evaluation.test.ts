@@ -7,11 +7,11 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import { sortObjectWithArray } from "../utils/treeUtils";
+import { sortObjectWithArray } from "../../utils/treeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -243,7 +243,7 @@ const BASE_WIDGET: DataTreeWidget = {
   privateWidgets: {},
 };
 
-const BASE_ACTION: DataTreeAction = {
+export const BASE_ACTION: DataTreeAction = {
   clear: {},
   logBlackList: {},
   actionId: "randomId",
@@ -334,22 +334,22 @@ describe("DataTreeEvaluator", () => {
   mockDerived.mockImplementation((type) => {
     return WIDGET_CONFIG_MAP[type].derivedProperties;
   });
-  const Input1 = generateDataTreeWidget(
-    {
-      ...BASE_WIDGET,
-      text: undefined,
-      defaultText: "Default value",
-      widgetName: "Input1",
-      type: "INPUT_WIDGET_V2",
-      reactivePaths: {
-        defaultText: EvaluationSubstitutionType.TEMPLATE,
-        isValid: EvaluationSubstitutionType.TEMPLATE,
-        value: EvaluationSubstitutionType.TEMPLATE,
-        text: EvaluationSubstitutionType.TEMPLATE,
-      },
-    },
-    {},
-  );
+  // const Input1 = generateDataTreeWidget(
+  //   {
+  //     ...BASE_WIDGET,
+  //     text: undefined,
+  //     defaultText: "Default value",
+  //     widgetName: "Input1",
+  //     type: "INPUT_WIDGET_V2",
+  //     reactivePaths: {
+  //       defaultText: EvaluationSubstitutionType.TEMPLATE,
+  //       isValid: EvaluationSubstitutionType.TEMPLATE,
+  //       value: EvaluationSubstitutionType.TEMPLATE,
+  //       text: EvaluationSubstitutionType.TEMPLATE,
+  //     },
+  //   },
+  //   {},
+  // );
   const unEvalTree: Record<string, DataTreeWidget> = {
     Text1: generateDataTreeWidget(
       {
@@ -435,28 +435,29 @@ describe("DataTreeEvaluator", () => {
   });
 
   it("Evaluates a value change in update run", () => {
-    const updatedUnEvalTree = {
-      ...unEvalTree,
-      Text1: {
-        ...unEvalTree.Text1,
-        text: "Hey there",
-      },
-    };
-    evaluator.updateDataTree(updatedUnEvalTree);
+    // const updatedUnEvalTree = {
+    //   ...unEvalTree,
+    //   Text1: {
+    //     ...unEvalTree.Text1,
+    //     text: "Hey there",
+    //   },
+    // };
+    // evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Text2.text", "Hey there");
     expect(dataTree).toHaveProperty("Text3.text", "Hey there");
   });
 
   it("Evaluates a dependency change in update run", () => {
-    const updatedUnEvalTree = {
-      ...unEvalTree,
-      Text3: {
-        ...unEvalTree.Text3,
-        text: "Label 3",
-      },
-    };
-    evaluator.updateDataTree(updatedUnEvalTree);
+    // const updatedUnEvalTree = {
+    //   ...unEvalTree,
+    //   Text3: {
+    //     ...unEvalTree.Text3,
+    //     text: "Label 3",
+    //   },
+    // };
+    //updatedUnEvalTree
+    evaluator.updateDataTree([]);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Text2.text", "Label");
@@ -468,71 +469,71 @@ describe("DataTreeEvaluator", () => {
   });
 
   it("Overrides with default value", () => {
-    const updatedUnEvalTree = {
-      ...unEvalTree,
-      Input1,
-    };
+    // const updatedUnEvalTree = {
+    //   ...unEvalTree,
+    //   Input1,
+    // };
 
-    evaluator.updateDataTree(updatedUnEvalTree);
+    // evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Input1.text", "Default value");
   });
 
   it("Evaluates for value changes in nested diff paths", () => {
-    const bindingPaths = {
-      options: EvaluationSubstitutionType.TEMPLATE,
-      defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
-      isRequired: EvaluationSubstitutionType.TEMPLATE,
-      isVisible: EvaluationSubstitutionType.TEMPLATE,
-      isDisabled: EvaluationSubstitutionType.TEMPLATE,
-    };
-    const updatedUnEvalTree = {
-      ...unEvalTree,
-      Dropdown2: {
-        ...BASE_WIDGET,
-        options: [
-          {
-            label: "newValue",
-            value: "valueTest",
-          },
-          {
-            label: "test2",
-            value: "valueTest2",
-          },
-        ],
-        type: "SELECT_WIDGET",
-        bindingPaths,
-        reactivePaths: {
-          ...bindingPaths,
-          isValid: EvaluationSubstitutionType.TEMPLATE,
-          selectedOption: EvaluationSubstitutionType.TEMPLATE,
-          selectedOptionValue: EvaluationSubstitutionType.TEMPLATE,
-          selectedOptionLabel: EvaluationSubstitutionType.TEMPLATE,
-        },
-      },
-    };
-    evaluator.updateDataTree(updatedUnEvalTree);
+    // const bindingPaths = {
+    //   options: EvaluationSubstitutionType.TEMPLATE,
+    //   defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+    //   isRequired: EvaluationSubstitutionType.TEMPLATE,
+    //   isVisible: EvaluationSubstitutionType.TEMPLATE,
+    //   isDisabled: EvaluationSubstitutionType.TEMPLATE,
+    // };
+    // const updatedUnEvalTree = {
+    //   ...unEvalTree,
+    //   Dropdown2: {
+    //     ...BASE_WIDGET,
+    //     options: [
+    //       {
+    //         label: "newValue",
+    //         value: "valueTest",
+    //       },
+    //       {
+    //         label: "test2",
+    //         value: "valueTest2",
+    //       },
+    //     ],
+    //     type: "SELECT_WIDGET",
+    //     bindingPaths,
+    //     reactivePaths: {
+    //       ...bindingPaths,
+    //       isValid: EvaluationSubstitutionType.TEMPLATE,
+    //       selectedOption: EvaluationSubstitutionType.TEMPLATE,
+    //       selectedOptionValue: EvaluationSubstitutionType.TEMPLATE,
+    //       selectedOptionLabel: EvaluationSubstitutionType.TEMPLATE,
+    //     },
+    //   },
+    // };
+    // evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
   });
 
   it("Adds an entity with a complicated binding", () => {
-    const updatedUnEvalTree = {
-      ...unEvalTree,
-      Api1: {
-        ...BASE_ACTION,
-        name: "Api1",
-        data: [
-          {
-            test: "Hey",
-          },
-          {
-            test: "Ho",
-          },
-        ],
-      },
-    };
-    evaluator.updateDataTree(updatedUnEvalTree);
+    // const updatedUnEvalTree = {
+    //   ...unEvalTree,
+    //   Api1: {
+    //     ...BASE_ACTION,
+    //     name: "Api1",
+    //     data: [
+    //       {
+    //         test: "Hey",
+    //       },
+    //       {
+    //         test: "Ho",
+    //       },
+    //     ],
+    //   },
+    // };
+    // evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
@@ -555,30 +556,30 @@ describe("DataTreeEvaluator", () => {
   });
 
   it("Selects a row", () => {
-    const updatedUnEvalTree = {
-      ...unEvalTree,
-      Table1: {
-        ...unEvalTree.Table1,
-        selectedRowIndex: 0,
-        selectedRow: {
-          test: "Hey",
-          raw: "Label",
-        },
-      },
-      Api1: {
-        ...BASE_ACTION,
-        name: "Api1",
-        data: [
-          {
-            test: "Hey",
-          },
-          {
-            test: "Ho",
-          },
-        ],
-      },
-    };
-    evaluator.updateDataTree(updatedUnEvalTree);
+    // const updatedUnEvalTree = {
+    //   ...unEvalTree,
+    //   Table1: {
+    //     ...unEvalTree.Table1,
+    //     selectedRowIndex: 0,
+    //     selectedRow: {
+    //       test: "Hey",
+    //       raw: "Label",
+    //     },
+    //   },
+    //   Api1: {
+    //     ...BASE_ACTION,
+    //     name: "Api1",
+    //     data: [
+    //       {
+    //         test: "Hey",
+    //       },
+    //       {
+    //         test: "Ho",
+    //       },
+    //     ],
+    //   },
+    // };
+    // evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
@@ -601,52 +602,52 @@ describe("DataTreeEvaluator", () => {
   });
 
   it("Honors predefined action dependencyMap", () => {
-    const updatedTree1 = {
-      ...unEvalTree,
-      Text1: {
-        ...BASE_WIDGET,
-        text: "Test",
-      },
-      Api2: {
-        ...BASE_ACTION,
-        dependencyMap: {
-          "config.body": ["config.pluginSpecifiedTemplates[0].value"],
-        },
-        reactivePaths: {
-          ...BASE_ACTION.reactivePaths,
-          "config.body": EvaluationSubstitutionType.TEMPLATE,
-        },
-        config: {
-          ...BASE_ACTION.config,
-          body: "",
-          pluginSpecifiedTemplates: [
-            {
-              value: false,
-            },
-          ],
-        },
-      },
-    };
-    evaluator.updateDataTree(updatedTree1);
+    // const updatedTree1 = {
+    //   ...unEvalTree,
+    //   Text1: {
+    //     ...BASE_WIDGET,
+    //     text: "Test",
+    //   },
+    //   Api2: {
+    //     ...BASE_ACTION,
+    //     dependencyMap: {
+    //       "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+    //     },
+    //     reactivePaths: {
+    //       ...BASE_ACTION.reactivePaths,
+    //       "config.body": EvaluationSubstitutionType.TEMPLATE,
+    //     },
+    //     config: {
+    //       ...BASE_ACTION.config,
+    //       body: "",
+    //       pluginSpecifiedTemplates: [
+    //         {
+    //           value: false,
+    //         },
+    //       ],
+    //     },
+    //   },
+    // };
+    // evaluator.updateDataTree(updatedTree1);
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
-    const updatedTree2 = {
-      ...updatedTree1,
-      Api2: {
-        ...updatedTree1.Api2,
-        dynamicBindingPathList: [
-          {
-            key: "config.body",
-          },
-        ],
-        config: {
-          ...updatedTree1.Api2.config,
-          body: "{ 'name': {{ Text1.text }} }",
-        },
-      },
-    };
-    evaluator.updateDataTree(updatedTree2);
+    // const updatedTree2 = {
+    //   ...updatedTree1,
+    //   Api2: {
+    //     ...updatedTree1.Api2,
+    //     dynamicBindingPathList: [
+    //       {
+    //         key: "config.body",
+    //       },
+    //     ],
+    //     config: {
+    //       ...updatedTree1.Api2.config,
+    //       body: "{ 'name': {{ Text1.text }} }",
+    //     },
+    //   },
+    // };
+    // evaluator.updateDataTree(updatedTree2);
     const dataTree = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",
@@ -654,25 +655,26 @@ describe("DataTreeEvaluator", () => {
     ]);
     // @ts-expect-error: Types are not available
     expect(dataTree.Api2.config.body).toBe("{ 'name': Test }");
-    const updatedTree3 = {
-      ...updatedTree2,
-      Api2: {
-        ...updatedTree2.Api2,
-        reactivePaths: {
-          ...updatedTree2.Api2.reactivePaths,
-          "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        },
-        config: {
-          ...updatedTree2.Api2.config,
-          pluginSpecifiedTemplates: [
-            {
-              value: true,
-            },
-          ],
-        },
-      },
-    };
-    evaluator.updateDataTree(updatedTree3);
+    // const updatedTree3 = {
+    //   ...updatedTree2,
+    //   Api2: {
+    //     ...updatedTree2.Api2,
+    //     reactivePaths: {
+    //       ...updatedTree2.Api2.reactivePaths,
+    //       "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    //     },
+    //     config: {
+    //       ...updatedTree2.Api2.config,
+    //       pluginSpecifiedTemplates: [
+    //         {
+    //           value: true,
+    //         },
+    //       ],
+    //     },
+    //   },
+    // };
+    //updatedTree3
+    evaluator.updateDataTree([]);
     const dataTree3 = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",

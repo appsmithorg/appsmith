@@ -41,11 +41,6 @@ import {
   getEvaluationInverseDependencyMap,
 } from "selectors/dataTreeSelectors";
 import {
-  getEntityNameAndPropertyPath,
-  isAction,
-  isWidget,
-} from "workers/evaluationUtils";
-import {
   createLogTitleString,
   getDependencyChain,
 } from "components/editorComponents/Debugger/helpers";
@@ -63,6 +58,11 @@ import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isWidget,
+} from "workers/Evaluation/evaluationUtils";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(

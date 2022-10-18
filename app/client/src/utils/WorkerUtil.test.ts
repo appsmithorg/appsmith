@@ -1,9 +1,15 @@
 import { GracefulWorkerService } from "./WorkerUtil";
 import { channel, runSaga } from "redux-saga";
-import WebpackWorker from "worker-loader!";
 
 const MessageType = "message";
-class MockWorker implements WebpackWorker {
+interface extraWorkerProperties {
+  callback: CallableFunction;
+  noop: CallableFunction;
+  delayMilliSeconds: number;
+  running: boolean;
+}
+type WorkerClass = Worker & extraWorkerProperties;
+class MockWorkerClass implements WorkerClass {
   // Implement interface
   onmessage: any;
   onmessageerror: any;
@@ -14,12 +20,12 @@ class MockWorker implements WebpackWorker {
   noop: CallableFunction;
   messages: Array<any>;
   delayMilliSeconds: number;
-  static instance: MockWorker | undefined;
+  instance: WorkerClass | undefined;
   responses: Set<number>;
   running: boolean;
 
-  static resetInstance() {
-    MockWorker.instance = undefined;
+  resetInstance() {
+    this.instance = undefined;
   }
 
   constructor() {
@@ -29,7 +35,7 @@ class MockWorker implements WebpackWorker {
     this.messages = [];
     this.delayMilliSeconds = 0;
     this.responses = new Set<number>();
-    MockWorker.instance = this;
+    this.instance = this;
     this.running = true;
   }
 
@@ -74,6 +80,8 @@ class MockWorker implements WebpackWorker {
     this.responses = new Set<number>();
   }
 }
+
+const MockWorker = new MockWorkerClass();
 
 describe("GracefulWorkerService", () => {
   beforeEach(() => {

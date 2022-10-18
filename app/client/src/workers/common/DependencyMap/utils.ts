@@ -6,10 +6,21 @@ import {
   DependencyMap,
   getDynamicBindings,
   extraLibrariesNames,
+  getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
-import { convertPathToString, isWidget } from "../evaluationUtils";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import {
+  addWidgetPropertyDependencies,
+  convertPathToString,
+  isAction,
+  isJSAction,
+  isWidget,
+} from "../../Evaluation/evaluationUtils";
+import {
+  DataTreeAction,
+  DataTreeJSAction,
+  DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
@@ -174,3 +185,88 @@ const invalidEntityIdentifiers: Record<string, unknown> = {
   ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   ...extraLibrariesNames,
 };
+
+export function listEntityDependencies(
+  entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
+  entityName: string,
+  allPaths: Record<string, true>,
+): DependencyMap {
+  let dependencies: DependencyMap = {};
+
+  if (isWidget(entity)) {
+    // Adding the dynamic triggers in the dependency list as they need linting whenever updated
+    // we don't make it dependent on anything else
+    if (entity.dynamicTriggerPathList) {
+      Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
+        dependencies[`${entityName}.${key}`] = [];
+      });
+    }
+    const widgetDependencies = addWidgetPropertyDependencies({
+      entity,
+      entityName,
+    });
+
+    dependencies = {
+      ...dependencies,
+      ...widgetDependencies,
+    };
+  }
+
+  if (isAction(entity) || isJSAction(entity)) {
+    Object.entries(entity.dependencyMap).forEach(
+      ([path, entityDependencies]) => {
+        const actionDependentPaths: Array<string> = [];
+        const mainPath = `${entityName}.${path}`;
+        // Only add dependencies for paths which exist at the moment in appsmith world
+        if (allPaths.hasOwnProperty(mainPath)) {
+          // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
+          // a cyclical dependency.
+          entityDependencies.forEach((dependentPath) => {
+            const completePath = `${entityName}.${dependentPath}`;
+            if (allPaths.hasOwnProperty(completePath)) {
+              actionDependentPaths.push(completePath);
+            }
+          });
+          dependencies[mainPath] = actionDependentPaths;
+        }
+      },
+    );
+  }
+  if (isJSAction(entity)) {
+    // making functions dependent on their function body entities
+    if (entity.reactivePaths) {
+      Object.keys(entity.reactivePaths).forEach((propertyPath) => {
+        const existingDeps =
+          dependencies[`${entityName}.${propertyPath}`] || [];
+        const unevalPropValue = get(entity, propertyPath);
+        const unevalPropValueString =
+          !!unevalPropValue && unevalPropValue.toString();
+        const { jsSnippets } = getDynamicBindings(
+          unevalPropValueString,
+          entity,
+        );
+        dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
+          jsSnippets.filter((jsSnippet) => !!jsSnippet),
+        );
+      });
+    }
+  }
+
+  if (isAction(entity) || isWidget(entity)) {
+    // add the dynamic binding paths to the dependency map
+    const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+    if (dynamicBindingPathList.length) {
+      dynamicBindingPathList.forEach((dynamicPath) => {
+        const propertyPath = dynamicPath.key;
+        const unevalPropValue = get(entity, propertyPath);
+        const { jsSnippets } = getDynamicBindings(unevalPropValue);
+        const existingDeps =
+          dependencies[`${entityName}.${propertyPath}`] || [];
+        dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
+          jsSnippets.filter((jsSnippet) => !!jsSnippet),
+        );
+      });
+    }
+  }
+  return dependencies;
+}

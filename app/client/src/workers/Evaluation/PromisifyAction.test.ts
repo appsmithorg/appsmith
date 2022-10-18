@@ -1,4 +1,4 @@
-import { createGlobalData } from "workers/evaluate";
+import { createGlobalData } from "workers/Evaluation/evaluate";
 import _ from "lodash";
 jest.mock("./evaluation.worker.ts", () => {
   return {
@@ -39,7 +39,6 @@ describe("promise execution", () => {
     expect(postMessageMock).toBeCalledWith({
       requestId,
       type: "PROCESS_TRIGGER",
-      promisified: true,
       responseData: expect.objectContaining({
         subRequestId: expect.stringContaining(`${requestId}_`),
         trigger: {
@@ -117,7 +116,6 @@ describe("promise execution", () => {
           method: "PROCESS_TRIGGER",
           requestId,
           success: true,
-          promisified: true,
         },
       }),
     );
@@ -155,7 +153,6 @@ describe("promise execution", () => {
           method: "PROCESS_TRIGGER",
           requestId,
           success: true,
-          promisified: true,
         },
       }),
     );
@@ -167,7 +164,6 @@ describe("promise execution", () => {
           method: "PROCESS_TRIGGER",
           requestId,
           success: false,
-          promisified: true,
         },
       }),
     );

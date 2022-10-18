@@ -11,7 +11,7 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
-import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { klona } from "klona";
 
 export type WidgetMetaState = Record<string, unknown>;

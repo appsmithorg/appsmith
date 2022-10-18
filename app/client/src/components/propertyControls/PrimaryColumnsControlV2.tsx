@@ -27,7 +27,6 @@ import {
   getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox, CheckboxType } from "design-system";
@@ -490,15 +489,11 @@ class EvaluatedValuePopupWrapperClass extends Component<
       [],
     ) as EvaluationError[];
 
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      isInvalid: errors.length > 0,
+      errors,
       pathEvaluatedValue,
     };
   };

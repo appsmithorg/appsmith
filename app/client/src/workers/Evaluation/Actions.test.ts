@@ -1,6 +1,6 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
-import { createGlobalData } from "workers/evaluate";
+import { createGlobalData } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
 jest.mock("lodash/uniqueId");
 

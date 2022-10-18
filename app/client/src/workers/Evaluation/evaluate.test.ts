@@ -2,7 +2,7 @@ import evaluate, {
   setupEvaluationEnvironment,
   evaluateAsync,
   isFunctionAsync,
-} from "workers/evaluate";
+} from "workers/Evaluation/evaluate";
 import {
   DataTree,
   DataTreeWidget,
@@ -195,7 +195,6 @@ describe("evaluateAsync", () => {
     await evaluateAsync(js, {}, "TEST_REQUEST", {});
     expect(self.postMessage).toBeCalledWith({
       requestId: "TEST_REQUEST",
-      promisified: true,
       responseData: {
         finished: true,
         result: { errors: [], logs: [], result: 123, triggers: [] },
@@ -210,7 +209,6 @@ describe("evaluateAsync", () => {
     await evaluateAsync(js, {}, "TEST_REQUEST_1", {});
     expect(self.postMessage).toBeCalledWith({
       requestId: "TEST_REQUEST_1",
-      promisified: true,
       responseData: {
         finished: true,
         result: {

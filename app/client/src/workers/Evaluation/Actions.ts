@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import {
   ActionDescription,
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import { promisifyAction } from "workers/PromisifyAction";
+import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in

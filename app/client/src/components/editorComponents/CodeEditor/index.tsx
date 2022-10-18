@@ -64,7 +64,6 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   getInputValue,
@@ -75,7 +74,7 @@ import {
   removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
@@ -104,6 +103,9 @@ import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
 import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
+import { getEntityLintErrors } from "selectors/lintingSelectors";
+import { getAppMode } from "selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -200,8 +202,6 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
-  // state of lint errors in editor
-  hasLintError: boolean;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -225,7 +225,6 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
-      hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -600,8 +599,9 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleLintTooltip = () => {
-    // return if there is no lint error in editor instance
-    if (!this.state.hasLintError) return;
+    const { appMode, lintErrors } = this.props;
+
+    if (lintErrors.length === 0 || appMode === APP_MODE.PUBLISHED) return;
     const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
     if (!lintTooltipList) return;
     for (const tooltip of lintTooltipList) {
@@ -753,21 +753,22 @@ class CodeEditor extends Component<Props, State> {
   lintCode(editor: CodeMirror.Editor) {
     const {
       additionalDynamicData: contextData,
+      appMode,
       dataTreePath,
-      dynamicData,
       isJSObject,
     } = this.props;
 
-    if (!dataTreePath || !this.updateLintingCallback || !editor) {
+    if (
+      !dataTreePath ||
+      !this.updateLintingCallback ||
+      !editor ||
+      appMode === APP_MODE.PUBLISHED
+    ) {
       return;
     }
-    const errors = _.get(
-      dynamicData,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
+    const lintErrors = this.props.lintErrors;
 
-    const annotations = getLintAnnotations(editor.getValue(), errors, {
+    const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
       contextData,
     });
@@ -799,37 +800,21 @@ class CodeEditor extends Component<Props, State> {
   getPropertyValidation = (
     dataTreePath?: string,
   ): {
-    isInvalid: boolean;
-    errors: EvaluationError[];
+    evalErrors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
     if (!dataTreePath) {
       return {
-        isInvalid: false,
-        errors: [],
+        evalErrors: [],
         pathEvaluatedValue: undefined,
       };
     }
 
-    const errors = _.get(
+    const evalErrors = _.get(
       this.props.dynamicData,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
-
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
-    const lintErrors = errors.filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-    );
-
-    if (!_.isEmpty(lintErrors)) {
-      !this.state.hasLintError && this.setState({ hasLintError: true });
-    } else {
-      this.state.hasLintError && this.setState({ hasLintError: false });
-    }
 
     const pathEvaluatedValue = _.get(
       this.props.dynamicData,
@@ -837,8 +822,7 @@ class CodeEditor extends Component<Props, State> {
     );
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      evalErrors,
       pathEvaluatedValue,
     };
   };
@@ -865,10 +849,13 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const validations = this.getPropertyValidation(dataTreePath);
-    let { errors, isInvalid } = validations;
-    const { pathEvaluatedValue } = validations;
-    let evaluated = evaluatedValue;
+    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
+      dataTreePath,
+    );
+    let errors = evalErrors,
+      isInvalid = evalErrors.length > 0,
+      evaluated = evaluatedValue;
+
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
@@ -1000,12 +987,14 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: EditorProps) => ({
+const mapStateToProps = (state: AppState, { dataTreePath }: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
+  editorIsFocused: getIsCodeEditorFocused(state, dataTreePath || ""),
+  lintErrors: dataTreePath ? getEntityLintErrors(state, dataTreePath) : [],
+  appMode: getAppMode(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

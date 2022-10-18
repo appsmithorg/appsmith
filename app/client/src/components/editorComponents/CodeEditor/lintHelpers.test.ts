@@ -1,6 +1,6 @@
 import { Severity } from "entities/AppsmithConsole";
 import {
-  EvaluationError,
+  LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { CODE_EDITOR_START_POSITION } from "./constants";
@@ -41,11 +41,11 @@ describe("getKeyPositionsInString()", () => {
 });
 
 describe("getLintAnnotations()", () => {
-  const { LINT, PARSE } = PropertyEvaluationErrorType;
+  const { LINT } = PropertyEvaluationErrorType;
   const { ERROR, WARNING } = Severity;
   it("should return proper annotations", () => {
     const value1 = `Hello {{ world == test }}`;
-    const errors1: EvaluationError[] = [
+    const errors1: LintError[] = [
       {
         errorType: LINT,
         raw:
@@ -129,7 +129,7 @@ describe("getLintAnnotations()", () => {
 
     /// 2
     const value2 = `hss{{hss}}`;
-    const errors2: EvaluationError[] = [
+    const errors2: LintError[] = [
       {
         errorType: LINT,
         raw:
@@ -165,7 +165,7 @@ describe("getLintAnnotations()", () => {
   it("should return correct annotation with newline in original binding", () => {
     const value = `Hello {{ world
     }}`;
-    const errors: EvaluationError[] = [
+    const errors: LintError[] = [
       {
         errorType: LINT,
         raw:
@@ -178,14 +178,6 @@ describe("getLintAnnotations()", () => {
         code: "W117",
         line: 0,
         ch: 2,
-      },
-      {
-        errorMessage: "ReferenceError: world is not defined",
-        severity: ERROR,
-        raw:
-          "\n  function closedFunction () {\n    const result = world\n\n    return result;\n  }\n  closedFunction()\n  ",
-        errorType: PARSE,
-        originalBinding: " world\n",
       },
     ];
 
@@ -213,7 +205,7 @@ describe("getLintAnnotations()", () => {
 
     }
     `;
-    const errors: EvaluationError[] = [];
+    const errors: LintError[] = [];
 
     const res = getLintAnnotations(value, errors, { isJSObject: true });
     expect(res).toEqual([

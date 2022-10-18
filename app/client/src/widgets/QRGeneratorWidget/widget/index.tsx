@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 
 import { TextSize } from "constants/WidgetConstants";
-import { countOccurrences } from "workers/helpers";
+import { countOccurrences } from "workers/Evaluation/helpers";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";

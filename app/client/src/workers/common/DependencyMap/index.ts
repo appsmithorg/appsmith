@@ -9,7 +9,7 @@ import {
   isDynamicLeaf,
   isValidEntity,
   getEntityNameAndPropertyPath,
-} from "workers/evaluationUtils";
+} from "workers/Evaluation/evaluationUtils";
 import {
   DataTree,
   DataTreeAction,
@@ -27,10 +27,11 @@ import {
 import {
   extractInfoFromBindings,
   extractInfoFromReferences,
+  listEntityDependencies,
   listTriggerFieldDependencies,
   mergeArrays,
 } from "./utils";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { difference } from "lodash";
 
 interface CreateDependencyMap {
@@ -54,9 +55,10 @@ export function createDependencyMap(
   Object.keys(unEvalTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
     if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
-      const entityListedDependencies = dataTreeEvalRef.listEntityDependencies(
+      const entityListedDependencies = listEntityDependencies(
         entity,
         entityName,
+        dataTreeEvalRef.allKeys,
       );
       dependencyMap = { ...dependencyMap, ...entityListedDependencies };
     }
@@ -163,9 +165,10 @@ export const updateDependencyMap = ({
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
             !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
           ) {
-            const entityDependencyMap: DependencyMap = dataTreeEvalRef.listEntityDependencies(
+            const entityDependencyMap: DependencyMap = listEntityDependencies(
               entity,
               entityName,
+              dataTreeEvalRef.allKeys,
             );
             if (Object.keys(entityDependencyMap).length) {
               didUpdateDependencyMap = true;
@@ -355,9 +358,10 @@ export const updateDependencyMap = ({
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
             dataTreeDiff.payload.propertyPath === entityName
           ) {
-            const entityDependencies = dataTreeEvalRef.listEntityDependencies(
+            const entityDependencies = listEntityDependencies(
               entity,
               entityName,
+              dataTreeEvalRef.allKeys,
             );
             Object.keys(entityDependencies).forEach((widgetDep) => {
               didUpdateDependencyMap = true;

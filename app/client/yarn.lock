@@ -15828,13 +15828,6 @@ workbox-window@6.5.3:
     "@types/trusted-types" "^2.0.2"
     workbox-core "6.5.3"
 
-worker-loader@^3.0.2:
-  version "3.0.4"
-  resolved "https://registry.npmjs.org/worker-loader/-/worker-loader-3.0.4.tgz"
-  dependencies:
-    loader-utils "^2.0.0"
-    schema-utils "^3.0.0"
-
 workerpool@6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/workerpool/-/workerpool-6.2.0.tgz#827d93c9ba23ee2019c3ffaff5c27fccea289e8b"

@@ -10,7 +10,7 @@ import {
   getEntityNameAndPropertyPath,
   isJSAction,
   isTrueObject,
-} from "workers/evaluationUtils";
+} from "workers/Evaluation/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
@@ -120,8 +120,8 @@ export enum EvalErrorTypes {
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
-  CLONE_ERROR = "CLONE_ERROR",
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
+  CLONE_ERROR = "CLONE_ERROR",
 }
 
 export type EvalError = {
@@ -145,6 +145,7 @@ export enum EVAL_WORKER_ACTIONS {
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
   INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
+  UPDATE_DEPENDENCY = "UPDATE_DEPENDENCY",
 }
 
 export type ExtraLibrary = {
@@ -430,18 +431,27 @@ export enum PropertyEvaluationErrorType {
   LINT = "LINT",
 }
 
-export type EvaluationError = {
+export interface AppsmithError {
   raw: string;
-  errorType: PropertyEvaluationErrorType;
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
-  errorSegment?: string;
-  originalBinding?: string;
-  variables?: (string | undefined | null)[];
-  code?: string;
-  line?: number;
-  ch?: number;
-};
+}
+
+export interface EvaluationError extends AppsmithError {
+  errorType:
+    | PropertyEvaluationErrorType.PARSE
+    | PropertyEvaluationErrorType.VALIDATION;
+}
+
+export interface LintError extends AppsmithError {
+  errorType: PropertyEvaluationErrorType.LINT;
+  errorSegment: string;
+  originalBinding: string;
+  variables: (string | undefined | null)[];
+  code: string;
+  line: number;
+  ch: number;
+}
 
 export interface DataTreeEvaluationProps {
   __evaluation__?: {

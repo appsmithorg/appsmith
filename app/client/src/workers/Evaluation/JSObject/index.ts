@@ -3,18 +3,18 @@ import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import evaluateSync, { isFunctionAsync } from "workers/evaluate";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import evaluateSync, { isFunctionAsync } from "workers/Evaluation/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
-} from "workers/evaluationUtils";
+} from "workers/Evaluation/evaluationUtils";
 import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
-} from "workers/JSObject/utils";
+} from "workers/Evaluation/JSObject/utils";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body

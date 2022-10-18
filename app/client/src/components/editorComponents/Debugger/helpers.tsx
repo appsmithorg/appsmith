@@ -13,7 +13,7 @@ import {
   matchApiPath,
   matchQueryPath,
 } from "constants/routes";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { modText } from "utils/helpers";
 import { union } from "lodash";
 

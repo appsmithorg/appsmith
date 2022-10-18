@@ -1,26 +1,19 @@
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import {
-  getEntityNameAndPropertyPath,
-  isAction,
-  isATriggerPath,
-  isJSAction,
-  isWidget,
-} from "workers/evaluationUtils";
+
 import { Position } from "codemirror";
 import {
-  EvaluationError,
   extraLibraries,
   isDynamicValue,
   isPathADynamicBinding,
+  LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint, LintError, LintOptions } from "jshint";
-import { get, isEmpty, isNumber, keys, last } from "lodash";
 import {
-  EvaluationScripts,
-  EvaluationScriptType,
-  ScriptTemplate,
-} from "workers/evaluate";
+  JSHINT as jshint,
+  LintError as JSHintError,
+  LintOptions,
+} from "jshint";
+import { get, isEmpty, isNumber, keys, last, set } from "lodash";
 import {
   getLintErrorMessage,
   getLintSeverity,
@@ -37,12 +30,183 @@ import {
   ECMA_VERSION,
   MemberExpressionData,
 } from "@shared/ast";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
-export const pathRequiresLinting = (
+import {
+  createGlobalData,
+  EvaluationScripts,
+  EvaluationScriptType,
+  getScriptToEval,
+  getScriptType,
+  ScriptTemplate,
+} from "workers/Evaluation/evaluate";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isATriggerPath,
+  isJSAction,
+  isWidget,
+} from "workers/Evaluation/evaluationUtils";
+import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+
+export function getlintErrorsFromTree(
+  pathsToLint: string[],
+  unEvalTree: DataTree,
+): LintErrors {
+  const lintTreeErrors: LintErrors = {};
+  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({
+    dataTree: unEvalTree,
+    resolvedFunctions: {},
+    isTriggerBased: false,
+  });
+  // trigger paths
+  const triggerPaths = new Set<string>();
+  // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
+  const bindingPathsRequiringFunctions = new Set<string>();
+
+  pathsToLint.forEach((fullPropertyPath) => {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+      fullPropertyPath,
+    );
+    const entity = unEvalTree[entityName];
+    const unEvalPropertyValue = (get(
+      unEvalTree,
+      fullPropertyPath,
+    ) as unknown) as string;
+    // remove all lint errors from path
+    set(lintTreeErrors, fullPropertyPath, []);
+
+    // We are only interested in paths that require linting
+    if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
+    if (isATriggerPath(entity, propertyPath))
+      return triggerPaths.add(fullPropertyPath);
+    if (isJSAction(entity))
+      return bindingPathsRequiringFunctions.add(`${entityName}.body`);
+    const lintErrors = lintBindingPath(
+      unEvalPropertyValue,
+      entity,
+      fullPropertyPath,
+      GLOBAL_DATA_WITHOUT_FUNCTIONS,
+    );
+    set(lintTreeErrors, fullPropertyPath, lintErrors);
+  });
+
+  if (triggerPaths.size || bindingPathsRequiringFunctions.size) {
+    // we only create GLOBAL_DATA_WITH_FUNCTIONS if there are paths requiring it
+    // In trigger based fields, functions such as showAlert, storeValue, etc need to be added to the global data
+    const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData({
+      dataTree: unEvalTree,
+      resolvedFunctions: {},
+      isTriggerBased: true,
+      skipEntityFunctions: true,
+    });
+
+    // lint binding paths that need GLOBAL_DATA_WITH_FUNCTIONS
+    if (bindingPathsRequiringFunctions.size) {
+      bindingPathsRequiringFunctions.forEach((fullPropertyPath) => {
+        const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
+        const entity = unEvalTree[entityName];
+        const unEvalPropertyValue = (get(
+          unEvalTree,
+          fullPropertyPath,
+        ) as unknown) as string;
+        // remove all lint errors from path
+        set(lintTreeErrors, fullPropertyPath, []);
+        const lintErrors = lintBindingPath(
+          unEvalPropertyValue,
+          entity,
+          fullPropertyPath,
+          GLOBAL_DATA_WITH_FUNCTIONS,
+        );
+        lintTreeErrors[fullPropertyPath] = lintErrors;
+        set(lintTreeErrors, fullPropertyPath, lintErrors);
+      });
+    }
+
+    // Lint triggerPaths
+    if (triggerPaths.size) {
+      triggerPaths.forEach((triggerPath) => {
+        const { entityName } = getEntityNameAndPropertyPath(triggerPath);
+        const entity = unEvalTree[entityName];
+        const unEvalPropertyValue = (get(
+          unEvalTree,
+          triggerPath,
+        ) as unknown) as string;
+        // remove all lint errors from path
+        set(lintTreeErrors, triggerPath, []);
+        const lintErrors = lintTriggerPath(
+          unEvalPropertyValue,
+          entity,
+          GLOBAL_DATA_WITH_FUNCTIONS,
+        );
+        set(lintTreeErrors, triggerPath, lintErrors);
+      });
+    }
+  }
+
+  return lintTreeErrors;
+}
+
+function lintBindingPath(
+  dynamicBinding: string,
+  entity: DataTreeEntity,
+  fullPropertyPath: string,
+  globalData: ReturnType<typeof createGlobalData>,
+) {
+  let lintErrors: LintError[] = [];
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+  // Get the {{binding}} bound values
+  const { jsSnippets, stringSegments } = getDynamicBindings(
+    dynamicBinding,
+    entity,
+  );
+
+  if (stringSegments) {
+    jsSnippets.forEach((jsSnippet, index) => {
+      if (jsSnippet) {
+        const jsSnippetToLint = getJSToLint(entity, jsSnippet, propertyPath);
+        // {{user's code}}
+        const originalBinding = getJSToLint(
+          entity,
+          stringSegments[index],
+          propertyPath,
+        );
+        const scriptType = getScriptType(false, false);
+        const scriptToLint = getScriptToEval(jsSnippetToLint, scriptType);
+        const lintErrorsFromSnippet = getLintingErrors(
+          scriptToLint,
+          globalData,
+          originalBinding,
+          scriptType,
+        );
+        lintErrors = lintErrors.concat(lintErrorsFromSnippet);
+      }
+    });
+  }
+  return lintErrors;
+}
+
+function lintTriggerPath(
+  userScript: string,
+  entity: DataTreeEntity,
+  globalData: ReturnType<typeof createGlobalData>,
+) {
+  const { jsSnippets } = getDynamicBindings(userScript, entity);
+  const script = getScriptToEval(jsSnippets[0], EvaluationScriptType.TRIGGERS);
+
+  return getLintingErrors(
+    script,
+    globalData,
+    jsSnippets[0],
+    EvaluationScriptType.TRIGGERS,
+  );
+}
+
+export function pathRequiresLinting(
   dataTree: DataTree,
   entity: DataTreeEntity,
   fullPropertyPath: string,
-): boolean => {
+): boolean {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const unEvalPropertyValue = (get(
     dataTree,
@@ -59,22 +223,22 @@ export const pathRequiresLinting = (
     (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
     isJSAction(entity);
   return requiresLinting;
-};
+}
 
 // Removes "export default" statement from js Object
-export const getJSToLint = (
+export function getJSToLint(
   entity: DataTreeEntity,
   snippet: string,
   propertyPath: string,
-) => {
+): string {
   return entity && isJSAction(entity) && propertyPath === "body"
     ? snippet.replace(/export default/g, "")
     : snippet;
-};
+}
 
-export const getPositionInEvaluationScript = (
+export function getPositionInEvaluationScript(
   type: EvaluationScriptType,
-): Position => {
+): Position {
   const script = EvaluationScripts[type];
 
   const index = script.indexOf(ScriptTemplate);
@@ -83,7 +247,7 @@ export const getPositionInEvaluationScript = (
   const lastLine = last(lines) || "";
 
   return { line: lines.length, ch: lastLine.length };
-};
+}
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -101,13 +265,13 @@ function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
   return EvaluationScriptPositions[scriptType];
 }
 
-export const getLintingErrors = (
+export function getLintingErrors(
   script: string,
   data: Record<string, unknown>,
   // {{user's code}}
   originalBinding: string,
   scriptType: EvaluationScriptType,
-): EvaluationError[] => {
+): LintError[] {
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const globalData: Record<string, boolean> = {};
   for (const dataKey in data) {
@@ -148,24 +312,25 @@ export const getLintingErrors = (
 
   jshint(script, options);
 
-  const jshintErrors = getValidLintErrors(jshint.errors, scriptPos).map(
-    (lintError) => {
-      const ch = lintError.character;
-      return {
-        errorType: PropertyEvaluationErrorType.LINT,
-        raw: script,
-        severity: getLintSeverity(lintError.code),
-        errorMessage: getLintErrorMessage(lintError.reason),
-        errorSegment: lintError.evidence,
-        originalBinding,
-        // By keeping track of these variables we can highlight the exact text that caused the error.
-        variables: [lintError.a, lintError.b, lintError.c, lintError.d],
-        code: lintError.code,
-        line: lintError.line - scriptPos.line,
-        ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
-      };
-    },
-  );
+  const jshintErrors: LintError[] = getValidLintErrors(
+    jshint.errors,
+    scriptPos,
+  ).map((lintError) => {
+    const ch = lintError.character;
+    return {
+      errorType: PropertyEvaluationErrorType.LINT,
+      raw: script,
+      severity: getLintSeverity(lintError.code),
+      errorMessage: getLintErrorMessage(lintError.reason),
+      errorSegment: lintError.evidence,
+      originalBinding,
+      // By keeping track of these variables we can highlight the exact text that caused the error.
+      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
+      code: lintError.code,
+      line: lintError.line - scriptPos.line,
+      ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
+    };
+  });
   const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
     script,
     data,
@@ -173,10 +338,13 @@ export const getLintingErrors = (
     originalBinding,
   );
   return jshintErrors.concat(invalidPropertyErrors);
-};
+}
 
-const getValidLintErrors = (lintErrors: LintError[], scriptPos: Position) => {
-  return lintErrors.reduce((result: LintError[], lintError) => {
+function getValidLintErrors(
+  lintErrors: JSHintError[],
+  scriptPos: Position,
+): JSHintError[] {
+  return lintErrors.reduce((result: JSHintError[], lintError) => {
     // Ignored errors should not be reported
     if (IGNORED_LINT_ERRORS.includes(lintError.code)) return result;
     /** Some error messages reference line numbers,
@@ -217,14 +385,14 @@ const getValidLintErrors = (lintErrors: LintError[], scriptPos: Position) => {
     });
     return result;
   }, []);
-};
+}
 
-const getInvalidPropertyErrorsFromScript = (
+function getInvalidPropertyErrorsFromScript(
   script: string,
   data: Record<string, unknown>,
   scriptPos: Position,
   originalBinding: string,
-) => {
+): LintError[] {
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
   try {
     invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
@@ -235,9 +403,9 @@ const getInvalidPropertyErrorsFromScript = (
   } catch (e) {}
 
   const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
-    ({ object, property }) => {
+    ({ object, property }): LintError => {
       const propertyName = isLiteralNode(property)
-        ? property.value
+        ? (property.value as string)
         : property.name;
       const objectStartLine = object.loc.start.line - 1;
       // For computed member expressions (entity["property"]), add an extra 1 to the start column to account for "[".
@@ -264,4 +432,4 @@ const getInvalidPropertyErrorsFromScript = (
     },
   );
   return invalidPropertyErrors;
-};
+}
