@@ -81,21 +81,9 @@ export function Categories({
   currentSubCategory?: string;
   showSubCategory?: boolean;
 }) {
-  const user = useSelector(getCurrentUser);
-  const isSuperUser = user?.isSuperUser;
-
-  const filteredCategories = categories
-    ?.map((category) => {
-      if (category.title === "Users" && !isSuperUser) {
-        return null;
-      }
-      return category;
-    })
-    .filter(Boolean) as Category[];
-
   return (
     <CategoryList className="t--settings-category-list">
-      {filteredCategories?.map((config) => (
+      {categories?.map((config) => (
         <CategoryItem key={config.slug}>
           <StyledLink
             $active={
