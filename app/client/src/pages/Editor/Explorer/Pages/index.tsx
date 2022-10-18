@@ -246,7 +246,9 @@ function Pages() {
         }
         entityId="Pages"
         icon={""}
-        isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
+        isDefaultExpanded={
+          isPagesOpen === null || isPagesOpen === undefined ? true : isPagesOpen
+        }
         name="Pages"
         onClickPreRightIcon={onPin}
         onClickRightIcon={onClickRightIcon}

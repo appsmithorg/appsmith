@@ -105,7 +105,9 @@ function Files() {
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded={isFilesOpen === null ? false : isFilesOpen}
+      isDefaultExpanded={
+        isFilesOpen === null || isFilesOpen === undefined ? false : isFilesOpen
+      }
       isSticky
       key={pageId + "_widgets"}
       name="Queries/JS"

@@ -13,6 +13,7 @@ import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
   getAllEntityCollapsibleStates,
   getAllPropertySectionState,
+  getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
   getExplorerSwitchIndex,
   getFocusableField,
@@ -23,6 +24,7 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   setAllEntityCollapsibleStates,
+  setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
   setExplorerSwitchIndex,
   setFocusableField,
@@ -93,6 +95,7 @@ export enum FocusElement {
   PropertyPaneWidth = "PropertyPaneWidth",
   SelectedPropertyPanel = "SelectedPropertyPanel",
   SelectedWidgets = "SelectedWidgets",
+  SubEntityCollapsibleState = "SubEntityCollapsibleState",
   WidgetMeta = "WidgetMeta",
 }
 
@@ -129,6 +132,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.EntityCollapsibleState,
       selector: getAllEntityCollapsibleStates,
       setter: setAllEntityCollapsibleStates,
+    },
+    {
+      name: FocusElement.SubEntityCollapsibleState,
+      selector: getAllSubEntityCollapsibleStates,
+      setter: setAllSubEntityCollapsibleStates,
       defaultValue: {},
     },
     {

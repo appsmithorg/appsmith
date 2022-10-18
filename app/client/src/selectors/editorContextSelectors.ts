@@ -2,6 +2,7 @@ import { AppState } from "@appsmith/reducers";
 import {
   CodeEditorHistory,
   EvaluatedPopupState,
+  isSubEntities,
   PropertyPanelContext,
   PropertyPanelState,
   SelectedPropertyPanel,
@@ -33,6 +34,9 @@ export const getWidgetSelectedPropertyTabIndex = (state: AppState) =>
 
 export const getAllEntityCollapsibleStates = (state: AppState) =>
   state.ui.editorContext.entityCollapsibleFields;
+
+export const getAllSubEntityCollapsibleStates = (state: AppState) =>
+  state.ui.editorContext.subEntityCollapsibleFields;
 
 export const getExplorerSwitchIndex = (state: AppState) =>
   state.ui.editorContext.explorerSwitchIndex;
@@ -152,12 +156,16 @@ export const getSelectedPropertyPanelIndex = createSelector(
 export const getEntityCollapsibleState = createSelector(
   [
     getAllEntityCollapsibleStates,
+    getAllSubEntityCollapsibleStates,
     (_state: AppState, entityName: string) => entityName,
   ],
   (
     entityCollapsibleStates: { [key: string]: boolean },
+    subEntityCollapsibleStates: { [key: string]: boolean },
     entityName: string,
   ): boolean | undefined => {
+    if (isSubEntities(entityName))
+      return subEntityCollapsibleStates[entityName];
     return entityCollapsibleStates[entityName];
   },
 );

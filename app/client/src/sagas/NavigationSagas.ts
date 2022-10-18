@@ -146,7 +146,12 @@ function* storeStateOfPage(pageId: string) {
     // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
-  state._routingURL = previousURL;
+  if (previousURL.includes(pageId)) {
+    state._routingURL = previousURL;
+  } else {
+    state._routingURL = undefined;
+  }
+
   const entityInfo = { entity, id: pageId };
   yield put(setFocusHistory(pageId, { entityInfo, state }));
 }

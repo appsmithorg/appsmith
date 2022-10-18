@@ -30,6 +30,7 @@ export type CodeEditorHistory = Record<string, CodeEditorContext>;
 
 export type EditorContextState = {
   entityCollapsibleFields: Record<string, boolean>;
+  subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
   focusableField?: string;
   selectedPropertyPanel?: SelectedPropertyPanel;
@@ -47,7 +48,14 @@ const initialState: EditorContextState = {
   selectedDebuggerTab: "",
   propertyPanelState: {},
   entityCollapsibleFields: {},
+  subEntityCollapsibleFields: {},
   explorerSwitchIndex: 0,
+};
+
+const entitySections = ["Pages", "Widgets", "Queries/JS", "Datasources"];
+
+export const isSubEntities = (name: string): boolean => {
+  return entitySections.indexOf(name) < 0;
 };
 
 /**
@@ -180,9 +188,16 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: { name: string; isOpen: boolean } },
   ) => {
     const { isOpen, name } = action.payload;
-    state.entityCollapsibleFields[name] = isOpen;
+    if (isSubEntities(name)) state.subEntityCollapsibleFields[name] = isOpen;
+    else state.entityCollapsibleFields[name] = isOpen;
   },
   [ReduxActionTypes.SET_ALL_ENTITY_COLLAPSIBLE_STATE]: (
+    state: EditorContextState,
+    action: { payload: { [key: string]: boolean } },
+  ) => {
+    state.entityCollapsibleFields = action.payload;
+  },
+  [ReduxActionTypes.SET_ALL_SUB_ENTITY_COLLAPSIBLE_STATE]: (
     state: EditorContextState,
     action: { payload: { [key: string]: boolean } },
   ) => {

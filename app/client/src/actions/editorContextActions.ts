@@ -155,6 +155,15 @@ export const setAllEntityCollapsibleStates = (payload: {
   };
 };
 
+export const setAllSubEntityCollapsibleStates = (payload: {
+  [key: string]: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_ALL_SUB_ENTITY_COLLAPSIBLE_STATE,
+    payload,
+  };
+};
+
 export const setExplorerSwitchIndex = (payload: number) => {
   return {
     type: ReduxActionTypes.SET_EXPLORER_SWITCH_INDEX,
