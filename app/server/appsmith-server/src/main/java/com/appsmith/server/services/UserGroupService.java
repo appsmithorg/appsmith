@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
 
     Mono<UserGroupDTO> createGroup(UserGroup userGroup);
 
-    Mono<UserGroupDTO> removeUsers(UsersForGroupDTO removeUsersFromGroupDTO);
+    Mono<List<UserGroupDTO>> removeUsers(UsersForGroupDTO removeUsersFromGroupDTO);
 
     Mono<UserGroup> findById(String id, AclPermission permission);
 
@@ -21,4 +22,6 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
     Mono<UserGroupDTO> getGroupById(String id);
 
     Mono<List<UserGroupDTO>> inviteUsers(UsersForGroupDTO inviteUsersToGroupDTO, String originHeader);
+
+    Mono<List<UserGroupDTO>> changeGroupsForUser(String username, UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader);
 }

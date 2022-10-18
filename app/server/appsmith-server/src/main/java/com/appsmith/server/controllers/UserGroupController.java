@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.services.UserGroupService;
@@ -80,14 +81,22 @@ public class UserGroupController {
 
     @PostMapping("/invite")
     public Mono<ResponseDTO<List<UserGroupDTO>>> inviteUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO,
-                                                     @RequestHeader("Origin") String originHeader) {
+                                                             @RequestHeader("Origin") String originHeader) {
         return service.inviteUsers(inviteUsersToGroupDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
     @PostMapping("/removeUsers")
-    public Mono<ResponseDTO<UserGroupDTO>> removeUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO) {
+    public Mono<ResponseDTO<List<UserGroupDTO>>> removeUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO) {
         return service.removeUsers(inviteUsersToGroupDTO)
+                .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
+    }
+
+    @PutMapping("/users/{userId}")
+    public Mono<ResponseDTO<List<UserGroupDTO>>> bulkChangeMembership(@PathVariable String userId,
+                                                                      @RequestBody UpdateGroupMembershipDTO updateGroupMembershipDTO,
+                                                                      @RequestHeader("Origin") String originHeader) {
+        return service.changeGroupsForUser(userId, updateGroupMembershipDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
