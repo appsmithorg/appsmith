@@ -7,7 +7,7 @@
 </p>
 <br />
 
-<p>Appsmith is an open-source platform to build, deploy, and maintain internal apps. You can build anything from simple CRUD apps, admin panels, dashboards to custom business apps and complicated multi-step workflows.</p>
+<p>Appsmith is an open-source platform to build, deploy, and maintain internal apps. You can build anything from simple CRUD apps, admin panels and dashboards to custom business apps and complicated multi-step workflows.</p>
 
 <p align="center">
 <a href="https://discord.gg/rBTTVJp">
@@ -37,7 +37,7 @@
 
 ### 1. Build your UI
 
-Build your UI with our drag and drop UI builder. Use 45+ pre-built, customizable widgets including tables, charts, lists, modals, forms, and more. [Docs](https://docs.appsmith.com/core-concepts/dynamic-ui?utm_source=github&utm_medium=organic&utm_campaign=readme)
+Build your UI with our drag-and-drop UI builder. Use 45+ pre-built, customizable widgets including tables, charts, lists, modals, forms, and more. [Docs](https://docs.appsmith.com/core-concepts/dynamic-ui?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
@@ -107,7 +107,7 @@ Appsmith makes it easy to create powerful utility applications organized across 
 - ArangoDB
 - SMTP
 
-🛠️ **API client and query builder** lets you run RESTful API, GraphQL, or database queries within connected datasources.
+🛠️ **API client and query builder** lets you run RESTful API, GraphQL, or database queries within connected data sources.
 
 🚀 **JavaScript code support**. You can use JavaScript inside `{{ }}` anywhere in Appsmith. You can reference every entity in Appsmith as a JavaScript variable and perform all JavaScript functions and operations on them. Our in-built JS editor gives the full IDE experience with multiline editing, autocomplete, linting and debugging.
 
@@ -123,7 +123,7 @@ Appsmith makes it easy to create powerful utility applications organized across 
 
 ## Support and Community
 
-Issues are inevitable. When you have one, our entire team and our active developer community is around to help.<br>
+Issues are inevitable. When you have one, our entire team and our active developer community are around to help.<br>
 
 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)<br>
 📄 Find a solution in our [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)<br>
@@ -154,7 +154,7 @@ We ❤️ our contributors. We're committed to fostering an open, welcoming, and
 🧩 [Set up your local environment](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).<br>
 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).<br>
 
-Lets build great software together.
+Let's build great software together.
 
 ### Top Contributors
 
