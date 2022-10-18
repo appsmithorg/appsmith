@@ -11,6 +11,7 @@ type DropdownWrapperProps = {
   width?: string;
   height?: string;
   optionWidth?: string;
+  disabled?: boolean;
 };
 
 function DropdownFieldWrapper(props: DropdownWrapperProps) {
@@ -42,6 +43,7 @@ function DropdownFieldWrapper(props: DropdownWrapperProps) {
     <Dropdown
       bgColor={Colors.CODE_GRAY}
       className={props.className}
+      disabled={props.disabled}
       height={props.height}
       onSelect={onSelectHandler}
       optionWidth={props.optionWidth}

@@ -4,6 +4,8 @@ import styled from "styled-components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -70,9 +72,21 @@ export function Categories({
   currentSubCategory?: string;
   showSubCategory?: boolean;
 }) {
+  const user = useSelector(getCurrentUser);
+  const isSuperUser = user?.isSuperUser;
+
+  const filteredCategories = categories
+    ?.map((category) => {
+      if (category.title === "Users" && !isSuperUser) {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
+
   return (
     <CategoryList className="t--settings-category-list">
-      {categories?.map((config) => (
+      {filteredCategories?.map((config) => (
         <CategoryItem key={config.slug}>
           <StyledLink
             $active={
@@ -109,16 +123,22 @@ export function Categories({
 export default function LeftPane() {
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
+  const user = useSelector(getCurrentUser);
+  const isSuperUser = user?.isSuperUser;
   return (
     <Wrapper>
-      <HeaderContainer>
-        <StyledHeader>Admin Settings</StyledHeader>
-      </HeaderContainer>
-      <Categories
-        categories={categories}
-        currentCategory={category}
-        currentSubCategory={subCategory}
-      />
+      {isSuperUser && (
+        <>
+          <HeaderContainer>
+            <StyledHeader>Admin Settings</StyledHeader>
+          </HeaderContainer>
+          <Categories
+            categories={categories}
+            currentCategory={category}
+            currentSubCategory={subCategory}
+          />
+        </>
+      )}
     </Wrapper>
   );
 }
