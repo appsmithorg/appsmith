@@ -293,8 +293,12 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
   const minRows = Math.floor(minY / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
   return (
-    <StyledOverlayHandles>
-      <MinHeightOverlayHandle y={minY} {...minHoverFns}>
+    <StyledOverlayHandles data-cy="t-auto-height-overlay-handles">
+      <MinHeightOverlayHandle
+        y={minY}
+        {...minHoverFns}
+        data-cy="t--auto-height-overlay-handles-min"
+      >
         <DraggableBorder isActive={isMinDotActive} {...minDragFunctions} />
         <DraggableOverlayHandleDot {...minDragFunctions}>
           <MinHeightOverlayHandleDot
@@ -310,7 +314,11 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
           </OverlayHandleLabel>
         ) : null}
       </MinHeightOverlayHandle>
-      <MaxHeightOverlayHandle y={maxY} {...maxHoverFns}>
+      <MaxHeightOverlayHandle
+        y={maxY}
+        {...maxHoverFns}
+        data-cy="t--auto-height-overlay-handles-max"
+      >
         <DraggableBorder isActive={isMaxDotActive} {...maxDragFunctions} />
         <DraggableOverlayHandleDot {...maxDragFunctions}>
           <MinHeightOverlayHandleDot
@@ -637,6 +645,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           }}
         >
           <OverlayDisplay
+            data-cy="t--auto-height-overlay-min"
             isActive={
               isMinDotDragging ||
               isMinDotActive ||
@@ -645,6 +654,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
             maxY={finalMinY}
           />
           <OverlayDisplay
+            data-cy="t--auto-height-overlay-max"
             isActive={
               isMaxDotDragging ||
               isMaxDotActive ||
