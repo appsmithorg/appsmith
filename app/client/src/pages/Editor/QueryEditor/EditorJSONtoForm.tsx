@@ -35,7 +35,7 @@ import {
   TextType,
   TooltipComponent,
 } from "design-system";
-import styled, { theme } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -154,7 +154,7 @@ const ErrorMessage = styled.p`
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
-  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
+  height: ${ActionExecutionResizerHeight}px;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
@@ -1111,7 +1111,7 @@ export function EditorJSONtoForm(props: Props) {
 
               <EntityBottomTabs
                 containerRef={panelRef}
-                expandedHeight={theme.actionsBottomTabInitialHeight}
+                expandedHeight={`${ActionExecutionResizerHeight}px`}
                 onSelect={setSelectedResponseTab}
                 selectedTabKey={selectedResponseTab}
                 tabs={responseTabs}

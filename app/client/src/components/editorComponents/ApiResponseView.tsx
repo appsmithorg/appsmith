@@ -50,7 +50,6 @@ import {
 } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import ActionAPI from "api/ActionAPI";
-import { theme } from "constants/DefaultTheme";
 import {
   getApiPaneResponsePaneHeight,
   getApiPaneResponseSelectedTab,
@@ -620,7 +619,7 @@ function ApiResponseView(props: Props) {
         )}
         <EntityBottomTabs
           containerRef={panelRef}
-          expandedHeight={theme.actionsBottomTabInitialHeight}
+          expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={updateSelectedResponseTab}
           selectedTabKey={selectedResponseTab}
           tabs={tabs}

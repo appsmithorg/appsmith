@@ -11,8 +11,9 @@ export class DebuggerHelper {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private commonLocators = ObjectsRegistry.CommonLocators;
 
-  private readonly bottomPaneHeight =
-    (Cypress.config().viewportHeight * 32) / 100;
+  // ActionExecutionResizerHeight -> in repo
+  private readonly bottomPaneHeight = 307;
+  // from design system
   private readonly TAB_MIN_HEIGHT = 36;
 
   public readonly locators = {
