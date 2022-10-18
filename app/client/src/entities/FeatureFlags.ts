@@ -9,6 +9,7 @@ type FeatureFlags = {
   RBAC?: boolean;
   AUDIT_LOGS?: boolean;
   CONTEXT_SWITCHING?: boolean;
+  DATASOURCE_ENVIRONMENTS?: boolean;
 };
 
 export default FeatureFlags;
