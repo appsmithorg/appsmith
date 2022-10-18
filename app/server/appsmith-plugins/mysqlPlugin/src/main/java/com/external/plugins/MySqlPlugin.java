@@ -14,6 +14,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -25,9 +26,12 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.utils.QueryUtils;
+import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
 import io.r2dbc.spi.Result;
@@ -54,7 +58,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -63,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -141,7 +145,7 @@ public class MySqlPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
+    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionPool>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.elastic();
@@ -161,7 +165,7 @@ public class MySqlPlugin extends BasePlugin {
          * @return
          */
         @Override
-        public Mono<ActionExecutionResult> executeParameterized(Connection connection,
+        public Mono<ActionExecutionResult> executeParameterized(ConnectionPool connection,
                                                                 ExecuteActionDTO executeActionDTO,
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
@@ -222,7 +226,7 @@ public class MySqlPlugin extends BasePlugin {
             return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
         }
 
-        public Mono<ActionExecutionResult> executeCommon(Connection connection,
+        public Mono<ActionExecutionResult> executeCommon(ConnectionPool connectionPool,
                                                          ActionConfiguration actionConfiguration,
                                                          Boolean preparedStatement,
                                                          List<String> mustacheValuesInOrder,
@@ -259,14 +263,21 @@ public class MySqlPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
+            AtomicReference<Connection> connection = null;
             // TODO: need to write a JUnit TC for VALIDATION_CHECK_TIMEOUT
-            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+            Flux<Result> resultFlux =
+                    connectionPool.create()
+                    .flatMap(conn -> {
+                        connection.set(conn);
+                        return Mono.from(conn.validate(ValidationDepth.REMOTE));
+                    })
+                    //Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                     .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .flatMapMany(isValid -> {
                         if (isValid) {
                             return createAndExecuteQueryFromConnection(finalQuery,
-                                    connection,
+                                    connection.get(),
                                     preparedStatement,
                                     mustacheValuesInOrder,
                                     executeActionDTO,
@@ -338,6 +349,11 @@ public class MySqlPlugin extends BasePlugin {
                         result.setRequest(request);
                         return result;
                     })
+                    .zipWith(Mono.just(connection.get().close()))
+                    .map(t2 -> {
+                        ActionExecutionResult res = t2.getT1();
+                        return res;
+                    })
                     .subscribeOn(scheduler);
 
         }
@@ -385,6 +401,14 @@ public class MySqlPlugin extends BasePlugin {
 
             return Flux.from(connectionStatement.execute());
 
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(ConnectionPool pool) {
+            return Mono.just(pool)
+                    .flatMap(p -> p.create())
+                    .flatMap(conn -> Mono.from(conn.close()))
+                    .then(Mono.just(new DatasourceTestResult()));
         }
 
         @Override
@@ -499,13 +523,14 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(ConnectionPool connection,
+                                                   DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
         @Override
-        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             StringBuilder urlBuilder = new StringBuilder();
@@ -540,6 +565,7 @@ public class MySqlPlugin extends BasePlugin {
             }
 
 
+            //ConnectionFactory pooledConnectionFactory = ConnectionFactories.get(urlBuilder.toString());
             ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions)
                     .option(ConnectionFactoryOptions.USER, authentication.getUsername())
@@ -590,16 +616,25 @@ public class MySqlPlugin extends BasePlugin {
                     );
             }
 
-            return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
+            ConnectionFactory cf = ConnectionFactories.get(ob.build());
+            // Create a ConnectionPool for connectionFactory
+            ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(cf)
+                    .maxIdleTime(Duration.ofMillis(1000))
+                    .maxSize(20)
+                    .build();
+            ConnectionPool pool = new ConnectionPool(configuration);
+            return Mono.just(pool);
+
+            /*return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .onErrorResume(exception -> Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             exception
                     )))
-                    .subscribeOn(scheduler);
+                    .subscribeOn(scheduler);*/
         }
 
         @Override
-        public void datasourceDestroy(Connection connection) {
+        public void datasourceDestroy(ConnectionPool connection) {
 
             if (connection != null) {
                 Mono.from(connection.close())
@@ -813,8 +848,9 @@ public class MySqlPlugin extends BasePlugin {
             }
         }
 
-        @Override
-        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
+        /*@Override
+        public Mono<DatasourceStructure> getStructure(ConnectionPool connection,
+                                                      DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
@@ -847,7 +883,7 @@ public class MySqlPlugin extends BasePlugin {
                     })
                     .collectList()
                     .map(list -> {
-                        /* Get templates for each table and put those in. */
+                        *//* Get templates for each table and put those in. *//*
                         getTemplates(tablesByName);
                         structure.setTables(new ArrayList<>(tablesByName.values()));
                         for (DatasourceStructure.Table table : structure.getTables()) {
@@ -867,6 +903,6 @@ public class MySqlPlugin extends BasePlugin {
                         return e;
                     })
                     .subscribeOn(scheduler);
-        }
+        }*/
     }
 }

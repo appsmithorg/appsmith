@@ -42,6 +42,31 @@
     </repositories>
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-pool</artifactId>
+            <version>0.9.2.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.projectreactor</groupId>
+                    <artifactId>reactor-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.reactivestreams</groupId>
+                    <artifactId>reactive-streams</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!--
     Ideally this dependency should have been added in the pom.xml file of GraphQLPlugin module, but it is
     causing 'java.lang.NoClassDefFoundError' error. Hence, adding it here after many attempts of fixing it the right
