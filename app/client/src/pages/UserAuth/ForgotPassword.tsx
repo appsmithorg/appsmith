@@ -11,7 +11,6 @@ import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,
   FormActions,
-  BlackAuthCardNavLink,
   FormMessagesContainer,
 } from "./StyledComponents";
 import { withTheme } from "styled-components";
@@ -31,7 +30,7 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, FormMessage, Size } from "design-system";
+import { Button, FormMessage, Link, Size } from "design-system";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import {
@@ -82,13 +81,13 @@ export const ForgotPassword = withTheme(
           <h1>{createMessage(FORGOT_PASSWORD_PAGE_TITLE)}</h1>
         </AuthCardHeader>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
+          <Link to={AUTH_LOGIN_URL}>
             <Icon
               icon="arrow-left"
               style={{ marginRight: props.theme.spaces[3] }}
             />
             {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
-          </BlackAuthCardNavLink>
+          </Link>
         </div>
         <FormMessagesContainer>
           {submitSucceeded && (

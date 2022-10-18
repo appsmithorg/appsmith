@@ -139,12 +139,3 @@ export const FormMessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
-export const BlackAuthCardNavLink = styled(AuthCardNavLink)`
-  color: #000;
-  border-bottom: 1px solid transparent;
-  &:hover {
-    color: #000;
-    border-bottom: 1px solid #000;
-  }
-`;
