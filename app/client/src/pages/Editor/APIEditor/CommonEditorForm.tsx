@@ -660,7 +660,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             >
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
-                disabled
+                disabled={!isChangePermitted}
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
