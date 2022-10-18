@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../locators/Layout.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/tabdsl.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 describe("Tab widget test", function() {
   const tabname = "UpdatedTab";
@@ -40,7 +41,9 @@ describe("Tab widget test", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.validateMessage(tabname);
-    cy.deleteEntityWithoutConfirmation();
+    cy.hoverAndClickParticularIndex(3);
+    cy.get(apiwidget.delete).click({ force: true });
+
     cy.get(commonlocators.entityExplorersearch)
       .clear({ force: true })
       .type("Tab2", { force: true });
