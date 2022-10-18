@@ -121,16 +121,19 @@ export function Categories({
 export default function LeftPane() {
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
+
   return (
     <Wrapper>
-      <HeaderContainer>
-        <StyledHeader>Admin Settings</StyledHeader>
-      </HeaderContainer>
-      <Categories
-        categories={categories}
-        currentCategory={category}
-        currentSubCategory={subCategory}
-      />
+      <>
+        <HeaderContainer>
+          <StyledHeader>Admin Settings</StyledHeader>
+        </HeaderContainer>
+        <Categories
+          categories={categories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
+      </>
       <>
         <HeaderContainer>
           <StyledHeader>Enterprise</StyledHeader>
