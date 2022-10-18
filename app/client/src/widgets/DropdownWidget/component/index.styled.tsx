@@ -67,8 +67,6 @@ export const StyledLabel = styled(Label)<{
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-  text-decoration: text-decoration: ${(props) =>
-    props?.labelStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
 `;
 
 export const StyledTooltip = styled(Tooltip)`
