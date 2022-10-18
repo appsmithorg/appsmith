@@ -64,10 +64,10 @@ class DocumentViewerWidget extends BaseWidget<
   DocumentViewerWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText:
@@ -90,6 +90,11 @@ class DocumentViewerWidget extends BaseWidget<
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             helpText: "Controls visibility of the widget",
             propertyName: "isVisible",

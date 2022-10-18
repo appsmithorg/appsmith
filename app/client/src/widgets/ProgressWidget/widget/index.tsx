@@ -9,10 +9,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Basic",
         children: [
           {
             helpText:
@@ -51,7 +51,6 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             placeholderText: "Enter progress value",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             defaultValue: 50,
             validation: {
               type: ValidationTypes.NUMBER,
@@ -60,21 +59,35 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
             dependencies: ["isIndeterminate"],
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             helpText: "Sets the number of steps",
             propertyName: "steps",
-            label: "Number of steps",
+            label: "Number of Steps",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter number of steps",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
               params: { min: 1, max: 100, default: 1, natural: true },
             },
             hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
             dependencies: ["isIndeterminate"],
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "counterClockwise",
@@ -102,20 +115,15 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
             dependencies: ["isIndeterminate"],
           },
-          {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             helpText: "Sets the color of the progress indicator",

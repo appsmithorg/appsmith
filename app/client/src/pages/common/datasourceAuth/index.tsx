@@ -20,13 +20,13 @@ import {
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { ButtonVariantTypes } from "components/constants";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   AuthType,
   Datasource,
@@ -36,7 +36,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   CONTEXT_DELETE,

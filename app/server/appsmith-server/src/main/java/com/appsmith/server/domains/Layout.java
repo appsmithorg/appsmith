@@ -2,15 +2,20 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
+import com.appsmith.external.exceptions.ErrorDTO;
 
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static java.lang.Boolean.TRUE;
 
@@ -34,6 +39,10 @@ public class Layout extends BaseDomain {
     Set<DslActionDTO> layoutActions;
 
     List<Set<DslActionDTO>> layoutOnLoadActions;
+
+    // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    List<ErrorDTO> layoutOnLoadActionErrors;
 
     @Deprecated
     @JsonIgnore
@@ -75,5 +84,24 @@ public class Layout extends BaseDomain {
 
     public List<Set<DslActionDTO>> getLayoutOnLoadActions() {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
+    }
+
+    public void sanitiseToExportDBObject() {
+        this.setAllOnPageLoadActionNames(null);
+        this.setCreatedAt(null);
+        this.setUpdatedAt(null);
+        this.setAllOnPageLoadActionEdges(null);
+        this.setActionsUsedInDynamicBindings(null);
+        this.setWidgetNames(null);
+        List<Set<DslActionDTO>> layoutOnLoadActions = this.getLayoutOnLoadActions();
+        if (!CollectionUtils.isNullOrEmpty(layoutOnLoadActions)) {
+            // Sort actions based on id to commit to git in ordered manner
+            for (int dslActionIndex = 0; dslActionIndex < layoutOnLoadActions.size(); dslActionIndex++) {
+                TreeSet<DslActionDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
+                sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
+                sortedActions.forEach(DslActionDTO::sanitiseForExport);
+                layoutOnLoadActions.set(dslActionIndex, sortedActions);
+            }
+        }
     }
 }

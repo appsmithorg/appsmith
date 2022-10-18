@@ -5,9 +5,9 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
@@ -27,34 +27,38 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
+import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -62,10 +66,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,11 +78,12 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,9 +101,14 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -117,9 +127,6 @@ public class ActionServiceCE_Test {
 
     @Autowired
     WorkspaceService workspaceService;
-
-    @Autowired
-    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -143,9 +150,6 @@ public class ActionServiceCE_Test {
     DatasourceService datasourceService;
 
     @Autowired
-    ActionCollectionService actionCollectionService;
-
-    @Autowired
     ImportExportApplicationService importExportApplicationService;
 
     @SpyBean
@@ -153,6 +157,18 @@ public class ActionServiceCE_Test {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    MockDataService mockDataService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
+    @SpyBean
+    AstService astService;
 
     Application testApp = null;
 
@@ -164,23 +180,29 @@ public class ActionServiceCE_Test {
 
     Datasource datasource;
 
-    String orgId;
+    String workspaceId;
 
     String branchName;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
-        Workspace workspace = workspaceService.getById(orgId).block();
+
+        Workspace toCreate = new Workspace();
+        toCreate.setName("ActionServiceCE_Test");
+
+        if (workspaceId == null) {
+            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            workspaceId = workspace.getId();
+        }
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
+            testApp = applicationPageService.createApplication(application, workspaceId).block();
 
             final String pageId = testApp.getPages().get(0).getId();
 
@@ -214,14 +236,14 @@ public class ActionServiceCE_Test {
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("actionServiceTest");
             newApp.setGitApplicationMetadata(gitData);
-            gitConnectedApp = applicationPageService.createApplication(newApp, orgId)
+            gitConnectedApp = applicationPageService.createApplication(newApp, workspaceId)
                     .flatMap(application -> {
                         application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                         return applicationService.save(application)
                                 .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
             gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
@@ -229,17 +251,15 @@ public class ActionServiceCE_Test {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(orgId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
     }
 
-    @After
+    @AfterEach
     @WithUserDetails(value = "api_user")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
@@ -280,12 +300,14 @@ public class ActionServiceCE_Test {
     public void createValidActionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -301,12 +323,37 @@ public class ActionServiceCE_Test {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
-                .create(actionMono)
-                .assertNext(createdAction -> {
+                .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
+                .assertNext(tuple -> {
+                    ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
-                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
+
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
     }
@@ -316,12 +363,14 @@ public class ActionServiceCE_Test {
     public void createValidAction_forGitConnectedApp_getValidPermissionAndDefaultIds() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -337,15 +386,40 @@ public class ActionServiceCE_Test {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
-                .create(actionMono)
-                .assertNext(createdAction -> {
-                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+                .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
+                .assertNext(tuple -> {
+                    ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
 
                     assertThat(createdAction.getDefaultResources()).isNotNull();
                     assertThat(createdAction.getDefaultResources().getActionId()).isEqualTo(createdAction.getId());
                     assertThat(createdAction.getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
                     assertThat(createdAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedPage.getApplicationId());
+
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
     }
@@ -772,6 +846,8 @@ public class ActionServiceCE_Test {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
                     assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
+                    assertThat(result.getRequest().getActionId()).isEqualTo(createdAction.getId());
+                    assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
                 })
                 .verifyComplete();
     }
@@ -1023,10 +1099,12 @@ public class ActionServiceCE_Test {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
-                    assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
-                    assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidgets.size());
-                    assertThat(result.getSuggestedWidgets().containsAll(expectedWidgets));
-                    assertThat(expectedWidgets.containsAll(result.getSuggestedWidgets()));
+                    assertThat(result.getDataTypes()).hasToString(expectedReturnDataTypes.toString());
+                    assertThat(result.getSuggestedWidgets())
+                            .usingRecursiveFieldByFieldElementComparator()
+                            .containsExactlyInAnyOrderElementsOf(expectedWidgets);
+                    assertThat(result.getRequest().getActionId()).isEqualTo(executeActionDTO.getActionId());
+                    assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
                 })
                 .verifyComplete();
     }
@@ -1081,9 +1159,9 @@ public class ActionServiceCE_Test {
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");
-        externalDatasource.setOrganizationId(orgId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
-        externalDatasource.setPluginId(installed_plugin.getId());
+        externalDatasource.setWorkspaceId(workspaceId);
+        Plugin restApiPlugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        externalDatasource.setPluginId(restApiPlugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
         externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -1123,7 +1201,7 @@ public class ActionServiceCE_Test {
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("updateShouldNotResetUserSetOnLoad Database");
-        externalDatasource.setOrganizationId(orgId);
+        externalDatasource.setWorkspaceId(workspaceId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         externalDatasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -1168,34 +1246,23 @@ public class ActionServiceCE_Test {
     public void checkNewActionAndNewDatasourceAnonymousPermissionInPublicApp() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Application application = new Application();
-        application.setName("validApplicationPublic-ExplicitDatasource-Test");
+        Application testApplication = new Application();
+        testApplication.setName("checkNewActionAndNewDatasourceAnonymousPermissionInPublicApp TestApp");
 
-        Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
-        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
+        Application createdApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
 
         String pageId = createdApplication.getPages().get(0).getId();
 
-        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -1210,7 +1277,7 @@ public class ActionServiceCE_Test {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -1230,11 +1297,51 @@ public class ActionServiceCE_Test {
         Mono<NewAction> actionMono = publicAppMono
                 .then(newActionService.findById(savedAction.getId()));
 
+        Mono<PermissionGroup> publicAppPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
+
+        User anonymousUser = userService.findByEmail("anonymousUser").block();
+
         StepVerifier
-                .create(Mono.zip(datasourceMono, actionMono))
+                .create(Mono.zip(datasourceMono, actionMono, defaultPermissionGroupsMono, publicAppPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasourceFromDb = tuple.getT1();
                     NewAction actionFromDb = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT3();
+                    PermissionGroup publicAppPermissionGroup = tuple.getT4();
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), publicAppPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), publicAppPermissionGroup.getId()))
+                            .build();
 
                     // Check that the datasource used in the app contains public execute permission
                     assertThat(datasourceFromDb.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
@@ -1242,6 +1349,8 @@ public class ActionServiceCE_Test {
                     // Check that the action used in the app contains public execute permission
                     assertThat(actionFromDb.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
 
+                    // Assert that viewerPermissionGroup has been assigned to anonymous user.
+                    assertThat(publicAppPermissionGroup.getAssignedToUserIds()).contains(anonymousUser.getId());
                 })
                 .verifyComplete();
     }
@@ -1635,7 +1744,7 @@ public class ActionServiceCE_Test {
                 "    \"y\": 36000\n" +
                 "  }\n" +
                 "]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1646,7 +1755,7 @@ public class ActionServiceCE_Test {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "x", "y"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "x", "x"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1748,7 +1857,8 @@ public class ActionServiceCE_Test {
                 "\t\t\t]\n" +
                 "\t}\n" +
                 "]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1759,7 +1869,7 @@ public class ActionServiceCE_Test {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "id", "ppu"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "id", "type"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1853,7 +1963,8 @@ public class ActionServiceCE_Test {
                 "        \"height\": 200\n" +
                 "    }\n" +
                 "]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1864,7 +1975,7 @@ public class ActionServiceCE_Test {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "url", "width"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "url", "url"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1914,7 +2025,8 @@ public class ActionServiceCE_Test {
                 "     \"carID\": \"ford123\"\n" +
                 "       }\n" +
                 "  ]}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1924,7 +2036,7 @@ public class ActionServiceCE_Test {
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "CarType", "carID"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1957,7 +2069,8 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2000,7 +2113,8 @@ public class ActionServiceCE_Test {
         final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"]," +
                 "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
                 "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2009,7 +2123,7 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -2042,7 +2156,8 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[] }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2151,7 +2266,8 @@ public class ActionServiceCE_Test {
                 "        }\n" +
                 "    ]\n" +
                 "}}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2160,10 +2276,10 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.CHART_WIDGET,"users","name","id"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET,"users"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.SELECT_WIDGET,"users","name", "status"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET, "users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.CHART_WIDGET, "users", "name", "id"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, "users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.SELECT_WIDGET, "users", "name", "status"));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -2205,7 +2321,8 @@ public class ActionServiceCE_Test {
                 "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n" +
                 "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
                 "        } }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2267,7 +2384,8 @@ public class ActionServiceCE_Test {
                 "            \"createdAt\": \"2019-10-04T03:22:23.000Z\",\n" +
                 "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n" +
                 "        } }";
-        final JsonNode arrNode = new ObjectMapper().readTree(data);;
+        final JsonNode arrNode = new ObjectMapper().readTree(data);
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2310,9 +2428,10 @@ public class ActionServiceCE_Test {
         final String data = "{\"data\": {\n" +
                 "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
                 "    \"previous\": null,\n" +
-                "    \"users\": []\n" +
+                "    \"users\": [1, 2, 3]\n" +
                 "}}";
-        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2321,7 +2440,54 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET, "users"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, "users"));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionNestedDataEmpty() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{\"data\": {\n" +
+                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
+                "    \"previous\": null,\n" +
+                "    \"users\": []\n" +
+                "}}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
+        ;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET, null));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();
@@ -2352,13 +2518,13 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         ArrayList<JSONObject> listData = new ArrayList<>();
-        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width",32, "height", 32));
+        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width", 32, "height", 32));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width",42, "height", 22));
+        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width", 42, "height", 22));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width",52, "height", 12));
+        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width", 52, "height", 12));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width",62, "height", 52));
+        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width", 62, "height", 52));
         listData.add(jsonObject);
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(listData);
@@ -2369,7 +2535,7 @@ public class ActionServiceCE_Test {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "url", "width"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "url", "url"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -2401,13 +2567,13 @@ public class ActionServiceCE_Test {
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         ArrayList<JSONObject> listData = new ArrayList<>();
-        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width","32", "height", "32"));
+        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width", "32", "height", "32"));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width","42", "height", "22"));
+        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width", "42", "height", "22"));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width","52", "height", "12"));
+        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width", "52", "height", "12"));
         listData.add(jsonObject);
-        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width","62", "height", "52"));
+        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width", "62", "height", "52"));
         listData.add(jsonObject);
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(listData);
@@ -2416,8 +2582,8 @@ public class ActionServiceCE_Test {
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "url", "width"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "width", "url"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -2481,7 +2647,7 @@ public class ActionServiceCE_Test {
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
         return newPageService
                 .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
-                .switchIfEmpty(applicationPageService.createApplication(app, orgId)
+                .switchIfEmpty(applicationPageService.createApplication(app, workspaceId)
                         .map(application -> {
                             page.setApplicationId(application.getId());
                             return page;
@@ -2549,9 +2715,17 @@ public class ActionServiceCE_Test {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+                    return layoutActionService.updateLayout(page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
 
                 });
+
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.prev", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.prev"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.next", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.next"))));
+
         StepVerifier
                 .create(testMono)
                 .assertNext(layout -> {
@@ -2568,6 +2742,86 @@ public class ActionServiceCE_Test {
                             .hasSameElementsAs(firstSetPageLoadActions);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateAction_withoutWorkspaceId_withOrganizationId() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction_nestedDatasource");
+        action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> createActionMono = layoutActionService.createSingleAction(action).cache();
+
+
+        ActionDTO updateAction = new ActionDTO();
+        Datasource nestedDatasource = new Datasource();
+        nestedDatasource.setOrganizationId(workspaceId);
+        nestedDatasource.setName("DEFAULT_REST_DATASOURCE");
+        nestedDatasource.setPluginId(datasource.getPluginId());
+        nestedDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        updateAction.setDatasource(nestedDatasource);
+        Mono<ActionDTO> actionMono = createActionMono
+                .flatMap(savedAction -> layoutActionService.updateAction(savedAction.getId(), updateAction));
+
+        StepVerifier
+                .create(actionMono)
+                .assertNext(updatedAction -> {
+                    Datasource datasource1 = updatedAction.getDatasource();
+                    assertThat(datasource1.getWorkspaceId()).isNotNull();
+                    assertThat(datasource1.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void executeAction_actionOnMockDatasource_success() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        MockDataSource mockDataSource = new MockDataSource();
+        mockDataSource.setName("Users");
+        mockDataSource.setWorkspaceId(workspaceId);
+        mockDataSource.setPackageName("postgres-plugin");
+        mockDataSource.setPluginId(installed_plugin.getId());
+        Datasource mockDatasource = mockDataService.createMockDataSet(mockDataSource).block();
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from users");
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteDbQuery");
+        action.setDatasource(mockDatasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
 }

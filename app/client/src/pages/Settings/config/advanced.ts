@@ -4,7 +4,9 @@ import {
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
+
 export const config: AdminConfigType = {
+  icon: "settings-line",
   type: SettingCategories.ADVANCED,
   controlType: SettingTypes.GROUP,
   title: "Advanced",

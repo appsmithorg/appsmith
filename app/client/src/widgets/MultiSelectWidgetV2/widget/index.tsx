@@ -2,25 +2,16 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  isArray,
-  isEqual,
-  isFinite,
-  isString,
-  isNumber,
-  LoDashStatic,
-  xorWith,
-} from "lodash";
+import derivedProperties from "./parseDerivedProperties";
+import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "../component";
-import {
-  DefaultValueType,
-  LabelValueType,
-} from "rc-select/lib/interface/generator";
+import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
@@ -35,10 +26,16 @@ export function defaultOptionValueValidation(
   let isValid = false;
   let parsed: any[] = [];
   let message = "";
+  const isServerSideFiltered = props.serverSideFiltering;
+  // TODO: options shouldn't get un-eval values;
+  let options = props.options;
 
   const DEFAULT_ERROR_MESSAGE =
     "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-
+  const MISSING_FROM_OPTIONS =
+    "Some or all default values are missing from options. Please update the values.";
+  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT =
+    "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data";
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -117,18 +114,10 @@ export function defaultOptionValueValidation(
       parsed = [];
       message = DEFAULT_ERROR_MESSAGE;
     }
-
-    return {
-      isValid,
-      parsed,
-      messages: [message],
-    };
-  }
-
-  /*
-   * When value is an empty string
-   */
-  if (_.isString(value) && value.trim() === "") {
+  } else if (_.isString(value) && value.trim() === "") {
+    /*
+     * When value is an empty string
+     */
     isValid = true;
     parsed = [];
   } else if (_.isNumber(value) || _.isString(value)) {
@@ -145,6 +134,42 @@ export function defaultOptionValueValidation(
     message = DEFAULT_ERROR_MESSAGE;
   }
 
+  if (isValid && !_.isNil(parsed) && !_.isEmpty(parsed)) {
+    if (!Array.isArray(options) && typeof options === "string") {
+      try {
+        const parsedOptions = JSON.parse(options);
+        if (Array.isArray(parsedOptions)) {
+          options = parsedOptions;
+        } else {
+          options = [];
+        }
+      } catch (e) {
+        options = [];
+      }
+    }
+
+    const parsedValue = parsed;
+    const areValuesPresent = parsedValue.every((value) => {
+      const index = _.findIndex(
+        options,
+        (option) => option.value === value || option.value === value.value,
+      );
+      return index !== -1;
+    });
+
+    if (!areValuesPresent) {
+      isValid = false;
+      if (!isServerSideFiltered) {
+        message = MISSING_FROM_OPTIONS;
+      } else {
+        if (!parsed.every(hasLabelValue)) {
+          message = MISSING_FROM_OPTIONS_AND_WRONG_FORMAT;
+        } else {
+          message = MISSING_FROM_OPTIONS;
+        }
+      }
+    }
+  }
   return {
     isValid,
     parsed,
@@ -156,10 +181,10 @@ class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText:
@@ -207,8 +232,8 @@ class MultiSelectWidget extends BaseWidget<
           {
             helpText: "Selects the option(s) with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Value",
-            controlType: "INPUT_TEXT",
+            label: "Default Selected Values",
+            controlType: "SELECT_DEFAULT_VALUE_CONTROL",
             placeholderText: "[GREEN]",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -223,90 +248,7 @@ class MultiSelectWidget extends BaseWidget<
                 },
               },
             },
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
-          },
-          {
-            helpText: "Sets a Placeholder Text",
-            propertyName: "placeholderText",
-            label: "Placeholder",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Search",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            helpText: "Disables input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isFilterable",
-            label: "Filterable",
-            helpText: "Makes the dropdown list filterable",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Enables server side filtering of the data",
-            propertyName: "serverSideFiltering",
-            label: "Server Side Filtering",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText:
-              "Controls the visibility of select all option in dropdown.",
-            propertyName: "allowSelectAll",
-            label: "Allow Select All",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            dependencies: ["serverSideFiltering", "options"],
           },
         ],
       },
@@ -382,11 +324,139 @@ class MultiSelectWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Search & Filters",
+        children: [
+          {
+            propertyName: "isFilterable",
+            label: "Allow Searching",
+            helpText: "Makes the dropdown list filterable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Enables server side filtering of the data",
+            propertyName: "serverSideFiltering",
+            label: "Server Side Filtering",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Trigger an action on change of filterText",
+            hidden: (props: MultiSelectWidgetProps) =>
+              !props.serverSideFiltering,
+            dependencies: ["serverSideFiltering"],
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Validations",
+        children: [
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Sets a Placeholder Text",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Search",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText:
+              "Controls the visibility of select all option in dropdown.",
+            propertyName: "allowSelectAll",
+            label: "Allow Select All",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when a user selects an option",
+            propertyName: "onOptionChange",
+            label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -395,7 +465,7 @@ class MultiSelectWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -437,7 +507,7 @@ class MultiSelectWidget extends BaseWidget<
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -454,6 +524,11 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -490,48 +565,21 @@ class MultiSelectWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when a user selects an option",
-            propertyName: "onOptionChange",
-            label: "onOptionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Trigger an action on change of filterText",
-            hidden: (props: MultiSelectWidgetProps) =>
-              !props.serverSideFiltering,
-            dependencies: ["serverSideFiltering"],
-            propertyName: "onFilterUpdate",
-            label: "onFilterUpdate",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
     ];
   }
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
-      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
-      isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       value: `{{this.selectedOptionValues}}`,
+      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
+      selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,
+      selectedOptionLabels: `{{(()=>{${derivedProperties.getSelectedOptionLabels}})()}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptions: "defaultOptionValue",
-      filterText: "",
     };
   }
 
@@ -547,6 +595,7 @@ class MultiSelectWidget extends BaseWidget<
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (
+      this.props.defaultOptionValue &&
       this.props.defaultOptionValue.some(
         (value: any) => isString(value) || isFinite(value),
       )
@@ -558,12 +607,12 @@ class MultiSelectWidget extends BaseWidget<
       ? xorWith(
           this.props.defaultOptionValue as string[],
           prevProps.defaultOptionValue as string[],
-          isEqual,
+          equal,
         ).length > 0
       : xorWith(
           this.props.defaultOptionValue as OptionValue[],
           prevProps.defaultOptionValue as OptionValue[],
-          isEqual,
+          equal,
         ).length > 0;
 
     if (hasChanges && this.props.isDirty) {
@@ -575,11 +624,7 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-    const values: LabelValueType[] = this.props.selectedOptions
-      ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
-        )
-      : [];
+    const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
@@ -615,6 +660,7 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        renderMode={this.props.renderMode}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}
@@ -623,7 +669,7 @@ class MultiSelectWidget extends BaseWidget<
     );
   }
 
-  onOptionChange = (value: DefaultValueType) => {
+  onOptionChange = (value: DraftValueType) => {
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -634,6 +680,16 @@ class MultiSelectWidget extends BaseWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  };
+
+  // { label , value } is needed in the widget
+  mergeLabelAndValue = (): LabelInValueType[] => {
+    const labels = [...this.props.selectedOptionLabels];
+    const values = [...this.props.selectedOptionValues];
+    return values.map((value, index) => ({
+      value,
+      label: labels[index],
+    }));
   };
 
   onFilterChange = (value: string) => {
@@ -673,7 +729,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   defaultOptionValue: string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
-  selectedOptions: LabelValueType[];
+  selectedOptions: LabelInValueType[];
   filterText: string;
   selectedOptionValues: string[];
   selectedOptionLabels: string[];

@@ -96,21 +96,33 @@ class CurrencyInputWidget extends BaseInputWidget<
   CurrencyInputWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
         {
-          sectionName: "General",
+          sectionName: "Data",
           children: [
             {
-              propertyName: "allowCurrencyChange",
-              label: "Allow currency change",
-              helpText: "Search by currency or country",
-              controlType: "SWITCH",
-              isJSConvertible: false,
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "100",
               isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.BOOLEAN },
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `100`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
+              dependencies: ["decimals"],
             },
             {
               helpText: "Changes the type of currency",
@@ -129,9 +141,19 @@ class CurrencyInputWidget extends BaseInputWidget<
               },
             },
             {
+              propertyName: "allowCurrencyChange",
+              label: "Allow Currency Change",
+              helpText: "Search by currency or country",
+              controlType: "SWITCH",
+              isJSConvertible: false,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+            {
               helpText: "No. of decimals in currency input",
               propertyName: "decimals",
-              label: "Decimals",
+              label: "Decimals Allowed",
               controlType: "DROP_DOWN",
               options: [
                 {
@@ -150,33 +172,34 @@ class CurrencyInputWidget extends BaseInputWidget<
               isBindProperty: false,
               isTriggerProperty: false,
             },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
             {
-              helpText:
-                "Sets the default text of the widget. The text is updated if the default text changes",
-              propertyName: "defaultText",
-              label: "Default Text",
-              controlType: "INPUT_TEXT",
-              placeholderText: "100",
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: defaultValueValidation,
-                  expected: {
-                    type: "number",
-                    example: `100`,
-                    autocompleteDataType: AutocompleteDataType.STRING,
-                  },
-                },
-              },
-              dependencies: ["decimals"],
+              validation: { type: ValidationTypes.BOOLEAN },
             },
           ],
         },
       ],
-      super.getPropertyPaneConfig(),
+      super.getPropertyPaneContentConfig(),
     );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return super.getPropertyPaneStyleConfig();
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -233,7 +256,7 @@ class CurrencyInputWidget extends BaseInputWidget<
       try {
         const formattedValue = formatCurrencyNumber(
           this.props.decimals,
-          String(this.props.value),
+          this.props.text,
         );
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {

@@ -119,15 +119,16 @@ check_mongodb_uri() {
 init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
     echo "Initializing local database"
-    MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
+    MONGO_DB_PATH="$stacks_path/data/mongodb"
     MONGO_LOG_PATH="$MONGO_DB_PATH/log"
     MONGO_DB_KEY="$MONGO_DB_PATH/key"
     mkdir -p "$MONGO_DB_PATH"
     touch "$MONGO_LOG_PATH"
 
-    if [[ -f "$MONGO_DB_KEY" ]]; then
-      chmod-mongodb-key "$MONGO_DB_KEY"
+    if [[ ! -f "$MONGO_DB_KEY" ]]; then
+      openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
+    use-mongodb-key "$MONGO_DB_KEY"
   fi
 }
 
@@ -156,9 +157,7 @@ init_replica_set() {
     mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    openssl rand -base64 756 > "$MONGO_DB_KEY"
-    chmod-mongodb-key "$MONGO_DB_KEY"
-    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
+    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
     mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
@@ -169,7 +168,8 @@ init_replica_set() {
     # Check mongodb cloud Replica Set
     echo "Checking Replica Set of external MongoDB"
 
-    if appsmithctl check_replica_set; then
+    mongo_state="$(mongo --host "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
+    if [[ ${mongo_state: -1} -eq 1 ]]; then
       echo "Mongodb cloud Replica Set is enabled"
     else
       echo -e "\033[0;31m********************************************************************\033[0m"
@@ -180,8 +180,12 @@ init_replica_set() {
   fi
 }
 
-chmod-mongodb-key() {
-  chmod 600 "$1"
+use-mongodb-key() {
+	# This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
+	# What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
+	# So the key file should be somewhere inside the container, and not in a volume.
+	cp -v "$1" /mongodb-key
+  chmod 600 /mongodb-key
 }
 
 # Keep Let's Encrypt directory persistent
@@ -286,6 +290,8 @@ else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap
   setup_backend_heap_arg
+  # set the hostname for heroku dyno
+  export HOSTNAME="heroku_dyno"
 fi
 
 check_setup_custom_ca_certificates

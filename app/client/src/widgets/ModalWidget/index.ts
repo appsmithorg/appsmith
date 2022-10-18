@@ -20,6 +20,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  searchTags: ["dialog", "popup", "notification"],
   defaults: {
     rows: 24,
     columns: 24,
@@ -52,13 +53,13 @@ export const CONFIG = {
               view: [
                 {
                   type: "ICON_BUTTON_WIDGET",
-                  position: { left: 56, top: 1 },
+                  position: { left: 58, top: 0 },
                   size: {
                     rows: 4,
-                    cols: 8,
+                    cols: 6,
                   },
                   props: {
-                    buttonColor: Colors.OXFORD_BLUE,
+                    buttonColor: Colors.GREY_7,
                     buttonVariant: ButtonVariantTypes.TERTIARY,
                     borderRadius: ButtonBorderRadiusTypes.SHARP,
                     iconName: IconNames.CROSS,
@@ -82,8 +83,8 @@ export const CONFIG = {
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 32,
-                    top: 16,
+                    left: 31,
+                    top: 18,
                   },
                   size: {
                     rows: 4,
@@ -99,8 +100,8 @@ export const CONFIG = {
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 48,
-                    top: 16,
+                    left: 47,
+                    top: 18,
                   },
                   size: {
                     rows: 4,
@@ -176,6 +177,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

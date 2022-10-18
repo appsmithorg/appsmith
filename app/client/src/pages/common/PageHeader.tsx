@@ -5,7 +5,7 @@ import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   AUTH_LOGIN_URL,
@@ -19,14 +19,12 @@ import {
 import history from "utils/history";
 import Button from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
-import Bell from "notifications/Bell";
 import { Colors } from "constants/Colors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
 import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
-import Icon, { IconSize } from "components/ads/Icon";
-import { TemplatesTabItem } from "pages/Templates/TemplatesTabItem";
+import { Icon, IconSize } from "design-system";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
 
 const StyledPageHeader = styled(StyledHeader)<{
@@ -181,43 +179,39 @@ export function PageHeader(props: PageHeaderProps) {
             >
               <div>Apps</div>
             </TabName>
-            <TemplatesTabItem>
-              <TabName
-                className="t--templates-tab"
-                isSelected={
-                  matchTemplatesPath(location.pathname) ||
-                  matchTemplatesIdPath(location.pathname)
-                }
-                onClick={() => history.push(TEMPLATES_PATH)}
-              >
-                <div>Templates</div>
-              </TabName>
-            </TemplatesTabItem>
+
+            <TabName
+              className="t--templates-tab"
+              isSelected={
+                matchTemplatesPath(location.pathname) ||
+                matchTemplatesIdPath(location.pathname)
+              }
+              onClick={() => history.push(TEMPLATES_PATH)}
+            >
+              <div>Templates</div>
+            </TabName>
           </>
         )}
       </Tabs>
 
       {user && !isMobile && (
-        <>
-          {user.username !== ANONYMOUS_USERNAME && <Bell />}
-          <StyledDropDownContainer>
-            {user.username === ANONYMOUS_USERNAME ? (
-              <Button
-                filled
-                intent={"primary"}
-                onClick={() => history.push(loginUrl)}
-                size="small"
-                text="Sign In"
-              />
-            ) : (
-              <ProfileDropdown
-                name={user.name}
-                photoId={user?.photoId}
-                userName={user.username}
-              />
-            )}
-          </StyledDropDownContainer>
-        </>
+        <StyledDropDownContainer>
+          {user.username === ANONYMOUS_USERNAME ? (
+            <Button
+              filled
+              intent={"primary"}
+              onClick={() => history.push(loginUrl)}
+              size="small"
+              text="Sign In"
+            />
+          ) : (
+            <ProfileDropdown
+              name={user.name}
+              photoId={user?.photoId}
+              userName={user.username}
+            />
+          )}
+        </StyledDropDownContainer>
       )}
       {isMobile && !isMobileSidebarOpen && (
         <StyledTwoLineHamburger onClick={() => setIsMobileSidebarOpen(true)} />

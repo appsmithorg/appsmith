@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
@@ -8,8 +8,8 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { Size, Category } from "components/ads/Button";
+import { DroppableComponent } from "./DraggableListComponent";
+import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -29,7 +29,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const TabsWrapper = styled.div`
   width: 100%;

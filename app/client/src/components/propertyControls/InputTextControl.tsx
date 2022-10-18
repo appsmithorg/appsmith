@@ -2,9 +2,7 @@ import React, { useContext } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "components/constants";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -13,11 +11,14 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
+import CodeEditor from "../editorComponents/LazyCodeEditorWrapper";
 
 export function InputText(props: {
   label: string;
   value: string;
+  onBlur?: () => void;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
+  onFocus?: () => void;
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   placeholder?: string;
@@ -31,7 +32,9 @@ export function InputText(props: {
     evaluatedValue,
     expected,
     hideEvaluatedValue,
+    onBlur,
     onChange,
+    onFocus,
     placeholder,
     value,
   } = props;
@@ -55,6 +58,8 @@ export function InputText(props: {
         }}
         isEditorHidden={!isOpen}
         mode={EditorModes.TEXT_WITH_BINDING}
+        onEditorBlur={onBlur}
+        onEditorFocus={onFocus}
         placeholder={placeholder}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
@@ -73,6 +78,8 @@ class InputTextControl extends BaseControl<InputControlProps> {
       expected,
       hideEvaluatedValue,
       label,
+      onBlur,
+      onFocus,
       placeholderText,
       propertyValue,
     } = this.props;
@@ -84,10 +91,12 @@ class InputTextControl extends BaseControl<InputControlProps> {
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
         label={label}
+        onBlur={onBlur}
         onChange={this.onTextChange}
+        onFocus={onFocus}
         placeholder={placeholderText}
         theme={this.props.theme}
-        value={propertyValue ? propertyValue : defaultValue}
+        value={propertyValue !== undefined ? propertyValue : defaultValue}
       />
     );
   }
@@ -110,7 +119,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     if (typeof event !== "string") {
       value = event.target.value;
     }
-    this.updateProperty(this.props.propertyName, value);
+    this.updateProperty(this.props.propertyName, value, true);
   };
 
   static getControlType() {
@@ -124,6 +133,8 @@ export interface InputControlProps extends ControlProps {
   validationMessage?: string;
   isDisabled?: boolean;
   defaultValue?: any;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export default InputTextControl;

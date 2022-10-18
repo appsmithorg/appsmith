@@ -1,8 +1,11 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -25,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.DBRef;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSecurityException;
+import com.mongodb.MongoSocketWriteException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -32,11 +36,12 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.Decimal128;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -54,8 +59,10 @@ import java.util.concurrent.CompletableFuture;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
 import static com.external.plugins.constants.FieldName.BODY;
@@ -75,12 +82,12 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static com.external.plugins.utils.DatasourceUtils.buildClientURI;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -91,8 +98,8 @@ import static org.mockito.Mockito.when;
  * Unit tests for MongoPlugin
  */
 
+@Testcontainers
 public class MongoPluginTest {
-
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
 
     private static String address;
@@ -101,11 +108,11 @@ public class MongoPluginTest {
     private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
-    @ClassRule
+    @Container
     public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("mongo:4.4"))
             .withExposedPorts(27017);
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
@@ -157,6 +164,28 @@ public class MongoPluginTest {
                                         "state", "UP"
                                 ))
                         ))).block();
+
+
+                        final MongoCollection<Document> teamCollection = mongoClient.getDatabase("test")
+                                .getCollection("teams");
+                        Mono.from(teamCollection.insertMany(List.of(
+                                new Document(Map.of(
+                                        "name", "Noisy Neighbours 2",
+                                        "goals_allowed", "20",
+                                        "goals_forwarded", "41",
+                                        "goal_difference", "+21",
+                                        "xGD", "-2.5",
+                                        "best_scoreline", "5-2"
+                                )),
+                                new Document(Map.of(
+                                        "name", "Red Side of the city",
+                                        "goals_allowed", "35",
+                                        "goals_forwarded", "28",
+                                        "goal_difference", "-7",
+                                        "xGD" , "+3.6",
+                                        "best_scoreline", "8-3"
+                                ))
+                        ))).block();
                     }
                     return Mono.empty();
                 }).block();
@@ -200,7 +229,7 @@ public class MongoPluginTest {
         dsConfig.setAuthentication(new DBAuth(DBAuth.Type.SCRAM_SHA_1, "", "", "admin"));
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assert::assertNotNull)
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 
@@ -219,6 +248,7 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+
     @Test
     public void testDatasourceFailWithInvalidDefaultDatabaseName() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -270,6 +300,22 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+
+    }
+
     /**
      * Test for DBRef after codec implementation
      */
@@ -281,9 +327,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"address\",\n" +
                 "      limit: 10,\n" +
                 "    }");
@@ -327,9 +373,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { \"age\": { \"$gte\": 30 } },\n" +
                 "      sort: { id: 1 },\n" +
@@ -358,7 +404,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, OBJECT_TYPE), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -372,9 +418,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { $is: {} },\n" +
                 "      sort: { id: 1 },\n" +
@@ -399,7 +445,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, OBJECT_TYPE), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -413,9 +459,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      insert: \"users\",\n" +
                 "      documents: [\n" +
                 "        {\n" +
@@ -445,11 +491,11 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{\"name\": \"John Smith\"}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{\"name\": \"John Smith\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
 
         actionConfiguration.setFormData(configMap);
         // Run the delete command
@@ -464,9 +510,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "  findAndModify: \"users\",\n" +
                 "  query: " +
                 "{ " +
@@ -505,9 +551,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      limit: 1,\n" +
                 "    }");
@@ -548,11 +594,12 @@ public class MongoPluginTest {
                     //Sort the Tables since one more table is added and to maintain sequence
                     structure.getTables().sort(
                             (DatasourceStructure.Table t1, DatasourceStructure.Table t2)
-                                    ->t2.getName().compareTo(t1.getName())
+                                    -> t2.getName().compareTo(t1.getName())
                     );
                     assertNotNull(structure);
-                    assertEquals(2, structure.getTables().size());
+                    assertEquals(3, structure.getTables().size());
 
+                    // now there are three tables named <users, teams, address>
                     final DatasourceStructure.Table usersTable = structure.getTables().get(0);
                     assertEquals("users", usersTable.getName());
                     assertEquals(DatasourceStructure.TableType.COLLECTION, usersTable.getType());
@@ -589,13 +636,13 @@ public class MongoPluginTest {
                                     "  },\n" +
                                     "  \"limit\": 10\n" +
                                     "}\n",
-                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), BODY));
-                    assertEquals("FIND", getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), COMMAND));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), BODY, STRING_TYPE));
+                    assertEquals("FIND", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), COMMAND, STRING_TYPE));
 
                     assertEquals("{ \"gender\": \"F\"}",
-                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_QUERY, STRING_TYPE));
                     assertEquals("{\"_id\": 1}",
-                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_SORT));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_SORT, STRING_TYPE));
 
                     //Assert Find By Id command
                     DatasourceStructure.Template findByIdTemplate = templates.get(1);
@@ -606,10 +653,10 @@ public class MongoPluginTest {
                                     "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                                     "  }\n" +
                                     "}\n",
-                            getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), BODY));
-                    assertEquals("FIND", getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), COMMAND));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), BODY, STRING_TYPE));
+                    assertEquals("FIND", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), COMMAND, STRING_TYPE));
                     assertEquals("{\"_id\": ObjectId(\"id_to_query_with\")}",
-                            getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), FIND_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), FIND_QUERY, STRING_TYPE));
 
                     // Assert Insert command
                     DatasourceStructure.Template insertTemplate = templates.get(2);
@@ -629,8 +676,8 @@ public class MongoPluginTest {
                                     "    }\n" +
                                     "  ]\n" +
                                     "}\n",
-                            getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), BODY));
-                    assertEquals("INSERT", getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), COMMAND));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), BODY, STRING_TYPE));
+                    assertEquals("INSERT", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), COMMAND, STRING_TYPE));
                     assertEquals("[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
                                     "      \"age\": 1,\n" +
                                     "      \"dob\": new Date(\"2019-07-01\"),\n" +
@@ -640,7 +687,7 @@ public class MongoPluginTest {
                                     "      \"netWorth\": NumberDecimal(\"1\"),\n" +
                                     "      \"updatedByCommand\": {},\n" +
                                     "}]",
-                            getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), INSERT_DOCUMENT));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), INSERT_DOCUMENT, STRING_TYPE));
 
                     // Assert Update command
                     DatasourceStructure.Template updateTemplate = templates.get(3);
@@ -655,12 +702,12 @@ public class MongoPluginTest {
                             "      \"u\": { \"$set\": { \"gender\": \"new value\" } }\n" +
                             "    }\n" +
                             "  ]\n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), BODY));
-                    assertEquals("UPDATE", getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), BODY, STRING_TYPE));
+                    assertEquals("UPDATE", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), COMMAND, STRING_TYPE));
                     assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_update\") }",
-                            getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY, STRING_TYPE));
                     assertEquals("{ \"$set\": { \"gender\": \"new value\" } }",
-                            getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_OPERATION));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_OPERATION, STRING_TYPE));
 
                     // Assert Delete Command
                     DatasourceStructure.Template deleteTemplate = templates.get(4);
@@ -675,12 +722,12 @@ public class MongoPluginTest {
                             "      \"limit\": 1\n" +
                             "    }\n" +
                             "  ]\n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), BODY));
-                    assertEquals("DELETE", getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), BODY, STRING_TYPE));
+                    assertEquals("DELETE", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), COMMAND, STRING_TYPE));
                     assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_delete\") }",
-                            getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_QUERY, STRING_TYPE));
                     assertEquals("SINGLE",
-                            getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT, STRING_TYPE));
 
                     // Assert Count Command
                     DatasourceStructure.Template countTemplate = templates.get(5);
@@ -688,10 +735,10 @@ public class MongoPluginTest {
                     assertEquals("{\n" +
                             "  \"count\": \"users\",\n" +
                             "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), BODY));
-                    assertEquals("COUNT", getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), BODY, STRING_TYPE));
+                    assertEquals("COUNT", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COMMAND, STRING_TYPE));
                     assertEquals("{\"_id\": {\"$exists\": true}}",
-                            getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY, STRING_TYPE));
 
                     // Assert Distinct Command
                     DatasourceStructure.Template distinctTemplate = templates.get(6);
@@ -700,12 +747,12 @@ public class MongoPluginTest {
                             "  \"distinct\": \"users\",\n" +
                             "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
                             "  \"key\": \"_id\"," +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), BODY));
-                    assertEquals("DISTINCT", getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), BODY, STRING_TYPE));
+                    assertEquals("DISTINCT", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), COMMAND, STRING_TYPE));
                     assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }",
-                            getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY, STRING_TYPE));
                     assertEquals("_id",
-                            getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY, STRING_TYPE));
 
                     // Assert Aggregate Command
                     DatasourceStructure.Template aggregateTemplate = templates.get(7);
@@ -715,11 +762,11 @@ public class MongoPluginTest {
                             "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
                             "  \"limit\": 10,\n" +
                             "  \"explain\": \"true\"\n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), BODY));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), BODY, STRING_TYPE));
 
-                    assertEquals("AGGREGATE", getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), COMMAND));
+                    assertEquals("AGGREGATE", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), COMMAND, STRING_TYPE));
                     assertEquals("[ {\"$sort\" : {\"_id\": 1} } ]",
-                            getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINES));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINES, STRING_TYPE));
 
 
                 })
@@ -911,9 +958,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
@@ -950,9 +997,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
@@ -989,9 +1036,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
@@ -1024,9 +1071,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: {{Input4.text}},\n" +
                 "      filter: \"{{Input1.text}}\",\n" +
                 "      sort: { id: {{Input2.text}} },\n" +
@@ -1039,18 +1086,22 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("{ age: { \"$gte\": 30 } }");
+        param1.setClientDataType(ClientDataType.OBJECT);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -1115,9 +1166,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: {{Input4.text}},\n" +
                 "      filter: { age: { {{Input1.text}} : 30 } },\n" +
                 "      sort: { id: {{Input2.text}} },\n" +
@@ -1130,18 +1181,22 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("$gte");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -1227,11 +1282,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, FIND_QUERY, "{ age: { \"$gte\": 30 } }");
-        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1258,10 +1313,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : \"F\", age : 40, tag : \"test\"}," +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : \"F\", age : 40, tag : \"test\"}," +
                 "{name : \"ZZZ Insert Form Array Test 2\", gender : \"F\", age : 40, tag : \"test\"}" +
                 "]");
 
@@ -1285,11 +1340,11 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);
         // Run the delete command
@@ -1301,10 +1356,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1326,11 +1381,11 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1343,12 +1398,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, UPDATE_QUERY, "{ name: \"Alden Cantrell\" }");
-        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ $set: { age: 31 }}}");
-        setValueSafelyInFormData(configMap, UPDATE_LIMIT, "SINGLE");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{ name: \"Alden Cantrell\" }");
+        setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ $set: { age: 31 }}}");
+        setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "SINGLE");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1376,13 +1431,13 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
         // Query for all the documents in the collection
-        setValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
-        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ $set: { updatedByCommand: true }}}");
-        setValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ $set: { updatedByCommand: true }}}");
+        setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1396,7 +1451,7 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
-                    assertEquals(value.asText(), "3");
+                    assertEquals("3", value.asText());
                     assertEquals(
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
@@ -1414,10 +1469,10 @@ public class MongoPluginTest {
 
         Map<String, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1425,11 +1480,11 @@ public class MongoPluginTest {
 
         // Now that the documents have been inserted, lets delete one of them
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{tag : \"delete\"}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{tag : \"delete\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1460,10 +1515,10 @@ public class MongoPluginTest {
 
         Map<String, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1471,11 +1526,11 @@ public class MongoPluginTest {
 
         // Now that the documents have been inserted, lets delete both of them
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{tag : \"delete\"}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{tag : \"delete\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1500,10 +1555,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "COUNT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, COUNT_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "COUNT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, COUNT_QUERY, "{}");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1528,11 +1583,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{}");
-        setValueSafelyInFormData(configMap, DISTINCT_KEY, "name");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DISTINCT_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, DISTINCT_KEY, "name");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1558,11 +1613,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}]");
-        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}]");
+        setDataValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1587,12 +1642,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
         // Invalid JSON object (issue: #5326)
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "{$sort :{ _id  : 1 }}abcd");
-        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
+        setDataValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "{$sort :{ _id  : 1 }}abcd");
+        setDataValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1616,12 +1671,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, FIND_QUERY, "{ age: { \"$gte\": 30 } }");
-        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
-        setValueSafelyInFormData(configMap, FIND_PROJECTION, "{ name: 1 }");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
+        setDataValueSafelyInFormData(configMap, FIND_PROJECTION, "{ name: 1 }");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1648,12 +1703,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
-        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
-        setValueSafelyInFormData(configMap, FIND_LIMIT, "{{Input3.text}}");
-        setValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
+        setDataValueSafelyInFormData(configMap, FIND_LIMIT, "{{Input3.text}}");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1662,18 +1717,22 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("{ age: { \"$gte\": 30 } }");
+        param1.setClientDataType(ClientDataType.OBJECT);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -1698,7 +1757,7 @@ public class MongoPluginTest {
 
                     String expectedQuery = "{\"find\": \"users\", \"filter\": {\"age\": {\"$gte\": 30}}, \"sort\": {\"id\": 1}, \"limit\": 10, \"batchSize\": 10}";
                     assertEquals(expectedQuery,
-                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
                 })
                 .verifyComplete();
     }
@@ -1710,12 +1769,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
         // Skip adding the query
-        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
         // Skip adding limit
-        setValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1724,10 +1783,12 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input2.text");
         param1.setValue("1");
+        param1.setClientDataType(ClientDataType.NUMBER);
         params.add(param1);
         Param param2 = new Param();
         param2.setKey("Input4.text");
         param2.setValue("users");
+        param2.setClientDataType(ClientDataType.STRING);
         params.add(param2);
         executeActionDTO.setParams(params);
 
@@ -1752,7 +1813,7 @@ public class MongoPluginTest {
 
                     String expectedQuery = "{\"find\": \"users\", \"filter\": {}, \"sort\": {\"id\": 1}, \"limit\": 10, \"batchSize\": 10}";
                     assertEquals(expectedQuery,
-                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
                 })
                 .verifyComplete();
     }
@@ -1765,9 +1826,9 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "COUNT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "COUNT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
         // Skip adding the query
 
         actionConfiguration.setFormData(configMap);
@@ -1793,11 +1854,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
         // Skip adding the query
-        setValueSafelyInFormData(configMap, DISTINCT_KEY, "name");
+        setDataValueSafelyInFormData(configMap, DISTINCT_KEY, "name");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1820,10 +1881,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "{\"name\" : {{Input1.text}}, \"gender\" : {{Input2.text}}, \"age\" : 40, \"tag\" : \"test\"}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "{\"name\" : {{Input1.text}}, \"gender\" : {{Input2.text}}, \"age\" : 40, \"tag\" : \"test\"}");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1835,10 +1896,12 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("This string contains ? symbol");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("F");
+        param3.setClientDataType(ClientDataType.STRING);
         params.add(param3);
         executeActionDTO.setParams(params);
 
@@ -1859,11 +1922,11 @@ public class MongoPluginTest {
         // Clean up this newly inserted value
 
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1879,10 +1942,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
         // Set bad attribute for limit key
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: \"filter\",\n" +
                 "      limit: 10,\n" +
@@ -1913,10 +1976,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
         // Set bad attribute for limit key
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      limit: [10],\n" +
                 "    }");
@@ -1946,10 +2009,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
         // Set unrecognized key limitx
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      limitx: 10,\n" +
                 "    }");
@@ -2027,9 +2090,9 @@ public class MongoPluginTest {
         String objectIdsAsArray = "[" + sb + "]";
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, findQuery);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, findQuery);
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -2037,6 +2100,8 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue(objectIdsAsArray);
+        param1.setClientDataType(ClientDataType.ARRAY);
+        param1.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(param1);
         executeActionDTO.setParams(params);
 
@@ -2083,9 +2148,9 @@ public class MongoPluginTest {
         String objectIdsAsArray = "[" + sb + "]";
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, findQuery);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, findQuery);
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -2093,6 +2158,8 @@ public class MongoPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue(objectIdsAsArray);
+        param1.setClientDataType(ClientDataType.ARRAY);
+        param1.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(param1);
         executeActionDTO.setParams(params);
 
@@ -2115,11 +2182,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, FIND_QUERY, "{{Input1.text}}");
-        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -2131,8 +2198,8 @@ public class MongoPluginTest {
         executeActionDTO.setParams(params);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -2158,10 +2225,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, COLLECTION, "{{Input1.text}}");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : " +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : " +
                 "\"F\", age : 40, tag : \"test\"}, {name : \"ZZZ Insert Form Array Test 2\", gender : \"F\", age : " +
                 "40, tag : \"test\"}]");
 
@@ -2176,8 +2243,8 @@ public class MongoPluginTest {
         executeActionDTO.setParams(params);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -2198,11 +2265,11 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);
         // Run the delete command
@@ -2215,13 +2282,13 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
         // Query for all the documents in the collection
-        setValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
-        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{{Input1.text}}");
-        setValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -2233,8 +2300,8 @@ public class MongoPluginTest {
         executeActionDTO.setParams(params);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -2247,7 +2314,7 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
-                    assertEquals(value.asText(), "3");
+                    assertEquals("3", value.asText());
                     assertEquals(
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
@@ -2265,10 +2332,10 @@ public class MongoPluginTest {
 
         Map<String, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, " +
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, " +
                 "{\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
 
         actionConfiguration.setFormData(configMap);
@@ -2278,12 +2345,12 @@ public class MongoPluginTest {
 
         // Now that the documents have been inserted, lets delete both of them
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{{Input1.text}}");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
-        setValueSafelyInFormData(configMap, BODY, "");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, BODY, "");
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -2295,8 +2362,8 @@ public class MongoPluginTest {
         executeActionDTO.setParams(params);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2320,10 +2387,10 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "COUNT");
-        setValueSafelyInFormData(configMap, COLLECTION, "{{Input1.text}}");
-        setValueSafelyInFormData(configMap, COUNT_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "COUNT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, COUNT_QUERY, "{}");
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -2335,8 +2402,8 @@ public class MongoPluginTest {
         executeActionDTO.setParams(params);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2360,11 +2427,11 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{}");
-        setValueSafelyInFormData(configMap, DISTINCT_KEY, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DISTINCT_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, DISTINCT_KEY, "{{Input1.text}}");
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -2376,9 +2443,9 @@ public class MongoPluginTest {
         executeActionDTO.setParams(params);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data",
-                String.class));
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery",
+                STRING_TYPE));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2403,15 +2470,15 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
-        setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
-        setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "{{Input1.text}}");
         actionConfiguration.setFormData(configMap);
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
@@ -2463,22 +2530,31 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, findQuery);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, findQuery);
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         final List<Param> params = new ArrayList<>();
-        final Param id = new Param("Input0", "[\"ObjectId('" + documentIds.get(0) + "')\"]" );
+        final Param id = new Param("Input0", "[\"ObjectId('" + documentIds.get(0) + "')\"]");
+        id.setClientDataType(ClientDataType.ARRAY);
+        id.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(id);
         final Param dob = new Param("Input1", "[\"ISODate('1970-01-01T00:00:00.000Z')\"]");
+        dob.setClientDataType(ClientDataType.ARRAY);
+        dob.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(dob);
         final Param netWorth = new Param("Input2", "['NumberDecimal(\"123456.789012\")']");
+        netWorth.setClientDataType(ClientDataType.ARRAY);
+        netWorth.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(netWorth);
         final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        aLong.setClientDataType(ClientDataType.OBJECT);
         params.add(aLong);
         final Param ts = new Param("Input4", "[\"Timestamp(1421006159, 4)\"]");
+        ts.setClientDataType(ClientDataType.ARRAY);
+        ts.setDataTypesOfArrayElements(List.of(ClientDataType.OBJECT));
         params.add(ts);
         executeActionDTO.setParams(params);
 
@@ -2502,12 +2578,12 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
-        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
-        setValueSafelyInFormData(configMap, FIND_LIMIT, "{{Input3.text}}");
-        setValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
+        setDataValueSafelyInFormData(configMap, FIND_LIMIT, "{{Input3.text}}");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
 
         actionConfiguration.setFormData(configMap);
 
@@ -2519,18 +2595,22 @@ public class MongoPluginTest {
                 "\"dob\": { \"$gte\": \"ISODate('2000-01-01T00:00:00.000Z')\" }, " +
                 "\"netWorth\": { \"$in\": [\"NumberDecimal(123456.789012)\"] } " +
                 "}");
+        param1.setClientDataType(ClientDataType.OBJECT);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("1");
+        param3.setClientDataType(ClientDataType.NUMBER);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("10");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("users");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         executeActionDTO.setParams(params);
 
@@ -2580,22 +2660,27 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, findQuery);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, findQuery);
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         final List<Param> params = new ArrayList<>();
         final Param id = new Param("Input0", "\"ObjectId(\\\"" + documentIds.get(0) + "\\\")\"");
+        id.setClientDataType(ClientDataType.OBJECT);
         params.add(id);
         final Param dob = new Param("Input1", "\"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"");
+        dob.setClientDataType(ClientDataType.OBJECT);
         params.add(dob);
         final Param netWorth = new Param("Input2", "\"NumberDecimal(\\\"123456.789012\\\")\"");
+        netWorth.setClientDataType(ClientDataType.OBJECT);
         params.add(netWorth);
         final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        aLong.setClientDataType(ClientDataType.OBJECT);
         params.add(aLong);
         final Param ts = new Param("Input4", "\"Timestamp(1421006159, 4)\"");
+        ts.setClientDataType(ClientDataType.OBJECT);
         params.add(ts);
         executeActionDTO.setParams(params);
 
@@ -2626,14 +2711,15 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, findQuery);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, findQuery);
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         final List<Param> params = new ArrayList<>();
         final Param dob = new Param("Input1", "{\"dob\": \"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"}");
+        dob.setClientDataType(ClientDataType.OBJECT);
         params.add(dob);
         executeActionDTO.setParams(params);
 
@@ -2649,4 +2735,391 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testInsertAndFindInvalidDatetime() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"John\",\n" +
+                "          \"last\": \"Backus\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"0001-01-01T00:00:00.000+00:00\"),\n" +
+                "        \"death\": ISODate(\"2007-03-17T04:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"John\",\n" +
+                "          \"last\": \"McCarthy\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"1927-09-04T04:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"2011-12-24T05:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"Grace\",\n" +
+                "          \"last\": \"Hopper\"\n" +
+                "        },\n" +
+                "        \"title\": \"Rear Admiral\",\n" +
+                "        \"birth\": ISODate(\"1906-12-09T05:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"1992-01-01T05:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"Kristen\",\n" +
+                "          \"last\": \"Nygaard\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"1926-08-27T04:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"2002-08-10T04:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      }\n" +
+                "]");
+
+        actionConfiguration.setFormData(configMap);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        //Find query
+        configMap.clear();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{ \"issue\": 13285}");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+
+        actionConfiguration.setFormData(configMap);
+
+        executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(4, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        // Clean up this newly inserted values
+        configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"issue\": 13285}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setFormData(configMap);
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+    }
+
+    @Test
+    public void testStaleConnectionOnIllegalStateExceptionOnQueryExecution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"address\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+        actionConfiguration.setFormData(configMap);
+
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).runCommand(any());
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(spyMongoClient, dsConfig,
+                actionConfiguration, new ArrayList<>());
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
+    public void testStaleConnectionOnMongoSocketWriteExceptionOnQueryExecution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"address\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+        actionConfiguration.setFormData(configMap);
+
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new MongoSocketWriteException("", null, null))).when(spyMongoDatabase).runCommand(any());
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(spyMongoClient, dsConfig,
+                actionConfiguration, new ArrayList<>());
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
+    public void testStaleConnectionOnIllegalStateExceptionOnGetStructure() {
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).listCollectionNames();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        StepVerifier.create(structureMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
+    public void testStaleConnectionOnMongoSocketWriteExceptionOnGetStructure() {
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new MongoSocketWriteException("", null, null))).when(spyMongoDatabase).listCollectionNames();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        StepVerifier.create(structureMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
+    public void testValidateDatasource_withoutDefaultDBInURIString_returnsInvalid() {
+        final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("isUriString", "Yes"));
+        properties.add(new Property("uriString", "mongodb://user:pass@url.net/"));
+        datasourceConfiguration.setProperties(properties);
+
+        final Set<String> strings = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        assertEquals(1, strings.size());
+        assertTrue(strings.contains("Missing default database name."));
+    }
+
+    @Test
+    public void testRegexStringQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"users\", \n " +
+                "filter: {\"name\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param("appsmith.store.variable", "[a-zA-Z]{0,3}.*Ci.*");
+        param.setClientDataType(ClientDataType.STRING);
+        executeActionDTO.setParams(List.of(param));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testRegexNumberQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"goals_allowed\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param("appsmith.store.variable", "35");
+        param.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(param));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRegexStringWithNumbersQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"best_scoreline\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param("appsmith.store.variable", "5-.*");
+        param.setClientDataType(ClientDataType.STRING);
+        executeActionDTO.setParams(List.of(param));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    System.out.println(actionExecutionResult.getBody());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testRegexNegativeNumbersQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"goal_difference\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param("appsmith.store.variable", "-7");
+        param.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(param));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    System.out.println(actionExecutionResult.getBody());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testRegexNegativeDecimalNumberQueryWithSmartSubstitution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+
+        String rawFind = "{ find: \"teams\", \n " +
+                "filter: {\"xGD\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param("appsmith.store.variable", "-2.5");
+        param.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(param));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
+                                                                                                                                                executeActionDTO,
+                                                                                                                                                dsConfig,
+                                                                                                                                                actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    System.out.println(actionExecutionResult.getBody());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
 }

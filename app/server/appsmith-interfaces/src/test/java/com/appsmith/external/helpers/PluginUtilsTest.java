@@ -2,16 +2,21 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.models.Condition;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PluginUtilsTest {
 
@@ -66,12 +71,12 @@ public class PluginUtilsTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            assertThat(condition.getOperator().equals(ConditionalOperator.AND));
+            assertThat(condition.getOperator()).isEqualTo(ConditionalOperator.AND);
             Object conditionValue = condition.getValue();
             assertThat(conditionValue).isNotNull();
-            assertThat(conditionValue instanceof List);
+            assertThat(conditionValue).isInstanceOf(List.class);
             List<Condition> conditionList = (List<Condition>) conditionValue;
-            assertThat(conditionList.size()).isEqualTo(3);
+            assertThat(conditionList).hasSize(3);
             for (Condition conditionFromChildren : conditionList) {
                 ConditionalOperator operator = conditionFromChildren.getOperator();
                 assertThat(operator).isNotNull();
@@ -80,10 +85,10 @@ public class PluginUtilsTest {
                 Object value = conditionFromChildren.getValue();
                 if (operator.equals(ConditionalOperator.AND)) {
                     assertThat(path).isNull();
-                    assertThat(value instanceof List);
+                    assertThat(value).isInstanceOf(List.class);
                 } else {
                     assertThat(path).isNotNull();
-                    assertThat(value instanceof String);
+                    assertThat(value).isInstanceOf(String.class);
                 }
             }
 
@@ -105,15 +110,76 @@ public class PluginUtilsTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            assertThat(condition.getOperator().equals(ConditionalOperator.AND));
+            assertThat(condition.getOperator()).isEqualTo(ConditionalOperator.AND);
             Object conditionValue = condition.getValue();
-            assertThat(conditionValue).isNotNull();
-            assertThat(conditionValue instanceof List);
-            List<Condition> conditionList = (List<Condition>) conditionValue;
-            assertThat(conditionList.size()).isEqualTo(0);
+            assertThat(conditionValue).isNull();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testGetDataValueAsTypeFromFormData_withFormMode_doesNotConvertToList() {
+        final Map<String, Object> dataMap = Map.of("key", Map.of("viewType", "component",
+                "data", "[\"value\"]"));
+
+        try {
+            PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", new TypeReference<List<String>>() {
+            });
+        } catch (Exception e) {
+            assertTrue(e instanceof ClassCastException);
+        }
+    }
+
+    @Test
+    public void testGetDataValueAsTypeFromFormData_withFormMode_doesNotConvert() {
+        final Map<String, Object> dataMap = Map.of("key", Map.of("viewType", "component",
+                "data", "[\"value\"]"));
+
+        final String data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", STRING_TYPE);
+
+        assertEquals("[\"value\"]", data);
+    }
+
+    @Test
+    public void testGetDataValueAsTypeFromFormData_withJsonMode_doesConvertToList() {
+        final Map<String, Object> dataMap = Map.of("key", Map.of("viewType", "json",
+                "data", "[\"value\"]"));
+
+        final List<String> data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", new TypeReference<List<String>>() {
+        });
+
+        assertEquals(List.of("value"), data);
+    }
+
+    @Test
+    public void testGetDataValueAsTypeFromFormData_withJsonMode_doesConvertToObject() {
+        final Map<String, Object> dataMap = Map.of("key", Map.of("viewType", "json",
+                "data", "[\"value\"]"));
+
+        final Object data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", OBJECT_TYPE);
+
+        assertEquals(List.of("value"), data);
+    }
+
+    @Test
+    public void testGetDataValueAsTypeFromFormData_withJsonMode_doesConvertToMap() {
+        final Map<String, Object> dataMap = Map.of("key", Map.of("viewType", "json",
+                "data", "{\"k\":\"value\"}"));
+
+        final Map<String, String> data = PluginUtils.getDataValueSafelyFromFormData(dataMap, "key", new TypeReference<Map<String, String>>() {
+        });
+
+        assertEquals(Map.of("k", "value"), data);
+    }
+
+    @Test
+    public void testSetDataValueSafelyInFormData_withNestedPath_createsInnermostDataKey() {
+        final Map<String, Object> dataMap = new HashMap<>();
+
+        PluginUtils.setDataValueSafelyInFormData(dataMap, "key.innerKey", "value");
+
+        assertEquals(Map.of("key", Map.of("innerKey", Map.of("data", "value"))), dataMap);
     }
 }

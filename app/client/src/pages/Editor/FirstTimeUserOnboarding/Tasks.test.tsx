@@ -1,3 +1,6 @@
+const dispatch = jest.fn();
+const history = jest.fn();
+
 import { integrationEditorURL } from "RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -6,8 +9,8 @@ import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingTasks from "./Tasks";
 import { getStore, initialState } from "./testUtils";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
-const dispatch = jest.fn();
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
   return {
@@ -16,9 +19,7 @@ jest.mock("react-redux", () => {
   };
 });
 
-let history: any;
 jest.mock("utils/history", () => {
-  history = jest.fn();
   return {
     push: history,
   };
@@ -39,6 +40,19 @@ describe("Tasks", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        applicationId: initialState.entities.pageList.applicationId,
+        applicationVersion: 2,
+      },
+      [
+        {
+          pageSlug: initialState.entities.pageList.pages[0].slug,
+          pageId: initialState.entities.pageList.currentPageId,
+        },
+      ],
+    );
   });
 
   afterEach(() => {
@@ -65,6 +79,7 @@ describe("Tasks", () => {
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -93,6 +108,7 @@ describe("Tasks", () => {
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );

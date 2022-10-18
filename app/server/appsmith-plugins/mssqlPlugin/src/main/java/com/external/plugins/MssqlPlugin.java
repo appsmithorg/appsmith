@@ -1,19 +1,20 @@
 package com.external.plugins;
 
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -70,6 +71,7 @@ import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuest
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class MssqlPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
@@ -84,6 +86,8 @@ public class MssqlPlugin extends BasePlugin {
 
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
+    private static final long MS_SQL_DEFAULT_PORT = 1433L;
+
     public MssqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -91,8 +95,6 @@ public class MssqlPlugin extends BasePlugin {
     /**
      * MsSQL plugin receives the query as json of the following format :
      */
-
-    @Slf4j
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
 
@@ -219,12 +221,8 @@ public class MssqlPlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        System.out.println(Thread.currentThread().getName() +
-                                ": Before executing postgres query [" + query +  "] " +
-                                " Hikari Pool stats : active - " + activeConnections +
-                                ", idle - " + idleConnections +
-                                ", awaiting - " + threadsAwaitingConnection +
-                                ", total - " + totalConnections);
+                        log.debug("Before executing MsSQL query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
+                                query, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
 
                         try {
                             if (FALSE.equals(preparedStatement)) {
@@ -344,7 +342,7 @@ public class MssqlPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.info(Thread.currentThread().getName() + ": In the MssqlPlugin, got action execution result");
+                        log.debug("In the MssqlPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -389,7 +387,7 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.fromCallable(() -> {
-                        log.info(Thread.currentThread().getName() + ": Connecting to SQL Server db");
+                        log.debug("Connecting to SQL Server db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -434,18 +432,6 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> {
-                        if (connection != null) {
-                            connection.close();
-                        }
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
-        }
-
-        @Override
         public Mono<ActionExecutionResult> execute(HikariDataSource connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
@@ -462,7 +448,9 @@ public class MssqlPlugin extends BasePlugin {
                                              Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
-            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value);
+            DataType valueType = appsmithType.type();
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
@@ -531,6 +519,15 @@ public class MssqlPlugin extends BasePlugin {
         }
     }
 
+    public static long getPort(Endpoint endpoint) {
+
+        if (endpoint.getPort() == null) {
+            return MS_SQL_DEFAULT_PORT;
+        }
+
+        return endpoint.getPort();
+    }
+
     /**
      * This function is blocking in nature which connects to the database and creates a connection pool
      *
@@ -566,7 +563,7 @@ public class MssqlPlugin extends BasePlugin {
             urlBuilder
                     .append(endpoint.getHost())
                     .append(":")
-                    .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                    .append(getPort(endpoint))
                     .append(";");
         }
 
@@ -612,8 +609,7 @@ public class MssqlPlugin extends BasePlugin {
     private static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool) throws SQLException {
 
         if (hikariDSConnectionPool == null || hikariDSConnectionPool.isClosed() || !hikariDSConnectionPool.isRunning()) {
-            System.out.println(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in SQL Server plugin. Reporting back.");
+            log.debug("Encountered stale connection pool in SQL Server plugin. Reporting back.");
             throw new StaleConnectionException();
         }
 

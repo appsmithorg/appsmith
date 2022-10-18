@@ -7,6 +7,8 @@ export const CONFIG = {
   name: "FormButton",
   iconSVG: IconSVG,
   hideCard: true,
+  isDeprecated: true,
+  replacement: "BUTTON_WIDGET",
   needsMeta: true,
   defaults: {
     rows: 4,

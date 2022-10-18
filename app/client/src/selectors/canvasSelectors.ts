@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 export const getIsDraggingForSelection = (state: AppState) => {
   return state.ui.canvasSelection.isDraggingForSelection;

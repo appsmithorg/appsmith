@@ -4,20 +4,10 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 import { isLabelOrientationApplicableFor } from "../component";
 
-export default [
+export const contentConfig = [
   {
-    sectionName: "General",
+    sectionName: "Data",
     children: [
-      {
-        helpText: "Adds a title to the chart",
-        placeholderText: "Sales Report",
-        propertyName: "chartName",
-        label: "Title",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
       {
         helpText: "Changes the visualisation of the chart data",
         propertyName: "chartType",
@@ -204,6 +194,21 @@ export default [
           },
         ],
       },
+    ],
+  },
+  {
+    sectionName: "General",
+    children: [
+      {
+        helpText: "Adds a title to the chart",
+        placeholderText: "Sales Report",
+        propertyName: "chartName",
+        label: "Title",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
       {
         propertyName: "isVisible",
         label: "Visible",
@@ -241,6 +246,15 @@ export default [
   {
     sectionName: "Axis",
     children: [
+      {
+        propertyName: "setAdaptiveYMin",
+        label: "Adaptive Axis",
+        helpText: "Define the minimum scale for X/Y axis",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
       {
         helpText: "Specifies the label of the x-axis",
         propertyName: "xAxisName",
@@ -294,15 +308,6 @@ export default [
           },
         ],
       },
-      {
-        propertyName: "setAdaptiveYMin",
-        label: "Adaptive Axis",
-        helpText: "Define the minimum scale for X/Y axis",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
     ],
   },
   {
@@ -319,8 +324,11 @@ export default [
       },
     ],
   },
+];
+
+export const styleConfig = [
   {
-    sectionName: "Styles",
+    sectionName: "Border and Shadow",
     children: [
       {
         propertyName: "borderRadius",

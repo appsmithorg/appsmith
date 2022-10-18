@@ -15,10 +15,12 @@ import {
 } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export const promisifyAction = (
   workerRequestId: string,
   actionDescription: ActionDescription,
+  eventType?: EventType,
 ) => {
   if (!self.ALLOW_ASYNC) {
     /**
@@ -38,14 +40,16 @@ export const promisifyAction = (
       trigger: actionDescription,
       errors: [],
       subRequestId,
+      eventType,
     };
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
       responseData,
       requestId: workerRequestIdCopy,
+      promisified: true,
     });
     const processResponse = function(event: MessageEvent) {
-      const { data, method, requestId, success } = event.data;
+      const { data, eventType, method, requestId, success } = event.data;
       // This listener will get all the messages that come to the worker
       // we need to find the correct one pertaining to this promise
       if (
@@ -62,17 +66,17 @@ export const promisifyAction = (
         } else {
           self.ALLOW_ASYNC = true;
           // Reset the global data with the correct request id for this promise
-          const globalData = createGlobalData(
-            dataTreeEvaluator.evalTree,
-            dataTreeEvaluator.resolvedFunctions,
-            true,
-            {
+          const globalData = createGlobalData({
+            dataTree: dataTreeEvaluator.evalTree,
+            resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
+            isTriggerBased: true,
+            context: {
               requestId: workerRequestId,
+              eventType,
             },
-          );
+          });
           for (const entity in globalData) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error: Types are not available
             self[entity] = globalData[entity];
           }
 
@@ -100,6 +104,7 @@ export const completePromise = (requestId: string, result: EvalResult) => {
       result,
     },
     requestId,
+    promisified: true,
   });
 };
 

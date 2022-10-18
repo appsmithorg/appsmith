@@ -44,8 +44,8 @@ describe("getLintAnnotations()", () => {
   const { LINT, PARSE } = PropertyEvaluationErrorType;
   const { ERROR, WARNING } = Severity;
   it("should return proper annotations", () => {
-    const value = `Hello {{ world == test }}`;
-    const errors: EvaluationError[] = [
+    const value1 = `Hello {{ world == test }}`;
+    const errors1: EvaluationError[] = [
       {
         errorType: LINT,
         raw:
@@ -87,8 +87,8 @@ describe("getLintAnnotations()", () => {
       },
     ];
 
-    const res = getLintAnnotations(value, errors);
-    expect(res).toEqual([
+    const res1 = getLintAnnotations(value1, errors1, {});
+    expect(res1).toEqual([
       {
         from: {
           line: 0,
@@ -126,6 +126,40 @@ describe("getLintAnnotations()", () => {
         severity: "warning",
       },
     ]);
+
+    /// 2
+    const value2 = `hss{{hss}}`;
+    const errors2: EvaluationError[] = [
+      {
+        errorType: LINT,
+        raw:
+          "\n  function closedFunction () {\n    const result = hss\n    return result;\n  }\n  closedFunction.call(THIS_CONTEXT)\n  ",
+        severity: ERROR,
+        errorMessage: "'hss' is not defined.",
+        errorSegment: "    const result = hss",
+        originalBinding: "{{hss}}",
+        variables: ["hss", null, null, null],
+        code: "W117",
+        line: 0,
+        ch: 1,
+      },
+    ];
+
+    const res2 = getLintAnnotations(value2, errors2, {});
+    expect(res2).toEqual([
+      {
+        from: {
+          line: 0,
+          ch: 5,
+        },
+        to: {
+          line: 0,
+          ch: 8,
+        },
+        message: "'hss' is not defined.",
+        severity: "error",
+      },
+    ]);
   });
 
   it("should return correct annotation with newline in original binding", () => {
@@ -155,7 +189,7 @@ describe("getLintAnnotations()", () => {
       },
     ];
 
-    const res = getLintAnnotations(value, errors);
+    const res = getLintAnnotations(value, errors, {});
 
     expect(res).toEqual([
       {
@@ -181,7 +215,7 @@ describe("getLintAnnotations()", () => {
     `;
     const errors: EvaluationError[] = [];
 
-    const res = getLintAnnotations(value, errors, true);
+    const res = getLintAnnotations(value, errors, { isJSObject: true });
     expect(res).toEqual([
       {
         from: {

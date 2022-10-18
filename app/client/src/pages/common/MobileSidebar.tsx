@@ -2,18 +2,19 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import ProfileImage from "pages/common/ProfileImage";
-import MenuItem from "components/ads/MenuItem";
+import { MenuItem } from "design-system";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
-  getOnSelectAction,
   DropdownOnSelectActions,
+  getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
-  createMessage,
   ADMIN_SETTINGS,
+  APPSMITH_DISPLAY_VERSION,
+  createMessage,
   DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -96,7 +97,7 @@ const LeftPaneVersionData = styled.div`
 
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
-  const { appVersion } = getAppsmithConfigs();
+  const { appVersion, cloudHosting } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
 
   return (
@@ -117,7 +118,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         <h4>ACCOUNT</h4>
         {user?.isSuperUser && user?.isConfigurable && (
           <StyledMenuItem
-            className={`t--admin-settings-menu`}
+            className="admin-settings-menu-option"
             icon="setting"
             onSelect={() => {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
@@ -155,7 +156,14 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         />
       </Section>
       <LeftPaneVersionData>
-        <span>Appsmith {appVersion.id}</span>
+        <span>
+          {createMessage(
+            APPSMITH_DISPLAY_VERSION,
+            appVersion.edition,
+            appVersion.id,
+            cloudHosting,
+          )}
+        </span>
         {howMuchTimeBefore !== "" && (
           <span>Released {howMuchTimeBefore} ago</span>
         )}

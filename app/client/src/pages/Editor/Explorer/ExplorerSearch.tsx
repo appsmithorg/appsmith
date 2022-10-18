@@ -55,10 +55,10 @@ export const ExplorerSearch = forwardRef(
       >
         <div
           className={classNames({
-            "flex px-3 items-center space-x-2": true,
+            "flex px-3 items-center": true,
           })}
         >
-          <SearchIcon className="box-content w-3 h-3 p-1" />
+          <SearchIcon className="box-content w-3 h-3 mr-3" />
           <input
             autoComplete="off"
             autoFocus
@@ -72,7 +72,7 @@ export const ExplorerSearch = forwardRef(
             type="text"
           />
           {value && (
-            <button className="p-1 hover:bg-trueGray-200" onClick={onClear}>
+            <button className="mr-1  hover:bg-trueGray-200" onClick={onClear}>
               <CrossIcon className="w-3 h-3 text-trueGray-100" />
             </button>
           )}

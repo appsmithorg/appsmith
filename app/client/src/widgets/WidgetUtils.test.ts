@@ -2,6 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
+import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { TextSizes } from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -14,6 +15,7 @@ import {
   escapeSpecialChars,
   fontSizeUtility,
   lightenColor,
+  composePropertyUpdateHook,
   sanitizeKey,
 } from "./WidgetUtils";
 import {
@@ -96,22 +98,22 @@ describe("validate widget utils button style functions", () => {
   // validate getCustomHoverColor function
   it("getCustomHoverColor - validate empty or undefined background color or variant", () => {
     // background color and variant is both are undefined
-    const expected = "#e6e6e6";
+    const expected = "hsl(0, 0%, 95%)";
     const result = getCustomHoverColor(theme);
     expect(result).toStrictEqual(expected);
 
     // variant is undefined
     const backgroundColor = "#03b365";
-    const expected1 = "#028149";
+    const expected1 = "hsl(153, 97%, 31%)";
     const result1 = getCustomHoverColor(theme, undefined, backgroundColor);
     expect(result1).toStrictEqual(expected1);
   });
 
   // validate getCustomHoverColor function
   it("getCustomHoverColor - validate hover color for different variant", () => {
-    const backgroundColor = "#03b365";
+    const backgroundColor = "hsl(153, 97% ,36%)";
     // variant : PRIMARY
-    const expected1 = "#028149";
+    const expected1 = "hsl(153, 97%, 31%)";
     const result1 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.PRIMARY,
@@ -121,12 +123,12 @@ describe("validate widget utils button style functions", () => {
     expect(result1).toStrictEqual(expected1);
 
     // variant : PRIMARY without background
-    const expected2 = "#e6e6e6";
+    const expected2 = "hsl(0, 0%, 95%)";
     const result2 = getCustomHoverColor(theme, ButtonVariantTypes.PRIMARY);
     expect(result2).toStrictEqual(expected2);
 
     // variant : SECONDARY
-    const expected3 = "#dcfeef";
+    const expected3 = "rgba(3, 181, 101, 0.1)";
     const result3 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.SECONDARY,
@@ -136,12 +138,12 @@ describe("validate widget utils button style functions", () => {
     expect(result3).toStrictEqual(expected3);
 
     // variant : SECONDARY without background
-    const expected4 = "#ededed";
+    const expected4 = "rgba(255, 255, 255, 0.1)";
     const result4 = getCustomHoverColor(theme, ButtonVariantTypes.SECONDARY);
     expect(result4).toStrictEqual(expected4);
 
     // variant : TERTIARY
-    const expected5 = "#dcfeef";
+    const expected5 = "rgba(3, 181, 101, 0.1)";
     const result5 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.TERTIARY,
@@ -150,7 +152,7 @@ describe("validate widget utils button style functions", () => {
     expect(result5).toStrictEqual(expected5);
 
     // variant : TERTIARY without background
-    const expected6 = "#ededed";
+    const expected6 = "rgba(255, 255, 255, 0.1)";
     const result6 = getCustomHoverColor(theme, ButtonVariantTypes.TERTIARY);
     expect(result6).toStrictEqual(expected6);
   });
@@ -427,5 +429,52 @@ describe("Test widget utility functions", () => {
       tableWidgetProps.primaryColumns.action.boxShadowColor[0],
     );
     expect(newBoxShadow).toEqual("0px 0px 4px 3px rgba(0, 0, 0, 0.25)");
+  });
+});
+
+type composePropertyUpdateHookInputType = Array<
+  (
+    props: unknown,
+    propertyPath: string,
+    propertyValue: any,
+  ) => PropertyHookUpdates[] | undefined
+>;
+describe("composePropertyUpdateHook", () => {
+  it("should test that it's returning a function", () => {
+    expect(typeof composePropertyUpdateHook([() => undefined])).toEqual(
+      "function",
+    );
+  });
+
+  it("should test that calling the function concats the returned values of input functions in the given order", () => {
+    const input = [() => [1], () => [2], () => [3], () => [4]];
+
+    const expected = [1, 2, 3, 4];
+
+    expect(
+      composePropertyUpdateHook(
+        (input as unknown) as composePropertyUpdateHookInputType,
+      )(null, "", null),
+    ).toEqual(expected);
+  });
+
+  it("should test that calling the function concats the returned values of input functions in the given order and ignores undefined", () => {
+    const input = [() => [1], () => undefined, () => [3], () => [4]];
+
+    const expected = [1, 3, 4];
+
+    expect(
+      composePropertyUpdateHook(
+        (input as unknown) as composePropertyUpdateHookInputType,
+      )(null, "", null),
+    ).toEqual(expected);
+  });
+
+  it("should test that calling the function without any function returns undefined", () => {
+    const input: any = [];
+
+    const expected = undefined;
+
+    expect(composePropertyUpdateHook(input)(null, "", null)).toEqual(expected);
   });
 });

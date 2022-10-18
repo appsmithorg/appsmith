@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 let dataSet: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
-    jsEditor = ObjectsRegistry.JSEditor,
+    propPane = ObjectsRegistry.PropertyPane,
     locator = ObjectsRegistry.CommonLocators,
     deployMode = ObjectsRegistry.DeployMode;
 
@@ -20,22 +20,22 @@ describe("Loadash basic test with input Widget", () => {
     });
 
     it("1. Input widget test with default value for atob method", () => {
-        ee.SelectEntityByName("Input1", 'WIDGETS')
-        jsEditor.EnterJSContext("Default Text", dataSet.defaultInputBinding + "}}");
+        ee.SelectEntityByName("Input1", 'Widgets')
+        propPane.UpdatePropertyFieldValue("Default Value", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Input widget test with default value for btoa method", function () {
         ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("Default Text", dataSet.loadashInput + "}}");
+        propPane.UpdatePropertyFieldValue("Default Value", dataSet.loadashInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
-        deployMode.DeployApp(locator._inputWidgetInDeployed)
-        cy.get(locator._inputWidgetInDeployed).first().invoke("attr", "value")
+        deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"))
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).first().invoke("attr", "value")
             .should("contain", "7")
-        cy.get(locator._inputWidgetInDeployed).last().invoke("attr", "value")
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).last().invoke("attr", "value")
             .should("contain", "7");
     });
 });

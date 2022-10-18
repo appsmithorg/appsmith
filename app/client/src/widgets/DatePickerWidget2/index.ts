@@ -10,6 +10,7 @@ export const CONFIG = {
   name: "DatePicker",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["calendar"],
   defaults: {
     isDisabled: false,
     datePickerType: "DATE_PICKER",
@@ -38,6 +39,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

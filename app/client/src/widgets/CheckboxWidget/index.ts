@@ -8,6 +8,7 @@ export const CONFIG = {
   name: "Checkbox",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["boolean"],
   defaults: {
     rows: 4,
     columns: 7,
@@ -26,6 +27,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

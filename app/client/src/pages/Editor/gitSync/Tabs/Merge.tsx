@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Caption, Space, Title } from "../components/StyledComponents";
-import Dropdown from "components/ads/Dropdown";
+import { Dropdown } from "design-system";
 
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
@@ -15,7 +15,6 @@ import {
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled, { useTheme } from "styled-components";
-import Button, { Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
@@ -45,7 +44,7 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import Text, { Case, TextType } from "components/ads/Text";
+import { Button, Case, Size, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -235,6 +234,7 @@ export default function Merge() {
         <Dropdown
           className={Classes.MERGE_DROPDOWN}
           containerClassName={"t--merge-branch-dropdown-destination"}
+          disabled={isFetchingBranches || isFetchingMergeStatus || isMerging}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
@@ -281,6 +281,7 @@ export default function Merge() {
         showMergeButton && (
           <Button
             className="t--git-merge-button"
+            data-testid="t--git-merge-button"
             disabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}

@@ -1,21 +1,30 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
 
 import {
   getImportedApplication,
   getIsDatasourceConfigForImportFetched,
-  getOrganizationIdForImport,
-  getUserApplicationsOrgsList,
+  getWorkspaceIdForImport,
+  getUserApplicationsWorkspacesList,
+  getPageIdForImport,
 } from "selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
 import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
-import Icon, { IconSize } from "components/ads/Icon";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  Icon,
+  IconSize,
+  Size,
+  Toaster,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import { Colors } from "constants/Colors";
 
-import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import { Title } from "./components/StyledComponents";
@@ -30,7 +39,6 @@ import {
   SKIP_TO_APPLICATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceLoading,
   getIsDatasourceTesting,
@@ -41,24 +49,22 @@ import {
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
-  ApplicationVersion,
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
-  setOrgIdForImport,
+  setPageIdForImport,
+  setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
-import TooltipComponent from "components/ads/Tooltip";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "components/ads";
+import { Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
-import { PLACEHOLDER_APP_SLUG } from "constants/routes";
 import localStorage from "utils/localStorage";
 
 const Container = styled.div`
@@ -269,7 +275,8 @@ function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
-  const organizationId = useSelector(getOrganizationIdForImport);
+  const workspaceId = useSelector(getWorkspaceIdForImport);
+  const pageIdForImport = useSelector(getPageIdForImport);
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
@@ -282,7 +289,7 @@ function ReconnectDatasourceModal() {
     localStorage.getItem("importedAppPendingInfo") || "null",
   );
   // getting query from redirection url
-  const userOrgs = useSelector(getUserApplicationsOrgsList);
+  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
   const queryParams = useQuery();
   const queryAppId =
     queryParams.get("appId") || (pendingApp ? pendingApp.appId : null);
@@ -329,18 +336,20 @@ function ReconnectDatasourceModal() {
 
   // should open reconnect datasource modal
   useEffect(() => {
-    if (userOrgs && queryIsImport && queryDatasourceId) {
+    if (userWorkspaces && queryIsImport && queryDatasourceId) {
       if (queryAppId) {
-        for (const org of userOrgs) {
-          const { applications, organization } = org;
+        for (const ws of userWorkspaces) {
+          const { applications, workspace } = ws;
           const application = applications.find(
             (app: any) => app.id === queryAppId,
           );
           if (application) {
-            dispatch(setOrgIdForImport(organization.id));
+            dispatch(setWorkspaceIdForImport(workspace.id));
             dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
             const defaultPageId = getDefaultPageId(application.pages);
-            if (defaultPageId) {
+            if (pageIdForImport) {
+              setPageId(pageIdForImport);
+            } else if (defaultPageId) {
               setPageId(defaultPageId);
             }
             if (!datasources.length) {
@@ -348,7 +357,7 @@ function ReconnectDatasourceModal() {
                 type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
                 payload: {
                   applicationId: appId,
-                  orgId: organization.id,
+                  workspaceId: workspace.id,
                 },
               });
             }
@@ -357,18 +366,18 @@ function ReconnectDatasourceModal() {
         }
       }
     }
-  }, [userOrgs, queryIsImport]);
+  }, [userWorkspaces, queryIsImport]);
 
   const isConfigFetched = useSelector(getIsDatasourceConfigForImportFetched);
 
   // todo uncomment this to fetch datasource config
   useEffect(() => {
-    if (isModalOpen && organizationId) {
+    if (isModalOpen && workspaceId) {
       dispatch(
-        initDatasourceConnectionDuringImportRequest(organizationId as string),
+        initDatasourceConnectionDuringImportRequest(workspaceId as string),
       );
     }
-  }, [organizationId, isModalOpen]);
+  }, [workspaceId, isModalOpen]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -386,7 +395,8 @@ function ReconnectDatasourceModal() {
   const handleClose = useCallback(() => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-    dispatch(setOrgIdForImport(""));
+    dispatch(setWorkspaceIdForImport(""));
+    dispatch(setPageIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
@@ -425,11 +435,13 @@ function ReconnectDatasourceModal() {
   const importedApplication = useSelector(getImportedApplication);
   useEffect(() => {
     if (!queryIsImport) {
+      // @ts-expect-error: importedApplication is of type unknown
       const defaultPage = importedApplication?.pages?.find(
         (page: any) => page.isDefault,
       );
       if (defaultPage) {
         setPageId(defaultPage.id);
+        // @ts-expect-error: importedApplication is of type unknown
         setAppId(importedApplication?.id);
       }
     }
@@ -437,13 +449,9 @@ function ReconnectDatasourceModal() {
 
   useEffect(() => {
     if (pageId && appId && datasources.length) {
+      // TODO: Update route params here
       setAppURL(
         builderURL({
-          applicationVersion:
-            importedApplication?.applicationVersion ||
-            ApplicationVersion.SLUG_URL,
-          applicationSlug: importedApplication?.slug || PLACEHOLDER_APP_SLUG,
-          applicationId: appId,
           pageId: pageId,
         }),
       );
@@ -519,86 +527,83 @@ function ReconnectDatasourceModal() {
     isConfigFetched && !isLoading && !datasource?.isConfigured;
 
   return (
-    <>
-      <Dialog
-        canEscapeKeyClose
-        canOutsideClickClose
-        className={Classes.RECONNECT_DATASOURCE_MODAL}
-        isOpen={isModalOpen}
-        maxWidth={"1300px"}
-        onClose={handleClose}
-        width={"1293px"}
-      >
-        <Container>
-          <TabsContainer>
-            <TabMenu
-              activeTabIndex={0}
-              onSelect={() => undefined}
-              options={menuOptions}
-            />
-          </TabsContainer>
-          <BodyContainer>
-            <Title>
-              {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
-            </Title>
-            <Section>
-              <Text color={Colors.BLACK} type={TextType.P1}>
-                {createMessage(
-                  RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
-                )}
-              </Text>
-            </Section>
-            <ContentWrapper>
-              <ListContainer>{mappedDataSources}</ListContainer>
-              {shouldShowDBForm && (
-                <DBFormWrapper>
-                  <DatasourceForm
-                    applicationId={appId}
-                    datasourceId={selectedDatasourceId}
-                    fromImporting
-                    pageId={pageId}
-                  />
-                </DBFormWrapper>
+    <Dialog
+      canEscapeKeyClose
+      canOutsideClickClose
+      className={Classes.RECONNECT_DATASOURCE_MODAL}
+      isOpen={isModalOpen}
+      maxWidth={"1300px"}
+      onClose={handleClose}
+      width={"1293px"}
+    >
+      <Container>
+        <TabsContainer>
+          <TabMenu
+            activeTabIndex={0}
+            onSelect={() => undefined}
+            options={menuOptions}
+          />
+        </TabsContainer>
+        <BodyContainer>
+          <Title>
+            {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
+          </Title>
+          <Section>
+            <Text color={Colors.BLACK} type={TextType.P1}>
+              {createMessage(
+                RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
               )}
-              {datasource?.isConfigured && SuccessMessages()}
-            </ContentWrapper>
-          </BodyContainer>
-          <SkipToAppButtonWrapper>
-            <TooltipComponent
-              boundary="viewport"
-              content={<TooltipContent />}
-              maxWidth="320px"
-              position="bottom-right"
-            >
-              <Button
-                category={Category.tertiary}
-                className="t--skip-to-application-btn"
-                href={appURL}
-                onClick={() => {
-                  AnalyticsUtil.logEvent(
-                    "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
-                  );
-                  localStorage.setItem("importedAppPendingInfo", "null");
-                }}
-                size={Size.medium}
-                text={createMessage(SKIP_TO_APPLICATION)}
-              />
-            </TooltipComponent>
-          </SkipToAppButtonWrapper>
-          <CloseBtnContainer
-            className="t--reconnect-close-btn"
-            onClick={handleClose}
+            </Text>
+          </Section>
+          <ContentWrapper>
+            <ListContainer>{mappedDataSources}</ListContainer>
+            {shouldShowDBForm && (
+              <DBFormWrapper>
+                <DatasourceForm
+                  applicationId={appId}
+                  datasourceId={selectedDatasourceId}
+                  fromImporting
+                  pageId={pageId}
+                />
+              </DBFormWrapper>
+            )}
+            {datasource?.isConfigured && SuccessMessages()}
+          </ContentWrapper>
+        </BodyContainer>
+        <SkipToAppButtonWrapper>
+          <TooltipComponent
+            boundary="viewport"
+            content={<TooltipContent />}
+            maxWidth="320px"
+            position="bottom-right"
           >
-            <Icon
-              fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-              name="close-modal"
-              size={IconSize.XXXXL}
+            <Button
+              category={Category.tertiary}
+              className="t--skip-to-application-btn"
+              href={appURL}
+              onClick={() => {
+                AnalyticsUtil.logEvent(
+                  "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
+                );
+                localStorage.setItem("importedAppPendingInfo", "null");
+              }}
+              size={Size.medium}
+              text={createMessage(SKIP_TO_APPLICATION)}
             />
-          </CloseBtnContainer>
-        </Container>
-      </Dialog>
-      <GitErrorPopup />
-    </>
+          </TooltipComponent>
+        </SkipToAppButtonWrapper>
+        <CloseBtnContainer
+          className="t--reconnect-close-btn"
+          onClick={handleClose}
+        >
+          <Icon
+            fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+            name="close-modal"
+            size={IconSize.XXXXL}
+          />
+        </CloseBtnContainer>
+      </Container>
+    </Dialog>
   );
 }
 

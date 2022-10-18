@@ -14,6 +14,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 
 export const config: AdminConfigType = {
+  icon: "mail-line",
   type: SettingCategories.EMAIL,
   controlType: SettingTypes.GROUP,
   title: "Email",
@@ -91,7 +92,7 @@ export const config: AdminConfigType = {
       controlSubType: SettingSubtype.TEXT,
       label: "SMTP Username",
       isVisible: (values: Record<string, any>) => {
-        return values && !values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
+        return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
       },
     },
     {
@@ -101,7 +102,7 @@ export const config: AdminConfigType = {
       controlSubType: SettingSubtype.PASSWORD,
       label: "SMTP Password",
       isVisible: (values: Record<string, any>) => {
-        return values && !values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
+        return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
       },
     },
     {

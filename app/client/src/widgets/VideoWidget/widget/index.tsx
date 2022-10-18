@@ -19,10 +19,10 @@ export enum PlayState {
 }
 
 class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "url",
@@ -44,9 +44,14 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "autoPlay",
-            label: "Auto Play",
+            label: "Autoplay",
             helpText:
               "Video will be automatically played, by enabling this feature, video will be muted by default.",
             controlType: "SWITCH",
@@ -110,19 +115,29 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "backgroundColor",
             helpText: "Sets the background color of the widget",
-            label: "Background color",
+            label: "Background Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -149,6 +164,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       },
     ];
   }
+
   private _player = React.createRef<ReactPlayer>();
 
   static getMetaPropertiesMap(): Record<string, any> {

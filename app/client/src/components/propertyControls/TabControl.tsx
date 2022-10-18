@@ -6,17 +6,17 @@ import {
   BaseItemProps,
   DroppableComponent,
   RenderComponentProps,
-} from "components/ads/DraggableListComponent";
+} from "./DraggableListComponent";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
 import * as Sentry from "@sentry/react";
-import { Category, Size } from "components/ads/Button";
+import { Category, Size } from "design-system";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;

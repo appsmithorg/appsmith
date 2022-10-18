@@ -6,7 +6,8 @@ import {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
-import { debounce, findIndex, isEmpty, isEqual, isNil, isNumber } from "lodash";
+import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
+import equal from "fast-deep-equal/es6";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
 import { TextSize } from "constants/WidgetConstants";
@@ -20,7 +21,7 @@ import {
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip } from "design-system";
 import { labelMargin } from "../../WidgetUtils";
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -47,8 +48,16 @@ class SelectComponent extends React.Component<
   };
 
   componentDidMount = () => {
+    const newState: SelectComponentState = {
+      activeItemIndex: this.props.selectedIndex,
+    };
+
+    if (this.props.isOpen) {
+      newState.isOpen = this.props.isOpen;
+    }
+
     // set default selectedIndex as focused index
-    this.setState({ activeItemIndex: this.props.selectedIndex });
+    this.setState(newState);
   };
 
   componentDidUpdate = (prevProps: SelectComponentProps) => {
@@ -85,7 +94,10 @@ class SelectComponent extends React.Component<
 
     const filter = items.filter(
       (item) =>
-        item.label?.toLowerCase().includes(query.toLowerCase()) ||
+        item.label
+          ?.toString()
+          .toLowerCase()
+          .includes(query.toLowerCase()) ||
         String(item.value)
           .toLowerCase()
           .includes(query.toLowerCase()),
@@ -108,7 +120,7 @@ class SelectComponent extends React.Component<
     return optionIndex === this.props.selectedIndex;
   };
   onQueryChange = debounce((filterValue: string) => {
-    if (isEqual(filterValue, this.props.filterText)) return;
+    if (equal(filterValue, this.props.filterText)) return;
     this.props.onFilterChange(filterValue);
     this.listRef?.current?.scrollTo(0);
   }, DEBOUNCE_TIMEOUT);
@@ -152,6 +164,18 @@ class SelectComponent extends React.Component<
       return this.handleActiveItemChange(
         this.props.options[this.props.selectedIndex],
       );
+    } else {
+      /**
+       * Clear the search input on closing the widget
+       * and when serverSideFiltering is off
+       */
+      if (this.props.resetFilterTextOnClose && this.props.filterText?.length) {
+        this.onQueryChange("");
+      }
+
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
     }
   };
   noResultsUI = (
@@ -275,11 +299,12 @@ class SelectComponent extends React.Component<
         this.spanRef.current.parentElement.scrollHeight ||
         this.spanRef.current.parentElement.offsetWidth <
           this.spanRef.current.parentElement.scrollWidth)
-        ? value
+        ? value.toString()
         : "";
 
     return (
       <DropdownContainer
+        className={this.props.className}
         compactMode={compactMode}
         data-testid="select-container"
         labelPosition={labelPosition}
@@ -309,6 +334,7 @@ class SelectComponent extends React.Component<
         <StyledControlGroup
           compactMode={compactMode}
           fill
+          isDisabled={disabled}
           labelPosition={labelPosition}
         >
           <StyledSingleDropDown
@@ -358,17 +384,19 @@ class SelectComponent extends React.Component<
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
             query={this.props.filterText}
+            resetOnClose={this.props.resetFilterTextOnClose}
             scrollToActiveItem
             value={this.props.value as string}
           >
             <SelectButton
               disabled={disabled}
-              displayText={value}
+              displayText={value.toString()}
               handleCancelClick={this.handleCancelClick}
+              hideCancelIcon={this.props.hideCancelIcon}
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
-              value={this.props.value}
+              value={this.props.value?.toString()}
             />
           </StyledSingleDropDown>
         </StyledControlGroup>
@@ -378,6 +406,7 @@ class SelectComponent extends React.Component<
 }
 
 export interface SelectComponentProps extends ComponentProps {
+  className?: string;
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
@@ -400,12 +429,16 @@ export interface SelectComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
-  value?: string;
-  label?: string;
+  value?: string | number;
+  label?: string | number;
   filterText?: string;
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+  hideCancelIcon?: boolean;
+  resetFilterTextOnClose?: boolean;
 }
 
 export default React.memo(SelectComponent);

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Dialog from "components/ads/DialogComponent";
 import {
   getDisconnectDocUrl,
   getShowRepoLimitErrorModal,
@@ -10,30 +9,37 @@ import {
   setIsDisconnectGitModalOpen,
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
-import Button, { Category, Size } from "components/ads/Button";
 import styled, { useTheme } from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
   CONTACT_SUPPORT,
   CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
-  DISCONNECT_CAUSE_APPLICATION_BREAK,
-  DISCONNECT_EXISTING_REPOSITORIES,
-  DISCONNECT_EXISTING_REPOSITORIES_INFO,
+  REVOKE_CAUSE_APPLICATION_BREAK,
+  REVOKE_EXISTING_REPOSITORIES_INFO,
   LEARN_MORE,
   REPOSITORY_LIMIT_REACHED,
   REPOSITORY_LIMIT_REACHED_INFO,
   REVOKE_ACCESS,
+  REVOKE_EXISTING_REPOSITORIES,
 } from "@appsmith/constants/messages";
-import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
 import { get } from "lodash";
 import { Theme } from "constants/DefaultTheme";
 import {
   getCurrentApplication,
-  getUserApplicationsOrgs,
+  getUserApplicationsWorkspaces,
 } from "selectors/applicationSelectors";
 import {
   ApplicationPayload,
@@ -71,10 +77,15 @@ const ApplicationWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
   justify-content: space-between;
+
+  & > div {
+    max-width: 60%;
+  }
 `;
 
 const TextWrapper = styled.div`
   display: block;
+  word-break: break-word;
 `;
 
 const AppListContainer = styled.div`
@@ -101,18 +112,18 @@ function RepoLimitExceededErrorModal() {
   const isOpen = useSelector(getShowRepoLimitErrorModal);
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
-  const userOrgs = useSelector(getUserApplicationsOrgs);
+  const userWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const docURL = useSelector(getDisconnectDocUrl);
-  const [orgName, setOrgName] = useState("");
+  const [workspaceName, setWorkspaceName] = useState("");
   const applications = useMemo(() => {
-    if (userOrgs) {
-      const org: any = userOrgs.find((organizationObject: any) => {
-        const { organization } = organizationObject;
-        return organization.id === application?.organizationId;
+    if (userWorkspaces) {
+      const workspace: any = userWorkspaces.find((workspaceObject: any) => {
+        const { workspace } = workspaceObject;
+        return workspace.id === application?.workspaceId;
       });
-      setOrgName(org?.organization.name || "");
+      setWorkspaceName(workspace?.workspace.name || "");
       return (
-        org?.applications.filter((application: ApplicationPayload) => {
+        workspace?.applications.filter((application: ApplicationPayload) => {
           const data = application.gitApplicationMetadata;
           return (
             data &&
@@ -126,7 +137,7 @@ function RepoLimitExceededErrorModal() {
     } else {
       return [];
     }
-  }, [userOrgs]);
+  }, [userWorkspaces]);
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
@@ -156,7 +167,7 @@ function RepoLimitExceededErrorModal() {
     if (window.Intercom) {
       window.Intercom(
         "showNewMessage",
-        createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, orgName),
+        createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, workspaceName),
       );
     }
   };
@@ -223,12 +234,12 @@ function RepoLimitExceededErrorModal() {
           </ButtonContainer>
           <div style={{ marginTop: theme.spaces[15] }}>
             <Text color={Colors.BLACK} type={TextType.H1}>
-              {createMessage(DISCONNECT_EXISTING_REPOSITORIES)}
+              {createMessage(REVOKE_EXISTING_REPOSITORIES)}
             </Text>
           </div>
           <div style={{ marginTop: theme.spaces[3], width: 410 }}>
             <Text color={Colors.BLACK} type={TextType.P1}>
-              {createMessage(DISCONNECT_EXISTING_REPOSITORIES_INFO)}
+              {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
             </Text>
           </div>
           <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px 0` }}>
@@ -243,7 +254,7 @@ function RepoLimitExceededErrorModal() {
                 style={{ marginRight: theme.spaces[2] }}
                 type={TextType.P3}
               >
-                {createMessage(DISCONNECT_CAUSE_APPLICATION_BREAK)}
+                {createMessage(REVOKE_CAUSE_APPLICATION_BREAK)}
               </Text>
               <Link
                 className="t--learn-more-repo-limit-modal"

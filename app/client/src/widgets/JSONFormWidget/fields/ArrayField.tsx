@@ -220,7 +220,7 @@ function ArrayField({
 
       setValue(name, newValues);
     },
-    [keysRef, setValue, getValues],
+    [cachedDefaultValue, keysRef, setValue, getValues],
   );
 
   const itemKeys = useMemo(() => {

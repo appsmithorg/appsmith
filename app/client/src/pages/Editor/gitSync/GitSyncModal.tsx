@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from "react";
-import Dialog from "components/ads/DialogComponent";
 import {
   getActiveGitSyncModalTab,
   getIsGitConnected,
@@ -7,13 +6,13 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setOrgIdForImport } from "actions/applicationActions";
+import { setWorkspaceIdForImport } from "actions/applicationActions";
 import Menu from "./Menu";
 import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
-import Icon, { IconSize } from "components/ads/Icon";
+import { DialogComponent as Dialog, Icon, IconSize } from "design-system";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
@@ -75,7 +74,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setOrgIdForImport(""));
+    dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const setActiveTabIndex = useCallback(
@@ -132,6 +131,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
         canEscapeKeyClose
         canOutsideClickClose
         className={Classes.GIT_SYNC_MODAL}
+        data-testid="t--git-sync-modal"
         isOpen={isModalOpen}
         maxWidth={"900px"}
         noModalBodyMarginTop

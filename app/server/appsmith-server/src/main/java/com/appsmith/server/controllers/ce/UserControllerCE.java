@@ -97,19 +97,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
                 .map(updatedUser -> new ResponseDTO<>(HttpStatus.OK.value(), updatedUser, null));
     }
 
-    @PutMapping("/switchOrganization/{workspaceId}")
-    public Mono<ResponseDTO<User>> setCurrentOrganization(@PathVariable String workspaceId) {
-        return service.switchCurrentWorkspace(workspaceId)
-                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
-    }
-
-    @PutMapping("/addOrganization/{workspaceId}")
-    public Mono<ResponseDTO<User>> addUserToWorkspace(@PathVariable String workspaceId) {
-        return userWorkspaceService.addUserToWorkspace(workspaceId, null)
-                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
-    }
-
-    @PutMapping("/leaveOrganization/{workspaceId}")
+    @PutMapping("/leaveWorkspace/{workspaceId}")
     public Mono<ResponseDTO<User>> leaveWorkspace(@PathVariable String workspaceId) {
         return userWorkspaceService.leaveWorkspace(workspaceId)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));

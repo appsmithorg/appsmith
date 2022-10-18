@@ -5,7 +5,7 @@ set -o nounset
 CUSTOM_DOMAIN="$1"
 
 if [[ -z $CUSTOM_DOMAIN ]]; then
-	CUSTOM_DOMAIN=_
+  CUSTOM_DOMAIN=_
 fi
 
 cat <<EOF
@@ -13,6 +13,12 @@ map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
 }
+
+map \$http_x_forwarded_host \$origin_host {
+  default \$http_x_forwarded_host;
+  '' \$host;
+}
+
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
 
@@ -23,9 +29,16 @@ server {
   client_max_body_size 100m;
 
   gzip on;
+  gzip_types *;
+
+  server_tokens off;
 
   root /opt/appsmith/editor;
-  index index.html index.htm;
+  index index.html;
+  error_page 404 /;
+
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+  add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
 
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
@@ -40,13 +53,13 @@ server {
     proxy_buffering     off;
     proxy_max_temp_file_size 0;
     proxy_redirect     off;
-    
-    proxy_set_header  Host             	\$http_host/supervisor/;
-    proxy_set_header  X-Forwarded-For  	\$proxy_add_x_forwarded_for;
-    proxy_set_header 	X-Forwarded-Proto \$scheme;
-    proxy_set_header 	X-Forwarded-Host 	\$http_host;
-    proxy_set_header  Connection       "";
-    
+
+    proxy_set_header  Host              \$http_host/supervisor/;
+    proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header  X-Forwarded-Proto \$origin_scheme;
+    proxy_set_header  X-Forwarded-Host  \$origin_host;
+    proxy_set_header  Connection        "";
+
     proxy_pass http://localhost:9001/;
 
     auth_basic "Protected";
@@ -54,10 +67,15 @@ server {
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
-  proxy_set_header X-Forwarded-Host \$host;
+  proxy_set_header X-Forwarded-Host  \$origin_host;
 
   location / {
     try_files \$uri /index.html =404;
+  }
+
+  # If the path has an extension at the end, then respond with 404 status if the file not found.
+  location ~ ^/(?!supervisor/).*\.[a-z]+$ {
+    try_files \$uri =404;
   }
 
   location /api {

@@ -11,7 +11,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -22,7 +22,9 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -37,8 +39,10 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -103,11 +107,19 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
+        if(collection.getGitSyncId() == null) {
+            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
+        }
         return repository.save(collection);
     }
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
+        collections.forEach(collection -> {
+            if(collection.getGitSyncId() == null) {
+                collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
+            }
+        });
         return repository.saveAll(collections);
     }
 
@@ -323,7 +335,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                             return Mono.empty();
                                         }))
                                 .collectList()
-                                .then(repository.save(toDelete));
+                                .then(repository.save(toDelete))
+                                .flatMap(modifiedActionCollection -> {
+                                    return analyticsService.sendArchiveEvent(modifiedActionCollection, getAnalyticsProperties(modifiedActionCollection));
+                                });
                     } else {
                         // This actionCollection was never published. This document can be safely archived
                         modifiedActionCollectionMono = this.archiveById(toDelete.getId());
@@ -331,7 +346,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
                     return modifiedActionCollectionMono;
                 })
-                .flatMap(analyticsService::sendDeleteEvent)
                 .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false));
     }
 
@@ -438,7 +452,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .collectList()
                 .flatMap(actionList -> actionCollectionMono)
                 .flatMap(actionCollection -> repository.archive(actionCollection).thenReturn(actionCollection))
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(deletedActionCollection -> analyticsService.sendDeleteEvent(deletedActionCollection, getAnalyticsProperties(deletedActionCollection)));
     }
 
     @Override
@@ -467,4 +481,24 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId))
                 );
     }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(ActionCollection savedActionCollection) {
+        final ActionCollectionDTO unpublishedCollection = savedActionCollection.getUnpublishedCollection();
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("actionCollectionName", ObjectUtils.defaultIfNull(unpublishedCollection.getName(), ""));
+        analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedActionCollection.getApplicationId(), ""));
+        analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedCollection.getPageId(), ""));
+        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedActionCollection.getWorkspaceId(), ""));
+        return analyticsProperties;
+    }
+
+    @Override
+    public Mono<ActionCollection> create(ActionCollection collection) {
+        if(collection.getGitSyncId() == null) {
+            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
+        }
+        return super.create(collection);
+    }
+
 }

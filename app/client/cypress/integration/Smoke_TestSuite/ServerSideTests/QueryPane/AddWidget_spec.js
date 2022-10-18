@@ -23,10 +23,10 @@ describe("Add widget - Postgress DataSource", function() {
     cy.runQuery();
     cy.get(queryEditor.suggestedTableWidget).click();
     //cy.SearchEntityandOpen("Table1");
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("Table1");
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then((tabData) => {
+    cy.readTableV2dataPublish("1", "0").then((tabData) => {
       cy.log("the value is " + tabData);
       expect(tabData).to.be.equal("5");
     });

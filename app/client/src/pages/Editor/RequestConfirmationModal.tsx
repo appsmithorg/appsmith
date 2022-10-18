@@ -1,15 +1,15 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Keys } from "@blueprintjs/core";
 import {
   showActionConfirmationModal,
   cancelActionConfirmationModal,
   acceptActionConfirmationModal,
 } from "actions/pluginActionActions";
-import DialogComponent from "components/ads/DialogComponent";
+import { DialogComponent } from "design-system";
 import styled from "styled-components";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,

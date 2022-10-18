@@ -3,10 +3,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWithInputdsl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 let ee = ObjectsRegistry.EntityExplorer;
 
-const pageid = "MyPage";
 before(() => {
   cy.addDsl(dsl);
 });
@@ -42,8 +40,8 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       200,
     );
     cy.get("body").type(`{${modifierKey}}z`);
-    ee.expandCollapseEntity("WIDGETS");
-    ee.expandCollapseEntity("FormTest");
+    ee.ExpandCollapseEntity("Widgets");
+    ee.ExpandCollapseEntity("FormTest");
     ee.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(3);

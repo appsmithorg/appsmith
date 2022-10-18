@@ -1,12 +1,47 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
-import { ActionCreator } from "components/editorComponents/ActionCreator";
+import ActionCreator from "components/editorComponents/ActionCreator";
+import {
+  DSEventDetail,
+  DSEventTypes,
+  DS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
-  handleValueUpdate = (newValue: string) => {
-    const { propertyName } = this.props;
-    this.updateProperty(propertyName, newValue);
+  componentRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.componentRef.current?.addEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.componentRef.current?.removeEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
+    if (
+      e.detail.component === "TreeDropdown" &&
+      e.detail.event === DSEventTypes.KEYPRESS
+    ) {
+      emitInteractionAnalyticsEvent(this.componentRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
+  handleValueUpdate = (newValue: string, isUpdatedViaKeyboard = false) => {
+    const { propertyName, propertyValue } = this.props;
+    if (!propertyValue && !newValue) return;
+    this.updateProperty(propertyName, newValue, isUpdatedViaKeyboard);
   };
 
   render() {
@@ -16,6 +51,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       <ActionCreator
         additionalAutoComplete={this.props.additionalAutoComplete}
         onValueChange={this.handleValueUpdate}
+        ref={this.componentRef}
         value={propertyValue}
       />
     );

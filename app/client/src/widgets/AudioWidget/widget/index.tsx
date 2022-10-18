@@ -18,10 +18,10 @@ export enum PlayState {
 }
 
 class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "url",
@@ -44,6 +44,11 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "autoPlay",
             label: "Auto Play",

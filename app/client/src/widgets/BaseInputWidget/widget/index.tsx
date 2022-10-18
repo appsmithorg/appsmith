@@ -21,170 +21,8 @@ class BaseInputWidget<
     super(props);
   }
 
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            helpText:
-              "Adds a validation to the input which displays an error on failure",
-            propertyName: "regex",
-            label: "Regex",
-            controlType: "INPUT_TEXT",
-            placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.REGEX },
-          },
-          {
-            helpText: "Sets the input validity based on a JS expression",
-            propertyName: "validation",
-            label: "Valid",
-            controlType: "INPUT_TEXT",
-            placeholderText: "{{ Input1.text.length > 0 }}",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-              params: {
-                default: true,
-              },
-            },
-          },
-          {
-            helpText:
-              "The error message to display if the regex or valid property check fails",
-            propertyName: "errorMessage",
-            label: "Error Message",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Not a valid value!",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Sets a placeholder text for the input",
-            propertyName: "placeholderText",
-            label: "Placeholder",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Placeholder",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Show help text or details about current input",
-            propertyName: "tooltip",
-            label: "Tooltip",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value must be atleast 6 chars",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Disables input to this widget",
-            propertyName: "isDisabled",
-            label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Clears the input value after submit",
-            propertyName: "resetOnSubmit",
-            label: "Reset on submit",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Focus input automatically on load",
-            propertyName: "autoFocus",
-            label: "Auto Focus",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isSpellCheck",
-            label: "Spellcheck",
-            helpText:
-              "Defines whether the text input may be checked for spelling errors",
-            controlType: "SWITCH",
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: BaseInputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
-            },
-            dependencies: ["inputType"],
-          },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when the text is changed",
-            propertyName: "onTextChanged",
-            label: "onTextChanged",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText:
-              "Triggers an action on submit (when the enter key is pressed)",
-            propertyName: "onSubmit",
-            label: "onSubmit",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
       {
         sectionName: "Label",
         children: [
@@ -257,11 +95,186 @@ class BaseInputWidget<
         ],
       },
       {
+        sectionName: "Validation",
+        children: [
+          {
+            helpText:
+              "Adds a validation to the input which displays an error on failure",
+            propertyName: "regex",
+            label: "Regex",
+            controlType: "INPUT_TEXT",
+            placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.REGEX },
+          },
+          {
+            helpText: "Sets the input validity based on a JS expression",
+            propertyName: "validation",
+            label: "Valid",
+            controlType: "INPUT_TEXT",
+            placeholderText: "{{ Input1.text.length > 0 }}",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                default: true,
+              },
+            },
+          },
+          {
+            helpText:
+              "The error message to display if the regex or valid property check fails",
+            propertyName: "errorMessage",
+            label: "Error Message",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Not a valid value!",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "isSpellCheck",
+            label: "Spellcheck",
+            helpText:
+              "Defines whether the text input may be checked for spelling errors",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: BaseInputWidgetProps) => {
+              return props.inputType !== InputTypes.TEXT;
+            },
+            dependencies: ["inputType"],
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets a placeholder text for the input",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Placeholder",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Disables input to this widget",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Focus input automatically on load",
+            propertyName: "autoFocus",
+            label: "Auto Focus",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "allowFormatting",
+            label: "Enable Formatting",
+            helpText: "Formats the phone number as per the country selected",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: BaseInputWidgetProps) => {
+              return props.type !== "PHONE_INPUT_WIDGET";
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the text is changed",
+            propertyName: "onTextChanged",
+            label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Clears the input value after submit",
+            propertyName: "resetOnSubmit",
+            label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
         sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -275,7 +288,7 @@ class BaseInputWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -317,7 +330,7 @@ class BaseInputWidget<
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -336,7 +349,7 @@ class BaseInputWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "accentColor",

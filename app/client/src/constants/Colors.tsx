@@ -95,6 +95,7 @@ export const Colors = {
   GALLERY_2: "#EDEDED",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
+  ROYAL_BLUE_2: "#553DE9",
   ALTO2: "#E0DEDE",
   SEA_SHELL: "#F1F1F1",
   DANUBE: "#6A86CE",
@@ -110,6 +111,7 @@ export const Colors = {
 
   WARNING_SOLID: "#FEB811",
   WARNING_SOLID_HOVER: "#EFA903",
+  WARNING_DEBUGGER_GROUPING_BADGE: "#EAD592",
   WARNING_ORANGE: "#FFF8E2",
   WARNING_OUTLINE_HOVER: "#FFFAE9",
   WARNING_GHOST_HOVER: "#FBEED0",
@@ -157,6 +159,7 @@ export const Colors = {
   GREY_10: "#090707",
   GREY_11: "#9F9F9F",
   GREY_200: "#E7E7E7",
+  GREY_600: "#6B6B6B",
   GREY_800: "#393939",
   GREY_900: "#191919",
 
@@ -182,6 +185,7 @@ export const Colors = {
   GRAY_50: "#F8F8F8",
   GRAY_200: "#E7E7E7",
   GRAY_400: "#B3B3B3",
+  GRAY_500: "#939393",
   GRAY_700: "#575757",
   GRAY_800: "#393939",
   GRAY_900: "#101828",
@@ -200,6 +204,7 @@ export const Colors = {
   /* RED colors */
   RED_50: "#FFEAEC",
   RED_100: "#FFCACE",
+  RED_150: "#F1B6B6",
   RED_200: "#F09493",
   RED_300: "#E56A69",
   RED_400: "#EE4643",

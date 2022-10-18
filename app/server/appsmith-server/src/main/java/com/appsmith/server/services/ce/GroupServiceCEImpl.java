@@ -56,8 +56,8 @@ public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, Stri
         return sessionUserService.getCurrentUser()
                 .map(user -> {
                     // Filtering the groups by the user's current workspace
-                    String workspaceId = user.getCurrentOrganizationId();
-                    query.addCriteria(Criteria.where(FieldName.ORGANIZATION_ID).is(workspaceId));
+                    String workspaceId = user.getCurrentWorkspaceId();
+                    query.addCriteria(Criteria.where(FieldName.WORKSPACE_ID).is(workspaceId));
                     return query;
                 })
                 .flatMapMany(query1 -> {
@@ -86,15 +86,15 @@ public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, Stri
      * @return Flux<Group>
      */
     @Override
-    public Flux<Group> createDefaultGroupsForOrg(String workspaceId) {
+    public Flux<Group> createDefaultGroupsForWorkspace(String workspaceId) {
         log.debug("Going to create default groups for workspace: {}", workspaceId);
 
-        return this.repository.getAllByOrganizationId(AclConstants.DEFAULT_ORG_ID)
+        return this.repository.getAllByWorkspaceId(AclConstants.DEFAULT_ORG_ID)
                 .flatMap(group -> {
                     Group newGroup = new Group();
                     newGroup.setName(group.getName());
                     newGroup.setDisplayName(group.getDisplayName());
-                    newGroup.setOrganizationId(workspaceId);
+                    newGroup.setWorkspaceId(workspaceId);
                     newGroup.setPermissions(group.getPermissions());
                     newGroup.setIsDefault(group.getIsDefault());
                     log.debug("Creating group {} for org: {}", group.getName(), workspaceId);
@@ -103,8 +103,8 @@ public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, Stri
     }
 
     @Override
-    public Flux<Group> getByOrganizationId(String organizationId) {
-        return this.repository.getAllByOrganizationId(organizationId);
+    public Flux<Group> getByWorkspaceId(String workspaceId) {
+        return this.repository.getAllByWorkspaceId(workspaceId);
     }
 
 }

@@ -43,6 +43,7 @@ export const generateDataTreeAction = (
     action.config,
     editorConfig,
   );
+
   return {
     run: {},
     clear: {},

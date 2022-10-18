@@ -2,8 +2,10 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const dsl = require("../../../../fixtures/noiseDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+
 describe("MySQL noise test", function() {
   let datasourceName;
+
   beforeEach(() => {
     cy.addDsl(dsl);
     cy.startRoutesForDatasource();
@@ -20,7 +22,6 @@ describe("MySQL noise test", function() {
         .type(datasourceName, { force: true })
         .should("have.value", datasourceName)
         .blur();
-      cy.getPluginFormsAndCreateDatasource();
       cy.fillMySQLDatasourceForm();
       cy.testSaveDatasource();
       cy.NavigateToActiveDSQueryPane(datasourceName);

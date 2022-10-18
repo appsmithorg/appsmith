@@ -5,7 +5,7 @@ const TEST_JS_FUNCTION_ID = "627ccff468e1fa5185b7f901";
 const TEST_JS_FUNCTION = {
   id: TEST_JS_FUNCTION_ID,
   applicationId: "627aaf637e9e9b75e43ad2ff",
-  organizationId: "61e52bb4847aa804d79fc7c1",
+  workspaceId: "61e52bb4847aa804d79fc7c1",
   pluginType: "JS",
   pluginId: "6138c786168857325f78ef3e",
   name: "myFun234y",
@@ -14,7 +14,7 @@ const TEST_JS_FUNCTION = {
     userPermissions: [],
     name: "UNUSED_DATASOURCE",
     pluginId: "6138c786168857325f78ef3e",
-    organizationId: "61e52bb4847aa804d79fc7c1",
+    workspaceId: "61e52bb4847aa804d79fc7c1",
     messages: [],
     isValid: true,
     new: true,
@@ -45,6 +45,7 @@ const TEST_JS_FUNCTION = {
   confirmBeforeExecute: false,
   userPermissions: ["read:actions", "execute:actions", "manage:actions"],
   validName: "JSObject1.myFun234y",
+  cacheResponse: "",
 };
 
 describe("GetJSResponseViewState", () => {

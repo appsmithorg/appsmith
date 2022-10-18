@@ -28,11 +28,16 @@ const requiredParams = {
   isTriggerProperty: false,
 };
 
+const waitForParamsForSearchFocus = {
+  timeout: 3000,
+};
+
 describe("<IconSelectControl /> - Keyboard navigation", () => {
   const getTestComponent = (
     onPropertyChange: (
       propertyName: string,
       propertyValue: string,
+      isUpdatedViaKeyboard?: boolean,
     ) => void = noop,
   ) => (
     <IconSelectControl
@@ -59,7 +64,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       // Makes sure search bar is having focus
       await waitFor(() => {
         expect(screen.queryByRole("textbox")).toHaveFocus();
-      });
+      }, waitForParamsForSearchFocus);
     },
   );
 
@@ -80,7 +85,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
   });
@@ -92,13 +97,13 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
     userEvent.keyboard("{Shift}{ArrowUp}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
   });
 
   /*
@@ -114,7 +119,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -133,7 +138,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -159,7 +164,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -178,7 +183,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -208,7 +213,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -222,14 +227,18 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     );
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(1);
-    expect(handleOnSelect).toHaveBeenLastCalledWith("iconName", "add-row-top");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      "iconName",
+      "add-row-top",
+      true,
+    );
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
     userEvent.keyboard("{Enter}");
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-row-top",
     );
@@ -240,6 +249,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       "iconName",
       "add-to-artifact",
+      true,
     );
   });
 });

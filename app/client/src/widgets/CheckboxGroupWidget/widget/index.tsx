@@ -55,10 +55,10 @@ class CheckboxGroupWidget extends BaseWidget<
   CheckboxGroupWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText: "Displays a list of unique checkbox options",
@@ -120,77 +120,6 @@ class CheckboxGroupWidget extends BaseWidget<
                 },
               },
             },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            controlType: "SWITCH",
-            helpText: "Disables input to this widget",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "isInline",
-            label: "Inline",
-            controlType: "SWITCH",
-            helpText: "Displays the checkboxes horizontally",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "isSelectAll",
-            label: "Select All Options",
-            controlType: "SWITCH",
-            helpText: "Controls whether select all option is shown",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -266,7 +195,182 @@ class CheckboxGroupWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Validations",
+        children: [
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables input to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
+            propertyName: "isInline",
+            label: "Inline",
+            controlType: "SWITCH",
+            helpText: "Displays the checkboxes horizontally",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
+            propertyName: "isSelectAll",
+            label: "Select All Options",
+            controlType: "SWITCH",
+            helpText: "Controls whether select all option is shown",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the check state is changed",
+            propertyName: "onSelectionChange",
+            label: "onSelectionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Label Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Font Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Font Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Emphasis",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
         children: [
           {
             propertyName: "optionAlignment",
@@ -316,76 +420,11 @@ class CheckboxGroupWidget extends BaseWidget<
               },
             },
           },
-          {
-            propertyName: "labelTextColor",
-            label: "Label Text Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextSize",
-            label: "Label Text Size",
-            controlType: "DROP_DOWN",
-            defaultValue: "0.875rem",
-            options: [
-              {
-                label: "S",
-                value: "0.875rem",
-                subText: "0.875rem",
-              },
-              {
-                label: "M",
-                value: "1rem",
-                subText: "1rem",
-              },
-              {
-                label: "L",
-                value: "1.25rem",
-                subText: "1.25rem",
-              },
-              {
-                label: "XL",
-                value: "1.875rem",
-                subText: "1.875rem",
-              },
-              {
-                label: "XXL",
-                value: "3rem",
-                subText: "3rem",
-              },
-              {
-                label: "3XL",
-                value: "3.75rem",
-                subText: "3.75rem",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelStyle",
-            label: "Label Font Style",
-            controlType: "BUTTON_TABS",
-            options: [
-              {
-                icon: "BOLD_FONT",
-                value: "BOLD",
-              },
-              {
-                icon: "ITALICS_FONT",
-                value: "ITALIC",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
           {
             propertyName: "accentColor",
             helpText: "Sets the checked state color of the checkbox",
@@ -396,6 +435,11 @@ class CheckboxGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -407,20 +451,6 @@ class CheckboxGroupWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "Triggers an action when the check state is changed",
-            propertyName: "onSelectionChange",
-            label: "onSelectionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
           },
         ],
       },
@@ -518,7 +548,6 @@ class CheckboxGroupWidget extends BaseWidget<
         onSelectAllChange={this.handleSelectAllChange}
         optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
-        rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues || []}
         widgetId={this.props.widgetId}
       />

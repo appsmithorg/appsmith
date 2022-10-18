@@ -67,10 +67,10 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
 }
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "maxCount",
@@ -106,7 +106,6 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             },
             dependencies: ["maxCount", "isAllowHalf"],
           },
-
           {
             propertyName: "tooltips",
             helpText: "Sets the tooltip contents of stars",
@@ -120,31 +119,15 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
               params: { children: { type: ValidationTypes.TEXT } },
             },
           },
-          {
-            propertyName: "size",
-            label: "Size",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Small",
-                value: "SMALL",
-              },
-              {
-                label: "Medium",
-                value: "MEDIUM",
-              },
-              {
-                label: "Large",
-                value: "LARGE",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "isAllowHalf",
             helpText: "Controls if user can submit half stars",
-            label: "Allow half stars",
+            label: "Allow Half Stars",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -198,12 +181,43 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "size",
+            label: "Star Size",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Small",
+                value: "SMALL",
+              },
+              {
+                label: "Medium",
+                value: "MEDIUM",
+              },
+              {
+                label: "Large",
+                value: "LARGE",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
         children: [
           {
             propertyName: "activeColor",
-            label: "Active color",
+            label: "Active Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -212,7 +226,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
           {
             propertyName: "inactiveColor",
-            label: "Inactive color",
+            label: "Inactive Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

@@ -8,6 +8,7 @@ import FusionCharts, { ChartObject } from "fusioncharts";
 // Import FusionMaps
 import FusionMaps from "fusioncharts/fusioncharts.maps";
 import World from "fusioncharts/maps/fusioncharts.world";
+import USA from "fusioncharts/maps/fusioncharts.usa";
 
 // Include the theme as fusion
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
@@ -15,9 +16,10 @@ import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 // Import the dataset and the colorRange of the map
 import { dataSetForWorld, MapTypes, MapColorObject } from "../constants";
 import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
+import { Colors } from "constants/Colors";
 
 // Adding the chart and theme as dependency to the core fusioncharts
-ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
+ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme, USA);
 
 const MapChartContainer = styled.div<{
   borderRadius?: string;
@@ -74,6 +76,9 @@ function MapChartComponent(props: MapChartComponentProps) {
     type,
   } = props;
 
+  const fontFamily =
+    props.fontFamily === "System Default" ? "inherit" : props.fontFamily;
+
   // Creating the JSON object to store the chart configurations
   const defaultChartConfigs: ChartObject = {
     type: "maps/world", // The chart type
@@ -84,12 +89,35 @@ function MapChartComponent(props: MapChartComponentProps) {
       // Map Configuration
       chart: {
         caption: "Average Annual Population Growth",
-        // subcaption: " 1955-2015",
-        // numbersuffix: "%",
         includevalueinlabels: "1",
         labelsepchar: ": ",
         entityFillHoverColor: "#FFF9C4",
         theme: "fusion",
+
+        // Caption
+        captionFontSize: "24",
+        captionAlignment: "center",
+        captionPadding: "20",
+        captionFontColor: Colors.THUNDER,
+        captionFontBold: "1",
+
+        // Legend
+        legendIconSides: "4",
+        legendIconBgAlpha: "100",
+        legendIconAlpha: "100",
+        legendItemFont: fontFamily,
+        legendPosition: "top",
+        valueFont: fontFamily,
+
+        // Spacing
+        chartLeftMargin: "10",
+        chartTopMargin: "15",
+        chartRightMargin: "10",
+        chartBottomMargin: "10",
+
+        // Base Styling
+        baseFont: fontFamily,
+        bgColor: Colors.WHITE,
       },
       // Aesthetics; ranges synced with the slider
       colorRange: {
@@ -116,6 +144,20 @@ function MapChartComponent(props: MapChartComponentProps) {
       chart.removeEventListener("entityClick", onDataPointClick);
     };
   }, [onDataPointClick]);
+
+  useEffect(() => {
+    const newChartConfigs: any = {
+      ...chartConfigs,
+    };
+    const fontFamily =
+      props.fontFamily === "System Default" ? "inherit" : props.fontFamily;
+
+    newChartConfigs["dataSource"]["chart"]["legendItemFont"] = fontFamily;
+    newChartConfigs["dataSource"]["chart"]["valueFont"] = fontFamily;
+    newChartConfigs["dataSource"]["chart"]["baseFont"] = fontFamily;
+
+    setChartConfigs(newChartConfigs);
+  }, [props.fontFamily]);
 
   useEffect(() => {
     const newChartConfigs: any = {
@@ -174,6 +216,9 @@ function MapChartComponent(props: MapChartComponentProps) {
       case MapTypes.AFRICA:
         newChartConfigs.type = "maps/africa";
         break;
+      case MapTypes.USA:
+        newChartConfigs.type = "maps/usa";
+        break;
 
       default:
         newChartConfigs.type = "maps/world";
@@ -223,6 +268,7 @@ export interface MapChartComponentProps {
   type: MapType;
   borderRadius?: string;
   boxShadow?: string;
+  fontFamily?: string;
 }
 
 export default MapChartComponent;

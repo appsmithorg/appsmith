@@ -1,6 +1,6 @@
 import { AppTheme } from "entities/AppTheming";
 import { AppThemingMode } from "selectors/appThemingSelectors";
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -33,7 +33,7 @@ const initialState: AppThemingState = {
     created_at: "",
     config: {
       colors: {
-        backgroundColor: "#f6f6f6",
+        backgroundColor: "#F8FAFC",
         primaryColor: "",
         secondaryColor: "",
       },
@@ -43,7 +43,7 @@ const initialState: AppThemingState = {
     },
     properties: {
       colors: {
-        backgroundColor: "#f6f6f6",
+        backgroundColor: "#F8FAFC",
         primaryColor: "",
         secondaryColor: "",
       },

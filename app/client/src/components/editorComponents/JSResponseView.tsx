@@ -8,7 +8,7 @@ import React, {
 import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
@@ -29,24 +29,28 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import Text, { TextType } from "components/ads/Text";
+import { Button, Callout, Icon, Size, Text, TextType } from "design-system";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { DebugButton } from "./Debugger/DebugCTA";
-import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
-import Icon from "components/ads/Icon";
-import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
+import { TAB_MIN_HEIGHT } from "design-system";
 import { theme } from "constants/DefaultTheme";
-import { Button, Size } from "components/ads";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
+import {
+  getJSPaneResponsePaneHeight,
+  getJSPaneResponseSelectedTab,
+} from "selectors/jsPaneSelectors";
+import {
+  setJsPaneResponsePaneHeight,
+  setJsPaneResponseSelectedTab,
+} from "actions/jsPaneActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -197,9 +201,8 @@ function JSResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "JS_OBJECT",
     });
-    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setJsPaneResponseSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
-
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(
@@ -213,7 +216,7 @@ function JSResponseView(props: Props) {
   }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
   const tabs = [
     {
-      key: "body",
+      key: "response",
       title: "Response",
       panelComponent: (
         <>
@@ -229,7 +232,10 @@ function JSResponseView(props: Props) {
                 fill
                 label={
                   <FailedMessage>
-                    <DebugButton onClick={onDebugClick} />
+                    <DebugButton
+                      className="js-editor-debug-cta"
+                      onClick={onDebugClick}
+                    />
                   </FailedMessage>
                 }
                 text={
@@ -312,14 +318,29 @@ function JSResponseView(props: Props) {
     },
   ];
 
+  const selectedResponseTab = useSelector(getJSPaneResponseSelectedTab);
+  const responseTabHeight = useSelector(getJSPaneResponsePaneHeight);
+  const setSelectedResponseTab = useCallback((selectedTab: string) => {
+    dispatch(setJsPaneResponseSelectedTab(selectedTab));
+  }, []);
+
+  const setResponseHeight = useCallback((height: number) => {
+    dispatch(setJsPaneResponsePaneHeight(height));
+  }, []);
+
   return (
     <ResponseContainer ref={panelRef}>
-      <Resizer panelRef={panelRef} />
+      <Resizer
+        initialHeight={responseTabHeight}
+        onResizeComplete={setResponseHeight}
+        panelRef={panelRef}
+      />
       <TabbedViewWrapper>
         <EntityBottomTabs
           containerRef={panelRef}
-          defaultIndex={0}
           expandedHeight={theme.actionsBottomTabInitialHeight}
+          onSelect={setSelectedResponseTab}
+          selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
       </TabbedViewWrapper>

@@ -11,7 +11,7 @@ import {
   WidgetType,
 } from "constants/WidgetConstants";
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
 
@@ -44,7 +44,11 @@ export function* buildWidgetBlueprint(
   blueprint: WidgetBlueprint,
   widgetId: string,
 ) {
-  const widgetProps = yield call(buildView, blueprint.view, widgetId);
+  const widgetProps: Record<string, unknown> = yield call(
+    buildView,
+    blueprint.view,
+    widgetId,
+  );
   return widgetProps;
 }
 
@@ -119,7 +123,8 @@ export function* executeWidgetBlueprintOperations(
     }
   });
 
-  return yield widgets;
+  const result: { [widgetId: string]: FlattenedWidgetProps } = yield widgets;
+  return result;
 }
 
 /**

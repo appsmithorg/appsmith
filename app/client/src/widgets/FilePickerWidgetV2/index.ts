@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "FilePicker",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["upload"],
   defaults: {
     rows: 4,
     files: [],
@@ -17,6 +18,7 @@ export const CONFIG = {
     maxNumFiles: 1,
     maxFileSize: 5,
     fileDataType: FileDataTypes.Base64,
+    dynamicTyping: true,
     widgetName: "FilePicker",
     isDefaultClickDisabled: true,
     version: 1,
@@ -29,6 +31,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
   },
 };
 

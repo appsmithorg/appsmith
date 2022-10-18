@@ -13,12 +13,12 @@ import {
   UpdateActionPropertyActionPayload,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
 import {
@@ -30,7 +30,7 @@ import {
   getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { QueryAction, QueryActionConfig, SaaSAction } from "entities/Action";
+import { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeQuery } from "actions/queryPaneActions";
@@ -38,10 +38,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  initFormEvaluations,
-  startFormEvaluations,
-} from "actions/evaluationActions";
+import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
 import { diff, Diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
@@ -63,13 +60,7 @@ const LoadingContainer = styled(CenteredWrapper)`
 type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
-  changeQueryPage: (queryId: string, isSaas: boolean) => void;
-  runFormEvaluation: (
-    formId: string,
-    formData: QueryActionConfig,
-    datasourceId: string,
-    pluginId: string,
-  ) => void;
+  changeQueryPage: (queryId: string) => void;
   initFormEvaluation: (
     editorConfig: any,
     settingConfig: any,
@@ -130,7 +121,7 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
-    this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
+    this.props.changeQueryPage(this.props.actionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
     if (this.props.isSaas) {
@@ -178,24 +169,7 @@ class QueryEditor extends React.Component<Props> {
       prevProps.actionId !== this.props.actionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
-    }
-    // If statement to debounce and track changes in the formData to update evaluations
-    if (
-      this.props.uiComponent === UIComponentTypes.UQIDbEditorForm &&
-      !!this.props.formData &&
-      (!prevProps.formData ||
-        (this.props.formData.hasOwnProperty("actionConfiguration") &&
-          !!prevProps.formData &&
-          prevProps.formData.hasOwnProperty("actionConfiguration") &&
-          !!diff(prevProps.formData, this.props.formData)))
-    ) {
-      this.props.runFormEvaluation(
-        this.props.formData.id,
-        this.props.formData.actionConfiguration,
-        this.props.formData.datasource.id,
-        this.props.formData.pluginId,
-      );
+      this.props.changeQueryPage(this.props.actionId);
     }
   }
 
@@ -316,9 +290,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   // initialValues contains merge of action, editorConfig, settingsConfig and will be passed to redux form
   merge(initialValues, action);
 
-  // getting diff between action and initialValues
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-expect-error: Types are not available
   const actionObjectDiff: undefined | Diff<Action | undefined, Action>[] = diff(
     action,
     initialValues,
@@ -360,16 +332,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
-  changeQueryPage: (queryId: string, isSaas: boolean) => {
-    dispatch(changeQuery(queryId, isSaas));
-  },
-  runFormEvaluation: (
-    formId: string,
-    formData: QueryActionConfig,
-    datasourceId: string,
-    pluginId: string,
-  ) => {
-    dispatch(startFormEvaluations(formId, formData, datasourceId, pluginId));
+  changeQueryPage: (queryId: string) => {
+    dispatch(changeQuery(queryId));
   },
   initFormEvaluation: (
     editorConfig: any,

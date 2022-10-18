@@ -1,38 +1,39 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.ClientDataDisplayType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.appsmith.external.models.DatasourceStructure.TableType.TABLE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class DatasourceTriggerSolutionTest {
 
@@ -60,22 +61,22 @@ public class DatasourceTriggerSolutionTest {
     @Autowired
     WorkspaceService workspaceService;
 
-    String orgId;
+    String workspaceId;
 
     String datasourceId;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Workspace workspace = new Workspace();
-        workspace.setName("Datasource Trigger Test Organization");
+        workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
-        orgId = savedWorkspace.getId();
+        workspaceId = savedWorkspace.getId();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         Plugin installed_plugin = pluginService.findByName("Installed Plugin Name").block();
         datasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -126,16 +127,19 @@ public class DatasourceTriggerSolutionTest {
                                 Mockito.anyBoolean()))
                 .thenReturn(Mono.just(testStructure));
 
+        Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
+                datasourceId,
+                new TriggerRequestDTO(
+                        "ENTITY_SELECTOR",
+                        Map.of(),
+                        ClientDataDisplayType.DROP_DOWN));
 
-        MultiValueMap<String, Object> requestConfig = new LinkedMultiValueMap<>();
-        requestConfig.add("requestType", "ENTITY_SELECTOR");
-        requestConfig.add("displayType", "DROPDOWN");
-        requestConfig.add("parameters", "");
-
-        Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(datasourceId, requestConfig);
-
-        requestConfig.set("parameters", "Table1");
-        Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(datasourceId, requestConfig);
+        Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
+                datasourceId,
+                new TriggerRequestDTO(
+                        "ENTITY_SELECTOR",
+                        Map.of("tableName", "Table1"),
+                        ClientDataDisplayType.DROP_DOWN));
 
         StepVerifier.create(tableNameMono)
                 .assertNext(tablesResult -> {

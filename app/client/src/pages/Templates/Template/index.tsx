@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
-import Button, { Size } from "components/ads/Button";
-import Tooltip from "components/ads/Tooltip";
+import { Template as TemplateInterface } from "api/TemplatesApi";
+import { Button, Size, TooltipComponent as Tooltip } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
@@ -14,6 +13,7 @@ import {
   FORK_THIS_TEMPLATE,
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
+import { Position } from "@blueprintjs/core";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -96,7 +96,8 @@ const StyledButton = styled(Button)`
 export interface TemplateProps {
   template: TemplateInterface;
   size?: string;
-  onClick?: () => void;
+  onClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 const Template = (props: TemplateProps) => {
@@ -110,7 +111,8 @@ const Template = (props: TemplateProps) => {
 export interface TemplateLayoutProps {
   template: TemplateInterface;
   className?: string;
-  onClick?: () => void;
+  onClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
@@ -124,13 +126,21 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
-    history.push(templateIdUrl({ id }));
-    props.onClick && props.onClick();
+    if (props.onClick) {
+      props.onClick(id);
+    } else {
+      history.push(templateIdUrl({ id }));
+    }
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    setShowForkModal(true);
+    if (props.onForkTemplateClick) {
+      e.preventDefault();
+      props.onForkTemplateClick(props.template);
+    } else {
+      e.stopPropagation();
+      setShowForkModal(true);
+    }
   };
 
   const onForkModalClose = (e?: React.MouseEvent<HTMLElement>) => {
@@ -139,7 +149,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper className={props.className} onClick={onClick}>
+    <TemplateWrapper
+      className={props.className}
+      data-cy="template-card"
+      onClick={onClick}
+    >
       <ImageWrapper className="image-wrapper">
         <StyledImage src={screenshotUrls[0]} />
       </ImageWrapper>
@@ -164,10 +178,14 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               showForkModal={showForkModal}
               templateId={id}
             >
-              <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
+              <Tooltip
+                content={createMessage(FORK_THIS_TEMPLATE)}
+                minimal
+                position={Position.BOTTOM}
+              >
                 <StyledButton
                   className="t--fork-template fork-button"
-                  icon="fork-2"
+                  icon="plus"
                   size={Size.medium}
                   tag="button"
                 />

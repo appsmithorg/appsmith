@@ -4,7 +4,7 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import {
   FormLabel,
   FormInputHelperText,
@@ -16,10 +16,43 @@ import {
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 import { FormControlProps } from "./FormControl";
+import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
+import styled from "styled-components";
+
+const FlexWrapper = styled.div`
+  display: flex;
+  width: fit-content;
+  margin-right: 16px;
+  & .t--js-toggle {
+    margin-bottom: 0px;
+  }
+`;
+
+const LabelWrapper = styled.div`
+  display: flex;
+`;
+
+const LabelIconWrapper = styled.span`
+  display: flex;
+`;
+
+const RequiredFieldWrapper = styled.span`
+  color: var(--appsmith-color-red-500);
+`;
+
+// TODO: replace condition with props.config.dataType === "TOGGLE"
+// label and form element is rendered side by side for CHECKBOX and SWITCH
+const FormConfigWrapper = styled.div<{ controlType: string }>`
+  display: ${(props) =>
+    props.controlType === "CHECKBOX" || props.controlType === "SWITCH"
+      ? "flex"
+      : "block"};
+`;
 
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   configErrors: EvaluationError[];
+  changesViewType: boolean;
 }
 // top contains label, subtitle, urltext, tooltip, dispaly type
 // bottom contains the info and error text
@@ -31,7 +64,11 @@ export default function FormConfig(props: FormConfigProps) {
     top = (
       <div style={{ display: "flex" }}>
         {props.multipleConfig?.map((config) => {
-          return renderFormConfigTop({ config });
+          return renderFormConfigTop({
+            config,
+            formName: props.formName,
+            changesViewType: props.changesViewType,
+          });
         })}
       </div>
     );
@@ -49,29 +86,27 @@ export default function FormConfig(props: FormConfigProps) {
 
   return (
     <div>
-      <div
-        style={{
-          // TODO: replace condition with props.config.dataType === "TOGGLE"
-          // label and form element is rendered side by side for CHECKBOX and SWITCH
-          display:
-            props.config.controlType === "SWITCH" ||
-            props.config.controlType === "CHECKBOX"
-              ? "flex"
-              : "block",
-        }}
-      >
+      <FormConfigWrapper controlType={props.config.controlType}>
         {props.config.controlType === "CHECKBOX" ? (
           <>
             {props.children}
-            {renderFormConfigTop({ config: props.config })}
+            {renderFormConfigTop({
+              config: props.config,
+              formName: props.formName,
+              changesViewType: props.changesViewType,
+            })}
           </>
         ) : (
           <>
-            {renderFormConfigTop({ config: props.config })}
+            {renderFormConfigTop({
+              config: props.config,
+              formName: props.formName,
+              changesViewType: props.changesViewType,
+            })}
             {props.children}
           </>
         )}
-      </div>
+      </FormConfigWrapper>
       {renderFormConfigBottom({
         config: props.config,
         configErrors: props.configErrors,
@@ -79,7 +114,11 @@ export default function FormConfig(props: FormConfigProps) {
     </div>
   );
 }
-function renderFormConfigTop(props: { config: ControlProps }) {
+function renderFormConfigTop(props: {
+  config: ControlProps;
+  formName: string;
+  changesViewType: boolean;
+}) {
   const {
     encrypted,
     isRequired,
@@ -91,37 +130,66 @@ function renderFormConfigTop(props: { config: ControlProps }) {
     urlText,
   } = { ...props.config };
   return (
-    <React.Fragment key={props.config.label}>
+    <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
         (label?.length > 0 || encrypted || tooltipText || subtitle) && (
-          <FormLabel config={props.config}>
-            <p className="label-icon-wrapper">
-              {label} {isRequired && "*"}
-              {encrypted && (
-                <FormEncrytedSection>
-                  <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-                  <FormSubtitleText config={props.config}>
-                    Encrypted
-                  </FormSubtitleText>
-                </FormEncrytedSection>
+          <>
+            <FlexWrapper>
+              <FormLabel
+                config={props.config}
+                extraStyles={{
+                  marginBottom: !!subtitle && "0px",
+                  minWidth: !!props.changesViewType && "unset",
+                }}
+              >
+                <LabelWrapper>
+                  <Tooltip
+                    content={tooltipText as string}
+                    disabled={!tooltipText}
+                    hoverOpenDelay={200}
+                    underline={!!tooltipText}
+                  >
+                    <p className="label-icon-wrapper">{label}</p>
+                  </Tooltip>
+                  <LabelIconWrapper>
+                    {isRequired && (
+                      <RequiredFieldWrapper>
+                        {isRequired && "*"}
+                      </RequiredFieldWrapper>
+                    )}
+                    {encrypted && (
+                      <FormEncrytedSection>
+                        <FormIcons.LOCK_ICON
+                          height={12}
+                          keepColors
+                          width={12}
+                        />
+                        <FormSubtitleText config={props.config}>
+                          Encrypted
+                        </FormSubtitleText>
+                      </FormEncrytedSection>
+                    )}
+                  </LabelIconWrapper>
+                </LabelWrapper>
+              </FormLabel>
+              {props.changesViewType && (
+                <ToggleComponentToJsonHandler
+                  configProperty={props.config.configProperty}
+                  formName={props.formName}
+                />
               )}
-              {tooltipText && (
-                <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-                  <FormIcons.HELP_ICON height={16} width={16} />
-                </Tooltip>
-              )}
-            </p>
+            </FlexWrapper>
             {subtitle && (
               <FormInfoText config={props.config}>{subtitle}</FormInfoText>
             )}
-          </FormLabel>
+          </>
         )}
       {urlText && (
         <FormInputAnchor href={url} target="_blank">
           {urlText}
         </FormInputAnchor>
       )}
-    </React.Fragment>
+    </div>
   );
 }
 

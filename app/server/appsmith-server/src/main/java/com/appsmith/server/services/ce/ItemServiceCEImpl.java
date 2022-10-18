@@ -3,8 +3,8 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Documentation;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.Documentation;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ItemType;
@@ -74,8 +74,8 @@ public class ItemServiceCEImpl implements ItemServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
 
-        if (addItemToPageDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (addItemToPageDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         ApiTemplate apiTemplate = addItemToPageDTO.getMarketplaceElement().getItem();
@@ -111,7 +111,7 @@ public class ItemServiceCEImpl implements ItemServiceCE {
                     datasource.setDatasourceConfiguration(apiTemplate.getDatasourceConfiguration());
                     datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());
                     datasource.setPluginId(plugin.getId());
-                    datasource.setOrganizationId(addItemToPageDTO.getOrganizationId());
+                    datasource.setWorkspaceId(addItemToPageDTO.getWorkspaceId());
                     action.setDatasource(datasource);
                     action.setPluginType(plugin.getType());
                     return action;

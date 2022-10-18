@@ -6,11 +6,9 @@ import {
   LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
-import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
@@ -25,6 +23,7 @@ import {
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
+  migrateTableWidgetV2Validation,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -60,6 +59,9 @@ import {
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
+import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
+import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
+import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -67,7 +69,7 @@ import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigratio
  * @param currentDSL
  * @returns
  */
-const addLogBlackListToAllListWidgetChildren = (
+export const addLogBlackListToAllListWidgetChildren = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
@@ -131,7 +133,7 @@ export const addPrivateWidgetsToAllListWidgets = (
  * @param currentDSL
  * @returns
  */
-const migrateItemsToListDataInListWidget = (
+export const migrateItemsToListDataInListWidget = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === "LIST_WIDGET") {
@@ -183,7 +185,7 @@ const migrateItemsToListDataInListWidget = (
   return currentDSL;
 };
 
-const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
+export const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
   if (dsl.type === "CONTAINER_WIDGET" || dsl.type === "FORM_WIDGET") {
     if (
       !(
@@ -210,11 +212,9 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
         canExtend: false,
         isVisible: true,
       };
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicBindings;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicProperties;
       if (canvas.children && canvas.children.length > 0)
         canvas.children = canvas.children.map(updateContainers);
@@ -226,7 +226,9 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
 
 //transform chart data, from old chart widget to new chart widget
 //updated chart widget has support for multiple series
-const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+export const chartDataMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (
       children.type === "CHART_WIDGET" &&
@@ -248,7 +250,7 @@ const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
-const singleChartDataMigration = (
+export const singleChartDataMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child) => {
@@ -279,7 +281,9 @@ const singleChartDataMigration = (
   return currentDSL;
 };
 
-const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+export const mapDataMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === "MAP_WIDGET") {
       if (children.markers) {
@@ -339,7 +343,7 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
-const mapAllowHorizontalScrollMigration = (
+export const mapAllowHorizontalScrollMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
@@ -357,7 +361,7 @@ const mapAllowHorizontalScrollMigration = (
   return currentDSL;
 };
 
-const tabsWidgetTabsPropertyMigration = (
+export const tabsWidgetTabsPropertyMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children
@@ -390,7 +394,7 @@ const tabsWidgetTabsPropertyMigration = (
   return currentDSL;
 };
 
-const dynamicPathListMigration = (
+export const dynamicPathListMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.children && currentDSL.children.length) {
@@ -417,7 +421,7 @@ const dynamicPathListMigration = (
   return currentDSL;
 };
 
-const addVersionNumberMigration = (
+export const addVersionNumberMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.children && currentDSL.children.length) {
@@ -429,7 +433,7 @@ const addVersionNumberMigration = (
   return currentDSL;
 };
 
-const canvasNameConflictMigration = (
+export const canvasNameConflictMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   props = { counter: 1 },
 ): ContainerWidgetProps<WidgetProps> => {
@@ -449,7 +453,7 @@ const canvasNameConflictMigration = (
   return currentDSL;
 };
 
-const renamedCanvasNameConflictMigration = (
+export const renamedCanvasNameConflictMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   props = { counter: 1 },
 ): ContainerWidgetProps<WidgetProps> => {
@@ -470,7 +474,7 @@ const renamedCanvasNameConflictMigration = (
   return currentDSL;
 };
 
-const rteDefaultValueMigration = (
+export const rteDefaultValueMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
   if (currentDSL.type === "RICH_TEXT_EDITOR_WIDGET") {
@@ -505,7 +509,9 @@ function migrateTabsDataUsingMigrator(
   return currentDSL;
 }
 
-export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+export const migrateTabsData = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
   if (
     ["TABS_WIDGET", "TABS_MIGRATOR_WIDGET"].includes(currentDSL.type as any) &&
     currentDSL.version === 1
@@ -584,10 +590,12 @@ export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
     currentDSL.children = currentDSL.children.map(migrateTabsData);
   }
   return currentDSL;
-}
+};
 
 // A rudimentary transform function which updates the DSL based on its version.
-function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
+export const migrateOldChartData = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
   if (currentDSL.type === "CHART_WIDGET") {
     if (isString(currentDSL.chartData)) {
       try {
@@ -605,7 +613,7 @@ function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
     currentDSL.children = currentDSL.children.map(migrateOldChartData);
   }
   return currentDSL;
-}
+};
 
 /**
  * changes chartData which we were using as array. now it will be a object
@@ -614,9 +622,9 @@ function migrateOldChartData(currentDSL: ContainerWidgetProps<WidgetProps>) {
  * @param currentDSL
  * @returns
  */
-export function migrateChartDataFromArrayToObject(
+export const migrateChartDataFromArrayToObject = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
-) {
+) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === "CHART_WIDGET") {
       if (Array.isArray(children.chartData)) {
@@ -661,7 +669,7 @@ export function migrateChartDataFromArrayToObject(
   });
 
   return currentDSL;
-}
+};
 
 const pixelToNumber = (pixel: string) => {
   if (pixel.includes("px")) {
@@ -670,34 +678,20 @@ const pixelToNumber = (pixel: string) => {
   return 0;
 };
 
-export const calculateDynamicHeight = (
-  canvasWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = {},
-  presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
-) => {
-  let minimumHeight = presentMinimumHeight;
-  const nextAvailableRow = nextAvailableRowInContainer(
-    MAIN_CONTAINER_WIDGET_ID,
-    canvasWidgets,
-  );
+export const calculateDynamicHeight = () => {
   const screenHeight = window.innerHeight;
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
   // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
   // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
   // buffer: ~8 grid row height
-  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
+  const buffer =
+    gridRowHeight +
+    2 * pixelToNumber(theme.smallHeaderHeight) +
+    pixelToNumber(theme.bottomBarHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
-  if (
-    calculatedCanvasHeight < screenHeight &&
-    calculatedMinHeight !== presentMinimumHeight
-  ) {
-    minimumHeight = calculatedMinHeight;
-  }
-  return minimumHeight;
+  return calculatedMinHeight;
 };
 
 export const migrateInitialValues = (
@@ -1098,13 +1092,42 @@ export const transformDSL = (
 
   if (currentDSL.version === 58) {
     currentDSL = migrateCheckboxSwitchProperty(currentDSL);
+    currentDSL.version = 59;
+  }
+
+  if (currentDSL.version === 59) {
+    /**
+     * migrateChartWidgetReskinningData function will be executed again in version 61,
+     * since for older apps the accentColor and fontFamily didn't get migrated.
+     */
+    currentDSL = migrateChartWidgetReskinningData(currentDSL);
+    currentDSL.version = 60;
+  }
+
+  if (currentDSL.version === 60) {
+    currentDSL = migrateTableWidgetV2Validation(currentDSL);
+    currentDSL.version = 61;
+  }
+
+  if (currentDSL.version === 61) {
+    currentDSL = migrateChartWidgetReskinningData(currentDSL);
+    currentDSL.version = 62;
+  }
+
+  if (currentDSL.version === 62) {
+    currentDSL = MigrateSelectTypeWidgetDefaultValue(currentDSL);
+    currentDSL.version = 63;
+  }
+
+  if (currentDSL.version === 63) {
+    currentDSL = migrateMapChartWidgetReskinningData(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
 };
 
-const migrateButtonVariant = (
+export const migrateButtonVariant = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (
@@ -1287,7 +1310,7 @@ export const migrateInputValidation = (
   return currentDSL;
 };
 
-const migrateButtonWidgetValidation = (
+export const migrateButtonWidgetValidation = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === "INPUT_WIDGET") {
@@ -1341,7 +1364,7 @@ const addIsDisabledToButtonColumn = (
   return currentDSL;
 };
 
-const migrateIsDisabledToButtonColumn = (
+export const migrateIsDisabledToButtonColumn = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   const newDSL = addIsDisabledToButtonColumn(currentDSL);
@@ -1387,7 +1410,7 @@ export const migrateObjectFitToImageWidget = (
   return dsl;
 };
 
-const migrateOverFlowingTabsWidgets = (
+export const migrateOverFlowingTabsWidgets = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   canvasWidgets: any,
 ) => {
@@ -1423,7 +1446,7 @@ const migrateOverFlowingTabsWidgets = (
   return currentDSL;
 };
 
-const migrateWidgetsWithoutLeftRightColumns = (
+export const migrateWidgetsWithoutLeftRightColumns = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   canvasWidgets: any,
 ) => {
@@ -1467,7 +1490,7 @@ const migrateWidgetsWithoutLeftRightColumns = (
   return currentDSL;
 };
 
-const migrateNewlyAddedTabsWidgetsMissingData = (
+export const migrateNewlyAddedTabsWidgetsMissingData = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 2) {

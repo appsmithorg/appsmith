@@ -31,4 +31,14 @@ public class PluginExecutorHelper {
                 }
         );
     }
+
+    public Mono<PluginExecutor> getPluginExecutorFromPackageName(String packageName) {
+
+        List<PluginExecutor> executorList = pluginManager.getExtensions(PluginExecutor.class, packageName);
+        if (executorList.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", packageName));
+        }
+        return Mono.just(executorList.get(0));
+
+    }
 }

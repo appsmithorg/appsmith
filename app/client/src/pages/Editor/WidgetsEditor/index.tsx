@@ -12,7 +12,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
-import { flashElementsById } from "utils/helpers";
+import { quickScrollToWidget } from "utils/helpers";
 import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
@@ -20,18 +20,15 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
-import {
-  getIsOnboardingTasksView,
-  getIsOnboardingWidgetSelection,
-} from "selectors/entitiesSelector";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import {
-  getIsFirstTimeUserOnboardingEnabled,
+  getIsOnboardingTasksView,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
 import PropertyPaneContainer from "./PropertyPaneContainer";
+import CanvasTopSection from "./EmptyCanvasSection";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -42,12 +39,6 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
-  const enableFirstTimeUserOnboarding = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  const isOnboardingWidgetSelection = useSelector(
-    getIsOnboardingWidgetSelection,
-  );
   const guidedTourEnabled = useSelector(inGuidedTour);
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -73,7 +64,7 @@ function WidgetsEditor() {
       !guidedTourEnabled
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
-      flashElementsById(widgetIdFromURLHash);
+      quickScrollToWidget(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
     }
@@ -112,25 +103,26 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      {enableFirstTimeUserOnboarding &&
-      showOnboardingTasks &&
-      !isOnboardingWidgetSelection ? (
+      {showOnboardingTasks ? (
         <OnboardingTasks />
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div
-              className="relative flex flex-row w-full overflow-hidden"
-              data-testid="widgets-editor"
-              draggable
-              onClick={handleWrapperClick}
-              onDragStart={onDragStart}
-            >
-              <PageTabs />
-              <CanvasContainer />
-              <CrudInfoModal />
-              <Debugger />
+            <div className="relative flex flex-col w-full overflow-hidden">
+              <CanvasTopSection />
+              <div
+                className="relative flex flex-row w-full overflow-hidden"
+                data-testid="widgets-editor"
+                draggable
+                onClick={handleWrapperClick}
+                onDragStart={onDragStart}
+              >
+                <PageTabs />
+                <CanvasContainer />
+                <CrudInfoModal />
+                <Debugger />
+              </div>
             </div>
             <PropertyPaneContainer />
           </div>

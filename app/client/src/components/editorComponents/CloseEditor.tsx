@@ -1,19 +1,22 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { INTEGRATION_TABS } from "constants/routes";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   builderURL,
   generateTemplateFormURL,
   integrationEditorURL,
 } from "RouteBuilder";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const IconContainer = styled.div`
   //width: 100%;
@@ -31,6 +34,7 @@ function CloseEditor() {
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
+  const pageId = useSelector(getCurrentPageId);
 
   const isGeneratePageInitiator = getIsGeneratePageInitiator();
   let integrationTab = INTEGRATION_TABS.ACTIVE;
@@ -41,12 +45,6 @@ function CloseEditor() {
     // hence when routing back, user should go back to INTEGRATION_TABS.NEW tab.
     integrationTab = INTEGRATION_TABS.NEW;
   }
-  // if it is a generate CRUD page flow from which user came here
-  // then route user back to `/generate-page/form`
-  // else go back to BUILDER_PAGE
-  const redirectURL = isGeneratePageInitiator
-    ? generateTemplateFormURL()
-    : builderURL();
 
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -55,13 +53,27 @@ function CloseEditor() {
     );
     e.stopPropagation();
 
+    // if it is a generate CRUD page flow from which user came here
+    // then route user back to `/generate-page/form`
+    // else go back to BUILDER_PAGE
+    const redirectURL = isGeneratePageInitiator
+      ? generateTemplateFormURL({ pageId })
+      : builderURL({ pageId });
+
     const URL =
       redirectTo === "datasources"
         ? integrationEditorURL({
+            pageId,
             selectedTab: integrationTab,
             params: getQueryParams(),
           })
         : redirectURL;
+
+    AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
+      type: "BACK_BUTTON",
+      fromUrl: location.pathname,
+      toUrl: URL,
+    });
     history.push(URL);
   };
 

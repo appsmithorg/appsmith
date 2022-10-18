@@ -10,14 +10,14 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "Label",
         children: [
           {
             propertyName: "label",
-            label: "Label",
+            label: "Text",
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
             placeholderText: "Enable Option",
@@ -64,7 +64,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "defaultSwitchState",
-            label: "Default Selected",
+            label: "Default State",
             helpText:
               "On / Off the Switch by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
@@ -120,12 +120,17 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -139,7 +144,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -181,7 +186,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -201,12 +206,12 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Accent color",
+            label: "Accent Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -217,6 +222,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
       },
     ];
   }
+
   getPageView() {
     return (
       <SwitchComponent

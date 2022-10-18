@@ -1,20 +1,22 @@
 import React, { useLayoutEffect } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
-import { RESET_PASSWORD_FORM_NAME } from "constants/forms";
+import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
 import FormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
-import FormMessage, {
-  MessageAction,
+import FormTextField from "components/utils/ReduxFormTextField";
+import {
+  Button,
+  FormMessage,
   FormMessageProps,
-} from "components/ads/formFields/FormMessage";
+  MessageAction,
+  Size,
+} from "design-system";
 import Spinner from "components/editorComponents/Spinner";
-import Button, { Size } from "components/ads/Button";
 
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";

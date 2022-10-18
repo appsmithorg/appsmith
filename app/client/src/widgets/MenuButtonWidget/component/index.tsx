@@ -122,11 +122,20 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     }
 
     &:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
-      border-color: ${theme.colors.button.disabled.bgColor} !important;
-      > span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+      border: ${
+        buttonVariant === ButtonVariantTypes.SECONDARY
+          ? "1px solid var(--wds-color-border-disabled)"
+          : "none"
+      } !important;
+      background: ${
+        buttonVariant !== ButtonVariantTypes.TERTIARY
+          ? "var(--wds-color-bg-disabled)"
+          : "transparent"
+      } !important;
+      color: var(--wds-color-text-disabled) !important;
+      
+      span {
+        color: var(--wds-color-text-disabled) !important;
       }
     }
 
@@ -172,6 +181,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+  font-family: var(--wds-font-family);
+
   ${({ backgroundColor, theme }) =>
     backgroundColor
       ? `
@@ -208,8 +219,8 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   ${({ isCompact }) =>
     isCompact &&
     `
-      padding-top: 3px;
-      padding-bottom: 3px;
+      padding-top: 3px !important;
+      padding-bottom: 3px !important;
       font-size: 12px;
   `}
 `;
@@ -221,7 +232,7 @@ const StyledMenu = styled(Menu)<{
   min-width: 0px;
   overflow: hidden;
 
-  .${BClasses.MENU_ITEM}:hover {
+  ${BClasses.MENU_ITEM}:hover {
     background-color: ${({ backgroundColor }) => lightenColor(backgroundColor)};
   }
 `;
@@ -336,22 +347,6 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   } = props;
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
-
-  if (iconAlign === Alignment.RIGHT) {
-    return (
-      <BaseButton
-        alignText={getAlignText(isRightAlign, iconName)}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        disabled={isDisabled}
-        fill
-        rightIcon={iconName}
-        text={label}
-      />
-    );
-  }
 
   return (
     <DragContainer

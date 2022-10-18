@@ -7,7 +7,7 @@ import {
   getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 import {
   createMessage,
@@ -18,6 +18,7 @@ import { Colors } from "constants/Colors";
 import { get } from "lodash";
 
 import ConflictInfo from "../components/ConflictInfo";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -81,7 +82,9 @@ function GitErrorPopup() {
   };
 
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
-
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const browserSupportedRemoteUrl =
+    gitMetaData?.browserSupportedRemoteUrl || "";
   const isConflicting = true; // refactored
 
   return (
@@ -99,7 +102,7 @@ function GitErrorPopup() {
             <Space size={2} />
             {isConflicting && (
               <ConflictInfo
-                browserSupportedRemoteUrl={""}
+                browserSupportedRemoteUrl={browserSupportedRemoteUrl}
                 learnMoreLink={gitConflictDocumentUrl}
               />
             )}

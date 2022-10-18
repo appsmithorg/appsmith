@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -22,21 +23,21 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource> implements CustomDatasourceRepositoryCE {
 
-    public CustomDatasourceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomDatasourceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
-    public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
-        Criteria orgIdCriteria = where(fieldName(QDatasource.datasource.organizationId)).is(organizationId);
-        return queryAll(List.of(orgIdCriteria), permission, Sort.by(fieldName(QDatasource.datasource.name)));
+    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        return queryAll(List.of(workspaceIdCriteria), permission, Sort.by(fieldName(QDatasource.datasource.name)));
     }
 
     @Override
-    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission aclPermission) {
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
-        Criteria orgIdCriteria = where(fieldName(QDatasource.datasource.organizationId)).is(organizationId);
-        return queryOne(List.of(nameCriteria, orgIdCriteria), aclPermission);
+        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        return queryOne(List.of(nameCriteria, workspaceIdCriteria), aclPermission);
     }
 
     @Override

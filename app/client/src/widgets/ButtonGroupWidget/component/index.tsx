@@ -6,6 +6,7 @@ import {
   Menu,
   MenuItem,
   Classes as CoreClass,
+  Spinner,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
@@ -19,7 +20,6 @@ import {
 } from "components/constants";
 import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
-import { Colors } from "constants/Colors";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -207,7 +207,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
       }
     }
 
-
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
@@ -227,10 +226,13 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
 
     &:disabled {
       cursor: not-allowed;
-      border: 1px solid ${Colors.ALTO2} !important;
-      background: ${theme.colors.button.disabled.bgColor} !important;
+      border: ${buttonVariant === ButtonVariantTypes.SECONDARY &&
+        "1px solid var(--wds-color-border-disabled)"} !important;
+      background: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
+        "var(--wds-color-bg-disabled)"} !important;
+      
       span {
-        color: ${theme.colors.button.disabled.textColor} !important;
+        color: var(--wds-color-text-disabled) !important;
       }
     }
 
@@ -303,6 +305,7 @@ const StyledMenu = styled(Menu)`
 `;
 
 interface PopoverContentProps {
+  buttonId: string;
   menuItems: Record<
     string,
     {
@@ -320,11 +323,11 @@ interface PopoverContentProps {
       onClick?: string;
     }
   >;
-  onItemClicked: (onClick: string | undefined) => void;
+  onItemClicked: (onClick: string | undefined, buttonId: string) => void;
 }
 
 function PopoverContent(props: PopoverContentProps) {
-  const { menuItems, onItemClicked } = props;
+  const { buttonId, menuItems, onItemClicked } = props;
 
   let items = Object.keys(menuItems)
     .map((itemKey) => menuItems[itemKey])
@@ -351,7 +354,7 @@ function PopoverContent(props: PopoverContentProps) {
           disabled={isDisabled}
           key={id}
           labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick)}
+          onClick={() => onItemClicked(onClick, buttonId)}
           text={label}
           textColor={textColor}
         />
@@ -363,7 +366,7 @@ function PopoverContent(props: PopoverContentProps) {
         disabled={isDisabled}
         icon={<Icon color={iconColor} icon={iconName} />}
         key={id}
-        onClick={() => onItemClicked(onClick)}
+        onClick={() => onItemClicked(onClick, buttonId)}
         text={label}
         textColor={textColor}
       />
@@ -384,6 +387,7 @@ class ButtonGroupComponent extends React.Component<
     this.state = {
       itemRefs: {},
       itemWidths: {},
+      loadedBtnId: "",
     };
   }
 
@@ -494,8 +498,25 @@ class ButtonGroupComponent extends React.Component<
       return acc;
     }, {});
 
-  onButtonClick = (onClick: string | undefined) => {
-    this.props.buttonClickHandler(onClick);
+  // Start Loading
+  handleActionStart = (id: string) => {
+    this.setState({
+      loadedBtnId: id,
+    });
+  };
+
+  // Stop Loading
+  handleActionComplete = () => {
+    this.setState({
+      loadedBtnId: "",
+    });
+  };
+
+  onButtonClick = (onClick: string | undefined, buttonId: string) => {
+    if (onClick) {
+      this.handleActionStart(buttonId);
+      this.props.buttonClickHandler(onClick, () => this.handleActionComplete());
+    }
   };
 
   render = () => {
@@ -507,6 +528,7 @@ class ButtonGroupComponent extends React.Component<
       orientation,
       widgetId,
     } = this.props;
+    const { loadedBtnId } = this.state;
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -525,8 +547,9 @@ class ButtonGroupComponent extends React.Component<
         isHorizontal={isHorizontal}
       >
         {items.map((button) => {
-          const isButtonDisabled = button.isDisabled || isDisabled;
-
+          const isLoading = button.id === loadedBtnId;
+          const isButtonDisabled =
+            button.isDisabled || isDisabled || !!loadedBtnId || isLoading;
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
 
@@ -544,6 +567,7 @@ class ButtonGroupComponent extends React.Component<
                 <Popover2
                   content={
                     <PopoverContent
+                      buttonId={button.id}
                       menuItems={menuItems || {}}
                       onItemClicked={this.onButtonClick}
                     />
@@ -558,6 +582,7 @@ class ButtonGroupComponent extends React.Component<
                     buttonColor={button.buttonColor}
                     buttonVariant={buttonVariant}
                     disabled={isButtonDisabled}
+                    loading={!!loadedBtnId}
                     renderMode={this.props.renderMode}
                   >
                     <StyledButton
@@ -575,11 +600,17 @@ class ButtonGroupComponent extends React.Component<
                         iconAlign={button.iconAlign || "left"}
                         placement={button.placement}
                       >
-                        {button.iconName && <Icon icon={button.iconName} />}
-                        {!!button.label && (
-                          <span className={CoreClass.BUTTON_TEXT}>
-                            {button.label}
-                          </span>
+                        {isLoading ? (
+                          <Spinner size={18} />
+                        ) : (
+                          <>
+                            {button.iconName && <Icon icon={button.iconName} />}
+                            {!!button.label && (
+                              <span className={CoreClass.BUTTON_TEXT}>
+                                {button.label}
+                              </span>
+                            )}
+                          </>
                         )}
                       </StyledButtonContent>
                     </StyledButton>
@@ -594,8 +625,9 @@ class ButtonGroupComponent extends React.Component<
               buttonVariant={buttonVariant}
               disabled={isButtonDisabled}
               key={button.id}
+              loading={!!loadedBtnId}
               onClick={() => {
-                this.onButtonClick(button.onClick);
+                this.onButtonClick(button.onClick, button.id);
               }}
               renderMode={this.props.renderMode}
               style={{ flex: "1 1 auto" }}
@@ -608,17 +640,23 @@ class ButtonGroupComponent extends React.Component<
                 iconAlign={button.iconAlign}
                 isHorizontal={isHorizontal}
                 isLabel={!!button.label}
-                onClick={() => this.onButtonClick(button.onClick)}
+                onClick={() => this.onButtonClick(button.onClick, button.id)}
               >
                 <StyledButtonContent
                   iconAlign={button.iconAlign || "left"}
                   placement={button.placement}
                 >
-                  {button.iconName && <Icon icon={button.iconName} />}
-                  {!!button.label && (
-                    <span className={CoreClass.BUTTON_TEXT}>
-                      {button.label}
-                    </span>
+                  {isLoading ? (
+                    <Spinner size={18} />
+                  ) : (
+                    <>
+                      {button.iconName && <Icon icon={button.iconName} />}
+                      {!!button.label && (
+                        <span className={CoreClass.BUTTON_TEXT}>
+                          {button.label}
+                        </span>
+                      )}
+                    </>
                   )}
                 </StyledButtonContent>
               </StyledButton>
@@ -666,7 +704,10 @@ export interface ButtonGroupComponentProps {
   borderRadius?: string;
   boxShadow?: string;
   buttonVariant: ButtonVariant;
-  buttonClickHandler: (onClick: string | undefined) => void;
+  buttonClickHandler: (
+    onClick: string | undefined,
+    callback: () => void,
+  ) => void;
   groupButtons: Record<string, GroupButtonProps>;
   isDisabled: boolean;
   orientation: string;
@@ -679,6 +720,7 @@ export interface ButtonGroupComponentProps {
 export interface ButtonGroupComponentState {
   itemRefs: Record<string, RefObject<HTMLButtonElement>>;
   itemWidths: Record<string, number>;
+  loadedBtnId: string;
 }
 
 export default ButtonGroupComponent;

@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useEffect, useRef } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -22,8 +28,7 @@ import {
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { Position } from "@blueprintjs/core";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
@@ -38,6 +43,10 @@ import useResize, {
   DIRECTION,
   CallbackResponseType,
 } from "utils/hooks/useResize";
+import AddPageContextMenu from "./AddPageContextMenu";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useLocation } from "react-router";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -80,6 +89,7 @@ function Pages() {
   const pageResizeRef = useRef<HTMLDivElement>(null);
   const storedHeightKey = "pagesContainerHeight_" + applicationId;
   const storedHeight = localStorage.getItem(storedHeightKey);
+  const location = useLocation();
 
   const resizeAfterCallback = (data: CallbackResponseType) => {
     localStorage.setItem(storedHeightKey, data.height.toString());
@@ -101,14 +111,24 @@ function Pages() {
     }
   }, [pageResizeRef]);
 
-  const switchPage = useCallback((page: Page) => {
-    history.push(
-      builderURL({
-        pageSlug: page.slug as string,
+  const switchPage = useCallback(
+    (page: Page) => {
+      const navigateToUrl = builderURL({
         pageId: page.pageId,
-      }),
-    );
-  }, []);
+      });
+      AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
+        name: page.pageName,
+        fromUrl: location.pathname,
+        type: "PAGES",
+        toUrl: navigateToUrl,
+      });
+      dispatch(toggleInOnboardingWidgetSelection(true));
+      history.push(navigateToUrl);
+    },
+    [location.pathname],
+  );
+
+  const [isMenuOpen, openMenu] = useState(false);
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
@@ -122,13 +142,15 @@ function Pages() {
     dispatch(createPage(applicationId, name, defaultPageLayouts));
   }, [dispatch, pages, applicationId]);
 
+  const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
+
   const settingsIconWithTooltip = React.useMemo(
     () => (
       <TooltipComponent
         boundary="viewport"
         content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.BOTTOM}
+        position="bottom"
       >
         {settingsIcon}
       </TooltipComponent>
@@ -209,13 +231,20 @@ function Pages() {
         alwaysShowRightIcon
         className="group pages"
         collapseRef={pageResizeRef}
+        customAddButton={
+          <AddPageContextMenu
+            className={`${EntityClassNames.ADD_BUTTON} group pages`}
+            createPageCallback={createPageCallback}
+            onMenuClose={onMenuClose}
+            openMenu={isMenuOpen}
+          />
+        }
         entityId="Pages"
         icon={""}
         isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
-        name="PAGES"
+        name="Pages"
         onClickPreRightIcon={onPin}
         onClickRightIcon={onClickRightIcon}
-        onCreate={createPageCallback}
         onToggle={onPageToggle}
         pagesSize={ENTITY_HEIGHT * pages.length}
         rightIcon={settingsIconWithTooltip}

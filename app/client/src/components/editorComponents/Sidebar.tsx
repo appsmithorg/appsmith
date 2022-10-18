@@ -18,20 +18,20 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
-import AppComments from "comments/AppComments/AppComments";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
   getExplorerActive,
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 type Props = {
   width: number;
@@ -153,10 +153,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
+      id={SIDEBAR_ID}
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 bg-white t--sidebar min-w-48 max-w-96 group"
+        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
@@ -168,7 +169,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <EntityProperties />
         {/* Contains entity explorer & widgets library along with a switcher*/}
         <Explorer />
-        <AppComments />
       </div>
       {/* RESIZER */}
       <div

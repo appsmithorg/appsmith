@@ -7,7 +7,7 @@ import {
   getPluginByPackageName,
 } from "selectors/entitiesSelector";
 import NotFound from "pages/common/NotFound";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/pluginActionActions";
@@ -166,7 +166,6 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
-      applicationId,
       history,
       match: {
         params: { pageId },
@@ -179,7 +178,6 @@ class ListView extends React.Component<Props> {
           onBackButton={() =>
             history.push(
               integrationEditorURL({
-                applicationId,
                 pageId,
                 selectedTab: INTEGRATION_TABS.ACTIVE,
               }),

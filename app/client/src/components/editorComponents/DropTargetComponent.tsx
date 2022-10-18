@@ -9,7 +9,7 @@ import React, {
   useMemo,
 } from "react";
 import styled from "styled-components";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
@@ -18,7 +18,7 @@ import {
 } from "constants/WidgetConstants";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { useSelector } from "react-redux";
 import {
   useShowPropertyPane,
@@ -93,7 +93,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     [props.widgetId],
   );
 
-  const occupiedSpacesByChildren = useSelector(selectOccupiedSpaces, isEqual);
+  const occupiedSpacesByChildren = useSelector(selectOccupiedSpaces, equal);
 
   const rowRef = useRef(snapRows);
 
@@ -142,6 +142,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         widgetBottomRow,
         props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
         occupiedSpacesByChildren,
+        props.widgetId,
       );
       if (rowRef.current < newRows) {
         rowRef.current = newRows;

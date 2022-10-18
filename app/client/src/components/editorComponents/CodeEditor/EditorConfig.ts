@@ -1,5 +1,6 @@
 import CodeMirror from "codemirror";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export enum EditorModes {
@@ -10,6 +11,8 @@ export enum EditorModes {
   JSON_WITH_BINDING = "json-js",
   SQL_WITH_BINDING = "sql-js",
   JAVASCRIPT = "javascript",
+  GRAPHQL = "graphql",
+  GRAPHQL_WITH_BINDING = "graphql-js",
 }
 
 export enum EditorTheme {
@@ -44,15 +47,16 @@ export const EditorThemes: Record<EditorTheme, string> = {
 export type FieldEntityInformation = {
   entityName?: string;
   expectedType?: AutocompleteDataType;
-  entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET | ENTITY_TYPE.JSACTION;
+  entityType?: ENTITY_TYPE;
   entityId?: string;
   propertyPath?: string;
+  blockCompletions?: Array<{ parentPath: string; subPath: string }>;
 };
 
 export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
-  customDataTree?: Record<string, Record<string, unknown>>,
+  customDataTree?: AdditionalDynamicDataTree,
 ) => Hinter;
 export type Hinter = {
   showHint: (

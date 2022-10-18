@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
 import { RouteComponentProps, useParams, withRouter } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   getSettings,
@@ -29,7 +29,8 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "components/ads";
+import { Variant } from "components/ads";
+import { Toaster } from "design-system";
 import {
   connectedMethods,
   saveAllowed,
@@ -42,7 +43,9 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
+  MaxWidthWrapper,
 } from "./components";
+import { BackButton } from "components/utils/helperComponents";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -132,14 +135,19 @@ export function SettingsForm(
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
-        props.settingsConfig[settingName] =
-          props.settingsConfig[settingName].toString() == "true";
+        const settingsStr = props.settingsConfig[settingName].toString();
+        if (settingName.toLowerCase().includes("enable")) {
+          props.settingsConfig[settingName] =
+            settingsStr === "" || settingsStr === "true";
+        } else {
+          props.settingsConfig[settingName] = settingsStr === "true";
+        }
       }
     });
     props.initialize(props.settingsConfig);
   };
 
-  useEffect(onClear, []);
+  useEffect(onClear, [subCategory]);
 
   const onReleaseNotesClose = useCallback(() => {
     dispatch({
@@ -177,37 +185,40 @@ export function SettingsForm(
 
   return (
     <Wrapper>
+      {subCategory && <BackButton />}
       <SettingsFormWrapper>
-        <HeaderWrapper>
-          <SettingsHeader>{pageTitle}</SettingsHeader>
-          {details?.subText && (
-            <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+        <MaxWidthWrapper>
+          <HeaderWrapper>
+            <SettingsHeader>{pageTitle}</SettingsHeader>
+            {details?.subText && (
+              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+            )}
+          </HeaderWrapper>
+          <Group
+            category={category}
+            settings={settingsDetails}
+            subCategory={subCategory}
+          />
+          {isSavable && (
+            <SaveAdminSettings
+              isSaving={props.isSaving}
+              onClear={onClear}
+              onSave={onSave}
+              settings={props.settings}
+              valid={props.valid}
+            />
           )}
-        </HeaderWrapper>
-        <Group
-          category={category}
-          settings={settingsDetails}
-          subCategory={subCategory}
-        />
-        {isSavable && (
-          <SaveAdminSettings
-            isSaving={props.isSaving}
-            onClear={onClear}
-            onSave={onSave}
-            settings={props.settings}
-            valid={props.valid}
-          />
-        )}
-        {details?.isConnected && (
-          <DisconnectService
-            disconnect={() => disconnect(settingsDetails)}
-            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-            warning={`${pageTitle} ${createMessage(
-              DISCONNECT_SERVICE_WARNING,
-            )}`}
-          />
-        )}
-        <BottomSpace />
+          {details?.isConnected && (
+            <DisconnectService
+              disconnect={() => disconnect(settingsDetails)}
+              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+              warning={`${pageTitle} ${createMessage(
+                DISCONNECT_SERVICE_WARNING,
+              )}`}
+            />
+          )}
+          <BottomSpace />
+        </MaxWidthWrapper>
       </SettingsFormWrapper>
       {props.showReleaseNotes && (
         <ProductUpdatesModal hideTrigger isOpen onClose={onReleaseNotesClose} />

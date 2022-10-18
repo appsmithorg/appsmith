@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import _ from "lodash";
 import {
   getPluginImages,
@@ -12,7 +12,7 @@ import {
   switchDatasource,
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
-import { DATASOURCE_DB_FORM } from "constants/forms";
+import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
@@ -28,6 +28,14 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import {
+  createMessage,
+  REST_API_AUTHORIZATION_APPSMITH_ERROR,
+  REST_API_AUTHORIZATION_FAILED,
+  REST_API_AUTHORIZATION_SUCCESSFUL,
+} from "@appsmith/constants/messages";
+import { Toaster } from "design-system";
+import { Variant } from "components/ads/common";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -77,6 +85,30 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.pluginDatasourceForm !== "RestAPIDatasourceForm"
     ) {
       this.props.switchDatasource(this.props.datasourceId);
+    }
+
+    if (
+      this.props.pluginDatasourceForm === "RestAPIDatasourceForm" &&
+      this.props.location
+    ) {
+      const search = new URLSearchParams(this.props.location.search);
+      const responseStatus = search.get("response_status");
+      const responseMessage = search.get("display_message");
+      if (responseStatus) {
+        // Set default error message
+        let message = REST_API_AUTHORIZATION_FAILED;
+        let variant = Variant.danger;
+        if (responseStatus === "success") {
+          message = REST_API_AUTHORIZATION_SUCCESSFUL;
+          variant = Variant.success;
+        } else if (responseStatus === "appsmith_error") {
+          message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
+        }
+        Toaster.show({
+          text: responseMessage || createMessage(message),
+          variant,
+        });
+      }
     }
   }
 
@@ -234,14 +266,12 @@ class DatasourceEditorRouter extends React.Component<Props> {
       }
       history.push(
         saasEditorDatasourceIdURL({
-          applicationSlug: this.props.applicationSlug,
-          pageSlug: this.props.pageSlug,
           pageId,
           pluginPackageName,
           datasourceId,
         }),
       );
-      return;
+      return null;
     }
 
     // Default to old flow

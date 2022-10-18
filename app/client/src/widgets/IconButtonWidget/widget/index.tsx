@@ -26,10 +26,10 @@ export interface IconButtonWidgetProps extends WidgetProps {
 }
 
 class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Basic",
         children: [
           {
             propertyName: "iconName",
@@ -49,6 +49,20 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             },
           },
           {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
             helpText: "Show helper text with button on hover",
             propertyName: "tooltip",
             label: "Tooltip",
@@ -59,9 +73,9 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -69,9 +83,9 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -91,38 +105,14 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Events",
+        sectionName: "General",
         children: [
-          {
-            helpText: "Triggers an action when the button is clicked",
-            propertyName: "onClick",
-            label: "onClick",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            propertyName: "buttonColor",
-            helpText: "Sets the style of the icon button",
-            label: "Button Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
           {
             propertyName: "buttonVariant",
             label: "Button Variant",
@@ -157,6 +147,31 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            propertyName: "buttonColor",
+            helpText: "Sets the style of the icon button",
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",

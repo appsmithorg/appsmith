@@ -25,24 +25,11 @@ function allowedRange(value: any) {
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
-          {
-            propertyName: "defaultDate",
-            label: "Default Date",
-            helpText:
-              "Sets the default date of the widget. The date is updated if the default date changes",
-            controlType: "DATE_PICKER",
-            placeholderText: "Enter Default Date",
-            useValidationMessage: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.DATE_ISO_STRING },
-          },
           {
             helpText: "Sets the format of the selected date",
             propertyName: "dateFormat",
@@ -57,8 +44,43 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             hideSubText: true,
           },
           {
+            propertyName: "defaultDate",
+            label: "Default Date",
+            helpText:
+              "Sets the default date of the widget. The date is updated if the default date changes",
+            controlType: "DATE_PICKER",
+            placeholderText: "Enter Default Date",
+            useValidationMessage: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.DATE_ISO_STRING },
+          },
+          {
+            propertyName: "firstDayOfWeek",
+            label: "First Day Of Week",
+            helpText: "Defines the first day of the week for calendar",
+            controlType: "INPUT_TEXT",
+            defaultValue: "0",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: allowedRange,
+                expected: {
+                  type:
+                    "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+                  example: "0",
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
+          {
             propertyName: "timePrecision",
-            label: "Time precision",
+            label: "Time Precision",
             controlType: "DROP_DOWN",
             helpText: "Sets the different time picker or hide.",
             defaultValue: TimePrecision.MINUTE,
@@ -88,113 +110,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
                   TimePrecision.SECOND,
                 ],
                 default: TimePrecision.MINUTE,
-              },
-            },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            helpText: "Disables input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "closeOnSelection",
-            label: "Close On Selection",
-            helpText: "Calender should close when a date is selected",
-            controlType: "SWITCH",
-            defaultValue: true,
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "shortcuts",
-            label: "Show Shortcuts",
-            helpText: "Choose to show shortcut menu",
-            controlType: "SWITCH",
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "minDate",
-            label: "Min Date",
-            helpText: "Defines the min date for this widget",
-            controlType: "DATE_PICKER",
-            useValidationMessage: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.DATE_ISO_STRING },
-          },
-          {
-            propertyName: "maxDate",
-            label: "Max Date",
-            helpText: "Defines the max date for this widget",
-            controlType: "DATE_PICKER",
-            useValidationMessage: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.DATE_ISO_STRING },
-          },
-          {
-            propertyName: "firstDayOfWeek",
-            label: "First Day Of Week",
-            helpText: "Defines the first day of the week for calendar",
-            controlType: "INPUT_TEXT",
-            defaultValue: "0",
-            inputType: "INTEGER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: allowedRange,
-                expected: {
-                  type:
-                    "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
-                  example: "0",
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
               },
             },
           },
@@ -272,11 +187,123 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Validation",
+        children: [
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "minDate",
+            label: "Min Date",
+            helpText: "Defines the min date for this widget",
+            controlType: "DATE_PICKER",
+            useValidationMessage: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.DATE_ISO_STRING },
+          },
+          {
+            propertyName: "maxDate",
+            label: "Max Date",
+            helpText: "Defines the max date for this widget",
+            controlType: "DATE_PICKER",
+            useValidationMessage: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.DATE_ISO_STRING },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "shortcuts",
+            label: "Show Shortcuts",
+            helpText: "Choose to show shortcut menu",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "closeOnSelection",
+            label: "Close On Selection",
+            helpText: "Calender should close when a date is selected",
+            controlType: "SWITCH",
+            defaultValue: true,
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            propertyName: "onDateSelected",
+            label: "onDateSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -285,7 +312,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -327,7 +354,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -347,21 +374,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         ],
       },
       {
-        sectionName: "Events",
-        children: [
-          {
-            propertyName: "onDateSelected",
-            label: "onDateSelected",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-
-      {
-        sectionName: "Styles",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "accentColor",

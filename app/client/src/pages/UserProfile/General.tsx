@@ -1,21 +1,20 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Toaster, Text, TextType } from "design-system";
 import { debounce } from "lodash";
-import TextInput, { notEmptyValidator } from "components/ads/TextInput";
+import { TextInput, notEmptyValidator } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes } from "@blueprintjs/core";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
-import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
-import { AppState } from "reducers";
-import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
+import { AppState } from "@appsmith/reducers";
+import UserProfileImagePicker from "./UserProfileImagePicker";
 import {
   Wrapper,
   FieldWrapper,
@@ -51,7 +50,7 @@ function General() {
       dispatch(logoutUser());
     } catch (error) {
       Toaster.show({
-        text: error._error,
+        text: (error as { _error: string })._error,
         variant: Variant.success,
       });
     }

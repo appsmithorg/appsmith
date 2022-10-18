@@ -17,10 +17,10 @@ class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText:
@@ -82,76 +82,6 @@ class SwitchGroupWidget extends BaseWidget<
                 strict: true,
               },
             },
-          },
-          {
-            propertyName: "isInline",
-            helpText:
-              "Whether switches are to be displayed inline horizontally",
-            label: "Inline",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "alignment",
-            helpText: "Sets the alignment of the widget",
-            label: "Alignment",
-            controlType: "DROP_DOWN",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "Left",
-                value: Alignment.LEFT,
-              },
-              {
-                label: "Right",
-                value: Alignment.RIGHT,
-              },
-            ],
           },
         ],
       },
@@ -227,11 +157,93 @@ class SwitchGroupWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Validations",
+        children: [
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isInline",
+            helpText:
+              "Whether switches are to be displayed inline horizontally",
+            label: "Inline",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText:
+              "Triggers an action when a switch state inside the group is changed",
+            propertyName: "onSelectionChange",
+            label: "onSelectionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -240,7 +252,7 @@ class SwitchGroupWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -282,7 +294,7 @@ class SwitchGroupWidget extends BaseWidget<
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -299,30 +311,43 @@ class SwitchGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "alignment",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            options: [
+              {
+                label: "Left",
+                value: Alignment.LEFT,
+              },
+              {
+                label: "Right",
+                value: Alignment.RIGHT,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
           {
             propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Accent color",
+            label: "Accent Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText:
-              "Triggers an action when a switch state inside the group is changed",
-            propertyName: "onSelectionChange",
-            label: "onSelectionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
           },
         ],
       },

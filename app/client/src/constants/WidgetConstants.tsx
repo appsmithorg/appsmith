@@ -70,7 +70,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 59;
+export const LATEST_PAGE_VERSION = 64;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -79,6 +79,8 @@ export const GridDefaults = {
   DEFAULT_GRID_COLUMNS: 64,
   DEFAULT_GRID_ROW_HEIGHT: 10,
   CANVAS_EXTENSION_OFFSET: 2,
+  VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET: 5,
+  MAIN_CANVAS_EXTENSION_OFFSET: 8,
 };
 
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
@@ -93,7 +95,7 @@ export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
-export const CANVAS_CLASSNAME = "appsmith_widget_0";
+export const CANVAS_SELECTOR = "canvas";
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
 
@@ -136,6 +138,15 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+};
+
+export const WIDGET_DSL_STRUCTURE_PROPS = {
+  children: true,
+  type: true,
+  widgetId: true,
+  parentId: true,
+  topRow: true,
+  bottomRow: true,
 };
 
 export type TextSize = keyof typeof TextSizes;

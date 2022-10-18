@@ -4,7 +4,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate JSObjects binding to Input widget", () => {
   before(() => {
@@ -31,8 +32,8 @@ describe("Validate JSObjects binding to Input widget", () => {
       toRun: true,
       shouldCreateNewJSObj: true,
     });
-    ee.expandCollapseEntity("WIDGETS"); //to expand widgets
-    ee.expandCollapseEntity("Form1");
+    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
+    ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
     cy.get(locator._inputWidget)
       .last()
@@ -40,20 +41,20 @@ describe("Validate JSObjects binding to Input widget", () => {
       .should("equal", "Hello"); //Before mapping JSObject value of input
     cy.get("@jsObjName").then((jsObjName) => {
       jsOjbNameReceived = jsObjName;
-      jsEditor.EnterJSContext("Default Text", "{{" + jsObjName + ".myFun1()}}");
+      propPane.UpdatePropertyFieldValue("Default Value",  "{{" + jsObjName + ".myFun1()}}");
     });
     cy.get(locator._inputWidget)
       .last()
       .invoke("attr", "value")
       .should("equal", "Success"); //After mapping JSObject value of input
-    deployMode.DeployApp(locator._inputWidgetInDeployed);
-    cy.get(locator._inputWidgetInDeployed)
+    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
       .first()
       .should("have.value", "Hello");
-    cy.get(locator._inputWidgetInDeployed)
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
       .last()
       .should("have.value", "Success");
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
 
     // cy.get(locator._inputWidget)
     //   .last()
@@ -75,15 +76,15 @@ describe("Validate JSObjects binding to Input widget", () => {
         //use async-await or promises
       }
     }`;
-    ee.SelectEntityByName(jsOjbNameReceived as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsOjbNameReceived as string, "Queries/JS");
     jsEditor.EditJSObj(jsBody);
     agHelper.AssertAutoSave();
-
-    ee.expandCollapseEntity("Form1");
+    ee.ExpandCollapseEntity("Widgets");
+    ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
     cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success'); //Function is renamed & reference is checked if updated properly!
-    deployMode.DeployApp(locator._inputWidgetInDeployed)
-    cy.get(locator._inputWidgetInDeployed).first().should('have.value', 'Hello')
-    cy.get(locator._inputWidgetInDeployed).last().should('have.value', 'Success')
+    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"))
+    cy.get(locator._widgetInputSelector("inputwidgetv2")).first().should('have.value', 'Hello')
+    cy.get(locator._widgetInputSelector("inputwidgetv2")).last().should('have.value', 'Success')
   });
 });

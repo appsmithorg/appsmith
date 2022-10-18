@@ -21,14 +21,15 @@ const RichTextEditorComponent = lazy(() =>
   ),
 );
 
+const converter = new showdown.Converter();
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "inputType",
@@ -53,63 +54,12 @@ class RichTextEditorWidget extends BaseWidget<
             propertyName: "defaultText",
             helpText:
               "Sets the default text of the widget. The text is updated if the default text changes",
-            label: "Default text",
+            label: "Default Value",
             controlType: "INPUT_TEXT",
             placeholderText: "<b>Hello World</b>",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disable",
-            helpText: "Disables input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isToolbarHidden",
-            label: "Hide toolbar",
-            helpText: "Controls the visibility of the toolbar",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -185,11 +135,91 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Validations",
+        children: [
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isToolbarHidden",
+            label: "Hide toolbar",
+            helpText: "Controls the visibility of the toolbar",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the text is changed",
+            propertyName: "onTextChange",
+            label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -198,7 +228,7 @@ class RichTextEditorWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -238,7 +268,7 @@ class RichTextEditorWidget extends BaseWidget<
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -258,21 +288,7 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "Triggers an action when the text is changed",
-            propertyName: "onTextChange",
-            label: "onTextChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-      {
-        sectionName: "Styles",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "borderRadius",
@@ -305,7 +321,6 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
-      shouldReset: false,
       isDirty: false,
     };
   }
@@ -323,27 +338,16 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  componentDidMount(): void {
-    if (this.props.defaultText) {
-      this.props.updateWidgetMetaProperty("shouldReset", true);
-    }
-  }
-
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
     if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
       }
-      if (this.props.defaultText) {
-        this.props.updateWidgetMetaProperty("shouldReset", true);
-      }
     }
   }
 
   onValueChange = (text: string) => {
-    if (this.props.shouldReset) {
-      this.props.updateWidgetMetaProperty("shouldReset", false);
-    } else if (!this.props.isDirty) {
+    if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
 
@@ -359,7 +363,6 @@ class RichTextEditorWidget extends BaseWidget<
   getPageView() {
     let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
-      const converter = new showdown.Converter();
       value = converter.makeHtml(value);
     }
 

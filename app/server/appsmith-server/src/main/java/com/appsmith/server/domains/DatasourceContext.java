@@ -9,8 +9,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
-public class DatasourceContext {
-    Object connection;
+public class DatasourceContext<T> {
+    T connection;
 
     Instant creationTime;
 

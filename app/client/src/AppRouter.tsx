@@ -3,31 +3,32 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+  ADMIN_SETTINGS_CATEGORY_PATH,
+  ADMIN_SETTINGS_PATH,
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
   BASE_URL,
-  BUILDER_PATH,
-  ORG_URL,
-  SIGN_UP_URL,
-  SIGNUP_SUCCESS_URL,
-  USER_AUTH_URL,
-  USERS_URL,
-  PROFILE,
-  UNSUBSCRIBE_EMAIL_URL,
-  SETUP,
-  VIEWER_PATH,
-  ADMIN_SETTINGS_PATH,
-  ADMIN_SETTINGS_CATEGORY_PATH,
-  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
-  BUILDER_PATH_DEPRECATED,
-  VIEWER_PATH_DEPRECATED,
-  TEMPLATES_PATH,
-  VIEWER_PATCH_PATH,
+  BUILDER_CUSTOM_PATH,
   BUILDER_PATCH_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  PROFILE,
+  SETUP,
+  SIGNUP_SUCCESS_URL,
+  SIGN_UP_URL,
+  TEMPLATES_PATH,
+  USERS_URL,
+  USER_AUTH_URL,
+  VIEWER_CUSTOM_PATH,
+  VIEWER_PATCH_PATH,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
+  WORKSPACE_URL,
 } from "constants/routes";
-import OrganizationLoader from "pages/organization/loader";
+import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
@@ -38,9 +39,8 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import UnsubscribeEmail from "pages/common/UnsubscribeEmail";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
 import { connect } from "react-redux";
 
@@ -60,6 +60,7 @@ import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
 import WDSPage from "components/wds/Showcase";
+import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -83,12 +84,13 @@ function AppRouter(props: {
   safeCrash: boolean;
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
+  getCurrentTenant: () => void;
   currentTheme: Theme;
   safeCrashCode?: ERROR_CODES;
   featureFlags: FeatureFlags;
   setTheme: (theme: ThemeMode) => void;
 }) {
-  const { getCurrentUser, getFeatureFlags } = props;
+  const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
     AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
     const stopListener = history.listen((location: any) => {
@@ -97,6 +99,7 @@ function AppRouter(props: {
     });
     getCurrentUser();
     getFeatureFlags();
+    getCurrentTenant();
     return stopListener;
   }, []);
 
@@ -119,7 +122,7 @@ function AppRouter(props: {
               <SentryRoute component={LandingScreen} exact path={BASE_URL} />
               <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
               <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <SentryRoute component={OrganizationLoader} path={ORG_URL} />
+              <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
               <SentryRoute component={Users} exact path={USERS_URL} />
               <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
               <SentryRoute component={WDSPage} path="/wds" />
@@ -134,10 +137,6 @@ function AppRouter(props: {
                 path={SIGNUP_SUCCESS_URL}
               />
               <SentryRoute component={UserProfile} path={PROFILE} />
-              <SentryRoute
-                component={UnsubscribeEmail}
-                path={UNSUBSCRIBE_EMAIL_URL}
-              />
               <SentryRoute component={Setup} exact path={SETUP} />
 
               <SentryRoute
@@ -154,15 +153,23 @@ function AppRouter(props: {
                 exact
                 path={ADMIN_SETTINGS_CATEGORY_PATH}
               />
-              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
               <SentryRoute
                 component={EditorLoader}
                 path={BUILDER_PATH_DEPRECATED}
               />
-              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
               <SentryRoute
                 component={AppViewerLoader}
                 path={VIEWER_PATH_DEPRECATED}
+              />
+              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
+              <SentryRoute
+                component={EditorLoader}
+                path={BUILDER_CUSTOM_PATH}
+              />
+              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_CUSTOM_PATH}
               />
               <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
               <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
@@ -188,6 +195,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
+  getCurrentTenant: () => dispatch(getCurrentTenant()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

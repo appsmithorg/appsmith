@@ -7,9 +7,9 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-const PropertyPaneConfig = [
+export const PropertyPaneContentConfig = [
   {
-    sectionName: "General",
+    sectionName: "Data",
     children: [
       {
         helpText: "Takes in an array of objects to display items in the list.",
@@ -23,6 +23,11 @@ const PropertyPaneConfig = [
         validation: { type: ValidationTypes.ARRAY },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
+    ],
+  },
+  {
+    sectionName: "Pagination",
+    children: [
       {
         helpText:
           "Bind the List.pageNo property in your API and call it onPageChange",
@@ -32,6 +37,35 @@ const PropertyPaneConfig = [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        helpText: "Triggers an action when a list page is changed",
+        propertyName: "onPageChange",
+        label: "onPageChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
+      },
+      {
+        helpText: "Triggers an action when a list page size is changed",
+        propertyName: "onPageSizeChange",
+        label: "onPageSizeChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
+      },
+    ],
+  },
+  {
+    sectionName: "General",
+    children: [
       {
         propertyName: "isVisible",
         label: "Visible",
@@ -88,53 +122,30 @@ const PropertyPaneConfig = [
         },
         dependencies: ["listData"],
       },
+    ],
+  },
+];
+
+export const PropertyPaneStyleConfig = [
+  {
+    sectionName: "General",
+    children: [
       {
-        helpText: "Triggers an action when a list page is changed",
-        propertyName: "onPageChange",
-        label: "onPageChange",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
+        helpText: "Spacing between items in Pixels",
+        placeholderText: "0",
+        propertyName: "gridGap",
+        label: "Item Spacing (px)",
+        controlType: "INPUT_TEXT",
         isBindProperty: true,
-        isTriggerProperty: true,
-        hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled"],
-      },
-      {
-        helpText: "Triggers an action when a list page size is changed",
-        propertyName: "onPageSizeChange",
-        label: "onPageSizeChange",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled"],
+        isTriggerProperty: false,
+        inputType: "INTEGER",
+        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
       },
     ],
   },
   {
-    sectionName: "Styles",
+    sectionName: "Color",
     children: [
-      {
-        propertyName: "backgroundColor",
-        label: "Background Color",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            expected: {
-              type: "Color name | hex code",
-              example: "#FFFFFF",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-      },
       {
         propertyName: "itemBackgroundColor",
         label: "Item Background Color",
@@ -155,16 +166,28 @@ const PropertyPaneConfig = [
         },
       },
       {
-        helpText: "Spacing between items in Pixels",
-        placeholderText: "0",
-        propertyName: "gridGap",
-        label: "Item Spacing (px)",
-        controlType: "INPUT_TEXT",
+        propertyName: "backgroundColor",
+        label: "Background Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: {
+              type: "Color name | hex code",
+              example: "#FFFFFF",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
       },
+    ],
+  },
+  {
+    sectionName: "Border and Shadow",
+    children: [
       {
         propertyName: "borderRadius",
         label: "Border Radius",
@@ -189,5 +212,3 @@ const PropertyPaneConfig = [
     ],
   },
 ];
-
-export { PropertyPaneConfig as default };

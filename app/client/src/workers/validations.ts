@@ -264,12 +264,39 @@ function validateExcessLineBreaks(value: any): boolean {
   return lineBreakCount > MAX_ALLOWED_LINE_BREAKS;
 }
 
+function validateExcessLength(text: string, maxLength: number): boolean {
+  /**
+   * Check if text is too long and without any line breaks.
+   */
+  const lineBreakCount = countOccurrences(text, "\n", false, 0);
+  return lineBreakCount === 0 && text.length > maxLength;
+}
+
+/**
+ * Iterate through an object,
+ * Check for length of string values
+ * and trim them in case they are too long.
+ */
+function validateObjectValues(obj: any): any {
+  if (!obj) return;
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "string" && obj[key].length > 100000) {
+      obj[key] = obj[key].substring(0, 100000);
+    } else if (isObject(obj[key])) {
+      obj[key] = validateObjectValues(obj[key]);
+    } else if (isArray(obj[key])) {
+      obj[key] = obj[key].map((item: any) => validateObjectValues(item));
+    }
+  });
+  return obj;
+}
+
 //TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
-  propertyPath: string,
+  propertyPath = "",
 ): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
@@ -307,30 +334,30 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
     case ValidationTypes.BOOLEAN:
       return "boolean";
     case ValidationTypes.NUMBER:
-      let type = "number";
+      let validationType = "number";
       if (config.params?.min) {
-        type = `${type} Min: ${config.params?.min}`;
+        validationType = `${validationType} Min: ${config.params?.min}`;
       }
       if (config.params?.max) {
-        type = `${type} Max: ${config.params?.max}`;
+        validationType = `${validationType} Max: ${config.params?.max}`;
       }
       if (config.params?.required) {
-        type = `${type} Required`;
+        validationType = `${validationType} Required`;
       }
 
-      return type;
+      return validationType;
     case ValidationTypes.OBJECT:
-      type = "Object";
+      let objectType = "Object";
       if (config.params?.allowedKeys) {
-        type = "{";
+        objectType = "{";
         config.params?.allowedKeys.forEach((allowedKeyConfig) => {
           const _expected = getExpectedType(allowedKeyConfig);
-          type = `${type} "${allowedKeyConfig.name}": "${_expected}",`;
+          objectType = `${objectType} "${allowedKeyConfig.name}": "${_expected}",`;
         });
-        type = `${type.substring(0, type.length - 1)} }`;
-        return type;
+        objectType = `${objectType.substring(0, objectType.length - 1)} }`;
+        return objectType;
       }
-      return type;
+      return objectType;
     case ValidationTypes.ARRAY:
     case ValidationTypes.NESTED_OBJECT_ARRAY:
       if (config.params?.allowedValues) {
@@ -383,13 +410,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       ) {
         return {
           isValid: false,
-          parsed: JSON.stringify(value), // Parse without line breaks
+          parsed: JSON.stringify(validateObjectValues(value)), // Parse without line breaks
           messages: [LINE_BREAKS_ERROR_MESSAGE],
         };
       }
       return {
         isValid: false,
-        parsed: JSON.stringify(value, null, 2),
+        parsed: JSON.stringify(validateObjectValues(value), null, 2),
         messages: [
           `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],
@@ -429,6 +456,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           isValid: false,
         };
       }
+    }
+
+    if (validateExcessLength(parsed as string, 200000)) {
+      return {
+        parsed: (parsed as string)?.substring(0, 200000),
+        isValid: false,
+        messages: [
+          "Excessive text length without a line break. Rendering a substring to avoid app crash.",
+        ],
+      };
     }
 
     if (

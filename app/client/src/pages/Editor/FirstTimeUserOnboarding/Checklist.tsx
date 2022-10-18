@@ -1,7 +1,6 @@
-import Button, { Category } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
-import { Icon } from "@blueprintjs/core";
 import React from "react";
+import { Icon } from "@blueprintjs/core";
+import { Button, Category, Text, TextType } from "design-system";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
@@ -236,7 +235,7 @@ export default function OnboardingChecklist() {
     getEnableFirstTimeUserOnboarding,
   );
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
-    return <Redirect to={builderURL()} />;
+    return <Redirect to={builderURL({ pageId })} />;
   }
   const {
     completedTasks,
@@ -259,7 +258,7 @@ export default function OnboardingChecklist() {
         }),
       );
     } else {
-      history.push(builderURL());
+      history.push(builderURL({ pageId }));
     }
     AnalyticsUtil.logEvent("SIGNPOSTING_CONNECT_WIDGET_CLICK");
   };
@@ -267,7 +266,7 @@ export default function OnboardingChecklist() {
     <Wrapper data-testid="checklist-wrapper">
       <Backbutton
         className="t--checklist-back"
-        onClick={() => history.push(builderURL())}
+        onClick={() => history.push(builderURL({ pageId }))}
       >
         <Icon color={Colors.DIESEL} icon="chevron-left" iconSize={16} />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
@@ -351,6 +350,7 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   integrationEditorURL({
+                    pageId,
                     selectedTab: INTEGRATION_TABS.NEW,
                   }),
                 );
@@ -401,6 +401,7 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   integrationEditorURL({
+                    pageId,
                     selectedTab: INTEGRATION_TABS.ACTIVE,
                   }),
                 );
@@ -451,7 +452,7 @@ export default function OnboardingChecklist() {
                 });
                 dispatch(toggleInOnboardingWidgetSelection(true));
                 dispatch(forceOpenWidgetPanel(true));
-                history.push(builderURL());
+                history.push(builderURL({ pageId }));
               }}
               text={createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,

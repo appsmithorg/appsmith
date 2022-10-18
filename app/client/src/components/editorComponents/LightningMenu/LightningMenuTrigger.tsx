@@ -6,9 +6,8 @@ import {
 } from "@appsmith/constants/messages";
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Position } from "@blueprintjs/core";
-import Tooltip from "components/ads/Tooltip";
+import { Icon, IconSize } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 
 const LightningIconWrapper = styled.span<{
   background: string;
@@ -90,7 +89,7 @@ export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
         hoverOpenDelay={1000}
         minWidth={"180px"}
         openOnTargetFocus={false}
-        position={Position.LEFT}
+        position="left"
       >
         <Icon name="lightning" size={IconSize.LARGE} />
       </Tooltip>

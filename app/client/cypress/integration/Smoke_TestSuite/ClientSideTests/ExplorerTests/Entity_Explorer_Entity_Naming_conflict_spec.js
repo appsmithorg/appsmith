@@ -1,11 +1,5 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const Layoutpage = require("../../../../locators/Layout.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/basicTabledsl.json");
-const pages = require("../../../../locators/Pages.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const tabname = "UpdatedTab";
 
 describe("Tab widget test", function() {
   const apiName = "Table1";
@@ -27,7 +21,7 @@ describe("Tab widget test", function() {
 
   it("Rename Table widget with api name validation test", function() {
     cy.GlobalSearchEntity("Table1");
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.RenameEntity(apiName);
     cy.validateMessage(apiName);
   });

@@ -4,6 +4,8 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const chalk = require("chalk");
+// const _ = require("lodash");
+// const del = require("del");
 const cypressLogToOutput = require("cypress-log-to-output");
 //const { isFileExist } = require("cy-verify-downloads");
 const {
@@ -36,6 +38,21 @@ module.exports = (on, config) => {
   });
 };
 
+// module.exports = (on, config) => {
+//   on("after:spec", (spec, results) => {
+//     if (results && results.video) {
+//       // Do we have failures for any retry attempts?
+//       const failures = _.some(results.tests, (test) => {
+//         return _.some(test.attempts, { state: "failed" });
+//       });
+//       if (!failures) {
+//         // delete the video if the spec passed and no tests retried
+//         return del(results.video);
+//       }
+//     }
+//   });
+// };
+
 module.exports = (on, config) => {
   // on("task", {
   //   isFileExist,
@@ -54,6 +71,7 @@ module.exports = (on, config) => {
     );
     if (browser.name === "chrome") {
       launchOptions.args.push("--disable-dev-shm-usage");
+      launchOptions.push("--window-size=1400,1100");
       return launchOptions;
     }
 
@@ -61,6 +79,9 @@ module.exports = (on, config) => {
       // && browser.isHeadless) {
       launchOptions.preferences.fullscreen = true;
       launchOptions.preferences.darkTheme = true;
+      launchOptions["width"] = 1400;
+      launchOptions["height"] = 1100;
+      launchOptions["resizable"] = false;
     }
 
     return launchOptions;
@@ -136,6 +157,7 @@ module.exports = (on, config) => {
 
   return config;
 };
+
 module.exports = (on, config) => {
   addMatchImageSnapshotPlugin(on, config);
 };

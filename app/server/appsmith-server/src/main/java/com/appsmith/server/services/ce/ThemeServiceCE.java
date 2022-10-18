@@ -2,9 +2,9 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,6 +33,14 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
      */
     Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication);
     Mono<Theme> publishTheme(String applicationId);
+
+    /**
+     * This function creates a custom theme for an application.
+     * @param applicationId
+     * @param branchName
+     * @param theme
+     * @return
+     */
     Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme theme);
     Mono<Theme> getThemeById(String themeId, AclPermission permission);
     Mono<Theme> save(Theme theme);

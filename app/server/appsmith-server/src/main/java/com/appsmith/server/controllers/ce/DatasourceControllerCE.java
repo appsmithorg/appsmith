@@ -5,7 +5,9 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
@@ -20,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -43,6 +45,7 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
     private final AuthenticationService authenticationService;
     private final MockDataService mockDataService;
     private final DatasourceTriggerSolution datasourceTriggerSolution;
+    private final DatasourceService datasourceService;
 
     @Autowired
     public DatasourceControllerCE(DatasourceService service,
@@ -51,6 +54,7 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
                                   MockDataService datasourceService,
                                   DatasourceTriggerSolution datasourceTriggerSolution) {
         super(service);
+        this.datasourceService = service;
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
         this.mockDataService = datasourceService;
@@ -108,18 +112,28 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
 
     @PutMapping("/datasource-query/{datasourceId}")
     public Mono<ResponseDTO<ActionExecutionResult>> runQueryOnDatasource(@PathVariable String datasourceId,
-                                                                    @Valid @RequestBody List<Property> pluginSpecifiedTemplates) {
+                                                                         @Valid @RequestBody List<Property> pluginSpecifiedTemplates) {
         log.debug("Getting datasource metadata");
         return datasourceStructureSolution.getDatasourceMetadata(datasourceId, pluginSpecifiedTemplates)
-            .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
+                .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 
-    @GetMapping("/{datasourceId}/trigger")
+    @PostMapping("/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
-                                                       @RequestParam MultiValueMap<String, Object> params) {
+                                                       @RequestBody TriggerRequestDTO triggerRequestDTO) {
         log.debug("Trigger received for datasource {}", datasourceId);
-        return datasourceTriggerSolution.trigger(datasourceId, params)
+        return datasourceTriggerSolution.trigger(datasourceId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
+    }
+
+    @Override
+    @PutMapping("/{id}")
+    public Mono<ResponseDTO<Datasource>> update(@PathVariable String id,
+                                                @RequestBody Datasource resource,
+                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update datasource from datasource controller with id: {}", id);
+        return datasourceService.update(id, resource, Boolean.TRUE)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
 }

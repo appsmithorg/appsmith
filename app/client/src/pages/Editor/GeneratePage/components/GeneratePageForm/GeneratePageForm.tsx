@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -11,6 +9,7 @@ import {
   getGenerateCRUDEnabledPluginMap,
   getIsFetchingSinglePluginForm,
   getDatasourcesStructure,
+  getNumberOfEntitiesInCurrentPage,
 } from "selectors/entitiesSelector";
 
 import { Datasource } from "entities/Datasource";
@@ -20,11 +19,21 @@ import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../../Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
-import { convertToQueryParams } from "RouteBuilder";
-import { IconName, IconSize } from "components/ads/Icon";
+import { getQueryStringfromObject } from "RouteBuilder";
+import {
+  Button,
+  Category,
+  Dropdown,
+  DropdownOption,
+  IconName,
+  IconSize,
+  RenderDropdownOptionType,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -40,20 +49,18 @@ import {
   useS3BucketList,
 } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers/index";
+import { AppState } from "@appsmith/reducers";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,
   PluginFormInputFieldMap,
-  PLUGIN_PACKAGE_NAME,
   DEFAULT_DROPDOWN_OPTION,
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
-import Tooltip from "components/ads/Tooltip";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -62,6 +69,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
+import { PluginPackageName } from "entities/Action";
 
 //  ---------- Styles ----------
 
@@ -174,7 +182,12 @@ function GeneratePageForm() {
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
-  const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
+  const numberOfEntities = useSelector(getNumberOfEntitiesInCurrentPage);
+  const currentMode = useRef(
+    numberOfEntities > 0
+      ? GENERATE_PAGE_MODE.NEW
+      : GENERATE_PAGE_MODE.REPLACE_EMPTY,
+  );
 
   const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] = useState<
     string
@@ -210,10 +223,10 @@ function GeneratePageForm() {
     generateCRUDSupportedPlugin[selectedDatasourcePluginId];
 
   const isGoogleSheetPlugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
+    selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 
   const isS3Plugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
+    selectedDatasourcePluginPackageName === PluginPackageName.S3;
 
   const isFetchingSheetPluginForm = useSelector((state: AppState) => {
     if (isGoogleSheetPlugin) {
@@ -274,7 +287,7 @@ function GeneratePageForm() {
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
-            case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
+            case PluginPackageName.GOOGLE_SHEETS:
               break;
             default: {
               if (dataSourceObj.id) {
@@ -465,7 +478,7 @@ function GeneratePageForm() {
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =
-          window.location.pathname + convertToQueryParams(queryParams);
+          window.location.pathname + getQueryStringfromObject(queryParams);
         history.replace(redirectURL);
       }
     }
@@ -585,7 +598,7 @@ function GeneratePageForm() {
 
   const showSearchableColumn =
     !!selectedTable.value &&
-    PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
+    PluginPackageName.S3 !== selectedDatasourcePluginPackageName;
 
   const showSubmitButton =
     selectedTable.value &&
@@ -614,10 +627,16 @@ function GeneratePageForm() {
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             options={dataSourceOptions}
-            renderOption={({ isSelectedNode, option, optionClickHandler }) => (
+            renderOption={({
+              isHighlighted,
+              isSelectedNode,
+              option,
+              optionClickHandler,
+            }: RenderDropdownOptionType) => (
               <DataSourceOption
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
+                isHighlighted={isHighlighted}
                 isSelectedNode={isSelectedNode}
                 key={(option as DropdownOption).id}
                 option={option}

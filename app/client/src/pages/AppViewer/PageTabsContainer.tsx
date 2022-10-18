@@ -2,9 +2,9 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { Colors } from "constants/Colors";
@@ -54,7 +54,7 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
 
 type AppViewerHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
-  pages: PageListPayload;
+  pages: Page[];
 };
 
 export function PageTabsContainer(props: AppViewerHeaderProps) {

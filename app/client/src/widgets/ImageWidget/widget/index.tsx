@@ -12,10 +12,11 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
   }
-  static getPropertyPaneConfig() {
+
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText: "Sets the image to be displayed",
@@ -37,6 +38,11 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.IMAGE_URL },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             helpText:
               "Sets how the Image should be resized to fit its container.",
@@ -161,8 +167,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "borderRadius",

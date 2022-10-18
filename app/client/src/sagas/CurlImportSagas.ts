@@ -8,15 +8,9 @@ import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
 import { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  createMessage,
-  CURL_IMPORT_SUCCESS,
-} from "@appsmith/constants/messages";
-import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import history from "utils/history";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { apiEditorIdURL } from "RouteBuilder";
 
@@ -25,13 +19,13 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   let { curl } = action.payload;
   try {
     curl = transformCurlImport(curl);
-    const organizationId: string = yield select(getCurrentOrgId);
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
     const request: CurlImportRequest = {
       type,
       pageId,
       name,
       curl,
-      organizationId,
+      workspaceId,
     };
 
     const response: ApiResponse = yield CurlImportApi.curlImport(request);
@@ -42,15 +36,12 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         importSource: CURL,
       });
 
-      Toaster.show({
-        text: createMessage(CURL_IMPORT_SUCCESS),
-        variant: Variant.success,
-      });
       yield put({
         type: ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
         payload: response.data,
       });
 
+      // @ts-expect-error: response.data is of type unknown
       history.push(apiEditorIdURL({ pageId, apiId: response.data.id }));
     }
   } catch (error) {

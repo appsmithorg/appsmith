@@ -1,4 +1,5 @@
 import React from "react";
+import { find } from "lodash";
 import TabsComponent from "../component";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
@@ -12,7 +13,6 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
-import { isEqual, find } from "lodash";
 
 export function selectedTabValidation(
   value: unknown,
@@ -33,10 +33,10 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "tabsObj",
@@ -88,7 +88,7 @@ class TabsWidget extends BaseWidget<
               },
               children: [
                 {
-                  sectionName: "Tab Control",
+                  sectionName: "General",
                   children: [
                     {
                       propertyName: "isVisible",
@@ -127,23 +127,11 @@ class TabsWidget extends BaseWidget<
             },
             dependencies: ["tabsObj", "tabs"],
           },
-          {
-            propertyName: "shouldShowTabs",
-            helpText:
-              "Hides the tabs so that different widgets can be displayed based on the default tab",
-            label: "Show Tabs",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            helpText: "Enables scrolling for content inside the widget",
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "isVisible",
             label: "Visible",
@@ -155,6 +143,14 @@ class TabsWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            helpText: "Enables scrolling for content inside the widget",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "animateLoading",
             label: "Animate Loading",
             controlType: "SWITCH",
@@ -164,6 +160,15 @@ class TabsWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "shouldShowTabs",
+            helpText:
+              "Hides the tabs so that different widgets can be displayed based on the default tab",
+            label: "Show Tabs",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -181,10 +186,55 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
+    ];
+  }
 
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Colors, Borders and Shadows",
         children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the color of the selected tab's underline ",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "Border Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Enter value for border width",
+            propertyName: "borderWidth",
+            label: "Border Width",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -251,7 +301,10 @@ class TabsWidget extends BaseWidget<
     return (
       <TabsComponent
         {...tabsComponentProps}
+        backgroundColor={this.props.backgroundColor}
+        borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}
+        borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
         onTabChange={this.onTabChange}
         primaryColor={this.props.primaryColor}
@@ -263,11 +316,11 @@ class TabsWidget extends BaseWidget<
 
   renderComponent = () => {
     const selectedTabWidgetId = this.props.selectedTabWidgetId;
-    const childWidgetData: TabContainerWidgetProps = this.props.children
-      ?.filter(Boolean)
-      .filter((item) => {
+    const childWidgetData = {
+      ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
-      })[0];
+      })[0],
+    };
     if (!childWidgetData) {
       return null;
     }
@@ -291,50 +344,13 @@ class TabsWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (!isEqual(prevProps, this.props)) {
-      const visibleTabs = this.getVisibleTabs();
-      if (
-        this.props.defaultTab &&
-        this.props.defaultTab !== prevProps.defaultTab
-      ) {
-        const selectedTab = find(visibleTabs, {
-          label: this.props.defaultTab,
-        });
-        const selectedTabWidgetId = selectedTab
-          ? selectedTab.widgetId
-          : undefined;
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          selectedTabWidgetId,
-        );
-      }
-      // if selected tab is deleted
-      if (this.props.selectedTabWidgetId) {
-        if (visibleTabs.length > 0) {
-          const selectedTabWithinTabs = find(visibleTabs, {
-            widgetId: this.props.selectedTabWidgetId,
-          });
-          if (!selectedTabWithinTabs) {
-            // try to select default else select first
-            const defaultTab = find(visibleTabs, {
-              label: this.props.defaultTab,
-            });
-            this.props.updateWidgetMetaProperty(
-              "selectedTabWidgetId",
-              (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
-            );
-          }
-        } else {
-          this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
-        }
-      } else if (!this.props.selectedTabWidgetId) {
-        if (visibleTabs.length > 0) {
-          this.props.updateWidgetMetaProperty(
-            "selectedTabWidgetId",
-            visibleTabs[0].widgetId,
-          );
-        }
-      }
+    const visibleTabs = this.getVisibleTabs();
+    const selectedTab = find(visibleTabs, {
+      widgetId: this.props.selectedTabWidgetId,
+    });
+
+    if (this.props.defaultTab !== prevProps.defaultTab || !selectedTab) {
+      this.setDefaultSelectedTabWidgetId();
     }
   }
 
@@ -350,42 +366,32 @@ class TabsWidget extends BaseWidget<
     return [];
   };
 
-  componentDidMount() {
+  setDefaultSelectedTabWidgetId = () => {
     const visibleTabs = this.getVisibleTabs();
-    // If we have a defaultTab
-    if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {
-      // Find the default Tab object
-      const selectedTab = find(visibleTabs, {
-        label: this.props.defaultTab,
-      });
-      // Find the default Tab id
-      const selectedTabWidgetId = selectedTab
-        ? selectedTab.widgetId
-        : visibleTabs.length
-        ? visibleTabs[0].widgetId
-        : undefined; // in case the default tab is deleted
-      // If we have a legitimate default tab Id and it is not already the selected Tab
-      if (
-        selectedTabWidgetId &&
-        selectedTabWidgetId !== this.props.selectedTabWidgetId
-      ) {
-        // Select the default tab
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          selectedTabWidgetId,
-        );
-      }
-    } else if (
-      !this.props.selectedTabWidgetId &&
-      Object.keys(this.props.tabsObj || {}).length
+    // Find the default Tab object
+    const defaultTab = find(visibleTabs, {
+      label: this.props.defaultTab,
+    });
+    // Find the default Tab id
+    const defaultTabWidgetId =
+      defaultTab?.widgetId ?? visibleTabs?.[0]?.widgetId; // in case the default tab is deleted
+
+    // If we have a legitimate default tab Id and it is not already the selected Tab
+    if (
+      defaultTabWidgetId &&
+      defaultTabWidgetId !== this.props.selectedTabWidgetId
     ) {
-      // If no tab is selected
-      // Select the first tab in the tabs list.
+      // Select the default tab
       this.props.updateWidgetMetaProperty(
         "selectedTabWidgetId",
-        visibleTabs.length ? visibleTabs[0].widgetId : undefined,
+        defaultTabWidgetId,
       );
     }
+  };
+
+  componentDidMount() {
+    Object.keys(this.props.tabsObj || {}).length &&
+      this.setDefaultSelectedTabWidgetId();
   }
 }
 

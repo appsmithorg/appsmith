@@ -1,13 +1,14 @@
 export enum PERMISSION_TYPE {
-  MANAGE_ORGANIZATION = "manage:organizations",
-  CREATE_APPLICATION = "manage:orgApplications",
+  CREATE_WORKSPACE = "create:workspaces",
+  MANAGE_WORKSPACE = "manage:workspaces",
+  CREATE_APPLICATION = "manage:workspaceApplications",
   MANAGE_APPLICATION = "manage:applications",
   EXPORT_APPLICATION = "export:applications",
   READ_APPLICATION = "read:applications",
-  READ_ORGANIZATION = "read:organizations",
-  INVITE_USER_TO_ORGANIZATION = "inviteUsers:organization",
+  READ_WORKSPACE = "read:workspaces",
+  INVITE_USER_TO_WORKSPACE = "inviteUsers:workspace",
   MAKE_PUBLIC_APPLICATION = "makePublic:applications",
-  PUBLISH_APPLICATION = "publish:orgApplications",
+  PUBLISH_APPLICATION = "publish:workspaceApplications",
 }
 
 export const isPermitted = (permissions: string[], type: string) => {

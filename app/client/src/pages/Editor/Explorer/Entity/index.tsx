@@ -15,12 +15,12 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
-import { Classes, Position } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
@@ -90,11 +90,17 @@ export const EntityItem = styled.div<{
   grid-template-columns: 20px auto 1fr auto auto auto;
   grid-auto-flow: column dense;
   border-radius: 0;
-  color: ${Colors.CODE_GRAY};
+  color: ${Colors.GRAY_800};
+  font-weight: 500;
   cursor: pointer;
   align-items: center;
   &:hover {
     background: ${Colors.GREY_2};
+  }
+
+  .${Classes.COLLAPSE_BODY} & {
+    color: ${Colors.GRAY_700};
+    font-weight: 400;
   }
 
   scroll-margin-top: 36px;
@@ -288,7 +294,7 @@ export const Entity = forwardRef(
         content={props.addButtonHelptext || ""}
         disabled={!props.addButtonHelptext}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.RIGHT}
+        position="right"
       >
         <AddButton
           className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}

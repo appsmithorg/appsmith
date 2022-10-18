@@ -2,8 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { Classes, INumericInputProps, NumericInput } from "@blueprintjs/core";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { ThemeProp } from "components/ads/common";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
   &&& {
@@ -24,6 +25,9 @@ const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
       .bp3-button-group {
         .bp3-button {
           border-radius: 0;
+          &:focus {
+            border: 1px solid var(--appsmith-input-focus-border-color);
+          }
         }
       }
     }
@@ -31,9 +35,24 @@ const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
 `;
 
 class NumericInputControl extends BaseControl<NumericInputControlProps> {
+  inputElement: HTMLInputElement | null;
+
+  constructor(props: NumericInputControlProps) {
+    super(props);
+    this.inputElement = null;
+  }
+
   static getControlType() {
     return "NUMERIC_INPUT";
   }
+
+  handleKeydown = (e: React.KeyboardEvent) => {
+    if (e.key === "Tab") {
+      emitInteractionAnalyticsEvent(this.inputElement, {
+        key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+      });
+    }
+  };
 
   public render() {
     const {
@@ -48,11 +67,15 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
     return (
       <StyledNumericInput
         fill
+        inputRef={(elm) => {
+          this.inputElement = elm;
+        }}
         large
         majorStepSize={majorStepSize}
         max={max}
         min={min}
         minorStepSize={minorStepSize}
+        onKeyDown={this.handleKeydown}
         onValueChange={this.handleValueChange}
         placeholder={placeholderText}
         stepSize={stepSize}
@@ -61,9 +84,17 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
     );
   }
 
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return !isNaN(Number(value));
+  }
+
   private handleValueChange = (_v: number, value: string) => {
     // Update the propertyValue
-    this.updateProperty(this.props.propertyName, value);
+    this.updateProperty(
+      this.props.propertyName,
+      value,
+      document.activeElement === this.inputElement,
+    );
   };
 }
 

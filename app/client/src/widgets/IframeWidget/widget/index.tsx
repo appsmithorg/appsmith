@@ -6,10 +6,10 @@ import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "source",
@@ -38,6 +38,11 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
               type: ValidationTypes.TEXT,
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "title",
             helpText: "Label the content of the page to embed",
@@ -93,8 +98,13 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "borderColor",
@@ -104,6 +114,23 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
+          {
+            propertyName: "borderWidth",
+            label: "Border Width (px)",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            inputType: "NUMBER",
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, default: 1 },
+            },
           },
           {
             propertyName: "borderOpacity",
@@ -115,18 +142,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.NUMBER,
               params: { min: 0, max: 100, default: 100 },
-            },
-          },
-          {
-            propertyName: "borderWidth",
-            label: "Border Width (px)",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            inputType: "NUMBER",
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: { min: 0, default: 1 },
             },
           },
           {
@@ -159,6 +174,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       message: undefined,
+      messageMetadata: undefined,
     };
   }
 
@@ -186,8 +202,18 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     }
   };
 
-  handleMessageReceive = (event: MessageEvent) => {
-    this.props.updateWidgetMetaProperty("message", event.data, {
+  handleMessageReceive = ({
+    data,
+    lastEventId,
+    origin,
+    ports,
+  }: MessageEvent) => {
+    this.props.updateWidgetMetaProperty("messageMetadata", {
+      lastEventId,
+      origin,
+      ports,
+    });
+    this.props.updateWidgetMetaProperty("message", data, {
       triggerPropertyName: "onMessageReceived",
       dynamicString: this.props.onMessageReceived,
       event: {

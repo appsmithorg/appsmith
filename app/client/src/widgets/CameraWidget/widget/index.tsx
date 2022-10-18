@@ -16,7 +16,7 @@ import {
 } from "../constants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "General",
@@ -46,16 +46,6 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             },
           },
           {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            controlType: "SWITCH",
-            helpText: "Disables clicks to this widget",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -66,12 +56,20 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables clicks to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "isMirrored",
             label: "Mirrored",
             helpText: "Show camera preview and get the screenshot mirrored",
             controlType: "SWITCH",
-            hidden: (props: CameraWidgetProps) =>
-              props.mode === CameraModeTypes.VIDEO,
             dependencies: ["mode"],
             isJSConvertible: true,
             isBindProperty: true,
@@ -81,7 +79,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the image is captured",
@@ -97,7 +95,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           {
             helpText: "Triggers an action when the image is saved",
             propertyName: "onImageSave",
-            label: "OnImageSave",
+            label: "onImageCapture",
             controlType: "ACTION_SELECTOR",
             hidden: (props: CameraWidgetProps) =>
               props.mode === CameraModeTypes.VIDEO,
@@ -131,7 +129,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           {
             helpText: "Triggers an action when the video recording is saved",
             propertyName: "onVideoSave",
-            label: "OnVideoSave",
+            label: "onVideoSave",
             controlType: "ACTION_SELECTOR",
             hidden: (props: CameraWidgetProps) =>
               props.mode === CameraModeTypes.CAMERA,
@@ -142,8 +140,13 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "borderRadius",
@@ -244,7 +247,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
       return;
     }
-    // Set isDirty to true when an image is caputured
+    // Set isDirty to true when an image is captured
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }

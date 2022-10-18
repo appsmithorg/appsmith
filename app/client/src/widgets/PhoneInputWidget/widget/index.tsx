@@ -68,21 +68,32 @@ class PhoneInputWidget extends BaseInputWidget<
   PhoneInputWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
         {
-          sectionName: "General",
+          sectionName: "Data",
           children: [
             {
-              propertyName: "allowDialCodeChange",
-              label: "Allow country code change",
-              helpText: "Search by country",
-              controlType: "SWITCH",
-              isJSConvertible: false,
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "(000) 000-0000",
               isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.BOOLEAN },
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "string",
+                    example: `(000) 000-0000`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
             },
             {
               helpText: "Changes the country code",
@@ -101,30 +112,28 @@ class PhoneInputWidget extends BaseInputWidget<
               },
             },
             {
-              helpText:
-                "Sets the default text of the widget. The text is updated if the default text changes",
-              propertyName: "defaultText",
-              label: "Default Text",
-              controlType: "INPUT_TEXT",
-              placeholderText: "(000) 000-0000",
+              propertyName: "allowDialCodeChange",
+              label: "Allow Country Code Change",
+              helpText: "Search by country",
+              controlType: "SWITCH",
+              isJSConvertible: false,
               isBindProperty: true,
               isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: defaultValueValidation,
-                  expected: {
-                    type: "string",
-                    example: `(000) 000-0000`,
-                    autocompleteDataType: AutocompleteDataType.STRING,
-                  },
-                },
-              },
+              validation: { type: ValidationTypes.BOOLEAN },
             },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
             {
-              propertyName: "allowFormatting",
-              label: "Enable Formatting",
-              helpText: "Formats the phone number as per the country selected",
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
               controlType: "SWITCH",
               isJSConvertible: true,
               isBindProperty: true,
@@ -133,9 +142,28 @@ class PhoneInputWidget extends BaseInputWidget<
             },
           ],
         },
+        // {
+        //   sectionName: "General",
+        //   children: [
+        //     {
+        //       propertyName: "allowFormatting",
+        //       label: "Enable Formatting",
+        //       helpText: "Formats the phone number as per the country selected",
+        //       controlType: "SWITCH",
+        //       isJSConvertible: true,
+        //       isBindProperty: true,
+        //       isTriggerProperty: false,
+        //       validation: { type: ValidationTypes.BOOLEAN },
+        //     },
+        //   ],
+        // },
       ],
-      super.getPropertyPaneConfig(),
+      super.getPropertyPaneContentConfig(),
     );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return super.getPropertyPaneStyleConfig();
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

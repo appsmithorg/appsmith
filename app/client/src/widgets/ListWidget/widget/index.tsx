@@ -11,33 +11,37 @@ import {
   isBoolean,
   omit,
   isEmpty,
-  isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-// import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
-// import { ContainerWidgetProps } from "../ContainerWidget";
-import propertyPaneConfig from "./propertyConfig";
+import {
+  PropertyPaneContentConfig,
+  PropertyPaneStyleConfig,
+} from "./propertyConfig";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
-import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona/lite";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -51,11 +55,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     page: 1,
   };
 
-  /**
-   * returns the property pane config of the widget
-   */
-  static getPropertyPaneConfig() {
-    return propertyPaneConfig;
+  static getPropertyPaneContentConfig() {
+    return PropertyPaneContentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return PropertyPaneStyleConfig;
   }
 
   static getDerivedPropertiesMap() {
@@ -73,7 +78,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
     this.props.updateWidgetMetaProperty(
       "templateBottomRow",
-      get(this.props.children, "0.children.0.bottomRow"),
+      get(this.props.childWidgets, "0.children.0.bottomRow"),
     );
 
     // generate childMetaPropertyMap
@@ -253,12 +258,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     if (
-      get(this.props.children, "0.children.0.bottomRow") !==
-      get(prevProps.children, "0.children.0.bottomRow")
+      get(this.props.childWidgets, "0.children.0.bottomRow") !==
+      get(prevProps.childWidgets, "0.children.0.bottomRow")
     ) {
       this.props.updateWidgetMetaProperty(
         "templateBottomRow",
-        get(this.props.children, "0.children.0.bottomRow"),
+        get(this.props.childWidgets, "0.children.0.bottomRow"),
         {
           triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
@@ -270,7 +275,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     // Update privateWidget field if there is a change in the List widget children
-    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
+    if (!equal(currentListWidgetChildren, previousListWidgetChildren)) {
       this.addPrivateWidgetsForChildren(this.props);
     }
   }
@@ -630,11 +635,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return updatedChildren;
   };
 
+  /**
+   * We add a flag here to not fetch the widgets from the canvasWidgets
+   * in the metaHOC base on the widget id. Rather use the props as is.
+   */
+  addFlags = (children: DSLWidget[]) => {
+    return (children || []).map((childWidget) => {
+      childWidget.skipWidgetPropsHydration = true;
+
+      childWidget.children = this.addFlags(childWidget?.children || []);
+
+      return childWidget;
+    });
+  };
+
   updateGridChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
     updatedChildren = this.updatePosition(updatedChildren);
+    updatedChildren = this.addFlags(updatedChildren);
 
     return updatedChildren;
   };
@@ -674,13 +694,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   renderChildren = () => {
     if (
-      this.props.children &&
-      this.props.children.length > 0 &&
+      this.props.childWidgets &&
+      this.props.childWidgets.length > 0 &&
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.children));
+      const children = removeFalsyEntries(klona(this.props.childWidgets));
       const childCanvas = children[0];
+      const { perPage } = this.shouldPaginate();
 
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
@@ -696,6 +717,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           page,
           gridGap,
           this.props.itemBackgroundColor,
+          perPage,
         );
       } catch (e) {
         log.error(e);
@@ -718,11 +740,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       itemBackgroundColor,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      perPage,
     ) => {
       const canvasChildrenList = [];
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
+          canvasChildrenList[i] = klona(template);
         }
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
@@ -731,20 +754,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       return canvasChildren;
     },
-    (prev: any, next: any) => {
-      // not comparing canvasChildren becuase template acts as a proxy
-
-      return (
-        shallowEqual(prev[0], next[0]) &&
-        shallowEqual(prev[1], next[1]) &&
-        shallowEqual(prev[2], next[2]) &&
-        prev[3] === next[3] &&
-        prev[4] === next[4] &&
-        prev[5] === next[6] &&
-        prev[6] === next[6]
-      );
-    },
+    (prev: any, next: any) => this.compareProps(prev, next),
   );
+
+  // DeepEqual Comparison
+  compareProps = (prev: any[], next: any[]) => {
+    return (
+      equal(prev[0], next[0]) &&
+      shallowEqual(prev[1], next[1]) &&
+      equal(prev[2], next[2]) &&
+      equal(prev[3], next[3]) &&
+      prev[4] === next[4] &&
+      prev[5] === next[5] &&
+      prev[6] === next[6] &&
+      prev[7] === next[7]
+    );
+  };
 
   /**
    * 400
@@ -776,7 +801,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
-      this.props.children,
+      this.props.childWidgets,
       "0.children.0.bottomRow",
     );
     const templateHeight =
@@ -841,6 +866,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         {shouldPaginate &&
           (serverSidePaginationEnabled ? (
             <ServerSideListPagination
+              accentColor={this.props.accentColor}
+              borderRadius={this.props.borderRadius}
+              boxShadow={this.props.boxShadow}
+              disabled={false && this.props.renderMode === RenderModes.CANVAS}
               nextPageClick={() => this.onPageChange(pageNo + 1)}
               pageNo={this.props.pageNo}
               prevPageClick={() => this.onPageChange(pageNo - 1)}

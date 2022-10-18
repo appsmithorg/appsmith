@@ -1,11 +1,12 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -13,8 +14,8 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -22,6 +23,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.utils.QueryUtils;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
@@ -73,6 +75,7 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class MySqlPlugin extends BasePlugin {
 
     private static final String DATE_COLUMN_TYPE_NAME = "date";
@@ -137,7 +140,6 @@ public class MySqlPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
@@ -248,7 +250,7 @@ public class MySqlPlugin extends BasePlugin {
 
             String finalQuery = QueryUtils.removeQueryComments(query);
 
-            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(finalQuery);
+            boolean isSelectOrShowOrDescQuery = getIsSelectOrShowOrDescQuery(finalQuery);
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
@@ -276,7 +278,7 @@ public class MySqlPlugin extends BasePlugin {
 
             Mono<List<Map<String, Object>>> resultMono;
 
-            if (isSelectOrShowQuery) {
+            if (isSelectOrShowOrDescQuery) {
                 resultMono = resultFlux
                         .flatMap(result ->
                                 result.map((row, meta) -> {
@@ -314,8 +316,7 @@ public class MySqlPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
-                                "execution result");
+                        log.debug("In the MySqlPlugin, got action execution result");
                         return result;
                     })
                     .onErrorResume(error -> {
@@ -341,7 +342,7 @@ public class MySqlPlugin extends BasePlugin {
 
         }
 
-        private boolean isIsOperatorUsed(String query) {
+        boolean isIsOperatorUsed(String query) {
             String queryKeyWordsOnly = query.replaceAll(MATCH_QUOTED_WORDS_REGEX, "");
             return Arrays.stream(queryKeyWordsOnly.split("\\s"))
                     .anyMatch(word -> IS_KEY.equalsIgnoreCase(word.trim()));
@@ -360,7 +361,7 @@ public class MySqlPlugin extends BasePlugin {
                 return Flux.from(connectionStatement.execute());
             }
 
-            System.out.println("Query : " + query);
+            log.debug("Query : {}", query);
 
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
             try {
@@ -395,29 +396,35 @@ public class MySqlPlugin extends BasePlugin {
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
-            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
-
-            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value, MySQLSpecificDataTypes.pluginSpecificTypes);
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, appsmithType.type().toString());
             insertedParams.add(parameter);
 
-            if (DataType.NULL.equals(valueType)) {
-                try {
-                    connectionStatement.bindNull((index - 1), Object.class);
-                } catch (UnsupportedOperationException e) {
-                    // Do nothing. Move on
-                }
-            } else if (DataType.INTEGER.equals(valueType)) {
-                /**
-                 * - NumberFormatException is NOT expected here since stringToKnownDataTypeConverter uses parseInt
-                 * method to detect INTEGER type.
-                 */
-                connectionStatement.bind((index - 1), Integer.parseInt(value));
-            } else if (DataType.BOOLEAN.equals(valueType)) {
-                connectionStatement.bind((index - 1), Boolean.parseBoolean(value) == TRUE ? 1 : 0);
-            } else {
-                connectionStatement.bind((index - 1), value);
+            switch (appsmithType.type()) {
+                case NULL:
+                    try {
+                        connectionStatement.bindNull((index - 1), Object.class);
+                    } catch (UnsupportedOperationException e) {
+                        // Do nothing. Move on
+                    }
+                    break;
+                case BOOLEAN:
+                    connectionStatement.bind((index - 1), appsmithType.performSmartSubstitution(value));
+                    break;
+                case INTEGER:
+                    connectionStatement.bind((index - 1), Integer.parseInt(value));
+                    break;
+                case LONG:
+                    connectionStatement.bind((index - 1), Long.parseLong(value));
+                    break;
+                case DOUBLE:
+                    connectionStatement.bind((index - 1), Double.parseDouble(value));
+                    break;
+                default:
+                    connectionStatement.bind((index - 1), value);
+                    break;
             }
-
             return connectionStatement;
         }
 
@@ -475,19 +482,20 @@ public class MySqlPlugin extends BasePlugin {
 
         /**
          * 1. Check the type of sql query - i.e Select ... or Insert/Update/Drop
-         * 2. In case sql queries are chained together, then decide the type based on the last query. i.e In case of
-         * query "select * from test; updated test ..." the type of query will be based on the update statement.
+         * 2. In case sql queries are chained together, then decide the type based on the last query. i.e. In case of
+         * query "select * from test; update test ..." the type of query will be based on the update statement.
          * 3. This is used because the output returned to client is based on the type of the query. In case of a
          * select query rows are returned, whereas, in case of any other query the number of updated rows is
          * returned.
          */
-        private boolean getIsSelectOrShowQuery(String query) {
+        private boolean getIsSelectOrShowOrDescQuery(String query) {
             String[] queries = query.split(";");
 
             String lastQuery = queries[queries.length - 1].trim();
 
-            return (lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("select")
-                    || lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("show"));
+            return
+                    Arrays.asList("select", "show", "describe", "desc")
+                            .contains(lastQuery.trim().split("\\s+")[0].toLowerCase());
         }
 
         @Override
@@ -658,23 +666,6 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             return invalids;
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> Mono.from(connection.close()))
-                    .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error -> {
-                        // We always expect to have an error object, but the error object may not be well formed
-                        final String errorMessage = error.getMessage() == null
-                                ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
-                                : error.getMessage();
-                        System.out.println("Error when testing MySQL datasource. " + errorMessage);
-                        return Mono.just(new DatasourceTestResult(errorMessage));
-                    })
-                    .subscribeOn(scheduler);
-
         }
 
         /**

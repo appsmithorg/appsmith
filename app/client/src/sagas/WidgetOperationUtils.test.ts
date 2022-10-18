@@ -1,5 +1,8 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { klona } from "klona";
 import { get } from "lodash";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
@@ -20,6 +23,8 @@ import {
   getReflowedPositions,
   getWidgetsFromIds,
   getValueFromTree,
+  resizeCanvasToLowestWidget,
+  resizePublishedMainCanvasToLowestWidget,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -219,6 +224,57 @@ describe("WidgetOperationSaga", () => {
     );
     expect(get(result, "list2.dynamicBindingPathList.0.key")).toStrictEqual(
       "template.Text2.text",
+    );
+  });
+
+  it("handleSpecificCasesWhilePasting should rename dynamicTriggerPathList template keys for a copied list widget", async () => {
+    const result = handleSpecificCasesWhilePasting(
+      {
+        widgetId: "list2",
+        type: "LIST_WIDGET",
+        widgetName: "List2",
+        parentId: "0",
+        renderMode: "CANVAS",
+        parentColumnSpace: 2,
+        parentRowSpace: 3,
+        leftColumn: 2,
+        rightColumn: 3,
+        topRow: 1,
+        bottomRow: 3,
+        isLoading: false,
+        listData: [],
+        version: 16,
+        disablePropertyPane: false,
+        template: {
+          Image1: {
+            widgetId: "image1",
+            type: "Image_WIDGET",
+            widgetName: "Image1",
+            parentId: "list2",
+            renderMode: "CANVAS",
+            parentColumnSpace: 2,
+            parentRowSpace: 3,
+            leftColumn: 2,
+            rightColumn: 3,
+            topRow: 1,
+            bottomRow: 3,
+            isLoading: false,
+            listData: [],
+            version: 16,
+            disablePropertyPane: false,
+            dynamicTriggerPathList: [{ key: "onClick" }],
+          },
+        },
+        dynamicTriggerPathList: [{ key: "template.Image1.onClick" }],
+      },
+      {},
+      {
+        Image1: "Image1Copy",
+      },
+      [],
+    );
+    expect(get(result, "list2.dynamicTriggerPathList.0.key")).toStrictEqual(
+      "template.Image1Copy.onClick",
     );
   });
 
@@ -654,6 +710,7 @@ describe("WidgetOperationSaga", () => {
     ] as any) as WidgetProps[];
     expect(getBoundariesFromSelectedWidgets(selectedWidgets)).toEqual({
       totalWidth: 40,
+      totalHeight: 60,
       maxThickness: 30,
       topMostRow: 10,
       leftMostColumn: 20,
@@ -1738,6 +1795,59 @@ describe("getValueFromTree - ", () => {
       expect(
         getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
       ).toEqual(testObj.defaultValue);
+    });
+  });
+
+  describe("test resizeCanvasToLowestWidget and resizePublishedMainCanvasToLowestWidget", () => {
+    const widgets = ({
+      0: { bottomRow: 100, children: ["1", "2"], type: "CANVAS_WIDGET" },
+      1: {
+        bottomRow: 10,
+        children: ["3", "4"],
+        type: "CANVAS_WIDGET",
+        minHeight: 260,
+      },
+      2: { bottomRow: 35, children: [] },
+      3: { bottomRow: 15, children: [] },
+      4: { bottomRow: 20, children: [] },
+    } as unknown) as CanvasWidgetsReduxState;
+
+    it("should modify main container's bottomRow to minHeight of canvas when it is greater than bottomRow of lowest widget", () => {
+      const currentWidgets = klona(widgets);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "0",
+        currentWidgets["0"].bottomRow,
+        450,
+      );
+      expect(bottomRow).toEqual(450);
+    });
+
+    it("should modify main container's bottomRow to lowest bottomRow of canvas when minHeight is lesser than bottomRow of lowest widget", () => {
+      const currentWidgets = klona(widgets);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "0",
+        currentWidgets["0"].bottomRow,
+        140,
+      );
+      expect(bottomRow).toEqual(430);
+    });
+
+    it("should modify main container's bottomRow to lowest bottomRow of canvas when minHeight is lesser than bottomRow of lowest widget", () => {
+      const currentWidgets = klona(widgets);
+      const bottomRow = resizeCanvasToLowestWidget(
+        currentWidgets,
+        "1",
+        currentWidgets["1"].bottomRow,
+      );
+      expect(bottomRow).toEqual(260);
+    });
+
+    it("should trim canvas close to the lowest bottomRow of it's children widget", () => {
+      const currentWidgets = klona(widgets);
+      resizePublishedMainCanvasToLowestWidget(currentWidgets);
+      expect(currentWidgets["0"].bottomRow).toEqual(400);
     });
   });
 });

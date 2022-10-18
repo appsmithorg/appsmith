@@ -10,12 +10,9 @@ import SchemaParser, {
 } from "widgets/JSONFormWidget/schemaParser";
 import styled from "constants/DefaultTheme";
 import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
-import { Category, Size } from "components/ads/Button";
-import {
-  BaseItemProps,
-  DroppableComponent,
-} from "components/ads/DraggableListComponent";
-import { DraggableListCard } from "components/ads/DraggableListCard";
+import { Category, Size } from "design-system";
+import { BaseItemProps, DroppableComponent } from "./DraggableListComponent";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";

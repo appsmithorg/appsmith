@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";

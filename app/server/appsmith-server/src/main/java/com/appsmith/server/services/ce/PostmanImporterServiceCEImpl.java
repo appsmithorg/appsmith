@@ -6,7 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.NewPageService;
@@ -32,7 +32,7 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();

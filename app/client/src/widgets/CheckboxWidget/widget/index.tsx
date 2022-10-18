@@ -9,14 +9,14 @@ import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "Label",
         children: [
           {
             propertyName: "label",
-            label: "Label",
+            label: "Text",
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
             placeholderText: "I agree to the T&C",
@@ -59,22 +59,27 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "General",
+        sectionName: "Validations",
         children: [
           {
-            propertyName: "defaultCheckedState",
-            label: "Default Selected",
-            helpText: "Sets the default checked state of the widget",
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
+            propertyName: "defaultCheckedState",
+            label: "Default State",
+            helpText: "Sets the default checked state of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -128,12 +133,17 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -147,7 +157,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -189,7 +199,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -209,7 +219,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "accentColor",
@@ -221,6 +231,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -283,7 +298,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         onCheckChange={this.onCheckChange}
-        rowSpace={this.props.parentRowSpace}
         widgetId={this.props.widgetId}
       />
     );

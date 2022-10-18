@@ -45,10 +45,10 @@ type Center = {
   [x: string]: any;
 };
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "mapCenter",
@@ -138,36 +138,17 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
-            propertyName: "isClickedMarkerCentered",
-            label: "Map & Marker centering",
-            helpText:
-              "Controls whether the clicked marker is centered on the map",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "enableSearch",
-            label: "Enable search location",
-            helpText: "Allows a user to search for a location",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "enablePickLocation",
-            label: "Enable pick location",
-            helpText: "Allows a user to pick their location",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "enableCreateMarker",
-            label: "Create new marker",
-            helpText: "Allows users to mark locations on the map",
-            controlType: "SWITCH",
+            propertyName: "zoomLevel",
+            label: "Zoom Level",
+            controlType: "STEP",
+            helpText: "Changes the default zoom of the map",
+            stepType: "ZOOM_PERCENTAGE",
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -193,13 +174,54 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "zoomLevel",
-            label: "Zoom Level",
-            controlType: "STEP",
-            helpText: "Changes the default zoom of the map",
-            stepType: "ZOOM_PERCENTAGE",
+            propertyName: "enablePickLocation",
+            label: "Enable pick location",
+            helpText: "Allows a user to pick their location",
+            controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+          },
+          {
+            propertyName: "isClickedMarkerCentered",
+            label: "Map & Marker centering",
+            helpText:
+              "Controls whether the clicked marker is centered on the map",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enableSearch",
+            label: "Enable search location",
+            helpText: "Allows a user to search for a location",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Create Marker",
+        children: [
+          {
+            propertyName: "enableCreateMarker",
+            label: "Create new marker",
+            helpText: "Allows users to mark locations on the map",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "onCreateMarker",
+            label: "onCreateMarker",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+            hidden: (props: MapWidgetProps) => {
+              return !props.enableCreateMarker;
+            },
+            dependencies: ["enableCreateMarker"],
           },
         ],
       },
@@ -214,19 +236,15 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: true,
           },
-          {
-            propertyName: "onCreateMarker",
-            label: "onCreateMarker",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
         ],
       },
+    ];
+  }
 
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "borderRadius",
@@ -255,7 +273,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       },
     ];
   }
-
   static getDefaultPropertiesMap(): Record<string, any> {
     return {
       markers: "defaultMarkers",

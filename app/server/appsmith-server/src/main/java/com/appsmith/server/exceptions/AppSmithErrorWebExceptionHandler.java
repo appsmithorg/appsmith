@@ -4,9 +4,10 @@ import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
@@ -20,6 +21,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.result.view.ViewResolver;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -30,11 +32,11 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 @Order(-2)
 public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHandler {
     @Autowired
-    public AppSmithErrorWebExceptionHandler(ErrorAttributes errorAttributes, ResourceProperties resourceProperties,
+    public AppSmithErrorWebExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties,
                                             ServerProperties serverProperties, ApplicationContext applicationContext,
                                             ObjectProvider<ViewResolver> viewResolvers,
                                             ServerCodecConfigurer serverCodecConfigurer) {
-        super(errorAttributes, resourceProperties, serverProperties.getError(), applicationContext);
+        super(errorAttributes, webProperties.getResources(), serverProperties.getError(), applicationContext);
         this.setViewResolvers(viewResolvers.orderedStream().collect(Collectors.toList()));
         this.setMessageWriters(serverCodecConfigurer.getWriters());
         this.setMessageReaders(serverCodecConfigurer.getReaders());
@@ -45,8 +47,9 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
         return route(all(), this::render);
     }
 
+    @Nonnull
     private Mono<ServerResponse> render(ServerRequest request) {
-        Map<String, Object> error = getErrorAttributes(request, false);
+        Map<String, Object> error = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
         int errorCode = getHttpStatus(error);
 
         return ServerResponse.status(errorCode).

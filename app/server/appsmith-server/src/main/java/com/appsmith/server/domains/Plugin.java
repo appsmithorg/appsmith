@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.PluginType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -65,7 +66,7 @@ public class Plugin extends BaseDomain {
     String generateCRUDPageComponent;
 
     // Marking it as JsonIgnore because we don't want other users to be able to set this property. Only admins
-    // must be able to mark a plugin for defaultInstall on all organization creations
+    // must be able to mark a plugin for defaultInstall on all workspace creations
     @JsonIgnore
     Boolean defaultInstall;
 

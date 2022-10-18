@@ -146,10 +146,10 @@ function defaultOptionValidation(
 }
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText: "Displays a list of unique options",
@@ -198,76 +198,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
                 },
               },
             },
-          },
-          {
-            propertyName: "isInline",
-            helpText:
-              "Whether the radio buttons are to be displayed inline horizontally",
-            label: "Inline",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            helpText: "Disables input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "alignment",
-            helpText: "Sets the alignment of the widget",
-            label: "Alignment",
-            controlType: "DROP_DOWN",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "Left",
-                value: Alignment.LEFT,
-              },
-              {
-                label: "Right",
-                value: Alignment.RIGHT,
-              },
-            ],
           },
         ],
       },
@@ -343,11 +273,93 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Validations",
+        children: [
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isInline",
+            helpText:
+              "Whether the radio buttons are to be displayed inline horizontally",
+            label: "Inline",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onSelectionChange",
+            label: "onSelectionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Font Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -356,7 +368,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Font Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -398,7 +410,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Emphasis",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -415,6 +427,34 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "alignment",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            options: [
+              {
+                label: "Left",
+                value: Alignment.LEFT,
+              },
+              {
+                label: "Right",
+                value: Alignment.RIGHT,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
           {
             propertyName: "accentColor",
             helpText: "Sets the accent color of the widget",
@@ -427,23 +467,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText:
-              "Triggers an action when a user changes the selected option",
-            propertyName: "onSelectionChange",
-            label: "onSelectionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
     ];
   }
+
   static getDerivedPropertiesMap() {
     return {
       selectedOption:
@@ -515,6 +541,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
+        required={this.props.isRequired}
         selectedOptionValue={selectedOptionValue}
         widgetId={widgetId}
       />

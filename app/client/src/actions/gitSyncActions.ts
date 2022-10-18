@@ -251,8 +251,8 @@ export const showConnectGitModal = () => ({
   type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
 });
 
-export const disconnectGit = () => ({
-  type: ReduxActionTypes.DISCONNECT_GIT,
+export const revokeGit = () => ({
+  type: ReduxActionTypes.REVOKE_GIT,
 });
 
 export const setDisconnectingGitApplication = (payload: {
@@ -275,7 +275,15 @@ export const importAppFromGit = ({
 });
 
 type ErrorPayload = string;
+
+export type SSHKeyType = {
+  keySize: number;
+  platFormSupported: string;
+  protocolName: string;
+};
+
 export type GetSSHKeyResponseData = {
+  gitSupportedSSHKeyType: SSHKeyType[];
   docUrl: string;
   publicKey?: string;
 };
@@ -286,7 +294,7 @@ export type GenerateSSHKeyPairResponsePayload<T> = {
 };
 
 export type GenerateSSHKeyPairReduxAction = ReduxActionWithCallbacks<
-  undefined,
+  { keyType?: string } | undefined,
   GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
   ErrorPayload
 >;
@@ -296,21 +304,19 @@ export type GenerateKeyParams = {
   onSuccessCallback?: (
     payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
   ) => void;
-  payload?: undefined;
+  payload?: { keyType?: string };
 };
 
 export const generateSSHKeyPair = ({
   onErrorCallback,
   onSuccessCallback,
   payload,
-}: GenerateKeyParams): GenerateSSHKeyPairReduxAction => {
-  return {
-    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
-    payload,
-    onErrorCallback,
-    onSuccessCallback,
-  };
-};
+}: GenerateKeyParams): GenerateSSHKeyPairReduxAction => ({
+  type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
+  payload,
+  onErrorCallback,
+  onSuccessCallback,
+});
 
 export const generateSSHKeyPairSuccess = (
   payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,

@@ -1,6 +1,9 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
@@ -9,9 +12,7 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 
-export const getWidgets = (
-  state: AppState,
-): { [widgetId: string]: FlattenedWidgetProps } => {
+export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
 
@@ -55,14 +56,15 @@ export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
 
 export const getEditorConfigs = (
   state: AppState,
-): { pageId: string; layoutId: string } | undefined => {
+): { applicationId: string; pageId: string; layoutId: string } | undefined => {
   const pageId = state.entities.pageList.currentPageId;
   const layoutId = state.ui.editor.currentLayoutId;
-  if (!pageId || !layoutId) return undefined;
-  return { pageId, layoutId };
+  const applicationId = state.ui.applications.currentApplication?.id;
+  if (!pageId || !layoutId || !applicationId) return undefined;
+  return { pageId, layoutId, applicationId };
 };
 
-export const getDefaultPageId = (state: AppState): string | undefined =>
+export const getDefaultPageId = (state: AppState): string =>
   state.entities.pageList.defaultPageId;
 
 export const getExistingWidgetNames = createSelector(
@@ -132,7 +134,7 @@ export const getPluginIdOfPackageName = (
   name: string,
 ): string | undefined => {
   const plugins = state.entities.plugins.list;
-  const plugin = _.find(plugins, { packageName: name });
+  const plugin = plugins.find((plugin) => plugin.packageName === name);
   if (plugin) return plugin.id;
   return undefined;
 };
@@ -141,7 +143,9 @@ export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
 
-export const getSelectedWidget = (state: AppState) => {
+export const getSelectedWidget = (
+  state: AppState,
+): FlattenedWidgetProps | undefined => {
   const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];

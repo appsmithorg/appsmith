@@ -12,7 +12,12 @@ jest.mock("./evaluation.worker.ts", () => {
 describe("promise execution", () => {
   const postMessageMock = jest.fn();
   const requestId = _.uniqueId("TEST_REQUEST");
-  const dataTreeWithFunctions = createGlobalData({}, {}, true, { requestId });
+  const dataTreeWithFunctions = createGlobalData({
+    dataTree: {},
+    resolvedFunctions: {},
+    isTriggerBased: true,
+    context: { requestId },
+  });
 
   beforeEach(() => {
     self.ALLOW_ASYNC = true;
@@ -34,6 +39,7 @@ describe("promise execution", () => {
     expect(postMessageMock).toBeCalledWith({
       requestId,
       type: "PROCESS_TRIGGER",
+      promisified: true,
       responseData: expect.objectContaining({
         subRequestId: expect.stringContaining(`${requestId}_`),
         trigger: {
@@ -111,6 +117,7 @@ describe("promise execution", () => {
           method: "PROCESS_TRIGGER",
           requestId,
           success: true,
+          promisified: true,
         },
       }),
     );
@@ -148,6 +155,7 @@ describe("promise execution", () => {
           method: "PROCESS_TRIGGER",
           requestId,
           success: true,
+          promisified: true,
         },
       }),
     );
@@ -159,6 +167,7 @@ describe("promise execution", () => {
           method: "PROCESS_TRIGGER",
           requestId,
           success: false,
+          promisified: true,
         },
       }),
     );

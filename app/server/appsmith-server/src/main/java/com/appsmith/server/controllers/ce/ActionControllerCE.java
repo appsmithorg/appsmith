@@ -3,15 +3,15 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,17 +39,17 @@ import java.util.List;
 @RequestMapping(Url.ACTION_URL)
 public class ActionControllerCE {
 
-    private final ActionCollectionService actionCollectionService;
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
+    private final RefactoringSolution refactoringSolution;
 
     @Autowired
-    public ActionControllerCE(ActionCollectionService actionCollectionService,
-                              LayoutActionService layoutActionService,
-                              NewActionService newActionService) {
-        this.actionCollectionService = actionCollectionService;
+    public ActionControllerCE(LayoutActionService layoutActionService,
+                              NewActionService newActionService,
+                              RefactoringSolution refactoringSolution) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
+        this.refactoringSolution = refactoringSolution;
     }
 
     @PostMapping
@@ -90,7 +90,7 @@ public class ActionControllerCE {
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO,
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return layoutActionService.refactorActionName(refactorActionNameDTO, branchName)
+        return refactoringSolution.refactorActionName(refactorActionNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

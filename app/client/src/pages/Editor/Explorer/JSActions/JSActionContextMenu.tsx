@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import { AppState } from "reducers";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import {
   moveJSCollectionRequest,
@@ -9,8 +8,8 @@ import {
   deleteJSCollection,
 } from "actions/jsActionActions";
 import { ContextMenuPopoverModifiers } from "../helpers";
-import { noop } from "lodash";
-import { useNewJSCollectionName } from "./helpers";
+import noop from "lodash/noop";
+import { getJSEntityName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -24,6 +23,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getPageListAsOptions } from "selectors/entitiesSelector";
 
 type EntityContextMenuProps = {
   id: string;
@@ -32,9 +32,7 @@ type EntityContextMenuProps = {
   pageId: string;
 };
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
-  const nextEntityName = useNewJSCollectionName();
   const [confirmDelete, setConfirmDelete] = useState(false);
-
   const dispatch = useDispatch();
 
   const showBinding = useCallback(
@@ -52,26 +50,30 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   );
 
   const copyJSCollectionToPage = useCallback(
-    (actionId: string, actionName: string, pageId: string) =>
+    (actionId: string, actionName: string, pageId: string) => {
+      const nextEntityName = getJSEntityName();
       dispatch(
         copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
           name: nextEntityName(actionName, pageId, true),
         }),
-      ),
-    [dispatch, nextEntityName],
+      );
+    },
+    [dispatch],
   );
   const moveJSCollectionToPage = useCallback(
-    (actionId: string, actionName: string, destinationPageId: string) =>
+    (actionId: string, actionName: string, destinationPageId: string) => {
+      const nextEntityName = getJSEntityName();
       dispatch(
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
           name: nextEntityName(actionName, destinationPageId, false),
         }),
-      ),
-    [dispatch, nextEntityName, props.pageId],
+      );
+    },
+    [dispatch, props.pageId],
   );
   const deleteJSCollectionFromPage = useCallback(
     (actionId: string, actionName: string) =>
@@ -79,13 +81,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map((page) => ({
-      label: page.pageName,
-      id: page.pageId,
-      value: page.pageName,
-    }));
-  });
+  const menuPages = useSelector(getPageListAsOptions);
   const editJSCollectionName = useCallback(
     () => dispatch(initExplorerEntityNameEdit(props.id)),
     [dispatch, props.id],

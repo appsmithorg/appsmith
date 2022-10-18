@@ -6,26 +6,29 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import EditableText, {
+import {
+  EditableText,
   EditInteractionKind,
   SavingState,
-} from "components/ads/EditableText";
-import { Position } from "@blueprintjs/core";
+  TooltipComponent,
+} from "design-system";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import { WidgetType } from "constants/WidgetConstants";
 
-import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -37,7 +40,7 @@ type PropertyPaneTitleProps = {
   actions: Array<{
     tooltipContent: any;
     icon: ReactElement;
-    tooltipPosition?: Position;
+    tooltipPosition?: PopoverPosition;
   }>;
 };
 
@@ -57,9 +60,14 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   );
   const guidedTourEnabled = useSelector(inGuidedTour);
 
+  const {
+    dispatchInteractionAnalyticsEvent,
+    eventEmitterRef,
+  } = useInteractionAnalyticsEvent<HTMLDivElement>();
+
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
-  const widgets = useSelector(getExistingWidgetNames, isEqual);
+  const widgets = useSelector(getExistingWidgetNames, equal);
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
   const valueRef = useRef("");
@@ -122,20 +130,30 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       containerRef.current?.focus();
     } else {
       // Checks if the property pane opened not because of focusing an input inside a widget
-      if (
-        document.activeElement &&
-        ["input", "textarea"].indexOf(
-          document.activeElement?.tagName?.toLowerCase(),
-        ) === -1
-      )
-        setTimeout(() =>
-          document
-            .querySelector(
-              '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-            )
-            // @ts-expect-error: Focus
-            ?.focus(),
-        );
+      setTimeout(
+        () => {
+          if (
+            document.activeElement &&
+            !document.activeElement?.closest(".t--property-control-wrapper") &&
+            shouldFocusOnPropertyControl()
+          )
+            if (false) {
+              // TODO(aswathkk): Fix #15970 and focus on search bar
+              document
+                .querySelector(".propertyPaneSearch input")
+                // @ts-expect-error: Focus
+                ?.focus();
+            } else {
+              // document
+              //   .querySelector(
+              //     '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+              //   )
+              //   // @ts-expect-error: Focus
+              //   ?.focus();
+            }
+        },
+        200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
+      );
     }
 
     return () => {
@@ -170,8 +188,21 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  function handleTabKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Tab")
+      dispatchInteractionAnalyticsEvent({
+        key: e.key,
+        propertyType: "LABEL",
+        propertyName: "widgetName",
+        widgetType: props.widgetType,
+      });
+  }
+
   return props.widgetId || props.isPanelTitle ? (
-    <div className="flex items-center w-full px-3 space-x-1 z-3">
+    <div
+      className="flex items-center w-full px-4 py-3 space-x-1 fixed bg-white z-3"
+      ref={eventEmitterRef}
+    >
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
         <button
@@ -182,7 +213,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         </button>
       )}
       {/* EDITABLE TEXT */}
-      <div className="flex-grow" style={{ maxWidth: `calc(100% - 52px)` }}>
+      <div
+        className="flex-grow"
+        onKeyDown={handleTabKeyDown}
+        style={{ maxWidth: `calc(100% - 52px)` }}
+      >
         <EditableText
           className="flex-grow text-lg font-semibold t--property-pane-title"
           defaultValue={name}

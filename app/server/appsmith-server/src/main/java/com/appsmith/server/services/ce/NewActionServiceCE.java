@@ -5,7 +5,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
@@ -100,4 +100,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 
     public Mono<NewAction> sanitizeAction(NewAction action);
+
+    Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
+
+    Map<String, Object> getAnalyticsProperties(NewAction savedAction);
 }
