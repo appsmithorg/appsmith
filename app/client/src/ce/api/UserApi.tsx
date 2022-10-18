@@ -205,7 +205,11 @@ export class UserApi extends Api {
   static saveAdminSettings(
     request: Record<string, string>,
   ): AxiosPromise<ApiResponse> {
-    return Api.put(UserApi.adminSettingsURL, request);
+    return Api.put(UserApi.adminSettingsURL, request, null, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   }
 
   static restartServer(): AxiosPromise<ApiResponse> {
