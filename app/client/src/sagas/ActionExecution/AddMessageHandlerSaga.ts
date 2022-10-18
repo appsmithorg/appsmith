@@ -54,12 +54,18 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
 }
 
 function isValidDomain(domain: string): boolean {
+  const regex1 = new RegExp("/(.+?)[.]manabie.com$");
+  const regex2 = new RegExp("/(.+?)[.]web.app$");
+  const regex3 = new RegExp("/(.+?)[.]manabie.io$");
   if (
-    domain == "http://localhost:3001" ||
-    domain.indexOf("manabie.net") > -1 ||
-    domain.indexOf("web.app") > -1 ||
-    domain.indexOf("manabie.io") > -1
+    (window.location.origin == "http://localhost" ||
+      regex3.test(window.location.origin)) &&
+    domain.indexOf("localhost") > -1
   ) {
+    return true;
+  }
+
+  if (regex1.test(domain) || regex2.test(domain) || regex3.test(domain)) {
     return true;
   }
   return false;

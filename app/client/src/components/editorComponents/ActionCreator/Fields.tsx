@@ -118,8 +118,7 @@ const fieldConfigs: FieldConfigs = {
           defaultParams = `"",true`;
           break;
         case AppsmithFunction.addMessageHandler:
-          defaultParams =
-            "() => { \n\t // add code here \n}, https://dev.appsmith.com";
+          defaultParams = "() => { \n\t // add code here \n}";
           break;
         default:
           break;
