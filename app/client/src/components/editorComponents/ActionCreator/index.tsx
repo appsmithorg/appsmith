@@ -24,7 +24,7 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import FieldGroup from "./FieldGroup/FieldGroup";
+import FieldGroup from "./FieldGroup";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
