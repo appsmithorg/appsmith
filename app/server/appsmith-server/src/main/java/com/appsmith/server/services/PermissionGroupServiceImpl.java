@@ -334,4 +334,17 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     }
 
+    public Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup resource) {
+        return repository.findById(id, MANAGE_PERMISSION_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update permission group")))
+                .flatMap(permissionGroup -> {
+                    // The update API is only supposed to update the NAME and DESCRIPTION of the Permission Group.
+                    // ANY OTHER FIELD SHOULD NOT BE UPDATED USING THIS FUNCTION.
+                    permissionGroup.setName(resource.getName());
+                    permissionGroup.setDescription(resource.getDescription());
+                    return super.update(id, permissionGroup);
+                })
+                .map(savedPermissionGroup -> modelMapper.map(savedPermissionGroup, PermissionGroupInfoDTO.class));
+    }
+
 }

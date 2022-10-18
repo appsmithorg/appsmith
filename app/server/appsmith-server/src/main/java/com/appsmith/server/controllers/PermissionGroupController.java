@@ -74,4 +74,10 @@ public class PermissionGroupController {
         return service.changeRoleAssociations(updateRoleAssociationDTO)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
+
+    @PutMapping("/{id}")
+    public Mono<ResponseDTO<PermissionGroupInfoDTO>> updatePermissionGroup(@PathVariable String id, PermissionGroup resource) {
+        return service.updatePermissionGroup(id, resource)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
 }

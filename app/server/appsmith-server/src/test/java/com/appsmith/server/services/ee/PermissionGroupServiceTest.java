@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ee;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -13,6 +14,7 @@ import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
@@ -71,6 +73,9 @@ public class PermissionGroupServiceTest {
 
     @Autowired
     UserGroupService userGroupService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     User api_user = null;
 
@@ -603,6 +608,63 @@ public class PermissionGroupServiceTest {
                     assertThat(permissionGroup1.getAssignedToGroupIds()).contains(createdGroup2.getId());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updatePermissionGroupAsSuperAdmin() {
+        String mockName = "mock-permission-group-name-1";
+        String mockDescription = "mock-permission-group-description-1";
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName(mockName);
+        permissionGroup.setDescription(mockDescription);
+
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup)
+                .flatMap(createdGroup -> permissionGroupRepository.findById(createdGroup.getId(), MANAGE_PERMISSION_GROUPS))
+                .block();
+
+        String updatedName = "mock-permission-group-name-2";
+        String updatedDescription = "mock-permission-group-description-2";
+        PermissionGroup permissionGroupUpdate = new PermissionGroup();
+        permissionGroupUpdate.setName(updatedName);
+        permissionGroupUpdate.setDescription(updatedDescription);
+
+        Mono<PermissionGroupInfoDTO> permissionGroupInfoDTOMono = permissionGroupService
+                .updatePermissionGroup(createdPermissionGroup.getId(), permissionGroupUpdate);
+
+        StepVerifier.create(permissionGroupInfoDTOMono)
+                .assertNext(updatedPermissionGroupInfoDTO -> {
+                    assertThat(updatedPermissionGroupInfoDTO.getId()).isEqualTo(createdPermissionGroup.getId());
+                    assertThat(updatedPermissionGroupInfoDTO.getName()).isEqualTo(permissionGroupUpdate.getName());
+                    assertThat(updatedPermissionGroupInfoDTO.getDescription()).isEqualTo(permissionGroupUpdate.getDescription());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("usertest@usertest.com")
+    public void updatePermissionGroupAsNonAdminUser() {
+        String mockName = "mock-permission-group-name-1";
+        String mockDescription = "mock-permission-group-description-1";
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName(mockName);
+        permissionGroup.setDescription(mockDescription);
+
+        PermissionGroup createdPermissionGroup = permissionGroupRepository.save(permissionGroup).block();
+
+        String updatedName = "mock-permission-group-name-2";
+        String updatedDescription = "mock-permission-group-description-2";
+        PermissionGroup permissionGroupUpdate = new PermissionGroup();
+        permissionGroupUpdate.setName(updatedName);
+        permissionGroupUpdate.setDescription(updatedDescription);
+
+        Mono<PermissionGroupInfoDTO> updatedPermissionGroupInfoDTOMono = permissionGroupService.updatePermissionGroup(createdPermissionGroup.getId(), permissionGroupUpdate);
+
+        StepVerifier.create(updatedPermissionGroupInfoDTOMono)
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException &&
+                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update permission group")))
+                .verify();
     }
 
 }
