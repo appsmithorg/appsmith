@@ -1,6 +1,6 @@
 import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { createGlobalData } from "./evaluate";
+import { createGlobalData } from "./Evaluation/evaluate";
 import "./TimeoutOverride";
 import overrideTimeout from "./TimeoutOverride";
 

@@ -158,7 +158,6 @@ function* startEvaluationProcess(
     unevalTree,
     widgetTypeConfigMap,
   };
-  const appMode: APP_MODE = yield select(getAppMode);
   log.debug({ unevalTree });
   const {
     evalOrder,
@@ -183,14 +182,13 @@ function* startEvaluationProcess(
     unevalTree,
     uncaughtError,
   });
-  if (appMode === APP_MODE.EDIT) {
-    // Linting
-    yield fork(lintTreeSaga, {
-      pathsToLint: lintOrder,
-      jsUpdates,
-      unevalTree,
-    });
-  }
+
+  // Linting
+  yield fork(lintTreeSaga, {
+    pathsToLint: lintOrder,
+    jsUpdates,
+    unevalTree,
+  });
 }
 
 function* evaluateTreeSaga(arg: {

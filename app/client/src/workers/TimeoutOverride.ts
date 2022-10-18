@@ -1,5 +1,5 @@
-import { createGlobalData } from "./evaluate";
-import { dataTreeEvaluator } from "./evaluation.worker";
+import { createGlobalData } from "./Evaluation/evaluate";
+import { dataTreeEvaluator } from "./Evaluation/evaluation.worker";
 
 export const _internalSetTimeout = self.setTimeout;
 export const _internalClearTimeout = self.clearTimeout;

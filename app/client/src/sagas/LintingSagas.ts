@@ -1,6 +1,8 @@
 import { setLintingErrors } from "actions/lintingActions";
+import { APP_MODE } from "entities/App";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { call, put } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
+import { getAppMode } from "selectors/entitiesSelector";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
@@ -27,6 +29,8 @@ export function* lintTreeSaga({
   jsUpdates: Record<string, JSUpdate>;
   unevalTree: DataTree;
 }) {
+  const appMode: APP_MODE = yield select(getAppMode);
+  if (appMode !== APP_MODE.EDIT) return;
   const updatedUnevalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
     jsUpdates,
     unevalTree,

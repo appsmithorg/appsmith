@@ -1,4 +1,7 @@
-import { createMessage, JS_OBJECT_BODY_INVALID } from "ce/constants/messages";
+import {
+  createMessage,
+  JS_OBJECT_BODY_INVALID,
+} from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
