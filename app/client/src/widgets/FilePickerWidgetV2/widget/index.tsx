@@ -568,6 +568,7 @@ class FilePickerWidget extends BaseWidget<
         showLinkToFileUploadResult: true,
         showProgressDetails: false,
         hideUploadButton: false,
+        hideCancelButton: true,
         hideProgressAfterFinish: false,
         note: null,
         closeAfterFinish: true,
