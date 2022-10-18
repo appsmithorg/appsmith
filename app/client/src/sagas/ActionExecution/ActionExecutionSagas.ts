@@ -49,6 +49,7 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { addMessageHandlerSaga } from "./AddMessageHandlerSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -141,6 +142,14 @@ export function* executeActionTriggers(
       if (!flag) {
         throw new UserCancelledActionExecutionError();
       }
+      break;
+    case ActionTriggerType.ADD_MESSAGE_HANDLER:
+      yield call(
+        addMessageHandlerSaga,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
       break;
     default:
       log.error("Trigger type unknown", trigger);

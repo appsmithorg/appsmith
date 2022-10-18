@@ -399,6 +399,7 @@ export const CLEAR_INTERVAL = () => `Clear interval`;
 export const GET_GEO_LOCATION = () => `Get geolocation`;
 export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
 export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
+export const ADD_MESSAGE_HANDLER = () => `Add message handler`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>

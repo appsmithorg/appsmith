@@ -49,6 +49,7 @@ import {
   STOP_WATCH_GEO_LOCATION,
   STORE_VALUE,
   WATCH_GEO_LOCATION,
+  ADD_MESSAGE_HANDLER,
 } from "@appsmith/constants/messages";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
@@ -125,6 +126,10 @@ const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
     value: AppsmithFunction.stopWatchGeolocation,
+  },
+  {
+    label: createMessage(ADD_MESSAGE_HANDLER),
+    value: AppsmithFunction.addMessageHandler,
   },
 ];
 
@@ -384,6 +389,12 @@ function getFieldFromValue(
   }
 
   if (value.indexOf("getCurrentPosition") !== -1) {
+    fields.push({
+      field: FieldType.CALLBACK_FUNCTION_FIELD,
+    });
+  }
+
+  if (value.indexOf("addMessageHandler") !== -1) {
     fields.push({
       field: FieldType.CALLBACK_FUNCTION_FIELD,
     });

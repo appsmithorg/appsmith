@@ -9,6 +9,7 @@ export const APPSMITH_GLOBAL_FUNCTIONS = {
   resetWidget: "resetWidget",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
+  addMessageHandler: "addMessageHandler",
 };
 
 export const APPSMITH_NAMESPACED_FUNCTIONS = {
