@@ -90,8 +90,8 @@ export enum FocusElement {
   PropertySections = "PropertySections",
   PropertyTabs = "PropertyTabs",
   PropertyPanelContext = "PropertyPanelContext",
-  SelectedPropertyPanel = "SelectedPropertyPanel",
   PropertyPaneWidth = "PropertyPaneWidth",
+  SelectedPropertyPanel = "SelectedPropertyPanel",
   SelectedWidgets = "SelectedWidgets",
   WidgetMeta = "WidgetMeta",
 }

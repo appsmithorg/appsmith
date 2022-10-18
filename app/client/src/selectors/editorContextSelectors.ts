@@ -7,6 +7,8 @@ import {
   SelectedPropertyPanel,
 } from "reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 export const getFocusableField = (state: AppState) =>
   state.ui.editorContext.focusableField;
@@ -66,6 +68,28 @@ export const getSelectedPropertyTabIndex = createSelector(
     )
       return propertyPanelContext.selectedPropertyTabIndex;
     return selectedPropertyTabIndex;
+  },
+);
+
+export const getIsCodeEditorFocused = createSelector(
+  [
+    getFocusableField,
+    getPanelPropertyContext,
+    selectFeatureFlags,
+    (_state: AppState, key: string | undefined) => key,
+  ],
+  (
+    focusableField: string | undefined,
+    propertyPanelContext: PropertyPanelContext | undefined,
+    featureFlags: FeatureFlags,
+    key: string | undefined,
+  ): boolean => {
+    if (featureFlags.CONTEXT_SWITCHING) {
+      if (propertyPanelContext?.focusableField)
+        return !!(key && propertyPanelContext.focusableField === key);
+      return !!(key && focusableField === key);
+    }
+    return false;
   },
 );
 

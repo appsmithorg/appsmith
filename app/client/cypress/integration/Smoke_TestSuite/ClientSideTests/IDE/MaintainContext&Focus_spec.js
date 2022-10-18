@@ -77,7 +77,7 @@ describe("MaintainContext&Focus", function() {
     cy.wait("@saveAction");
   });
   it("Check for focus on entities", () => {
-    cy.SearchEntityandOpen("Page1");
+    cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
     cy.assertCursorOnCodeInput(".t--property-control-text");
