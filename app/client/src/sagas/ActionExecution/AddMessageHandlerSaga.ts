@@ -57,6 +57,7 @@ function isValidDomain(domain: string): boolean {
   const regex1 = new RegExp("/(.+?)[.]manabie.com$");
   const regex2 = new RegExp("/(.+?)[.]web.app$");
   const regex3 = new RegExp("/(.+?)[.]manabie.io$");
+  const regex4 = new RegExp("/(.+?)[.]manabie.net$");
   if (
     (window.location.origin == "http://localhost" ||
       regex3.test(window.location.origin)) &&
@@ -65,7 +66,12 @@ function isValidDomain(domain: string): boolean {
     return true;
   }
 
-  if (regex1.test(domain) || regex2.test(domain) || regex3.test(domain)) {
+  if (
+    regex1.test(domain) ||
+    regex2.test(domain) ||
+    regex3.test(domain) ||
+    regex4.test(domain)
+  ) {
     return true;
   }
   return false;
