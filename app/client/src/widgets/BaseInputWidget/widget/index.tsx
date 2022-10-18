@@ -343,7 +343,7 @@ class BaseInputWidget<
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
