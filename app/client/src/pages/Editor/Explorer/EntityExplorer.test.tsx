@@ -14,6 +14,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import * as helpers from "./helpers";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -39,7 +40,11 @@ describe("Entity Explorer tests", () => {
     );
   });
 
-  it.skip("checks datasources section in explorer", () => {
+  it("checks datasources section in explorer", () => {
+    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
+    mockExplorerState.mockImplementationOnce(
+      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
+    );
     store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
