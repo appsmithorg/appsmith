@@ -107,6 +107,7 @@ import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
 import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import {
   EntityNavigationData,
   getEntitiesForNavigation,
