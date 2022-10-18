@@ -664,7 +664,13 @@ export interface DynamicnHeightEnabledComponentProps {
  * A utility function to check whether a widget has dynamic height enabled?
  * @param props
  */
-export const isDynamicHeightEnabledForWidget = (props: WidgetProps) => {
+export const isDynamicHeightEnabledForWidget = (
+  props: WidgetProps,
+  withLimits = false,
+) => {
+  if (withLimits) {
+    return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+  }
   return (
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS

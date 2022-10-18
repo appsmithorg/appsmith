@@ -35,6 +35,9 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import WidgetFactory, {
+  NonSerialisableWidgetConfigs,
+} from "utils/WidgetFactory";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -210,13 +213,17 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getCanvasHeightOffset = (
-  state: AppState,
   widgetType: WidgetType,
   props: WidgetProps,
 ) => {
-  const config = state.entities.widgetConfig.config[widgetType];
+  const config:
+    | Record<NonSerialisableWidgetConfigs, unknown>
+    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
   let offset = 0;
-  if (config.canvasHeightOffset) offset = config.canvasHeightOffset(props);
+  if (config?.canvasHeightOffset)
+    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
+      props,
+    );
   return offset;
 };
 
