@@ -31,7 +31,7 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 

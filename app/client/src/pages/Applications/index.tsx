@@ -36,7 +36,10 @@ import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
@@ -401,7 +404,7 @@ function LeftPane() {
   const tenantPermissions = useSelector(getTenantPermissions);
   const canCreateWorkspace = isPermitted(
     tenantPermissions,
-    PERMISSION_TYPE.CREATE_WORKSPACES,
+    PERMISSION_TYPE.CREATE_WORKSPACE,
   );
 
   const location = useLocation();

@@ -14,7 +14,7 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 
 const ConnectedText = styled.div`

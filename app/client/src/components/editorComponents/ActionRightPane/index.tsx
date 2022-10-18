@@ -44,7 +44,7 @@ import { builderURL } from "RouteBuilder";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px

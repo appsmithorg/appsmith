@@ -16,7 +16,7 @@ import { useLocation } from "react-router";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;

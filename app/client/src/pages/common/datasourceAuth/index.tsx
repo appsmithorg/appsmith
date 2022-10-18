@@ -47,7 +47,7 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { Button, Category } from "design-system";
 
 interface Props {

@@ -66,7 +66,7 @@ import { getPlugin } from "selectors/entitiesSelector";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";

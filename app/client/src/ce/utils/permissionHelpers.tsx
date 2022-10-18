@@ -22,7 +22,6 @@ export enum PERMISSION_TYPE {
   DELETE_ACTIONS = "delete:actions",
   EXECUTE_ACTIONS = "execute:actions",
   EXECUTE_WORKSPACE_DATASOURCES = "execute:workspaceDatasources",
-  CREATE_WORKSPACES = "create:workspaces",
 }
 
 export enum LOGIC_FILTER {
