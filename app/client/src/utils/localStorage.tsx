@@ -1,5 +1,5 @@
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import * as log from "loglevel";
 import {
   LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE,

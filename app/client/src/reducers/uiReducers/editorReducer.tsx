@@ -32,6 +32,7 @@ const initialState: EditorReduxState = {
     updateWidgetNameError: false,
   },
   isSnipingMode: false,
+  snipModeBindTo: undefined,
   isPreviewMode: false,
   zoomLevel: 1,
 };
@@ -184,11 +185,12 @@ const editorReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_SNIPING_MODE]: (
     state: EditorReduxState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<{ isActive: boolean; bindTo?: string }>,
   ) => {
     return {
       ...state,
-      isSnipingMode: action.payload,
+      isSnipingMode: action.payload.isActive,
+      snipModeBindTo: action.payload.bindTo,
     };
   },
   [ReduxActionTypes.SET_PREVIEW_MODE]: (
@@ -226,6 +228,7 @@ export interface EditorReduxState {
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
   isSnipingMode: boolean;
+  snipModeBindTo?: string;
   isPreviewMode: boolean;
   zoomLevel: number;
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];

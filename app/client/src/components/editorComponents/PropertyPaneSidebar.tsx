@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useRef, useMemo } from "react";
 
 import PerformanceTracker, {
@@ -9,7 +9,10 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
@@ -20,6 +23,7 @@ import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors"
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
+import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
 
 type Props = {
   width: number;
@@ -28,6 +32,8 @@ type Props = {
 };
 
 export const PropertyPaneSidebar = memo((props: Props) => {
+  const dispatch = useDispatch();
+
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
 
@@ -47,6 +53,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget Id,
@@ -71,6 +78,13 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
+
+  useEffect(() => {
+    if (!isSnipingMode) {
+      //update url hash with the selectedWidget
+      dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
+    }
+  }, [selectedWidgetIds]);
 
   /**
    * renders the property pane:

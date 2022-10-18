@@ -19,7 +19,7 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
@@ -44,13 +44,14 @@ import {
   createMessage,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
+  INVALID_URL,
 } from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import Callout from "components/ads/Callout";
+import { Callout } from "design-system";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "actions/pageActions";
@@ -332,6 +333,22 @@ class DatasourceRestAPIEditor extends React.Component<
     );
   };
 
+  urlValidator = (value: string) => {
+    const validationRegex = "^(http|https)://";
+    if (value) {
+      const regex = new RegExp(validationRegex);
+
+      return regex.test(value)
+        ? { isValid: true, message: "" }
+        : {
+            isValid: false,
+            message: createMessage(INVALID_URL),
+          };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
   render = () => {
     return (
       <>
@@ -440,6 +457,7 @@ class DatasourceRestAPIEditor extends React.Component<
             "TEXT",
             false,
             true,
+            this.urlValidator,
           )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("headers")}>
@@ -785,6 +803,7 @@ class DatasourceRestAPIEditor extends React.Component<
             "TEXT",
             false,
             false,
+            this.urlValidator,
           )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("authentication.clientId")}>
@@ -1030,6 +1049,7 @@ class DatasourceRestAPIEditor extends React.Component<
     dataType: "TEXT" | "PASSWORD" | "NUMBER",
     encrypted: boolean,
     isRequired: boolean,
+    fieldValidator?: (value: string) => { isValid: boolean; message: string },
   ) {
     return (
       <FormControl
@@ -1045,6 +1065,7 @@ class DatasourceRestAPIEditor extends React.Component<
           conditionals: {},
           placeholderText: placeholderText,
           formName: DATASOURCE_REST_API_FORM,
+          validator: fieldValidator,
         }}
         formName={DATASOURCE_REST_API_FORM}
         multipleConfig={[]}

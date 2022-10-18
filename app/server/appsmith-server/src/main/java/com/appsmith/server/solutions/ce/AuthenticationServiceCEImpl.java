@@ -255,7 +255,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 }
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
-                                return datasourceService.update(datasource.getId(), datasource, Boolean.TRUE);
+                                return datasourceService.update(datasource.getId(), datasource);
                             });
                 })
                 // We have no use of the datasource object during redirection, we merely send the response as a success state
@@ -367,7 +367,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         .getDatasourceConfiguration()
                                         .getAuthentication()
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS);
-                                return datasourceService.update(datasource.getId(), datasource, Boolean.TRUE).thenReturn(appsmithToken);
+                                return datasourceService.update(datasource.getId(), datasource).thenReturn(appsmithToken);
                             })
                             .onErrorMap(ConnectException.class,
                                     error -> new AppsmithException(
@@ -432,7 +432,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 return Mono.just(datasource);
                             });
                 })
-                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource, Boolean.TRUE))
+                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource))
                 .onErrorMap(ConnectException.class,
                         error -> new AppsmithException(
                                 AppsmithError.AUTHENTICATION_FAILURE,
@@ -479,7 +479,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 // We return the same object instead of the update value because the updates value
                                 // will be in the encrypted form
                                 return datasourceService
-                                        .update(datasource.getId(), datasource, Boolean.TRUE)
+                                        .update(datasource.getId(), datasource)
                                         .thenReturn(datasource);
                             });
                 })
