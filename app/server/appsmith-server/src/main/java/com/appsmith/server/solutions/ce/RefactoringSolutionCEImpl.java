@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
@@ -33,13 +34,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -49,7 +53,6 @@ import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
-
     private final ObjectMapper objectMapper;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
@@ -61,13 +64,16 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final InstanceConfig instanceConfig;
     private final Boolean isRtsAccessible;
 
+    private static final Pattern actionCollectionBodyPattern = Pattern.compile("export default(.*)", Pattern.DOTALL);
+    private static final String EXPORT_DEFAULT_STRING = "export default";
+
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
      * `\\b(fetchUsers)\\b`. To achieve this the following strings preWord and postWord are declared here to be used
      * at run time to create the regex pattern.
      */
-    private final String preWord = "\\b(";
-    private final String postWord = ")\\b";
+    private static final String preWord = "\\b(";
+    private static final String postWord = ")\\b";
 
     public RefactoringSolutionCEImpl(ObjectMapper objectMapper,
                                      NewPageService newPageService,
@@ -110,7 +116,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     @Override
     public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
+        if (!StringUtils.hasLength(branchName)) {
             return refactorWidgetName(refactorNameDTO);
         }
 
@@ -127,13 +133,13 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         String pageId = refactorActionNameDTO.getPageId();
         String layoutId = refactorActionNameDTO.getLayoutId();
         String oldName = refactorActionNameDTO.getOldName();
-        final String oldFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
-                oldName :
-                refactorActionNameDTO.getCollectionName() + "." + oldName;
+        final String oldFullyQualifiedName = StringUtils.hasLength(refactorActionNameDTO.getCollectionName()) ?
+                refactorActionNameDTO.getCollectionName() + "." + oldName :
+                oldName;
         String newName = refactorActionNameDTO.getNewName();
-        final String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
-                newName :
-                refactorActionNameDTO.getCollectionName() + "." + newName;
+        final String newFullyQualifiedName = StringUtils.hasLength(refactorActionNameDTO.getCollectionName()) ?
+                refactorActionNameDTO.getCollectionName() + "." + newName :
+                newName;
         String actionId = refactorActionNameDTO.getActionId();
         return Mono.just(newActionService.validateActionName(newName))
                 .flatMap(isValidName -> {
@@ -151,7 +157,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 })
                 .flatMap(action -> {
                     action.setName(newName);
-                    if (!StringUtils.isEmpty(refactorActionNameDTO.getCollectionName())) {
+                    if (StringUtils.hasLength(refactorActionNameDTO.getCollectionName())) {
                         action.setFullyQualifiedName(newFullyQualifiedName);
                     }
                     return newActionService.updateUnpublishedAction(actionId, action);
@@ -177,11 +183,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
      * <p>
      * At this point, the user must have MANAGE_PAGES and MANAGE_ACTIONS permissions for page and action respectively
      *
-     * @param pageId
-     * @param layoutId
-     * @param oldName
-     * @param newName
-     * @return
+     * @param pageId   : The page that this entity belongs to
+     * @param layoutId : The layout to parse through for replacement
+     * @param oldName  : The original name to look for
+     * @param newName  : The new name to refactor all references to
+     * @return : The DSL after refactor updates
      */
     @Override
     public Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName) {
@@ -243,62 +249,75 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
         Mono<Set<String>> updateActionsMono = newActionService
                 .findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
+                .flatMap(newAction -> Mono.just(newAction).zipWith(evalVersionMono))
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
                  * to look for replacement pattern.
                  */
-                .flatMap(newAction1 -> {
-                    final NewAction newAction = newAction1;
+                .flatMap(tuple -> {
+                    final NewAction newAction = tuple.getT1();
+                    final Integer evalVersion = tuple.getT2();
                     // We need actionDTO to be populated with pluginType from NewAction
                     // so that we can check for the JS path
                     Mono<ActionDTO> actionMono = newActionService.generateActionByViewMode(newAction, false);
                     return actionMono.flatMap(action -> {
-                        newAction.setUnpublishedAction(action);
-                        boolean actionUpdateRequired = false;
-                        ActionConfiguration actionConfiguration = action.getActionConfiguration();
-                        Set<String> jsonPathKeys = action.getJsonPathKeys();
-
-                        if (jsonPathKeys != null && !jsonPathKeys.isEmpty()) {
-                            // Since json path keys actually contain the entire inline js function instead of just the widget/action
-                            // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
-                            // in the set and see if the old name is a substring of the json path key.
-                            for (String key : jsonPathKeys) {
-                                if (oldNamePattern.matcher(key).find()) {
-                                    actionUpdateRequired = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!actionUpdateRequired || actionConfiguration == null) {
+                        if (action.getActionConfiguration() == null) {
                             return Mono.just(newAction);
                         }
-                        // if actionUpdateRequired is true AND actionConfiguration is not null
-                        if (action.getCollectionId() != null) {
+                        // If this is a JS function rename, add this collection for rename
+                        // because the action configuration won't tell us this
+                        if (StringUtils.hasLength(action.getCollectionId()) && newName.equals(action.getValidName())) {
                             updatableCollectionIds.add(action.getCollectionId());
                         }
-                        final JsonNode actionConfigurationNode = objectMapper.convertValue(actionConfiguration, JsonNode.class);
-                        final JsonNode actionConfigurationNodeAfterReplacement = replaceStringInJsonNode(actionConfigurationNode, oldNamePattern, newName);
-
-                        ActionConfiguration newActionConfiguration = objectMapper.convertValue(actionConfigurationNodeAfterReplacement, ActionConfiguration.class);
-                        action.setActionConfiguration(newActionConfiguration);
-                        NewAction newAction2 = newActionService.extractAndSetJsonPathKeys(newAction);
-                        return newActionService.save(newAction2);
+                        newAction.setUnpublishedAction(action);
+                        return this.refactorNameInAction(action, oldName, newName, evalVersion, oldNamePattern)
+                                .flatMap(updates -> {
+                                    if (updates.isEmpty()) {
+                                        return Mono.just(newAction);
+                                    }
+                                    if (StringUtils.hasLength(action.getCollectionId())) {
+                                        updatableCollectionIds.add(action.getCollectionId());
+                                    }
+                                    return newActionService.save(newAction);
+                                });
                     });
 
                 })
                 .map(savedAction -> savedAction.getUnpublishedAction().getName())
                 .collect(toSet())
-                .flatMap(updatedActions -> {
+                .zipWith(evalVersionMono)
+                .flatMap(tuple -> {
+                    Set<String> updatedActions = tuple.getT1();
+                    Integer evalVersion = tuple.getT2();
                     // If these actions belonged to collections, update the collection body
                     return Flux.fromIterable(updatableCollectionIds)
                             .flatMap(collectionId -> actionCollectionService.findById(collectionId, MANAGE_ACTIONS))
                             .flatMap(actionCollection -> {
                                 final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-                                Matcher matcher = oldNamePattern.matcher(unpublishedCollection.getBody());
-                                String newBodyAsString = matcher.replaceAll(newName);
-                                unpublishedCollection.setBody(newBodyAsString);
-                                return actionCollectionService.save(actionCollection);
+
+                                Matcher matcher = actionCollectionBodyPattern.matcher(unpublishedCollection.getBody());
+                                if (matcher.find()) {
+                                    String parsableBody = matcher.group(1);
+                                    return this.replaceValueInMustacheKeys(
+                                                    new HashSet<>(Collections.singletonList(parsableBody)),
+                                                    oldName,
+                                                    newName,
+                                                    evalVersion,
+                                                    oldNamePattern)
+                                            .flatMap(replacedMap -> {
+                                                Optional<String> replacedValue = replacedMap.values().stream().findFirst();
+                                                // This value should always be there
+                                                if (replacedValue.isPresent()) {
+                                                    final String replacedBody = EXPORT_DEFAULT_STRING + replacedValue.get();
+                                                    unpublishedCollection.setBody(replacedBody);
+                                                    return actionCollectionService.save(actionCollection);
+                                                }
+                                                return Mono.just(actionCollection);
+                                            });
+                                } else {
+                                    // TODO make this error more informative, users should never edit JS objects to this state
+                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                }
                             })
                             .collectList()
                             .thenReturn(updatedActions);
@@ -320,66 +339,10 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 });
     }
 
+    Mono<Set<String>> refactorNameInDsl(JsonNode dsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
 
-    private JsonNode replaceStringInJsonNode(JsonNode jsonNode, Pattern oldNamePattern, String newName) {
-        // If this is a text node, perform replacement directly
-        if (jsonNode.isTextual()) {
-            Matcher matcher = oldNamePattern.matcher(jsonNode.asText());
-            String valueAfterReplacement = matcher.replaceAll(newName);
-            return new TextNode(valueAfterReplacement);
-        }
-
-        // TODO This is special handling for the list widget that has been added to allow refactoring of
-        //  just the default widgets inside the list. This is required because for the list, the widget names
-        //  exist as keys at the location List1.template(.Text1) [Ref #9281]
-        //  Ideally, we should avoid any non-structural elements as keys. This will be improved in list widget v2
-        if (jsonNode.has("type") && "LIST_WIDGET".equals(jsonNode.get("type").asText())) {
-            final JsonNode template = jsonNode.get("template");
-            JsonNode newJsonNode = null;
-            String fieldName = null;
-            final Iterator<String> templateIterator = template.fieldNames();
-            while (templateIterator.hasNext()) {
-                fieldName = templateIterator.next();
-
-                // For each element within template, check whether it would match the replacement pattern
-                final Matcher listWidgetTemplateKeyMatcher = oldNamePattern.matcher(fieldName);
-                if (listWidgetTemplateKeyMatcher.find()) {
-                    newJsonNode = template.get(fieldName);
-                    break;
-                }
-            }
-            if (newJsonNode != null) {
-                // If such a pattern is found, remove that element and attach it back with the new name
-                ((ObjectNode) template).remove(fieldName);
-                ((ObjectNode) template).set(newName, newJsonNode);
-            }
-        }
-
-        final Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
-        // Go through each field to recursively operate on it
-        while (iterator.hasNext()) {
-            final Map.Entry<String, JsonNode> next = iterator.next();
-            final JsonNode value = next.getValue();
-            if (value.isArray()) {
-                // If this field is an array type, iterate through each element and perform replacement
-                final ArrayNode arrayNode = (ArrayNode) value;
-                final ArrayNode newArrayNode = objectMapper.createArrayNode();
-                arrayNode.forEach(x -> newArrayNode.add(replaceStringInJsonNode(x, oldNamePattern, newName)));
-                // Make this array node created from replaced values the new value
-                next.setValue(newArrayNode);
-            } else {
-                // This is either directly a text node or another json node
-                // In either case, recurse over the entire value to get the replaced value
-                next.setValue(replaceStringInJsonNode(value, oldNamePattern, newName));
-            }
-        }
-        return jsonNode;
-    }
-
-    Mono<Void> refactorNameInDsl(JsonNode dsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
-
-        Mono<Void> refactorNameInWidgetMono = Mono.empty().then();
-        Mono<List<Void>> recursiveRefactorNameInDslMono = Mono.empty();
+        Mono<Set<String>> refactorNameInWidgetMono = Mono.just(new HashSet<>());
+        Mono<Set<String>> recursiveRefactorNameInDslMono = Mono.just(new HashSet<>());
 
         // if current object is widget,
         if (dsl.has(FieldName.WIDGET_ID)) {
@@ -392,21 +355,30 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             // recurse over each child
             recursiveRefactorNameInDslMono = Flux.fromStream(StreamSupport.stream(dslChildren.spliterator(), true))
                     .flatMap(child -> refactorNameInDsl(child, oldName, newName, evalVersion, oldNamePattern))
-                    .collectList();
+                    .reduce(new HashSet<>(), (x, y) -> {
+                        y.addAll(x);
+                        return y;
+                    });
         }
 
         return refactorNameInWidgetMono
-                .then(recursiveRefactorNameInDslMono)
-                .then();
+                .zipWith(recursiveRefactorNameInDslMono)
+                .map(tuple -> {
+                    tuple.getT1().addAll(tuple.getT2());
+                    return tuple.getT1();
+                });
     }
 
-    Mono<Void> refactorNameInWidget(JsonNode widgetDsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
-
-        Mono<Void> refactorDynamicBindingsMono = Mono.empty().then();
-
+    Mono<Set<String>> refactorNameInWidget(JsonNode widgetDsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
+        boolean isRefactoredWidget = false;
+        String widgetName = "";
         // If the name of this widget matches the old name, replace the name
-        if (widgetDsl.has(FieldName.WIDGET_NAME) && oldName.equals(widgetDsl.get(FieldName.WIDGET_NAME).asText())) {
-            ((ObjectNode) widgetDsl).set(FieldName.WIDGET_NAME, new TextNode(newName));
+        if (widgetDsl.has(FieldName.WIDGET_NAME)) {
+            widgetName = widgetDsl.get(FieldName.WIDGET_NAME).asText();
+            if (oldName.equals(widgetName)) {
+                ((ObjectNode) widgetDsl).set(FieldName.WIDGET_NAME, new TextNode(newName));
+                isRefactoredWidget = true;
+            }
         }
 
         // This is special handling for the list widget that has been added to allow refactoring of
@@ -433,34 +405,142 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             }
         }
 
-        // If there are dynamic bindings in this widget, inspect them
+        Mono<Set<String>> refactorDynamicBindingsMono = Mono.just(new HashSet<>());
+
+        // If there are dynamic bindings in this action configuration, inspect them
         if (widgetDsl.has(FieldName.DYNAMIC_BINDING_PATH_LIST) && !widgetDsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST).isEmpty()) {
             ArrayNode dslDynamicBindingPathList = (ArrayNode) widgetDsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
             // recurse over each child
+            String finalWidgetName = widgetName;
             refactorDynamicBindingsMono = Flux.fromStream(StreamSupport.stream(dslDynamicBindingPathList.spliterator(), true))
                     .flatMap(dynamicBindingPath -> {
                         String key = dynamicBindingPath.get(FieldName.KEY).asText();
                         Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
                         return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
-                                .map(replacementMap -> {
-                                    return DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, key, replacementMap);
+                                .flatMap(replacementMap -> {
+                                    if (replacementMap.isEmpty()) {
+                                        return Mono.empty();
+                                    }
+                                    DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, key, replacementMap);
+                                    String entityPath = StringUtils.hasLength(finalWidgetName) ? finalWidgetName + "." : "";
+                                    return Mono.just(entityPath + key);
                                 });
                     })
-                    .collectList()
-                    .then();
+                    .collect(Collectors.toSet());
+        }
+
+        final String finalWidgetNamePath = widgetName + ".widgetName";
+        final boolean finalIsRefactoredWidget = isRefactoredWidget;
+        return refactorDynamicBindingsMono
+                .map(refactoredDynamicBindings -> {
+                    if (Boolean.TRUE.equals(finalIsRefactoredWidget)) {
+                        refactoredDynamicBindings.add(finalWidgetNamePath);
+                    }
+                    return refactoredDynamicBindings;
+                });
+    }
+
+    Mono<Set<String>> refactorNameInAction(ActionDTO actionDTO, String oldName, String newName,
+                                           int evalVersion, Pattern oldNamePattern) {
+        if (Boolean.FALSE.equals(this.isRtsAccessible)) {
+            Set<String> jsonPathKeys = actionDTO.getJsonPathKeys();
+
+            boolean isReferenceFound = false;
+            if (jsonPathKeys != null && !jsonPathKeys.isEmpty()) {
+                // Since json path keys actually contain the entire inline js function instead of just the widget/action
+                // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
+                // in the set and see if the old name is a substring of the json path key.
+                for (String key : jsonPathKeys) {
+                    if (oldNamePattern.matcher(key).find()) {
+                        isReferenceFound = true;
+                        break;
+                    }
+                }
+            }
+            if (Boolean.FALSE.equals(isReferenceFound)) {
+                return Mono.just(new HashSet<>());
+            }
+        }
+
+        ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+
+        final JsonNode actionConfigurationNode = objectMapper.convertValue(actionConfiguration, JsonNode.class);
+
+        Mono<Set<String>> refactorDynamicBindingsMono = Mono.just(new HashSet<>());
+
+        // If there are dynamic bindings in this action configuration, inspect them
+        if (actionDTO.getDynamicBindingPathList() != null && !actionDTO.getDynamicBindingPathList().isEmpty()) {
+            // recurse over each child
+            refactorDynamicBindingsMono = Flux.fromIterable(actionDTO.getDynamicBindingPathList())
+                    .flatMap(dynamicBindingPath -> {
+                        String key = dynamicBindingPath.getKey();
+                        Set<String> mustacheValues = new HashSet<>();
+                        if (PluginType.JS.equals(actionDTO.getPluginType()) && "body".equals(key)) {
+                            mustacheValues.add(actionConfiguration.getBody());
+
+                        } else {
+                            mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(actionConfigurationNode, key);
+                        }
+                        return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
+                                .flatMap(replacementMap -> {
+                                    if (replacementMap.isEmpty()) {
+                                        return Mono.empty();
+                                    }
+                                    DslUtils.replaceValuesInSpecificDynamicBindingPath(actionConfigurationNode, key, replacementMap);
+                                    String entityPath = StringUtils.hasLength(actionDTO.getValidName()) ? actionDTO.getValidName() + "." : "";
+                                    return Mono.just(entityPath + key);
+                                });
+                    })
+                    .collect(Collectors.toSet())
+                    .map(entityPaths -> {
+                        actionDTO.setActionConfiguration(objectMapper.convertValue(actionConfigurationNode, ActionConfiguration.class));
+                        return entityPaths;
+                    });
         }
 
         return refactorDynamicBindingsMono;
     }
 
-    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
+//    Mono<Set<String>> refactorNameInEntityNode(String entityName, JsonNode entityNode, String oldName, String
+//            newName,
+//                                               int evalVersion, Pattern oldNamePattern) {
+//        Mono<Set<String>> refactorDynamicBindingsMono = Mono.just(new HashSet<>());
+//
+//        // If there are dynamic bindings in this action configuration, inspect them
+//        if (entityNode.has(FieldName.DYNAMIC_BINDING_PATH_LIST) && !entityNode.get(FieldName.DYNAMIC_BINDING_PATH_LIST).isEmpty()) {
+//            ArrayNode dslDynamicBindingPathList = (ArrayNode) entityNode.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
+//            // recurse over each child
+//            refactorDynamicBindingsMono = Flux.fromStream(StreamSupport.stream(dslDynamicBindingPathList.spliterator(), true))
+//                    .flatMap(dynamicBindingPath -> {
+//                        String key = dynamicBindingPath.get(FieldName.KEY).asText();
+//                        Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(entityNode, key);
+//                        return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
+//                                .flatMap(replacementMap -> {
+//                                    if (replacementMap.isEmpty()) {
+//                                        return Mono.empty();
+//                                    }
+//                                    DslUtils.replaceValuesInSpecificDynamicBindingPath(entityNode, key, replacementMap);
+//                                    String entityPath = StringUtils.hasLength(entityName) ? entityName + "." : "";
+//                                    return Mono.just(entityPath + key);
+//                                });
+//                    })
+//                    .collect(Collectors.toSet());
+//        }
+//
+//        return refactorDynamicBindingsMono;
+//    }
+
+
+    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, String oldName, String
+            newName, int evalVersion, Pattern oldNamePattern) {
         if (Boolean.TRUE.equals(this.isRtsAccessible)) {
             return astService.refactorNameInDynamicBindings(mustacheKeySet, oldName, newName, evalVersion);
         }
         return this.replaceValueInMustacheKeys(mustacheKeySet, oldNamePattern, newName);
     }
 
-    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, Pattern oldNamePattern, String newName) {
+    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, Pattern
+            oldNamePattern, String newName) {
         return Flux.fromIterable(mustacheKeySet)
                 .flatMap(mustacheKey -> {
                     Matcher matcher = oldNamePattern.matcher(mustacheKey);

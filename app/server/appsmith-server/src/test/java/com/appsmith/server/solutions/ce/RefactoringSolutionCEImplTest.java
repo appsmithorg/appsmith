@@ -11,7 +11,7 @@ import com.appsmith.server.services.NewPageService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +22,7 @@ import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @ExtendWith(SpringExtension.class)
@@ -73,21 +74,30 @@ class RefactoringSolutionCEImplTest {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "Text1";
-            Mono<Void> voidMono = refactoringSolutionCE.refactorNameInDsl(
+            Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
                     dslAsJsonNode,
                     oldName,
                     "newText",
                     2,
                     Pattern.compile(preWord + oldName + postWord));
 
-            StepVerifier.create(voidMono)
+            StepVerifier.create(updatesMono)
+                    .assertNext(updatedPaths -> {
+                        Assertions.assertThat(updatedPaths).hasSize(5);
+                        Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
+                                "Text1.widgetName",
+                                "List1.template.Text4.text",
+                                "Text4.text",
+                                "Table1.primaryColumns.task.computedValue",
+                                "Text2.text");
+                    })
                     .verifyComplete();
 
             JsonNode finalDslAsJsonNode = mapper.readTree(finalStream);
-            Assertions.assertEquals(finalDslAsJsonNode, dslAsJsonNode);
+            Assertions.assertThat(dslAsJsonNode).isEqualTo(finalDslAsJsonNode);
 
         } catch (IOException e) {
-            Assertions.fail();
+            Assertions.fail("Unexpected IOException", e);
         }
     }
 
@@ -98,21 +108,29 @@ class RefactoringSolutionCEImplTest {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "List1";
-            Mono<Void> voidMono = refactoringSolutionCE.refactorNameInDsl(
+            Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
                     dslAsJsonNode,
                     oldName,
                     "newList",
                     2,
                     Pattern.compile(preWord + oldName + postWord));
 
-            StepVerifier.create(voidMono)
+            StepVerifier.create(updatesMono)
+                    .assertNext(updatedPaths -> {
+                        Assertions.assertThat(updatedPaths).hasSize(4);
+                        Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
+                                "List1.widgetName",
+                                "List1.template.Text4.text",
+                                "List1.template.Image1.image",
+                                "List1.template.Text3.text");
+                    })
                     .verifyComplete();
 
             JsonNode finalDslAsJsonNode = mapper.readTree(finalStream);
-            Assertions.assertEquals(finalDslAsJsonNode, dslAsJsonNode);
+            Assertions.assertThat(dslAsJsonNode).isEqualTo(finalDslAsJsonNode);
 
         } catch (IOException e) {
-            Assertions.fail();
+            Assertions.fail("Unexpected IOException", e);
         }
     }
 
