@@ -181,8 +181,12 @@ class DatasourceRestAPIEditor extends React.Component<
   componentDidUpdate() {
     if (!this.props.formData) return;
 
-    if (this.state.confirmDelete && !this.props.isDeleting) {
-      this.setState({ confirmDelete: false });
+    if (this.state.confirmDelete) {
+      const delayConfirmDeleteToFalse = _.debounce(() => {
+        if (!this.props.isDeleting) this.setState({ confirmDelete: false });
+      }, 2200);
+
+      delayConfirmDeleteToFalse();
     }
 
     const { authType } = this.props.formData;
@@ -1207,7 +1211,9 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
-    deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+    deleteDatasource: (id: string) => {
+      dispatch(deleteDatasource({ id }));
+    },
   };
 };
 

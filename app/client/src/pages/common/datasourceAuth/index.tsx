@@ -43,6 +43,7 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { debounce } from "lodash";
 
 interface Props {
   datasource: Datasource;
@@ -119,6 +120,12 @@ function DatasourceAuth({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
+    if (confirmDelete) {
+      delayConfirmDeleteToFalse();
+    }
+  }, [confirmDelete]);
+
+  useEffect(() => {
     if (authType === AuthType.OAUTH2) {
       // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
       // Get the access token if response_status is successful else show a toast error
@@ -156,11 +163,10 @@ function DatasourceAuth({
     datasources: { isDeleting, isTesting, loading: isSaving },
   } = useSelector(getEntities);
 
-  useEffect(() => {
-    if (confirmDelete && !isDeleting) {
-      setConfirmDelete(false);
-    }
-  }, [isDeleting]);
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
 
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasourceId),
@@ -235,7 +241,7 @@ function DatasourceAuth({
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
           text={
-            confirmDelete
+            confirmDelete && !isDeleting
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }
