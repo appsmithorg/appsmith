@@ -18,18 +18,20 @@ import { Plugin } from "api/PluginApi";
 import log from "loglevel";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { Location } from "history";
+import { AppsmithLocationState } from "utils/history";
 
 let previousPath: string;
 let previousHash: string | undefined;
 
 function* handleRouteChange(
-  action: ReduxAction<{ pathname: string; hash?: string }>,
+  action: ReduxAction<Location<AppsmithLocationState>>,
 ) {
-  const { hash, pathname } = action.payload;
+  const { hash, pathname, state } = action.payload;
   try {
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     if (featureFlags.CONTEXT_SWITCHING) {
-      yield call(contextSwitchingSaga, pathname, hash);
+      yield call(contextSwitchingSaga, pathname, state, hash);
     }
   } catch (e) {
     log.error("Error in focus change", e);
@@ -39,7 +41,11 @@ function* handleRouteChange(
   }
 }
 
-function* contextSwitchingSaga(pathname: string, hash?: string) {
+function* contextSwitchingSaga(
+  pathname: string,
+  state?: AppsmithLocationState,
+  hash?: string,
+) {
   if (previousPath) {
     // store current state
     yield call(storeStateOfPath, previousPath, previousHash);
@@ -49,9 +55,9 @@ function* contextSwitchingSaga(pathname: string, hash?: string) {
     }
   }
   // Check if it should restore the stored state of the path
-  if (shouldSetState(previousPath, pathname, previousHash, hash)) {
+  if (shouldSetState(previousPath, pathname, previousHash, hash, state)) {
     // restore old state for new path
-    yield call(setStateOfPath, pathname, hash);
+    // yield call(setStateOfPath, pathname, hash);
   }
 }
 
@@ -125,6 +131,7 @@ function* getEntitySubType(entityInfo: FocusEntityInfo) {
  * @param currPath
  * @param prevHash
  * @param currHash
+ * @param state
  * @returns
  */
 function shouldSetState(
@@ -132,7 +139,9 @@ function shouldSetState(
   currPath: string,
   prevHash?: string,
   currHash?: string,
+  state?: AppsmithLocationState,
 ) {
+  if (state && state.directNavigation) return false;
   const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
   const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
 

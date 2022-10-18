@@ -107,11 +107,11 @@ import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
 import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
-import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import {
   EntityNavigationData,
   getEntitiesForNavigation,
 } from "selectors/navigationSelectors";
+import history from "utils/history";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -262,6 +262,15 @@ class CodeEditor extends Component<Props, State> {
           lintOnChange: false,
         },
         tabindex: -1,
+        // Used to disable multiple cursors on the editor
+        // when command/ctrl click is done
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        configureMouse: (cm, repeat, event) => {
+          return {
+            addNew: false,
+          };
+        },
       };
 
       const gutters = new Set<string>();
@@ -333,6 +342,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
+        editor.on("mousedown", this.handleClick);
 
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
@@ -521,6 +531,24 @@ class CodeEditor extends Component<Props, State> {
       return helper(editor, dynamicData);
     });
   }
+
+  handleClick = (cm: CodeMirror.Editor, event: MouseEvent) => {
+    if (
+      event.ctrlKey ||
+      // Event targets are html elements that have node methods
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      (event.metaKey && event.target.hasAttribute("data-navigation"))
+    ) {
+      // Event targets are html elements that have node methods
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const destination = event.target.attributes.getNamedItem(
+        "data-navigation",
+      ).value;
+      history.push(destination, { directNavigation: true });
+    }
+  };
 
   handleCustomGutter = (lineNumber: number | null, isFocused = false) => {
     const { customGutter } = this.props;

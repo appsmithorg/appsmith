@@ -161,7 +161,6 @@ export const EditorWrapper = styled.div<{
       font-weight: 700;
     }
     .navigable-entity-highlight {
-      color: #69b5ff;
       cursor: pointer;
       &:hover {
         text-decoration: underline;

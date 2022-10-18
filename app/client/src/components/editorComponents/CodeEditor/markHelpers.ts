@@ -41,18 +41,6 @@ export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
   });
 };
 
-const createLink = (name: string, url: string): HTMLSpanElement => {
-  const linkElement = document.createElement("span");
-  linkElement.innerText = name;
-  linkElement.className = "navigable-entity-highlight";
-  linkElement.addEventListener("click", (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      history.push(url);
-    }
-  });
-  return linkElement;
-};
-
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData,
@@ -67,7 +55,13 @@ export const entityMarker: MarkHelper = (
           { ch: token.start, line: lineNo },
           { ch: token.end, line: lineNo },
           {
-            replacedWith: createLink(token.string, data.url || ""),
+            className: "navigable-entity-highlight",
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            attributes: {
+              "data-navigation": data.url,
+            },
+            atomic: false,
           },
         );
       }
