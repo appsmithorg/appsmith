@@ -581,8 +581,12 @@ export const useAutoLayoutHighlights = ({
       moveDirection &&
       [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
 
-    const distX: number = a.isVertical && isVerticalDrag ? 0 : a.posX - b.x;
-    const distY: number = !a.isVertical && !isVerticalDrag ? 0 : a.posY - b.y;
+    let distX: number = a.isVertical && isVerticalDrag ? 0 : a.posX - b.x;
+    let distY: number = !a.isVertical && !isVerticalDrag ? 0 : a.posY - b.y;
+    if (moveDirection === ReflowDirection.LEFT && distX > 0) distX += 2000;
+    if (moveDirection === ReflowDirection.RIGHT && distX < 0) distX -= 2000;
+    if (moveDirection === ReflowDirection.TOP && distY > 0) distY += 2000;
+    if (moveDirection === ReflowDirection.BOTTOM && distY < 0) distY -= 2000;
 
     return Math.abs(Math.sqrt(distX * distX + distY * distY));
   };
