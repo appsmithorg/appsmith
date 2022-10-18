@@ -123,6 +123,12 @@
           "key": "template.Text4.text"
         }
       ],
+      "dynamicTriggerPathList": [
+        {
+          "key": "onListItemClick"
+        }
+      ],
+      "onListItemClick": "{{newText.text}}",
       "children": [
         {
           "widgetName": "Canvas1",

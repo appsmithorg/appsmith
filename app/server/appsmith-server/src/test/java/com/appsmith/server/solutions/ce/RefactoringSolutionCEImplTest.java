@@ -83,10 +83,11 @@ class RefactoringSolutionCEImplTest {
 
             StepVerifier.create(updatesMono)
                     .assertNext(updatedPaths -> {
-                        Assertions.assertThat(updatedPaths).hasSize(2);
+                        Assertions.assertThat(updatedPaths).hasSize(3);
                         Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
                                 "Text3.widgetName",
-                                "List1.template");
+                                "List1.template",
+                                "List1.onListItemClick");
                     })
                     .verifyComplete();
 
