@@ -31,6 +31,7 @@ import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
+import { getAllAsyncFunctions } from "./Actions";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -890,3 +891,26 @@ export const isATriggerPath = (
 ) => {
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };
+
+class TransformError {
+  private referenceErrorRegex = /ReferenceError: ([a-zA-Z]+) is not defined/;
+  private asyncFunctionsNameMap: Record<string, string> = {};
+
+  updateAsyncFunctions(dataTree: DataTree) {
+    this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);
+  }
+
+  syncField(message: string) {
+    let transformedMessage = message;
+    const result = message.match(this.referenceErrorRegex);
+    if (result) {
+      const referencedIdentifier = result[1];
+      if (this.asyncFunctionsNameMap[referencedIdentifier]) {
+        transformedMessage = `${referencedIdentifier} action cannot be triggered from this field`;
+      }
+    }
+    return transformedMessage;
+  }
+}
+
+export const errorTransformer = new TransformError();

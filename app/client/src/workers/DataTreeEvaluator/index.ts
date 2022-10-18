@@ -43,6 +43,7 @@ import {
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
   getAllPaths,
+  errorTransformer,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -138,6 +139,7 @@ export default class DataTreeEvaluator {
     // cloneDeep will make sure not to omit key which has value as undefined.
     let localUnEvalTree = klona(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
+
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
@@ -605,6 +607,9 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
+
+    errorTransformer.updateAsyncFunctions(tree);
+
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(

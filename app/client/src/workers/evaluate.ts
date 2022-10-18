@@ -16,6 +16,7 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import { errorTransformer } from "./evaluationUtils";
 
 export type EvalResult = {
   result: any;
@@ -256,9 +257,9 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
-    const errors: EvaluationError[] = [];
-    let logs: LogObject[] = [];
-    let result;
+    const __errors: EvaluationError[] = [];
+    let __logs: LogObject[] = [];
+    let __result;
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
     if (!skipLogsOperations) {
@@ -296,27 +297,27 @@ export default function evaluateSync(
     }
 
     try {
-      result = eval(script);
+      __result = eval(script);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
       }`;
-      errors.push({
-        errorMessage: errorMessage,
+      __errors.push({
+        errorMessage: errorTransformer.syncField(errorMessage),
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
     } finally {
-      if (!skipLogsOperations) logs = userLogs.flushLogs();
+      if (!skipLogsOperations) __logs = userLogs.flushLogs();
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
 
-    return { result, errors, logs };
+    return { result: __result, errors: __errors, logs: __logs };
   })();
 }
 
