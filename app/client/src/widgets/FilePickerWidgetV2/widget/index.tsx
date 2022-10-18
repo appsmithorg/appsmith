@@ -205,8 +205,11 @@ class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
+  private isWidgetUnmounting: boolean;
+
   constructor(props: FilePickerWidgetProps) {
     super(props);
+    this.isWidgetUnmounting = false;
     this.state = {
       isLoading: false,
       uppy: this.initializeUppy(),
@@ -568,7 +571,6 @@ class FilePickerWidget extends BaseWidget<
         showLinkToFileUploadResult: true,
         showProgressDetails: false,
         hideUploadButton: false,
-        hideCancelButton: true,
         hideProgressAfterFinish: false,
         note: null,
         closeAfterFinish: true,
@@ -637,6 +639,10 @@ class FilePickerWidget extends BaseWidget<
           "selectedFiles",
           updatedFiles ?? [],
         );
+      }
+
+      if (reason === "cancel-all" && !this.isWidgetUnmounting) {
+        this.props.updateWidgetMetaProperty("selectedFiles", []);
       }
     });
 
@@ -797,6 +803,7 @@ class FilePickerWidget extends BaseWidget<
   }
 
   componentWillUnmount() {
+    this.isWidgetUnmounting = true;
     this.state.uppy.close();
   }
 

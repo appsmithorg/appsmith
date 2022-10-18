@@ -55,4 +55,18 @@ describe("File picker widget v2", () => {
     );
     cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
   });
+
+  it("Check if the uploaded file is removed on click of cancel button", () => {
+    cy.get(widgetsPage.filepickerwidgetv2).click();
+    cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
+    cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
+    cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
+    cy.get(widgetsPage.explorerSwitchId).click();
+    cy.get(".t--entity-item:contains(Api1)").click();
+    cy.get("[class*='t--actionConfiguration']")
+      .eq(0)
+      .click();
+    cy.wait(1000);
+    cy.validateEvaluatedValue("[]");
+  });
 });
