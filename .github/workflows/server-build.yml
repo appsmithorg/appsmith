@@ -130,6 +130,7 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_AUDITLOG_ENABLED: true
         run: |
           mvn --batch-mode versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \

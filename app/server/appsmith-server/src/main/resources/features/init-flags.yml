@@ -70,3 +70,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com,moolya.com
+
+    - uid: CONTEXT_SWITCHING
+      enable: true
+      description: Restoring old context while navigating across the app
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
