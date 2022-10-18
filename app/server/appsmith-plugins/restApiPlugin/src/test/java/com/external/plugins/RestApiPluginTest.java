@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
@@ -371,30 +372,37 @@ public class RestApiPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("this is a string! Yay :D");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("true");
+        param3.setClientDataType(ClientDataType.BOOLEAN);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("0");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("12/01/2018");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         Param param6 = new Param();
         param6.setKey("Input5.text");
         param6.setValue("null");
+        param6.setClientDataType(ClientDataType.NULL);
         params.add(param6);
         Param param7 = new Param();
         param7.setKey("Table1.selectedRow");
         param7.setValue("{  \"id\": 2381224,  \"email\": \"michael.lawson@reqres.in\",  \"userName\": \"Michael Lawson\",  \"productName\": \"Chicken Sandwich\",  \"orderAmount\": 4.99}");
+        param7.setClientDataType(ClientDataType.OBJECT);
         params.add(param7);
         Param param8 = new Param();
         param8.setKey("Table1.tableData");
         param8.setValue("[  {    \"id\": 2381224,    \"email\": \"michael.lawson@reqres.in\",    \"userName\": \"Michael Lawson\",    \"productName\": \"Chicken Sandwich\",    \"orderAmount\": 4.99  },  {    \"id\": 2736212,    \"email\": \"lindsay.ferguson@reqres.in\",    \"userName\": \"Lindsay Ferguson\",    \"productName\": \"Tuna Salad\",    \"orderAmount\": 9.99  },  {    \"id\": 6788734,    \"email\": \"tobias.funke@reqres.in\",    \"userName\": \"Tobias Funke\",    \"productName\": \"Beef steak\",    \"orderAmount\": 19.99  }]");
+        param8.setClientDataType(ClientDataType.ARRAY);
         params.add(param8);
         executeActionDTO.setParams(params);
 
@@ -575,10 +583,12 @@ public class RestApiPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("this is a string with a ? ");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param2 = new Param();
         param2.setKey("Input2.text");
         param2.setValue("email@email.com");
+        param2.setClientDataType(ClientDataType.STRING);
         params.add(param2);
         executeActionDTO.setParams(params);
 
@@ -1091,6 +1101,46 @@ public class RestApiPluginTest {
                     fields.forEachRemaining(field -> {
                         if ("gzipped".equalsIgnoreCase(field.getKey())) {
                             assertEquals("true", field.getValue().get(0).asText());
+                        }
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNumericStringHavingLeadingZero() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        final List<Property> headers = List.of(new Property("content-type", "application/json"));
+        actionConfig.setHeaders(headers);
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"phoneNumber\":\"{{phoneNumber.text}}\"}";
+        actionConfig.setBody(requestBody);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("phoneNumber.text");
+        param.setValue("017725617478");
+        param.setClientDataType(ClientDataType.STRING);
+        List<Param> params = new ArrayList<>();
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    assertEquals(requestBody.replace("{{phoneNumber.text}}", param.getValue()), data.toString());
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals("https://postman-echo.com/post", request.getUrl());
+                    assertEquals(HttpMethod.POST, request.getHttpMethod());
+                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    fields.forEachRemaining(field -> {
+                        if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
+                            assertEquals("application/json", field.getValue().get(0).asText());
                         }
                     });
                 })
