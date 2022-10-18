@@ -225,6 +225,7 @@ function eventRequestHandler({
         {
           globalContext,
           eventType,
+          triggerMeta,
         },
       );
 
