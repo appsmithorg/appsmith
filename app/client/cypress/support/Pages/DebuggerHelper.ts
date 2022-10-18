@@ -116,7 +116,7 @@ export class DebuggerHelper {
     this.agHelper.GetNAssertContains(
       this.locators._logMessage,
       text,
-      exists,
+      exists ? "exist" : "not.exist",
       index,
       timeout,
     );
