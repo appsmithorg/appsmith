@@ -1,7 +1,6 @@
 import { getWidgets } from "sagas/selectors";
 import { useSelector } from "store";
 
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   FlexLayerAlignment,
   LayoutDirection,
@@ -11,7 +10,6 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { debounce } from "lodash";
 import { useDispatch } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
@@ -457,15 +455,15 @@ export const useAutoLayoutHighlights = ({
   //   dispatchTempHighlight(pos);
   // }, 5);
 
-  const dispatchTempHighlight = (pos: HighlightInfo) => {
-    dispatch({
-      type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
-      payload: {
-        flexHighlight: pos,
-        blocksToDraw,
-      },
-    });
-  };
+  // const dispatchTempHighlight = (pos: HighlightInfo) => {
+  //   dispatch({
+  //     type: ReduxActionTypes.SET_AUTOLAYOUT_HIGHLIGHTS,
+  //     payload: {
+  //       flexHighlight: pos,
+  //       blocksToDraw,
+  //     },
+  //   });
+  // };
 
   const highlightDropPosition = (e: any, moveDirection: ReflowDirection) => {
     if (!useAutoLayout) return;
@@ -473,7 +471,7 @@ export const useAutoLayoutHighlights = ({
       e,
       moveDirection,
     );
-    dispatchTempHighlight(pos);
+    // dispatchTempHighlight(pos);
     // console.log({ pos });
 
     if (!pos) return;
