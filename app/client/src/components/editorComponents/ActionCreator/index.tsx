@@ -35,7 +35,6 @@ import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { connect } from "react-redux";
-import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
 import {
   NAVIGATE_TO_TAB_OPTIONS,
@@ -45,6 +44,7 @@ import {
 } from "./constants";
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
+import { isValueValidURL } from "./utils";
 
 const actionList: {
   label: string;
@@ -64,6 +64,7 @@ function getFieldFromValue(
 ): any[] {
   const fields: any[] = [];
 
+  // No value case - no action has been selected, show the action selector field
   if (!value) {
     return [
       {
@@ -84,117 +85,164 @@ function getFieldFromValue(
 
   if (entity && "ENTITY_TYPE" in entity) {
     if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-      fields.push({
-        field: FieldType.ACTION_SELECTOR_FIELD,
-        getParentValue,
+      // get fields for API action
+      return getActionEntityFields(
+        fields,
+        getParentValue as (changeValue: string) => string,
         value,
-      });
-      const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-      if (matches.length) {
-        const funcArgs = matches[0][2];
-        const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-        const successArg = args[0];
-        const errorArg = args[1];
-        let successValue;
-        if (successArg && successArg.length > 0) {
-          successValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
-        }
-        const successFields = getFieldFromValue(
-          successValue,
-          activeTabNavigateTo,
-          (changeValue: string) => {
-            const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-            const args = [
-              ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
-            ];
-            const errorArg = args[1] ? args[1][0] : "() => {}";
-            const successArg = changeValue.endsWith(")")
-              ? `() => ${changeValue}`
-              : `() => {}`;
-
-            return value.replace(
-              ACTION_TRIGGER_REGEX,
-              `{{$1(${successArg}, ${errorArg})}}`,
-            );
-          },
-          dataTree,
-        );
-        successFields[0].label = "onSuccess";
-        fields.push(successFields);
-
-        let errorValue;
-        if (errorArg && errorArg.length > 0) {
-          errorValue = errorArg[1] !== "{}" ? `{{${errorArg[1]}}}` : ""; //errorArg[1] + errorArg[2];
-        }
-        const errorFields = getFieldFromValue(
-          errorValue,
-          activeTabNavigateTo,
-          (changeValue: string) => {
-            const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-            const args = [
-              ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
-            ];
-            const successArg = args[0] ? args[0][0] : "() => {}";
-            const errorArg = changeValue.endsWith(")")
-              ? `() => ${changeValue}`
-              : `() => {}`;
-
-            return value.replace(
-              ACTION_TRIGGER_REGEX,
-              `{{$1(${successArg}, ${errorArg})}}`,
-            );
-          },
-          dataTree,
-        );
-        errorFields[0].label = "onError";
-        fields.push(errorFields);
-      }
-      return fields;
+        activeTabNavigateTo,
+        dataTree as DataTree,
+      );
     }
 
     if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
-      const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-      if (matches.length === 0) {
-        //when format doesn't match but it is function from js object
-        fields.push({
-          field: FieldType.ACTION_SELECTOR_FIELD,
-          getParentValue,
-          value,
-          args: [],
-        });
-      } else if (matches.length) {
-        const entityPropertyPath = matches[0][1];
-        const { propertyPath } = getEntityNameAndPropertyPath(
-          entityPropertyPath,
-        );
-        const path = propertyPath && propertyPath.replace("()", "");
-        const argsProps =
-          path &&
-          entity.meta &&
-          entity.meta[path] &&
-          entity.meta[path].arguments;
-        fields.push({
-          field: FieldType.ACTION_SELECTOR_FIELD,
-          getParentValue,
-          value,
-          args: argsProps ? argsProps : [],
-        });
-        if (argsProps && argsProps.length > 0) {
-          for (let i = 0; i < argsProps.length; i++) {
-            fields.push({
-              field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
-              getParentValue,
-              value,
-              label: argsProps[i].name,
-              index: i,
-            });
-          }
-        }
-      }
-      return fields;
+      // get fields for js action execution
+      return getJsFunctionExecutionFields(
+        fields,
+        getParentValue as (changeValue: string) => string,
+        value,
+        entity,
+      );
     }
   }
 
+  getFieldsForSelectedAction(
+    fields,
+    getParentValue as (changeValue: string) => string,
+    value,
+    activeTabNavigateTo,
+  );
+
+  return fields;
+}
+
+function getActionEntityFields(
+  fields: any[],
+  getParentValue: (changeValue: string) => string,
+  value: string,
+  activeTabNavigateTo: SwitchType,
+  dataTree: DataTree,
+) {
+  fields.push({
+    field: FieldType.ACTION_SELECTOR_FIELD,
+    getParentValue,
+    value,
+  });
+  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+
+  if (matches.length) {
+    const funcArgs = matches[0][2];
+    const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
+    const successArg = args[0];
+    const errorArg = args[1];
+
+    // get the field for onSuccess
+    let successValue;
+    if (successArg && successArg.length > 0) {
+      successValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
+    }
+    const successFields = getFieldFromValue(
+      successValue,
+      activeTabNavigateTo,
+      (changeValue: string) => {
+        const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+        const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
+        const errorArg = args[1] ? args[1][0] : "() => {}";
+        const successArg = changeValue.endsWith(")")
+          ? `() => ${changeValue}`
+          : `() => {}`;
+
+        return value.replace(
+          ACTION_TRIGGER_REGEX,
+          `{{$1(${successArg}, ${errorArg})}}`,
+        );
+      },
+      dataTree,
+    );
+    successFields[0].label = "onSuccess";
+    fields.push(successFields);
+
+    // get the field for onError
+    let errorValue;
+    if (errorArg && errorArg.length > 0) {
+      errorValue = errorArg[1] !== "{}" ? `{{${errorArg[1]}}}` : ""; //errorArg[1] + errorArg[2];
+    }
+    const errorFields = getFieldFromValue(
+      errorValue,
+      activeTabNavigateTo,
+      (changeValue: string) => {
+        const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+        const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
+        const successArg = args[0] ? args[0][0] : "() => {}";
+        const errorArg = changeValue.endsWith(")")
+          ? `() => ${changeValue}`
+          : `() => {}`;
+
+        return value.replace(
+          ACTION_TRIGGER_REGEX,
+          `{{$1(${successArg}, ${errorArg})}}`,
+        );
+      },
+      dataTree,
+    );
+    errorFields[0].label = "onError";
+    fields.push(errorFields);
+  }
+  return fields;
+}
+
+function getJsFunctionExecutionFields(
+  fields: any[],
+  getParentValue: (changeValue: string) => string,
+  value: string,
+  entity: any,
+) {
+  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+  if (matches.length === 0) {
+    //when format doesn't match but it is function from js object
+    fields.push({
+      field: FieldType.ACTION_SELECTOR_FIELD,
+      getParentValue,
+      value,
+      args: [],
+    });
+  } else if (matches.length) {
+    const entityPropertyPath = matches[0][1];
+    const { propertyPath } = getEntityNameAndPropertyPath(entityPropertyPath);
+    const path = propertyPath && propertyPath.replace("()", "");
+    const argsProps =
+      path && entity.meta && entity.meta[path] && entity.meta[path].arguments;
+    fields.push({
+      field: FieldType.ACTION_SELECTOR_FIELD,
+      getParentValue,
+      value,
+      args: argsProps ? argsProps : [],
+    });
+    if (argsProps && argsProps.length > 0) {
+      for (let i = 0; i < argsProps.length; i++) {
+        fields.push({
+          field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
+          getParentValue,
+          value,
+          label: argsProps[i].name,
+          index: i,
+        });
+      }
+    }
+  }
+  return fields;
+}
+
+function getFieldsForSelectedAction(
+  fields: any[],
+  getParentValue: (changeValue: string) => string,
+  value: string,
+  activeTabNavigateTo: SwitchType,
+) {
+  /*
+   * if an action is present, push actions selector field
+   * then push all fields specific to the action selected
+   */
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
@@ -226,9 +274,8 @@ function getFieldFromValue(
         field: FieldType.URL_FIELD,
       };
     }
+    return fields;
   }
-
-  return fields;
 }
 
 function useModalDropdownList() {
@@ -424,20 +471,6 @@ function useIntegrationsOptionTree() {
     dispatch,
   );
 }
-
-// TODO - move to utils file
-const isValueValidURL = (value: string) => {
-  if (value) {
-    const indices = [];
-    for (let i = 0; i < value.length; i++) {
-      if (value[i] === "'") {
-        indices.push(i);
-      }
-    }
-    const str = value.substring(indices[0], indices[1] + 1);
-    return isValidURL(str);
-  }
-};
 
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {

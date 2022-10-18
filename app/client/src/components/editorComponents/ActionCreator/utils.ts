@@ -7,6 +7,7 @@ import {
   getDynamicBindings,
   isDynamicValue,
 } from "../../../utils/DynamicBindingUtils";
+import { isValidURL } from "../../../utils/URLUtils";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -141,5 +142,18 @@ export const enumTypeGetter = (
     const args = argsStringToArray(matches[0][2]);
     const arg = args[argNum];
     return arg ? arg.trim() : defaultValue;
+  }
+};
+
+export const isValueValidURL = (value: string) => {
+  if (value) {
+    const indices = [];
+    for (let i = 0; i < value.length; i++) {
+      if (value[i] === "'") {
+        indices.push(i);
+      }
+    }
+    const str = value.substring(indices[0], indices[1] + 1);
+    return isValidURL(str);
   }
 };
