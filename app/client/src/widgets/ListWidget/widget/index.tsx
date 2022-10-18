@@ -532,7 +532,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               if (next.indexOf("currentIndex") > -1) {
                 return (
                   prev +
-                  `{{((currentIndex) => { ${next}})(JSON.parse('${itemIndex}'))}}`
+                  `{{((currentIndex) => { ${next}})(JSON.parse(JSON.stringify(${itemIndex})))}}`
                 );
               }
               return prev + `{{${next}}}`;
