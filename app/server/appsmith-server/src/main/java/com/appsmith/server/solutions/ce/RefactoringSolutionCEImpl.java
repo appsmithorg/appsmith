@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -278,6 +279,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                                     if (StringUtils.hasLength(action.getCollectionId())) {
                                         updatableCollectionIds.add(action.getCollectionId());
                                     }
+                                    newActionService.extractAndSetJsonPathKeys(newAction);
                                     return newActionService.save(newAction);
                                 });
                     });
@@ -409,50 +411,82 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         }
 
         Mono<Set<String>> refactorDynamicBindingsMono = Mono.just(new HashSet<>());
+        Mono<Set<String>> refactorTriggerBindingsMono = Mono.just(new HashSet<>());
 
         // If there are dynamic bindings in this action configuration, inspect them
         if (widgetDsl.has(FieldName.DYNAMIC_BINDING_PATH_LIST) && !widgetDsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST).isEmpty()) {
             ArrayNode dslDynamicBindingPathList = (ArrayNode) widgetDsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
             // recurse over each child
-            String finalWidgetName = widgetName;
-            refactorDynamicBindingsMono = Flux.fromStream(StreamSupport.stream(dslDynamicBindingPathList.spliterator(), true))
-                    .flatMap(dynamicBindingPath -> {
-                        String key = dynamicBindingPath.get(FieldName.KEY).asText();
-                        if (widgetDsl.has(FieldName.WIDGET_TYPE) &&
-                                FieldName.LIST_WIDGET.equals(widgetDsl.get(FieldName.WIDGET_TYPE).asText()) &&
-                                key.contains(oldName)) {
-                            key = key.replace(oldName, newName);
-                            ((ObjectNode) dynamicBindingPath).set(FieldName.KEY, new TextNode(key));
-                        }
-                        Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
-                        final String finalKey = key;
-                        return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
-                                .flatMap(replacementMap -> {
-                                    if (replacementMap.isEmpty()) {
-                                        return Mono.empty();
-                                    }
-                                    DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, finalKey, replacementMap);
-                                    String entityPath = StringUtils.hasLength(finalWidgetName) ? finalWidgetName + "." : "";
-                                    return Mono.just(entityPath + finalKey);
-                                });
-                    })
-                    .collect(Collectors.toSet());
+            refactorDynamicBindingsMono = refactorBindingsUsingBindingPaths(
+                    widgetDsl,
+                    oldName,
+                    newName,
+                    evalVersion,
+                    oldNamePattern,
+                    dslDynamicBindingPathList,
+                    widgetName);
+        }
+
+        // If there are dynamic triggers in this action configuration, inspect them
+        if (widgetDsl.has(FieldName.DYNAMIC_TRIGGER_PATH_LIST) && !widgetDsl.get(FieldName.DYNAMIC_TRIGGER_PATH_LIST).isEmpty()) {
+            ArrayNode dslDynamicTriggerPathList = (ArrayNode) widgetDsl.get(FieldName.DYNAMIC_TRIGGER_PATH_LIST);
+            // recurse over each child
+            refactorTriggerBindingsMono = refactorBindingsUsingBindingPaths(
+                    widgetDsl,
+                    oldName,
+                    newName,
+                    evalVersion,
+                    oldNamePattern,
+                    dslDynamicTriggerPathList,
+                    widgetName);
         }
 
         final String finalWidgetNamePath = widgetName + ".widgetName";
         final boolean finalIsRefactoredWidget = isRefactoredWidget;
         final boolean finalIsRefactoredTemplate = isRefactoredTemplate;
         final String finalWidgetTemplatePath = widgetName + ".template";
-        return refactorDynamicBindingsMono
-                .map(refactoredDynamicBindings -> {
+        return refactorDynamicBindingsMono.zipWith(refactorTriggerBindingsMono)
+                .map(tuple -> {
+                    tuple.getT1().addAll(tuple.getT2());
+                    return tuple.getT1();
+                })
+                .map(refactoredBindings -> {
                     if (Boolean.TRUE.equals(finalIsRefactoredWidget)) {
-                        refactoredDynamicBindings.add(finalWidgetNamePath);
+                        refactoredBindings.add(finalWidgetNamePath);
                     }
                     if (Boolean.TRUE.equals(finalIsRefactoredTemplate)) {
-                        refactoredDynamicBindings.add(finalWidgetTemplatePath);
+                        refactoredBindings.add(finalWidgetTemplatePath);
                     }
-                    return refactoredDynamicBindings;
+                    return refactoredBindings;
                 });
+    }
+
+    @NotNull
+    private Mono<Set<String>> refactorBindingsUsingBindingPaths(JsonNode widgetDsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern, ArrayNode bindingPathList, String widgetName) {
+        Mono<Set<String>> refactorTriggerBindingsMono;
+        refactorTriggerBindingsMono = Flux.fromStream(StreamSupport.stream(bindingPathList.spliterator(), true))
+                .flatMap(dynamicBindingPath -> {
+                    String key = dynamicBindingPath.get(FieldName.KEY).asText();
+                    if (widgetDsl.has(FieldName.WIDGET_TYPE) &&
+                            FieldName.LIST_WIDGET.equals(widgetDsl.get(FieldName.WIDGET_TYPE).asText()) &&
+                            key.contains(oldName)) {
+                        key = key.replace(oldName, newName);
+                        ((ObjectNode) dynamicBindingPath).set(FieldName.KEY, new TextNode(key));
+                    }
+                    Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
+                    final String finalKey = key;
+                    return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
+                            .flatMap(replacementMap -> {
+                                if (replacementMap.isEmpty()) {
+                                    return Mono.empty();
+                                }
+                                DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, finalKey, replacementMap);
+                                String entityPath = StringUtils.hasLength(widgetName) ? widgetName + "." : "";
+                                return Mono.just(entityPath + finalKey);
+                            });
+                })
+                .collect(Collectors.toSet());
+        return refactorTriggerBindingsMono;
     }
 
     Mono<Set<String>> refactorNameInAction(ActionDTO actionDTO, String oldName, String newName,

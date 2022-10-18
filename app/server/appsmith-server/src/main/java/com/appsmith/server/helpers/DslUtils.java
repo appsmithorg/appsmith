@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -73,7 +72,7 @@ public class DslUtils {
             if (currentNode instanceof ArrayNode) {
                 if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
                     try {
-                        currentNode = ((List<?>) currentNode).get(Integer.parseInt(nextKey));
+                        currentNode = ((ArrayNode) currentNode).get(Integer.parseInt(nextKey));
                     } catch (IndexOutOfBoundsException e) {
                         // The index being referred does not exist, hence the path would not exist.
                         return null;
