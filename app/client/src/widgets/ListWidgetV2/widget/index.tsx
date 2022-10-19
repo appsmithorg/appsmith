@@ -169,13 +169,7 @@ class ListWidget extends BaseWidget<
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
     this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
-    // if (this.props.infiniteScroll) {
-    //   this.initVirtualizer();
 
-    //   if (this.virtualizer) {
-    //     this.generateVirtualItems(this.virtualizer);
-    //   }
-    // }
     if (this.props.infiniteScroll) {
       this.generateMetaWidgets();
     }
