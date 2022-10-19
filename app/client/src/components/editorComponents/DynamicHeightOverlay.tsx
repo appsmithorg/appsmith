@@ -23,7 +23,9 @@ import { getParentToOpenSelector } from "selectors/widgetSelectors";
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
   height: 100%;
-  position: relative;
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
 `;
 
 const OVERLAY_COLOR = "#F32B8B";
@@ -614,7 +616,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
 
     const styles: CSSProperties = useMemo(
       () => ({
-        position: "absolute",
         height: (bottomRow - topRow) * parentRowSpace,
         width: (rightColumn - leftColumn) * parentColumnSpace,
         left:
@@ -623,8 +624,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
         top:
           topRow * parentRowSpace +
           (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-        zIndex: 3,
-        pointerEvents: "none",
       }),
       [
         bottomRow,
