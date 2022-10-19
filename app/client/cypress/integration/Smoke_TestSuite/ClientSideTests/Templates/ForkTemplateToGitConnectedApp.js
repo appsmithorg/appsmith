@@ -25,6 +25,7 @@ describe("Fork a template to the current app", () => {
   });
 
   it("1.Bug #17002 Forking a template into an existing app which is connected to git makes the application go into a bad state ", function() {
+    cy.wait(5000);
     cy.get(template.startFromTemplateCard).click();
     cy.wait("@fetchTemplate").should(
       "have.nested.property",
@@ -52,7 +53,7 @@ describe("Fork a template to the current app", () => {
     cy.CreatePage();
     cy.get(template.startFromTemplateCard).click();
 
-    cy.wait(1000);
+    cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath("//div[text()='Customer Support Dashboard']").click();
 
