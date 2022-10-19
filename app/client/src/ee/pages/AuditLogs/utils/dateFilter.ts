@@ -1,30 +1,30 @@
 import moment from "moment";
 import { DateRange } from "@blueprintjs/datetime/src/common/dateRange";
-import { initialAuditLogsDateFilter } from "@appsmith/reducers/auditLogsReducer";
+import { initialAuditLogsDateFilter as initial } from "@appsmith/reducers/auditLogsReducer";
 
-export const getStartOfDayUnix = (date: Date) => {
+const getStartOfDayUnix = (date: Date) => {
   return (
     moment(date)
       .startOf("day")
       .unix() * 1000
   );
 };
-export const getEndOfDayUnix = (date: Date) => {
+const getEndOfDayUnix = (date: Date) => {
   return (
     moment(date)
       .endOf("day")
       .unix() * 1000
   );
 };
-export const parseDateFilterInput = ([
-  inputStartDate,
-  inputEndDate,
-]: DateRange): [number, number] => {
+export const parseDateFilterInput = ([start, end]: DateRange): [
+  number,
+  number,
+] => {
   /* By default, we will set the initial date value for start and end
    *
    * We need to parse the dates into unix milliseconds
    * for startDate, it will always be the start of the day selected
-   * for endDate, it will always be the end of the dat selected
+   * for endDate, it will always be the end of the day selected
    * This will ensure minimum range selected is at least 1 day
    * and will also capture a full day for larger ranges
    *
@@ -33,23 +33,23 @@ export const parseDateFilterInput = ([
    *
    */
 
-  let startDate = initialAuditLogsDateFilter.startDate;
-  let endDate = initialAuditLogsDateFilter.endDate;
+  let startDate = initial.startDate;
+  let endDate = initial.endDate;
 
-  if (inputStartDate === null) {
-    if (inputEndDate !== null) {
-      startDate = getStartOfDayUnix(inputEndDate);
+  if (start === null) {
+    if (end !== null) {
+      startDate = getStartOfDayUnix(end);
     }
   } else {
-    startDate = getStartOfDayUnix(inputStartDate);
+    startDate = getStartOfDayUnix(start);
   }
 
-  if (inputEndDate === null) {
-    if (inputStartDate !== null) {
-      endDate = getEndOfDayUnix(inputStartDate);
+  if (end === null) {
+    if (start !== null) {
+      endDate = getEndOfDayUnix(start);
     }
   } else {
-    endDate = getEndOfDayUnix(inputEndDate);
+    endDate = getEndOfDayUnix(end);
   }
 
   return [startDate, endDate];
