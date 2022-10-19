@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DirtiesContext
-public class RoleConfigurationViewTest {
+public class RoleConfigurationSolutionTest {
 
     @Autowired
     UserRepository userRepository;
@@ -36,7 +36,7 @@ public class RoleConfigurationViewTest {
     UserUtils userUtils;
 
     @Autowired
-    RoleConfigurationView roleConfigurationView;
+    RoleConfigurationSolution roleConfigurationSolution;
 
     @MockBean
     TenantResources tenantResources;
@@ -77,7 +77,7 @@ public class RoleConfigurationViewTest {
             superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
         }
 
-        Mono<RoleViewDTO> allTabViewsMono = roleConfigurationView.getAllTabViews(superAdminPermissionGroupId);
+        Mono<RoleViewDTO> allTabViewsMono = roleConfigurationSolution.getAllTabViews(superAdminPermissionGroupId);
 
         StepVerifier.create(allTabViewsMono)
                 .assertNext(allTabView -> {
@@ -93,7 +93,6 @@ public class RoleConfigurationViewTest {
 
                 })
                 .verifyComplete();
-
     }
 
 }

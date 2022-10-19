@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.roles;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -14,10 +15,12 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
@@ -26,6 +29,10 @@ import com.appsmith.server.solutions.roles.dtos.DatasourceResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.BaseView;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
+import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
+import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,6 +90,15 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    RoleConfigurationSolution roleConfigurationSolution;
+
+    @Autowired
+    PluginRepository pluginRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -502,5 +518,105 @@ public class WorkspaceResourcesTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfigurationChangesForApplicationResourcesTab() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChanges workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("testSaveRoleConfigurationChanges application");
+        Application createdApplication = applicationPageService.createApplication(application, workspace.getId()).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace.getId());
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Workspace : Give create, edit and view permissions to the workspace
+        UpdateRoleEntityDTO workspaceEntity = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 1, 0, 1, 0, 0),
+                createdWorkspace.getName()
+        );
+        UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 1, 0, 1, 0, 0),
+                createdApplication.getName()
+        );
+        UpdateRoleEntityDTO pageEntity = new UpdateRoleEntityDTO(
+                NewPage.class.getSimpleName(),
+                createdApplication.getPages().get(0).getId(),
+                List.of(0, 1, 0, 1, -1, -1),
+                "unnecessary name"
+        );
+        UpdateRoleEntityDTO actionEntity = new UpdateRoleEntityDTO(
+                NewAction.class.getSimpleName(),
+                createdAction.getId(),
+                List.of(-1, 1, 0, 1, -1, -1),
+                "unnecessary name"
+        );
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                workspaceEntity,
+                applicationEntity,
+                pageEntity,
+                actionEntity
+        ));
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+
+        Mono<RoleViewDTO> roleConfigChangeMono = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
+
+        StepVerifier.create(roleConfigChangeMono)
+                .assertNext(roleViewDTO -> {
+                    Assertions.assertThat(roleViewDTO).isNotNull();
+                    BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.APPLICATION_RESOURCES.getName())
+                            .getData()
+                            .getEntities()
+                            .stream()
+                            .filter(baseView -> baseView.getId().equals(createdWorkspace.getId()))
+                            .findFirst().get();
+
+                    assertThat(workspaceView.getEnabled()).isEqualTo(List.of(0,1,0,1,0,0));
+
+                    BaseView applicationView = workspaceView.getChildren().stream().findFirst().get().getEntities().stream().findFirst().get();
+                    assertThat(applicationView.getEnabled()).isEqualTo(List.of(0,1,0,1,0,0));
+
+                    BaseView pageView = applicationView.getChildren().stream().findFirst().get().getEntities().stream().findFirst().get();
+                    assertThat(pageView.getEnabled()).isEqualTo(List.of(0, 1, 0, 1, -1, -1));
+
+                    BaseView actionView = pageView.getChildren().stream().findFirst().get().getEntities().stream().findFirst().get();
+                    assertThat(actionView.getEnabled()).isEqualTo(List.of(-1, 1, 0, 1, -1, -1));
+
+
+                })
+                .verifyComplete();
+    }
+
+    // TODO : Add tests for action & datasource execute on enabling edit/view for workspace & applications in Applicaiton Resources tab
 
 }

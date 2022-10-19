@@ -6,7 +6,9 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
+import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,9 +31,11 @@ import java.util.List;
 public class PermissionGroupController {
 
     private final PermissionGroupService service;
+    private final RoleConfigurationSolution roleConfigurationSolution;
 
-    public PermissionGroupController(PermissionGroupService service) {
+    public PermissionGroupController(PermissionGroupService service, RoleConfigurationSolution roleConfigurationSolution) {
         this.service = service;
+        this.roleConfigurationSolution = roleConfigurationSolution;
     }
 
     @GetMapping
@@ -66,6 +70,13 @@ public class PermissionGroupController {
     @GetMapping("/configure/{permissionGroupId}")
     public Mono<ResponseDTO<RoleViewDTO>> getPermissionGroupConfiguration(@PathVariable String permissionGroupId) {
         return service.findConfigurableRoleById(permissionGroupId)
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @PutMapping("/configure/{permissionGroupId}")
+    public Mono<ResponseDTO<RoleViewDTO>> getPermissionGroupConfiguration(@PathVariable String permissionGroupId,
+                                                                          @RequestBody UpdateRoleConfigDTO updateRoleConfigDTO) {
+        return roleConfigurationSolution.updateRoles(permissionGroupId, updateRoleConfigDTO)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

@@ -21,7 +21,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.PermissionGroupServiceCEImpl;
-import com.appsmith.server.solutions.roles.RoleConfigurationView;
+import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -62,7 +62,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     private final UserGroupRepository userGroupRepository;
 
-    private final RoleConfigurationView roleConfigurationView;
+    private final RoleConfigurationSolution roleConfigurationSolution;
 
     public PermissionGroupServiceImpl(Scheduler scheduler,
                                       Validator validator,
@@ -78,7 +78,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       ModelMapper modelMapper,
                                       PolicyGenerator policyGenerator,
                                       UserGroupRepository userGroupRepository,
-                                      RoleConfigurationView roleConfigurationView) {
+                                      RoleConfigurationSolution roleConfigurationSolution) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 sessionUserService, tenantService, userRepository, policyUtils, configRepository);
@@ -87,7 +87,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userGroupRepository = userGroupRepository;
-        this.roleConfigurationView = roleConfigurationView;
+        this.roleConfigurationSolution = roleConfigurationSolution;
         this.userRepository = userRepository;
     }
 
@@ -237,7 +237,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         // MANAGE_PERMISSION_GROUPS permission.
         return repository.findById(id, READ_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMap(permissionGroup -> roleConfigurationView.getAllTabViews(permissionGroup.getId())
+                .flatMap(permissionGroup -> roleConfigurationSolution.getAllTabViews(permissionGroup.getId())
                         .map(roleViewDTO -> {
                             roleViewDTO.setId(permissionGroup.getId());
                             roleViewDTO.setName(permissionGroup.getName());

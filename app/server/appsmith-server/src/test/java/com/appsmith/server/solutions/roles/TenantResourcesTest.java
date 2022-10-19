@@ -9,12 +9,18 @@ import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.BaseView;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
+import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
+import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +34,10 @@ import reactor.test.StepVerifier;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -57,6 +65,12 @@ public class TenantResourcesTest {
 
     @Autowired
     PermissionGroupService permissionGroupService;
+
+    @Autowired
+    TenantService tenantService;
+
+    @Autowired
+    RoleConfigurationSolution roleConfigurationSolution;
 
     User api_user = null;
 
@@ -112,7 +126,7 @@ public class TenantResourcesTest {
                     // assert that create workspace permission is given to super admin
                     assertThat(workspacesView.getEnabled().get(0)).isEqualTo(1);
                     BaseView auditLogView = topView.getEntities().get(1);
-                    assertThat(auditLogView.getName()).isEqualTo("Audit Logs");
+                    assertThat(auditLogView.getName()).isEqualTo(AUDIT_LOGS);
                     // assert that view audit log permission is given to super admin
                     assertThat(auditLogView.getEnabled().get(3)).isEqualTo(1);
 
@@ -187,6 +201,73 @@ public class TenantResourcesTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfigurationChangesForOthersTab() {
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChanges workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Give edit created workspace and read audit logs permission
+        UpdateRoleEntityDTO workspaceEntity = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(-1, 1, 0, -1),
+                createdWorkspace.getName()
+        );
+        UpdateRoleEntityDTO auditLogEntity = new UpdateRoleEntityDTO(
+                Tenant.class.getSimpleName(),
+                tenantService.getDefaultTenantId().block(),
+                List.of(-1, -1, -1, 1),
+                AUDIT_LOGS
+        );
+
+        updateRoleConfigDTO.setTabName(RoleTab.OTHERS.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity, auditLogEntity));
+
+        Mono<RoleViewDTO> roleConfigChangeMono = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
+
+        StepVerifier.create(roleConfigChangeMono)
+                .assertNext(roleViewDTO -> {
+                    Assertions.assertThat(roleViewDTO).isNotNull();
+                    BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.OTHERS.getName())
+                            .getData()
+                            .getEntities()
+                            .stream()
+                            .filter(baseView -> baseView.getName().equals("Workspaces"))
+                            .findFirst().get();
+
+                    // First assert that the parent permissions haven't changed (for ALL workspaces)
+                    AssertionsForClassTypes.assertThat(workspaceView.getEnabled()).isEqualTo(List.of(0,-1, -1, -1));
+
+                    BaseView createdWorkspaceView = workspaceView.getChildren().stream().findFirst().get()
+                            .getEntities().stream()
+                            .filter(baseView -> baseView.getId().equals(createdWorkspace.getId()))
+                            .findFirst().get();
+                    AssertionsForClassTypes.assertThat(createdWorkspaceView.getEnabled()).isEqualTo(List.of(-1, 1, 0, -1));
+
+                    BaseView auditLogView = roleViewDTO.getTabs().get(RoleTab.OTHERS.getName())
+                            .getData()
+                            .getEntities()
+                            .stream()
+                            .filter(baseView -> baseView.getName().equals(AUDIT_LOGS))
+                            .findFirst().get();
+
+                    // Assert that Audit logs view is now set to true
+                    AssertionsForClassTypes.assertThat(auditLogView.getEnabled()).isEqualTo(List.of(-1,-1, -1, 1));
+
+                })
+                .verifyComplete();
     }
 
 }

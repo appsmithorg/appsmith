@@ -42,6 +42,7 @@ import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
+import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
@@ -156,7 +157,7 @@ public class TenantResources {
 
         BaseView baseView = new BaseView();
         baseView.setId(tenant.getId());
-        baseView.setName("Audit Logs");
+        baseView.setName(AUDIT_LOGS);
         Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(permissionGroupId,
                 Tenant.class, policyGenerator, tenant.getPolicies(), tenantAuditLogPermissionForOther,
                 RoleTab.OTHERS.getViewablePermissions());

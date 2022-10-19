@@ -178,7 +178,7 @@ public class UserGroupServiceTest {
                 .assertNext(list -> {
                     assertThat(list.size()).isGreaterThan(0);
 
-                    // Assert that the created group is returned in the listing.
+                    // Assert that the created group is returned inside the listing.
                     assertThat(list.stream()
                             .filter(userGroup1 -> userGroup1.getName().equals(name))
                             .findFirst()

@@ -1,8 +1,12 @@
 package com.appsmith.server.solutions.roles.constants;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Tenant;
 import lombok.Getter;
+import reactor.util.function.Tuple3;
+import reactor.util.function.Tuples;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +64,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATION
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
+import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.ASSOCIATE_ROLE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.CREATE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.DELETE;
@@ -114,7 +119,9 @@ public enum RoleTab {
                     VIEW,
                     MAKE_PUBLIC,
                     EXPORT
-            )
+            ),
+            // No duplicate entities for this tab
+            null
     ),
     DATASOURCES_QUERIES(
             "Datasources & Queries",
@@ -145,7 +152,10 @@ public enum RoleTab {
                     EDIT,
                     DELETE,
                     VIEW
-            )),
+            ),
+            // No duplicate entities for this tab
+            null
+    ),
     GROUPS_ROLES(
             "Groups & Roles",
             Set.of(
@@ -176,7 +186,7 @@ public enum RoleTab {
                     DELETE_PERMISSION_GROUPS,
                     READ_PERMISSION_GROUPS,
                     ASSIGN_PERMISSION_GROUPS
-                    ),
+            ),
             List.of(
                     CREATE,
                     EDIT,
@@ -185,6 +195,20 @@ public enum RoleTab {
                     INVITE_USER,
                     REMOVE_USER,
                     ASSOCIATE_ROLE
+            ),
+            List.of(
+                    Tuples.of("Groups", Tenant.class,
+                            List.of(CREATE_USER_GROUPS,
+                                    TENANT_MANAGE_USER_GROUPS,
+                                    TENANT_READ_USER_GROUPS,
+                                    TENANT_DELETE_USER_GROUPS)
+                    ),
+                    Tuples.of("Roles", Tenant.class,
+                            List.of(CREATE_PERMISSION_GROUPS,
+                                    TENANT_MANAGE_PERMISSION_GROUPS,
+                                    TENANT_READ_PERMISSION_GROUPS,
+                                    TENANT_DELETE_PERMISSION_GROUPS)
+                    )
             )
     ),
     OTHERS(
@@ -204,6 +228,10 @@ public enum RoleTab {
                     EDIT,
                     DELETE,
                     VIEW
+            ),
+            List.of(
+                    Tuples.of("Workspaces", Tenant.class, List.of(CREATE_WORKSPACES)),
+                    Tuples.of(AUDIT_LOGS, Tenant.class, List.of(READ_TENANT_AUDIT_LOGS))
             )
     ),
     ;
@@ -213,11 +241,26 @@ public enum RoleTab {
 
     private List<PermissionViewableName> viewablePermissions;
 
-    RoleTab(String name, Set<AclPermission> permissions, List<PermissionViewableName> viewablePermissions) {
+    // Add a representation of duplicate entities in a given tab and the entity type to differentiate the acl permissions
+    // represented by simpler viewable names
+    private List<Tuple3<String, Class, List<AclPermission>>> duplicateEntities;
+
+    RoleTab(String name,
+            Set<AclPermission> permissions,
+            List<PermissionViewableName> viewablePermissions,
+            List<Tuple3<String, Class, List<AclPermission>>> duplicateEntities) {
+
         this.name = name;
         this.permissions = permissions;
         this.viewablePermissions = viewablePermissions;
+        this.duplicateEntities = duplicateEntities;
     }
 
+    public static RoleTab getTabByValue(String name) {
+        return Arrays.stream(RoleTab.values())
+                .filter(roleTab -> roleTab.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
 
 }

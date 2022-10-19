@@ -1,8 +1,14 @@
 package com.appsmith.server.solutions.roles.constants;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Page;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
@@ -70,7 +76,7 @@ import static com.appsmith.server.solutions.roles.constants.PermissionViewableNa
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.REMOVE_USER;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.VIEW;
 
-public class PermissionToViewablePermissionConstants {
+public class AclPermissionAndViewablePermissionConstantsMaps {
     private static final Map<AclPermission, PermissionViewableName> permissionViewableMap = Map.ofEntries(
             // Workspace level permissions
             Map.entry(WORKSPACE_CREATE_APPLICATION, CREATE),
@@ -145,7 +151,36 @@ public class PermissionToViewablePermissionConstants {
 
     );
 
+    private static final Map<PermissionViewableName, List<AclPermission>> viewableToPermissionsMap =
+            permissionViewableMap.entrySet()
+                    .stream()
+                    .collect(
+                            // Switch the keys and values to create a swapped map.
+                            Collectors.groupingBy(
+                                    Map.Entry::getValue,
+                                    Collectors.mapping(Map.Entry::getKey, Collectors.toList()))
+                    );
+
     public static PermissionViewableName getPermissionViewableName(AclPermission permission) {
         return permissionViewableMap.get(permission);
+    }
+
+    public static List<AclPermission> getAclPermissionsFromViewableName(PermissionViewableName viewableName, Class<?> aClass) {
+        return viewableToPermissionsMap.get(viewableName)
+                .stream()
+                .filter(aclPermission -> {
+                    Class entityClass = aClass;
+                    if (aClass.equals(NewPage.class)) {
+                        entityClass = Page.class;
+                    } else if (aClass.equals(NewAction.class)) {
+                        entityClass = Action.class;
+                    }
+
+                    if (aclPermission.getEntity().equals(entityClass)) {
+                        return true;
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
     }
 }
