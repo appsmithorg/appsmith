@@ -97,9 +97,8 @@ export function* getChildOfContainerLikeWidget(
     );
     if (tabsMeta) return tabsMeta.selectedTabWidgetId;
     return containerLikeWidget.tabsObj[0].widgetId;
-  } else {
-    if (Array.isArray(containerLikeWidget.children))
-      return containerLikeWidget.children[0];
+  } else if (Array.isArray(containerLikeWidget.children)) {
+    return containerLikeWidget.children[0];
   }
 }
 

@@ -1,4 +1,3 @@
-import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "./generators";
 import {
   GridDefaults,
@@ -61,7 +60,7 @@ import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigratio
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
 import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
-import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
+// import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
 import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
 
 /**
@@ -73,7 +72,7 @@ import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
 export const addLogBlackListToAllListWidgetChildren = (
   currentDSL: DSLWidget,
 ) => {
-  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
     if (children.type === "LIST_WIDGET") {
       const widgets = get(
         children,
@@ -109,7 +108,7 @@ export const addLogBlackListToAllListWidgetChildren = (
  * @returns
  */
 export const addPrivateWidgetsToAllListWidgets = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
     if (child.type === "LIST_WIDGET") {
       const privateWidgets: PrivateWidgets = {};
       Object.keys(child.template).forEach((entityName) => {
@@ -224,7 +223,7 @@ export const updateContainers = (dsl: DSLWidget) => {
 //transform chart data, from old chart widget to new chart widget
 //updated chart widget has support for multiple series
 export const chartDataMigration = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
     if (
       children.type === "CHART_WIDGET" &&
       children.chartData &&
@@ -275,7 +274,7 @@ export const singleChartDataMigration = (currentDSL: DSLWidget) => {
 };
 
 export const mapDataMigration = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
     if (children.type === "MAP_WIDGET") {
       if (children.markers) {
         children.markers = children.markers.map(
@@ -353,7 +352,7 @@ export const mapAllowHorizontalScrollMigration = (currentDSL: DSLWidget) => {
 export const tabsWidgetTabsPropertyMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children
     ?.filter(Boolean)
-    .map((child: WidgetProps) => {
+    .map((child: DSLWidget) => {
       if (child.type === "TABS_WIDGET") {
         try {
           const tabs = isString(child.tabs)
@@ -362,7 +361,7 @@ export const tabsWidgetTabsPropertyMigration = (currentDSL: DSLWidget) => {
           const newTabs = tabs.map((tab: any) => {
             const childForTab = child.children
               ?.filter(Boolean)
-              .find((tabChild: WidgetProps) => tabChild.tabId === tab.id);
+              .find((tabChild: DSLWidget) => tabChild.tabId === tab.id);
             if (childForTab) {
               tab.widgetId = childForTab.widgetId;
             }
@@ -598,7 +597,7 @@ export const migrateOldChartData = (currentDSL: DSLWidget) => {
  * @returns
  */
 export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+  currentDSL.children = currentDSL.children?.map((children: DSLWidget) => {
     if (children.type === "CHART_WIDGET") {
       if (Array.isArray(children.chartData)) {
         const newChartData = {};
@@ -668,7 +667,7 @@ export const calculateDynamicHeight = () => {
 };
 
 export const migrateInitialValues = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
     if (child.type === "INPUT_WIDGET") {
       child = {
         isRequired: false,
@@ -1324,7 +1323,7 @@ const addIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
 export const migrateIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
   const newDSL = addIsDisabledToButtonColumn(currentDSL);
 
-  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+  newDSL.children = newDSL.children?.map((children: DSLWidget) => {
     return migrateIsDisabledToButtonColumn(children);
   });
   return currentDSL;
@@ -1347,10 +1346,10 @@ export const migrateToNewMultiSelect = (currentDSL: DSLWidget) => {
 };
 
 export const migrateObjectFitToImageWidget = (dsl: DSLWidget) => {
-  const addObjectFitProperty = (widgetProps: WidgetProps) => {
+  const addObjectFitProperty = (widgetProps: DSLWidget) => {
     widgetProps.objectFit = "cover";
     if (widgetProps.children && widgetProps.children.length) {
-      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+      widgetProps.children.forEach((eachWidgetProp: DSLWidget) => {
         if (widgetProps.type === "IMAGE_WIDGET") {
           addObjectFitProperty(eachWidgetProp);
         }
@@ -1375,7 +1374,7 @@ export const migrateOverFlowingTabsWidgets = (
       (currentDSL.bottomRow - currentDSL.topRow) * currentDSL.parentRowSpace;
     const widgetHasOverflowingChildren = currentDSL.children.some((eachTab) => {
       if (eachTab.children && eachTab.children.length) {
-        return eachTab.children.some((child: WidgetProps) => {
+        return eachTab.children.some((child: DSLWidget) => {
           if (canvasWidgets[child.widgetId].repositioned) {
             const tabHeight = child.bottomRow * child.parentRowSpace;
             return tabsWidgetHeight < tabHeight;
@@ -1480,13 +1479,13 @@ export const migrateNewlyAddedTabsWidgetsMissingData = (
 };
 
 export const migrateToNewLayout = (dsl: DSLWidget) => {
-  const scaleWidget = (widgetProps: WidgetProps) => {
+  const scaleWidget = (widgetProps: DSLWidget) => {
     widgetProps.bottomRow *= GRID_DENSITY_MIGRATION_V1;
     widgetProps.topRow *= GRID_DENSITY_MIGRATION_V1;
     widgetProps.leftColumn *= GRID_DENSITY_MIGRATION_V1;
     widgetProps.rightColumn *= GRID_DENSITY_MIGRATION_V1;
     if (widgetProps.children && widgetProps.children.length) {
-      widgetProps.children.forEach((eachWidgetProp: WidgetProps) => {
+      widgetProps.children.forEach((eachWidgetProp: DSLWidget) => {
         scaleWidget(eachWidgetProp);
       });
     }
@@ -1531,29 +1530,29 @@ const addFilterDefaultValue = (currentDSL: DSLWidget) => {
 export const migrateFilterValueForDropDownWidget = (currentDSL: DSLWidget) => {
   const newDSL = addFilterDefaultValue(currentDSL);
 
-  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+  newDSL.children = newDSL.children?.map((children: DSLWidget) => {
     return migrateFilterValueForDropDownWidget(children);
   });
 
   return newDSL;
 };
 
-export const migratePropertiesForDynamicHeight = (currentDSL: DSLWidget) => {
-  const widgetsWithDynamicHeight = compact(
-    ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
-      if (config.features?.dynamicHeight) return config.type;
-    }),
-  );
-  if (widgetsWithDynamicHeight.includes(currentDSL.type)) {
-    currentDSL = {
-      ...currentDSL,
-      ...WidgetFeatureProps[RegisteredWidgetFeatures.DYNAMIC_HEIGHT],
-    };
-  }
-  if (Array.isArray(currentDSL.children)) {
-    currentDSL.children = currentDSL.children.map(
-      migratePropertiesForDynamicHeight,
-    );
-  }
-  return currentDSL;
-};
+// export const migratePropertiesForDynamicHeight = (currentDSL: DSLWidget) => {
+//   const widgetsWithDynamicHeight = compact(
+//     ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
+//       if (config.features?.dynamicHeight) return config.type;
+//     }),
+//   );
+//   if (widgetsWithDynamicHeight.includes(currentDSL.type)) {
+//     currentDSL = {
+//       ...currentDSL,
+//       ...WidgetFeatureProps[RegisteredWidgetFeatures.DYNAMIC_HEIGHT],
+//     };
+//   }
+//   if (Array.isArray(currentDSL.children)) {
+//     currentDSL.children = currentDSL.children.map(
+//       migratePropertiesForDynamicHeight,
+//     );
+//   }
+//   return currentDSL;
+// };
