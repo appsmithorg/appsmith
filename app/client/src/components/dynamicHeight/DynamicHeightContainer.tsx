@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useRef, useState } from "react";
+import React, { PropsWithChildren, useRef, useEffect, useState } from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import styled from "styled-components";
 
@@ -9,6 +9,7 @@ const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
 
 interface DynamicHeightContainerProps {
   maxDynamicHeight: number;
+  minDynamicHeight: number;
   isAutoHeightWithLimits: boolean;
   onHeightUpdate: (height: number) => void;
 }
@@ -21,13 +22,14 @@ export default function DynamicHeightContainer({
   children,
   isAutoHeightWithLimits,
   maxDynamicHeight,
+  minDynamicHeight,
   onHeightUpdate,
 }: PropsWithChildren<DynamicHeightContainerProps>) {
   const [expectedHeight, setExpectedHeight] = useState(0);
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const observer = React.useRef(
+  const observer = useRef(
     new ResizeObserver((entries) => {
       const height = entries[0].contentRect.height;
       setExpectedHeight(height);
@@ -35,7 +37,7 @@ export default function DynamicHeightContainer({
     }),
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (ref.current) {
       observer.current.observe(ref.current);
     }
@@ -46,6 +48,10 @@ export default function DynamicHeightContainer({
       }
     };
   }, [observer]);
+
+  useEffect(() => {
+    onHeightUpdate(expectedHeight);
+  }, [minDynamicHeight, maxDynamicHeight]);
 
   if (isAutoHeightWithLimits) {
     const expectedHeightInRows = Math.ceil(

@@ -11,6 +11,7 @@ describe("<DynamicHeightContainer />", () => {
       .create(
         <DynamicHeightContainer
           maxDynamicHeight={0}
+          minDynamicHeight={0}
           isAutoHeightWithLimits={false}
           onHeightUpdate={() => {}}
         >
@@ -26,6 +27,7 @@ describe("<DynamicHeightContainer />", () => {
       const getTestComponent = () => (
         <DynamicHeightContainer
           maxDynamicHeight={0}
+          minDynamicHeight={0}
           isAutoHeightWithLimits={false}
           onHeightUpdate={() => {}}
         >
@@ -46,6 +48,7 @@ describe("<DynamicHeightContainer />", () => {
       const getTestComponent = () => (
         <DynamicHeightContainer
           maxDynamicHeight={0}
+          minDynamicHeight={0}
           isAutoHeightWithLimits={true}
           onHeightUpdate={() => {}}
         >
