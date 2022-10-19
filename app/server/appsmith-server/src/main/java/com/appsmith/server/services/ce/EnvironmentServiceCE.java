@@ -9,21 +9,4 @@ import reactor.core.publisher.Mono;
 
 public interface EnvironmentServiceCE extends CrudService<Environment, String> {
 
-    //Read
-    Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission);
-
-    Mono<Environment> findById(String id, AclPermission aclPermission);
-
-    Mono<EnvironmentDTO> findEnvironmentByEnvironmentId(String envId);
-
-    Flux<EnvironmentDTO> findEnvironmentByWorkspaceId(String workspaceId);
-
-    //update --no update calls on CEServices
-
-    //Create
-
-    //Delete
-
-
-    EnvironmentDTO createEnvironmentDTO(Environment environment);
 }
