@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -27,6 +29,7 @@ import com.google.cloud.firestore.GeoPoint;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -66,6 +69,7 @@ import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static com.external.constants.FieldName.WHERE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -74,7 +78,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 public class FirestorePluginTest {
 
-    static FirestorePlugin.FirestorePluginExecutor pluginExecutor = new FirestorePlugin.FirestorePluginExecutor();
+    FirestorePlugin.FirestorePluginExecutor pluginExecutor = new FirestorePlugin.FirestorePluginExecutor();
 
     @Container
     public static final FirestoreEmulatorContainer emulator = new FirestoreEmulatorContainer(
@@ -618,9 +622,26 @@ public class FirestorePluginTest {
                             error.getMessage());
 
                     // Check that the error does not get logged externally.
-                    assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException) error).getError().getErrorAction()));
+                    assertNotEquals(AppsmithErrorAction.LOG_EXTERNALLY, ((AppsmithPluginException) error).getError().getErrorAction());
                 })
                 .verify();
+    }
+
+    @Test
+    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+
+        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestoreConnection));
+        final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -1453,18 +1474,22 @@ public class FirestorePluginTest {
         Param param = new Param();
         param.setKey("Input1.text");
         param.setValue("Jon");
+        param.setClientDataType(ClientDataType.STRING);
         params.add(param);
         param = new Param();
         param.setKey("Input2.text");
         param.setValue("Von Neumann");
+        param.setClientDataType(ClientDataType.STRING);
         params.add(param);
         param = new Param();
         param.setKey("Input3.text");
         param.setValue("[\"Zuric\", \"Gottingen\"]");
+        param.setClientDataType(ClientDataType.ARRAY);
         params.add(param);
         param = new Param();
         param.setKey("Input4.text");
         param.setValue("{\"computational complexity\": 100, \"math\": 100}");
+        param.setClientDataType(ClientDataType.OBJECT);
         params.add(param);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();

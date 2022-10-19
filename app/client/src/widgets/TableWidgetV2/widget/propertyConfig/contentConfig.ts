@@ -145,8 +145,6 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (props: TableWidgetProps) => !props.isVisiblePagination,
-        dependencies: ["isVisiblePagination"],
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
@@ -167,9 +165,8 @@ export default [
             },
           },
         },
-        hidden: (props: TableWidgetProps) =>
-          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled", "isVisiblePagination"],
+        hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
       {
         helpText: "Triggers an action when a table page is changed",
@@ -179,9 +176,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: TableWidgetProps) =>
-          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
-        dependencies: ["isVisiblePagination", "serverSidePaginationEnabled"],
+        hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
       {
         helpText: "Triggers an action when a table page size is changed",
@@ -191,9 +187,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: TableWidgetProps) =>
-          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
-        dependencies: ["isVisiblePagination", "serverSidePaginationEnabled"],
+        hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
     ],
   },

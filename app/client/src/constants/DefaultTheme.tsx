@@ -2820,7 +2820,7 @@ export const theme: Theme = {
       darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
-    artboard: "#F6F6F6",
+    artboard: "#F8FAFC",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,

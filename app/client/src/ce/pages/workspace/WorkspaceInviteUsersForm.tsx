@@ -46,6 +46,7 @@ import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-co
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
+  Callout,
   Size,
   Text,
   TextType,
@@ -53,7 +54,6 @@ import {
   DropdownOption,
 } from "design-system";
 import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";

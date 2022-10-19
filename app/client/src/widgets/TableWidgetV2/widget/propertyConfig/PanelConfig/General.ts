@@ -234,5 +234,32 @@ export const GeneralStyle = {
         },
       },
     },
+
+    {
+      propertyName: "imageSize",
+      dependencies: ["primaryColumns", "columnType"],
+      label: "Image Size",
+      defaultValue: "DEFAULT",
+      controlType: "DROP_DOWN",
+      options: [
+        {
+          label: "Default",
+          value: "DEFAULT",
+        },
+        {
+          label: "Medium",
+          value: "MEDIUM",
+        },
+        {
+          label: "Large",
+          value: "LARGE",
+        },
+      ],
+      isBindProperty: false,
+      isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.IMAGE]);
+      },
+    },
   ],
 };
