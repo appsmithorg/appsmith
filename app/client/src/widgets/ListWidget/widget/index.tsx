@@ -522,7 +522,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
 
-          const widgetName = this.props.widgetName;
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
               if (
