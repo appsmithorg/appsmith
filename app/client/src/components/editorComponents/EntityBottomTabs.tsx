@@ -1,22 +1,18 @@
-import React, { useState, useEffect, RefObject } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setCurrentTab } from "actions/debuggerActions";
+import React, { RefObject, useMemo } from "react";
 import {
   CollapsibleTabProps,
   collapsibleTabRequiredPropKeys,
   TabComponent,
   TabProp,
 } from "design-system";
-import { getCurrentDebuggerTab } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 
 type EntityBottomTabsProps = {
-  defaultIndex: number;
   tabs: TabProp[];
   responseViewer?: boolean;
-  onSelect?: (tab: any) => void;
-  selectedTabIndex?: number; // this is used in the event you want to directly control the index changes.
+  onSelect?: (tab: TabProp["key"]) => void;
+  selectedTabKey: string;
   canCollapse?: boolean;
   // Reference to container for collapsing or expanding content
   containerRef?: RefObject<HTMLElement>;
@@ -37,41 +33,34 @@ export const isCollapsibleEntityBottomTab = (
 function EntityBottomTabs(
   props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
 ) {
-  const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
-  const currentTab = useSelector(getCurrentDebuggerTab);
-  const dispatch = useDispatch();
   const onTabSelect = (index: number) => {
-    dispatch(setCurrentTab(props.tabs[index].key));
-    props.onSelect && props.onSelect(props.tabs[index]);
-    setIndex(index);
-  };
+    const tab = props.tabs[index];
+    props.onSelect && props.onSelect(tab.key);
 
-  const setIndex = (index: number) => {
-    const tabKey = props.tabs[index]?.key;
-    setSelectedIndex(index);
-    if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tabKey)) {
+    if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tab.key)) {
       AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: tabKey,
+        tabName: tab.key,
       });
     }
   };
 
-  useEffect(() => {
-    const index = props.tabs.findIndex((tab) => tab.key === currentTab);
+  const getIndex = useMemo(() => {
+    const index = props.tabs.findIndex(
+      (tab) => tab.key === props.selectedTabKey,
+    );
+
     if (index >= 0) {
-      setIndex(index);
-    } else {
-      setIndex(props.defaultIndex);
+      return index;
     }
-  }, [currentTab]);
+
+    return 0;
+  }, [props.selectedTabKey]);
 
   return (
     <TabComponent
       onSelect={onTabSelect}
       responseViewer={props.responseViewer}
-      selectedIndex={
-        props.selectedTabIndex ? props.selectedTabIndex : selectedIndex
-      }
+      selectedIndex={getIndex}
       tabs={props.tabs}
       {...(isCollapsibleEntityBottomTab(props)
         ? {

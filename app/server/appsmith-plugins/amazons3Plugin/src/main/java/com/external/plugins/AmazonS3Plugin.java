@@ -31,6 +31,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.UQIDataFilterParams;
@@ -121,6 +122,7 @@ public class AmazonS3Plugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.elastic();
         private final FilterDataService filterDataService;
         private static final AmazonS3ErrorUtils amazonS3ErrorUtils;
+
         static {
             try {
                 amazonS3ErrorUtils = AmazonS3ErrorUtils.getInstance();
@@ -975,28 +977,17 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-
-            return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> {
+        public Mono<DatasourceTestResult> testDatasource(AmazonS3 connection) {
+            return Mono.fromCallable(() -> {
                         /*
                          * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
                          *   object with wrong credentials does not throw any exception.
                          * - Hence, adding a listBuckets() method call to test the connection.
                          */
                         connection.listBuckets();
-
-                        try {
-                            connection.shutdown();
-                        } catch (Exception e) {
-                            log.debug("Error closing S3 connection that was made for testing.", e);
-                            return new DatasourceTestResult(e.getMessage());
-                        }
-
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))))
-                    .subscribeOn(scheduler);
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))));
         }
 
         /**
@@ -1051,7 +1042,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+            Param param = (Param) args[0];
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param);
         }
 
         private String getEncodedPayloadFromMultipartDTO(MultipartFormDataDTO multipartFormDataDTO) {

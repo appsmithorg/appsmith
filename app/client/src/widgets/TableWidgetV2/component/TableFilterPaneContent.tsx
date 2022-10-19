@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react";
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import {
@@ -9,36 +9,27 @@ import {
   OperatorTypes,
 } from "./Constants";
 import { DropdownOption } from "./TableFilters";
-import Button from "components/editorComponents/Button";
 import CascadeFields from "./CascadeFields";
 import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
-import { ControlIcons } from "icons/ControlIcons";
 import { Icon, IconSize } from "design-system";
+import Button from "pages/AppViewer/AppViewerButton";
+import { ButtonVariantTypes } from "components/constants";
+
+import AddIcon from "remixicon-react/AddLineIcon";
 import { cloneDeep } from "lodash";
 
-const StyledPlusCircleIcon = styled(
-  ControlIcons.ADD_CIRCLE_CONTROL as AnyStyledComponent,
-)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  svg {
-    circle {
-      fill: none !important;
-      stroke: ${Colors.GREEN};
-    }
-  }
-`;
-
-const TableFilterOuterWrapper = styled.div`
+const TableFilterOuterWrapper = styled.div<{
+  borderRadius?: string;
+}>`
   display: flex;
   flex-direction: column;
   width: 100%;
   background: ${Colors.WHITE};
-  box-shadow: 0px 12px 28px -8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
+  border-radius: ${(props) => props.borderRadius || "0"};
 `;
 
 const TableFilerWrapper = styled.div`
@@ -75,10 +66,10 @@ const ButtonActionsWrapper = styled.div`
 const ColumnTypeBindingMessage = styled.div`
   height: 40px;
   line-height: 40px;
-  background: ${Colors.WHITE_SNOW};
+  background: var(--wds-color-bg-light);
   box-sizing: border-box;
   font-size: 12px;
-  color: ${Colors.GREY_11};
+  color: var(--wds-color-text-light);
   letter-spacing: 0.04em;
   font-weight: 500;
   margin-left: 83px;
@@ -180,6 +171,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   );
   return (
     <TableFilterOuterWrapper
+      borderRadius={props.borderRadius}
       onClick={(e) => {
         e.stopPropagation();
       }}
@@ -254,25 +246,29 @@ function TableFilterPaneContent(props: TableFilterProps) {
         {hasAnyFilters ? (
           <ButtonWrapper>
             <Button
+              borderRadius={props.borderRadius}
+              buttonColor={props.accentColor}
+              buttonVariant={ButtonVariantTypes.TERTIARY}
               className="t--add-filter-btn"
-              icon={<StyledPlusCircleIcon height={16} width={16} />}
-              intent="primary"
+              icon={<AddIcon className="w-5 h-5" color={props.accentColor} />}
               onClick={addFilter}
               size="small"
               text="Add Filter"
             />
             <ButtonActionsWrapper>
               <Button
+                borderRadius={props.borderRadius}
+                buttonColor={props.accentColor}
+                buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--clear-all-filter-btn"
-                intent="primary"
                 onClick={clearFilters}
-                outline
                 text="CLEAR ALL"
               />
               <Button
+                borderRadius={props.borderRadius}
+                buttonColor={props.accentColor}
+                buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--apply-filter-btn"
-                filled
-                intent="primary"
                 onClick={applyFilter}
                 text="APPLY"
               />
