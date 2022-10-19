@@ -11,6 +11,11 @@ import { Collapse } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { AppIcon as Icon, Size } from "design-system";
+import { AppState } from "@appsmith/reducers";
+import { useDispatch, useSelector } from "react-redux";
+import { getPropertySectionState } from "selectors/editorContextSelectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { setPropertySectionState } from "actions/propertyPaneActions";
 
 const SectionTitle = styled.div`
   cursor: pointer;
@@ -89,12 +94,29 @@ const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
 export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
+  const dispatch = useDispatch();
+  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const { isDefaultOpen = true } = props;
-  const [isOpen, setIsOpen] = useState(!!isDefaultOpen);
+  const isDefaultContextOpen = useSelector(
+    (state: AppState) =>
+      getPropertySectionState(state, `${widgetProps?.widgetId}.${props.id}`),
+    () => true,
+  );
+  const [isOpen, setIsOpen] = useState(
+    isDefaultContextOpen !== undefined ? isDefaultContextOpen : !!isDefaultOpen,
+  );
+
   const handleSectionTitleClick = useCallback(() => {
-    if (props.collapsible) setIsOpen((x) => !x);
+    if (props.collapsible)
+      setIsOpen((x) => {
+        dispatch(
+          setPropertySectionState(`${widgetProps?.widgetId}.${props.id}`, !x),
+        );
+        return !x;
+      });
   }, []);
 
+  if (!widgetProps) return null;
   if (props.hidden) {
     return null;
   }

@@ -5,7 +5,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
+import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
 class PrimaryColumnsColorPickerControl extends BaseControl<
   PrimaryColumnColorPickerControlProps

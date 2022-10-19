@@ -492,44 +492,46 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         // Remove any edge which contains an unknown entity - aka neither a known action nor a known widget
         // Note : appsmith world objects like `appsmith` would also count as an unknown here.
         // TODO : Handle the above global variables provided by appsmith in the following filtering.
-        edges = edges.stream().filter(edge -> {
+        edges = edges.stream()
+                .filter(edge -> {
 
-            String source = edge.getSourceNode().getReferenceString();
-            String target = edge.getTargetNode().getReferenceString();
+                    String source = edge.getSourceNode().getReferenceString();
+                    String target = edge.getTargetNode().getReferenceString();
 
-            // Edges here are assumed to be non-null
-            // If an edge comprises vertices that depend on itself (caused by self-referencing),
-            // We want to throw an error before attempting to create the DAG
-            // Example: Text1.text has the value {{ Text1.text }}
-            if (source.equals(target)) {
-                throw new AppsmithException(AppsmithError.CYCLICAL_DEPENDENCY_ERROR, edge.toString());
-            }
-
-            Set<String> vertices = Set.of(source, target);
-
-            AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
-
-            // Assert that the vertices which are entire property paths have a possible parent which is either
-            // an action or a widget or a static variable provided by appsmith at page/application level.
-            vertices.stream().forEach(vertex -> {
-                Optional<String> validEntity = getPossibleParents(vertex).stream().filter(parent -> {
-                    if (!actionNames.contains(parent) && !widgetNames.contains(parent) && !APPSMITH_GLOBAL_VARIABLES.contains(parent)) {
-                        return false;
+                    // Edges here are assumed to be non-null
+                    // If an edge comprises vertices that depend on itself (caused by self-referencing),
+                    // We want to throw an error before attempting to create the DAG
+                    // Example: Text1.text has the value {{ Text1.text }}
+                    if (source.equals(target)) {
+                        throw new AppsmithException(AppsmithError.CYCLICAL_DEPENDENCY_ERROR, edge.toString());
                     }
-                    return true;
-                }).findFirst();
 
-                // If any of the generated entity names from the path are valid appsmith entity name,
-                // the vertex is considered valid
-                if (validEntity.isPresent()) {
-                    isValidVertex.set(TRUE);
-                } else {
-                    isValidVertex.set(FALSE);
-                }
-            });
+                    Set<String> vertices = Set.of(source, target);
 
-            return isValidVertex.get();
-        }).collect(Collectors.toSet());
+                    AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
+
+                    // Assert that the vertices which are entire property paths have a possible parent which is either
+                    // an action or a widget or a static variable provided by appsmith at page/application level.
+                    vertices.stream().forEach(vertex -> {
+                        Optional<String> validEntity = getPossibleParents(vertex).stream().filter(parent -> {
+                            if (!actionNames.contains(parent) && !widgetNames.contains(parent) && !APPSMITH_GLOBAL_VARIABLES.contains(parent)) {
+                                return false;
+                            }
+                            return true;
+                        }).findFirst();
+
+                        // If any of the generated entity names from the path are valid appsmith entity name,
+                        // the vertex is considered valid
+                        if (validEntity.isPresent()) {
+                            isValidVertex.set(TRUE);
+                        } else {
+                            isValidVertex.set(FALSE);
+                        }
+                    });
+
+                    return isValidVertex.get();
+                })
+                .collect(Collectors.toSet());
 
         Set<ActionDependencyEdge> actionDataFromConfigurationEdges = new HashSet<>();
 
