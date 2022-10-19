@@ -8,7 +8,12 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
-import com.appsmith.server.dtos.*;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
+import com.appsmith.server.dtos.UserCompactDTO;
+import com.appsmith.server.dtos.UserGroupCompactDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -423,6 +428,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                         .collect(Collectors.toList()));
     }
 
+    @Override
+    public Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId) {
+        return repository.findAllByUsersIn(Set.of(userId))
+                .map(userGroup -> new UserGroupCompactDTO(userGroup.getId(), userGroup.getName()));
+    }
     private UserGroupCompactDTO generateUserGroupCompactDTO(UserGroup userGroup) {
         if (userGroup == null) {
             throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "user group can't be null");

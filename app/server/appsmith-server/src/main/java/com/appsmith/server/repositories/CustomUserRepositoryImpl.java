@@ -27,4 +27,12 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         query.fields().include(fieldName(QUser.user.email));
         return mongoOperations.find(query, User.class).map(User::getEmail);
     }
+
+    @Override
+    public Flux<User> getAllUserObjectsWithEmail(String defaultTenantId) {
+        Query query = new Query();
+        query.addCriteria(where(fieldName(QUser.user.tenantId)).is(defaultTenantId));
+        query.fields().include(fieldName(QUser.user.email));
+        return mongoOperations.find(query, User.class);
+    }
 }

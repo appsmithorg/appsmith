@@ -6,7 +6,6 @@ import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,4 +28,6 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
     Flux<UserGroupCompactDTO> getAllWithAddUserPermission();
 
     Mono<List<UserGroupDTO>> changeGroupsForUser(String username, UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader);
+
+    Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId);
 }

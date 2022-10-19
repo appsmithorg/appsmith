@@ -43,6 +43,7 @@ public enum AclPermission {
     TENANT_DELETE_USER_GROUPS("tenantDeleteUserGroups:tenant", Tenant.class),
     TENANT_ADD_USER_TO_ALL_USER_GROUPS("tenantAddUsersToGroups:tenant", Tenant.class),
     TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS("tenantRemoveUserFromGroups:tenant", Tenant.class),
+    TENANT_MANAGE_ALL_USERS("tenantManageAllUsers:tenant", Tenant.class),
 
     CREATE_USER_GROUPS("createUserGroups:tenant", Tenant.class),
     CREATE_WORKSPACES("createWorkspaces:tenant", Tenant.class),

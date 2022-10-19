@@ -116,6 +116,11 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     @Override
+    public Flux<PermissionGroup> findAllByAssignedToUsersIn(Set<String> userIds) {
+        return repository.findAllByAssignedToUserIdsIn(userIds);
+    }
+
+    @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
         Mono<Boolean> isCreateAllowedMono = Mono.zip(sessionUserService.getCurrentUser(), tenantService.getDefaultTenantId())
                 .flatMap(tuple -> {

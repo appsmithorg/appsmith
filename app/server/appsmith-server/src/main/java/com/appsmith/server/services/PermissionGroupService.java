@@ -17,6 +17,8 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<List<PermissionGroupInfoDTO>> getAll();
 
+    Flux<PermissionGroup> findAllByAssignedToUsersIn(Set<String> userIds);
+
     Mono<PermissionGroup> archiveById(String id);
 
     Mono<PermissionGroup> bulkUnassignFromUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
