@@ -76,6 +76,7 @@ import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
@@ -2656,7 +2657,15 @@ public class DatabaseChangelog2 {
         mongockTemplate.save(updatedTenant);
     }
 
-    private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
+    @ChangeSet(order = "036", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
+    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+
+        Query query = new Query(Criteria.where("policies.*.permission").is("read:permissionGroups"));
+        UpdateDefinition updateDefinition;
+        mongockTemplate.updateFirst(query, updateDefinition, PermissionGroup.class);
+    }
+
+        private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
         Query queryToGetNonDeletedWorkspaces = new Query();
         queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
         List<Workspace> workspaces = mongockTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
