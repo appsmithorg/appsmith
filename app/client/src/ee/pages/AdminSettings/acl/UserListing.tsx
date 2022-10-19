@@ -13,12 +13,22 @@ import { HighlightText, MenuItemProps, Toaster } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
-import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
+import {
+  AclWrapper,
+  EmptyDataState,
+  EmptySearchResult,
+  INVITE_USERS_TAB_ID,
+} from "./components";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import { deleteAclUser, getUserById } from "@appsmith/actions/aclActions";
+import {
+  deleteAclUser,
+  getUserById,
+  inviteUsersViaGroups,
+  inviteUsersViaRoles,
+} from "@appsmith/actions/aclActions";
 import {
   ACL_INVITE_MODAL_MESSAGE,
   ACL_INVITE_MODAL_TITLE,
@@ -30,6 +40,7 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAclIsLoading,
+  getAclIsSaving,
   getAllAclUsers,
   getRolesForInvite,
   getSelectedUser,
@@ -93,6 +104,7 @@ export function UserListing() {
   const aclUsers = useSelector(getAllAclUsers);
   const selectedUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
+  const isSaving = useSelector(getAclIsSaving);
   const inviteViaRoles = useSelector(getRolesForInvite);
 
   const [data, setData] = useState<UserProps[]>([]);
@@ -112,6 +124,34 @@ export function UserListing() {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
     }
   }, [selectedUserId]);
+
+  const onFormSubmitHandler = ({ ...values }) => {
+    if (values.selectedTab === INVITE_USERS_TAB_ID.VIA_GROUPS) {
+      dispatch(
+        inviteUsersViaGroups(
+          values.users ? values.users.split(",") : [],
+          values.options.map((option: any) => option.value).join(","),
+          values.selectedTab,
+        ),
+      );
+    } else {
+      dispatch(
+        inviteUsersViaRoles(
+          values.users
+            ? values.users.split(",").map((user: any) => ({
+                name: user,
+              }))
+            : [],
+          values.options.map((option: any) => ({
+            id: option.value,
+            name: option.label,
+          })),
+          values.selectedTab,
+        ),
+      );
+    }
+    setShowModal(false);
+  };
 
   const columns = [
     {
@@ -292,7 +332,7 @@ export function UserListing() {
 
   const tabs = [
     {
-      key: "via-roles",
+      key: INVITE_USERS_TAB_ID.VIA_ROLES,
       title: "via roles",
       component: WorkspaceInviteUsersForm,
       options: inviteViaRoles.map((role: any) => ({
@@ -306,10 +346,11 @@ export function UserListing() {
         disableManageUsers: true,
         disableUserList: true,
         isMultiSelectDropdown: true,
+        onSubmitHandler: onFormSubmitHandler,
       },
     },
     {
-      key: "via-groups",
+      key: INVITE_USERS_TAB_ID.VIA_GROUPS,
       title: "via groups",
       component: WorkspaceInviteUsersForm,
       options: [
@@ -335,6 +376,7 @@ export function UserListing() {
         disableManageUsers: true,
         disableUserList: true,
         isMultiSelectDropdown: true,
+        onSubmitHandler: onFormSubmitHandler,
       },
     },
   ];
@@ -379,6 +421,7 @@ export function UserListing() {
         <UserEdit
           data-testid="acl-user-edit"
           isLoading={isLoading}
+          isSaving={isSaving}
           onDelete={onDeleteHandler}
           searchPlaceholder="Search"
           selectedUser={selectedUser}

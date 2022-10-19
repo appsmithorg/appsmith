@@ -11,6 +11,11 @@ import {
 } from "@appsmith/constants/messages";
 import NoDataFound from "assets/images/empy-state.png";
 
+export enum INVITE_USERS_TAB_ID {
+  VIA_GROUPS = "via-groups",
+  VIA_ROLES = "via-roles",
+}
+
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   margin: 32px 0 0 ${(props) => props.theme.homePage.main.marginLeft}px;

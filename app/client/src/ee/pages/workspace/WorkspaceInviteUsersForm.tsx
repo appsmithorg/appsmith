@@ -362,9 +362,9 @@ function WorkspaceInviteUsersForm(props: any) {
               ...(isEEFeature ? groups : {}),
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
               users,
-              permissionGroupId: isMultiSelectDropdown
-                ? selectedOption.map((group: any) => group.id).join(",")
-                : selectedOption[0].id,
+              options: isMultiSelectDropdown
+                ? selectedOption
+                : selectedOption[0],
             });
           }
           return inviteUsersToWorkspace(

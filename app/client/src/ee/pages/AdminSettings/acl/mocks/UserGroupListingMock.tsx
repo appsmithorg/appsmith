@@ -2,8 +2,6 @@ import { GroupProps } from "../types";
 
 export const userGroupTableData: GroupProps[] = [
   {
-    isEditing: false,
-    isDeleting: false,
     name: "Eng_New",
     id: "123",
     allRoles: [
@@ -37,8 +35,6 @@ export const userGroupTableData: GroupProps[] = [
     users: [],
   },
   {
-    isEditing: false,
-    isDeleting: false,
     name: "Design",
     id: "456",
     allRoles: [
@@ -71,22 +67,12 @@ export const userGroupTableData: GroupProps[] = [
     ],
     users: [
       {
-        isChangingRole: false,
-        isDeleting: false,
-        name: "Ankita Kinger",
         username: "techak@appsmith.com",
         id: "123",
-        groups: [],
-        roles: [],
       },
       {
-        isChangingRole: false,
-        isDeleting: false,
-        name: "Hello",
         username: "hello123@appsmith.com",
         id: "456",
-        groups: [],
-        roles: [],
       },
     ],
   },

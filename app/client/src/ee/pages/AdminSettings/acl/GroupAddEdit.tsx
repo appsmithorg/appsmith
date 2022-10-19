@@ -22,7 +22,12 @@ import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory } from "react-router";
-import { BaseAclProps, GroupEditProps, Permissions, UserProps } from "./types";
+import {
+  BaseAclProps,
+  GroupEditProps,
+  Permissions,
+  UsersInGroup,
+} from "./types";
 import { Position, Spinner } from "@blueprintjs/core";
 import {
   ACL_INVITE_MODAL_MESSAGE,
@@ -45,6 +50,7 @@ import {
   addUsersInGroup,
   removeUsersFromGroup,
   updateGroupName,
+  updateRolesInGroup,
 } from "@appsmith/actions/aclActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getFilteredData } from "./utils/getFilteredData";
@@ -128,7 +134,7 @@ export function GroupAddEdit(props: GroupEditProps) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [users, setUsers] = useState<UserProps[]>(selected.users || []);
+  const [users, setUsers] = useState<UsersInGroup[]>(selected.users || []);
   const [permissions, setPermissions] = useState<Permissions>({
     roles: selected.roles || [],
     allRoles: selected.allRoles || [],
@@ -165,7 +171,7 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSearch = debounce((search: string) => {
-    let userResults: UserProps[] = [];
+    let userResults: UsersInGroup[] = [];
     let permissionResults: Permissions;
     if (search && search.trim().length > 0) {
       setSearchValue(search);
@@ -213,18 +219,19 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSaveChanges = () => {
-    const updatedActiveGroups = permissions.roles.filter(
-      (role) => !(getFilteredData(removedActiveGroups, role, true).length > 0),
+    dispatch(
+      updateRolesInGroup(
+        { id: selected.id, name: selected.name },
+        addedAllGroups.map((group: any) => ({
+          id: group.id,
+          name: group.name,
+        })),
+        removedActiveGroups.map((group: any) => ({
+          id: group.id,
+          name: group.name,
+        })),
+      ),
     );
-    updatedActiveGroups.push(...addedAllGroups);
-    const updatedAllGroups = permissions.allRoles.filter(
-      (role) => !(getFilteredData(addedAllGroups, role, true).length > 0),
-    );
-    updatedAllGroups.push(...removedActiveGroups);
-    setPermissions({
-      roles: updatedActiveGroups,
-      allRoles: updatedAllGroups,
-    });
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
     Toaster.show({
@@ -262,7 +269,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     dispatch(
       addUsersInGroup(
         values.users ? values.users.split(",") : [],
-        values.permissionGroupId || selected.id,
+        values?.options?.id || selected.id,
       ),
     );
     setShowModal(false);

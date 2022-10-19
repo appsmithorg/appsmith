@@ -1,4 +1,7 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const rolesReducers = {
@@ -6,7 +9,7 @@ export const rolesReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_ROLES_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ACL_ROLES_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -19,7 +22,7 @@ export const rolesReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_ROLE_BY_ID_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ACL_ROLE_BY_ID_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -35,7 +38,7 @@ export const rolesReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.CREATE_ACL_ROLE_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.CREATE_ACL_ROLE_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -48,7 +51,7 @@ export const rolesReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.CLONE_ACL_ROLE_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.CLONE_ACL_ROLE_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -61,7 +64,7 @@ export const rolesReducers = {
     ...state,
     isSaving: true,
   }),
-  [ReduxActionTypes.UPDATE_ACL_ROLE_NAME_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.UPDATE_ACL_ROLE_NAME_ERROR]: (state: any) => ({
     ...state,
     isSaving: false,
   }),
@@ -80,7 +83,7 @@ export const rolesReducers = {
     ...state,
     isSaving: true,
   }),
-  [ReduxActionTypes.UPDATE_ACL_ROLE_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR]: (state: any) => ({
     ...state,
     isSaving: false,
   }),
@@ -93,7 +96,7 @@ export const rolesReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.DELETE_ACL_ROLE_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.DELETE_ACL_ROLE_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -116,7 +119,7 @@ export const rolesReducers = {
     iconLocations: action.payload,
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ICON_LOCATIONS_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ICON_LOCATIONS_ERROR]: (state: any) => ({
     ...state,
     iconLocations: [],
     isLoading: false,

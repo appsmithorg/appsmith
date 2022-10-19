@@ -54,10 +54,13 @@ export type ActiveAllGroupsProps = {
   entityName: string;
 };
 
+export type UsersInGroup = {
+  id: string;
+  username: string;
+};
+
 export type GroupProps = BaseAclProps & {
-  isEditing: boolean;
-  isDeleting: boolean;
-  users: UserProps[];
+  users: UsersInGroup[];
   new?: boolean;
   roles: BaseAclProps[];
   allRoles: BaseAclProps[];
@@ -96,11 +99,21 @@ export type PageHeaderProps = {
   onEditTitle?: (name: string) => void;
 };
 
+export type GroupsForUser = {
+  groups: BaseAclProps[];
+  allGroups: BaseAclProps[];
+};
+
+export type PermissionsForUser = {
+  roles: BaseAclProps[];
+  allRoles: BaseAclProps[];
+};
+
 export type UserProps = BaseAclProps & {
-  isChangingRole: boolean;
-  isDeleting: boolean;
   groups: BaseAclProps[];
   roles: BaseAclProps[];
+  allGroups: BaseAclProps[];
+  allRoles: BaseAclProps[];
   username: string;
   roleName?: string;
 };
@@ -110,4 +123,5 @@ export type UserEditProps = {
   onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
+  isSaving: boolean;
 };

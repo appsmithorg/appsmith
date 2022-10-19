@@ -12,6 +12,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "design-system";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
@@ -49,12 +50,12 @@ export function* FetchSamlMetadataSaga(
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_SAML_METADATA_ERROR,
+        type: ReduxActionErrorTypes.FETCH_SAML_METADATA_ERROR,
       });
     }
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.FETCH_SAML_METADATA_ERROR,
+      type: ReduxActionErrorTypes.FETCH_SAML_METADATA_ERROR,
     });
   }
 }

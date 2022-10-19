@@ -16,6 +16,32 @@ export const deleteAclUser = (id: string) => ({
   payload: id,
 });
 
+export const updateGroupsInUser = (
+  userId: string,
+  groupsAdded: string[],
+  groupsRemoved: string[],
+) => ({
+  type: ReduxActionTypes.UPDATE_GROUPS_IN_USER,
+  payload: {
+    userId,
+    groupsAdded,
+    groupsRemoved,
+  },
+});
+
+export const updateRolesInUser = (
+  user: BaseAclProps,
+  rolesAdded: BaseAclProps[],
+  rolesRemoved: BaseAclProps[],
+) => ({
+  type: ReduxActionTypes.UPDATE_ROLES_IN_USER,
+  payload: {
+    users: [user],
+    rolesAdded,
+    rolesRemoved,
+  },
+});
+
 export const getGroupById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID,
   payload,
@@ -70,7 +96,7 @@ export const addUsersInGroup = (usernames: string[], groupId: string) => ({
   type: ReduxActionTypes.ADD_USERS_IN_GROUP,
   payload: {
     usernames,
-    groupIds: [groupId],
+    groupIds: groupId.split(","),
   },
 });
 
@@ -78,6 +104,49 @@ export const removeUsersFromGroup = (usernames: string[], groupId: string) => ({
   type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
   payload: {
     usernames,
-    groupIds: [groupId],
+    groupIds: groupId.split(","),
   },
 });
+
+export const updateRolesInGroup = (
+  groups: BaseAclProps,
+  rolesAdded: BaseAclProps[],
+  rolesRemoved: BaseAclProps[],
+) => ({
+  type: ReduxActionTypes.UPDATE_ACL_GROUP_ROLES,
+  payload: {
+    groups: [groups],
+    rolesAdded,
+    rolesRemoved,
+  },
+});
+
+export const inviteUsersViaGroups = (
+  usernames: string[],
+  groupIds: string[],
+  via: string,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_ACL_USER,
+    payload: {
+      usernames,
+      groupIds,
+      via,
+    },
+  };
+};
+
+export const inviteUsersViaRoles = (
+  users: string[],
+  rolesAdded: string[],
+  via: string,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_ACL_USER,
+    payload: {
+      users,
+      rolesAdded,
+      via,
+    },
+  };
+};

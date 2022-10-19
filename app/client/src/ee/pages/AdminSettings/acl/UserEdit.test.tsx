@@ -16,6 +16,7 @@ const props = {
   searchPlaceholder: "Search users",
   selectedUser,
   isLoading: false,
+  isSaving: false,
 };
 
 function renderComponent() {
