@@ -36,24 +36,16 @@ export default function DateFilter() {
   function handleSelection([inputStartDate, inputEndDate]: DateRange) {
     const startDate =
       inputStartDate !== null
-        ? moment(inputStartDate).unix() * 1000
+        ? moment(inputStartDate)
+            .startOf("day")
+            .unix() * 1000
         : initialAuditLogsDateFilter.startDate;
-    let endDate =
+    const endDate =
       inputEndDate !== null
-        ? moment(inputEndDate).unix() * 1000
+        ? moment(inputEndDate)
+            .endOf("day")
+            .unix() * 1000
         : initialAuditLogsDateFilter.endDate;
-
-    // If the date value is same, make the minimum range to be 1 day
-    if (
-      startDate !== initialAuditLogsDateFilter.startDate &&
-      endDate === startDate
-    ) {
-      endDate =
-        moment(inputEndDate)
-          .add(1, "d")
-          .subtract(1, "ms")
-          .unix() * 1000;
-    }
 
     dispatch(setAuditLogsDateFilter({ startDate, endDate }));
     dispatch(
