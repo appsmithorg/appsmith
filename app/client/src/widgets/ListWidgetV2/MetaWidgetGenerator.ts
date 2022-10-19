@@ -4,7 +4,6 @@ import {
   elementScroll,
   observeElementOffset,
   observeElementRect,
-  VirtualItem,
   Virtualizer,
   VirtualizerOptions,
 } from "@tanstack/virtual-core";
@@ -38,17 +37,17 @@ type Options = {
   containerParentId: string;
   containerWidgetId: string;
   currTemplateWidgets: TemplateWidgets;
+  prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
   dynamicPathMapList: DynamicPathMapList;
   gridGap: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
-  prevTemplateWidgets?: TemplateWidgets;
+  pageNo?: number;
+  pageSize?: number;
   primaryKey: string;
   scrollElement: ConstructorProps["scrollElement"];
-  startIndex: number;
   templateBottomRow: ConstructorProps["templateBottomRow"];
-  virtualItems?: VirtualItem<HTMLDivElement>[];
   widgetName: string;
 };
 
@@ -137,6 +136,9 @@ class MetaWidgetGenerator {
   private levelData: Options["levelData"];
   private metaIdToCacheMap: Record<string, string>;
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
+  private pageNo?: number;
+  private pageSize?: number;
+  private prevOptions?: Options;
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
   private primaryKey: Options["primaryKey"];
@@ -145,9 +147,7 @@ class MetaWidgetGenerator {
   private scrollElement: ConstructorProps["scrollElement"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
   private templateBottomRow: ConstructorProps["templateBottomRow"];
-  private startIndex: Options["startIndex"];
   private templateWidgetStatus: TemplateWidgetStatus;
-  private virtualItems?: VirtualItem<HTMLDivElement>[];
   private virtualizer?: VirtualizerInstance;
   private widgetName: Options["widgetName"];
 
@@ -165,15 +165,16 @@ class MetaWidgetGenerator {
     this.levelData = undefined;
     this.metaIdToCacheMap = {};
     this.onVirtualListScroll = props.onVirtualListScroll;
+    this.pageNo = 1;
+    this.pageSize = 0;
     this.prevTemplateWidgets = {};
     this.prevViewMetaWidgetIds = [];
     this.primaryKey = "";
     this.renderMode = props.renderMode;
     this.rowStyleChanged = false;
-    this.setWidgetCache = props.setWidgetCache;
-    this.startIndex = 0;
-    this.templateBottomRow = props.templateBottomRow;
     this.scrollElement = props.scrollElement;
+    this.setWidgetCache = props.setWidgetCache;
+    this.templateBottomRow = props.templateBottomRow;
     this.templateWidgetStatus = {
       added: new Set(),
       updated: new Set(),
@@ -193,11 +194,11 @@ class MetaWidgetGenerator {
     this.gridGap = options.gridGap;
     this.infiniteScroll = options.infiniteScroll;
     this.levelData = options.levelData;
+    this.pageNo = options.pageNo;
+    this.pageSize = options.pageSize;
     this.primaryKey = options.primaryKey;
     this.scrollElement = options.scrollElement;
-    this.startIndex = options.startIndex;
     this.templateBottomRow = options.templateBottomRow;
-    this.virtualItems = options.virtualItems;
     this.widgetName = options.widgetName;
     this.currTemplateWidgets = extractTillNestedListWidget(
       options.currTemplateWidgets,
@@ -207,11 +208,38 @@ class MetaWidgetGenerator {
       options.prevTemplateWidgets,
       options.containerParentId,
     );
+
+    const prevOptions = klona(this.prevOptions);
+    this.prevOptions = options;
+
+    this._didUpdate(options, prevOptions);
+
     return this;
   };
 
+  private _didUpdate = (nextOptions: Options, prevOptions?: Options) => {
+    if (!prevOptions?.infiniteScroll && nextOptions.infiniteScroll) {
+      // Infinite scroll enabled
+      this.initVirtualizer();
+    } else if (prevOptions?.infiniteScroll && !nextOptions.infiniteScroll) {
+      // Infinite scroll disabled
+      this.unmountVirtualizer();
+    }
+  };
+
+  didMount = () => {
+    if (this.infiniteScroll) {
+      this.initVirtualizer();
+    }
+  };
+
+  didUnmount = () => {
+    this.unmountVirtualizer();
+  };
+
   generate = () => {
-    const dataCount = this.data.length;
+    const data = this.getData();
+    const dataCount = data.length;
     const indices = Array.from(Array(dataCount).keys());
     const containerParentWidget = this?.currTemplateWidgets?.[
       this.containerParentId
@@ -225,8 +253,10 @@ class MetaWidgetGenerator {
     this.updateTemplateWidgetStatus();
 
     if (dataCount > 0) {
+      const startIndex = this.getStartIndex();
+
       indices.forEach((rowIndex) => {
-        const index = this.startIndex + rowIndex;
+        const index = startIndex + rowIndex;
 
         this.generateWidgetCacheData(index, rowIndex);
 
@@ -687,13 +717,14 @@ class MetaWidgetGenerator {
   ) => {
     const mainContainer = this.getContainerWidget();
     const gap = this.gridGap;
-    const virtualItem = this.virtualItems?.[rowIndex];
+    const virtualItems = this.virtualizer?.getVirtualItems() || [];
+    const virtualItem = virtualItems[rowIndex];
 
     const start = virtualItem
-      ? virtualItem.start / 10
+      ? virtualItem.start / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
       : rowIndex * mainContainer.bottomRow;
     const end = virtualItem
-      ? virtualItem.end / 10
+      ? virtualItem.end / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
       : (rowIndex + 1) * mainContainer.bottomRow;
 
     metaWidget.gap = gap;
@@ -749,6 +780,12 @@ class MetaWidgetGenerator {
     });
   };
 
+  recalculateVirtualList = (nextOptions: Options) => {
+    if (this.shouldRemeasureVirtualList(nextOptions)) {
+      this.remeasureVirtualizer();
+    }
+  };
+
   private isClonedRow = (index: number) => {
     // TODO (ashit): Modify -> check if making the first row as template in view mode as well makes any difference?
     return (
@@ -762,6 +799,15 @@ class MetaWidgetGenerator {
     // Add all row style related comparisons here.
     // If this returns true then the container widget regenerates
     return this.gridGap !== options.gridGap;
+  };
+
+  private shouldRemeasureVirtualList = (nextOptions: Options) => {
+    return (
+      this.infiniteScroll &&
+      (this.gridGap !== nextOptions.gridGap ||
+        nextOptions.prevTemplateWidgets !== nextOptions.currTemplateWidgets ||
+        this.data?.length !== nextOptions?.data?.length)
+    );
   };
 
   private shouldGenerateMetaWidgetFor = (
@@ -801,6 +847,47 @@ class MetaWidgetGenerator {
     };
 
     this.setWidgetCache(updatedCache);
+  };
+
+  private getData = () => {
+    if (this.infiniteScroll) {
+      if (this.virtualizer) {
+        const virtualItems = this.virtualizer.getVirtualItems();
+        const startIndex = virtualItems[0]?.index ?? 0;
+        const endIndex = virtualItems[virtualItems.length - 1]?.index ?? 0;
+        return this.data.slice(startIndex, endIndex + 1);
+      }
+
+      return [];
+    }
+
+    if (typeof this.pageNo === "number" && typeof this.pageSize === "number") {
+      const startIndex = this.pageSize * (this.pageNo - 1);
+      const endIndex = startIndex + this.pageSize;
+      return this.data.slice(startIndex, endIndex);
+    }
+
+    return [];
+  };
+
+  private getStartIndex = () => {
+    if (this.infiniteScroll) {
+      if (this.virtualizer) {
+        const items = this.virtualizer.getVirtualItems();
+        return items[0]?.index ?? 0;
+      }
+    } else if (
+      typeof this.pageSize === "number" &&
+      typeof this.pageNo === "number"
+    ) {
+      return this.pageSize * (this.pageNo - 1);
+    }
+
+    return 0;
+  };
+
+  getVirtualListHeight = () => {
+    return this.virtualizer?.getTotalSize?.();
   };
 
   private getRowTemplateCache = (key: string, templateWidgetId: string) => {
@@ -863,7 +950,7 @@ class MetaWidgetGenerator {
 
   getMetaContainers = () => {
     const containers = { ids: [] as string[], names: [] as string[] };
-    this.data.forEach((_datum, rowIndex) => {
+    this.getData().forEach((_datum, rowIndex) => {
       const key = this.getPrimaryKey(rowIndex);
       const metaContainer = this.getRowTemplateCache(
         key,
@@ -890,7 +977,7 @@ class MetaWidgetGenerator {
     // TODO: Make sure a key is always returned from here, either a hash key
     // or user set.
     // Appropriate error cases needs to be handled.
-    const data = this.data[rowIndex];
+    const data = this.getData()[rowIndex];
     return String(data[this.primaryKey]);
   };
 
@@ -962,14 +1049,6 @@ class MetaWidgetGenerator {
       this.virtualizer = new Virtualizer<HTMLDivElement, HTMLDivElement>(
         options,
       );
-    }
-  };
-
-  private updateVirtualizer = () => {
-    const options = this.virtualizerOptions();
-
-    if (options && this.virtualizer) {
-      this.virtualizer.setOptions(options);
       this.virtualizer._willUpdate();
     }
   };
@@ -986,6 +1065,12 @@ class MetaWidgetGenerator {
     if (this.virtualizer) {
       this.virtualizer.measure();
       this.virtualizer._didMount()();
+
+      const options = this.virtualizerOptions();
+      if (options) {
+        this.virtualizer.setOptions(options);
+      }
+
       this.virtualizer._willUpdate();
     }
   };

@@ -66,7 +66,7 @@ export function denormalize(
   const rootWidget = widgets[rootWidgetId];
   let children;
 
-  if (widgetTypeForHaltingRecursion !== rootWidget.type) {
+  if (widgetTypeForHaltingRecursion !== rootWidget?.type) {
     children = (rootWidget?.children || []).map((childId) =>
       denormalize(childId, widgets, options),
     );
