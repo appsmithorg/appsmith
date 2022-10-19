@@ -273,22 +273,23 @@ public class SeedMongoData {
                                         log.debug("Saved the workspace to user. User: {}", u);
                                         return u;
                                     });
-                        }))
-                .flatMap(user -> {
-                    PermissionGroup permissionGroupUser = new PermissionGroup();
-                    permissionGroupUser.setPermissions(Set.of(new Permission(user.getId(), MANAGE_USERS)));
-                    permissionGroupUser.setName(user.getId() + "User Name");
-                    permissionGroupUser.setAssignedToUserIds(Set.of(user.getId()));
-                    return permissionGroupRepository.save(permissionGroupUser)
-                            .flatMap(savedPermissionGroup -> {
-                                Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
-                                        user.getId());
+                        })
+                        .flatMap(user -> {
+                            PermissionGroup permissionGroupUser = new PermissionGroup();
+                            permissionGroupUser.setPermissions(Set.of(new Permission(user.getId(), MANAGE_USERS)));
+                            permissionGroupUser.setName(user.getId() + "User Name");
+                            permissionGroupUser.setAssignedToUserIds(Set.of(user.getId()));
+                            return permissionGroupRepository.save(permissionGroupUser)
+                                    .flatMap(savedPermissionGroup -> {
+                                        Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                                                user.getId());
 
-                                User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, user);
+                                        User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, user);
 
-                                return userRepository.save(updatedWithPolicies);
-                            });
-                });
+                                        return userRepository.save(updatedWithPolicies);
+                                    });
+                        })
+                );
 
         Query workspaceNameQuery = new Query(where("slug").is(workspaceData[0][3]));
         Mono<Workspace> workspaceByNameMono = mongoTemplate.findOne(workspaceNameQuery, Workspace.class)
