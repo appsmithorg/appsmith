@@ -339,7 +339,7 @@ class AnalyticsUtil {
           n.type = "text/javascript";
           n.async = !0;
           n.src =
-            "https://cdn.segment.com/analytics.js/v1/" +
+            "https://a.appsmith.com/analytics.js/v1/" +
             t +
             "/analytics.min.js";
           const a: any = document.getElementsByTagName("script")[0];
