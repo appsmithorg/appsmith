@@ -6,6 +6,8 @@ export function sanitizeScript(js: string, evaluationVersion: number) {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
+  //default value of evalutaion version is 2
+  evaluationVersion = evaluationVersion ? evaluationVersion : 2;
   const trimmedJS = js.replace(beginsWithLineBreakRegex, '');
   return evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
 }
