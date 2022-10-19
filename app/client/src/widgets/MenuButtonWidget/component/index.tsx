@@ -31,6 +31,7 @@ import {
   lightenColor,
 } from "widgets/WidgetUtils";
 import orderBy from "lodash/orderBy";
+import { isArray } from "lodash";
 import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
@@ -270,24 +271,30 @@ function PopoverContent(props: PopoverContentProps) {
       menuItemsSource === MenuItemsSource.DYNAMIC &&
       sourceData?.length
     ) {
+      const getValue = (property: string, index: number) => {
+        const propertyName = property as keyof typeof configureMenuItems.config;
+
+        if (isArray(configureMenuItems.config[propertyName])) {
+          return configureMenuItems.config[propertyName][index];
+        }
+
+        return configureMenuItems.config[propertyName];
+      };
+
       const visibleItems = sourceData
         .map((item, index) => ({
           ...item,
-          isVisible: configureMenuItems?.config?.isVisible?.length
-            ? configureMenuItems.config.isVisible[index]
-            : configureMenuItems.config.isVisible,
-          isDisabled: configureMenuItems?.config?.isDisabled?.length
-            ? configureMenuItems.config.isDisabled[index]
-            : configureMenuItems.config.isDisabled,
+          isVisible: getValue("isVisible", index),
+          isDisabled: getValue("isDisabled", index),
           index: index,
           widgetId: "",
-          label: configureMenuItems?.config?.label[index],
+          label: configureMenuItems?.config?.label?.[index],
           onClick: configureMenuItems?.config?.onClick,
-          textColor: configureMenuItems?.config?.textColor,
-          backgroundColor: configureMenuItems?.config?.backgroundColor,
-          iconAlign: configureMenuItems?.config?.iconAlign,
-          iconColor: configureMenuItems?.config?.iconColor,
-          iconName: configureMenuItems?.config?.iconName,
+          textColor: getValue("textColor", index),
+          backgroundColor: getValue("backgroundColor", index),
+          iconAlign: getValue("iconAlign", index),
+          iconColor: getValue("iconColor", index),
+          iconName: getValue("iconName", index),
         }))
         .filter((item) => item.isVisible === true);
 
