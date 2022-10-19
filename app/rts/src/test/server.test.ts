@@ -93,17 +93,19 @@ describe("AST tests", () => {
   entityRefactor.forEach(async (input, index) => {
     it(`Entity refactor test case ${index + 1}`, async () => {
       const expectedResponse = [
-        { script: "ApiForever", count: 1 },
-        { script: "ApiForever.data", count: 1 },
+        { script: "ApiForever", referenceCount: 1, refactorCount: 1 },
+        { script: "ApiForever.data", referenceCount: 1, refactorCount: 1 },
         {
           script:
             "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiForever.data; \n if(true) { return ApiForever }}",
-          count: 2,
+          referenceCount: 2,
+          refactorCount: 2,
         },
         {
           script:
             "//ApiNever  \n function ApiNever(abc) {let ApiNever = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
-          count: 0,
+          referenceCount: 2,
+          refactorCount: 0,
         },
       ];
 
@@ -118,10 +120,14 @@ describe("AST tests", () => {
           expect(response.body.data.script).toEqual(
             expectedResponse[index].script
           );
-          expect(response.body.data.count).toEqual(
-            expectedResponse[index].count
+          expect(response.body.data.referenceCount).toEqual(
+            expectedResponse[index].referenceCount
+          );
+          expect(response.body.data.refactorCount).toEqual(
+            expectedResponse[index].refactorCount
           );
         });
     });
   });
 });
+

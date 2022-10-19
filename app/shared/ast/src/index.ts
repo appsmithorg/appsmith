@@ -284,7 +284,8 @@ export const entityRefactorFromCode = (
       identifierList,
     }: NodeList = ancestorWalk(ast);
     let identifierArray = Array.from(identifierList) as Array<IdentifierNode>;
-    const referencesArr = Array.from(references).filter((reference, index) => {
+    let referenceCount = references.size;
+    Array.from(references).forEach((reference, index) => {
       const topLevelIdentifier = toPath(reference)[0];
       let shouldUpdateNode = !(
         functionalParams.has(topLevelIdentifier) ||
@@ -308,9 +309,8 @@ export const entityRefactorFromCode = (
         refactorOffset += nameLengthDiff;
         ++refactorCount;
       }
-      return shouldUpdateNode;
     });
-    return { script: refactorScript, count: refactorCount };
+    return { script: refactorScript, referenceCount, refactorCount };
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
