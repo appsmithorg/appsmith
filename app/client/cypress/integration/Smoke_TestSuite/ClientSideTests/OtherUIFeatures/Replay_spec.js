@@ -147,6 +147,7 @@ describe("Undo/Redo functionality", function() {
     localStorage.removeItem("undoToastShown");
     localStorage.removeItem("redoToastShown");
 
+    cy.focused().blur();
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(commonlocators.toastmsg)
       .eq(0)

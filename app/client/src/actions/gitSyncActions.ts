@@ -251,8 +251,8 @@ export const showConnectGitModal = () => ({
   type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
 });
 
-export const disconnectGit = () => ({
-  type: ReduxActionTypes.DISCONNECT_GIT,
+export const revokeGit = () => ({
+  type: ReduxActionTypes.REVOKE_GIT,
 });
 
 export const setDisconnectingGitApplication = (payload: {
