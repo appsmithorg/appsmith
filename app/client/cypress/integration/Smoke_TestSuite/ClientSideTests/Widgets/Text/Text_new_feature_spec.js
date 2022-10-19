@@ -127,6 +127,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate enable scroll feature", function() {
+    cy.moveToContentTab();
     cy.selectDropdownValue(
       commonlocators.textOverflowDropdown,
       "Scroll contents",
