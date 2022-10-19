@@ -117,7 +117,7 @@ export const SignUpLinkSection = styled.div`
 
 export const ForgotPasswordLink = styled(Link)`
   align-self: center;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-top: var(--ads-spaces-11);
 `;
 
 export const FormMessagesContainer = styled.div`
