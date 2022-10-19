@@ -39,7 +39,6 @@ import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
-
 import {
   SpacedSubmitForm,
   FormActions,
@@ -211,10 +210,8 @@ export function Login(props: LoginFormProps) {
               />
             </FormActions>
           </SpacedSubmitForm>
-          <ForgotPasswordLink>
-            <Link to={forgotPasswordURL}>
-              {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
-            </Link>
+          <ForgotPasswordLink to={forgotPasswordURL}>
+            {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
           </ForgotPasswordLink>
         </>
       )}
