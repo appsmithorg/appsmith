@@ -503,15 +503,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const { jsSnippets } = getDynamicBindings(propertyValue);
           const listItem = this.props.listData?.[itemIndex] || {};
           const stringifiedListItem = JSON.stringify(listItem);
-          const escapedStringifiedListItem = escapeSpecialChars(
-            stringifiedListItem,
-          );
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
               if (next.indexOf("currentItem") > -1) {
                 return (
                   prev +
-                  `{{((currentItem) => { ${next}})(JSON.parse(JSON.stringify(${escapedStringifiedListItem})))}}`
+                  `{{((currentItem) => { ${next}})(JSON.parse(JSON.stringify(${stringifiedListItem})))}}`
                 );
               }
               return prev + `{{${next}}}`;
