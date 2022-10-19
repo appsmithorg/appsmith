@@ -78,7 +78,9 @@ public class AstServiceCEImpl implements AstServiceCE {
                             .body(BodyInserters.fromValue(new EntityRefactorRequest(bindingValue, oldName, newName, evalVersion)))
                             .retrieve()
                             .bodyToMono(EntityRefactorResponse.class)
-                            .flatMap(response -> Mono.just(bindingValue).zipWith(Mono.just(response.data.script)))
+                            .map(EntityRefactorResponse::getData)
+                            .filter(details -> details.refactorCount > 0)
+                            .flatMap(response -> Mono.just(bindingValue).zipWith(Mono.just(response.script)))
                             .onErrorResume(error -> {
                                 var temp = bindingValue;
                                 // If there is a problem with parsing and refactoring this binding, we just ignore it and move ahead
@@ -87,7 +89,6 @@ public class AstServiceCEImpl implements AstServiceCE {
                             });
                 })
                 .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
-        // TODO: add error handling scenario for when RTS is not accessible in fat container
     }
 
     @NoArgsConstructor

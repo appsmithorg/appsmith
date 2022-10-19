@@ -358,6 +358,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             recursiveRefactorNameInDslMono = Flux.fromStream(StreamSupport.stream(dslChildren.spliterator(), true))
                     .flatMap(child -> refactorNameInDsl(child, oldName, newName, evalVersion, oldNamePattern))
                     .reduce(new HashSet<>(), (x, y) -> {
+                        // for each child, aggregate the refactored paths
                         y.addAll(x);
                         return y;
                     });
@@ -380,6 +381,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             widgetName = widgetDsl.get(FieldName.WIDGET_NAME).asText();
             if (oldName.equals(widgetName)) {
                 ((ObjectNode) widgetDsl).set(FieldName.WIDGET_NAME, new TextNode(newName));
+                // We mark this widget name as being a path that was refactored using this boolean value
                 isRefactoredWidget = true;
             }
         }
@@ -402,10 +404,13 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 }
             }
             if (newJsonNode != null) {
+                // If we are here, it means that the widget being refactored was from a list widget template
+                // Go ahead and refactor this template as well
                 ((ObjectNode) newJsonNode).set(FieldName.WIDGET_NAME, new TextNode(newName));
                 // If such a pattern is found, remove that element and attach it back with the new name
                 ((ObjectNode) template).remove(fieldName);
                 ((ObjectNode) template).set(newName, newJsonNode);
+                // We mark this template path as being a path that was refactored using this boolean value
                 isRefactoredTemplate = true;
             }
         }
@@ -463,34 +468,44 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     @NotNull
     private Mono<Set<String>> refactorBindingsUsingBindingPaths(JsonNode widgetDsl, String oldName, String newName, int evalVersion, Pattern oldNamePattern, ArrayNode bindingPathList, String widgetName) {
-        Mono<Set<String>> refactorTriggerBindingsMono;
-        refactorTriggerBindingsMono = Flux.fromStream(StreamSupport.stream(bindingPathList.spliterator(), true))
-                .flatMap(dynamicBindingPath -> {
-                    String key = dynamicBindingPath.get(FieldName.KEY).asText();
+        Mono<Set<String>> refactorBindingsMono;
+        refactorBindingsMono = Flux.fromStream(StreamSupport.stream(bindingPathList.spliterator(), true))
+                .flatMap(bindingPath -> {
+                    String key = bindingPath.get(FieldName.KEY).asText();
+                    // This is inside a list widget, and the path starts with template.<oldName>,
+                    // We need to update the binding path list entry itself as well
                     if (widgetDsl.has(FieldName.WIDGET_TYPE) &&
                             FieldName.LIST_WIDGET.equals(widgetDsl.get(FieldName.WIDGET_TYPE).asText()) &&
-                            key.contains(oldName)) {
+                            key.startsWith("template." + oldName)) {
                         key = key.replace(oldName, newName);
-                        ((ObjectNode) dynamicBindingPath).set(FieldName.KEY, new TextNode(key));
+                        ((ObjectNode) bindingPath).set(FieldName.KEY, new TextNode(key));
                     }
+                    // Find values inside mustache bindings in this path
                     Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
                     final String finalKey = key;
+                    // Perform refactor for each mustache value
                     return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
                             .flatMap(replacementMap -> {
                                 if (replacementMap.isEmpty()) {
+                                    // If the map is empty, it means that this path did not have anything that had to be refactored
                                     return Mono.empty();
                                 }
+                                // Replace the binding path value with the new mustache values
                                 DslUtils.replaceValuesInSpecificDynamicBindingPath(widgetDsl, finalKey, replacementMap);
+                                // Mark this path as refactored
                                 String entityPath = StringUtils.hasLength(widgetName) ? widgetName + "." : "";
                                 return Mono.just(entityPath + finalKey);
                             });
                 })
                 .collect(Collectors.toSet());
-        return refactorTriggerBindingsMono;
+        return refactorBindingsMono;
     }
 
     Mono<Set<String>> refactorNameInAction(ActionDTO actionDTO, String oldName, String newName,
                                            int evalVersion, Pattern oldNamePattern) {
+        // If we're going the fallback route (without AST), we can first filter actions to be refactored
+        // By performing a check on whether json path keys had a reference
+        // This is not needed in the AST way since it would be costlier to make double the number of API calls
         if (Boolean.FALSE.equals(this.isRtsAccessible)) {
             Set<String> jsonPathKeys = actionDTO.getJsonPathKeys();
 
@@ -506,13 +521,13 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     }
                 }
             }
+            // If no reference was found, return with an empty set
             if (Boolean.FALSE.equals(isReferenceFound)) {
                 return Mono.just(new HashSet<>());
             }
         }
 
         ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
-
         final JsonNode actionConfigurationNode = objectMapper.convertValue(actionConfiguration, JsonNode.class);
 
         Mono<Set<String>> refactorDynamicBindingsMono = Mono.just(new HashSet<>());
@@ -549,36 +564,6 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
         return refactorDynamicBindingsMono;
     }
-
-//    Mono<Set<String>> refactorNameInEntityNode(String entityName, JsonNode entityNode, String oldName, String
-//            newName,
-//                                               int evalVersion, Pattern oldNamePattern) {
-//        Mono<Set<String>> refactorDynamicBindingsMono = Mono.just(new HashSet<>());
-//
-//        // If there are dynamic bindings in this action configuration, inspect them
-//        if (entityNode.has(FieldName.DYNAMIC_BINDING_PATH_LIST) && !entityNode.get(FieldName.DYNAMIC_BINDING_PATH_LIST).isEmpty()) {
-//            ArrayNode dslDynamicBindingPathList = (ArrayNode) entityNode.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
-//            // recurse over each child
-//            refactorDynamicBindingsMono = Flux.fromStream(StreamSupport.stream(dslDynamicBindingPathList.spliterator(), true))
-//                    .flatMap(dynamicBindingPath -> {
-//                        String key = dynamicBindingPath.get(FieldName.KEY).asText();
-//                        Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(entityNode, key);
-//                        return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
-//                                .flatMap(replacementMap -> {
-//                                    if (replacementMap.isEmpty()) {
-//                                        return Mono.empty();
-//                                    }
-//                                    DslUtils.replaceValuesInSpecificDynamicBindingPath(entityNode, key, replacementMap);
-//                                    String entityPath = StringUtils.hasLength(entityName) ? entityName + "." : "";
-//                                    return Mono.just(entityPath + key);
-//                                });
-//                    })
-//                    .collect(Collectors.toSet());
-//        }
-//
-//        return refactorDynamicBindingsMono;
-//    }
-
 
     Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, String oldName, String
             newName, int evalVersion, Pattern oldNamePattern) {
