@@ -5,7 +5,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import { compact, get, has, isEmpty, isString, omit, set } from "lodash";
+import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
 import log from "loglevel";
@@ -61,7 +61,7 @@ import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskin
 import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 // import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
-import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
+// import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
 
 /**
  * adds logBlackList key for all list widget children
