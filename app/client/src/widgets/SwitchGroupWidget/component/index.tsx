@@ -33,11 +33,13 @@ export interface InputContainerProps {
   labelPosition?: LabelPosition;
   optionCount: number;
   valid?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }
 
 export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
+  height: ${({ inline, isDynamicHeightEnabled }) =>
+    inline && !isDynamicHeightEnabled ? "32px" : "100%"};
   border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&
@@ -103,6 +105,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
         compactMode={compactMode}
         height={height}
         inline={inline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         optionCount={optionCount}
         valid={valid}

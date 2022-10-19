@@ -32,11 +32,13 @@ export interface StyledRadioGroupProps {
   labelPosition?: LabelPosition;
   optionCount: number;
   accentColor: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
+  height: ${({ inline, isDynamicHeightEnabled }) =>
+    inline && !isDynamicHeightEnabled ? "32px" : "100%"};
 
   .${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
@@ -122,6 +124,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
         disabled={disabled}
         height={height}
         inline={inline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         onChange={handleChange}
         optionCount={options.length}
