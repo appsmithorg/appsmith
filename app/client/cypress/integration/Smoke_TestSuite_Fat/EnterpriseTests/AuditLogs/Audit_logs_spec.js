@@ -205,6 +205,10 @@ describe("Audit logs", () => {
     });
   });
 
+  /* This will come back after we learn how to generate every event, fast.
+   * Need to generate events very fast or store them in a file
+   * and fake the response.
+   */
   // it("loads more logs on scroll", () => {
   //   /* Slowly, like a user would scroll */
   //   cy.visit("/settings/audit-logs").then(() => {
@@ -217,18 +221,18 @@ describe("Audit logs", () => {
   //       .children()
   //       .should("have.length.greaterThan", 200);
   //   });
-  //cy.wait(4000);
-  /* Fast, like a user would press pageEnd button */
-  // cy.visit("/settings/audit-logs").then(() => {
-  //   cy.get(locators.RowsContainer)
-  //     .children()
-  //     .should("have.length", 200);
-  //   cy.get(locators.EndMarker).scrollIntoView();
-  //   cy.wait(4000);
-  //   cy.get(locators.RowsContainer)
-  //     .children()
-  //     .should("have.length.greaterThan", 200);
-  // });
+  //   //cy.wait(4000);
+  //   /* Fast, like a user would press pageEnd button */
+  //   // cy.visit("/settings/audit-logs").then(() => {
+  //   //   cy.get(locators.RowsContainer)
+  //   //     .children()
+  //   //     .should("have.length", 200);
+  //   //   cy.get(locators.EndMarker).scrollIntoView();
+  //   //   cy.wait(4000);
+  //   //   cy.get(locators.RowsContainer)
+  //   //     .children()
+  //   //     .should("have.length.greaterThan", 200);
+  //   // });
   // });
 
   it("test case: event dropdown and workspace deletion log", () => {
