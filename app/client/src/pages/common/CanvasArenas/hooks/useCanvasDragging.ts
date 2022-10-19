@@ -712,7 +712,6 @@ export const useCanvasDragging = (
                 drawBlockOnCanvas(each);
               });
               if (payload) {
-                console.log("#### highlights", payload.highlights);
                 canvasCtx.fillStyle = "rgba(217, 89, 183, 0.3)";
                 payload.highlights.forEach((each) => {
                   canvasCtx.fillRect(

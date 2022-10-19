@@ -483,25 +483,14 @@ export const useAutoLayoutHighlights = ({
     acceleration: number,
   ): HighlightSelectionPayload | undefined => {
     if (!highlights) return;
-    // let highlightAdded = false;
     const payload: HighlightSelectionPayload = getHighlightPayload(
       e,
       moveDirection,
     );
+
     if (!payload || !payload.selectedHighlight) return;
     lastActiveHighlight = payload.selectedHighlight;
-
     return payload;
-    // if (acceleration) {
-    //   console.log("#### acceleration", acceleration, highlightAdded);
-    //   if (acceleration > 0 && highlightAdded) {
-    //     highlightAdded = false;
-    //     clearTempHighlight();
-    //   } else if (!highlightAdded) {
-    //     highlightAdded = true;
-    //     setTempHighlight(pos);
-    //   }
-    // }
   };
 
   const getHighlightPayload = (
