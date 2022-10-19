@@ -51,7 +51,7 @@ import {
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const Wrapper = styled.div`

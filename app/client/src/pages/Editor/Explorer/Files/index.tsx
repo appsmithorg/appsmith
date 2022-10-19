@@ -24,7 +24,7 @@ import ExplorerSubMenu from "./Submenu";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);

@@ -23,7 +23,7 @@ import { builderURL } from "RouteBuilder";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 const Wrapper = styled.div`
   padding: 20px;

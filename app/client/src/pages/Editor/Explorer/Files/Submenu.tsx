@@ -34,7 +34,7 @@ import { SIDEBAR_ID } from "constants/Explorer";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 const SubMenuContainer = styled.div`
   width: 250px;

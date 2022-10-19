@@ -52,7 +52,7 @@ import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
 
 const ENTITY_HEIGHT = 36;

@@ -24,7 +24,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 // render over popover portals
 const Container = styled.div`
