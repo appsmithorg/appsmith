@@ -190,5 +190,11 @@
   "textWidgetContainer": ".t--text-widget-container",
   "propertyStyle": "li:contains('STYLE')",
   "propertyContent": "li:contains('CONTENT')",
-  "cancelActionExecution": ".t--cancel-action-button"
+  "cancelActionExecution": ".t--cancel-action-button",
+  "layoutHeightDropdown": ".t--property-control-height .remixicon-icon",
+  "fixed": "[data-cy='t--dropdown-option-Fixed']",
+  "autoHeight": "[data-cy='t--dropdown-option-Auto Height']",
+  "autoHeightWithLimits": "[data-cy='t--dropdown-option-Auto Height with limits']",
+  "minHeight": ".t--property-control-minheight(inrows)",
+  "maxHeight": ".t--property-control-maxheight(inrows)"
 }
