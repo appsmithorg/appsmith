@@ -32,7 +32,10 @@ public interface AppsmithRepository<T> {
      * @return
      */
     Flux<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields, Sort sort, int limit);
-    T setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+
+    Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+
+    Mono<T> setUserPermissionsInObject(T obj);
 
     Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
 
