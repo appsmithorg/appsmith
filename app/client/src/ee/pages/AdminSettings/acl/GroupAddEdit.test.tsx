@@ -29,6 +29,7 @@ const props: GroupEditProps = {
   onDelete: jest.fn(),
   isLoading: false,
   isSaving: false,
+  isNew: false,
 };
 
 function renderComponent() {
@@ -72,6 +73,7 @@ describe("<GroupAddEdit />", () => {
       onDelete: jest.fn(),
       isLoading: false,
       isSaving: false,
+      isNew: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
@@ -114,6 +116,7 @@ describe("<GroupAddEdit />", () => {
       onDelete: jest.fn(),
       isLoading: false,
       isSaving: false,
+      isNew: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");

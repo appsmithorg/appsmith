@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
 import { PopoverPosition, Position } from "@blueprintjs/core";
@@ -91,6 +91,10 @@ export function PageHeader(props: PageHeaderProps) {
     searchPlaceholder,
     title,
   } = props;
+
+  useEffect(() => {
+    setIsEditing(props.isEditingTitle || false);
+  }, [props.isEditingTitle]);
 
   const handleSearch = (search: string) => {
     onSearch?.(search.toLocaleUpperCase());

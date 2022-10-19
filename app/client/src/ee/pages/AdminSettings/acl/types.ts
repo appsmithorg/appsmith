@@ -4,11 +4,8 @@ import { DebouncedFunc } from "lodash";
 export type BaseAclProps = { id: string; name: string };
 
 export type RoleProps = BaseAclProps & {
-  /* isEditing: boolean;
-     isDeleting: boolean;
-     isAppsmithProvided: boolean; */
+  /* isAppsmithProvided: boolean; */
   description?: string;
-  new?: boolean;
   tabs?: any;
   userPermissions?: string[];
 };
@@ -17,6 +14,7 @@ export type RoleEditProps = {
   selected: RoleProps;
   onDelete: any;
   isLoading: boolean;
+  isNew: boolean;
 };
 
 export type RoleTableResponse = {
@@ -61,7 +59,6 @@ export type UsersInGroup = {
 
 export type GroupProps = BaseAclProps & {
   users: UsersInGroup[];
-  new?: boolean;
   roles: BaseAclProps[];
   allRoles: BaseAclProps[];
 };
@@ -71,6 +68,7 @@ export type GroupEditProps = {
   onDelete: any;
   isLoading: boolean;
   isSaving: boolean;
+  isNew: boolean;
 };
 
 export type Permissions = {

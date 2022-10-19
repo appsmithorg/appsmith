@@ -7,7 +7,6 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "HR_Appsmith",
     // isAppsmithProvided: false,
-    new: false,
   },
   {
     id: "2",
@@ -15,7 +14,6 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "devops_design",
     // isAppsmithProvided: false,
-    new: false,
   },
   {
     id: "3",
@@ -23,7 +21,6 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "devops_eng_nov",
     // isAppsmithProvided: false,
-    new: false,
   },
   {
     id: "4",
@@ -31,7 +28,6 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "marketing_nov",
     // isAppsmithProvided: false,
-    new: false,
   },
   {
     id: "5",
@@ -39,7 +35,6 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "Administrator",
     // isAppsmithProvided: true,
-    new: false,
   },
   {
     id: "6",
@@ -47,6 +42,5 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "App Viewer",
     // isAppsmithProvided: true,
-    new: false,
   },
 ];

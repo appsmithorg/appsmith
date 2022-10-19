@@ -20,7 +20,7 @@ export interface FetchSingleDataPayload {
 export type RoleResponsePayload = BaseAclProps & {
   assignedToGroupIds: string[];
   assignedToUserIds: string[];
-  new: boolean;
+  new?: boolean;
   permissions: {
     documentId: string;
     aclPermission: string;
@@ -32,7 +32,7 @@ export type RoleResponsePayload = BaseAclProps & {
 export type RoleResponse = ApiResponse<RoleResponsePayload>;
 
 export type GroupResponsePayload = BaseAclProps & {
-  new: boolean;
+  new?: boolean;
   tenantId: string;
   userPermissions: string[];
   users: string[];

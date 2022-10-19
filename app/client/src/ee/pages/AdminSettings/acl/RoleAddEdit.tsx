@@ -46,7 +46,7 @@ export function EachTab(key: string, searchValue: string, value: any) {
 }
 
 export function RoleAddEdit(props: RoleEditProps) {
-  const { isLoading, selected } = props;
+  const { isLoading, isNew = false, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
@@ -119,7 +119,7 @@ export function RoleAddEdit(props: RoleEditProps) {
     >
       <BackButton />
       <PageHeader
-        isEditingTitle={selected?.new || false}
+        isEditingTitle={isNew}
         isTitleEditable
         onEditTitle={onEditTitle}
         onSearch={onSearch}

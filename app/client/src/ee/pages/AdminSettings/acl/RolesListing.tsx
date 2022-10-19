@@ -57,6 +57,7 @@ export function RolesListing() {
   const [data, setData] = useState<RoleProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [isNewRole, setIsNewRole] = useState(false);
 
   const selectedRoleId = params?.selected;
 
@@ -73,6 +74,7 @@ export function RolesListing() {
       dispatch(getRoleById({ id: selectedRoleId }));
     } else if (!selectedRoleId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLES });
+      setIsNewRole(false);
     }
   }, [selectedRoleId]);
 
@@ -142,6 +144,7 @@ export function RolesListing() {
         name: "Untitled Role",
       }),
     );
+    setIsNewRole(true);
   };
 
   const onSearch = debounce((search: string) => {
@@ -176,6 +179,7 @@ export function RolesListing() {
       {selectedRoleId && selectedRole ? (
         <RoleAddEdit
           isLoading={isLoading}
+          isNew={isNewRole}
           onDelete={onDeleteHandler}
           selected={selectedRole}
         />

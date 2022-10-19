@@ -112,6 +112,7 @@ describe("<ActiveAllGroupsList />", () => {
       onBack: jest.fn(),
       isLoading: false,
       isSaving: false,
+      isNew: false,
     };
     const { getAllByTestId, getByText } = render(
       <GroupAddEdit {...userGroupAddEditProps} />,

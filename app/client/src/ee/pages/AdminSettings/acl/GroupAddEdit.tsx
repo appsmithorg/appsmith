@@ -130,7 +130,7 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isLoading, isSaving, selected } = props;
+  const { isLoading, isNew = false, isSaving, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -431,7 +431,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       <BackButton />
       <PageHeader
         buttonText={createMessage(ADD_USERS)}
-        isEditingTitle={selected?.new || false}
+        isEditingTitle={isNew}
         isTitleEditable
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}

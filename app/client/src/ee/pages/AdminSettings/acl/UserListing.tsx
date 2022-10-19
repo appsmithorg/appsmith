@@ -3,9 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
-/* import { OrgUser } from "constants/orgConstants";
-   import { getAllUsers } from "selectors/organizationSelectors";
-   import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions"; */
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
 import { Variant } from "components/ads";

@@ -33,6 +33,7 @@ const props: RoleEditProps = {
   },
   onDelete: jest.fn(),
   isLoading: false,
+  isNew: false,
 };
 
 function renderComponent() {
