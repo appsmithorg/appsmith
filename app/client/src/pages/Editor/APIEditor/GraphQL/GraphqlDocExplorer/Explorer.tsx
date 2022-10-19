@@ -14,6 +14,7 @@ import {
   DocExplorerSection,
   IconContainer,
 } from "./css";
+import Search from "./Search";
 
 type DocExplorerType = {
   error?: any;
@@ -35,7 +36,8 @@ const DocExplorer = (props: DocExplorerType) => {
   const stackItem = stack[stack.length - 1];
 
   let content: ReactNode = null;
-  if (error) {
+  // remove condition of schema check
+  if (error && !schema) {
     content = (
       <DocExplorerErrorWrapper>Error fetching schema</DocExplorerErrorWrapper>
     );
@@ -83,6 +85,7 @@ const DocExplorer = (props: DocExplorerType) => {
           {stackItem.name}
         </Text>
       </DocExplorerHeader>
+      <Search schema={schema} />
       <DocExplorerContent>{content}</DocExplorerContent>
     </DocExplorerSection>
   );

@@ -32,7 +32,7 @@ export default function Argument({
   showDefaultValue,
 }: ArgumentProps) {
   const definition = (
-    <DefinitionWrapper>
+    <DefinitionWrapper className="t--gql-arguments">
       <ArgumentDefNameWrapper>{arg.name}</ArgumentDefNameWrapper>
       {" : "}
       <TypeLink type={arg.type} />

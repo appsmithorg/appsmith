@@ -69,7 +69,7 @@ const GraphqlDocExplorer = (props: GraphqlDocExplorer) => {
     : (action as EmbeddedApiAction).structure?.isFetching;
 
   const error = props.datasourceId
-    ? datasourceStructure.error
+    ? datasourceStructure?.error
     : (action as EmbeddedApiAction).structure?.error;
 
   let finalSchema;

@@ -8,11 +8,12 @@ import Directive from "./Directive";
 import ExplorerSection from "./ExplorerSection";
 import TypeLink from "./TypeLink";
 import MarkdownContent from "./MarkdownContent";
+import { isString } from "lodash";
 
 function Arguments({ field }: { field: ExplorerFieldDef }) {
   const [showDeprecated, setShowDeprecated] = useState(false);
 
-  if (field && !("args" in field)) {
+  if (isString(field) || !("args" in field)) {
     return null;
   }
 

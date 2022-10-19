@@ -1,8 +1,15 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import styled from "styled-components";
 import { Icon, IconSize, TabComponent } from "design-system";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import history from "utils/history";
+import classNames from "classnames";
 import { Text, FontWeight, TextType } from "design-system";
 import get from "lodash/get";
 import { getQueryParams } from "utils/URLUtils";
@@ -16,11 +23,14 @@ import { datasourcesEditorIdURL } from "RouteBuilder";
 import { isGraphqlPlugin } from "entities/Action";
 import { getPlugin } from "selectors/entitiesSelector";
 import { AppState } from "@appsmith/reducers";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import FormRow from "components/editorComponents/FormRow";
 import { sortedDatasourcesHandler } from "./helpers";
 import GraphqlDocExplorer from "./GraphQL/GraphqlDocExplorer";
 import { SuggestedWidget } from "api/ActionAPI";
 import { Datasource } from "entities/Datasource";
+import { tailwindLayers } from "constants/Layers";
+import { clamp } from "lodash";
 
 export const TabbedViewContainer = styled.div`
   flex: 1;
@@ -38,7 +48,7 @@ export const TabbedViewContainer = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      overflow: auto hidden;
+      overflow: hidden;
       margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
@@ -81,9 +91,9 @@ const EmptyDatasourceContainer = styled.div`
   }
 `;
 
-const DatasourceContainer = styled.div`
+const ApiRightPaneContainer = styled.div`
   &&&&&&&&&&& .react-tabs__tab-list {
-    padding: 0 16px !important;
+    padding: 0 16px 1px 16px !important;
     border-bottom: none;
     border-left: 1px solid #e8e8e8;
     margin-left: 0px;
@@ -92,7 +102,7 @@ const DatasourceContainer = styled.div`
       margin-right: 0;
     }
   }
-  width: ${(props) => props.theme.actionSidePane.width}px;
+  width: 100%;
   color: ${(props) => props.theme.colors.apiPane.text};
 
   &&&& {
@@ -230,6 +240,24 @@ const NoEntityFoundWrapper = styled.div`
   }
 `;
 
+const ResizeableDiv = styled.div`
+  display: flex;
+  height: 100%;
+  flex-shrink: 0;
+`;
+
+const ResizerHandler = styled.div<{ resizing: boolean }>`
+  width: 6px;
+  height: 100%;
+  margin-left: 2px;
+  border-right: 1px solid ${Colors.GREY_200};
+  background: ${(props) => (props.resizing ? Colors.GREY_4 : "transparent")};
+  &:hover {
+    background: ${Colors.GREY_4};
+    border-color: transparent;
+  }
+`;
+
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
@@ -268,13 +296,45 @@ type ApiRightPaneType = {
   suggestedWidgets?: SuggestedWidget[];
 };
 
+const API_PANE_WIDTH_CONSTANTS = {
+  max: 400,
+  min: 150,
+  default: 265,
+};
+
 function ApiRightPane(props: ApiRightPaneType) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const sizeableRef = useRef<HTMLDivElement>(null);
+  const [variableEditorWidth, setVariableEditorWidth] = React.useState(
+    API_PANE_WIDTH_CONSTANTS.default,
+  );
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
   const currentPlugin = useSelector((state: AppState) =>
     getPlugin(state, props?.pluginId ?? ""),
+  );
+
+  const onApiRightPaneWidthChange = useCallback((newWidth) => {
+    setVariableEditorWidth(
+      clamp(
+        newWidth,
+        API_PANE_WIDTH_CONSTANTS.min,
+        API_PANE_WIDTH_CONSTANTS.max,
+      ),
+    );
+  }, []);
+
+  const {
+    onMouseDown,
+    onMouseUp,
+    onTouchStart,
+    resizing,
+  } = useHorizontalResize(
+    sizeableRef,
+    onApiRightPaneWidthChange,
+    undefined,
+    true,
   );
 
   useEffect(() => {
@@ -394,16 +454,38 @@ function ApiRightPane(props: ApiRightPaneType) {
   }
 
   return (
-    <DatasourceContainer>
-      <TabbedViewContainer>
-        <TabComponent
-          cypressSelector={"api-right-pane"}
-          onSelect={setSelectedIndex}
-          selectedIndex={selectedIndex}
-          tabs={tabArray}
+    <>
+      <div
+        className={`w-2 h-full -ml-2 group z-6 cursor-ew-resize ${tailwindLayers.resizer}`}
+        onMouseDown={onMouseDown}
+        onTouchEnd={onMouseUp}
+        onTouchStart={onTouchStart}
+      >
+        <ResizerHandler
+          className={classNames({
+            "transform transition": true,
+          })}
+          resizing={resizing}
         />
-      </TabbedViewContainer>
-    </DatasourceContainer>
+      </div>
+      <ResizeableDiv
+        ref={sizeableRef}
+        style={{
+          width: `${variableEditorWidth}px`,
+        }}
+      >
+        <ApiRightPaneContainer>
+          <TabbedViewContainer>
+            <TabComponent
+              cypressSelector={"api-right-pane"}
+              onSelect={setSelectedIndex}
+              selectedIndex={selectedIndex}
+              tabs={tabArray}
+            />
+          </TabbedViewContainer>
+        </ApiRightPaneContainer>
+      </ResizeableDiv>
+    </>
   );
 }
 
