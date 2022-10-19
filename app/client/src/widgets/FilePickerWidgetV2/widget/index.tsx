@@ -24,8 +24,8 @@ import { Colors } from "constants/Colors";
 import Papa from "papaparse";
 import { klona } from "klona";
 import { UppyFile } from "@uppy/utils";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 import { ResponsiveBehavior } from "components/constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;

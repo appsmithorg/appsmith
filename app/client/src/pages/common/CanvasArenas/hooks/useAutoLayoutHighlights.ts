@@ -10,7 +10,7 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
@@ -62,7 +62,7 @@ export const useAutoLayoutHighlights = ({
   const canvas = allWidgets[canvasId];
   const layers: FlexLayer[] = canvas?.flexLayers || [];
   const isVertical = direction === LayoutDirection.Vertical;
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
   let containerDimensions: {
