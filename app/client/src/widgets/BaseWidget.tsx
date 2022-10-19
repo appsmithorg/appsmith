@@ -49,6 +49,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import DynamicHeightContainer from "./DynamicHeightContainer";
 import { CSSProperties } from "styled-components";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 /***
  * BaseWidget
@@ -229,14 +230,18 @@ abstract class BaseWidget<
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
+    const canWidgetCollapse =
+      this.props.renderMode === RenderModes.PAGE ||
+      this.props.renderMode === RenderModes.PREVIEW;
+
     // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
     // then we need to compute.
     // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
     // Does this widget have dynamic height enabled
     const isDynamicHeightEnabled =
       isDynamicHeightEnabledForWidget(this.props) ||
-      expectedHeight === 0 ||
-      currentHeightInRows === 0;
+      (canWidgetCollapse &&
+        (expectedHeight === 0 || currentHeightInRows === 0));
 
     // Run the following pieces of code only if dynamic height is enabled
     if (!isDynamicHeightEnabled) return false;
@@ -245,11 +250,7 @@ abstract class BaseWidget<
 
     let minDynamicHeightInRows = getWidgetMinDynamicHeight(this.props);
 
-    if (
-      (this.props.renderMode === RenderModes.PAGE ||
-        this.props.renderMode === RenderModes.PREVIEW) &&
-      expectedHeight === 0
-    ) {
+    if (canWidgetCollapse && expectedHeight === 0) {
       minDynamicHeightInRows = 0;
     }
     // If current height is less than the expected height
@@ -447,43 +448,29 @@ abstract class BaseWidget<
   }
 
   addDynamicHeightOverlay(content: ReactNode, style?: CSSProperties) {
-    const updateDynamicHeight = () => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          this.updateDynamicHeight(this.expectedHeight);
-        }, 0);
+    const onBatchUpdate = (height: number, propertiesToUpdate?: string[]) => {
+      if (propertiesToUpdate === undefined) {
+        propertiesToUpdate = ["minDynamicHeight", "maxDynamicHeight"];
+      }
+      const modifyObj: Record<string, unknown> = {};
+      propertiesToUpdate.forEach((propertyName) => {
+        modifyObj[propertyName] = Math.floor(
+          height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
       });
-    };
-
-    const onMaxHeightSet = (height: number) => {
-      const maxDynamicHeightInRows = Math.floor(
-        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      );
-      this.updateWidgetProperty("maxDynamicHeight", maxDynamicHeightInRows);
-      updateDynamicHeight();
-    };
-
-    const onMinHeightSet = (height: number) => {
-      const minDynamicHeightInRows = Math.floor(
-        height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      );
-      this.updateWidgetProperty("minDynamicHeight", minDynamicHeightInRows);
-      updateDynamicHeight();
-    };
-
-    const onBatchUpdate = (height: number) => {
       this.batchUpdateWidgetProperty({
-        modify: {
-          maxDynamicHeight: Math.floor(
-            height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          ),
-          minDynamicHeight: Math.floor(
-            height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          ),
-        },
+        modify: modifyObj,
+        postUpdateActions: [
+          ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+        ],
       });
-      updateDynamicHeight();
     };
+
+    const onMaxHeightSet = (height: number) =>
+      onBatchUpdate(height, ["maxDynamicHeight"]);
+
+    const onMinHeightSet = (height: number) =>
+      onBatchUpdate(height, ["minDynamicHeight"]);
 
     return (
       <>
@@ -535,10 +522,14 @@ abstract class BaseWidget<
       });
     };
 
+    const maxDynamicHeight = getWidgetMaxDynamicHeight(this.props);
+    const minDynamicHeight = getWidgetMinDynamicHeight(this.props);
+
     return (
       <DynamicHeightContainer
         dynamicHeight={this.props.dynamicHeight}
-        maxDynamicHeight={this.props.maxDynamicHeight}
+        maxDynamicHeight={maxDynamicHeight}
+        minDynamicHeight={minDynamicHeight}
         onHeightUpdate={onHeightUpdate}
       >
         {content}
@@ -560,11 +551,6 @@ abstract class BaseWidget<
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
           if (isDynamicHeightWithLimitsEnabledForWidget(this.props)) {
-            log.debug(
-              "AUTO_HEIGHT_WITH_LIMITS",
-              this.props.maxDynamicHeight,
-              this.props.minDynamicHeight,
-            );
             content = this.addDynamicHeightOverlay(content);
           }
         }

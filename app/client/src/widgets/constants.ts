@@ -19,10 +19,10 @@ export interface WidgetConfiguration {
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
-  canvasHeightOffset?: number;
+  canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
   properties: {
-    config: PropertyPaneConfig[];
+    config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
     styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;

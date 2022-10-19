@@ -143,7 +143,6 @@ import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
@@ -542,7 +541,7 @@ export function* getPropertiesUpdatedWidget(
 ) {
   const { dynamicUpdates, updates, widgetId } = updatesObj;
 
-  const { modify = {}, remove = [], triggerPaths } = updates;
+  const { modify = {}, remove = [], postUpdateActions, triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
@@ -550,8 +549,6 @@ export function* getPropertiesUpdatedWidget(
   if (!stateWidget) return;
 
   let widget = cloneDeep(stateWidget);
-  const isContainerLikeWidget: boolean = yield getIsContainerLikeWidget(widget);
-  const actionsToDispatch: Array<ReduxActionType> = [];
   try {
     if (Object.keys(modify).length > 0) {
       const {
@@ -563,18 +560,6 @@ export function* getPropertiesUpdatedWidget(
       // We loop over all updates
       Object.entries(propertyUpdates).forEach(
         ([propertyPath, propertyValue]) => {
-          if (
-            ((propertyPath === "dynamicHeight" &&
-              (propertyValue === DynamicHeight.AUTO_HEIGHT ||
-                propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS)) ||
-              propertyPath === "minDynamicHeight" ||
-              propertyPath === "maxDynamicHeight") &&
-            isContainerLikeWidget
-          ) {
-            actionsToDispatch.push(
-              ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
-            );
-          }
           // since property paths could be nested, we use lodash set method
           widget = set(widget, propertyPath, propertyValue);
         },
@@ -603,7 +588,7 @@ export function* getPropertiesUpdatedWidget(
   // I couldn't find it, so here it is.
   return {
     updatedWidget: purgeOrphanedDynamicPaths(widget),
-    actionsToDispatch,
+    actionsToDispatch: postUpdateActions,
   };
 }
 
@@ -618,7 +603,7 @@ function* batchUpdateWidgetPropertySaga(
   }
   const updatedWidgetAndActionsToDispatch: {
     updatedWidget: WidgetProps;
-    actionsToDispatch: ReduxActionType[];
+    actionsToDispatch?: ReduxActionType[];
   } = yield call(getPropertiesUpdatedWidget, action.payload);
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = {
@@ -650,7 +635,7 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const updatedWidgetsAndActionsToDispatch: Array<{
     updatedWidget: WidgetProps;
-    actionsToDispatch: ReduxActionType[];
+    actionsToDispatch?: ReduxActionType[];
   }> = yield all(
     updatesArray.map((eachUpdate) => {
       return call(getPropertiesUpdatedWidget, eachUpdate);
