@@ -156,6 +156,6 @@ export class CommonLocators {
   _cancelActionExecution = ".t--cancel-action-button";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" + dropdownOption + "']";
-  _dropDownMultiTreeSelect = ".rc-tree-select-multiple"
+  _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
   _debuggerList = ".debugger-list";
 }
