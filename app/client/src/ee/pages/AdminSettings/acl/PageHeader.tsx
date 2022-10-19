@@ -29,7 +29,6 @@ import {
   ENTER_GROUP_NAME,
 } from "@appsmith/constants/messages";
 import { PageHeaderProps } from "./types";
-import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   display: flex;
@@ -55,15 +54,26 @@ const StyledButton = styled(Button)`
   min-width: 88px;
 `;
 
-const StyledSettingsHeader = styled(SettingsHeader)<{ isEditing?: boolean }>`
-  width: 480px;
-  white-space: nowrap;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
+const StyledSettingsHeader = styled(SettingsHeader)`
+  max-width: 440px;
   cursor: pointer;
 
-  ${({ isEditing }) => isEditing && `background: ${Colors.GREY_2}`}
+  span.bp3-popover-target {
+    width: 100%;
+
+    > * {
+      width: 100%;
+      flex-grow: unset;
+
+      > * {
+        width: 100%;
+
+        .bp3-editable-text-content {
+          display: block;
+        }
+      }
+    }
+  }
 `;
 
 function getSettingLabel(name = "") {
@@ -121,19 +131,25 @@ export function PageHeader(props: PageHeaderProps) {
   return (
     <Container>
       <HeaderWrapper margin={`0px`}>
-        {isTitleEditable && isEditing ? (
-          <StyledSettingsHeader data-testid="t--page-title" isEditing>
-            <EditableText
-              className="t--editable-title"
-              defaultValue={title ?? pageTitle}
-              editInteractionKind={EditInteractionKind.DOUBLE}
-              hideEditIcon
-              isEditingDefault={isEditing}
-              onBlur={() => setIsEditing(false)}
-              onTextChanged={(name) => onEditTitle?.(name)}
-              placeholder={createMessage(ENTER_GROUP_NAME)}
-              type="text"
-            />
+        {isTitleEditable ? (
+          <StyledSettingsHeader data-testid="t--page-title">
+            <TooltipComponent
+              boundary="viewport"
+              content={title ?? pageTitle}
+              maxWidth="400px"
+              position={PopoverPosition.BOTTOM_LEFT}
+            >
+              <EditableText
+                className="t--editable-title"
+                defaultValue={title ?? pageTitle}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                isEditingDefault={isEditing}
+                onBlur={() => setIsEditing(false)}
+                onTextChanged={(name) => onEditTitle?.(name)}
+                placeholder={createMessage(ENTER_GROUP_NAME)}
+                type="text"
+              />
+            </TooltipComponent>
           </StyledSettingsHeader>
         ) : (
           <TooltipComponent
@@ -142,10 +158,7 @@ export function PageHeader(props: PageHeaderProps) {
             maxWidth="400px"
             position={PopoverPosition.BOTTOM_LEFT}
           >
-            <StyledSettingsHeader
-              data-testid="t--page-title"
-              onDoubleClick={() => isTitleEditable && setIsEditing(true)}
-            >
+            <StyledSettingsHeader data-testid="t--page-title">
               {title ?? pageTitle}
             </StyledSettingsHeader>
           </TooltipComponent>

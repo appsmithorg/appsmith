@@ -485,6 +485,29 @@ export function* updateRoleNameSaga(action: ReduxAction<any>) {
   }
 }
 
+export function* updateRoleSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.updateAclRole(action.payload);
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR,
+    });
+  }
+}
+
 export function* createAclRoleSaga(action: ReduxAction<any>) {
   try {
     const response: RoleResponse = yield AclApi.createAclRole(action.payload);
@@ -655,6 +678,10 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
       takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
+      takeLatest(
+        ReduxActionTypes.UPDATE_ACL_GROUP_ROLES,
+        updateRolesInGroupSaga,
+      ),
       takeLatest(ReduxActionTypes.ADD_USERS_IN_GROUP, addUsersInGroupSaga),
       takeLatest(
         ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
@@ -666,6 +693,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
       takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE, updateRoleSaga),
       takeLatest(
         ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
         fetchRolesForInviteSaga,

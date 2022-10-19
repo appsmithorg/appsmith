@@ -2,7 +2,10 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "api/ApiResponses";
 import { uniqueId } from "lodash";
-import { BaseAclProps } from "@appsmith/pages/AdminSettings/acl/types";
+import {
+  BaseAclProps,
+  UpdateRoleData,
+} from "@appsmith/pages/AdminSettings/acl/types";
 
 export interface FetchAclUsersResponse extends ApiResponse {
   id: string;
@@ -57,6 +60,12 @@ export type UpdateRolesInGroupRequestPayload = {
   groups: BaseAclProps[];
   rolesAdded: BaseAclProps[];
   rolesRemoved: BaseAclProps[];
+};
+
+export type UpdateRoleRequestPayload = {
+  tabName: string;
+  entitiesChanged: UpdateRoleData;
+  roleId: string;
 };
 
 export class AclApi extends Api {
@@ -126,6 +135,19 @@ export class AclApi extends Api {
     payload: FetchSingleDataPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.get(`${AclApi.roles}/configure/${payload.id}`);
+    return response;
+  }
+
+  static async updateAclRole(
+    payload: UpdateRoleRequestPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(
+      `${AclApi.roles}/configure/${payload.roleId}`,
+      {
+        tabName: payload.tabName,
+        entitiesChange: payload.entitiesChanged,
+      },
+    );
     return response;
   }
 
@@ -250,12 +272,6 @@ export class AclApi extends Api {
 
   static async fetchIconLocation(): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.get(AclApi.iconLocation);
-    return response;
-  }
-
-  /* to be re-checked*/
-  static async updateAclRole(payload: any): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.put(`${AclApi.roles}/${payload.id}`);
     return response;
   }
 }

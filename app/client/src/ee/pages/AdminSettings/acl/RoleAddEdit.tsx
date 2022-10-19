@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
+import { useHistory, useParams } from "react-router";
 import { Variant } from "components/ads";
 import { MenuItemProps, TabComponent, TabProp, Toaster } from "design-system";
 import { PageHeader } from "./PageHeader";
@@ -21,7 +21,12 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { updateRoleName } from "@appsmith/actions/aclActions";
 
-export function EachTab(key: string, searchValue: string, value: any) {
+export function EachTab(
+  key: string,
+  searchValue: string,
+  value: any,
+  roleId: string,
+) {
   const [tabCount, setTabCount] = useState<number>(0);
 
   useEffect(() => {
@@ -37,6 +42,7 @@ export function EachTab(key: string, searchValue: string, value: any) {
     panelComponent: (
       <RolesTree
         currentTabName={key}
+        roleId={roleId}
         searchValue={searchValue}
         tabData={value}
         updateTabCount={(n) => setTabCount(n)}
@@ -51,6 +57,7 @@ export function RoleAddEdit(props: RoleEditProps) {
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
   const dispatch = useDispatch();
+  const params = useParams() as any;
 
   useEffect(() => {
     dispatch({
@@ -75,7 +82,7 @@ export function RoleAddEdit(props: RoleEditProps) {
     if (selected.name !== name) {
       dispatch(
         updateRoleName({
-          id: selected.id,
+          id: selected.id || params.selected,
           name,
         }),
       );
@@ -104,7 +111,7 @@ export function RoleAddEdit(props: RoleEditProps) {
 
   const tabs: TabProp[] = selected?.tabs
     ? Object.entries(selected?.tabs).map(([key, value]) =>
-        EachTab(key, searchValue, value),
+        EachTab(key, searchValue, value, selected.id),
       )
     : [];
 

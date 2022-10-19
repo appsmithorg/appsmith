@@ -18,8 +18,9 @@ import {
 } from "@appsmith/constants/messages";
 import { Variant } from "components/ads";
 import _ from "lodash";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getIconLocations } from "@appsmith/selectors/aclSelectors";
+import { updateRoleById } from "@appsmith/actions/aclActions";
 
 let dataToBeSent: any[] = [];
 
@@ -477,7 +478,6 @@ export function updateData(
   rowId: string,
   tabData: any,
 ) {
-  // console.time("Execution Time");
   const updatedData = [...oldData];
   const currentCellId = cellId.split("_");
 
@@ -488,7 +488,6 @@ export function updateData(
 
   if (rowDataToUpdate) {
     if (currentCellId[0] === rowDataToUpdate.id) {
-      // console.log("parent");
       const { hoverMap, permissions } = tabData;
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
@@ -497,7 +496,6 @@ export function updateData(
         permissions,
       );
     } else if (updatedData[parseInt(rowIdArray[0])]?.subRows) {
-      // console.log("child");
       const subRowId = rowIdArray.slice(1).join(".");
       updatedData[parseInt(rowIdArray[0])] = {
         ...updatedData[parseInt(rowIdArray[0])],
@@ -511,7 +509,6 @@ export function updateData(
       };
     }
   }
-  // console.timeEnd("Execution Time");
   return updatedData;
 }
 
@@ -521,12 +518,13 @@ export const getIcon = (iconLocations: any[], pluginId: string) => {
 };
 
 export default function RolesTree(props: RoleTreeProps) {
-  const { searchValue = "", tabData } = props;
+  const { roleId, searchValue = "", tabData } = props;
   const [filteredData, setFilteredData] = useState([]);
   const dataFromProps = makeData([tabData?.data]) || [];
   const [data, setData] = useState(dataFromProps);
   const [isSaving, setIsSaving] = useState(false);
   const iconLocations = useSelector(getIconLocations);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dataToBeSent = [];
@@ -685,7 +683,7 @@ export default function RolesTree(props: RoleTreeProps) {
   ];
 
   const onSaveChanges = () => {
-    /*console.log(dataToBeSent, props.currentTabName);*/
+    dispatch(updateRoleById(props.currentTabName, dataToBeSent, roleId));
     Toaster.show({
       text: createMessage(SUCCESSFULLY_SAVED),
       variant: Variant.success,

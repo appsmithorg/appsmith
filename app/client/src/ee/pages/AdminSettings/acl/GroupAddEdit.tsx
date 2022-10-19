@@ -21,7 +21,7 @@ import { HelpPopoverStyle, SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import { useHistory } from "react-router";
+import { useHistory, useParams } from "react-router";
 import {
   BaseAclProps,
   GroupEditProps,
@@ -147,6 +147,7 @@ export function GroupAddEdit(props: GroupEditProps) {
 
   const history = useHistory();
   const dispatch = useDispatch();
+  const params = useParams() as any;
 
   useEffect(() => {
     const saving = removedActiveGroups.length > 0 || addedAllGroups.length > 0;
@@ -249,7 +250,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     if (selected.name !== name) {
       dispatch(
         updateGroupName({
-          id: selected.id,
+          id: selected.id || params.selected,
           name,
         }),
       );

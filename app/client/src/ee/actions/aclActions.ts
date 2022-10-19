@@ -4,6 +4,7 @@ import {
   BaseAclProps,
   GroupProps,
   RoleProps,
+  UpdateRoleData,
 } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const getUserById = (payload: FetchSingleDataPayload) => ({
@@ -118,6 +119,19 @@ export const updateRolesInGroup = (
     groups: [groups],
     rolesAdded,
     rolesRemoved,
+  },
+});
+
+export const updateRoleById = (
+  tabName: string,
+  entitiesChanged: UpdateRoleData[],
+  roleId: string,
+) => ({
+  type: ReduxActionTypes.UPDATE_ACL_ROLE,
+  paylod: {
+    tabName,
+    entitiesChanged,
+    roleId,
   },
 });
 

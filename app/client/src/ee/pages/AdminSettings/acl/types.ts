@@ -37,6 +37,7 @@ export type RoleTreeProps = {
   noData?: boolean;
   updateTabCount?: (val: number) => void;
   currentTabName: string;
+  roleId: string;
 };
 
 export type ActiveAllGroupsProps = {
@@ -122,4 +123,11 @@ export type UserEditProps = {
   searchPlaceholder: string;
   isLoading: boolean;
   isSaving: boolean;
+};
+
+export type UpdateRoleData = {
+  type: string;
+  id: string;
+  name: string;
+  permissions: number[];
 };
