@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
 import javax.validation.Validator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -28,12 +31,12 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
 
     @Autowired
     public EnvironmentServiceImpl(Scheduler scheduler,
-                                    Validator validator,
-                                    MongoConverter mongoConverter,
-                                    ReactiveMongoTemplate reactiveMongoTemplate,
-                                    EnvironmentRepository repository,
-                                    AnalyticsService analyticsService,
-                                    EnvironmentVariableService environmentVariableService) {
+                                  Validator validator,
+                                  MongoConverter mongoConverter,
+                                  ReactiveMongoTemplate reactiveMongoTemplate,
+                                  EnvironmentRepository repository,
+                                  AnalyticsService analyticsService,
+                                  EnvironmentVariableService environmentVariableService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -95,6 +98,71 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
         environmentDTO.setName(environment.getName());
         environmentDTO.setWorkspaceId(environmentDTO.getWorkspaceId());
         return environmentDTO;
+    }
+
+    @Override
+    public Mono<Environment> save(Environment environment) {
+        return super.create(environment);
+    }
+
+    @Override
+    public Flux<EnvironmentDTO> updateEnvironment(List<EnvironmentDTO> environmentDTOList) {
+
+        Set<EnvironmentVariable> envVarToArchive = new HashSet<>();
+        Set<EnvironmentVariable> envVarToUpdate = new HashSet<>();
+        Set<EnvironmentVariable> envVarToSave = new HashSet<>();
+
+        return Flux.fromIterable(environmentDTOList)
+                .flatMap(environmentDTO -> {
+            for (EnvironmentVariable envVar: environmentDTO.getEnvironmentVariableList()) {
+                if (envVar.getId() == null) {
+                    envVarToSave.add(envVar);
+                } else if (envVar.isDeleted()) {
+                    envVarToArchive.add(envVar);
+                } else {
+                    envVarToUpdate.add(envVar);
+                }
+            }
+            EnvironmentDTO environmentDTO1 = new EnvironmentDTO();
+            environmentDTO1.setId(environmentDTO.getId());
+            environmentDTO1.setName(environmentDTO.getName());
+            environmentDTO1.setWorkspaceId(environmentDTO.getWorkspaceId());
+
+            Mono<List<EnvironmentVariable>> updatedEnvVarListMono = Flux.fromIterable(envVarToUpdate).flatMap(envVar -> {
+                return environmentVariableService.findById(envVar.getId(), AclPermission.MANAGE_ENVIRONMENT_VARIABLES)
+                        .map(dbEnvVar -> {
+                                copyNewFieldValuesIntoOldObject(envVar, dbEnvVar);
+                                return dbEnvVar;
+                        }).flatMap(dbEnvVar -> environmentVariableService.update(dbEnvVar.getId(), dbEnvVar));
+            }).collectList();
+
+            Mono<List<EnvironmentVariable>> archivedEnvVarListMono = Flux.fromIterable(envVarToArchive).flatMap(archiveEnvVar -> {
+                return environmentVariableService.archiveById(archiveEnvVar.getId());
+            }).collectList();
+
+            Mono<List<EnvironmentVariable>> newEnvVarListMono = Flux.fromIterable(envVarToSave).flatMap(envVar -> {
+                return environmentVariableService.save(envVar);
+            }).collectList();
+
+            envVarToArchive.clear();
+            envVarToUpdate.clear();
+            envVarToSave.clear();
+
+            return Mono.zip(Mono.just(environmentDTO1), updatedEnvVarListMono, archivedEnvVarListMono, newEnvVarListMono)
+                    .map(tuple -> {
+                        EnvironmentDTO environmentDTO2 = tuple.getT1();
+                        List<EnvironmentVariable> archivedList = tuple.getT3();
+                        List<EnvironmentVariable> updatedList = tuple.getT2();
+                        List<EnvironmentVariable> savedList = tuple.getT4();
+
+                        environmentDTO2.setEnvironmentVariableList(updatedList);
+                        environmentDTO2.getEnvironmentVariableList().addAll(savedList);
+                        environmentDTO2.getEnvironmentVariableList().addAll(archivedList);
+                        return environmentDTO2;
+                    });
+        });
+
+
     }
 
 }

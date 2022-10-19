@@ -7,6 +7,8 @@ import com.appsmith.server.services.ce .EnvironmentServiceCE;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface EnvironmentService extends EnvironmentServiceCE {
     //Read
     Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission);
@@ -17,9 +19,12 @@ public interface EnvironmentService extends EnvironmentServiceCE {
 
     Flux<EnvironmentDTO> findEnvironmentByWorkspaceId(String workspaceId);
 
-    //update --no update calls on CEServices
+    //update --
+
+    Flux<EnvironmentDTO> updateEnvironment(List<EnvironmentDTO> environmentDTOList);
 
     //Create
+    Mono<Environment> save(Environment environment);
 
     //Delete
 
