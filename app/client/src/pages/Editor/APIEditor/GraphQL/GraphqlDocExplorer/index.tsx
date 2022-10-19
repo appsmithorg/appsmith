@@ -48,13 +48,13 @@ const GraphqlDocExplorer = (props: GraphqlDocExplorer) => {
     }
   }, [datasourceStructure, props.actionId, props.datasourceId, dispatch]);
 
-  // const refetchActionOrDatasourceStructure = useCallback(() => {
-  //   if (props.datasourceId) {
-  //     dispatch(fetchDatasourceStructure(props.datasourceId));
-  //   } else {
-  //     dispatch(fetchActionStructure(props.actionId));
-  //   }
-  // }, [props.actionId, props.datasourceId, dispatch]);
+  const refetchActionOrDatasourceStructure = useCallback(() => {
+    if (props.datasourceId) {
+      dispatch(fetchDatasourceStructure(props.datasourceId));
+    } else {
+      dispatch(fetchActionStructure(props.actionId));
+    }
+  }, [props.actionId, props.datasourceId, dispatch]);
 
   useEffect(() => {
     getActionOrDatasourceStructure();
@@ -90,6 +90,9 @@ const GraphqlDocExplorer = (props: GraphqlDocExplorer) => {
         <Explorer
           error={error}
           isFetching={!!isFetching}
+          refetchActionOrDatasourceStructure={
+            refetchActionOrDatasourceStructure
+          }
           schema={finalSchema}
           validationErrors={validationErrors}
         />

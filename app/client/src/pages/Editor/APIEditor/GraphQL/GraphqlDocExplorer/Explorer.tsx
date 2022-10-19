@@ -15,12 +15,14 @@ import {
   IconContainer,
 } from "./css";
 import Search from "./Search";
+import { Colors } from "constants/Colors";
 
 type DocExplorerType = {
   error?: any;
   isFetching: boolean;
   schema?: any;
   validationErrors?: any;
+  refetchActionOrDatasourceStructure: () => void;
 };
 
 const DocExplorer = (props: DocExplorerType) => {
@@ -73,15 +75,27 @@ const DocExplorer = (props: DocExplorerType) => {
           className="t--gql-back-explorer"
           onClick={pop}
           showPointer={!!prevName}
+          style={{ paddingLeft: "10px" }}
         >
-          {prevName && <Icon icon="chevron-left" iconSize={16} />}
+          {prevName && (
+            <Icon color={Colors.GRAY_700} icon="chevron-left" iconSize={16} />
+          )}
         </IconContainer>
         <Text
-          style={{ color: "#0c0000", lineHeight: "14px", flexGrow: "1" }}
-          type={TextType.P1}
+          color={Colors.GRAY_700}
+          style={{ lineHeight: "14px", flexGrow: "1" }}
+          type={TextType.H6}
         >
           {stackItem.name}
         </Text>
+        <IconContainer
+          className="t--gql-refetch-schema"
+          onClick={props.refetchActionOrDatasourceStructure}
+          showPointer
+          style={{ paddingRight: "10px" }}
+        >
+          <Icon color={Colors.GRAY_700} icon="refresh" iconSize={12} />
+        </IconContainer>
       </DocExplorerHeader>
       <Search schema={schema} />
       <DocExplorerContent>{content}</DocExplorerContent>

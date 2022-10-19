@@ -25,7 +25,6 @@ export const IconContainer = styled.div<{ showPointer: boolean }>`
   display: flex;
   align-items: center;
   cursor: ${(props) => (props.showPointer ? "pointer" : "default")};
-  padding-left: 16px;
   width: fit-content;
 `;
 
