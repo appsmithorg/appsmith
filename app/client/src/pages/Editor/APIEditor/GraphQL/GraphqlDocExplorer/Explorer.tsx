@@ -38,9 +38,7 @@ const DocExplorer = (props: DocExplorerType) => {
   let content: ReactNode = null;
   // remove condition of schema check
   if (error && !schema) {
-    content = (
-      <DocExplorerErrorWrapper>Error fetching schema</DocExplorerErrorWrapper>
-    );
+    content = <DocExplorerErrorWrapper>{error}</DocExplorerErrorWrapper>;
   } else if (props.validationErrors) {
     content = (
       <DocExplorerErrorWrapper>
