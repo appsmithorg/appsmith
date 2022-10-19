@@ -67,7 +67,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       .dblclick()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "limitValue");
-    agHelper.AssertAutoSave();
+    agHelper.Sleep(2000);
     //Commenting this since - many runs means - API response is 'You are doing too many launches'
     // apiPage.RunAPI(false, 20, {
     //   expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
