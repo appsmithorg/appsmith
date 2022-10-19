@@ -38,13 +38,22 @@ export default function DateFilter() {
       inputStartDate !== null
         ? moment(inputStartDate).unix() * 1000
         : initialAuditLogsDateFilter.startDate;
-    const endDate =
+    let endDate =
       inputEndDate !== null
-        ? moment(inputEndDate)
-            .add(1, "d")
-            .subtract(1, "ms")
-            .unix() * 1000
+        ? moment(inputEndDate).unix() * 1000
         : initialAuditLogsDateFilter.endDate;
+
+    // If the date value is same, make the minimum range to be 1 day
+    if (
+      startDate !== initialAuditLogsDateFilter.startDate &&
+      endDate === startDate
+    ) {
+      endDate =
+        moment(endDate)
+          .add(1, "d")
+          .subtract(1, "ms")
+          .unix() * 1000;
+    }
 
     dispatch(setAuditLogsDateFilter({ startDate, endDate }));
     dispatch(
@@ -71,7 +80,7 @@ export default function DateFilter() {
         formatDate={(date) => moment(date).format("DD/M/YY")}
         height={AUDIT_LOGS_FILTER_HEIGHT}
         onChange={handleSelection}
-        parseDate={(date) => moment(date).toDate()}
+        parseDate={(date) => moment(date, "DD/M/YY").toDate()}
         value={selected}
         width={AUDIT_LOGS_FILTER_WIDTH}
       />
