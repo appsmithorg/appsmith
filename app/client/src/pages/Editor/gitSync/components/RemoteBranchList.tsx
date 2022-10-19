@@ -17,7 +17,6 @@ export function RemoteBranchList(
       {remoteBranches?.length > 0 && (
         <SegmentHeader
           data-testid="t--branch-list-header-remote"
-          hideStyledHr
           title={createMessage(REMOTE_BRANCHES)}
         />
       )}

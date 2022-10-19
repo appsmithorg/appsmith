@@ -26,7 +26,6 @@ export function LocalBranchList(
       {localBranches?.length > 0 && (
         <SegmentHeader
           data-testid="t--branch-list-header-local"
-          hideStyledHr
           title={createMessage(LOCAL_BRANCHES)}
         />
       )}
