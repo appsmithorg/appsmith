@@ -224,6 +224,10 @@ public class PluginUtils {
 
     }
 
+    public static String getValueSafelyFromFormDataAsString(Map<String, Object> formData, String field) {
+        return String.valueOf(getValueSafelyFromFormData(formData, field));
+    }
+
     public static void setDataValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
 
         // In case the formData has not been initialized before the fxn call, assign a new HashMap to the variable
