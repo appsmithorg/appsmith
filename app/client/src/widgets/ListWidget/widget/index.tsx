@@ -39,10 +39,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-
 import { klona } from "klona/lite";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
@@ -524,9 +522,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
 
+          const widgetName = this.props.widgetName;
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
-              if (next.indexOf("currentIndex") > -1) {
+              if (
+                next.indexOf("currentItem") > -1 ||
+                next.indexOf("currentIndex") > -1
+              ) {
                 return (
                   prev +
                   `{{((currentIndex) => { ${next}})(JSON.parse(JSON.stringify(${itemIndex})))}}`
@@ -536,6 +538,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             },
             "",
           );
+
           set(widget, path, newPropertyValue);
         }
       });

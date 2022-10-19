@@ -29,22 +29,28 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Button, Icon, Size, Text, TextType } from "design-system";
+import { Button, Callout, Icon, Size, Text, TextType } from "design-system";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { DebugButton } from "./Debugger/DebugCTA";
-import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
-import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
+import { TAB_MIN_HEIGHT } from "design-system";
 import { theme } from "constants/DefaultTheme";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
+import {
+  getJSPaneResponsePaneHeight,
+  getJSPaneResponseSelectedTab,
+} from "selectors/jsPaneSelectors";
+import {
+  setJsPaneResponsePaneHeight,
+  setJsPaneResponseSelectedTab,
+} from "actions/jsPaneActions";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -195,7 +201,7 @@ function JSResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "JS_OBJECT",
     });
-    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setJsPaneResponseSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
   useEffect(() => {
     setResponseStatus(
@@ -312,14 +318,29 @@ function JSResponseView(props: Props) {
     },
   ];
 
+  const selectedResponseTab = useSelector(getJSPaneResponseSelectedTab);
+  const responseTabHeight = useSelector(getJSPaneResponsePaneHeight);
+  const setSelectedResponseTab = useCallback((selectedTab: string) => {
+    dispatch(setJsPaneResponseSelectedTab(selectedTab));
+  }, []);
+
+  const setResponseHeight = useCallback((height: number) => {
+    dispatch(setJsPaneResponsePaneHeight(height));
+  }, []);
+
   return (
     <ResponseContainer ref={panelRef}>
-      <Resizer panelRef={panelRef} />
+      <Resizer
+        initialHeight={responseTabHeight}
+        onResizeComplete={setResponseHeight}
+        panelRef={panelRef}
+      />
       <TabbedViewWrapper>
         <EntityBottomTabs
           containerRef={panelRef}
-          defaultIndex={0}
           expandedHeight={theme.actionsBottomTabInitialHeight}
+          onSelect={setSelectedResponseTab}
+          selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
       </TabbedViewWrapper>
