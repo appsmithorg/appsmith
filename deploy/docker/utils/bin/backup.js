@@ -1,9 +1,7 @@
 const fsPromises = require('fs/promises');
 const path = require('path');
 const os = require('os');
-
 const shell = require('shelljs');
-
 const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
@@ -12,7 +10,6 @@ const mailer = require('./mailer');
 const command_args = process.argv.slice(3);
 
 async function run() {
-
   const timestamp = getTimeStampInISO();
   let errorCode = 0;
   try {
@@ -74,8 +71,7 @@ async function exportDatabase(destFolder) {
   await executeMongoDumpCMD(destFolder, process.env.APPSMITH_MONGODB_URI)
   console.log('Exporting database done.');
 }
-// 1.Independent of global state ie-> func params
-// No side effect to env
+
 async function createGitStorageArchive(destFolder) {
   console.log('Creating git-storage archive');
 
@@ -103,9 +99,11 @@ async function exportDockerEnvFile(destFolder) {
   console.log('!!! Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 }
+
 async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
   return await utils.execCommand(['mongodump', `--uri=${appsmithMongoURI}`, `--archive=${destFolder}/mongodb-data.gz`, '--gzip']);// generate cmd
 }
+
 async function createFinalArchive(destFolder, timestamp) {
   console.log('Creating final archive');
 
@@ -131,16 +129,19 @@ async function postBackupCleanup() {
 async function executeCopyCMD(srcFolder, destFolder) {
   return await utils.execCommand(['ln', '-s', srcFolder, destFolder + '/git-storage'])
 }
+
 function getGitRoot(gitRoot) {
   if (gitRoot == null || gitRoot === '') {
     gitRoot = '/appsmith-stacks/git-storage';
   }
   return gitRoot
 }
+
 async function generateBackupRootPath() {
   const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
   return backupRootPath
 }
+
 function getBackupContentsPath(backupRootPath, timestamp) {
   return backupRootPath + '/appsmith-backup-' + timestamp;
 }
@@ -154,6 +155,7 @@ function removeEncryptionEnvData(content) {
   });
   return output_lines.join('\n')
 }
+
 function getBackupArchiveLimit(backupArchivesLimit) {
   if (!backupArchivesLimit)
     backupArchivesLimit = 4;
