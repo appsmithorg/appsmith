@@ -78,24 +78,24 @@ export function InputText(props: InputTextProp) {
   );
 }
 
+const bindingPrefix = `{{
+  (
+    (isNewRow) => (
+`;
+
+const getBindingSuffix = (tableId: string) => {
+  return `
+    ))
+    (
+      ${tableId}.addNewRowInProgress
+    )
+  }}
+  `;
+};
+
 class TableInlineEditValidationControl extends BaseControl<
   TableInlineEditValidationControlProps
 > {
-  bindingPrefix = `{{
-    (
-      (isNewRow) => (
-  `;
-
-  getBindingSuffix(tableId: string) {
-    return `
-      ))
-      (
-        ${tableId}.addNewRowInProgress
-      )
-    }}
-    `;
-  }
-
   render() {
     const {
       dataTreePath,
@@ -135,10 +135,17 @@ class TableInlineEditValidationControl extends BaseControl<
   }
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
-    const value = `${propertyValue.substring(
-      this.bindingPrefix.length,
-      propertyValue.length - this.getBindingSuffix(tableId).length,
-    )}`;
+    let value;
+
+    if (propertyValue.indexOf(bindingPrefix) === 0) {
+      value = `${propertyValue.substring(
+        bindingPrefix.length,
+        propertyValue.length - getBindingSuffix(tableId).length,
+      )}`;
+    } else {
+      value = propertyValue;
+    }
+
     const stringValue = JSToString(value);
 
     return stringValue;
@@ -149,9 +156,7 @@ class TableInlineEditValidationControl extends BaseControl<
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `${this.bindingPrefix}${stringToEvaluate}${this.getBindingSuffix(
-      tableId,
-    )}`;
+    return `${bindingPrefix}${stringToEvaluate}${getBindingSuffix(tableId)}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

@@ -9,33 +9,36 @@ import TableInlineEditValidationControlProperty, {
   CurlyBraces,
   InputText,
 } from "./TableInlineEditValidationControl";
+import { isString } from "lodash";
+import {
+  JSToString,
+  stringToJS,
+} from "components/editorComponents/ActionCreator/utils";
 
-class TableInlineEditValidPropertyControl extends TableInlineEditValidationControlProperty {
-  bindingPrefix = `{{
+const bindingPrefix = `{{
+  (
+    (editedValue, currentRow, currentIndex, isNewRow) => (
+`;
+
+const getBindingSuffix = (tableId: string, columnName: string) => {
+  return `
+    ))
     (
-      (editedValue, currentRow, currentIndex, isNewRow) => (
+      (${tableId}.addNewRowInProgress ? ${tableId}.newRow.${columnName} : ${tableId}.columnEditableCellValue.${columnName}) || "",
+      ${tableId}.addNewRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+        Object.keys(${tableId}.processedTableData[0])
+          .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
+          .reduce((prev, curr) => {
+            prev[curr] = "";
+            return prev;
+          }, {})),
+      ${tableId}.addNewRowInProgress ? -1 : ${tableId}.editableCell.index,
+      ${tableId}.addNewRowInProgress
+    )
+  }}
   `;
-
-  getBindingSuffix(tableId: string) {
-    const columnName = this.getColumnName();
-    return `
-      ))
-      (
-        (${tableId}.addNewRowInProgress ? ${tableId}.newRow.${columnName} : ${tableId}.columnEditableCellValue.${columnName}) || "",
-        ${tableId}.addNewRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
-          Object.keys(${tableId}.processedTableData[0])
-            .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
-            .reduce((prev, curr) => {
-              prev[curr] = "";
-              return prev;
-            }, {})),
-        ${tableId}.addNewRowInProgress ? -1 : ${tableId}.editableCell.index,
-        ${tableId}.addNewRowInProgress
-      )
-    }}
-    `;
-  }
-
+};
+class TableInlineEditValidPropertyControl extends TableInlineEditValidationControlProperty {
   render() {
     const {
       dataTreePath,
@@ -89,6 +92,66 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
       />
     );
   }
+
+  getInputComputedValue = (propertyValue: string, tableId: string) => {
+    let value;
+
+    if (propertyValue.indexOf(bindingPrefix) === 0) {
+      value = `${propertyValue.substring(
+        bindingPrefix.length,
+        propertyValue.length -
+          getBindingSuffix(tableId, this.getColumnName()).length,
+      )}`;
+    } else {
+      value = propertyValue;
+    }
+
+    const stringValue = JSToString(value);
+
+    return stringValue;
+  };
+
+  getComputedValue = (value: string, tableId: string) => {
+    const stringToEvaluate = stringToJS(value);
+    if (stringToEvaluate === "") {
+      return stringToEvaluate;
+    }
+    return `${bindingPrefix}${stringToEvaluate}${getBindingSuffix(
+      tableId,
+      this.getColumnName(),
+    )}`;
+  };
+
+  onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
+    let value = "";
+    if (typeof event !== "string") {
+      value = event.target?.value;
+    } else {
+      value = event;
+    }
+    if (isString(value)) {
+      const output = this.getComputedValue(
+        value,
+        this.props.widgetProperties.widgetName,
+      );
+
+      this.updateProperty(this.props.propertyName, output);
+    } else {
+      this.updateProperty(this.props.propertyName, value);
+    }
+  };
+
+  getColumnName = () => {
+    const matchedColumnName = this.props.parentPropertyName.match(
+      /primaryColumns\.([^.]+)\.[^.]+\.[^.]+/,
+    );
+
+    if (matchedColumnName) {
+      return matchedColumnName[1];
+    }
+
+    return "";
+  };
 
   static getControlType() {
     return "TABLE_INLINE_EDIT_VALID_PROPERTY_CONTROL";
