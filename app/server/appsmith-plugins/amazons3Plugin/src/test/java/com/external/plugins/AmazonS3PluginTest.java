@@ -3,8 +3,15 @@ package com.external.plugins;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectsResult;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -412,7 +419,9 @@ public class AmazonS3PluginTest {
     public void testSmartSubstitutionJSONBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("dynamicallyFoundFilePickerObject", "<html>Random\"Unescaped'String</html>")));
+        Param param = new Param("dynamicallyFoundFilePickerObject", "<html>Random\"Unescaped'String</html>");
+        param.setClientDataType(ClientDataType.OBJECT);
+        executeActionDTO.setParams(List.of(param));
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();

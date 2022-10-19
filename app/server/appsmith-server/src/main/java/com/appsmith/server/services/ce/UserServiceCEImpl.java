@@ -634,6 +634,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             usernames.add(username.toLowerCase());
         }
 
+        Map<String, Object> eventData = new HashMap<>();
+
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
@@ -652,6 +654,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
+                    eventData.put(FieldName.WORKSPACE, workspace);
                     User currentUser = tuple.getT3();
                     PermissionGroup permissionGroup = tuple.getT4();
 
@@ -696,6 +699,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
                     analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
                     analyticsProperties.put("userEmails", invitedUsers);
+                    analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
                 });
 
