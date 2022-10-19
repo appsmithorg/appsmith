@@ -328,6 +328,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             menubar: false,
             toolbar_mode: "sliding",
             forced_root_block: "p",
+            content_style: "body { line-height: 1.15; }",
             branding: false,
             resize: false,
             browser_spellcheck: true,
