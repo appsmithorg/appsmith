@@ -8,6 +8,8 @@ export interface WidgetFeatures {
 export enum DynamicHeight {
   HUG_CONTENTS = "HUG_CONTENTS",
   FIXED = "FIXED",
+  AUTO_HEIGHT = "AUTO_HEIGHT",
+  AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS",
 }
 
 /* This contains all properties which will be added 
