@@ -40,7 +40,7 @@ public interface SmartSubstitutionInterface {
                     String value = matchingParam.get().getValue();
 
                     input = substituteValueInInput(i + 1, key,
-                            value, input, insertedParams, append(args, matchingParam.get().getClientDataType()));
+                            value, input, insertedParams, append(args, matchingParam.get()));
                 } else {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Uh oh! This is unexpected. " +
                             "Did not receive any information for the binding "

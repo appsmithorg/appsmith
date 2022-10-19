@@ -37,11 +37,19 @@ describe("Lint error reporting", () => {
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
     agHelper.PressEscape();
     agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains("'name' is defined but never used.", "not.exist");
+    agHelper.AssertContains(
+      "'name' is defined but never used.",
+      "not.exist",
+      locator._debuggerList,
+    );
 
     agHelper.RefreshPage();
     agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains("'name' is defined but never used.", "not.exist");
+    agHelper.AssertContains(
+      "'name' is defined but never used.",
+      "not.exist",
+      locator._debuggerList,
+    );
   });
 
   it("2. TC. 1939 - Shows correct error when await keyword is used in sync functions", () => {
