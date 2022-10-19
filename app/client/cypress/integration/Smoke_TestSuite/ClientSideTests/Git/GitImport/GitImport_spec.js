@@ -127,7 +127,6 @@ describe("Git import flow ", function() {
       cy.wait(1000);
     });
   });
-
   it("3. Verfiy imported app should have all the data binding visible in view and edit mode", () => {
     // verify postgres data binded to table
     cy.get(".tbody")
