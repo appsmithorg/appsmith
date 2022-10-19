@@ -1059,4 +1059,58 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: resultValue,
     };
   },
+
+  /**
+   * TODO -
+   * We should have a common function for all COMPUTE_VALUE validations
+   * Right now, this code for ValidationTypes.MENU_PROPERTY is same as ValidationTypes.TABLE_PROPERTY
+   */
+  [ValidationTypes.MENU_PROPERTY]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+    propertyPath: string,
+  ): ValidationResponse => {
+    if (!config.params?.type)
+      return {
+        isValid: false,
+        parsed: undefined,
+        messages: ["Invalid validation"],
+      };
+
+    // Validate when JS mode is disabled
+    const result = VALIDATORS[config.params.type as ValidationTypes](
+      config.params as ValidationConfig,
+      value,
+      props,
+      propertyPath,
+    );
+    if (result.isValid) return result;
+
+    // Validate when JS mode is enabled
+    const resultValue = [];
+    if (_.isArray(value)) {
+      for (const item of value) {
+        const result = VALIDATORS[config.params.type](
+          config.params as ValidationConfig,
+          item,
+          props,
+          propertyPath,
+        );
+        if (!result.isValid) return result;
+        resultValue.push(result.parsed);
+      }
+    } else {
+      return {
+        isValid: false,
+        parsed: config.params?.params?.default,
+        messages: result.messages,
+      };
+    }
+
+    return {
+      isValid: true,
+      parsed: resultValue,
+    };
+  },
 };

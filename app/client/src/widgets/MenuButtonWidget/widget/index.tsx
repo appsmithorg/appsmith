@@ -240,11 +240,16 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       propertyName: "label",
                       helpText: "Sets the label of a menu item",
                       label: "Label",
-                      controlType: "INPUT_TEXT",
+                      controlType: "MENU_COMPUTE_VALUE",
                       placeholderText: "{{currentItem.name}}",
                       isBindProperty: true,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
+                      validation: {
+                        type: ValidationTypes.MENU_PROPERTY,
+                        params: {
+                          type: ValidationTypes.TEXT,
+                        },
+                      },
                     },
                     {
                       propertyName: "isVisible",
@@ -254,7 +259,13 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.BOOLEAN },
+                      validation: {
+                        type: ValidationTypes.MENU_PROPERTY,
+                        params: {
+                          type: ValidationTypes.BOOLEAN,
+                        },
+                      },
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                     {
                       propertyName: "isDisabled",
@@ -264,7 +275,13 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.BOOLEAN },
+                      validation: {
+                        type: ValidationTypes.MENU_PROPERTY,
+                        params: {
+                          type: ValidationTypes.BOOLEAN,
+                        },
+                      },
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                   ],
                 },
@@ -280,6 +297,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: true,
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                   ],
                 },
@@ -296,6 +314,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                     {
                       propertyName: "iconAlign",
@@ -315,6 +334,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                   ],
                 },
@@ -328,6 +348,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isBindProperty: false,
                       isTriggerProperty: false,
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                     {
                       propertyName: "backgroundColor",
@@ -336,6 +357,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isBindProperty: false,
                       isTriggerProperty: false,
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                     {
                       propertyName: "textColor",
@@ -344,6 +366,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       controlType: "COLOR_PICKER",
                       isBindProperty: false,
                       isTriggerProperty: false,
+                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                   ],
                 },

@@ -161,5 +161,7 @@ export function getExpectedValue(
       };
     case ValidationTypes.TABLE_PROPERTY:
       return getExpectedValue(config.params as ValidationConfig);
+    case ValidationTypes.MENU_PROPERTY:
+      return getExpectedValue(config.params as ValidationConfig);
   }
 }

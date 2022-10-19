@@ -273,11 +273,15 @@ function PopoverContent(props: PopoverContentProps) {
       const visibleItems = sourceData
         .map((item, index) => ({
           ...item,
-          isVisible: configureMenuItems?.config?.isVisible,
-          isDisabled: configureMenuItems?.config?.isDisabled,
+          isVisible: configureMenuItems?.config?.isVisible?.length
+            ? configureMenuItems.config.isVisible[index]
+            : configureMenuItems.config.isVisible,
+          isDisabled: configureMenuItems?.config?.isDisabled?.length
+            ? configureMenuItems.config.isDisabled[index]
+            : configureMenuItems.config.isDisabled,
           index: index,
           widgetId: "",
-          label: item[configureMenuItems?.config?.label],
+          label: configureMenuItems?.config?.label[index],
           onClick: configureMenuItems?.config?.onClick,
           textColor: configureMenuItems?.config?.textColor,
           backgroundColor: configureMenuItems?.config?.backgroundColor,
