@@ -28,6 +28,8 @@ describe("Dynamic Height Width validation for Tab widget", function () {
                     .then((tnewheight) => {
                         expect(theight).to.not.equal(tnewheight);
                         cy.reload();
+                        cy.checkDefaultValue("minheight\\(inrows\\)",0,"4")
+                        cy.checkDefaultValue("maxheight\\(inrows\\)",1,"40")
                         cy.openPropertyPane("tabswidget");
                         expect(theight).to.equal(theight);
                     });

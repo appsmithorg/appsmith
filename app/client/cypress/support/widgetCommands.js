@@ -1128,7 +1128,7 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
 });
 
 
-Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType,index) => {
+Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
   const selector = `.t--draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
@@ -1263,9 +1263,8 @@ Cypress.Commands.add(
   "readTabledataPublish",
   (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGoOneLeveDeeper ? "div" : ""
-    }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGoOneLeveDeeper ? "div" : ""
+      }`;
     const tabVal = cy.get(selector).invoke("text");
     return tabVal;
   },
@@ -1280,9 +1279,8 @@ Cypress.Commands.add("readTableV2dataPublish", (rowNum, colNum) => {
 Cypress.Commands.add(
   "readTabledataValidateCSS",
   (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGotOneLeveDeeper ? "div" : ""
-    }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGotOneLeveDeeper ? "div" : ""
+      }`;
     cy.get(selector).should("have.css", cssProperty, cssValue);
   },
 );
@@ -1418,8 +1416,8 @@ Cypress.Commands.add(
     if (toChange) {
       cy.xpath(
         "//p[text()='" +
-          ddTitle +
-          "']/parent::label/following-sibling::div/div/div",
+        ddTitle +
+        "']/parent::label/following-sibling::div/div/div",
       ).click(); //to expand the dropdown
       cy.xpath('//span[contains(text(),"' + newValue + '")]')
         .last()
@@ -1542,27 +1540,31 @@ Cypress.Commands.add("moveToContentTab", () => {
 Cypress.Commands.add("changeLayoutHeight", (locator) => {
   cy.get(".t--property-control-height .remixicon-icon")
     .should("be.visible")
-    .click({force:true});
+    .click({ force: true });
   cy.get(locator)
-    .click({force: true});
+    .click({ force: true });
   cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
   cy.get(".t--property-control-height .remixicon-icon")
     .should("be.visible")
-    .click({force:true});
+    .click({ force: true });
   cy.get(locator)
-    .click({force: true});
+    .click({ force: true });
 });
 
-Cypress.Commands.add("checkDefaultValue", (endp,value) => {
-  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
-    .within(() => {
-    cy.contains(value);
+Cypress.Commands.add("checkDefaultValue", (endp, index,value) => {
+  cy.get(".cm-m-null")
+  .eq(index)
+  .invoke("text")
+    .then((text) => {
+      const someText = text;
+      cy.log(someText);
+      expect(someText).to.equal(value);
     });
 });
