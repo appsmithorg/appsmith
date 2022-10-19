@@ -347,4 +347,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .map(savedPermissionGroup -> modelMapper.map(savedPermissionGroup, PermissionGroupInfoDTO.class));
     }
 
+    @Override
+    public Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup) {
+        return this.create(permissionGroup)
+                .flatMap(createdPermissionGroup -> this.findConfigurableRoleById(createdPermissionGroup.getId()));
+    }
+
 }

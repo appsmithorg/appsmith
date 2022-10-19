@@ -50,9 +50,9 @@ public class PermissionGroupController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<PermissionGroup>> create(@Valid @RequestBody PermissionGroup resource) {
+    public Mono<ResponseDTO<RoleViewDTO>> create(@Valid @RequestBody PermissionGroup resource) {
         log.debug("Going to create new role");
-        return service.create(resource)
+        return service.createCustomPermissionGroup(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
