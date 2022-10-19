@@ -537,12 +537,14 @@ function WorkspaceInviteUsersForm(props: any) {
     userWorkspacePermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-
   useEffect(() => {
+    const fetchAll3 = async () => {
+      await fetchUser(props.workspaceId);
+      await fetchAllRoles(props.workspaceId);
+      await fetchCurrentWorkspace(props.workspaceId);
+    };
     if (!isAclFlow) {
-      fetchUser(props.workspaceId);
-      fetchAllRoles(props.workspaceId);
-      fetchCurrentWorkspace(props.workspaceId);
+      fetchAll3();
     }
   }, [props.workspaceId, fetchUser, fetchAllRoles, fetchCurrentWorkspace]);
 
