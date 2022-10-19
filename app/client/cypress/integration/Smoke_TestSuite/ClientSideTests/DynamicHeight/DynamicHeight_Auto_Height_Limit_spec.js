@@ -1,4 +1,4 @@
-const dsl = require("../../../../fixtures/dynamicHeightContainer.json");
+const dsl = require("../../../../fixtures/dynamicHeightContainerdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation with limits", function () {
