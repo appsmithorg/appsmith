@@ -100,7 +100,10 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
+import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -339,6 +342,10 @@ class CodeEditor extends Component<Props, State> {
         );
 
         this.lintCode(editor);
+
+        if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
+          editor.focus();
+        }
       }.bind(this);
 
       // Finally create the Codemirror editor
@@ -368,6 +375,13 @@ class CodeEditor extends Component<Props, State> {
     ) {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
+    }
+    if (
+      !prevProps.editorIsFocused &&
+      this.props.editorIsFocused &&
+      shouldFocusOnPropertyControl()
+    ) {
+      this.editor.focus();
     }
     this.editor.operation(() => {
       if (this.state.isFocused) return;
@@ -563,7 +577,7 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
-
+    this.props.setCodeEditorLastFocus(this.props.dataTreePath);
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
@@ -602,7 +616,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue() || "";
+    const value = this.editor?.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
@@ -900,6 +914,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
+          dataTreePath={this.props.dataTreePath}
           entity={entityInformation}
           errors={errors}
           evaluatedValue={evaluated}
@@ -987,17 +1002,20 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
+  editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
+  setCodeEditorLastFocus: (key: string | undefined) =>
+    dispatch(generateKeyAndSetCodeEditorLastFocus(key)),
 });
 
 export default Sentry.withProfiler(

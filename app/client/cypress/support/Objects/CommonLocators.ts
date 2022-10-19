@@ -139,7 +139,7 @@ export class CommonLocators {
     "(//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" +
     date +
     "'])[last()]";
-  _inputWidgetValueField = (fieldName: string, input: boolean = true) =>
+  _inputWidgetValueField = (fieldName: string, input = true) =>
     `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
@@ -157,4 +157,5 @@ export class CommonLocators {
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" + dropdownOption + "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple"
+  _debuggerList = ".debugger-list";
 }
