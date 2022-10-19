@@ -239,8 +239,10 @@ export const GeneralStyle = {
       propertyName: "imageSize",
       dependencies: ["primaryColumns", "columnType"],
       label: "Image Size",
+      helpText: "Sets the size of the image",
       defaultValue: "DEFAULT",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       options: [
         {
           label: "Default",

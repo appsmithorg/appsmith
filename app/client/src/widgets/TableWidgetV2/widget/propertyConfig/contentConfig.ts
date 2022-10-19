@@ -101,11 +101,11 @@ export default [
         ],
         options: [
           {
-            label: "Row level",
+            label: "Single Row",
             value: InlineEditingSaveOptions.ROW_LEVEL,
           },
           {
-            label: "Custom",
+            label: "Multi Row",
             value: InlineEditingSaveOptions.CUSTOM,
           },
         ],

@@ -131,6 +131,7 @@ export default {
     {
       propertyName: "displayText",
       label: "Display Text",
+      helpText: "The text to be displayed in the column",
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
