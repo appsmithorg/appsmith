@@ -80,9 +80,11 @@ describe("Fork a template to the current app", () => {
     cy.AddPageFromTemplate();
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
+    cy.wait(4000);
     cy.xpath(
       "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]",
     ).click();
+    cy.wait(1000);
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -98,6 +100,7 @@ describe("Fork a template to the current app", () => {
     cy.AddPageFromTemplate();
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
+    cy.wait(4000);
     cy.xpath("//div[text()='Customer Support Dashboard']").click();
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
