@@ -269,16 +269,32 @@ public class MySqlPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
-            AtomicReference<Connection> connection = null;
+            AtomicReference<Connection> connection = new AtomicReference<>();
             // TODO: need to write a JUnit TC for VALIDATION_CHECK_TIMEOUT
             Flux<Result> resultFlux =
-                    connectionPool.create()
+                    Flux.usingWhen(
+                            connectionPool.create(),
+                            connection1 -> {
+                                return createAndExecuteQueryFromConnection(finalQuery,
+                                        connection1,
+                                        preparedStatement,
+                                        mustacheValuesInOrder,
+                                        executeActionDTO,
+                                        requestData,
+                                        psParams);
+                            },
+                            Connection::close
+                    )
+                    /*connectionPool.create()
                     .flatMap(conn -> {
                         connection.set(conn);
                         return Mono.from(conn.validate(ValidationDepth.REMOTE));
                     })
                     //Mono.from(connection.validate(ValidationDepth.REMOTE))
                     //.timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                    .onErrorResume(error -> {
+                        return Mono.error(error);
+                    })
                     .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .flatMapMany(isValid -> {
                         if (isValid) {
@@ -291,7 +307,10 @@ public class MySqlPlugin extends BasePlugin {
                                     psParams);
                         }
                         return Flux.error(new StaleConnectionException());
-                    });
+                    })*//*
+                            .zipWith(Mono.just(connection.get().close()), (res, empty) -> {
+                                return res;
+                            })*/;
 
             Mono<List<Map<String, Object>>> resultMono;
 
@@ -355,16 +374,19 @@ public class MySqlPlugin extends BasePlugin {
                         result.setRequest(request);
 
                         /*if (connection.get() != null) {
-                            connection.get().close();
+                            Mono.from(connection.get().close()).block();
                         }*/
 
                         return result;
                     })
-//                    .zipWith(Mono.just(connection.get().close()))
-//                    .map(t2 -> {
-//                        ActionExecutionResult res = t2.getT1();
-//                        return res;
-//                    })
+                    /*.doFinally(signalType -> {
+                        connection.get().close().subscribe();
+                    })*/
+                    /*.zipWith(Mono.from(connection.get().close()))
+                    .map(t2 -> {
+                        ActionExecutionResult res = t2.getT1();
+                        return res;
+                    })*/
                     .subscribeOn(scheduler);
 
         }
@@ -643,7 +665,7 @@ public class MySqlPlugin extends BasePlugin {
 
             ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(cf)
                     .maxIdleTime(Duration.ofMillis(1000))
-                    .maxSize(20)
+                    .maxSize(3)
                     .build();
             ConnectionPool pool = new ConnectionPool(configuration);
             return Mono.just(pool);
