@@ -3,7 +3,7 @@ import actionsReducer from "./actionsReducer";
 import appReducer from "./appReducer";
 import canvasWidgetsReducer from "./canvasWidgetsReducer";
 import canvasWidgetsStructureReducer from "./canvasWidgetsStructureReducer";
-import metaCanvasWidgetsReducer from "./metaCanvasWidgetsReducer";
+import metaWidgetsReducer from "./metaWidgetsReducer";
 import datasourceReducer from "./datasourceReducer";
 import jsActionsReducer from "./jsActionsReducer";
 import jsExecutionsReducer from "./jsExecutionsReducer";
@@ -15,7 +15,7 @@ import widgetConfigReducer from "./widgetConfigReducer";
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
   canvasWidgetsStructure: canvasWidgetsStructureReducer,
-  metaCanvasWidgets: metaCanvasWidgetsReducer,
+  metaWidgets: metaWidgetsReducer,
   widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
   datasources: datasourceReducer,

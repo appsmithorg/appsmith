@@ -11,16 +11,14 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
-import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
 
-export const getMetaCanvasWidgets = (
-  state: AppState,
-): MetaCanvasWidgetsReduxState => {
-  return state.entities.metaCanvasWidgets;
+export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
+  return state.entities.metaWidgets;
 };
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;

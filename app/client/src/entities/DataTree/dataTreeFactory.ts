@@ -24,7 +24,7 @@ import {
 import { AppTheme } from "entities/AppTheming";
 import { PluginId } from "api/PluginApi";
 import log from "loglevel";
-import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -149,7 +149,7 @@ type DataTreeSeed = {
   appData: AppDataState;
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];
-  metaCanvasWidgets: MetaCanvasWidgetsReduxState;
+  metaWidgets: MetaWidgetsReduxState;
 };
 
 export class DataTreeFactory {
@@ -158,7 +158,7 @@ export class DataTreeFactory {
     appData,
     editorConfigs,
     jsActions,
-    metaCanvasWidgets,
+    metaWidgets,
     pageList,
     pluginDependencyConfig,
     theme,
@@ -207,15 +207,15 @@ export class DataTreeFactory {
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
 
-    const startMetaCanvasWidgets = performance.now();
+    const startMetaWidgets = performance.now();
 
-    Object.values(metaCanvasWidgets).forEach((widget) => {
+    Object.values(metaWidgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
       );
     });
-    const endMetaCanvasWidgets = performance.now();
+    const endMetaWidgets = performance.now();
 
     const end = performance.now();
 
@@ -224,7 +224,7 @@ export class DataTreeFactory {
       widgets: endWidgets - startWidgets,
       actions: endActions - startActions,
       jsActions: endJsActions - startJsActions,
-      metaCanvasWidgets: endMetaCanvasWidgets - startMetaCanvasWidgets,
+      metaWidgets: endMetaWidgets - startMetaWidgets,
     };
 
     log.debug("### Create unevalTree timing", out);

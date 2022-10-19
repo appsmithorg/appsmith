@@ -16,7 +16,7 @@ import {
   getChildWidgets,
   getRenderMode,
   getMetaWidgetChildrenStructure,
-  getMetaCanvasWidget,
+  getMetaWidget,
   getFlattenedChildCanvasWidgets,
 } from "selectors/editorSelectors";
 import { AppState } from "@appsmith/reducers";
@@ -50,9 +50,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMainCanvasProps(state),
     );
     const renderMode = useSelector(getRenderMode);
-    const metaCanvasWidget = useSelector(getMetaCanvasWidget(widgetId));
+    const metaWidget = useSelector(getMetaWidget(widgetId));
 
-    const widgetName = canvasWidget?.widgetName || metaCanvasWidget?.widgetName;
+    const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
 
     const evaluatedWidget = useSelector((state: AppState) =>
       getWidgetEvalValues(state, widgetName),
@@ -81,7 +81,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
-    const widget = metaCanvasWidget || canvasWidget;
+    const widget = metaWidget || canvasWidget;
 
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {

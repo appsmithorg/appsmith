@@ -36,7 +36,7 @@ import {
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
@@ -238,6 +238,10 @@ class ListWidget extends BaseWidget<
         });
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.deleteMetaWidgets();
   }
 
   setupMetaWidgets = (prevProps?: ListWidgetProps<WidgetProps>) => {

@@ -203,12 +203,11 @@ export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
-export const getMetaCanvasWidgets = (state: AppState) =>
-  state.entities.metaCanvasWidgets;
+export const getMetaWidgets = (state: AppState) => state.entities.metaWidgets;
 
-export const getMetaCanvasWidget = (metaWidgetId: string) =>
-  createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
-    return metaCanvasWidgets[metaWidgetId];
+export const getMetaWidget = (metaWidgetId: string) =>
+  createSelector(getMetaWidgets, (metaWidgets) => {
+    return metaWidgets[metaWidgetId];
   });
 
 export const getMetaWidgetChildrenStructure = (
@@ -216,15 +215,15 @@ export const getMetaWidgetChildrenStructure = (
   type: string,
   hasMetaWidgets = false,
 ) =>
-  createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
+  createSelector(getMetaWidgets, (metaWidgets) => {
     if (!hasMetaWidgets) return [];
 
     const structure: CanvasWidgetStructure[] = [];
 
-    Object.values(metaCanvasWidgets).forEach((metaCanvasWidget) => {
-      if (metaCanvasWidget.parentId === parentWidgetId) {
+    Object.values(metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.parentId === parentWidgetId) {
         structure.push(
-          denormalize(metaCanvasWidget.widgetId, metaCanvasWidgets, {
+          denormalize(metaWidget.widgetId, metaWidgets, {
             widgetTypeForHaltingRecursion: type,
           }),
         );
