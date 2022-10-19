@@ -49,7 +49,7 @@ export default function DateFilter() {
       endDate === startDate
     ) {
       endDate =
-        moment(endDate)
+        moment(inputEndDate)
           .add(1, "d")
           .subtract(1, "ms")
           .unix() * 1000;
