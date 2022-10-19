@@ -36,4 +36,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup permissionGroup);
 
     Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup);
+
+    Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds);
 }

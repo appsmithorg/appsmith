@@ -12,6 +12,7 @@ import com.appsmith.server.solutions.UserManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,5 +49,12 @@ public class UserController extends UserControllerCE {
     public Mono<ResponseDTO<UserForManagementDTO>> getUserForManagement(@PathVariable String userId) {
         return userManagementService.getUserById(userId)
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
+    }
+
+    @DeleteMapping("/id/{id}")
+    public Mono<ResponseDTO<Boolean>> deleteUser(@PathVariable String id) {
+        log.debug("Going to delete user with id: {}", id);
+        return userManagementService.deleteUser(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 }

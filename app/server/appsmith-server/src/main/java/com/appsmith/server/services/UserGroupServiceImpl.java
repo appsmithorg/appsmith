@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -20,6 +21,7 @@ import com.appsmith.server.repositories.UserGroupRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -44,6 +46,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.GROUP_ID;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -441,5 +444,21 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         userGroupCompactDTO.setId(userGroup.getId());
         userGroupCompactDTO.setName(userGroup.getName());
         return userGroupCompactDTO;
+    }
+
+    @Override
+    public Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(String userId, Set<String> groupIds) {
+        return repository.findAllById(groupIds)
+                .flatMap(userGroup -> {
+                    Set<String> usersInGroup = userGroup.getUsers();
+                    usersInGroup.remove(userId);
+
+                    Update updateObj = new Update();
+                    String path = fieldName(QUserGroup.userGroup.users);
+
+                    updateObj.set(path, usersInGroup);
+                    return repository.updateById(userGroup.getId(), updateObj);
+                })
+                .then(Mono.just(TRUE));
     }
 }

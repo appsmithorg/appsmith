@@ -1,11 +1,19 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UserForManagementDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.UserGroupService;
+import com.appsmith.server.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +26,10 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -34,6 +43,15 @@ public class UserManagementServiceTest {
 
     @Autowired
     UserUtils userUtils;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
+    @Autowired
+    UserGroupService userGroupService;
+
+    @Autowired
+    UserService userService;
 
     User api_user = null;
 
@@ -122,5 +140,44 @@ public class UserManagementServiceTest {
                                         .equals(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS).getMessage())
                 )
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteUserTest_valid() {
+        User newUser = new User();
+        String email = "deleteUserTest_valid@email.com";
+        newUser.setEmail(email);
+        newUser.setPassword("deleteUserTest_valid password");
+
+        User createdUser = userService.create(newUser).block();
+
+        Set<Policy> userPolicies = createdUser.getPolicies();
+        Policy policy = userPolicies.stream().findFirst().get();
+        String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
+        PermissionGroup existingPermissionGroup = permissionGroupService.findById(permissionGroupId).block();
+
+        UserGroup ug = new UserGroup();
+        ug.setName("deleteUserTest_valid User Group");
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(ug).block();
+
+        // Delete the user
+        userManagementService.deleteUser(createdUser.getId()).block();
+
+        Mono<PermissionGroup> existingPermissionGroupPostDeleteMono = permissionGroupService.findById(existingPermissionGroup.getId());
+        Mono<UserGroup> existingGroupAfterDeleteMono = userGroupService.findById(createdUserGroup.getId(), AclPermission.READ_USER_GROUPS);
+
+        StepVerifier.create(Mono.zip(existingPermissionGroupPostDeleteMono, existingGroupAfterDeleteMono))
+                .assertNext(tuple -> {
+                    PermissionGroup permissionGroup = tuple.getT1();
+                    UserGroup userGroup = tuple.getT2();
+
+                    assertThat(permissionGroup.getAssignedToUserIds()).doesNotContain(createdUser.getId());
+                    assertThat(userGroup.getUsers()).doesNotContain(createdUserGroup.getId());
+                })
+                .verifyComplete();
+
+        User userFetchedAfterDelete = userService.findByEmail(email).block();
+        assertThat(userFetchedAfterDelete).isNull();
     }
 }

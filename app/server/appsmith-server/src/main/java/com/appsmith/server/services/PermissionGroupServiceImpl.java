@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -46,6 +48,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -356,6 +359,22 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     public Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup) {
         return this.create(permissionGroup)
                 .flatMap(createdPermissionGroup -> this.findConfigurableRoleById(createdPermissionGroup.getId()));
+    }
+
+    @Override
+    public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds) {
+        return repository.findAllById(permissionGroupIds)
+                        .flatMap(pg -> {
+                            Set<String> assignedToUserIds = pg.getAssignedToUserIds();
+                            assignedToUserIds.remove(userId);
+
+                            Update updateObj = new Update();
+                            String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+
+                            updateObj.set(path, assignedToUserIds);
+                            return repository.updateById(pg.getId(), updateObj);
+                        })
+                .then(Mono.just(TRUE));
     }
 
 }

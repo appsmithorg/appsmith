@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserGroupService extends CrudService<UserGroup, String> {
 
@@ -30,4 +31,6 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
     Mono<List<UserGroupDTO>> changeGroupsForUser(String username, UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader);
 
     Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId);
+
+    Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(String userId, Set<String> groupIds);
 }

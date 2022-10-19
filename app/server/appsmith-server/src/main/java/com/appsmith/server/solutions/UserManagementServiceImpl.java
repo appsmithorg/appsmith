@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
@@ -18,9 +19,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
+import static java.lang.Boolean.TRUE;
 
 @Component
 @Slf4j
@@ -90,6 +93,38 @@ public class UserManagementServiceImpl implements UserManagementService {
                     List<UserGroupCompactDTO> groupsInfo = tuple.getT2();
 
                     return new UserForManagementDTO(user.getId(), user.getUsername(), groupsInfo, rolesInfo);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> deleteUser(String userId) {
+
+        return tenantService.getDefaultTenantId()
+                .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_MANAGE_ALL_USERS))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
+                .flatMap(tenant -> userRepository.findById(userId))
+                .flatMap(user -> {
+                    Mono<Set<String>> permissionGroupIdsMono = permissionGroupService.findAllByAssignedToUsersIn(Set.of(user.getId()))
+                            .map(PermissionGroup::getId)
+                            .collect(Collectors.toSet());
+                    Mono<Set<String>> groupIdsMono = userGroupService.findAllGroupsForUser(user.getId())
+                            .map(UserGroupCompactDTO::getId)
+                            .collect(Collectors.toSet());
+
+                    Mono<Boolean> unassignedFromRolesMono = permissionGroupIdsMono
+                            .flatMap(permissionGroupIds -> permissionGroupService.bulkUnassignUserFromPermissionGroupsWithoutPermission(userId, permissionGroupIds));
+
+                    Mono<Boolean> removedFromGroupsMono = groupIdsMono
+                            .flatMap(groupIds -> userGroupService.bulkRemoveUserFromGroupsWithoutPermission(userId, groupIds));
+
+                    Mono<Void> cleanPermissionGroupCacheMono = permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(user.getId()));
+
+                    Mono<Boolean> archiveUserMono = userRepository.archiveById(userId);
+
+                    return Mono.zip(unassignedFromRolesMono, removedFromGroupsMono)
+                            .then(archiveUserMono)
+                            .then(cleanPermissionGroupCacheMono)
+                            .thenReturn(TRUE);
                 });
     }
 }
