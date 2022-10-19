@@ -35,17 +35,24 @@ export default function DateFilter() {
 
   function handleSelection([inputStartDate, inputEndDate]: DateRange) {
     const startDate =
-      inputStartDate !== null
-        ? moment(inputStartDate)
+      inputStartDate === null
+        ? initialAuditLogsDateFilter.startDate
+        : moment(inputStartDate)
             .startOf("day")
-            .unix() * 1000
-        : initialAuditLogsDateFilter.startDate;
+            .unix() * 1000;
+
+    // if no end date is provided and start date is selected,
+    // we need to select the start date as the end date as well
     const endDate =
-      inputEndDate !== null
-        ? moment(inputEndDate)
+      inputEndDate === null
+        ? inputStartDate === null
+          ? initialAuditLogsDateFilter.endDate
+          : moment(inputStartDate)
+              .endOf("day")
+              .unix() * 1000
+        : moment(inputEndDate)
             .endOf("day")
-            .unix() * 1000
-        : initialAuditLogsDateFilter.endDate;
+            .unix() * 1000;
 
     dispatch(setAuditLogsDateFilter({ startDate, endDate }));
     dispatch(
@@ -71,6 +78,9 @@ export default function DateFilter() {
         data-testid="t--audit-logs-date-filter"
         formatDate={(date) => moment(date).format("DD/M/YY")}
         height={AUDIT_LOGS_FILTER_HEIGHT}
+        maxDate={moment()
+          .endOf("day")
+          .toDate()}
         onChange={handleSelection}
         parseDate={(date) => moment(date, "DD/M/YY").toDate()}
         value={selected}
