@@ -392,4 +392,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
+    public Mono<T> deriveAndSetUserPermissionsInObject(T obj) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
+                .map(permissionGroups -> setUserPermissionsInObject(obj, permissionGroups));
+    }
+
 }
