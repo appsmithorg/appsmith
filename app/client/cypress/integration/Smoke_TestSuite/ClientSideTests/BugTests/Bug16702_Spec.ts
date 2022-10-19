@@ -55,8 +55,8 @@ describe("Binding Expressions should not be truncated in Url and path extraction
 
     /* Start: Block of code to remove error of detached node of codemirror for cypress reference */
 
-    apiPage.SelectPaneTab("Params");
-    apiPage.SelectPaneTab("Body");
+    // apiPage.SelectPaneTab("Params");
+    // apiPage.SelectPaneTab("Body");
     /* End: Block of code to remove error of detached node of codemirror for cypress reference */
 
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
