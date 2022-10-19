@@ -8,6 +8,7 @@ type FeatureFlags = {
   TEMPLATES_PHASE_2?: boolean;
   RBAC?: boolean;
   AUDIT_LOGS?: boolean;
+  CONTEXT_SWITCHING?: boolean;
 };
 
 export default FeatureFlags;

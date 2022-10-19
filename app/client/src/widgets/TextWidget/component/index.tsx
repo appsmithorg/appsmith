@@ -194,6 +194,7 @@ const Content = styled.div<{
     fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
 `;
 export interface TextComponentProps extends ComponentProps {
+  accentColor: string;
   text?: string;
   textAlign: TextAlign;
   ellipsize?: boolean;
@@ -274,6 +275,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   render() {
     const {
+      accentColor,
       backgroundColor,
       disableLink,
       ellipsize,
@@ -316,7 +318,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               <StyledIcon
                 backgroundColor={backgroundColor}
                 className="t--widget-textwidget-truncate"
-                fillColor={truncateButtonColor}
+                fillColor={truncateButtonColor || accentColor}
                 name="context-menu"
                 onClick={this.handleModelOpen}
                 size={IconSize.XXXL}

@@ -13,12 +13,13 @@ import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "@appsmith/reducers";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { deselectAllInitAction } from "actions/widgetSelectionActions";
+import { deselectModalWidgetAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
   isDynamicHeightEnabledForWidget,
   isDynamicHeightWithLimitsEnabledForWidget,
 } from "widgets/WidgetUtils";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 const minSize = 100;
 
@@ -150,7 +151,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    this.props.deselectAllWidgets();
+    setTimeout(() => {
+      this.props.deselectModalWidget(this.props.widgetId, this.props.children);
+    }, 0);
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -313,8 +316,11 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: { widgetId, callForDragOrResize, force },
     });
   },
-  deselectAllWidgets: () => {
-    dispatch(deselectAllInitAction());
+  deselectModalWidget: (
+    modalId: string,
+    modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
+  ) => {
+    dispatch(deselectModalWidgetAction(modalId, modalWidgetChildren));
   },
 });
 

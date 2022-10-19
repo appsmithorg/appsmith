@@ -259,7 +259,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                regex: /^(?![<|{{]).+/,
+                regex: /^((?![<|{{]).+){0,1}/,
               },
             },
             dependencies: ["overflow"],
@@ -364,6 +364,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         ])}
       >
         <TextComponent
+          accentColor={this.props.accentColor}
           backgroundColor={this.props.backgroundColor}
           bottomRow={this.props.bottomRow}
           disableLink={disableLink}
@@ -379,7 +380,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
           topRow={this.props.topRow}
-          truncateButtonColor={this.props.truncateButtonColor}
+          truncateButtonColor={
+            this.props.truncateButtonColor || this.props.accentColor
+          }
           widgetId={this.props.widgetId}
         />
       </WidgetStyleContainer>
@@ -408,6 +411,7 @@ export interface TextStyles {
 }
 
 export interface TextWidgetProps extends WidgetProps, TextStyles {
+  accentColor: string;
   text?: string;
   isLoading: boolean;
   disableLink: boolean;

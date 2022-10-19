@@ -69,6 +69,7 @@ describe("GraphQL Datasource Implementation", function() {
     /* Create an API */
     dataSources.NavigateFromActiveDS(datasourceName, true);
 
+    apiPage.SelectPaneTab("Body");
     dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_QUERY,
       variable: GRAPHQL_VARIABLES,
@@ -83,6 +84,7 @@ describe("GraphQL Datasource Implementation", function() {
   it("4. Pagination for limit based should work without offset", function() {
     /* Create an API */
     dataSources.NavigateFromActiveDS(datasourceName, true);
+    apiPage.SelectPaneTab("Body");
     dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });
@@ -109,7 +111,7 @@ describe("GraphQL Datasource Implementation", function() {
   it("5. Pagination for limit based should work with offset", function() {
     /* Create an API */
     dataSources.NavigateFromActiveDS(datasourceName, true);
-
+    apiPage.SelectPaneTab("Body");
     dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });

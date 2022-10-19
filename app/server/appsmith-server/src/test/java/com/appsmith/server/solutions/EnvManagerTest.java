@@ -15,7 +15,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,6 +73,12 @@ public class EnvManagerTest {
     @MockBean
     private UserUtils userUtils;
 
+    @MockBean
+    private TenantService tenantService;
+
+    @MockBean
+    private ObjectMapper objectMapper;
+
     EnvManager envManager;
 
     @BeforeEach
@@ -88,7 +96,9 @@ public class EnvManagerTest {
                 fileUtils,
                 permissionGroupService,
                 configService,
-                userUtils);
+                userUtils,
+                tenantService,
+                objectMapper);
     }
 
     @Test

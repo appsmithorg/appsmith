@@ -64,6 +64,11 @@ import { CanvasWidgetStructure } from "widgets/constants";
 import { CanvasLevelsReduxState } from "reducers/entityReducers/dynamicHeightReducers/canvasLevelsReducer";
 
 import { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
+import tenantReducer, {
+  TenantReduxState,
+} from "@appsmith/reducers/tenantReducer";
+import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
+import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -71,6 +76,7 @@ export const reducerObject = {
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
+  tenant: tenantReducer,
 };
 
 export interface AppState {
@@ -116,6 +122,8 @@ export interface AppState {
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
+    focusHistory: FocusHistoryState;
+    editorContext: EditorContextState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
@@ -142,4 +150,5 @@ export interface AppState {
     [key: string]: any;
   };
   settings: SettingsReduxState;
+  tenant: TenantReduxState;
 }

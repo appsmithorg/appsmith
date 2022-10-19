@@ -70,6 +70,15 @@ const getTabs = (
           panelComponent: (
             <TabForm
               {...tab.customProps}
+              {...(tab.customProps?.onSubmitHandler
+                ? {
+                    onSubmitHandler: (values: any) =>
+                      tab.customProps.onSubmitHandler({
+                        ...values,
+                        selectedTab: tab.key,
+                      }),
+                  }
+                : {})}
               applicationId={applicationId}
               formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
               onCancel={() => setIsOpen(false)}
