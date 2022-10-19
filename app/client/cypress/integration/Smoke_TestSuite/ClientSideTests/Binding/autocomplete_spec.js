@@ -36,7 +36,7 @@ describe("Dynamic input autocomplete", () => {
           .click({ force: true })
           .type("{uparrow}", { parseSpecialCharSequences: true })
           .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
-          .type("{{ garbage", {
+          .type("{{garbage", {
             parseSpecialCharSequences: true,
           })
           .then(() => {
@@ -48,6 +48,21 @@ describe("Dynamic input autocomplete", () => {
       });
     cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
   });
+
+  it("test if action inside non event field throws error", () => {
+    cy.get(dynamicInputLocators.input)
+      .first()
+      .click({ force: true })
+      .type("{backspace}".repeat(12))
+      .type("{{storeValue()}}", { parseSpecialCharSequences: false });
+
+    cy.wait(1000);
+
+    cy.evaluateErrorMessage(
+      "storeValue action cannot be triggered from this field",
+    );
+  });
+
   it("opens current value popup", () => {
     // Test on api pane
     cy.NavigateToAPI_Panel();
