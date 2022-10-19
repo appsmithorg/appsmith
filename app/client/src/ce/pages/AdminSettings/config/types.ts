@@ -93,6 +93,7 @@ export interface Category {
   subText?: string;
   isConnected?: boolean;
   children?: Category[];
+  icon?: string;
 }
 
 export const SettingCategories = {
@@ -105,6 +106,7 @@ export const SettingCategories = {
   FORM_AUTH: "form-login",
   GOOGLE_AUTH: "google-auth",
   GITHUB_AUTH: "github-auth",
+  AUDIT_LOGS: "audit-logs",
 };
 
 export const SettingSubCategories = {
@@ -123,4 +125,5 @@ export type AdminConfigType = {
   children?: AdminConfigType[];
   canSave: boolean;
   isConnected?: boolean;
+  icon?: string;
 };
