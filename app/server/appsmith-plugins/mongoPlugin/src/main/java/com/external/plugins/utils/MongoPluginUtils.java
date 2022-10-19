@@ -19,6 +19,9 @@ import org.bson.Document;
 import org.bson.json.JsonParseException;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.util.StringUtils;
 
 import java.net.URLEncoder;
@@ -29,6 +32,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
@@ -42,9 +46,28 @@ public class MongoPluginUtils {
     public static Document parseSafely(String fieldName, String input) {
         try {
             return Document.parse(input);
-        } catch (JsonParseException e) {
+        } catch (Exception e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format.");
         }
+    }
+
+    public static Object parseSafelyRawInput(String fieldName, String input){
+        try {
+            new JSONObject(input);
+            return parseSafely(fieldName, input);
+        } catch (JSONException e) {
+            try {
+                List<Document> jsonList = new ArrayList<>();
+                JSONArray jsonArray = new JSONArray(input);
+                for (int i=0; i < jsonArray.length(); i++) {
+                    jsonList.add(parseSafely(fieldName, jsonArray.getJSONObject(i).toString()));
+                }
+                return jsonList;
+            } catch (JSONException ne) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format.");
+            }
+        }
+   
     }
 
     public static Boolean isRawCommand(Map<String, Object> formData) {
