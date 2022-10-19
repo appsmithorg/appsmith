@@ -12,11 +12,11 @@ import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment/moment";
 import { DateRange } from "@blueprintjs/datetime/src/common/dateRange";
-import { initialAuditLogsDateFilter } from "@appsmith/reducers/auditLogsReducer";
 import {
   AUDIT_LOGS_FILTER_HEIGHT,
   AUDIT_LOGS_FILTER_WIDTH,
 } from "../../config/audit-logs-config";
+import { parseDateFilterInput } from "@appsmith/pages/AuditLogs/utils/dateFilter";
 
 export default function DateFilter() {
   const dispatch = useDispatch();
@@ -33,27 +33,8 @@ export default function DateFilter() {
       : moment.unix(searchFilters.endDate / 1000).toDate(),
   ];
 
-  function handleSelection([inputStartDate, inputEndDate]: DateRange) {
-    const startDate =
-      inputStartDate === null
-        ? initialAuditLogsDateFilter.startDate
-        : moment(inputStartDate)
-            .startOf("day")
-            .unix() * 1000;
-
-    // if no end date is provided and start date is selected,
-    // we need to select the start date as the end date as well
-    const endDate =
-      inputEndDate === null
-        ? inputStartDate === null
-          ? initialAuditLogsDateFilter.endDate
-          : moment(inputStartDate)
-              .endOf("day")
-              .unix() * 1000
-        : moment(inputEndDate)
-            .endOf("day")
-            .unix() * 1000;
-
+  function handleSelection(dateRange: DateRange) {
+    const [startDate, endDate] = parseDateFilterInput(dateRange);
     dispatch(setAuditLogsDateFilter({ startDate, endDate }));
     dispatch(
       fetchAuditLogsLogsInit({
