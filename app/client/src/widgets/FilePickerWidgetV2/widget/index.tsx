@@ -22,6 +22,8 @@ import UpIcon from "assets/icons/ads/up-arrow.svg";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { Colors } from "constants/Colors";
 import Papa from "papaparse";
+import { klona } from "klona";
+import { UppyFile } from "@uppy/utils";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
@@ -203,8 +205,11 @@ class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
+  private isWidgetUnmounting: boolean;
+
   constructor(props: FilePickerWidgetProps) {
     super(props);
+    this.isWidgetUnmounting = false;
     this.state = {
       isLoading: false,
       uppy: this.initializeUppy(),
@@ -611,22 +616,40 @@ class FilePickerWidget extends BaseWidget<
        * Uppy provides an argument called reason. It helps us to distinguish on which event the file-removed event was called.
        * Refer to the following issue to know about reason prop: https://github.com/transloadit/uppy/pull/2323
        */
-      let updatedFiles = [];
       if (reason === "removed-by-user") {
-        updatedFiles = this.props.selectedFiles
-          ? this.props.selectedFiles.filter((dslFile) => {
-              return file.id !== dslFile.id;
-            })
-          : [];
-      } else if (reason === "cancel-all") {
-        updatedFiles = [];
+        const fileCount = this.props.selectedFiles?.length || 0;
+
+        /**
+         * Once the file is removed we update the selectedFiles
+         * with the current files present in the uppy's internal state
+         */
+        const updatedFiles = this.state.uppy
+          .getFiles()
+          .map((currentFile: UppyFile, index: number) => ({
+            type: currentFile.type,
+            id: currentFile.id,
+            data: currentFile.data,
+            name: currentFile.meta
+              ? currentFile.meta.name
+              : `File-${index + fileCount}`,
+            size: currentFile.size,
+            dataFormat: this.props.fileDataType,
+          }));
+        this.props.updateWidgetMetaProperty(
+          "selectedFiles",
+          updatedFiles ?? [],
+        );
       }
-      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+
+      if (reason === "cancel-all" && !this.isWidgetUnmounting) {
+        this.props.updateWidgetMetaProperty("selectedFiles", []);
+      }
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
-      const dslFiles = this.props.selectedFiles
-        ? [...this.props.selectedFiles]
+      // Deep cloning the selectedFiles
+      const selectedFiles = this.props.selectedFiles
+        ? klona(this.props.selectedFiles)
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;
@@ -650,6 +673,7 @@ class FilePickerWidget extends BaseWidget<
                   file.type,
                   this.props.fileDataType,
                 ),
+                meta: file.meta,
                 name: file.meta ? file.meta.name : `File-${index + fileCount}`,
                 size: file.size,
                 dataFormat: this.props.fileDataType,
@@ -662,6 +686,7 @@ class FilePickerWidget extends BaseWidget<
               type: file.type,
               id: file.id,
               data: data,
+              meta: file.meta,
               name: file.meta ? file.meta.name : `File-${index + fileCount}`,
               size: file.size,
               dataFormat: this.props.fileDataType,
@@ -676,10 +701,17 @@ class FilePickerWidget extends BaseWidget<
           this.props.updateWidgetMetaProperty("isDirty", true);
         }
 
-        this.props.updateWidgetMetaProperty(
-          "selectedFiles",
-          dslFiles.concat(files),
-        );
+        if (selectedFiles.length !== 0) {
+          files.forEach((fileItem: any) => {
+            if (!fileItem?.meta?.isInitializing) {
+              selectedFiles.push(fileItem);
+            }
+          });
+          this.props.updateWidgetMetaProperty("selectedFiles", selectedFiles);
+        } else {
+          // update with newly added files when the selectedFiles is empty.
+          this.props.updateWidgetMetaProperty("selectedFiles", [...files]);
+        }
       });
     });
 
@@ -741,17 +773,37 @@ class FilePickerWidget extends BaseWidget<
     });
   }
 
+  initializeSelectedFiles() {
+    /**
+     * Since on unMount the uppy instance closes and it's internal state is lost along with the files present in it.
+     * Below we add the files again to the uppy instance so that the files are retained.
+     */
+    this.props.selectedFiles?.forEach((fileItem: any) => {
+      this.state.uppy.addFile({
+        name: fileItem.name,
+        type: fileItem.type,
+        data: new Blob([fileItem.data]),
+        meta: {
+          // Adding this flag to distinguish a file in the files-added event
+          isInitializing: true,
+        },
+      });
+    });
+  }
+
   componentDidMount() {
     super.componentDidMount();
 
     try {
       this.initializeUppyEventListeners();
+      this.initializeSelectedFiles();
     } catch (e) {
       log.debug("Error in initializing uppy");
     }
   }
 
   componentWillUnmount() {
+    this.isWidgetUnmounting = true;
     this.state.uppy.close();
   }
 

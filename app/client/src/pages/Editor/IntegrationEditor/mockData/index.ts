@@ -1,10 +1,12 @@
+import { PluginPackageName } from "entities/Action";
+
 export const mockPlugins = [
   {
     id: "623a809913b3311bd5e77228",
     userPermissions: [],
     name: "PostgreSQL",
     type: "DB",
-    packageName: "postgres-plugin",
+    packageName: PluginPackageName.POSTGRES,
     iconLocation: "https://assets.appsmith.com/logo/postgresql.svg",
     documentationLink:
       "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres",
@@ -22,7 +24,7 @@ export const mockPlugins = [
     userPermissions: [],
     name: "REST API",
     type: "API",
-    packageName: "restapi-plugin",
+    packageName: PluginPackageName.REST_API,
     iconLocation: "https://assets.appsmith.com/RestAPI.png",
     uiComponent: "ApiEditorForm",
     datasourceComponent: "RestAPIDatasourceForm",

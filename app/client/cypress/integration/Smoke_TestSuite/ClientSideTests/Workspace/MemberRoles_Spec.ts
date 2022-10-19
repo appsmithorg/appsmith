@@ -51,7 +51,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
       .should("have.length", 1)
       .and("contain.text", `App Viewer - ${workspaceId}`);
     cy.get(HomePage.closeBtn).click();
-
     homePage.LaunchAppFromAppHover();
     homePage.LogOutviaAPI();
   });
@@ -152,6 +151,13 @@ describe("Create new workspace and invite user & validate all roles", () => {
   it("7. Login as Workspace owner and verify all 3 users are present", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
+    homePage.UpdateUserRoleInWorkspace(
+      workspaceId,
+      Cypress.env("TESTUSERNAME1"),
+      "Administrator",
+      "Developer",
+    );
+    homePage.FilterApplication(appid, workspaceId);
     homePage.OpenMembersPageForWorkspace(workspaceId);
     cy.get(homePage._usersEmailList).then(function($list) {
       expect($list).to.have.length(3);
@@ -160,5 +166,24 @@ describe("Create new workspace and invite user & validate all roles", () => {
       expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
     homePage.NavigateToHome();
+  });
+
+  it("8. Login as Developer, Verify leave workspace flow", () => {
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME1"),
+      Cypress.env("TESTPASSWORD1"),
+    );
+    homePage.FilterApplication(appid, workspaceId);
+    homePage.leaveWorkspace(workspaceId);
+    homePage.LogOutviaAPI();
+  });
+  it("9. Login as App Viewer, Verify leave workspace flow", () => {
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME2"),
+      Cypress.env("TESTPASSWORD2"),
+    );
+    homePage.FilterApplication(appid, workspaceId);
+    homePage.leaveWorkspace(workspaceId);
+    homePage.LogOutviaAPI();
   });
 });
