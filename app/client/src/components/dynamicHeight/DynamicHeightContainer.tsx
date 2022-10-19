@@ -52,8 +52,6 @@ export default function DynamicHeightContainer({
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
-    console.log("expectedHeightInRows", expectedHeightInRows);
-
     return (
       <StyledDynamicHeightContainer
         className="auto-height-scroll-container"
