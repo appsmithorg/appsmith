@@ -67,17 +67,17 @@ export function* getMinHeightBasedOnChildren(
     const { detachFromLayout } = stateWidgets[childWidgetId];
     // We ignore widgets like ModalWidget which don't occupy parent's space.
     // detachFromLayout helps us identify such widgets
-    if (!detachFromLayout) {
-      if (changesSoFar.hasOwnProperty(childWidgetId)) {
-        minHeightInRows = Math.max(
-          minHeightInRows,
-          changesSoFar[childWidgetId].bottomRow,
-        );
-        // If we need to get the existing bottomRow from the state
-      } else {
-        const childWidget: FlattenedWidgetProps = stateWidgets[childWidgetId];
-        minHeightInRows = Math.max(minHeightInRows, childWidget.bottomRow);
-      }
+    if (detachFromLayout) continue;
+
+    if (changesSoFar.hasOwnProperty(childWidgetId)) {
+      minHeightInRows = Math.max(
+        minHeightInRows,
+        changesSoFar[childWidgetId].bottomRow,
+      );
+      // If we need to get the existing bottomRow from the state
+    } else {
+      const childWidget: FlattenedWidgetProps = stateWidgets[childWidgetId];
+      minHeightInRows = Math.max(minHeightInRows, childWidget.bottomRow);
     }
   }
   return minHeightInRows;
