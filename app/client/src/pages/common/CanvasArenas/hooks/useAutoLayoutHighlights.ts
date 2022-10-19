@@ -1,7 +1,6 @@
 import { getWidgets } from "sagas/selectors";
 import { useSelector } from "store";
 
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   FlexLayerAlignment,
   LayoutDirection,
@@ -461,26 +460,26 @@ export const useAutoLayoutHighlights = ({
   //   dispatchTempHighlight(pos);
   // }, 5);
 
-  const setTempHighlight = (pos: HighlightInfo) => {
-    dispatch({
-      type: ReduxActionTypes.SELECT_AUTOLAYOUT_HIGHLIGHT,
-      payload: {
-        flexHighlight: pos,
-        blocksToDraw,
-      },
-    });
-  };
+  // const setTempHighlight = (pos: HighlightInfo) => {
+  //   dispatch({
+  //     type: ReduxActionTypes.SELECT_AUTOLAYOUT_HIGHLIGHT,
+  //     payload: {
+  //       flexHighlight: pos,
+  //       blocksToDraw,
+  //     },
+  //   });
+  // };
 
-  const clearTempHighlight = () => {
-    dispatch({
-      type: ReduxActionTypes.CLEAR_HIGHLIGHT_SELECTION,
-    });
-  };
+  // const clearTempHighlight = () => {
+  //   dispatch({
+  //     type: ReduxActionTypes.CLEAR_HIGHLIGHT_SELECTION,
+  //   });
+  // };
 
   const highlightDropPosition = (
     e: any,
     moveDirection: ReflowDirection,
-    acceleration: number,
+    // acceleration: number,
   ): HighlightSelectionPayload | undefined => {
     if (!highlights) return;
     const payload: HighlightSelectionPayload = getHighlightPayload(

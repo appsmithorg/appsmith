@@ -620,7 +620,7 @@ export const useCanvasDragging = (
                 payload = highlightDropPosition(
                   e,
                   currentDirection.current,
-                  mouseAttributesRef?.current.prevAcceleration,
+                  // mouseAttributesRef?.current.prevAcceleration,
                 );
               renderBlocks(payload);
             }

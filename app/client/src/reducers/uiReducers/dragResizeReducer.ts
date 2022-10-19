@@ -153,7 +153,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.CLEAR_HIGHLIGHT_SELECTION]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<any>,
+    // action: ReduxAction<any>,
   ) => {
     state.flexHighlight = undefined;
     state.autoLayoutDragDetails = undefined;
