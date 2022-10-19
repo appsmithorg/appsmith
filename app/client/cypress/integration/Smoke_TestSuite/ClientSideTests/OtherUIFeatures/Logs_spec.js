@@ -34,6 +34,7 @@ describe("Debugger logs", function() {
     ee.DragDropWidgetNVerify("buttonwidget", 200, 200);
     propPane.UpdatePropertyFieldValue("Label", "Test");
     agHelper.GetNClick(locator._debuggerIcon, 0, true, 0);
+    agHelper.GetNClick(jsEditor._logsTab);
     agHelper.GetNAssertContains(locator._debuggerLogState, "Test");
   });
 
@@ -190,6 +191,7 @@ describe("Debugger logs", function() {
     // Wait for the debugger icon to be visible
     agHelper.AssertElementVisible(".t--debugger");
     agHelper.GetNClick(locator._debuggerIcon);
+    agHelper.GetNClick(jsEditor._logsTab);
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
@@ -239,7 +241,6 @@ describe("Debugger logs", function() {
     );
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
-    agHelper.GetNClick(jsEditor._logsTab);
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 

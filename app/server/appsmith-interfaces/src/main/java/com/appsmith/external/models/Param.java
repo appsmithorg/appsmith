@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -19,6 +21,9 @@ public class Param {
     String value;
 
     ClientDataType clientDataType;
+
+    //The type of each array elements are stored in this variable when the clientDataType is of ARRAY type and null otherwise
+    List<ClientDataType> dataTypesOfArrayElements;
 
     /*
         In execute API the parameter map is sent this way {"Text1.text": "k1","Table1.data": "k2", "Api1.data": "k3"} where the key

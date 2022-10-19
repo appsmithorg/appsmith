@@ -17,6 +17,17 @@ export enum PluginName {
   MONGO = "MongoDB",
 }
 
+export enum PluginPackageName {
+  POSTGRES = "postgres-plugin",
+  MONGO = "mongo-plugin",
+  S3 = "amazons3-plugin",
+  GOOGLE_SHEETS = "google-sheets-plugin",
+  FIRESTORE = "firestore-plugin",
+  REST_API = "restapi-plugin",
+  GRAPHQL = "graphql-plugin",
+  JS = "js-plugin",
+}
+
 export enum PaginationType {
   NONE = "NONE",
   PAGE_NO = "PAGE_NO",
@@ -97,6 +108,7 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
 };
 export interface StoredDatasource {
   id: string;
+  pluginId?: string;
 }
 
 export interface BaseAction {
@@ -195,9 +207,9 @@ export function isSaaSAction(action: Action): action is SaaSAction {
 }
 
 export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
-  return plugins.find((p) => p.packageName === "graphql-plugin");
+  return plugins.find((p) => p.packageName === PluginPackageName.GRAPHQL);
 }
 
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
-  return plugin?.packageName === "graphql-plugin";
+  return plugin?.packageName === PluginPackageName.GRAPHQL;
 }
