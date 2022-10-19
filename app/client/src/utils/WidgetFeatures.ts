@@ -1,14 +1,19 @@
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetConfiguration } from "widgets/constants";
 import { OverflowTypes } from "widgets/TextWidget/constants";
 
 import { AutocompleteDataType } from "./autocomplete/TernServer";
 import EventEmitter from "./EventEmitter";
 
-export interface WidgetFeatures {
-  dynamicHeight: boolean;
+export enum RegisteredWidgetFeatures {
+  DYNAMIC_HEIGHT = "dynamicHeight",
 }
+
+export type WidgetFeatures = Record<RegisteredWidgetFeatures, boolean>;
 
 export enum DynamicHeight {
   AUTO_HEIGHT = "AUTO_HEIGHT",
@@ -24,11 +29,28 @@ export enum DynamicHeight {
 
    Note: These are added to the widget configs during registration
 */
-export const WidgetFeatureProps = {
-  DYNAMIC_HEIGHT: {
-    minDynamicHeight: 0,
-    maxDynamicHeight: 0,
+export const WidgetFeatureProps: Record<
+  RegisteredWidgetFeatures,
+  Record<string, unknown>
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: {
+    minDynamicHeight: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
+    maxDynamicHeight: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
     dynamicHeight: DynamicHeight.FIXED,
+  },
+};
+
+export const WidgetFeaturePropertyEnhancements: Record<
+  RegisteredWidgetFeatures,
+  (config: WidgetConfiguration) => Record<string, unknown>
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (config: WidgetConfiguration) => {
+    const newProperties: Partial<WidgetProps> = {};
+    if (config.isCanvas) {
+      newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
+      newProperties.shouldScrollContents = false;
+    }
+    return newProperties;
   },
 };
 
@@ -180,104 +202,101 @@ function transformToNumber(
 }
 // TODO FEATURE:(abhinav) Add validations to these properties
 
-export const PropertyPaneConfigTemplates = {
-  DYNAMIC_HEIGHT: {
-    sectionName: "Layout Features",
-    hidden: (props: WidgetProps) => {
-      if (props.type === "TABLE_WIDGET_V2")
-        return !props.serverSidePaginationEnabled;
-      else return false;
+export const PropertyPaneConfigTemplates: Record<
+  RegisteredWidgetFeatures,
+  PropertyPaneConfig[]
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: [
+    {
+      helpText:
+        "Auto Height: Configure the way the widget height react to content changes.",
+      propertyName: "dynamicHeight",
+      label: "Height",
+      controlType: "DROP_DOWN",
+      isBindProperty: false,
+      isTriggerProperty: false,
+      dependencies: [
+        "shouldScrollContents",
+        "maxDynamicHeight",
+        "minDynamicHeight",
+        "bottomRow",
+        "topRow",
+      ],
+      updateHook: updateMinMaxDynamicHeight,
+      options: [
+        {
+          label: "Auto Height",
+          value: DynamicHeight.AUTO_HEIGHT,
+        },
+        {
+          label: "Auto Height with limits",
+          value: DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
+        },
+        {
+          label: "Fixed",
+          value: DynamicHeight.FIXED,
+        },
+      ],
     },
-    children: [
-      {
-        helpText:
-          "Dynamic Height: Configure the way the widget height react to content changes.",
-        propertyName: "dynamicHeight",
-        label: "Height",
-        controlType: "DROP_DOWN",
-        isBindProperty: false,
-        isTriggerProperty: false,
-        dependencies: [
-          "shouldScrollContents",
-          "maxDynamicHeight",
-          "minDynamicHeight",
-          "bottomRow",
-          "topRow",
-        ],
-        updateHook: updateMinMaxDynamicHeight,
-        options: [
-          {
-            label: "Auto Height",
-            value: DynamicHeight.AUTO_HEIGHT,
-          },
-          {
-            label: "Auto Height with limits",
-            value: DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
-          },
-          {
-            label: "Fixed",
-            value: DynamicHeight.FIXED,
-          },
-        ],
+    {
+      propertyName: "minDynamicHeight",
+      onBlur: () => {
+        EventEmitter.emit("property_pane_input_blurred", "minDynamicHeight");
       },
-      {
-        propertyName: "minDynamicHeight",
-        onBlur: () => {
-          EventEmitter.emit("property_pane_input_blurred", "minDynamicHeight");
-        },
-        onFocus: () => {
-          EventEmitter.emit("property_pane_input_focused", "minDynamicHeight");
-        },
-        label: "Min Height (in rows)",
-        helpText: "Minimum number of rows to occupy irrespective of contents",
-        controlType: "INPUT_TEXT",
-        hidden: hideDynamicHeightPropertyControl,
-        dependencies: ["dynamicHeight", "maxDynamicHeight"],
-        isJSConvertible: false,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        updateHook: transformToNumber,
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: validateMinHeight,
-            expected: {
-              type: "Number of Rows. Less than or equal to Max Height",
-              example: 10,
-              autocompleteDataType: "NUMBER" as AutocompleteDataType,
-            },
+      onFocus: () => {
+        EventEmitter.emit("property_pane_input_focused", "minDynamicHeight");
+      },
+      label: "Min Height (in rows)",
+      helpText: "Minimum number of rows to occupy irrespective of contents",
+      controlType: "INPUT_TEXT",
+      hidden: hideDynamicHeightPropertyControl,
+      dependencies: ["dynamicHeight", "maxDynamicHeight"],
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      updateHook: transformToNumber,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: validateMinHeight,
+          expected: {
+            type: "Number of Rows. Less than or equal to Max Height",
+            example: 10,
+            autocompleteDataType: "NUMBER" as AutocompleteDataType,
           },
         },
       },
-      {
-        propertyName: "maxDynamicHeight",
-        onFocus: () => {
-          EventEmitter.emit("property_pane_input_focused", "maxDynamicHeight");
-        },
-        onBlur: () => {
-          EventEmitter.emit("property_pane_input_blurred", "maxDynamicHeight");
-        },
-        label: "Max Height (in rows)",
-        helpText: "Maximum Height, after which contents will scroll",
-        controlType: "INPUT_TEXT",
-        dependencies: ["dynamicHeight", "minDynamicHeight"],
-        hidden: hideDynamicHeightPropertyControl,
-        updateHook: transformToNumber,
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: validateMaxHeight,
-            expected: {
-              type: "Number of Rows. Greater than or equal to Min. Height",
-              example: 100,
-              autocompleteDataType: "NUMBER" as AutocompleteDataType,
-            },
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT],
+    },
+    {
+      propertyName: "maxDynamicHeight",
+      onFocus: () => {
+        EventEmitter.emit("property_pane_input_focused", "maxDynamicHeight");
+      },
+      onBlur: () => {
+        EventEmitter.emit("property_pane_input_blurred", "maxDynamicHeight");
+      },
+      label: "Max Height (in rows)",
+      helpText: "Maximum Height, after which contents will scroll",
+      controlType: "INPUT_TEXT",
+      dependencies: ["dynamicHeight", "minDynamicHeight"],
+      hidden: hideDynamicHeightPropertyControl,
+      updateHook: transformToNumber,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: validateMaxHeight,
+          expected: {
+            type: "Number of Rows. Greater than or equal to Min. Height",
+            example: 100,
+            autocompleteDataType: "NUMBER" as AutocompleteDataType,
           },
         },
-        isJSConvertible: false,
-        isBindProperty: true,
-        isTriggerProperty: false,
       },
-    ],
-  },
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT],
+    },
+  ],
 };

@@ -142,6 +142,7 @@ export function computeChangeInPositionBasedOnDelta(
         if (repositionedBoxes[prev[0]]) {
           prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
         }
+
         // If the current box's (next) bottomRow is larger than the previous
         // This (next) box is the bottom most above so far
         if (nextBottomRow > prevBottomRow) return [next];
@@ -149,12 +150,14 @@ export function computeChangeInPositionBasedOnDelta(
         // We have two bottom most boxes
         else if (nextBottomRow === prevBottomRow) {
           if (
+            repositionedBoxes[prev[0]] &&
             repositionedBoxes[prev[0]].bottomRow ===
-            repositionedBoxes[prev[0]].topRow
+              repositionedBoxes[prev[0]].topRow
           ) {
             return prev;
           }
           if (
+            repositionedBoxes[next] &&
             repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
           ) {
             return [next];
@@ -175,8 +178,9 @@ export function computeChangeInPositionBasedOnDelta(
       // Or, if this above box itself has changed height
       if (Array.isArray(effectedBoxMap[aboveId]) || delta[aboveId]) {
         // In case the above box has changed heights
-        const _aboveOffset =
-          repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow;
+        const _aboveOffset = repositionedBoxes[aboveId]
+          ? repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow
+          : 0;
         // If so far, we haven't got any _offset updates
         // This can happen if this is the first aboveId we're checking
         if (_offset === undefined) _offset = _aboveOffset;

@@ -17,17 +17,20 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-const widgetConfigMap = {};
+import { WidgetConfiguration } from "widgets/constants";
+const widgetConfigMap: Record<
+  string,
+  {
+    defaultProperties: WidgetConfiguration["properties"]["default"];
+    derivedProperties: WidgetConfiguration["properties"]["derived"];
+    metaProperties: WidgetConfiguration["properties"]["meta"];
+  }
+> = {};
 ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
-  // @ts-expect-error: Types are not available
   if (config.type && config.properties) {
-    // @ts-expect-error: Types are not available
     widgetConfigMap[config.type] = {
-      // @ts-expect-error: properties does not exists
       defaultProperties: config.properties.default,
-      // @ts-expect-error: properties does not exists
       derivedProperties: config.properties.derived,
-      // @ts-expect-error: properties does not exists
       metaProperties: config.properties.meta,
     };
   }

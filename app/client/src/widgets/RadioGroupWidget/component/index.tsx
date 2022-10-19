@@ -165,7 +165,6 @@ export interface RadioGroupComponentProps extends ComponentProps {
   widgetId: string;
   height?: number;
   accentColor: string;
-  maxDynamicHeight?: number;
   required?: boolean;
 }
 

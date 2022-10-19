@@ -54,6 +54,54 @@ import { getWidgetMetaProps, getWidgets } from "./selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 
+export function* getMinHeightBasedOnChildren(
+  widgetId: string,
+  changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
+) {
+  let minHeightInRows = 0;
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const { children = [] } = stateWidgets[widgetId];
+  // For each child widget id.
+  for (const childWidgetId of children) {
+    // If we've changed the widget's bottomRow via computations
+    const { detachFromLayout } = stateWidgets[childWidgetId];
+    // We ignore widgets like ModalWidget which don't occupy parent's space.
+    // detachFromLayout helps us identify such widgets
+    if (detachFromLayout) continue;
+
+    if (changesSoFar.hasOwnProperty(childWidgetId)) {
+      minHeightInRows = Math.max(
+        minHeightInRows,
+        changesSoFar[childWidgetId].bottomRow,
+      );
+      // If we need to get the existing bottomRow from the state
+    } else {
+      const childWidget: FlattenedWidgetProps = stateWidgets[childWidgetId];
+      minHeightInRows = Math.max(minHeightInRows, childWidget.bottomRow);
+    }
+  }
+  return minHeightInRows;
+}
+
+export function* getChildOfContainerLikeWidget(
+  containerLikeWidget: FlattenedWidgetProps,
+) {
+  // Todo: Abstraction leak (abhinav): This is an abstraction leak
+  // I don't have a better solution right now.
+  // What we're trying to acheive is to skip the canvas which
+  // is not currently visible in the tabs widget.
+  if (containerLikeWidget.type === "TABS_WIDGET") {
+    const tabsMeta: { selectedTabWidgetId: string } | undefined = yield select(
+      getWidgetMetaProps,
+      containerLikeWidget.widgetId,
+    );
+    if (tabsMeta) return tabsMeta.selectedTabWidgetId;
+    return containerLikeWidget.tabsObj[0].widgetId;
+  } else if (Array.isArray(containerLikeWidget.children)) {
+    return containerLikeWidget.children[0];
+  }
+}
+
 /**
  * Saga to update a widget's dynamic height
  * When a widget changes in height, it must do the following
@@ -303,32 +351,14 @@ export function* updateWidgetDynamicHeightSaga() {
                 // Get the array of children ids.
                 // This cannot be [], because we came to this point due to an update
                 // caused by one of the children.
-                const children = parentCanvasWidget.children || []; // It's never going to be []
+                // const children = parentCanvasWidget.children || []; // It's never going to be []
 
-                // For each child widget id.
-                for (const childWidgetId of children) {
-                  // If we've changed the widget's bottomRow via computations
-                  const { detachFromLayout } = stateWidgets[childWidgetId];
-                  // We ignore widgets like ModalWidget which don't occupy parent's space.
-                  // detachFromLayout helps us identify such widgets
-                  if (!detachFromLayout) {
-                    if (changesSoFar.hasOwnProperty(childWidgetId)) {
-                      minHeightInRows = Math.max(
-                        minHeightInRows,
-                        changesSoFar[childWidgetId].bottomRow,
-                      );
-                      // If we need to get the existing bottomRow from the state
-                    } else {
-                      const childWidget: FlattenedWidgetProps =
-                        stateWidgets[childWidgetId];
+                const minPossibleHeight: number = yield getMinHeightBasedOnChildren(
+                  parentCanvasWidget.widgetId,
+                  changesSoFar,
+                );
 
-                      minHeightInRows = Math.max(
-                        minHeightInRows,
-                        childWidget.bottomRow,
-                      );
-                    }
-                  }
-                }
+                minHeightInRows = Math.max(minPossibleHeight, minHeightInRows);
 
                 // Add extra rows, this is to accommodate for padding and margins in the parent
                 minHeightInRows =
@@ -337,8 +367,7 @@ export function* updateWidgetDynamicHeightSaga() {
                 // For widgets like Tabs Widget, some of the height is occupied by the
                 // tabs themselves, the child canvas as a result has less number of rows available
                 // To accommodate for this, we need to increase the new height by the offset amount.
-                const canvasHeightOffset: number = yield select(
-                  getCanvasHeightOffset,
+                const canvasHeightOffset: number = getCanvasHeightOffset(
                   parentContainerLikeWidget.type,
                   parentContainerLikeWidget,
                 );
@@ -481,37 +510,17 @@ export function* updateWidgetDynamicHeightSaga() {
           }
         }
       }
-      // Get all children of the MainContainer
-      // TODO(abhinav): MainContainer should cut off only in view mode.
-      const mainCanvasChildren =
-        stateWidgets[MAIN_CONTAINER_WIDGET_ID].children || [];
       // Let's consider the minimum Canvas Height
       let maxCanvasHeight = CANVAS_MIN_HEIGHT;
       // The same logic to compute the minimum height of the MainContainer
       // Based on how many rows are being occuped by children.
-      for (const childWidgetId of mainCanvasChildren) {
-        const { detachFromLayout } = stateWidgets[childWidgetId];
-        if (!detachFromLayout) {
-          if (changesSoFar.hasOwnProperty(childWidgetId)) {
-            maxCanvasHeight = Math.max(
-              maxCanvasHeight,
-              changesSoFar[childWidgetId].bottomRow *
-                GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-            );
-          }
-        } else {
-          const childWidget = stateWidgets[childWidgetId];
-          const { detachFromLayout } = stateWidgets[childWidgetId];
-          if (!detachFromLayout) {
-            const bottomRow =
-              dynamicHeightLayoutTree[childWidget.widgetId].bottomRow;
-            maxCanvasHeight = Math.max(
-              maxCanvasHeight,
-              bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-            );
-          }
-        }
-      }
+
+      const maxPossibleCanvasHeight: number = yield getMinHeightBasedOnChildren(
+        MAIN_CONTAINER_WIDGET_ID,
+        changesSoFar,
+      );
+
+      maxCanvasHeight = Math.max(maxPossibleCanvasHeight, maxCanvasHeight);
 
       // Add the MainContainer's update.
       widgetsToUpdate[MAIN_CONTAINER_WIDGET_ID] = [
@@ -543,29 +552,44 @@ export function* updateWidgetDynamicHeightSaga() {
         ];
         if (hasScroll) {
           const containerLikeWidget = stateWidgets[changedWidgetId];
+
           if (
             Array.isArray(containerLikeWidget.children) &&
             containerLikeWidget.children.length > 0
           ) {
-            const canvasHeight =
-              (changesSoFar[changedWidgetId].bottomRow -
-                changesSoFar[changedWidgetId].topRow) *
-              GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-            const propertyUpdates = [
-              {
-                propertyPath: "minHeight",
-                propertyValue: canvasHeight,
-              },
-              {
-                propertyPath: "bottomRow",
-                propertyValue: canvasHeight,
-              },
-            ];
-            containerLikeWidget.children.forEach((childWidgetId) => {
-              if (!widgetsToUpdate.hasOwnProperty(childWidgetId)) {
-                widgetsToUpdate[childWidgetId] = propertyUpdates;
-              }
-            });
+            // let canvasHeight =
+            //   (changesSoFar[changedWidgetId].bottomRow -
+            //     changesSoFar[changedWidgetId].topRow) *
+            //   GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+            const childWidgetId:
+              | string
+              | undefined = yield getChildOfContainerLikeWidget(
+              containerLikeWidget,
+            );
+            if (childWidgetId) {
+              const canvasHeight: number = yield getMinHeightBasedOnChildren(
+                childWidgetId,
+                changesSoFar,
+              );
+              const propertyUpdates = [
+                {
+                  propertyPath: "minHeight",
+                  propertyValue:
+                    canvasHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                },
+                {
+                  propertyPath: "bottomRow",
+                  propertyValue:
+                    canvasHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                },
+              ];
+              containerLikeWidget.children.forEach((childWidgetId) => {
+                if (!widgetsToUpdate.hasOwnProperty(childWidgetId)) {
+                  widgetsToUpdate[childWidgetId] = propertyUpdates;
+                }
+              });
+            }
           }
         }
       }
@@ -596,11 +620,13 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
 ) {
   const { height, widgetId } = action.payload;
 
-  dynamicHeightUpdateWidgets[widgetId] = height;
-  yield put({
-    type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
-    payload: dynamicHeightUpdateWidgets,
-  });
+  if (dynamicHeightUpdateWidgets[widgetId] !== height) {
+    dynamicHeightUpdateWidgets[widgetId] = height;
+    yield put({
+      type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
+      payload: dynamicHeightUpdateWidgets,
+    });
+  }
 }
 
 function* generateTreeForDynamicHeightComputations(
@@ -668,24 +694,11 @@ export function* dynamicallyUpdateContainersSaga() {
           isDynamicHeightEnabledForWidget(parentContainerWidget) ||
           parentContainerWidget.bottomRow === parentContainerWidget.topRow
         ) {
-          // Todo: Abstraction leak (abhinav): This is an abstraction leak
-          // I don't have a better solution right now.
-          // What we're trying to acheive is to skip the canvas which
-          // is not currently visible in the tabs widget.
-          if (parentContainerWidget.type === "TABS_WIDGET") {
-            const tabsMeta:
-              | { selectedTabWidgetId: string }
-              | undefined = yield select(
-              getWidgetMetaProps,
-              parentContainerWidget.widgetId,
-            );
-            if (
-              tabsMeta &&
-              tabsMeta.selectedTabWidgetId !== canvasWidget.widgetId
-            ) {
-              continue;
-            }
-          }
+          const childWidgetId: string = yield getChildOfContainerLikeWidget(
+            parentContainerWidget,
+          );
+          if (childWidgetId !== canvasWidget.widgetId) continue;
+
           let maxBottomRow =
             parentContainerWidget.bottomRow - parentContainerWidget.topRow;
           if (
@@ -713,8 +726,7 @@ export function* dynamicallyUpdateContainersSaga() {
             // For widgets like Tabs Widget, some of the height is occupied by the
             // tabs themselves, the child canvas as a result has less number of rows available
             // To accommodate for this, we need to increase the new height by the offset amount.
-            const canvasHeightOffset: number = yield select(
-              getCanvasHeightOffset,
+            const canvasHeightOffset: number = getCanvasHeightOffset(
               parentContainerWidget.type,
               parentContainerWidget,
             );
@@ -756,6 +768,7 @@ export function* dynamicallyUpdateContainersSaga() {
     performance.now() - start,
     "ms",
   );
+  log.debug("Dynamic height: Container updates:", { updates });
   if (Object.keys(updates).length > 0) {
     // TODO(abhinav): Make sure there are no race conditions or scenarios where these updates are not considered.
     for (const widgetId in updates) {
@@ -778,7 +791,7 @@ export default function* widgetOperationSagas() {
       batchCallsToUpdateWidgetDynamicHeightSaga,
     ),
     debounce(
-      200,
+      100,
       ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
       updateWidgetDynamicHeightSaga,
     ),

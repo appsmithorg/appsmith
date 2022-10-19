@@ -8,6 +8,7 @@ import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { AppTheme } from "entities/AppTheming";
 import { WidgetProps } from "widgets/BaseWidget";
+import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
@@ -89,6 +90,10 @@ export type PropertyPaneControlConfig = {
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;
+  // The following should ideally be used internally
+  postUpdateActions?: ReduxActionType[];
+  onBlur?: () => void;
+  onFocus?: () => void;
 };
 
 type ValidationConfigParams = {
