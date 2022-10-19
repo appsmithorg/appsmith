@@ -12,7 +12,7 @@ async function backup_error(err) {
 }
 
 async function backup_info(msg) {
-  console.log('----'+msg);
+  console.log(msg);
   try {
     await fsPromises.access(Constants.APPSMITHCTL_LOG_PATH);
   } catch (error) {
