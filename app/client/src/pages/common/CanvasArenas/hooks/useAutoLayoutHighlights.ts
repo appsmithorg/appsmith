@@ -139,14 +139,14 @@ export const useAutoLayoutHighlights = ({
 
   // Hide the dragged children of the auto layout container
   // to discount them from highlight calculation.
-  const hideDraggedItems = (draggedBlocks: string[]): void => {
-    draggedBlocks.forEach((id: string) => {
-      const el = getDomElement(id);
-      if (el) {
-        el.classList.add("auto-temp-no-display");
-      }
-    });
-  };
+  // const hideDraggedItems = (draggedBlocks: string[]): void => {
+  //   draggedBlocks.forEach((id: string) => {
+  //     const el = getDomElement(id);
+  //     if (el) {
+  //       el.classList.add("auto-temp-no-display");
+  //     }
+  //   });
+  // };
 
   const calculateHighlights = (): HighlightInfo[] => {
     /**
@@ -165,7 +165,7 @@ export const useAutoLayoutHighlights = ({
        * That implies the container is null.
        */
       if (!updateContainerDimensions()) return [];
-      hideDraggedItems(draggedBlocks);
+      // hideDraggedItems(draggedBlocks);
 
       const canvasChildren = canvas.children || [];
       // Get the list of children that are not being dragged.
@@ -231,11 +231,12 @@ export const useAutoLayoutHighlights = ({
     for (const layer of flexLayers) {
       // remove dragged blocks from the layer
       const filteredLayer = filterLayer(layer, offsetChildren);
-      if (!filteredLayer?.children?.length) {
-        discardedLayers += 1;
-        index += 1;
-        continue;
-      }
+      // const isEmpty = !filteredLayer.children.length;
+      // if (isEmpty) {
+      //   discardedLayers += 1;
+      //   index += 1;
+      //   // continue;
+      // }
       const el = document.querySelector(
         `.auto-layout-layer-${canvasId}-${index}`,
       );
@@ -291,10 +292,12 @@ export const useAutoLayoutHighlights = ({
 
   // Extract start, center and end children from the layer.
   function spreadLayer(layer: FlexLayer) {
+    // const draggedBlocks = getDraggedBlocks();
     const start: string[] = [],
       center: string[] = [],
       end: string[] = [];
     layer.children.forEach((child: LayerChild) => {
+      // if (draggedBlocks.includes(child.id)) return;
       if (layer.hasFillChild) {
         start.push(child.id);
         return;
@@ -303,7 +306,13 @@ export const useAutoLayoutHighlights = ({
       else if (child.align === FlexLayerAlignment.Center) center.push(child.id);
       else start.push(child.id);
     });
-    return { start, center, end, hasFillChild: layer.hasFillChild };
+    return {
+      start,
+      center,
+      end,
+      hasFillChild: layer.hasFillChild,
+      isEmpty: !start.length && !center.length && !end.length,
+    };
   }
 
   function generateHighlightsForLayer(
@@ -314,7 +323,7 @@ export const useAutoLayoutHighlights = ({
   ): HighlightInfo[] {
     const arr: HighlightInfo[] = [];
     let curr: number = childCount;
-    const { center, end, hasFillChild, start } = spreadLayer(layer);
+    const { center, end, hasFillChild, isEmpty, start } = spreadLayer(layer);
 
     // process start sub wrapper.
     arr.push(
@@ -324,6 +333,7 @@ export const useAutoLayoutHighlights = ({
         layerIndex,
         FlexLayerAlignment.Start,
         layerRect,
+        isEmpty,
       ),
     );
     if (!hasFillChild) {
@@ -336,6 +346,7 @@ export const useAutoLayoutHighlights = ({
           layerIndex,
           FlexLayerAlignment.Center,
           layerRect,
+          isEmpty,
         ),
       );
       // process end sub wrapper.
@@ -347,6 +358,7 @@ export const useAutoLayoutHighlights = ({
           layerIndex,
           FlexLayerAlignment.End,
           layerRect,
+          isEmpty,
         ),
       );
     }
@@ -522,7 +534,7 @@ export const useAutoLayoutHighlights = ({
       pos,
       moveDirection,
     );
-
+    // console.log("#### filteredHighlights: ", filteredHighlights);
     const arr = filteredHighlights.sort((a, b) => {
       return (
         calculateDistance(a, pos, moveDirection) -
@@ -566,6 +578,7 @@ export const useAutoLayoutHighlights = ({
         );
       },
     );
+    // console.log("#### pos", arr, filteredHighlights, isVerticalDrag);
     // For horizontal drag, if no vertical highlight exists in the same x plane,
     // return the last horizontal highlight.
     if (!isVerticalDrag && !filteredHighlights.length) {

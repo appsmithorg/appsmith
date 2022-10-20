@@ -280,11 +280,11 @@ function updateExistingLayer(
   selectedLayer = {
     ...selectedLayer,
     children: [
-      ...selectedLayer.children.slice(0, pos),
-      ...newLayer.children,
-      ...selectedLayer.children.slice(pos),
+      ...selectedLayer?.children?.slice(0, pos),
+      ...newLayer?.children,
+      ...selectedLayer?.children?.slice(pos),
     ],
-    hasFillChild: newLayer.hasFillChild || selectedLayer.hasFillChild,
+    hasFillChild: newLayer.hasFillChild || selectedLayer?.hasFillChild,
   };
 
   const updatedCanvas = {

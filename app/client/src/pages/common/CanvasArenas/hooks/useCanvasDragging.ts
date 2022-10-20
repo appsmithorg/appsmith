@@ -603,7 +603,7 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              currentDirection.current = getMouseMoveDirection(e);
+              currentDirection.current = getMouseMoveDirection(e, 1);
               triggerReflow(e, firstMove);
               let payload: HighlightSelectionPayload | undefined;
               if (
