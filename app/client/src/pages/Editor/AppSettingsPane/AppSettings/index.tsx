@@ -37,7 +37,7 @@ const Wrapper = styled.div`
 `;
 
 const SectionContent = styled.div`
-  box-shadow: -1px 0 0 0 ${Colors.ALTO2};
+  box-shadow: -1px 0 0 0 ${Colors.GRAY_300};
 `;
 
 const HeaderText = styled.div`
@@ -100,7 +100,7 @@ function AppSettings() {
           <SectionHeader key={config.name} {...config} />
         ))}
         <div
-          className={`border-t-[1px] border-[${Colors.ALTO_4.toLowerCase()}]`}
+          className={`border-t-[1px] border-[${Colors.GRAY_300.toLowerCase()}]`}
         />
         <HeaderText className="leading-[3rem] font-medium px-4">
           {PAGE_SETTINGS_SECTION_HEADER()}

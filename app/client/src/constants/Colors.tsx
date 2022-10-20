@@ -45,7 +45,6 @@ export const Colors = {
   MERCURY_2: "#E7E7E7",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
-  ALTO_4: "#D7D7D7",
 
   FOAM: "#D9FDED",
   GREEN: "#03B365",
@@ -185,6 +184,7 @@ export const Colors = {
 
   GRAY_50: "#F8F8F8",
   GRAY_200: "#E7E7E7",
+  GRAY_300: "#D7D7D7",
   GRAY_400: "#B3B3B3",
   GRAY_500: "#939393",
   GRAY_700: "#575757",

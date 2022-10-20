@@ -179,11 +179,7 @@ export function NavigationMenuItem({
         />
       );
     case MenuTypes.MENU_DIVIDER:
-      return (
-        <div
-          className={`border-t-[1px] border-[${Colors.GREY_4.toLowerCase()}]`}
-        />
-      );
+      return <div className={`border-t-[1px] border-[${Colors.GREY_4}]`} />;
     default:
       return null;
   }
