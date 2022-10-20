@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import {
-  DataTree,
   EntityConfigCollection,
   EvalTree,
 } from "entities/DataTree/dataTreeFactory";
@@ -247,15 +246,26 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
-export default function evaluateSync(
-  userScript: string,
-  dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
-  isJSCollection: boolean,
-  context?: EvaluateContext,
-  evalArguments?: Array<any>,
-  skipLogsOperations = false,
-): EvalResult {
+export default function evaluateSync(args: {
+  userScript: string;
+  dataTree: EvalTree;
+  resolvedFunctions: Record<string, any>;
+  isJSCollection: boolean;
+  context?: EvaluateContext;
+  evalArguments?: Array<any>;
+  skipLogsOperations: boolean;
+  entityConfigCollection: EntityConfigCollection;
+}): EvalResult {
+  const {
+    context,
+    dataTree,
+    entityConfigCollection,
+    evalArguments,
+    isJSCollection,
+    resolvedFunctions,
+    skipLogsOperations = false,
+    userScript,
+  } = args;
   return (function() {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
@@ -273,6 +283,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
       context,
       evalArguments,
+      entityConfigCollection,
     });
     GLOBAL_DATA.ALLOW_ASYNC = false;
     const { script } = getUserScriptToEvaluate(
@@ -322,14 +333,24 @@ export default function evaluateSync(
   })();
 }
 
-export async function evaluateAsync(
-  userScript: string,
-  dataTree: DataTree,
-  requestId: string,
-  resolvedFunctions: Record<string, any>,
-  context?: EvaluateContext,
-  evalArguments?: Array<any>,
-) {
+export async function evaluateAsync(args: {
+  userScript: string;
+  dataTree: EvalTree;
+  requestId: string;
+  resolvedFunctions: Record<string, any>;
+  context?: EvaluateContext;
+  evalArguments?: Array<any>;
+  entityConfigCollection: EntityConfigCollection;
+}) {
+  const {
+    context,
+    dataTree,
+    entityConfigCollection,
+    evalArguments,
+    requestId,
+    resolvedFunctions,
+    userScript,
+  } = args;
   return (async function() {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
@@ -343,6 +364,7 @@ export async function evaluateAsync(
       isTriggerBased: true,
       context: { ...context, requestId },
       evalArguments,
+      entityConfigCollection,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     GLOBAL_DATA.ALLOW_ASYNC = true;
@@ -399,7 +421,8 @@ export async function evaluateAsync(
 
 export function isFunctionAsync(
   userFunction: unknown,
-  dataTree: DataTree,
+  dataTree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
   resolvedFunctions: Record<string, any>,
   logs: unknown[] = [],
 ) {
@@ -410,7 +433,10 @@ export function isFunctionAsync(
       IS_ASYNC: false,
     };
     //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      entityConfigCollection,
+      dataTree,
+    );
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];

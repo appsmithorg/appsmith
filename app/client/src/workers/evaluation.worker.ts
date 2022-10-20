@@ -1,6 +1,6 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -103,7 +103,7 @@ ctx.addEventListener(
           widgetTypeConfigMap,
         } = requestData;
 
-        let dataTree: DataTree = unevalTree;
+        let dataTree: EvalTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let userLogs: UserLogObject[] = [];
@@ -154,6 +154,7 @@ ctx.addEventListener(
             }
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
+              entityConfigCollection,
             );
             isCreateFirstTree = true;
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -170,7 +171,10 @@ ctx.addEventListener(
             if (shouldReplay) {
               replayMap[CANVAS]?.update({ widgets, theme });
             }
-            const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
+            const updateResponse = dataTreeEvaluator.updateDataTree(
+              unevalTree,
+              entityConfigCollection,
+            );
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));

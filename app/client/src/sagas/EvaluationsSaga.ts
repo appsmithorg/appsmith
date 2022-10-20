@@ -95,7 +95,11 @@ import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EntityConfigCollection,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { DataTreeDiff } from "workers/evaluationUtils";
@@ -109,7 +113,8 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 const worker = new GracefulWorkerService(Worker);
 
 export type EvalTreePayload = {
-  dataTree: DataTree;
+  dataTree: EvalTree;
+  entityConfigCollection: EntityConfigCollection;
   dependencies: Record<string, string[]>;
   errors: EvalError[];
   evalMetaUpdates: EvalMetaUpdates;

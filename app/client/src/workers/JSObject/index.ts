@@ -1,6 +1,7 @@
 import {
   DataTree,
   DataTreeJSAction,
+  EntityConfigCollection,
   EvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
@@ -77,8 +78,9 @@ export function saveResolvedFunctionsAndJSUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
   entity: DataTreeJSAction,
   jsUpdates: Record<string, JSUpdate>,
-  unEvalDataTree: DataTree,
+  unEvalDataTree: EvalTree,
   entityName: string,
+  entityConfigCollection: EntityConfigCollection,
 ) {
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
@@ -100,15 +102,16 @@ export function saveResolvedFunctionsAndJSUpdates(
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
             try {
-              const { result } = evaluateSync(
-                parsedElement.value,
-                unEvalDataTree,
-                {},
-                true,
-                undefined,
-                undefined,
-                true,
-              );
+              const { result } = evaluateSync({
+                userScript: parsedElement.value,
+                dataTree: unEvalDataTree,
+                resolvedFunctions: {},
+                isJSCollection: true,
+                context: undefined,
+                evalArguments: undefined,
+                skipLogsOperations: true,
+                entityConfigCollection,
+              });
               if (!!result) {
                 let params: Array<{ key: string; value: unknown }> = [];
 
@@ -189,9 +192,10 @@ export function saveResolvedFunctionsAndJSUpdates(
 
 export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
-  unEvalDataTree: DataTree,
+  unEvalDataTree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
   differences?: DataTreeDiff[],
-  oldUnEvalTree?: DataTree,
+  oldUnEvalTree?: EvalTree,
 ) {
   let jsUpdates: Record<string, JSUpdate> = {};
   if (!!differences && !!oldUnEvalTree) {
@@ -199,7 +203,7 @@ export function parseJSActions(
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         diff.payload.propertyPath,
       );
-      const entity = unEvalDataTree[entityName];
+      const entity = entityConfigCollection[entityName];
 
       if (!isJSAction(entity)) {
         return false;
@@ -233,12 +237,13 @@ export function parseJSActions(
           jsUpdates,
           unEvalDataTree,
           entityName,
+          entityConfigCollection,
         );
       }
     });
   } else {
     Object.keys(unEvalDataTree).forEach((entityName) => {
-      const entity = unEvalDataTree[entityName];
+      const entity = entityConfigCollection[entityName];
       if (!isJSAction(entity)) {
         return;
       }
@@ -248,6 +253,7 @@ export function parseJSActions(
         jsUpdates,
         unEvalDataTree,
         entityName,
+        entityConfigCollection,
       );
     });
   }
@@ -261,6 +267,7 @@ export function parseJSActions(
         isAsync: isFunctionAsync(
           action.parsedFunction,
           unEvalDataTree,
+          entityConfigCollection,
           dataTreeEvalRef.resolvedFunctions,
           dataTreeEvalRef.logs,
         ),
@@ -272,12 +279,16 @@ export function parseJSActions(
   return { jsUpdates };
 }
 
-export function getJSEntities(dataTree: DataTree) {
-  const jsCollections: Record<string, DataTreeJSAction> = {};
+export function getJSEntities(
+  dataTree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
+) {
+  // Add jsEvalTree type
+  const jsCollections: Record<string, unknown> = {};
   Object.keys(dataTree).forEach((key: string) => {
-    const entity = dataTree[key];
+    const entity = entityConfigCollection[key];
     if (isJSAction(entity)) {
-      jsCollections[entity.name] = entity;
+      jsCollections[entity.name] = dataTree[key];
     }
   });
   return jsCollections;

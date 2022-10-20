@@ -20,6 +20,7 @@ import {
   ENTITY_TYPE,
   DataTreeJSAction,
   PrivateWidgets,
+  EntityConfigCollection,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -106,7 +107,7 @@ const isUninterestingChangeForDependencyUpdate = (path: string) => {
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
-  unEvalDataTree: DataTree,
+  entityConfigCollection: EntityConfigCollection,
 ): DataTreeDiff | DataTreeDiff[] => {
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
@@ -134,7 +135,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
     return result;
   }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
-  const entity = unEvalDataTree[entityName];
+  const entity = entityConfigCollection[entityName];
   const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {
@@ -310,7 +311,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           ...difference.item,
           path: [...difference.path, difference.index],
         },
-        unEvalDataTree,
+        entityConfigCollection,
       );
     }
     default: {
