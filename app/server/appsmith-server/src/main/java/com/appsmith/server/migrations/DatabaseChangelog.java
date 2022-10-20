@@ -3,12 +3,14 @@ package com.appsmith.server.migrations;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
@@ -40,7 +42,6 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QComment;
@@ -63,7 +64,6 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -176,9 +176,9 @@ public class DatabaseChangelog {
     }
 
     /**
-     * A private, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
+     * A public, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
      * Note: The order of the fields here is important. An index with the fields `"name", "organizationId"` is different
-     * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
+     * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering, and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
      * <p>
