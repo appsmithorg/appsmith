@@ -107,12 +107,13 @@ class ComputeMenuPropertyControl extends BaseControl<
         : defaultValue;
     const evaluatedProperties = this.props.widgetProperties;
 
-    const columns: Record<string, ColumnProperties> =
-      evaluatedProperties.primaryColumns || {};
+    const keys = evaluatedProperties.sourceDataKeys || [];
     const currentItem: { [key: string]: any } = {};
-    Object.values(columns).forEach((column) => {
-      currentItem[column.alias || column.originalId] = undefined;
+
+    Object.values(keys).forEach((key) => {
+      currentItem[key as keyof typeof currentItem] = undefined;
     });
+
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);

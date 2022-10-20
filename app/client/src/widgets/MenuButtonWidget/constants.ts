@@ -60,6 +60,7 @@ export interface MenuButtonWidgetProps extends WidgetProps {
     };
   };
   sourceData?: Array<Record<string, unknown>>;
+  sourceDataKeys?: Array<string>;
 }
 
 export interface MenuButtonComponentProps {
@@ -115,6 +116,7 @@ export interface MenuButtonComponentProps {
     };
   };
   sourceData?: Array<Record<string, unknown>>;
+  sourceDataKeys?: Array<string>;
 }
 
 export interface PopoverContentProps {
@@ -157,4 +159,5 @@ export interface PopoverContentProps {
     };
   };
   sourceData?: Array<Record<string, unknown>>;
+  sourceDataKeys?: Array<string>;
 }

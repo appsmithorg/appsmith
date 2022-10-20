@@ -43,13 +43,13 @@ export const CONFIG = {
       },
     },
     sourceData: "",
+    sourceDataKeys: [],
     configureMenuItems: {
       label: "Configure Menu Items",
       id: "config",
       config: {
         id: "config",
-        label:
-          "{{MenuButton1.sourceData.map((currentItem, currentIndex) => ( currentItem['task']))}}",
+        label: `{{MenuButton1.sourceData.map((currentItem, currentIndex) => ( currentItem.task))}}`,
         isVisible: true,
         isDisabled: false,
       },
