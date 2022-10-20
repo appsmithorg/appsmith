@@ -2,16 +2,27 @@ import { TextViewProps } from "../../types";
 import {
   ControlWrapper,
   FieldWrapper,
+  ToolTipWrapper,
 } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import React from "react";
+import PropertyHelpLabel from "../../../../../pages/Editor/PropertyPane/PropertyHelpLabel";
+import { EditorTheme } from "../../../CodeEditor/EditorConfig";
 
 export function TextView(props: TextViewProps) {
   return (
     <FieldWrapper>
       <ControlWrapper isAction key={props.label}>
-        {props.label && (
+        {props.toolTip ? (
+          <ToolTipWrapper>
+            <PropertyHelpLabel
+              label={props.label || ""}
+              theme={EditorTheme.DARK}
+              tooltip={props.toolTip || ""}
+            />
+          </ToolTipWrapper>
+        ) : (
           <label data-testid="text-view-label">{props.label}</label>
         )}
         <InputText
