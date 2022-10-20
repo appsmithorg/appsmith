@@ -49,6 +49,7 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
 });
 
 Cypress.Commands.add("changeColumnType", (dataType) => {
+  cy.moveToContentTab();
   cy.get(commonlocators.changeColType)
     .last()
     .click();
@@ -656,6 +657,7 @@ Cypress.Commands.add("assertControlVisibility", (endp) => {
 });
 
 Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
+  cy.backFromPropertyPanel();
   cy.get("[data-rbd-draggable-id='" + columnName + "'] input")
     .scrollIntoView()
     .first()
@@ -664,6 +666,7 @@ Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
 });
 
 Cypress.Commands.add("tableV2ColumnDataValidation", (columnName) => {
+  cy.backFromPropertyPanel();
   cy.get("[data-rbd-draggable-id='" + columnName + "'] input[type='text']")
     .scrollIntoView()
     .first()
@@ -672,6 +675,7 @@ Cypress.Commands.add("tableV2ColumnDataValidation", (columnName) => {
 });
 
 Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
+  cy.backFromPropertyPanel();
   cy.get("[data-rbd-draggable-id='" + colId + "'] input")
     .scrollIntoView()
     .should("be.visible")
@@ -690,6 +694,7 @@ Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
 });
 
 Cypress.Commands.add("tableV2ColumnPopertyUpdate", (colId, newColName) => {
+  cy.backFromPropertyPanel();
   cy.get("[data-rbd-draggable-id='" + colId + "'] input[type='text']")
     .scrollIntoView()
     .should("be.visible")
@@ -710,64 +715,51 @@ Cypress.Commands.add("tableV2ColumnPopertyUpdate", (colId, newColName) => {
     .should("be.visible");
 });
 
-Cypress.Commands.add("hideColumn", (colId) => {
+Cypress.Commands.add("backFromPropertyPanel", () => {
   cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
-      $body.get(commonlocators.editPropBackButton).click();
+    const count = $body.find(commonlocators.editPropBackButton)?.length || 0;
+    if (count > 0) {
+      cy.get(commonlocators.editPropBackButton).click();
       cy.wait(500);
     }
-
-    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click(
-      {
-        force: true,
-      },
-    );
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
   });
+});
+
+Cypress.Commands.add("hideColumn", (colId) => {
+  cy.backFromPropertyPanel();
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("showColumn", (colId) => {
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
-      $body.get(commonlocators.editPropBackButton).click();
-      cy.wait(500);
-    }
-
-    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click(
-      {
-        force: true,
-      },
-    );
-    cy.get(".draggable-header ")
-      .contains(colId)
-      .should("be.visible");
+  cy.backFromPropertyPanel();
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
   });
+  cy.get(".draggable-header ")
+    .contains(colId)
+    .should("be.visible");
 });
 Cypress.Commands.add("deleteColumn", (colId) => {
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
-      $body.get(commonlocators.editPropBackButton).click();
-      cy.wait(500);
-    }
-
-    cy.get(
-      "[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn",
-    ).click({
+  cy.backFromPropertyPanel();
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn").click(
+    {
       force: true,
-    });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-  });
+    },
+  );
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
-Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
-      $body.get(commonlocators.editPropBackButton).click();
-      cy.wait(500);
+Cypress.Commands.add(
+  "openFieldConfiguration",
+  (fieldIdentifier, shouldClosePanel = true) => {
+    if (shouldClosePanel) {
+      cy.backFromPropertyPanel();
     }
-
     cy.get(
       "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--edit-column-btn",
     ).click({
@@ -775,40 +767,26 @@ Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
     });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-  });
-});
+  },
+);
 
 Cypress.Commands.add("deleteJSONFormField", (fieldIdentifier) => {
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
-      $body.get(commonlocators.editPropBackButton).click();
-      cy.wait(500);
-    }
-
-    cy.get(
-      "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
-    ).click({
-      force: true,
-    });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
+  cy.backFromPropertyPanel();
+  cy.get(
+    "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
+  ).click({
+    force: true,
   });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("makeColumnVisible", (colId) => {
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
-      $body.get(commonlocators.editPropBackButton).click();
-      cy.wait(500);
-    }
-
-    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click(
-      {
-        force: true,
-      },
-    );
-    cy.wait(1000);
+  cy.backFromPropertyPanel();
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
   });
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("addColumn", (colId) => {
@@ -838,20 +816,12 @@ Cypress.Commands.add("addColumnV2", (colId) => {
 });
 
 Cypress.Commands.add("editColumn", (colId) => {
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.editPropBackButton)?.length > 0) {
-      $body.get(commonlocators.editPropBackButton).click();
-      cy.wait(500);
-    }
-
-    cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click(
-      {
-        force: true,
-      },
-    );
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1500);
+  cy.backFromPropertyPanel();
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
+    force: true,
   });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1500);
 });
 
 Cypress.Commands.add("readTextDataValidateCSS", (cssProperty, cssValue) => {

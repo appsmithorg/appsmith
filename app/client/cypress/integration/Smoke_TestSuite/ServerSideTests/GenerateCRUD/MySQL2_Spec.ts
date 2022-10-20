@@ -64,6 +64,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
 
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("Stores"));

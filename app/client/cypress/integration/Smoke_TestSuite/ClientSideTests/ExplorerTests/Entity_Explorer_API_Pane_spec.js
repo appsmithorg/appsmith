@@ -62,6 +62,7 @@ describe("Entity explorer API pane related testcases", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
       .click();
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");
     cy.xpath(apiwidget.popover)

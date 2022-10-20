@@ -344,6 +344,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.openPropertyPane("tablewidgetv2");
     cy.moveToContentTab();
     // Chage deat search text value to "data"
+    cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "data");
     cy.PublishtheApp();
     // Verify the deaullt search text

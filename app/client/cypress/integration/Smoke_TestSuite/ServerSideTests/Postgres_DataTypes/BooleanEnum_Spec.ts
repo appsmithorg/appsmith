@@ -40,7 +40,8 @@ describe("Boolean & Enum Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
-    //ee.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
+    ee.ExpandCollapseEntity("Datasources");
+    ee.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer("public.boolenumtypes"),

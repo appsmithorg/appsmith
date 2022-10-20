@@ -34,6 +34,7 @@ describe("Array Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer("public.arraytypes"),

@@ -30,6 +30,7 @@ describe("Datasource form related tests", function() {
 
   it("3. Check if saved api as a datasource does not fail on cloning", function() {
     cy.NavigateToAPI_Panel();
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name")
       .contains("Api")
       .trigger("mouseover");

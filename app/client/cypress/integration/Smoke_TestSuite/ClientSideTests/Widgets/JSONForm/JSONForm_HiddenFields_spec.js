@@ -97,8 +97,8 @@ describe("JSON Form Hidden fields", () => {
   it("can hide Array Field's inner fields", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
 
     hideAndVerifyProperties("education-0--college", "MIT", (formData) => {
       return formData.education[0].college;

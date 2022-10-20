@@ -273,6 +273,7 @@ describe("Table Widget property pane feature validation", function() {
   it("12. Verify default search text", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
+    cy.backFromPropertyPanel();
     // Chage deat search text value to "data"
     cy.testJsontext("defaultsearchtext", "data");
     cy.PublishtheApp();
@@ -284,6 +285,7 @@ describe("Table Widget property pane feature validation", function() {
   it("13. Verify default selected row", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
+    cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "");
     // Change default selected row value to 1
     cy.get(widgetsPage.defaultSelectedRowField).type("1");

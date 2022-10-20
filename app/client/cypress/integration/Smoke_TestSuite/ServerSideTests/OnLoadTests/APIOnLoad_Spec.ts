@@ -49,6 +49,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   after(() => {
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("PageLoadApi", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("PageLoadApi2", "Delete", "Are you sure?");
   });

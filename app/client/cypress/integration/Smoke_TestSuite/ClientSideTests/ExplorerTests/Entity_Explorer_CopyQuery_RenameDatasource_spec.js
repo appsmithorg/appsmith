@@ -98,6 +98,7 @@ describe("Entity explorer tests related to copy query", function() {
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
       cy.log("sliced id :" + updatedName);
       cy.CheckAndUnfoldEntityItem("Queries/JS");
+      cy.CheckAndUnfoldEntityItem("Datasources");
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.wait(1000);
       ee.ActionContextMenuByEntityName(updatedName, "Delete", "Are you sure?");
