@@ -9,26 +9,6 @@ import { FieldType } from "../constants";
 import { FieldGroupProps } from "../types";
 import { Field } from "../Field";
 
-/**
- ******** Steps to add a new function *******
- * In this file:
- * 1. Create a new entry in ActionType object. This is the name of the function
- *
- * 2. Define new fields in FieldType object. This is the field names
- * for each argument the function accepts.
- *
- * 3. Update fieldConfigs with your field's getter, setting and view. getter is
- * the setting used to extract the field value from the function. setter is used to
- * set the value in function when the field is updated. View is the component used
- * to edit the field value
- *
- * 4. Update renderField function to change things like field label etc.
- *
- * On the index file:
- * 1. Add the new action entry and its text in the baseOptions array
- * 2. Attach fields to the new action in the getFieldFromValue function
- **/
-
 function FieldGroup(props: FieldGroupProps) {
   const { fields, ...otherProps } = props;
 
