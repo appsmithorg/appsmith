@@ -121,7 +121,7 @@ function ThemeEditor() {
 
   return (
     <>
-      <header className="px-3 space-y-2">
+      <header className="px-4 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Title className="text-sm font-normal capitalize">
@@ -170,7 +170,7 @@ function ThemeEditor() {
       </header>
       <main className="mt-1">
         {/* FONT  */}
-        <SettingSection className="p-3" isDefaultOpen title="Font">
+        <SettingSection className="px-4 py-3" isDefaultOpen title="Font">
           {Object.keys(selectedTheme.config.fontFamily).map(
             (fontFamilySectionName: string, index: number) => {
               return (
@@ -196,7 +196,11 @@ function ThemeEditor() {
           )}
         </SettingSection>
         {/* COLORS */}
-        <SettingSection className="p-3 border-t" isDefaultOpen title="Color">
+        <SettingSection
+          className="px-4 py-3 border-t"
+          isDefaultOpen
+          title="Color"
+        >
           <section className="space-y-2">
             <ThemeColorControl
               theme={selectedTheme}
@@ -206,7 +210,11 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BORDER RADIUS */}
-        <SettingSection className="p-3 border-t " isDefaultOpen title="Border">
+        <SettingSection
+          className="px-4 py-3 border-t "
+          isDefaultOpen
+          title="Border"
+        >
           {Object.keys(selectedTheme.config.borderRadius).map(
             (borderRadiusSectionName: string, index: number) => {
               return (
@@ -233,7 +241,11 @@ function ThemeEditor() {
         </SettingSection>
 
         {/* BOX SHADOW */}
-        <SettingSection className="p-3 border-t " isDefaultOpen title="Shadow">
+        <SettingSection
+          className="px-4 py-3 border-t "
+          isDefaultOpen
+          title="Shadow"
+        >
           {Object.keys(selectedTheme.config.boxShadow).map(
             (boxShadowSectionName: string, index: number) => {
               return (
