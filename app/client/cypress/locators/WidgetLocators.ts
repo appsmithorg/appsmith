@@ -26,6 +26,7 @@ export const WIDGET = {
   CAMERA: "camerawidget",
   FILEPICKER: "filepickerwidgetv2",
   DOCUMENT_VIEWER: "documentviewerwidget",
+  IFRAME: "iframewidget",
 } as const;
 
 // property pane element selector are maintained here
