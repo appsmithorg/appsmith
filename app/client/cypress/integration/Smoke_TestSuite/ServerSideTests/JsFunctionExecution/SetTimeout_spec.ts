@@ -1,9 +1,9 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor;
 const agHelper = ObjectsRegistry.AggregateHelper;
-const locators = ObjectsRegistry.CommonLocators;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
+const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Tests setTimeout API", function() {
   it("1. Executes showAlert after 3 seconds and uses default value", () => {
@@ -108,19 +108,14 @@ describe("Tests setTimeout API", function() {
       },
     );
     agHelper.Sleep(2000);
-    agHelper.GetNClick(locators._debuggerIcon);
+    debuggerHelper.ClickDebuggerIcon();
     agHelper.GetNClick(jsEditor._logsTab);
     jsEditor.RunJSObj();
-    agHelper.GetNAssertContains(locators._debuggerLogMessage, "Hey there!");
-    agHelper.GetNAssertContains(locators._debuggerLogMessage, "Bye!");
-    agHelper.GetNAssertContains(
-      locators._debuggerLogMessage,
-      "Working!",
-      "not.exist",
-      100,
-    );
+    debuggerHelper.DoesConsoleLogExist("Hey there!");
+    debuggerHelper.DoesConsoleLogExist("Bye!");
+    debuggerHelper.DoesConsoleLogExist("Working!", false, undefined, 100);
     agHelper.Sleep(3000);
-    agHelper.GetNAssertContains(locators._debuggerLogMessage, "Working!");
+    debuggerHelper.DoesConsoleLogExist("Working!");
   });
 
   it("4. Resolves promise after 3 seconds and shows alert", () => {
