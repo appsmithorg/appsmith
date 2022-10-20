@@ -1,5 +1,5 @@
 import React from "react";
-import { find } from "lodash";
+import { find, isEmpty } from "lodash";
 import TabsComponent from "../component";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
@@ -321,7 +321,7 @@ class TabsWidget extends BaseWidget<
         return selectedTabWidgetId === item.widgetId;
       })[0],
     };
-    if (!childWidgetData) {
+    if (isEmpty(childWidgetData)) {
       return null;
     }
 

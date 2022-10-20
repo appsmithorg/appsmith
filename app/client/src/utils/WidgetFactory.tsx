@@ -220,7 +220,8 @@ class WidgetFactory {
     const map = this.propertyPaneConfigsMap.get(type);
     if (!map || (map && map.length === 0)) {
       const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
-      if (config.length === 0) {
+      // CANVAS_WIDGET has no property pane config
+      if (config.length === 0 && type !== "CANVAS_WIDGET") {
         log.error("Widget property pane config not defined", type);
       }
       return config;
