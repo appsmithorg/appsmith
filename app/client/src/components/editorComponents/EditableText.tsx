@@ -167,7 +167,7 @@ export function EditableText(props: EditableTextProps) {
         });
       }
     },
-    [isInvalid],
+    [isInvalid, onTextChanged],
   );
 
   const onInputchange = useCallback(
