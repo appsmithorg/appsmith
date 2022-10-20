@@ -13,6 +13,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -169,6 +170,9 @@ class TabsWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            postUpdateActions: [
+              ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+            ],
           },
         ],
       },
@@ -265,7 +269,7 @@ class TabsWidget extends BaseWidget<
 
   callDynamicHeightUpdates = () => {
     const { checkContainersForDynamicHeight } = this.context;
-    checkContainersForDynamicHeight();
+    checkContainersForDynamicHeight && checkContainersForDynamicHeight();
   };
 
   onTabChange = (tabWidgetId: string) => {

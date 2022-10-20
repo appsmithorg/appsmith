@@ -252,6 +252,7 @@ const PropertyControl = memo((props: Props) => {
         propertyValue,
       );
     }
+
     if (propertiesToUpdate) {
       const allUpdates: Record<string, unknown> = {};
       const allDeletions: string[] = [];
@@ -283,7 +284,6 @@ const PropertyControl = memo((props: Props) => {
           }
         },
       );
-      allUpdates[propertyName] = propertyValue;
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget properties were updated",
@@ -420,6 +420,7 @@ const PropertyControl = memo((props: Props) => {
         propertyName,
         propertyValue,
       );
+
       const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] = getOtherWidgetPropertyChanges(
         propertyName,
         propertyValue,
@@ -434,6 +435,7 @@ const PropertyControl = memo((props: Props) => {
           );
         }
       }
+
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.

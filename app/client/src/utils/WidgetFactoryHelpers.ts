@@ -7,6 +7,7 @@ import { generateReactKey } from "./generators";
 import {
   PropertyPaneConfigTemplates,
   RegisteredWidgetFeatures,
+  WidgetFeaturePropertyPaneEnhancements,
   WidgetFeatures,
 } from "./WidgetFeatures";
 
@@ -93,6 +94,9 @@ export function enhancePropertyPaneConfig(
             registeredFeature as RegisteredWidgetFeatures
           ],
         );
+        config = WidgetFeaturePropertyPaneEnhancements[
+          registeredFeature as RegisteredWidgetFeatures
+        ](config);
       }
     });
   }

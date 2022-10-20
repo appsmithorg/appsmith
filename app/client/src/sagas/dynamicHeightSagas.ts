@@ -59,7 +59,14 @@ export function* getMinHeightBasedOnChildren(
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
 ) {
   let minHeightInRows = 0;
+  const isPreviewMode: boolean = yield select(previewModeSelector);
+  const appMode: APP_MODE = yield select(getAppMode);
+
+  const shouldCollapse = isPreviewMode || appMode === APP_MODE.PUBLISHED;
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
+    getDynamicHeightLayoutTree,
+  );
   const { children = [] } = stateWidgets[widgetId];
   // For each child widget id.
   for (const childWidgetId of children) {
@@ -70,14 +77,22 @@ export function* getMinHeightBasedOnChildren(
     if (detachFromLayout) continue;
 
     if (changesSoFar.hasOwnProperty(childWidgetId)) {
-      minHeightInRows = Math.max(
-        minHeightInRows,
-        changesSoFar[childWidgetId].bottomRow,
-      );
+      if (
+        !(
+          shouldCollapse &&
+          changesSoFar[childWidgetId].bottomRow ===
+            changesSoFar[childWidgetId].topRow
+        )
+      )
+        minHeightInRows = Math.max(
+          minHeightInRows,
+          changesSoFar[childWidgetId].bottomRow,
+        );
       // If we need to get the existing bottomRow from the state
     } else {
-      const childWidget: FlattenedWidgetProps = stateWidgets[childWidgetId];
-      minHeightInRows = Math.max(minHeightInRows, childWidget.bottomRow);
+      const { bottomRow, topRow } = dynamicHeightLayoutTree[childWidgetId];
+      if (!(shouldCollapse && bottomRow === topRow))
+        minHeightInRows = Math.max(minHeightInRows, bottomRow);
     }
   }
   return minHeightInRows;
@@ -557,11 +572,6 @@ export function* updateWidgetDynamicHeightSaga() {
             Array.isArray(containerLikeWidget.children) &&
             containerLikeWidget.children.length > 0
           ) {
-            // let canvasHeight =
-            //   (changesSoFar[changedWidgetId].bottomRow -
-            //     changesSoFar[changedWidgetId].topRow) *
-            //   GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
             const childWidgetId:
               | string
               | undefined = yield getChildOfContainerLikeWidget(
@@ -619,6 +629,7 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
   action: ReduxAction<UpdateWidgetDynamicHeightPayload>,
 ) {
   const { height, widgetId } = action.payload;
+  log.debug("Dynamic height: batching update:", { widgetId, height });
 
   if (dynamicHeightUpdateWidgets[widgetId] !== height) {
     dynamicHeightUpdateWidgets[widgetId] = height;
@@ -666,13 +677,17 @@ function* generateTreeForDynamicHeightComputations(
 
 export function* dynamicallyUpdateContainersSaga() {
   const start = performance.now();
-  log.debug("Dynamic Height: Checking containers");
+
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
     stateWidgets,
   ).filter((widget: FlattenedWidgetProps) => widget.type === "CANVAS_WIDGET");
   const canvasLevelMap: CanvasLevelsReduxState = yield select(
     getCanvasLevelMap,
+  );
+
+  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
+    getDynamicHeightLayoutTree,
   );
 
   const groupedByCanvasLevel = groupBy(
@@ -685,22 +700,25 @@ export function* dynamicallyUpdateContainersSaga() {
     .sort((a, b) => b - a);
 
   const updates: Record<string, number> = {};
+
   for (const level of levels) {
     const canvasWidgetsAtThisLevel = groupedByCanvasLevel[`${level}`];
     for (const canvasWidget of canvasWidgetsAtThisLevel) {
       if (canvasWidget.parentId) {
         const parentContainerWidget = stateWidgets[canvasWidget.parentId];
+        const { bottomRow, topRow } = dynamicHeightLayoutTree[
+          parentContainerWidget.widgetId
+        ];
         if (
           isDynamicHeightEnabledForWidget(parentContainerWidget) ||
-          parentContainerWidget.bottomRow === parentContainerWidget.topRow
+          bottomRow === topRow
         ) {
           const childWidgetId: string = yield getChildOfContainerLikeWidget(
             parentContainerWidget,
           );
           if (childWidgetId !== canvasWidget.widgetId) continue;
 
-          let maxBottomRow =
-            parentContainerWidget.bottomRow - parentContainerWidget.topRow;
+          let maxBottomRow = bottomRow - topRow;
           if (
             parentContainerWidget.detachFromLayout &&
             parentContainerWidget.height
@@ -716,8 +734,8 @@ export function* dynamicallyUpdateContainersSaga() {
           ) {
             maxBottomRow = canvasWidget.children.reduce(
               (prev: number, next: string) => {
-                if (stateWidgets[next].bottomRow > prev)
-                  return stateWidgets[next].bottomRow;
+                if (dynamicHeightLayoutTree[next].bottomRow > prev)
+                  return dynamicHeightLayoutTree[next].bottomRow;
                 return prev;
               },
               0,
@@ -750,10 +768,7 @@ export function* dynamicallyUpdateContainersSaga() {
             maxBottomRow = maxDynamicHeightInRows;
           }
 
-          if (
-            maxBottomRow !==
-            parentContainerWidget.bottomRow - parentContainerWidget.topRow
-          ) {
+          if (maxBottomRow !== bottomRow - topRow) {
             if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
               updates[parentContainerWidget.widgetId] =
                 maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
