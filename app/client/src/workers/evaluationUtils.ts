@@ -402,7 +402,7 @@ export function isAppsmithEntity(
 }
 
 export function isJSAction(
-  entity: EvalTreeEntity | EntityConfigCollection,
+  entity: Partial<EvalTreeEntity> | DataTreeEntityConfig,
 ): entity is JSActionEvalTree {
   return (
     typeof entity === "object" &&
@@ -412,7 +412,7 @@ export function isJSAction(
 }
 
 export function isJSObject(
-  entity: EvalTreeEntity | EntityConfigCollection,
+  entity: Partial<EvalTreeEntity> | Partial<EntityConfigCollection>,
 ): entity is JSActionEvalTree {
   return (
     typeof entity === "object" &&

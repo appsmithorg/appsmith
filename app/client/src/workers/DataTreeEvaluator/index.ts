@@ -83,6 +83,7 @@ import {
 } from "workers/JSObject";
 import { lintTree } from "workers/Lint";
 import { PrivateWidgets } from "widgets/BaseWidget";
+import { JSActionEntityConfig } from "entities/DataTree/JSAction/types";
 
 export default class DataTreeEvaluator {
   widgetConfigMap: WidgetTypeConfigMap = {};
@@ -244,7 +245,8 @@ export default class DataTreeEvaluator {
   isJSObjectFunction(dataTree: EvalTree, jsObjectName: string, key: string) {
     const entity = this.entityConfigCollection[jsObjectName];
     if (isJSAction(entity)) {
-      return entity.meta.hasOwnProperty(key);
+      const jsActionConfig = entity as JSActionEntityConfig;
+      return jsActionConfig.meta.hasOwnProperty(key);
     }
     return false;
   }
