@@ -47,7 +47,8 @@ export interface HighlightSelectionPayload {
   selectedHighlight: HighlightInfo;
 }
 
-const OFFSET_WIDTH = 8;
+const OFFSET_WIDTH = 4;
+const DRAG_MARGIN = 8;
 
 export const useAutoLayoutHighlights = ({
   blocksToDraw,
@@ -394,10 +395,10 @@ export const useAutoLayoutHighlights = ({
           ? 0
           : alignment === FlexLayerAlignment.Center
           ? containerDimensions.width / 2
-          : containerDimensions?.width - 8,
+          : containerDimensions?.width - DRAG_MARGIN,
       posY: rect.y - containerDimensions?.top,
       width: verticalFlex ? rect?.width : OFFSET_WIDTH,
-      height: verticalFlex ? OFFSET_WIDTH : rect.height,
+      height: verticalFlex ? OFFSET_WIDTH : rect.height - DRAG_MARGIN,
       isVertical: !verticalFlex,
       rowIndex: 0,
     };
@@ -516,14 +517,45 @@ export const useAutoLayoutHighlights = ({
       y: e?.offsetY || val?.y,
     };
 
-    let filteredHighlights: HighlightInfo[] = base;
-    // For vertical stacks, filter out the highlights based on drag direction and y position.
-    if (moveDirection && direction === LayoutDirection.Vertical) {
-      const isVerticalDrag =
-        moveDirection &&
-        [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
+    const filteredHighlights: HighlightInfo[] = getViableDropPositions(
+      base,
+      pos,
+      moveDirection,
+    );
 
-      filteredHighlights = base.filter((highlight: HighlightInfo) => {
+    const arr = filteredHighlights.sort((a, b) => {
+      return (
+        calculateDistance(a, pos, moveDirection) -
+        calculateDistance(b, pos, moveDirection)
+      );
+    });
+
+    return { highlights: [...arr.slice(1)], selectedHighlight: arr[0] };
+  };
+
+  function getViableDropPositions(
+    arr: HighlightInfo[],
+    pos: XYCord,
+    moveDirection?: ReflowDirection,
+  ): HighlightInfo[] {
+    if (!moveDirection || !arr) return arr || [];
+    const isVerticalDrag = [
+      ReflowDirection.TOP,
+      ReflowDirection.BOTTOM,
+    ].includes(moveDirection);
+    return direction === LayoutDirection.Vertical
+      ? getVerticalStackDropPositions(arr, pos, isVerticalDrag)
+      : getHorizontalStackDropPositions(arr, pos);
+  }
+
+  function getVerticalStackDropPositions(
+    arr: HighlightInfo[],
+    pos: XYCord,
+    isVerticalDrag: boolean,
+  ): HighlightInfo[] {
+    // For vertical stacks, filter out the highlights based on drag direction and y position.
+    let filteredHighlights: HighlightInfo[] = arr.filter(
+      (highlight: HighlightInfo) => {
         // Return only horizontal highlights for vertical drag.
         if (isVerticalDrag) return !highlight.isVertical;
         // Return only vertical highlights for horizontal drag, if they lie in the same x plane.
@@ -532,29 +564,34 @@ export const useAutoLayoutHighlights = ({
           pos.y >= highlight.posY &&
           pos.y <= highlight.posY + highlight.height
         );
-      });
-
-      // For horizontal drag, if no vertical highlight exists in the same x plane,
-      // return the last horizontal highlight.
-      if (!isVerticalDrag && !filteredHighlights.length) {
-        const horizontalHighlights = base.filter(
-          (highlight: HighlightInfo) => !highlight.isVertical,
-        );
-        filteredHighlights = [
-          horizontalHighlights[horizontalHighlights.length - 1],
-        ];
-      }
-    }
-
-    const arr = [...filteredHighlights].sort((a, b) => {
-      return (
-        calculateDistance(a, pos, moveDirection) -
-        calculateDistance(b, pos, moveDirection)
+      },
+    );
+    // For horizontal drag, if no vertical highlight exists in the same x plane,
+    // return the last horizontal highlight.
+    if (!isVerticalDrag && !filteredHighlights.length) {
+      const horizontalHighlights = arr.filter(
+        (highlight: HighlightInfo) => !highlight.isVertical,
       );
-    });
-    // console.log("#### selected highlights", arr);
-    return { highlights: [...arr.slice(1)], selectedHighlight: arr[0] };
-  };
+      filteredHighlights = [
+        horizontalHighlights[horizontalHighlights.length - 1],
+      ];
+    }
+    return filteredHighlights;
+  }
+
+  function getHorizontalStackDropPositions(
+    arr: HighlightInfo[],
+    pos: XYCord,
+  ): HighlightInfo[] {
+    // For horizontal stack, return the highlights that lie in the same x plane.
+    let filteredHighlights = arr.filter(
+      (highlight) =>
+        pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height,
+    );
+    // If no highlight exists in the same x plane, return the last highlight.
+    if (!filteredHighlights.length) filteredHighlights = [arr[arr.length - 1]];
+    return filteredHighlights;
+  }
 
   const calculateDistance = (
     a: HighlightInfo,
@@ -571,6 +608,7 @@ export const useAutoLayoutHighlights = ({
 
     let distX: number = a.isVertical && isVerticalDrag ? 0 : a.posX - b.x;
     let distY: number = !a.isVertical && !isVerticalDrag ? 0 : a.posY - b.y;
+
     if (moveDirection === ReflowDirection.LEFT && distX > 0) distX += 2000;
     if (moveDirection === ReflowDirection.RIGHT && distX < 0) distX -= 2000;
     if (moveDirection === ReflowDirection.TOP && distY > 0) distY += 2000;

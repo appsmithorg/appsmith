@@ -603,13 +603,7 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              currentDirection.current = getMouseMoveDirection(e, 1);
-              // console.log(
-              //   "#### mouse move dir",
-              //   currentDirection.current,
-              //   mouseAttributesRef?.current.prevSpeed,
-              //   mouseAttributesRef?.current.prevAcceleration,
-              // );
+              currentDirection.current = getMouseMoveDirection(e);
               triggerReflow(e, firstMove);
               let payload: HighlightSelectionPayload | undefined;
               if (
@@ -712,7 +706,7 @@ export const useCanvasDragging = (
                 drawBlockOnCanvas(each);
               });
               if (payload) {
-                canvasCtx.fillStyle = "rgba(217, 89, 183, 0.3)";
+                canvasCtx.fillStyle = "rgba(223, 158, 206, 0.6)";
                 payload.highlights.forEach((each) => {
                   canvasCtx.fillRect(
                     each.posX,
@@ -721,12 +715,14 @@ export const useCanvasDragging = (
                     each.height,
                   );
                 });
-                canvasCtx.fillStyle = "rgba(217, 89, 183, 1)";
+                canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
                 canvasCtx.fillRect(
                   payload.selectedHighlight.posX,
                   payload.selectedHighlight.posY,
-                  payload.selectedHighlight.width,
-                  payload.selectedHighlight.height,
+                  payload.selectedHighlight.width *
+                    (payload.selectedHighlight.isVertical ? 1.5 : 1),
+                  payload.selectedHighlight.height *
+                    (!payload.selectedHighlight.isVertical ? 1.5 : 1),
                 );
               }
             }

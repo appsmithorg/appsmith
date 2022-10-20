@@ -14,6 +14,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     label: string;
     widgetId: string;
     isVisible?: boolean;
+    positioning: Positioning;
   }>;
   tabsObj: Record<
     string,

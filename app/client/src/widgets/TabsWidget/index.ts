@@ -3,7 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { ResponsiveBehavior } from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -28,6 +28,7 @@ export const CONFIG = {
         widgetId: "",
         isVisible: true,
         index: 0,
+        positioning: Positioning.Vertical,
       },
       tab2: {
         label: "Tab 2",
@@ -35,6 +36,7 @@ export const CONFIG = {
         widgetId: "",
         isVisible: true,
         index: 1,
+        positioning: Positioning.Vertical,
       },
     },
     shouldShowTabs: true,

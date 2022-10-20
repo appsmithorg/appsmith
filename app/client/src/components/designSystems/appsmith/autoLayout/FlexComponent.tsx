@@ -58,7 +58,7 @@ const FlexWidget = styled.div<{
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
   margin: ${({ isCurrentCanvasDragging }) =>
-    isCurrentCanvasDragging ? "6px" : 0};
+    isCurrentCanvasDragging ? "4px" : 0};
   transition: margin 10ms;
 `;
 
