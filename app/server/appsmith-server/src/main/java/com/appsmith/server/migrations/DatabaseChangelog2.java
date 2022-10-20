@@ -20,8 +20,8 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -65,10 +65,10 @@ import com.google.gson.Gson;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
@@ -91,9 +91,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -2741,4 +2741,17 @@ public class DatabaseChangelog2 {
         final T domainObject = mongockTemplate.findOne(query(where(fieldName(path)).is(id)), type);
         return domainObject;
     }
+
+    @ChangeSet(order = "037", id = "indices-recommended-by-mongodb-cloud", author = "")
+    public void addTenantAdminPermissionsToInstanceAdmin(MongockTemplate mongockTemplate) {
+        dropIndexIfExists(mongockTemplate, NewPage.class, "deleted");
+        ensureIndexes(mongockTemplate, NewPage.class, makeIndex("deleted"));
+
+        dropIndexIfExists(mongockTemplate, Application.class, "deleted");
+        ensureIndexes(mongockTemplate, Application.class, makeIndex("deleted"));
+
+        dropIndexIfExists(mongockTemplate, Workspace.class, "tenantId_deleted");
+        ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
+    }
+
 }

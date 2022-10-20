@@ -369,9 +369,21 @@ function ApiResponseView(props: Props) {
     });
   };
 
+  let filteredResponseDataTypes: { key: string; title: string }[] = [
+    ...responseDataTypes,
+  ];
+  if (!!response.body && !isArray(response.body)) {
+    filteredResponseDataTypes = responseDataTypes.filter(
+      (item) => item.key !== API_RESPONSE_TYPE_OPTIONS.TABLE,
+    );
+    if (responseDisplayFormat.title === API_RESPONSE_TYPE_OPTIONS.TABLE) {
+      onResponseTabSelect(filteredResponseDataTypes[0]?.title);
+    }
+  }
+
   const selectedTabIndex =
-    responseDataTypes &&
-    responseDataTypes.findIndex(
+    filteredResponseDataTypes &&
+    filteredResponseDataTypes.findIndex(
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
@@ -386,8 +398,8 @@ function ApiResponseView(props: Props) {
   }, []);
 
   const responseTabs =
-    responseDataTypes &&
-    responseDataTypes.map((dataType, index) => {
+    filteredResponseDataTypes &&
+    filteredResponseDataTypes.map((dataType, index) => {
       return {
         index: index,
         key: dataType.key,
