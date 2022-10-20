@@ -68,6 +68,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         case AppsmithFunction.resetWidget:
           defaultParams = `"",true`;
           break;
+        case AppsmithFunction.postMessage:
+          defaultParams = `'', 'window', '*'`;
+          break;
         default:
           break;
       }
@@ -380,9 +383,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.MESSAGE_FIELD]: {
-    label: () => "",
+    label: () => "Message",
     defaultText: "",
     options: () => null,
+    toolTip: "Data to be sent to the target iframe",
     getter: (value: string) => {
       return textGetter(value, 0);
     },
@@ -392,9 +396,23 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.TARGET_ORIGIN_FIELD]: {
-    label: () => "",
+    label: () => "Allowed origins",
     defaultText: "",
     options: () => null,
+    toolTip: "Restricts domains to which the message can be sent",
+    getter: (value: string) => {
+      return textGetter(value, 2);
+    },
+    setter: (value, currentValue) => {
+      return textSetter(value, currentValue, 2);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.SOURCE_FIELD]: {
+    label: () => "Target iframe",
+    defaultText: "",
+    options: () => null,
+    toolTip: "Specifies the target iframe widget name or parent window",
     getter: (value: string) => {
       return textGetter(value, 1);
     },

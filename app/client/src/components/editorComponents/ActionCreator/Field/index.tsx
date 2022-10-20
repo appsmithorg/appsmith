@@ -43,6 +43,7 @@ export function Field(props: FieldProps) {
   const value = props.value;
   const defaultText = FIELD_CONFIG[fieldType].defaultText;
   const options = FIELD_CONFIG[fieldType].options(props);
+  const toolTip = FIELD_CONFIG[fieldType].toolTip;
 
   switch (fieldType) {
     case FieldType.ACTION_SELECTOR_FIELD:
@@ -170,8 +171,12 @@ export function Field(props: FieldProps) {
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
+    case FieldType.MESSAGE_FIELD:
+    case FieldType.TARGET_ORIGIN_FIELD:
+    case FieldType.SOURCE_FIELD:
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: label,
+        toolTip: toolTip,
         get: getterFunction,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);

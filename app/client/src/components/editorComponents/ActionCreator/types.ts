@@ -98,6 +98,7 @@ export type AppsmithFunctionConfigValues = {
     arg3?: number,
   ) => string;
   view: ViewType;
+  toolTip?: string;
 };
 
 export type AppsmithFunctionConfigType = {
