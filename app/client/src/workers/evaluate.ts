@@ -16,6 +16,7 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 export type EvalResult = {
   result: any;
@@ -226,6 +227,7 @@ export type EvaluateContext = {
   globalContext?: Record<string, any>;
   requestId?: string;
   eventType?: EventType;
+  triggerMeta?: TriggerMeta;
 };
 
 export const getUserScriptToEvaluate = (
@@ -335,6 +337,11 @@ export async function evaluateAsync(
     let logs;
     /**** Setting the eval context ****/
     userLogs.resetLogs();
+    userLogs.setCurrentRequestInfo({
+      requestId,
+      eventType: context?.eventType,
+      triggerMeta: context?.triggerMeta,
+    });
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,

@@ -20,11 +20,10 @@ export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
   private isMac = Cypress.platform === "darwin";
-  private selectLineNRemove = `${
-    this.isMac
-      ? "{cmd}{shift}{leftArrow}{backspace}"
-      : "{shift}{home}{backspace}"
+  private selectLine = `${
+    this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
+  private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
   private selectChars = (noOfChars: number) =>
@@ -60,8 +59,8 @@ export class AggregateHelper {
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let pageid: string;
-    let layoutId;
+    let pageid: string, layoutId, appId: string | null;
+    appId = localStorage.getItem("applicationId");
     cy.url().then((url) => {
       pageid = url
         .split("/")[5]
@@ -75,7 +74,12 @@ export class AggregateHelper {
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
-          "api/v1/layouts/" + layoutId + "/pages/" + pageid,
+          "api/v1/layouts/" +
+            layoutId +
+            "/pages/" +
+            pageid +
+            "?applicationId=" +
+            appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
@@ -136,9 +140,10 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      locator = selector.startsWith("//") || selector.startsWith("(//")
-        ? cy.xpath(selector, { timeout: timeout })
-        : cy.get(selector, { timeout: timeout });
+      locator =
+        selector.startsWith("//") || selector.startsWith("(//")
+          ? cy.xpath(selector, { timeout: timeout })
+          : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
     return locator;
   }
@@ -309,6 +314,11 @@ export class AggregateHelper {
     this.Sleep(); //for selected value to reflect!
   }
 
+  public SelectFromMutliTree(dropdownOption: string) {
+    this.GetNClick(this.locator._dropDownMultiTreeSelect);
+    this.GetNClick(this.locator._dropDownMultiTreeValue(dropdownOption));
+  }
+
   public SelectFromDropDown(
     dropdownOption: string,
     insideParent = "",
@@ -466,7 +476,8 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectLineNRemove);
+    locator.type(this.selectLine);
+    return locator.type(this.removeLine);
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -870,7 +881,11 @@ export class AggregateHelper {
   public AssertContains(
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    selector?: string,
   ) {
+    if (selector) {
+      return cy.contains(selector, text).should(exists);
+    }
     return cy.contains(text).should(exists);
   }
 
@@ -878,8 +893,9 @@ export class AggregateHelper {
     selector: ElementType,
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    timeout?: number,
   ) {
-    return this.GetElement(selector)
+    return this.GetElement(selector, timeout)
       .contains(text)
       .should(exists);
   }

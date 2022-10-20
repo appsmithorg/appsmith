@@ -1,13 +1,27 @@
 import { uuid4 } from "@sentry/utils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import moment from "moment";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
 
 class UserLog {
   private flushLogsTimerDelay = 0;
   private logs: LogObject[] = [];
   private flushLogTimerId: number | undefined;
-  // initiates the log object with the default methods and their overrides
+  private requestInfo: {
+    requestId?: string;
+    eventType?: EventType;
+    triggerMeta?: TriggerMeta;
+  } | null = null;
+
+  public setCurrentRequestInfo(requestInfo: {
+    requestId?: string;
+    eventType?: EventType;
+    triggerMeta?: TriggerMeta;
+  }) {
+    this.requestInfo = requestInfo;
+  }
 
   private resetFlushTimer() {
     if (this.flushLogTimerId) _internalClearTimeout(this.flushLogTimerId);
@@ -17,7 +31,10 @@ class UserLog {
         promisified: true,
         responseData: {
           logs,
+          eventType: this.requestInfo?.eventType,
+          triggerMeta: this.requestInfo?.triggerMeta,
         },
+        requestId: this.requestInfo?.requestId,
       });
     }, this.flushLogsTimerDelay);
   }

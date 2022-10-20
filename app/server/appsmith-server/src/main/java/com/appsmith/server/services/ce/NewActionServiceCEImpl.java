@@ -25,7 +25,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionProvider;
+import com.appsmith.external.models.ActionProvider;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
@@ -33,9 +33,9 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -92,6 +92,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -920,7 +921,26 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             param -> {
                                 String pseudoBindingName = param.getPseudoBindingName();
                                 param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
-                                param.setClientDataType(ClientDataType.valueOf(dto.getParamProperties().get(pseudoBindingName).toUpperCase()));
+                                //if the type is not an array e.g. "k1": "string" or "k1": "boolean"
+                                if (dto.getParamProperties().get(pseudoBindingName) instanceof String) {
+                                    param.setClientDataType(ClientDataType.valueOf(String.valueOf(dto.getParamProperties().get(pseudoBindingName)).toUpperCase()));
+                                } else if (dto.getParamProperties().get(pseudoBindingName) instanceof LinkedHashMap) {
+                                    //if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
+                                    LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
+                                            (LinkedHashMap<String, ArrayList>) dto.getParamProperties().get(pseudoBindingName);
+                                    Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet().stream().findFirst();
+                                    if (firstKeyOpt.isPresent()) {
+                                        String firstKey = firstKeyOpt.get();
+                                        param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
+                                        List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
+                                        List<ClientDataType> dataTypesOfArrayElements =
+                                                individualTypes.stream()
+                                                        .map(it -> ClientDataType.valueOf(String.valueOf(it).toUpperCase()))
+                                                        .collect(Collectors.toList());
+                                        param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
+                                    }
+                                }
+
                             }
                     );
                     dto.setParams(params);

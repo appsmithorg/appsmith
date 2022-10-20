@@ -18,7 +18,7 @@ let queryName;
 Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 1. On page load actions
 2. When updating DSL attribute
-3. When updating JS Object name 
+3. When updating JS Object name
 4. When updating Js Object content
 5. When updating DSL name
 6. When updating Datasource query
@@ -26,6 +26,8 @@ Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 
 describe("Cyclic Dependency Informational Error Messagaes", function() {
   before(() => {
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
     cy.wait(3000); //dsl to settle!
   });
