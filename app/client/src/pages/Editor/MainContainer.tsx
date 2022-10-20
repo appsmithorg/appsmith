@@ -1,23 +1,23 @@
-import styled from "styled-components";
 import * as Sentry from "@sentry/react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useState, useCallback, useEffect } from "react";
 import { Route, Switch, useLocation } from "react-router";
+import styled from "styled-components";
 
-import EditorsRouter from "./routes";
-import BottomBar from "./BottomBar";
-import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
-import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
+import { routeChanged } from "actions/focusHistoryActions";
+import classNames from "classnames";
+import EntityExplorerSidebar from "components/editorComponents/Sidebar";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "constants/routes";
-import EntityExplorerSidebar from "components/editorComponents/Sidebar";
-import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { routeChanged } from "actions/focusHistoryActions";
+import BottomBar from "./BottomBar";
+import EditorsRouter from "./routes";
+import WidgetsEditor from "./WidgetsEditor";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

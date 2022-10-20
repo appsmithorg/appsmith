@@ -1,34 +1,38 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
+  getCanvasWidth,
+  getCurrentApplicationLayout,
   getCurrentPageId,
   getIsFetchingPage,
   getViewModePageList,
   previewModeSelector,
-  getCanvasWidth,
   showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
 
-import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import Canvas from "../Canvas";
-import { useParams } from "react-router";
-import classNames from "classnames";
+import { Icon } from "@blueprintjs/core";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import classNames from "classnames";
+import Centered from "components/designSystems/appsmith/CenteredWrapper";
+import { layoutConfigurations } from "constants/WidgetConstants";
+import { IconSize, Spinner } from "design-system";
+import equal from "fast-deep-equal/es6";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
+import { useParams } from "react-router";
 import {
   getAppThemeIsChanging,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
-import { Spinner } from "design-system";
-import useGoogleFont from "utils/hooks/useGoogleFont";
-import { IconSize } from "design-system";
-import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
-import equal from "fast-deep-equal/es6";
-import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { noop } from "utils/AppsmithUtils";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import useGoogleFont from "utils/hooks/useGoogleFont";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import Canvas from "../Canvas";
 
 const Container = styled.section<{
   background: string;
@@ -94,6 +98,76 @@ function CanvasContainer() {
       />
     );
   }
+  const appLayout = useSelector(getCurrentApplicationLayout);
+  useEffect(() => {
+    if (appLayout?.type === "FLUID") {
+      const smallestWidth = layoutConfigurations.MOBILE.minWidth;
+      // Query the element
+      const ele: any = document.getElementById("main-canvas-container");
+      const initialWidth = ele.offsetWidth;
+      // The current position of mouse
+      let x = 0;
+      let y = 0;
+
+      // The dimension of the element
+      let w = 0;
+      let h = 0;
+      let events: any = [];
+
+      // Handle the mousedown event
+      // that's triggered when user drags the resizer
+      const mouseDownHandler = function(e: any, rightHandle: boolean) {
+        // Get the current mouse position
+        x = e.clientX;
+        y = e.clientY;
+
+        // Calculate the dimension of element
+        const styles = window.getComputedStyle(ele);
+        w = parseInt(styles.width, 10);
+        h = parseInt(styles.height, 10);
+        const mouseMove = (e: any) => mouseMoveHandler(e, rightHandle);
+        events.push(mouseMove);
+        // Attach the listeners to `document`
+        document.addEventListener("mousemove", mouseMove);
+        document.addEventListener("mouseup", mouseUpHandler);
+        e.stopEventPropagation();
+      };
+
+      const mouseMoveHandler = function(e: any, rightHandle: boolean) {
+        // How far the mouse has been moved
+        const multiplier = rightHandle ? 2 : -2;
+        const dx = (e.clientX - x) * multiplier;
+        if (initialWidth >= w + dx && smallestWidth <= w + dx) {
+          // Adjust the dimension of element
+          ele.style.width = `${w + dx}px`;
+        }
+        e.stopEventPropagation();
+      };
+
+      const mouseUpHandler = function() {
+        // Remove the handlers of `mousemove` and `mouseup`
+        document.removeEventListener("mousemove", events[0] as any);
+        document.removeEventListener("mouseup", mouseUpHandler);
+        events = [];
+      };
+      const rightResizer: any = ele.querySelectorAll(".resizer-right")[0];
+      const leftResizer: any = ele.querySelectorAll(".resizer-left")[0];
+
+      rightResizer.addEventListener("mousedown", (e: any) =>
+        mouseDownHandler(e, true),
+      );
+
+      leftResizer.addEventListener("mousedown", (e: any) =>
+        mouseDownHandler(e, false),
+      );
+    } else {
+      const ele: any = document.getElementById("main-canvas-container");
+      ele.style.width = "inherit";
+    }
+  }, [appLayout]);
+
+  const leftResizer = useRef<HTMLElement | null>(null);
+  const resizer = useHorizontalResize(leftResizer, noop, noop);
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
   const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
@@ -110,12 +184,48 @@ function CanvasContainer() {
         "mt-4": showCanvasTopSection,
         "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
       })}
+      id="main-canvas-container"
       key={currentPageId}
       style={{
         height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
         fontFamily: fontFamily,
       }}
     >
+      {appLayout?.type === "FLUID" && (
+        <>
+          <div
+            className="resizer-left"
+            draggable={false}
+            ref={leftResizer as any}
+            style={{
+              zIndex: 100,
+              position: "sticky",
+              cursor: "col-resize",
+              width: "16px",
+              height: "30px",
+              left: "16px",
+              top: "50%",
+            }}
+          >
+            <Icon icon={"drawer-right-filled"} />
+          </div>
+          <div
+            className="resizer-right"
+            draggable={false}
+            style={{
+              zIndex: 100,
+              position: "sticky",
+              cursor: "col-resize",
+              width: "16px",
+              height: "30px",
+              left: "calc(100% - 32px)",
+              top: "50%",
+            }}
+          >
+            <Icon icon={"drawer-left-filled"} />
+          </div>
+        </>
+      )}
       <WidgetGlobaStyles
         fontFamily={selectedTheme.properties.fontFamily.appFont}
         primaryColor={selectedTheme.properties.colors.primaryColor}

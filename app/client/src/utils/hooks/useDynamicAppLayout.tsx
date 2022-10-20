@@ -1,28 +1,28 @@
 import { debounce, get } from "lodash";
-import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
+import { updateCanvasLayoutAction } from "actions/editorActions";
 import {
   DefaultLayoutType,
   layoutConfigurations,
 } from "constants/WidgetConstants";
-import {
-  getExplorerPinned,
-  getExplorerWidth,
-} from "selectors/explorerSelector";
+import { APP_MODE } from "entities/App";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { APP_MODE } from "entities/App";
-import { scrollbarWidth } from "utils/helpers";
-import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
-import { updateCanvasLayoutAction } from "actions/editorActions";
+import {
+  getExplorerPinned,
+  getExplorerWidth,
+} from "selectors/explorerSelector";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { scrollbarWidth } from "utils/helpers";
+import { useWindowSizeHooks } from "./dragResizeHooks";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -102,7 +102,11 @@ export const useDynamicAppLayout = () => {
 
       calculatedWidth -= explorerWidth;
     }
-
+    const ele: any = document.getElementById("main-canvas-container");
+    const mainCanvasWidth = ele.clientWidth;
+    if (appLayout?.type === "FLUID" && calculatedWidth > mainCanvasWidth) {
+      calculatedWidth = mainCanvasWidth;
+    }
     switch (true) {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
@@ -143,6 +147,24 @@ export const useDynamicAppLayout = () => {
     mainCanvasProps,
     screenWidth,
   ]);
+
+  const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
+    mainCanvasProps,
+    screenWidth,
+  ]);
+
+  const resizeObserver = new ResizeObserver(immediateDebouncedResize);
+  useEffect(() => {
+    const ele: any = document.getElementById("main-canvas-container");
+    if (ele && appLayout?.type === "FLUID") {
+      resizeObserver.observe(ele);
+    } else {
+      resizeObserver.unobserve(ele);
+    }
+    return () => {
+      resizeObserver.unobserve(ele);
+    };
+  }, [appLayout]);
 
   /**
    * when screen height is changed, update canvas layout
