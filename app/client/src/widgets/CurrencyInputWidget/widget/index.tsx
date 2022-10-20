@@ -284,7 +284,12 @@ class CurrencyInputWidget extends BaseInputWidget<
          * hence we directly convert it to the current locale
          */
         const floatVal = parseFloat(this.props.text);
-        const formattedValue = Intl.NumberFormat(getLocale()).format(floatVal);
+
+        const formattedValue = Intl.NumberFormat(getLocale(), {
+          style: "decimal",
+          minimumFractionDigits: this.props.decimals,
+          maximumFractionDigits: this.props.decimals,
+        }).format(floatVal);
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
