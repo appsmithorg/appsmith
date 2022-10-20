@@ -1,7 +1,11 @@
+import { PopoverPosition } from "@blueprintjs/core";
 import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import { APP_SETTINGS_PANE_HEADER } from "ce/constants/messages";
+import {
+  APP_SETTINGS_CLOSE_TOOLTIP,
+  APP_SETTINGS_PANE_HEADER,
+} from "ce/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -20,13 +24,18 @@ function PaneHeader() {
   const dispatch = useDispatch();
   return (
     <StyledHeader className="flex justify-start items-center">
-      <Icon
-        className="pr-2"
-        fillColor={Colors.GREY_10}
-        name="double-arrow-right"
-        onClick={() => dispatch(closeAppSettingsPaneAction())}
-        size={IconSize.SMALL}
-      />
+      <TooltipComponent
+        content={APP_SETTINGS_CLOSE_TOOLTIP()}
+        position={PopoverPosition.BOTTOM}
+      >
+        <Icon
+          className="pr-2"
+          fillColor={Colors.GREY_10}
+          name="double-arrow-right"
+          onClick={() => dispatch(closeAppSettingsPaneAction())}
+          size={IconSize.SMALL}
+        />
+      </TooltipComponent>
       <StyledText>{APP_SETTINGS_PANE_HEADER()}</StyledText>
     </StyledHeader>
   );

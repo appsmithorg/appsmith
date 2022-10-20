@@ -1,4 +1,7 @@
-import { SelectMultipleWidgetsActionPayload } from "actions/widgetSelectionActions";
+import {
+  SelectMultipleWidgetsActionPayload,
+  SelectWidgetActionPayload,
+} from "actions/widgetSelectionActions";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -32,22 +35,29 @@ const appSettingsPaneReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SELECT_WIDGET]: (
     state: AppSettingsPaneReduxState,
+    action: ReduxAction<SelectWidgetActionPayload>,
   ): AppSettingsPaneReduxState => {
-    return {
-      ...state,
-      isOpen: false,
-    };
+    // select widget is also triggered on route change
+    // checking widget id to ensure a widget was selected
+    return action.payload.widgetId
+      ? {
+          ...state,
+          isOpen: false,
+        }
+      : { ...state };
   },
   [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
     state: AppSettingsPaneReduxState,
     action: ReduxAction<SelectMultipleWidgetsActionPayload>,
   ): AppSettingsPaneReduxState => {
-    return {
-      ...state,
-      // select multiple widgets is triggered also on canvas click
-      // checking widgets length to ensure widgets were selected
-      isOpen: state.isOpen ? !!(action.payload.widgetIds?.length === 0) : false,
-    };
+    // select multiple widgets is triggered also on canvas click
+    // checking widgets length to ensure widgets were selected
+    return !(action.payload.widgetIds?.length === 0)
+      ? {
+          ...state,
+          isOpen: false,
+        }
+      : { ...state };
   },
   [ReduxActionTypes.REOPEN_EXPLORER_ON_SETTINGS_PANE_CLOSE]: (
     state: AppSettingsPaneReduxState,

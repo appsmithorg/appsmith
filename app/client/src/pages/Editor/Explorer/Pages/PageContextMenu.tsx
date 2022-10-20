@@ -134,10 +134,18 @@ export function PageContextMenu(props: {
       ) as ReactNode) as string,
     },
   ];
+
   if (!props.isDefaultPage) {
     optionTree.push({
       value: "setdefault",
       onSelect: setPageAsDefaultCallback,
+      label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
+    });
+  } else {
+    optionTree.push({
+      className: "!text-[#939393]",
+      disabled: true,
+      value: "setdefault",
       label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
     });
   }

@@ -2,7 +2,7 @@ import { ApplicationVersion } from "actions/applicationActions";
 import { setPageAsDefault, updatePage } from "actions/pageActions";
 import { UpdatePageRequest } from "api/PageApi";
 import {
-  PAGE_SETTINGS_HIDE_PAGE_NAV,
+  PAGE_SETTINGS_SHOW_PAGE_NAV,
   PAGE_SETTINGS_PAGE_NAME_LABEL,
   PAGE_SETTINGS_PAGE_URL_LABEL,
   PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1,
@@ -23,8 +23,52 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { getPageLoadingState } from "selectors/pageListSelectors";
+import styled from "styled-components";
 import { checkRegex } from "utils/validation/CheckRegex";
 import { getUrlPreview, specialCharacterCheckRegex } from "../Utils";
+
+const SwitchWrapper = styled.div`
+  &&&&&&&
+    .bp3-control.bp3-switch
+    input:checked:disabled
+    ~ .bp3-control-indicator {
+    background: ${Colors.GREY_200};
+  }
+
+  .bp3-control.bp3-switch
+    input:checked:disabled
+    ~ .bp3-control-indicator::before {
+    box-shadow: none;
+  }
+`;
+
+const UrlPreviewWrapper = styled.div`
+  height: 54px;
+`;
+
+const UrlPreviewScroll = styled.p`
+  height: 48px;
+  overflow-y: auto;
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #bec4c4;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+`;
 
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
@@ -39,7 +83,7 @@ function PageSettings(props: { page: Page }) {
   const [isPageNameValid, setIsPageNameValid] = useState(true);
   const [customSlug, setCustomSlug] = useState(page.customSlug);
   const [isCustomSlugValid, setIsCustomSlugValid] = useState(true);
-  const [isHidden, setIsHidden] = useState(page.isHidden);
+  const [isShown, setIsShown] = useState(!!!page.isHidden);
   const [isDefault, setIsDefault] = useState(page.isDefault);
 
   const pathPreview = useCallback(getUrlPreview, [
@@ -53,7 +97,7 @@ function PageSettings(props: { page: Page }) {
   useEffect(() => {
     setPageName(page.pageName);
     setCustomSlug(page.customSlug || "");
-    setIsHidden(!!page.isHidden);
+    setIsShown(!!!page.isHidden);
     setIsDefault(!!page.isDefault);
   }, [page, page.pageName, page.customSlug, page.isHidden, page.isDefault]);
 
@@ -83,7 +127,7 @@ function PageSettings(props: { page: Page }) {
       };
       dispatch(updatePage(payload));
     },
-    [page.pageId, isHidden],
+    [page.pageId, isShown],
   );
 
   return (
@@ -128,7 +172,7 @@ function PageSettings(props: { page: Page }) {
           {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3()}
         </div>
       )}
-      <div className="pb-2.5">
+      <div className="pb-1">
         <TextInput
           fill
           onBlur={saveCustomSlug}
@@ -151,10 +195,10 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <div
-        className={`pt-2 pb-2.5 text-[${Colors.GRAY_700.toLowerCase()}] text-xs leading-extra-tight break-all`}
-      >
-        <p>
+      <UrlPreviewWrapper className={`pb-2 bg-[#f1f1f1]`}>
+        <UrlPreviewScroll
+          className={`py-1 pl-2 mr-0.5 text-[${Colors.GRAY_700.toLowerCase()}] text-xs leading-extra-tight break-all`}
+        >
           {location.protocol}
           {"//"}
           {window.location.hostname}
@@ -169,44 +213,44 @@ function PageSettings(props: { page: Page }) {
             </>
           )}
           {!Array.isArray(pathPreview) && pathPreview}
-        </p>
-      </div>
+        </UrlPreviewScroll>
+      </UrlPreviewWrapper>
 
       <div className="pb-2 flex justify-between content-center">
         <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
-          {PAGE_SETTINGS_HIDE_PAGE_NAV()}
+          {PAGE_SETTINGS_SHOW_PAGE_NAV()}
         </div>
-        <AdsSwitch
-          checked={isHidden}
-          className="mb-0"
-          disabled={isPageLoading}
-          large
-          onChange={() => {
-            setIsHidden(!isHidden);
-            // saveIsHidden - passing `!isHidden` because it
-            // will be not updated untill the component is re-rendered
-            saveIsHidden(!isHidden);
-          }}
-        />
+        <SwitchWrapper>
+          <AdsSwitch
+            checked={isShown}
+            className="mb-0"
+            disabled={isPageLoading}
+            large
+            onChange={() => {
+              setIsShown(!isShown);
+              saveIsHidden(isShown);
+            }}
+          />
+        </SwitchWrapper>
       </div>
 
-      {!page.isDefault && (
-        <div className="pb-4 flex justify-between content-center">
-          <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
-            {PAGE_SETTINGS_SET_AS_HOMEPAGE()}
-          </div>
+      <div className="pb-4 flex justify-between content-center">
+        <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
+          {PAGE_SETTINGS_SET_AS_HOMEPAGE()}
+        </div>
+        <SwitchWrapper>
           <AdsSwitch
             checked={isDefault}
             className="mb-0"
-            disabled={isPageLoading}
+            disabled={isPageLoading || page.isDefault}
             large
             onChange={() => {
               setIsDefault(!isDefault);
               dispatch(setPageAsDefault(page.pageId, applicationId));
             }}
           />
-        </div>
-      )}
+        </SwitchWrapper>
+      </div>
     </>
   );
 }

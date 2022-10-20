@@ -38,6 +38,11 @@ export function* closeSettingsPaneSaga(
   )
     return;
 
+  // select widget is also triggered on route change
+  // checking widget id to ensure a widget was selected
+  if (!(action as ReduxAction<SelectWidgetActionPayload>)?.payload?.widgetId)
+    return;
+
   const reopenExplorer: boolean = yield select(
     getReopenExplorerOnSettingsPaneClose,
   );

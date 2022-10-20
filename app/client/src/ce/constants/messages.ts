@@ -1257,6 +1257,7 @@ export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
 
 export const APP_SETTINGS_PANE_HEADER = () => "Settings";
+export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
@@ -1278,7 +1279,7 @@ export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
   "your app URL to new readable format to change this*";
-export const PAGE_SETTINGS_HIDE_PAGE_NAV = () => "Hide Page Navigation";
+export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
 
 export const URL_FIELD_SPECIAL_CHARACTER_ERROR = () =>
