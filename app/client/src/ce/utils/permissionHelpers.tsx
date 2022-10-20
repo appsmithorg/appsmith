@@ -1,6 +1,6 @@
 export enum PERMISSION_TYPE {
   /* Workspace permissions */
-  CREATE_WORKSPACE = "create:workspaces",
+  CREATE_WORKSPACE = "createWorkspaces:tenant",
   MANAGE_WORKSPACE = "manage:workspaces",
   READ_WORKSPACE = "read:workspaces",
   INVITE_USER_TO_WORKSPACE = "inviteUsers:workspace",
