@@ -1,7 +1,7 @@
 import {
   DataTreeDiff,
   getAllPaths,
-  DataTreeDiffEvent,
+  EvalTreeDiffEvent,
   isWidget,
   isAction,
   isJSAction,
@@ -149,14 +149,14 @@ export const updateDependencyMap = ({
       dataTreeDiff.payload.propertyPath,
     );
     let entity = unEvalDataTree[entityName];
-    if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
+    if (dataTreeDiff.event === EvalTreeDiffEvent.DELETE) {
       entity = dataTreeEvalRef.oldUnEvalTree[entityName];
     }
     const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
 
     if (entityType !== "noop") {
       switch (dataTreeDiff.event) {
-        case DataTreeDiffEvent.NEW: {
+        case EvalTreeDiffEvent.NEW: {
           // If a new entity/property was added,
           // add all the internal bindings for this entity to the global dependency map
           if (
@@ -347,7 +347,7 @@ export const updateDependencyMap = ({
           );
           break;
         }
-        case DataTreeDiffEvent.DELETE: {
+        case EvalTreeDiffEvent.DELETE: {
           // Add to removedPaths as they have been deleted from the evalTree
           removedPaths.push(dataTreeDiff.payload.propertyPath);
           // If an existing entity was deleted, remove all the bindings from the global dependency map
@@ -501,7 +501,7 @@ export const updateDependencyMap = ({
 
           break;
         }
-        case DataTreeDiffEvent.EDIT: {
+        case EvalTreeDiffEvent.EDIT: {
           // We only care if the difference is in dynamic bindings since static values do not need
           // an evaluation.
           if (

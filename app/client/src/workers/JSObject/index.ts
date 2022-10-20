@@ -11,7 +11,7 @@ import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluateSync, { isFunctionAsync } from "workers/evaluate";
 import {
   DataTreeDiff,
-  DataTreeDiffEvent,
+  EvalTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "workers/evaluationUtils";
@@ -205,7 +205,7 @@ export function parseJSActions(
         return false;
       }
 
-      if (diff.event === DataTreeDiffEvent.DELETE) {
+      if (diff.event === EvalTreeDiffEvent.DELETE) {
         // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
         if (
           dataTreeEvalRef.currentJSCollectionState &&
@@ -224,8 +224,8 @@ export function parseJSActions(
       }
 
       if (
-        (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
-        (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
+        (diff.event === EvalTreeDiffEvent.EDIT && propertyPath === "body") ||
+        (diff.event === EvalTreeDiffEvent.NEW && propertyPath === "")
       ) {
         jsUpdates = saveResolvedFunctionsAndJSUpdates(
           dataTreeEvalRef,

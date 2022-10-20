@@ -7,7 +7,7 @@ import {
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
-  DataTreeDiffEvent,
+  EvalTreeDiffEvent,
   getDataTreeWithoutPrivateWidgets,
   getEntityNameAndPropertyPath,
   isAction,
@@ -364,13 +364,13 @@ export function* updateTernDefinitions(
     // Only when new field is added or deleted, we want to re-create the def
     shouldUpdate = some(updates, (update) => {
       if (
-        update.event === DataTreeDiffEvent.NEW ||
-        update.event === DataTreeDiffEvent.DELETE
+        update.event === EvalTreeDiffEvent.NEW ||
+        update.event === EvalTreeDiffEvent.DELETE
       ) {
         return true;
       }
 
-      if (update.event === DataTreeDiffEvent.NOOP) {
+      if (update.event === EvalTreeDiffEvent.NOOP) {
         const { entityName } = getEntityNameAndPropertyPath(
           update.payload.propertyPath,
         );

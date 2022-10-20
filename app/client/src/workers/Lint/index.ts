@@ -30,9 +30,16 @@ interface LintTreeArgs {
 }
 
 export const lintTree = (args: LintTreeArgs) => {
-  const { evalTree, extraPathsToLint, sortedDependencies, unEvalTree } = args;
+  const {
+    entityConfigCollection,
+    evalTree,
+    extraPathsToLint,
+    sortedDependencies,
+    unEvalTree,
+  } = args;
   const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({
     dataTree: unEvalTree,
+    entityConfigCollection,
     resolvedFunctions: {},
     isTriggerBased: false,
   });

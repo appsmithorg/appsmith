@@ -14,7 +14,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
-  DataTreeDiffEvent,
+  EvalTreeDiffEvent,
   getAllPaths,
   getAllPrivateWidgetsInDataTree,
   getDataTreeWithoutPrivateWidgets,
@@ -349,7 +349,7 @@ describe("translateDiffEvent", () => {
         propertyPath: "",
         value: "",
       },
-      event: DataTreeDiffEvent.NOOP,
+      event: EvalTreeDiffEvent.NOOP,
     });
   });
   it("translates new and delete events", () => {
@@ -387,32 +387,32 @@ describe("translateDiffEvent", () => {
         payload: {
           propertyPath: "Widget1",
         },
-        event: DataTreeDiffEvent.NEW,
+        event: EvalTreeDiffEvent.NEW,
       },
       {
         payload: {
           propertyPath: "Widget1.name",
         },
-        event: DataTreeDiffEvent.NEW,
+        event: EvalTreeDiffEvent.NEW,
       },
       {
         payload: {
           propertyPath: "Widget1",
         },
-        event: DataTreeDiffEvent.DELETE,
+        event: EvalTreeDiffEvent.DELETE,
       },
       {
         payload: {
           propertyPath: "Widget1.name",
         },
-        event: DataTreeDiffEvent.DELETE,
+        event: EvalTreeDiffEvent.DELETE,
       },
       {
         payload: {
           propertyPath: "Widget2.name",
           value: "",
         },
-        event: DataTreeDiffEvent.NOOP,
+        event: EvalTreeDiffEvent.NOOP,
       },
     ];
 
@@ -439,7 +439,7 @@ describe("translateDiffEvent", () => {
           propertyPath: "Widget2.name",
           value: "",
         },
-        event: DataTreeDiffEvent.NOOP,
+        event: EvalTreeDiffEvent.NOOP,
       },
     ];
 
@@ -464,13 +464,13 @@ describe("translateDiffEvent", () => {
 
     const expectedTranslations: DataTreeDiff[] = [
       {
-        event: DataTreeDiffEvent.DELETE,
+        event: EvalTreeDiffEvent.DELETE,
         payload: {
           propertyPath: "JsObject.myFun1.data",
         },
       },
       {
-        event: DataTreeDiffEvent.EDIT,
+        event: EvalTreeDiffEvent.EDIT,
         payload: {
           propertyPath: "JsObject.myFun1",
           value: "() => {}",
@@ -506,13 +506,13 @@ describe("translateDiffEvent", () => {
         payload: {
           propertyPath: "Api1.data[0]",
         },
-        event: DataTreeDiffEvent.NEW,
+        event: EvalTreeDiffEvent.NEW,
       },
       {
         payload: {
           propertyPath: "Api1.data[1]",
         },
-        event: DataTreeDiffEvent.NEW,
+        event: EvalTreeDiffEvent.NEW,
       },
     ];
 
@@ -538,13 +538,13 @@ describe("translateDiffEvent", () => {
         payload: {
           propertyPath: "Api1.data[0]",
         },
-        event: DataTreeDiffEvent.DELETE,
+        event: EvalTreeDiffEvent.DELETE,
       },
       {
         payload: {
           propertyPath: "Api1.data[1]",
         },
-        event: DataTreeDiffEvent.DELETE,
+        event: EvalTreeDiffEvent.DELETE,
       },
     ];
 
@@ -571,19 +571,19 @@ describe("translateDiffEvent", () => {
           propertyPath: "Api1.data",
           value: `{ id: "{{a}}" }, { id: "{{a}}" }`,
         },
-        event: DataTreeDiffEvent.EDIT,
+        event: EvalTreeDiffEvent.EDIT,
       },
       {
         payload: {
           propertyPath: "Api1.data[0]",
         },
-        event: DataTreeDiffEvent.DELETE,
+        event: EvalTreeDiffEvent.DELETE,
       },
       {
         payload: {
           propertyPath: "Api1.data[1]",
         },
-        event: DataTreeDiffEvent.DELETE,
+        event: EvalTreeDiffEvent.DELETE,
       },
     ];
 

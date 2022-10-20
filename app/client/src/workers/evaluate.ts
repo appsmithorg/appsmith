@@ -138,6 +138,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   const {
     context,
     dataTree,
+    entityConfigCollection,
     evalArguments,
     isTriggerBased,
     resolvedFunctions,
@@ -162,6 +163,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   if (isTriggerBased) {
     //// Add internal functions to dataTree;
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      entityConfigCollection,
       dataTree,
       context?.requestId,
       skipEntityFunctions,

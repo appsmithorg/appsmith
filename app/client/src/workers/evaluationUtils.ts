@@ -37,7 +37,7 @@ import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 // Dropdown1.options -> Dropdown1
 export const IMMEDIATE_PARENT_REGEX = /^(.*)(\..*|\[.*\])$/;
 
-export enum DataTreeDiffEvent {
+export enum EvalTreeDiffEvent {
   NEW = "NEW",
   DELETE = "DELETE",
   EDIT = "EDIT",
@@ -49,7 +49,7 @@ export type DataTreeDiff = {
     propertyPath: string;
     value?: string;
   };
-  event: DataTreeDiffEvent;
+  event: EvalTreeDiffEvent;
 };
 
 export class CrashingError extends Error {}
@@ -113,7 +113,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
       propertyPath: "",
       value: "",
     },
-    event: DataTreeDiffEvent.NOOP,
+    event: EvalTreeDiffEvent.NOOP,
   };
   if (!difference.path) {
     return result;
@@ -138,14 +138,14 @@ export const translateDiffEventToDataTreeDiffEvent = (
   const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {
-      result.event = DataTreeDiffEvent.NEW;
+      result.event = EvalTreeDiffEvent.NEW;
       result.payload = {
         propertyPath,
       };
       break;
     }
     case "D": {
-      result.event = DataTreeDiffEvent.DELETE;
+      result.event = EvalTreeDiffEvent.DELETE;
       result.payload = { propertyPath };
       break;
     }
@@ -174,13 +174,13 @@ export const translateDiffEventToDataTreeDiffEvent = (
       ) {
         result = [
           {
-            event: DataTreeDiffEvent.DELETE,
+            event: EvalTreeDiffEvent.DELETE,
             payload: {
               propertyPath: `${propertyPath}.data`,
             },
           },
           {
-            event: DataTreeDiffEvent.EDIT,
+            event: EvalTreeDiffEvent.EDIT,
             payload: {
               propertyPath,
               value: difference.rhs,
@@ -190,7 +190,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (rhsChange || lhsChange) {
         result = [
           {
-            event: DataTreeDiffEvent.EDIT,
+            event: EvalTreeDiffEvent.EDIT,
             payload: {
               propertyPath,
               value: difference.rhs,
@@ -204,7 +204,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
         if (Array.isArray(difference.lhs)) {
           difference.lhs.forEach((diff, idx) => {
             (result as DataTreeDiff[]).push({
-              event: DataTreeDiffEvent.DELETE,
+              event: EvalTreeDiffEvent.DELETE,
               payload: {
                 propertyPath: `${propertyPath}[${idx}]`,
               },
@@ -216,7 +216,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           Object.keys(difference.lhs).forEach((diffKey) => {
             const path = `${propertyPath}.${diffKey}`;
             (result as DataTreeDiff[]).push({
-              event: DataTreeDiffEvent.DELETE,
+              event: EvalTreeDiffEvent.DELETE,
               payload: {
                 propertyPath: path,
               },
@@ -230,14 +230,14 @@ export const translateDiffEventToDataTreeDiffEvent = (
           difference.lhs === undefined &&
           (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
         ) {
-          result.event = DataTreeDiffEvent.NEW;
+          result.event = EvalTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
         if (
           difference.rhs === undefined &&
           (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
         ) {
-          result.event = DataTreeDiffEvent.DELETE;
+          result.event = EvalTreeDiffEvent.DELETE;
           result.payload = { propertyPath };
         }
       } else if (
@@ -252,7 +252,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
         result = Object.keys(difference.lhs).map((diffKey) => {
           const path = `${propertyPath}.${diffKey}`;
           return {
-            event: DataTreeDiffEvent.DELETE,
+            event: EvalTreeDiffEvent.DELETE,
             payload: {
               propertyPath: path,
             },
@@ -267,7 +267,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
             translateDiffArrayIndexAccessors(
               propertyPath,
               difference.rhs,
-              DataTreeDiffEvent.NEW,
+              EvalTreeDiffEvent.NEW,
             ),
           );
         }
@@ -282,7 +282,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
         result = Object.keys(difference.rhs).map((diffKey) => {
           const path = `${propertyPath}.${diffKey}`;
           return {
-            event: DataTreeDiffEvent.NEW,
+            event: EvalTreeDiffEvent.NEW,
             payload: {
               propertyPath: path,
             },
@@ -297,7 +297,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
             translateDiffArrayIndexAccessors(
               propertyPath,
               difference.lhs,
-              DataTreeDiffEvent.DELETE,
+              EvalTreeDiffEvent.DELETE,
             ),
           );
         }
@@ -323,7 +323,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
 export const translateDiffArrayIndexAccessors = (
   propertyPath: string,
   array: unknown[],
-  event: DataTreeDiffEvent,
+  event: EvalTreeDiffEvent,
 ) => {
   const result: DataTreeDiff[] = [];
   array.forEach((data, index) => {
