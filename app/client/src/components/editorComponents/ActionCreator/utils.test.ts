@@ -14,6 +14,7 @@ import {
   stringToJS,
   textGetter,
   textSetter,
+  isValueValidURL,
 } from "./utils";
 
 describe("Test argStringToArray", () => {
@@ -345,4 +346,56 @@ describe("Test enumTypeGetter", () => {
     );
     expect(result).toStrictEqual(expected);
   });
+});
+
+describe("Test isValueValidURL", () => {
+  const cases = [
+    {
+      index: 1,
+      input: "{{navigateTo('google.com', {}, 'SAME_WINDOW')}}",
+      expected: true,
+    },
+    {
+      index: 2,
+      input: "{{navigateTo('www.google.com', {}, 'SAME_WINDOW')}}",
+      expected: true,
+    },
+    {
+      index: 3,
+      input: "{{navigateTo('https://google.com', {}, 'NEW_WINDOW')}}",
+      expected: true,
+    },
+    {
+      index: 4,
+      input: "{{navigateTo('http://localhost.com', {}, 'NEW_WINDOW')}}",
+      expected: true,
+    },
+    {
+      index: 5,
+      input: "{{navigateTo('mailTo:a@example.com', {}, 'NEW_WINDOW')}}",
+      expected: true,
+    },
+    {
+      index: 6,
+      input: "{{navigateTo('1234', {}, 'NEW_WINDOW')}}",
+      expected: false,
+    },
+    {
+      index: 7,
+      input: "{{navigateTo('hi', {}, 'NEW_WINDOW')}}",
+      expected: false,
+    },
+    {
+      index: 8,
+      input: "{{navigateTo('[]', {}, 'NEW_WINDOW')}}",
+      expected: false,
+    },
+  ];
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+    "test case %d",
+    (_, input, expected) => {
+      const result = isValueValidURL(input as string);
+      expect(result).toStrictEqual(expected);
+    },
+  );
 });
