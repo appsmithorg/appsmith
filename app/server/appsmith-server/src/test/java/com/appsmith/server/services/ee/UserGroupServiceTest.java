@@ -668,8 +668,9 @@ public class UserGroupServiceTest {
         UpdateGroupMembershipDTO updateGroupMembershipDTO = new UpdateGroupMembershipDTO();
         updateGroupMembershipDTO.setGroupsAdded(Set.of(createdGroup.getId(), createdGroup2.getId()));
         updateGroupMembershipDTO.setGroupsRemoved(Set.of(toRemoveCreated.getId()));
+        updateGroupMembershipDTO.setUsernames(Set.of("api_user"));
 
-        StepVerifier.create(userGroupService.changeGroupsForUser("api_user", updateGroupMembershipDTO, "origin"))
+        StepVerifier.create(userGroupService.changeGroupsForUser(updateGroupMembershipDTO, "origin"))
                 .assertNext(groups -> {
                     assertThat(groups).hasSize(3);
                     UserGroupDTO group1 = groups.stream()

@@ -6,6 +6,7 @@ import java.util.Set;
 
 @Data
 public class UpdateGroupMembershipDTO {
+    Set<String> usernames;
     Set<String> groupsAdded;
     Set<String> groupsRemoved;
 }

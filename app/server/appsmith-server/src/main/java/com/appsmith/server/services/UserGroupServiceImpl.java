@@ -402,23 +402,24 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Mono<List<UserGroupDTO>> changeGroupsForUser(String username, UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader) {
+    public Mono<List<UserGroupDTO>> changeGroupsForUser(UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader) {
 
         Set<String> groupIdsAdded = updateGroupMembershipDTO.getGroupsAdded();
         Set<String> groupIdsRemoved = updateGroupMembershipDTO.getGroupsRemoved();
+        Set<String> usernames = updateGroupMembershipDTO.getUsernames();
 
         Mono<List<UserGroupDTO>> userAddedMono = Mono.just(List.of());
         Mono<List<UserGroupDTO>> userRemovedMono = Mono.just(List.of());
 
         if (!CollectionUtils.isEmpty(groupIdsAdded)) {
             UsersForGroupDTO addUsersDTO = new UsersForGroupDTO();
-            addUsersDTO.setUsernames(Set.of(username));
+            addUsersDTO.setUsernames(usernames);
             addUsersDTO.setGroupIds(groupIdsAdded);
             userAddedMono = inviteUsers(addUsersDTO, originHeader);
         }
         if (!CollectionUtils.isEmpty(groupIdsRemoved)) {
             UsersForGroupDTO removeUsersDTO = new UsersForGroupDTO();
-            removeUsersDTO.setUsernames(Set.of(username));
+            removeUsersDTO.setUsernames(usernames);
             removeUsersDTO.setGroupIds(groupIdsRemoved);
             userRemovedMono = removeUsers(removeUsersDTO);
         }

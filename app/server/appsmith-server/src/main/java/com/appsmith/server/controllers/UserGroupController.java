@@ -96,11 +96,10 @@ public class UserGroupController {
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
-    @PutMapping("/users/{userId}")
-    public Mono<ResponseDTO<List<UserGroupDTO>>> bulkChangeMembership(@PathVariable String userId,
-                                                                      @RequestBody UpdateGroupMembershipDTO updateGroupMembershipDTO,
+    @PutMapping("/users")
+    public Mono<ResponseDTO<List<UserGroupDTO>>> bulkChangeMembership(@RequestBody UpdateGroupMembershipDTO updateGroupMembershipDTO,
                                                                       @RequestHeader("Origin") String originHeader) {
-        return service.changeGroupsForUser(userId, updateGroupMembershipDTO, originHeader)
+        return service.changeGroupsForUser(updateGroupMembershipDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 

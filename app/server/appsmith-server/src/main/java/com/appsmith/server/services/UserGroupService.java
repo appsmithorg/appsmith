@@ -28,7 +28,7 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
 
     Flux<UserGroupCompactDTO> getAllWithAddUserPermission();
 
-    Mono<List<UserGroupDTO>> changeGroupsForUser(String username, UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader);
+    Mono<List<UserGroupDTO>> changeGroupsForUser(UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader);
 
     Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId);
 
