@@ -7,7 +7,7 @@ import {
   DataTree,
   DataTreeWidget,
   ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluateSync", () => {

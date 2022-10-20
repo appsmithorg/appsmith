@@ -4,13 +4,14 @@ import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import { ENTITY_TYPE } from "../dataTreeFactory";
+import { ENTITY_TYPE } from "../DataTreeFactory";
 import { setOverridingProperty } from "./utils";
 import {
   WidgetEntityConfig,
   PropertyOverrideDependency,
   OverridingPropertyPaths,
   OverridingPropertyType,
+  WidgetEvalTree,
 } from "./types";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
@@ -19,7 +20,7 @@ import {
 const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
-  dataTreeWidgetWithoutMetaProps: Record<string, unknown>;
+  dataTreeWidgetWithoutMetaProps: WidgetEvalTree;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
   entityConfig: WidgetEntityConfig;
@@ -134,11 +135,11 @@ const generateDataTreeWidgetWithoutMeta = (
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {},
     {
-      dataTree: {
-        widget,
-        unInitializedDefaultProps,
-        derivedProps,
-      },
+      widget,
+      unInitializedDefaultProps,
+      derivedProps,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      isLoading: widget.isLoading,
     },
   );
 
@@ -165,6 +166,7 @@ const generateDataTreeWidgetWithoutMeta = (
       defaultProps,
       dynamicBindingPathList,
       defaultMetaProps: Object.keys(defaultMetaProps),
+      type: widget.type,
     },
   };
 };

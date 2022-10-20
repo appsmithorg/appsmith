@@ -5,7 +5,7 @@ import {
 import {
   DataTreeAction,
   DataTreeAppsmith,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";

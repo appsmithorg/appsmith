@@ -2,7 +2,7 @@
 import {
   EntityConfigCollection,
   EvalTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import {
   EvaluationError,
   extraLibraries,

@@ -28,7 +28,7 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
 import { AppState } from "@appsmith/reducers";
 import {

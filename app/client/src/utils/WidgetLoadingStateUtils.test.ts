@@ -4,7 +4,7 @@ import {
   DataTreeJSAction,
   DataTreeWidget,
   ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import {
   findLoadingEntities,
   getEntityDependantPaths,

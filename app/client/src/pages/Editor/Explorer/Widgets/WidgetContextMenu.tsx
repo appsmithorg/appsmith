@@ -13,7 +13,7 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 const WidgetTypes = WidgetFactory.widgetTypes;

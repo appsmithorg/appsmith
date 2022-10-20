@@ -17,7 +17,7 @@ import {
   DataTreeJSAction,
   EvalTree,
   EntityConfigCollection,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import {
   DependencyMap,
   isChildPropertyPath,

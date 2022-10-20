@@ -6,7 +6,7 @@ import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import { PluginType } from "entities/Action";
 import { waitFor } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import { DatasourceComponentTypes, UIComponentTypes } from "api/PluginApi";
 
 function TestForm(props: any) {

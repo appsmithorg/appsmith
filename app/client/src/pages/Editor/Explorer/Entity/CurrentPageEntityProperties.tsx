@@ -9,7 +9,7 @@ import {
   ENTITY_TYPE,
   DataTreeAction,
   DataTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import PerformanceTracker, {

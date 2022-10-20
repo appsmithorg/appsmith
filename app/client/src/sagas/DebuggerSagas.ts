@@ -35,7 +35,7 @@ import {
 import { Action, PluginType } from "entities/Action";
 import { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import {
   getDataTree,
   getEvaluationInverseDependencyMap,

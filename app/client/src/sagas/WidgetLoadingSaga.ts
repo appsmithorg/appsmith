@@ -4,7 +4,7 @@ import {
   getEvaluationInverseDependencyMap,
   getDataTree,
 } from "selectors/dataTreeSelectors";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 import {
   ActionData,

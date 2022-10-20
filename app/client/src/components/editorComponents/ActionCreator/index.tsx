@@ -26,7 +26,7 @@ import {
 } from "selectors/widgetSelectors";
 import Fields from "./Fields";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";

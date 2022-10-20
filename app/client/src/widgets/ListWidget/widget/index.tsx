@@ -40,7 +40,7 @@ import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/DataTreeFactory";
 import equal from "fast-deep-equal/es6";
 
 import { klona } from "klona/lite";

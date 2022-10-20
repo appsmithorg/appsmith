@@ -1,4 +1,4 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/evaluate";
 import uniqueId from "lodash/uniqueId";

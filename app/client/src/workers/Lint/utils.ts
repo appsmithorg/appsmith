@@ -1,4 +1,4 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeEntity } from "entities/DataTree/DataTreeFactory";
 import {
   getEntityNameAndPropertyPath,
   isAction,

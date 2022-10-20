@@ -9,7 +9,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import { convertPathToString, isWidget } from "../evaluationUtils";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,

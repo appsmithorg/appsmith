@@ -14,7 +14,7 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 import { AppState } from "@appsmith/reducers";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";

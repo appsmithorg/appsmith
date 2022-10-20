@@ -6,7 +6,7 @@ import {
   DataTree,
   DataTreeWidget,
   ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { pick } from "lodash";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import WidgetFactory from "./WidgetFactory";

@@ -13,25 +13,31 @@ import { validate } from "./validations";
 import { Diff } from "deep-diff";
 import {
   DataTree,
-  DataTreeAction,
   DataTreeAppsmith,
   DataTreeEntity,
-  DataTreeWidget,
   ENTITY_TYPE,
-  DataTreeJSAction,
-  PrivateWidgets,
+  EvalTreeEntity,
+  EvalTree,
   EntityConfigCollection,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTreeObjectEntity } from "entities/DataTree/DataTreeFactory";
+import {
+  JSActionEntityConfig,
+  JSActionEvalTree,
+} from "entities/DataTree/JSAction/types";
+import {
+  WidgetEntityConfig,
+  WidgetEvalTree,
+} from "entities/DataTree/Widget/types";
+import { PrivateWidgets } from "widgets/BaseWidget";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -107,7 +113,7 @@ const isUninterestingChangeForDependencyUpdate = (path: string) => {
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
-  entityConfigCollection: EntityConfigCollection,
+  localUnEvalTree: EvalTree,
 ): DataTreeDiff | DataTreeDiff[] => {
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
@@ -135,7 +141,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
     return result;
   }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
-  const entity = entityConfigCollection[entityName];
+  const entity = localUnEvalTree[entityName];
   const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {
@@ -311,7 +317,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           ...difference.item,
           path: [...difference.path, difference.index],
         },
-        entityConfigCollection,
+        localUnEvalTree,
       );
     }
     default: {
@@ -365,8 +371,8 @@ export const addDependantsOfNestedPropertyPaths = (
 };
 
 export function isWidget(
-  entity: Partial<DataTreeEntity>,
-): entity is DataTreeWidget {
+  entity: Partial<EvalTreeEntity> | WidgetEntityConfig,
+): entity is WidgetEvalTree {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -375,8 +381,8 @@ export function isWidget(
 }
 
 export function isAction(
-  entity: Partial<DataTreeEntity>,
-): entity is DataTreeAction {
+  entity: Partial<EvalTreeEntity> | JSActionEntityConfig,
+): entity is JSActionEvalTree {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -385,7 +391,7 @@ export function isAction(
 }
 
 export function isAppsmithEntity(
-  entity: DataTreeEntity,
+  entity: EvalTreeEntity,
 ): entity is DataTreeAppsmith {
   return (
     typeof entity === "object" &&
@@ -394,7 +400,9 @@ export function isAppsmithEntity(
   );
 }
 
-export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSAction(
+  entity: EvalTreeEntity | EntityConfigCollection,
+): entity is JSActionEvalTree {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -402,13 +410,13 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
-export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSObject(
+  entity: EvalTreeEntity | EntityConfigCollection,
+): entity is JSActionEvalTree {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
-    "pluginType" in entity &&
-    entity.pluginType === PluginType.JS
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
 
@@ -517,55 +525,66 @@ export function validateActionProperty(
   return validate(config, value, {}, "");
 }
 
-export function getValidatedTree(tree: DataTree) {
+export function getValidatedTree(
+  tree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
+) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey] as DataTreeWidget;
+    const entity = tree[entityKey];
+
     if (!isWidget(entity)) {
       return tree;
     }
+
+    const entityConfig = entityConfigCollection[
+      entityKey
+    ] as WidgetEntityConfig;
+
     const parsedEntity = { ...entity };
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = _.get(entity, property);
-      // Pass it through parse
-      const { isValid, messages, parsed, transformed } = validateWidgetProperty(
-        validation,
-        value,
-        entity,
-        property,
-      );
-      _.set(parsedEntity, property, parsed);
-      const evaluatedValue = isValid
-        ? parsed
-        : _.isUndefined(transformed)
-        ? value
-        : transformed;
-      const safeEvaluatedValue = removeFunctions(evaluatedValue);
-      _.set(
-        parsedEntity,
-        getEvalValuePath(`${entityKey}.${property}`, {
-          isPopulated: false,
-          fullPath: false,
-        }),
-        safeEvaluatedValue,
-      );
-      if (!isValid) {
-        const evalErrors: EvaluationError[] =
-          messages?.map((message) => ({
-            errorType: PropertyEvaluationErrorType.VALIDATION,
-            errorMessage: message,
-            severity: Severity.ERROR,
-            raw: value,
-          })) ?? [];
-        addErrorToEntityProperty(
-          evalErrors,
-          tree,
-          getEvalErrorPath(`${entityKey}.${property}`, {
+    Object.entries(entityConfig.validationPaths).forEach(
+      ([property, validation]) => {
+        const value = _.get(entity, property);
+        // Pass it through parse
+        const {
+          isValid,
+          messages,
+          parsed,
+          transformed,
+        } = validateWidgetProperty(validation, value, entity, property);
+        _.set(parsedEntity, property, parsed);
+        const evaluatedValue = isValid
+          ? parsed
+          : _.isUndefined(transformed)
+          ? value
+          : transformed;
+        const safeEvaluatedValue = removeFunctions(evaluatedValue);
+        _.set(
+          parsedEntity,
+          getEvalValuePath(`${entityKey}.${property}`, {
             isPopulated: false,
             fullPath: false,
           }),
+          safeEvaluatedValue,
         );
-      }
-    });
+        if (!isValid) {
+          const evalErrors: EvaluationError[] =
+            messages?.map((message) => ({
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+              severity: Severity.ERROR,
+              raw: value,
+            })) ?? [];
+          addErrorToEntityProperty(
+            evalErrors,
+            tree,
+            getEvalErrorPath(`${entityKey}.${property}`, {
+              isPopulated: false,
+              fullPath: false,
+            }),
+          );
+        }
+      },
+    );
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
 }
@@ -614,40 +633,46 @@ export const trimDependantChangePaths = (
 };
 
 export function getSafeToRenderDataTree(
-  tree: DataTree,
+  tree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
   widgetTypeConfigMap: WidgetTypeConfigMap,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey] as DataTreeWidget;
+    const entity = tree[entityKey];
     if (!isWidget(entity)) {
       return tree;
     }
     const safeToRenderEntity = { ...entity };
+    const widgetConfig = entityConfigCollection[
+      entityKey
+    ] as WidgetEntityConfig;
     // Set user input values to their parsed values
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = _.get(entity, property);
-      // Pass it through parse
-      const { parsed } = validateWidgetProperty(
-        validation,
-        value,
-        entity,
-        property,
-      );
-      _.set(safeToRenderEntity, property, parsed);
-    });
-    // Set derived values to undefined or else they would go as bindings
-    Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
-      (property) => {
-        _.set(safeToRenderEntity, property, undefined);
+    Object.entries(widgetConfig.validationPaths).forEach(
+      ([property, validation]) => {
+        const value = _.get(entity, property);
+        // Pass it through parse
+        const { parsed } = validateWidgetProperty(
+          validation,
+          value,
+          entity,
+          property,
+        );
+        _.set(safeToRenderEntity, property, parsed);
       },
     );
+    // Set derived values to undefined or else they would go as bindings
+    Object.keys(
+      widgetTypeConfigMap[widgetConfig.type].derivedProperties,
+    ).forEach((property) => {
+      _.set(safeToRenderEntity, property, undefined);
+    });
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
 
 export const addErrorToEntityProperty = (
   errors: EvaluationError[],
-  dataTree: DataTree,
+  dataTree: EvalTree,
   fullPropertyPath: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -780,12 +805,12 @@ export const isPrivateEntityPath = (
 };
 
 export const getAllPrivateWidgetsInDataTree = (
-  dataTree: DataTree,
+  entityConfigCollection: EntityConfigCollection,
 ): PrivateWidgets => {
   let privateWidgets: PrivateWidgets = {};
 
-  Object.keys(dataTree).forEach((entityName) => {
-    const entity = dataTree[entityName];
+  Object.keys(entityConfigCollection).forEach((entityName) => {
+    const entity = entityConfigCollection[entityName];
     if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
       privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
     }

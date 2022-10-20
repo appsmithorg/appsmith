@@ -57,7 +57,7 @@ import { Datasource } from "entities/Datasource";
 import equal from "fast-deep-equal/es6";
 
 import { Colors } from "constants/Colors";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";

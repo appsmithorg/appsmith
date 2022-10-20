@@ -11,7 +11,7 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
   PrivateWidgets,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import {
   DataTreeDiff,
   EvalTreeDiffEvent,
@@ -27,9 +27,9 @@ import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
 import _, { get, flatten } from "lodash";
 import { overrideWidgetProperties, findDatatype } from "./evaluationUtils";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
-import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
+import { generateDataTreeWidget } from "entities/DataTree/Widget";
 import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
 import InputWidget, {
   CONFIG as InputWidgetV2Config,

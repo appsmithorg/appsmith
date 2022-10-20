@@ -2,7 +2,7 @@ import {
   DataTreeEntity,
   EntityConfigCollection,
   EvalTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { get, union } from "lodash";
 import { EvaluationError, getDynamicBindings } from "utils/DynamicBindingUtils";
 import {

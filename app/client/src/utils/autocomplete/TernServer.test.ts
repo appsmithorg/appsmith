@@ -5,7 +5,7 @@ import TernServer, {
   DataTreeDefEntityInformation,
 } from "./TernServer";
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import _ from "lodash";
 import { AutocompleteSorter, ScoredCompletion } from "./AutocompleteSortRules";
 

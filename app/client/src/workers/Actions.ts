@@ -3,7 +3,7 @@ import {
   DataTreeEntity,
   EntityConfigCollection,
   EvalTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import _ from "lodash";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import {

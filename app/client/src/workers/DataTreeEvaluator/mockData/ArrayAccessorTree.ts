@@ -5,7 +5,7 @@ import {
   DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 
 export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {

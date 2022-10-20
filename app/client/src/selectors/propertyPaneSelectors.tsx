@@ -5,12 +5,12 @@ import { createSelector } from "reselect";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTreeEntity } from "entities/DataTree/DataTreeFactory";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
 

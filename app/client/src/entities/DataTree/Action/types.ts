@@ -3,7 +3,7 @@ import {
   ActionDispatcher,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { ActionResponse } from "api/ActionAPI";
 import { ActionConfig, PluginType } from "entities/Action";
 import {

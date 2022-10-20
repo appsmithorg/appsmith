@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginType } from "entities/Action";
 import { WidgetType } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";

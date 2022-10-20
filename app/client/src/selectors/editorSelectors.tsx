@@ -20,7 +20,7 @@ import {
   RenderModes,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { find, sortBy } from "lodash";
 import { APP_MODE } from "entities/App";

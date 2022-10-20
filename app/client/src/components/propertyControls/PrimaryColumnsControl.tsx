@@ -20,7 +20,7 @@ import {
   getTableStyles,
 } from "widgets/TableWidget/component/TableUtilities";
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import {
   EvaluationError,

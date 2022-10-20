@@ -44,7 +44,7 @@ import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { KeyValuePair } from "entities/Action";
 import equal from "fast-deep-equal/es6";

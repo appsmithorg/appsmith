@@ -1,9 +1,9 @@
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
+import { generateDataTreeWidget } from "entities/DataTree/Widget";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 

@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import { QueryActionConfig } from "entities/Action";

@@ -4,7 +4,7 @@ import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {

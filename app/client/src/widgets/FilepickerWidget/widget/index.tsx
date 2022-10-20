@@ -15,7 +15,7 @@ import shallowequal from "shallowequal";
 import _ from "lodash";
 import FileDataTypes from "./FileDataTypes";
 import log from "loglevel";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,

@@ -1,4 +1,4 @@
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import {
   HiddenFnParams,

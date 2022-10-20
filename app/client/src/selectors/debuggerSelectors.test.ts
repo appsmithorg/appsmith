@@ -1,5 +1,5 @@
 import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getFilteredErrors } from "./debuggerSelectors";

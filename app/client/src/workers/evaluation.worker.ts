@@ -1,6 +1,6 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { EvalTree } from "entities/DataTree/dataTreeFactory";
+import { EvalTree } from "entities/DataTree/DataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,

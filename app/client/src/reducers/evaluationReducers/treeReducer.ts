@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { applyChange, Diff } from "deep-diff";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
 

@@ -5,7 +5,7 @@ import {
   DataTreeWidget,
   DataTreeAppsmith,
   ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 
 export const unEvalTree = {
   MainContainer: {

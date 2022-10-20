@@ -14,7 +14,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { select } from "redux-saga/effects";
 import { getCopiedWidgets } from "utils/storage";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -51,7 +51,7 @@ import {
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 

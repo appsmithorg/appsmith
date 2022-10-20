@@ -9,7 +9,7 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import MultiSelectComponent from "../component";
 import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import { Layers } from "constants/Layers";

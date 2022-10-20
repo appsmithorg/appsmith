@@ -3,7 +3,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import {
   DataTreeAction,
   DataTreeWidget,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 
 export const removeNewLineChars = (inputValue: any) => {

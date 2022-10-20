@@ -1,5 +1,10 @@
-import { ENTITY_TYPE, EvaluationSubstitutionType } from "../dataTreeFactory";
-import { PrivateWidgets, WidgetConfig, WidgetProps } from "widgets/BaseWidget";
+import { ENTITY_TYPE, EvaluationSubstitutionType } from "../DataTreeFactory";
+import {
+  PrivateWidgets,
+  WidgetConfig,
+  WidgetEvalProps,
+  WidgetProps,
+} from "widgets/BaseWidget";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 
 /**
@@ -37,6 +42,12 @@ export interface WidgetEntityConfig extends Partial<WidgetConfig> {
   meta: Record<string, unknown>;
 
   defaultMetaProps: Array<string>;
+
+  type: string;
 }
 
 export type DataTreeWidget = WidgetProps | WidgetConfig;
+
+export interface WidgetEvalTree extends WidgetEvalProps {
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+}

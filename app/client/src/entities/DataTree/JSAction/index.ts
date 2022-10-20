@@ -1,6 +1,6 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { JSActionEntityConfig, JSActionEvalTree, MetaArgs } from "./types";
 

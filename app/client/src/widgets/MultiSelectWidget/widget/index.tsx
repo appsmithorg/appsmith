@@ -8,7 +8,7 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import MultiSelectComponent from "../component";
 import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";

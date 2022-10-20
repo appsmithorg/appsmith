@@ -2,7 +2,7 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import { get } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {

@@ -5,8 +5,8 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/Action/dataTreeAction";
-import { generateDataTreeJSAction } from "entities/DataTree/JSAction/dataTreeJSAction";
-import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
+import { generateDataTreeJSAction } from "entities/DataTree/JSAction";
+import { generateDataTreeWidget } from "entities/DataTree/Widget";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { AppTheme } from "entities/AppTheming";
@@ -15,13 +15,17 @@ import {
   DataTreeJSAction,
   JSActionEntityConfig,
   JSActionEvalTree,
-} from "./JSAction/types";
-import { DataTreeWidget, WidgetEntityConfig } from "./Widget/types";
+} from "../JSAction/types";
+import {
+  DataTreeWidget,
+  WidgetEntityConfig,
+  WidgetEvalTree,
+} from "../Widget/types";
 import {
   ActionEntityConfig,
   ActionEntityEvalTree,
   DataTreeAction,
-} from "./Action/types";
+} from "../Action/types";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -70,7 +74,7 @@ export type EntityConfigCollection = {
 export type EvalTreeEntity =
   | JSActionEvalTree
   | ActionEntityEvalTree
-  | JSActionEvalTree
+  | WidgetEvalTree
   | DataTreeAppsmith;
 
 export type EvalTree = {

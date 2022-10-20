@@ -20,7 +20,7 @@ import {
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import {
   EvaluationError,

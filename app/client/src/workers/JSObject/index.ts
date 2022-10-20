@@ -1,9 +1,7 @@
 import {
-  DataTree,
-  DataTreeJSAction,
   EntityConfigCollection,
   EvalTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -31,11 +29,10 @@ import {
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
   localUnEvalTree: EvalTree,
-  entityConfigCollection: DataTree,
 ) => {
   if (!isEmpty(jsUpdates)) {
     Object.keys(jsUpdates).forEach((jsEntity) => {
-      const entity = entityConfigCollection[jsEntity];
+      const entity = localUnEvalTree[jsEntity];
       const parsedBody = jsUpdates[jsEntity].parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {

@@ -12,7 +12,7 @@ import {
   isTrueObject,
 } from "workers/evaluationUtils";
 import forge from "node-forge";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTreeEntity } from "entities/DataTree/DataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -432,7 +432,7 @@ export enum PropertyEvaluationErrorType {
 }
 
 export type EvaluationError = {
-  raw: string;
+  raw: string | unknown;
   errorType: PropertyEvaluationErrorType;
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;

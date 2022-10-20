@@ -30,7 +30,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { klona } from "klona/lite";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,

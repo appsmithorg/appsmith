@@ -1,4 +1,4 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { createSelector } from "reselect";
 import WidgetFactory from "utils/WidgetFactory";
 import { FlattenedWidgetProps } from "widgets/constants";

@@ -49,7 +49,7 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxG
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/DataTreeFactory";
 import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
 
 import {

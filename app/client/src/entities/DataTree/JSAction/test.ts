@@ -1,5 +1,5 @@
 import { PluginType } from "entities/Action";
-import { generateDataTreeJSAction } from "entities/DataTree/JSAction/dataTreeJSAction";
+import { generateDataTreeJSAction } from "entities/DataTree/JSAction";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 describe("generateDataTreeJSAction", () => {

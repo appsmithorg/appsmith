@@ -14,7 +14,7 @@ import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _, { findIndex } from "lodash";
 import FileDataTypes from "../constants";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import log from "loglevel";
 import { createGlobalStyle } from "styled-components";

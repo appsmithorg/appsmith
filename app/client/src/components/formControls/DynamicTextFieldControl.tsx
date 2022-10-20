@@ -18,7 +18,7 @@ import { getPluginResponseTypes } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { actionPathFromName } from "components/formControls/utils";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 
 const Wrapper = styled.div`
   width: 872px;

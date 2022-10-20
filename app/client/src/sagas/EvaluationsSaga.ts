@@ -99,7 +99,7 @@ import {
   DataTree,
   EntityConfigCollection,
   EvalTree,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { DataTreeDiff } from "workers/evaluationUtils";

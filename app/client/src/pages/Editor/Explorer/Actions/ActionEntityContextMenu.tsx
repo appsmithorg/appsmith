@@ -14,7 +14,7 @@ import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { useNewActionName } from "./helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {

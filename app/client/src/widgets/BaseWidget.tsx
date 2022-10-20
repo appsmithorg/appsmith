@@ -35,7 +35,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { CanvasWidgetStructure } from "./constants";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import Skeleton from "./Skeleton";
 
 /***

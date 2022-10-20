@@ -3,14 +3,14 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
-import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
+import { generateDataTreeWidget } from "entities/DataTree/Widget";
 import { sortObjectWithArray } from "../utils/treeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {

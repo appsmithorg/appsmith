@@ -1,5 +1,5 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { PluginType } from "entities/Action";
 import { Variable } from "entities/JSCollection";

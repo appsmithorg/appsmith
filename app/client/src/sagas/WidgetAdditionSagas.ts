@@ -41,7 +41,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 

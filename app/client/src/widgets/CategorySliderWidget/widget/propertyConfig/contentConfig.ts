@@ -1,6 +1,6 @@
 import { LabelPosition } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/DataTreeFactory";
 import { Alignment } from "@blueprintjs/core";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {

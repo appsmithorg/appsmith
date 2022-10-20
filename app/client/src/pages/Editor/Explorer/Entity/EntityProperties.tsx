@@ -5,7 +5,7 @@ import {
   entityDefinitions,
   EntityDefinitionsOptions,
 } from "utils/autocomplete/EntityDefinitions";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,

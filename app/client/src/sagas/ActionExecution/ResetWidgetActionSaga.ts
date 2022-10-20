@@ -17,7 +17,7 @@ import { getType, Types } from "utils/TypeHelpers";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { isWidget } from "workers/evaluationUtils";
 
 export default function* resetWidgetActionSaga(

@@ -1,4 +1,4 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 import { get, set } from "lodash";
 import { isJSObject, isWidget } from "workers/evaluationUtils";
 import { DependencyMap } from "./DynamicBindingUtils";

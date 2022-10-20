@@ -1,5 +1,5 @@
 import CodeMirror from "codemirror";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/DataTreeFactory";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 

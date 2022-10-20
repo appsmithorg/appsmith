@@ -15,15 +15,11 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import {
   DataTree,
-  DataTreeAction,
   DataTreeEntity,
-  DataTreeJSAction,
-  DataTreeWidget,
   EntityConfigCollection,
   EvalTree,
   EvaluationSubstitutionType,
-  PrivateWidgets,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/DataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
@@ -86,6 +82,7 @@ import {
   parseJSActions,
 } from "workers/JSObject";
 import { lintTree } from "workers/Lint";
+import { PrivateWidgets } from "widgets/BaseWidget";
 
 export default class DataTreeEvaluator {
   widgetConfigMap: WidgetTypeConfigMap = {};
