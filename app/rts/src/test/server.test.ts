@@ -18,23 +18,37 @@ const entityRefactor = [
     script: "ApiNever",
     oldName: "ApiNever",
     newName: "ApiForever",
+    isJSObject: false,
+    evalVersion: 2,
   },
   {
     script: "ApiNever.data",
     oldName: "ApiNever",
     newName: "ApiForever",
+    isJSObject: false,
   },
   {
     script:
       "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
     oldName: "ApiNever",
     newName: "ApiForever",
+    isJSObject: false,
+    evalVersion: 2,
   },
   {
     script:
       "//ApiNever  \n function ApiNever(abc) {let ApiNever = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
     oldName: "ApiNever",
     newName: "ApiForever",
+    isJSObject: false,
+  },
+  {
+    script:
+      "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\t\tsearch: () => {\n\t\tif(Input1Copy.text.length==0){\n\t\t\treturn select_repair_db.data\n\t\t}\n\t\telse{\n\t\t\treturn(select_repair_db.data.filter(word => word.cust_name.toLowerCase().includes(Input1Copy.text.toLowerCase())))\n\t\t}\n\t},\n}",
+    oldName: "Input1Copy",
+    newName: "Input1",
+    isJSObject: true,
+    evalVersion: 2,
   },
 ];
 
@@ -93,19 +107,22 @@ describe("AST tests", () => {
   entityRefactor.forEach(async (input, index) => {
     it(`Entity refactor test case ${index + 1}`, async () => {
       const expectedResponse = [
-        { script: "ApiForever", referenceCount: 1, refactorCount: 1 },
-        { script: "ApiForever.data", referenceCount: 1, refactorCount: 1 },
+        { script: "ApiForever", refactorCount: 1 },
+        { script: "ApiForever.data", refactorCount: 1 },
         {
           script:
             "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiForever.data; \n if(true) { return ApiForever }}",
-          referenceCount: 2,
           refactorCount: 2,
         },
         {
           script:
             "//ApiNever  \n function ApiNever(abc) {let ApiNever = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
-          referenceCount: 2,
           refactorCount: 0,
+        },
+        {
+          script:
+            "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\t\tsearch: () => {\n\t\tif(Input1.text.length==0){\n\t\t\treturn select_repair_db.data\n\t\t}\n\t\telse{\n\t\t\treturn(select_repair_db.data.filter(word => word.cust_name.toLowerCase().includes(Input1.text.toLowerCase())))\n\t\t}\n\t},\n}",
+          refactorCount: 2,
         },
       ];
 
@@ -120,14 +137,31 @@ describe("AST tests", () => {
           expect(response.body.data.script).toEqual(
             expectedResponse[index].script
           );
-          expect(response.body.data.referenceCount).toEqual(
-            expectedResponse[index].referenceCount
-          );
           expect(response.body.data.refactorCount).toEqual(
             expectedResponse[index].refactorCount
           );
         });
     });
   });
-});
 
+  it("Entity refactor syntax error", async () => {
+    let request = {
+      script: "ApiNever++++",
+      oldName: "ApiNever",
+      newName: "ApiForever",
+      isJSObject: true,
+      evalVersion: 2,
+    };
+
+    await supertest(app)
+      .post(`${RTS_BASE_API_PATH}/ast/entity-refactor`, {
+        JSON: true,
+      })
+      .send(request)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.success).toEqual(false);
+        expect(response.body.data.error).toEqual("Syntax Error");
+      });
+  });
+});

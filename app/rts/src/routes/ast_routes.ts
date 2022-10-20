@@ -22,7 +22,7 @@ router.post(
 );
 router.post(
   "/entity-refactor",
-  AstRules.getScriptValidator(),
+  AstRules.getEntityRefactorValidator(),
   validator.validateRequest,
   astController.entityRefactorController
 );

@@ -107,6 +107,11 @@ type NodeWithLocation<NodeType> = NodeType & {
 
 type AstOptions = Omit<Options, "ecmaVersion">;
 
+type EntityRefactorResponse = {
+  isSuccess: boolean;
+  body: { script: string; refactorCount: number } | { error: string };
+};
+
 /* We need these functions to typescript casts the nodes with the correct types */
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
   return node.type === NodeTypes.Identifier;
@@ -213,7 +218,6 @@ export const extractIdentifierInfoFromCode = (
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
 ): IdentifierInfo => {
-
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
@@ -262,12 +266,18 @@ export const entityRefactorFromCode = (
   script: string,
   oldName: string,
   newName: string,
+  isJSObject: boolean,
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
-): Record<string, string | number> | string => {
+): EntityRefactorResponse => {
+  //If script is a JSObject then replace export default to decalartion.
+  if(isJSObject) script = script.replace(/export default/g, "let chandanbalajibp =");
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
   let refactorScript = script;
+  //Handle if a different datatypes is sent by server
+  oldName = typeof oldName === "string" ? oldName : String(oldName);
+  newName = typeof newName === "string" ? newName : String(newName);
   //Difference in length of oldName and newName
   let nameLengthDiff: number = newName.length - oldName.length;
   //Offset index used for deciding location of oldName.
@@ -284,7 +294,6 @@ export const entityRefactorFromCode = (
       identifierList,
     }: NodeList = ancestorWalk(ast);
     let identifierArray = Array.from(identifierList) as Array<IdentifierNode>;
-    let referenceCount = references.size;
     Array.from(references).forEach((reference, index) => {
       const topLevelIdentifier = toPath(reference)[0];
       let shouldUpdateNode = !(
@@ -310,11 +319,16 @@ export const entityRefactorFromCode = (
         ++refactorCount;
       }
     });
-    return { script: refactorScript, referenceCount, refactorCount };
+    //If script is a JSObject then revert decalartion to export default.
+    if(isJSObject) refactorScript = refactorScript.replace("let chandanbalajibp =", "export default");
+    return {
+      isSuccess: true,
+      body: { script: refactorScript, refactorCount },
+    };
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
-      return "Syntax Error";
+      return { isSuccess: false, body: { error: "Syntax Error" } };
     }
     throw e;
   }

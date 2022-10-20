@@ -35,6 +35,18 @@ export default class BaseController {
     });
   }
 
+  sendEntityResponse(
+    response: Response,
+    result?: unknown,
+    success?: boolean,
+    code: number = StatusCodes.OK
+  ): Response<ResponseData> {
+    return response.status(code).json({
+      success,
+      data: result,
+    });
+  }
+
   sendError(
     response: Response,
     error: string,
