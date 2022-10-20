@@ -539,10 +539,13 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 
   useEffect(() => {
-    if (!isAclFlow) {
+    const fetchAll3 = async () => {
       fetchUser(props.workspaceId);
       fetchAllRoles(props.workspaceId);
       fetchCurrentWorkspace(props.workspaceId);
+    };
+    if (!isAclFlow) {
+      fetchAll3();
     }
   }, [props.workspaceId, fetchUser, fetchAllRoles, fetchCurrentWorkspace]);
 
