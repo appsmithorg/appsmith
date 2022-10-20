@@ -1,15 +1,15 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import AudioRecorderComponent from "../component";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { createBlobUrl } from "utils/AppsmithUtils";
-import { FileDataTypes } from "widgets/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 import { ResponsiveBehavior } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { createBlobUrl } from "utils/AppsmithUtils";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { FileDataTypes } from "widgets/constants";
+import AudioRecorderComponent from "../component";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
