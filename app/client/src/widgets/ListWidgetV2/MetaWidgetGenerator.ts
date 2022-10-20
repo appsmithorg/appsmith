@@ -104,6 +104,10 @@ type VirtualizerOptionsProps = VirtualizerOptions<
   HTMLDivElement
 >;
 
+enum MODIFICATIONS {
+  UPDATE_CONTAINER = "UPDATE_CONTAINER",
+}
+
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 /**
@@ -143,7 +147,7 @@ class MetaWidgetGenerator {
   private prevViewMetaWidgetIds: string[];
   private primaryKey: Options["primaryKey"];
   private renderMode: ConstructorProps["renderMode"];
-  private rowStyleChanged: boolean;
+  private modificationsQueue: Set<MODIFICATIONS>;
   private scrollElement: ConstructorProps["scrollElement"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
   private templateBottomRow: ConstructorProps["templateBottomRow"];
@@ -171,7 +175,7 @@ class MetaWidgetGenerator {
     this.prevViewMetaWidgetIds = [];
     this.primaryKey = "";
     this.renderMode = props.renderMode;
-    this.rowStyleChanged = false;
+    this.modificationsQueue = new Set();
     this.scrollElement = props.scrollElement;
     this.setWidgetCache = props.setWidgetCache;
     this.templateBottomRow = props.templateBottomRow;
@@ -185,7 +189,7 @@ class MetaWidgetGenerator {
   }
 
   withOptions = (options: Options) => {
-    this.rowStyleChanged = this.hasRowStyleChanged(options);
+    this.updateModificationsQueue(options);
 
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
@@ -287,6 +291,8 @@ class MetaWidgetGenerator {
     );
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
+
+    this.flushModificationQueue();
 
     return {
       metaWidgets,
@@ -719,21 +725,21 @@ class MetaWidgetGenerator {
     const gap = this.gridGap;
     const virtualItems = this.virtualizer?.getVirtualItems() || [];
     const virtualItem = virtualItems[rowIndex];
+    const index = virtualItem ? virtualItem.index : rowIndex;
 
-    const start = virtualItem
-      ? virtualItem.start / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-      : rowIndex * mainContainer.bottomRow;
-    const end = virtualItem
-      ? virtualItem.end / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-      : (rowIndex + 1) * mainContainer.bottomRow;
+    const start = index * mainContainer.bottomRow;
+    const end = (index + 1) * mainContainer.bottomRow;
 
     metaWidget.gap = gap;
+
+    if (this.infiniteScroll) {
+      metaWidget.rightColumn -= 1;
+    }
+
     metaWidget.topRow =
-      start + rowIndex * (this.gridGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+      start + index * (this.gridGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
     metaWidget.bottomRow =
-      end + rowIndex * (this.gridGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
-    // metaWidget.topRow = start + this.gridGap;
-    // metaWidget.bottomRow = end + this.gridGap;
+      end + index * (this.gridGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
   };
 
   /**
@@ -774,15 +780,32 @@ class MetaWidgetGenerator {
     });
   };
 
+  private updateModificationsQueue = (options: Options) => {
+    if (
+      this.gridGap !== options.gridGap ||
+      this.infiniteScroll != options.infiniteScroll
+    ) {
+      this.modificationsQueue.add(MODIFICATIONS.UPDATE_CONTAINER);
+    }
+  };
+
+  private flushModificationQueue = () => {
+    this.modificationsQueue.clear();
+  };
+
   private resetTemplateWidgetStatuses = () => {
     Object.values(this.templateWidgetStatus).forEach((status) => {
       status.clear();
     });
   };
 
-  recalculateVirtualList = (nextOptions: Options) => {
-    if (this.shouldRemeasureVirtualList(nextOptions)) {
-      this.remeasureVirtualizer();
+  recalculateVirtualList = (shouldRemeasureCb: () => boolean) => {
+    if (shouldRemeasureCb()) {
+      if (this.virtualizer) {
+        this.remeasureVirtualizer();
+      } else {
+        this.initVirtualizer();
+      }
     }
   };
 
@@ -792,21 +815,6 @@ class MetaWidgetGenerator {
       this.renderMode === RenderModes.PAGE ||
       (this.renderMode === RenderModes.CANVAS && index !== 0) ||
       this.isListCloned
-    );
-  };
-
-  private hasRowStyleChanged = (options: Options) => {
-    // Add all row style related comparisons here.
-    // If this returns true then the container widget regenerates
-    return this.gridGap !== options.gridGap;
-  };
-
-  private shouldRemeasureVirtualList = (nextOptions: Options) => {
-    return (
-      this.infiniteScroll &&
-      (this.gridGap !== nextOptions.gridGap ||
-        nextOptions.prevTemplateWidgets !== nextOptions.currTemplateWidgets ||
-        this.data?.length !== nextOptions?.data?.length)
     );
   };
 
@@ -822,8 +830,11 @@ class MetaWidgetGenerator {
     const isMetaWidgetPresentInCurrentView =
       metaWidgetId && this.prevViewMetaWidgetIds.includes(metaWidgetId);
     const isTemplateWidgetChanged = !unchanged.has(templateWidgetId);
+    const containerUpdateRequired = this.modificationsQueue.has(
+      MODIFICATIONS.UPDATE_CONTAINER,
+    );
     const shouldMainContainerUpdate =
-      templateWidgetsAddedOrRemoved || this.rowStyleChanged;
+      templateWidgetsAddedOrRemoved || containerUpdateRequired;
 
     /**
      * true only when
@@ -1084,7 +1095,12 @@ class MetaWidgetGenerator {
     if (scrollElement) {
       return {
         count: this.data?.length || 0,
-        estimateSize: () => this.templateBottomRow * 10,
+        estimateSize: () => {
+          const listCount = this.data?.length || 0;
+          const gridGap =
+            listCount && ((listCount - 1) * this.gridGap) / listCount;
+          return this.templateBottomRow * 10 + gridGap;
+        },
         getScrollElement: () => scrollElement,
         observeElementOffset,
         observeElementRect,

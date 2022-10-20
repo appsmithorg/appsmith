@@ -84,6 +84,7 @@ type ListWidgetState = {
 };
 
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
+  canExtend?: boolean;
   shouldScrollContents?: boolean;
 };
 
@@ -242,8 +243,16 @@ class ListWidget extends BaseWidget<
     // TODO: (ashit) Check for type === SKELETON_WIDGET?
     // Only when infinite scroll is not toggled i.e on !-> off or off !-> on
     if (this.props.infiniteScroll && prevProps?.infiniteScroll) {
-      const options = this.metaWidgetGeneratorOptions();
-      this.metaWidgetGenerator.recalculateVirtualList(options);
+      this.metaWidgetGenerator.recalculateVirtualList(() => {
+        return (
+          this.props.gridGap !== prevProps.gridGap ||
+          // eslint-disable-next-line
+          this.props.flattenedChildCanvasWidgets !==
+            prevProps.flattenedChildCanvasWidgets ||
+          this.props.listData?.length !== prevProps?.listData?.length ||
+          this.props.bottomRow !== prevProps.bottomRow
+        );
+      });
     } else {
       this.generateMetaWidgets();
     }
@@ -455,7 +464,7 @@ class ListWidget extends BaseWidget<
     metaMainCanvas.parentId = this.props.widgetId;
     metaMainCanvas.widgetId = metaWidgetId;
     metaMainCanvas.widgetName = metaWidgetName;
-    metaMainCanvas.canExtend = undefined;
+    metaMainCanvas.canExtend = true;
     metaMainCanvas.isVisible = this.props.isVisible;
     metaMainCanvas.minHeight = componentHeight;
     metaMainCanvas.rightColumn = componentWidth;
@@ -666,9 +675,10 @@ class ListWidget extends BaseWidget<
           ...childWidgetStructure,
         };
         child.parentColumnSpace = this.props.parentColumnSpace;
-        // This gets replaced in withWidgetProps.
         child.rightColumn = componentWidth;
-        child.shouldScrollContents = this.props.infiniteScroll;
+        // child.shouldScrollContents = true;
+        child.canExtend = true;
+
         return WidgetFactory.createWidget(child, this.props.renderMode);
       },
     );
@@ -873,7 +883,6 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   mainCanvasId?: string;
   mainContainerId?: string;
   onListItemClick?: string;
-  shouldScrollContents?: boolean;
 }
 
 export default ListWidget;
