@@ -12,11 +12,11 @@ import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import moment from "moment/moment";
 import { DateRange } from "@blueprintjs/datetime/src/common/dateRange";
-import { initialAuditLogsDateFilter } from "@appsmith/reducers/auditLogsReducer";
 import {
   AUDIT_LOGS_FILTER_HEIGHT,
   AUDIT_LOGS_FILTER_WIDTH,
 } from "../../config/audit-logs-config";
+import { parseDateFilterInput } from "@appsmith/pages/AuditLogs/utils/dateFilter";
 
 export default function DateFilter() {
   const dispatch = useDispatch();
@@ -33,19 +33,8 @@ export default function DateFilter() {
       : moment.unix(searchFilters.endDate / 1000).toDate(),
   ];
 
-  function handleSelection([inputStartDate, inputEndDate]: DateRange) {
-    const startDate =
-      inputStartDate !== null
-        ? moment(inputStartDate).unix() * 1000
-        : initialAuditLogsDateFilter.startDate;
-    const endDate =
-      inputEndDate !== null
-        ? moment(inputEndDate)
-            .add(1, "d")
-            .subtract(1, "ms")
-            .unix() * 1000
-        : initialAuditLogsDateFilter.endDate;
-
+  function handleSelection(dateRange: DateRange) {
+    const [startDate, endDate] = parseDateFilterInput(dateRange);
     dispatch(setAuditLogsDateFilter({ startDate, endDate }));
     dispatch(
       fetchAuditLogsLogsInit({
@@ -70,8 +59,11 @@ export default function DateFilter() {
         data-testid="t--audit-logs-date-filter"
         formatDate={(date) => moment(date).format("DD/M/YY")}
         height={AUDIT_LOGS_FILTER_HEIGHT}
+        maxDate={moment()
+          .endOf("day")
+          .toDate()}
         onChange={handleSelection}
-        parseDate={(date) => moment(date).toDate()}
+        parseDate={(date) => moment(date, "DD/M/YY").toDate()}
         value={selected}
         width={AUDIT_LOGS_FILTER_WIDTH}
       />
