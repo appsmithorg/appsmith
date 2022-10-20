@@ -40,6 +40,8 @@ public class AstServiceCEImpl implements AstServiceCE {
             .pendingAcquireTimeout(Duration.ofSeconds(10))
             .evictInBackground(Duration.ofSeconds(20)).build());
 
+    private final static long MAX_API_RESPONSE_TIME = 50;
+
     @Override
     public Mono<Set<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion) {
         if (!StringUtils.hasLength(bindingValue)) {
@@ -59,6 +61,14 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .body(BodyInserters.fromValue(new GetIdentifiersRequest(bindingValue, evalVersion)))
                 .retrieve()
                 .bodyToMono(GetIdentifiersResponse.class)
+                .elapsed()
+                .map(tuple -> {
+                    log.debug("Time elapsed since AST get identifiers call: {} ms", tuple.getT1());
+                    if (tuple.getT1() > MAX_API_RESPONSE_TIME) {
+                        log.debug("This call took longer than expected. The binding was: {}", bindingValue);
+                    }
+                    return tuple.getT2();
+                })
                 .map(response -> response.data.references);
         // TODO: add error handling scenario for when RTS is not accessible in fat container
     }
@@ -78,6 +88,14 @@ public class AstServiceCEImpl implements AstServiceCE {
                             .body(BodyInserters.fromValue(new EntityRefactorRequest(bindingValue, oldName, newName, evalVersion)))
                             .retrieve()
                             .bodyToMono(EntityRefactorResponse.class)
+                            .elapsed()
+                            .map(tuple -> {
+                                log.debug("Time elapsed since AST refactor call: {} ms", tuple.getT1());
+                                if (tuple.getT1() > MAX_API_RESPONSE_TIME) {
+                                    log.debug("This call took longer than expected. The binding was: {}", bindingValue);
+                                }
+                                return tuple.getT2();
+                            })
                             .map(EntityRefactorResponse::getData)
                             .filter(details -> details.refactorCount > 0)
                             .flatMap(response -> Mono.just(bindingValue).zipWith(Mono.just(response.script)))
