@@ -33,6 +33,7 @@ import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import Canvas from "../Canvas";
+import { Positioning } from "components/constants";
 
 const Container = styled.section<{
   background: string;
@@ -90,11 +91,16 @@ function CanvasContainer() {
   }
 
   if (!isPageInitializing && widgetsStructure) {
+    // TODO: Temporary workaround for positioning. To be removed after testing.
     node = (
       <Canvas
         canvasWidth={canvasWidth}
         pageId={params.pageId}
-        widgetsStructure={widgetsStructure}
+        widgetsStructure={{
+          ...widgetsStructure,
+          positioning: Positioning.Vertical,
+          useAutoLayout: true,
+        }}
       />
     );
   }
