@@ -54,9 +54,7 @@ describe("Checkbox Widget Functionality", function() {
       .last()
       .click({ force: true });
     cy.wait(200);
-    cy.get(commonlocators.dropdownmenu)
-      .contains("Left")
-      .click({ force: true });
+    cy.get(".t--button-tab-Left").click({ force: true });
     cy.wait(200);
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
