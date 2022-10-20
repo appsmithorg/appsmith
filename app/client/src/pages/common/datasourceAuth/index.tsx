@@ -125,11 +125,6 @@ function DatasourceAuth({
     }
   }, [confirmDelete]);
 
-  const delayConfirmDeleteToFalse = debounce(
-    () => setConfirmDelete(false),
-    2200,
-  );
-
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
       // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
@@ -167,6 +162,11 @@ function DatasourceAuth({
   const {
     datasources: { isDeleting, isTesting, loading: isSaving },
   } = useSelector(getEntities);
+
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
 
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasourceId),
@@ -241,7 +241,7 @@ function DatasourceAuth({
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
           text={
-            confirmDelete
+            confirmDelete && !isDeleting
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }
