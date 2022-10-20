@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import { isPermitted } from "pages/Applications/permissionHelpers";
+import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 import {
