@@ -1,6 +1,5 @@
-import boxIntersect from "box-intersect";
-// import { difference } from "lodash";
 import log from "loglevel";
+import { areIntersecting } from "utils/WidgetPropsUtils";
 
 export type TreeNode = {
   aboves: string[];
@@ -16,7 +15,6 @@ type NodeSpace = {
   bottom: number;
   id: string;
 };
-type Box = [number, number, number, number];
 const MAX_BOX_SIZE = 20000;
 
 // Takes all siblings and arranges them in a structure to figure out
@@ -24,58 +22,44 @@ const MAX_BOX_SIZE = 20000;
 export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
   spaces.sort((a, b) => a.top - b.top); // Sort based on position, top to bottom
-  const boxes: Box[] = spaces.map((space) => [
-    space.left,
-    space.top,
-    space.right,
-    space.bottom + MAX_BOX_SIZE,
-  ]);
+  const _spaces = [...spaces];
 
-  // TODO(abhinav): create an alternative function which uses brute force.
-
-  // boxes.sort((a, b) => a[1] - b[1]);
-
-  const overlaps = boxIntersect(boxes);
-  const { aboveMap, belowMap } = getOverlapMap(overlaps);
+  const aboveMap: Record<string, string[]> = {};
+  const belowMap: Record<string, string[]> = {};
+  for (let i = 0; i < _spaces.length - 1; i++) {
+    const _curr = _spaces.shift();
+    if (_curr) {
+      const currentSpace = { ..._curr };
+      currentSpace.bottom += MAX_BOX_SIZE;
+      for (let j = 0; j < _spaces.length; j++) {
+        const comparisionSpace = { ..._spaces[j] };
+        comparisionSpace.bottom += MAX_BOX_SIZE;
+        if (areIntersecting(currentSpace, comparisionSpace)) {
+          aboveMap[comparisionSpace.id] = [
+            ...(aboveMap[comparisionSpace.id] || []),
+            currentSpace.id,
+          ];
+          belowMap[currentSpace.id] = [
+            ...(belowMap[currentSpace.id] || []),
+            comparisionSpace.id,
+          ];
+        }
+      }
+    }
+  }
 
   const tree: Record<string, TreeNode> = {};
   for (let i = 0; i < spaces.length; i++) {
     const space = spaces[i];
     tree[space.id] = {
-      aboves: (aboveMap[i] || []).map((id) => spaces[id].id),
-      belows: (belowMap[i] || []).map((id) => spaces[id].id),
+      aboves: aboveMap[space.id] || [],
+      belows: belowMap[space.id] || [],
       topRow: Math.floor(space.top),
       bottomRow: Math.ceil(space.bottom),
     };
   }
 
   return tree;
-}
-
-// export function generateTreeBruteForce(
-//   spaces: NodeSpace[],
-// ): Record<string, TreeNode> {
-//   spaces.sort((a, b) => a.top - b.top);
-// }
-
-// Gets a list of widgets below and above for each widget
-// Namely, the belowMap and aboveMap respectively.
-function getOverlapMap(arr: [number, number][]) {
-  const belowMap: Record<string, number[]> = {};
-  const aboveMap: Record<string, number[]> = {};
-
-  // Iteration 1
-  for (let i = 0; i < arr.length; i++) {
-    const overlap = arr[i];
-    if (overlap[0] > overlap[1]) {
-      belowMap[overlap[1]] = [...(belowMap[overlap[1]] || []), overlap[0]];
-      aboveMap[overlap[0]] = [...(aboveMap[overlap[0]] || []), overlap[1]];
-    } else {
-      aboveMap[overlap[1]] = [...(aboveMap[overlap[1]] || []), overlap[0]];
-      belowMap[overlap[0]] = [...(belowMap[overlap[0]] || []), overlap[1]];
-    }
-  }
-  return { belowMap, aboveMap };
 }
 
 function getEffectedBoxes(

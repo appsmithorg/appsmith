@@ -69,6 +69,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
+  context!: React.ContextType<typeof EditorContext>;
   expectedHeight = 0;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
