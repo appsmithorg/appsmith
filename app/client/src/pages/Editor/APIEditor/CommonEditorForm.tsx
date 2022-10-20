@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   HTTP_METHOD_OPTIONS,
@@ -65,6 +65,8 @@ import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
 import { executeCommandAction } from "../../../actions/apiPaneActions";
+import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
+import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
 
 const Form = styled.form`
   position: relative;
@@ -529,8 +531,10 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
  * @returns Editor with respect to which type is using it
  */
 function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
-  const [selectedIndex, setSelectedIndex] = useState(
-    props.defaultTabSelected || 0,
+  const selectedIndex = useSelector(getApiPaneConfigSelectedTabIndex);
+  const setSelectedIndex = useCallback(
+    (index: number) => dispatch(setApiPaneConfigSelectedTabIndex(index)),
+    [],
   );
   const [
     apiBindHelpSectionVisible,

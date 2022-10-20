@@ -51,8 +51,8 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginType } from "entities/Action";
 import { Toaster, Variant } from "design-system";
+import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
@@ -70,7 +70,6 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
@@ -93,7 +92,7 @@ function* handleCreateNewJsActionSaga(
   const { from, pageId } = action.payload;
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
-    JS_PLUGIN_PACKAGE_NAME,
+    PluginPackageName.JS,
   );
   if (pageId && pluginId) {
     const jsActions: JSCollectionDataState = yield select(getJSCollections);

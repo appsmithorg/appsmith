@@ -1,6 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { setCurrentTab, showDebugger } from "actions/debuggerActions";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -125,7 +128,7 @@ function DebugCTA(props: DebugCTAProps) {
         source: props.source,
       });
     dispatch(showDebugger(true));
-    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   };
 
   return <DebugButton className={props.className} onClick={onClick} />;

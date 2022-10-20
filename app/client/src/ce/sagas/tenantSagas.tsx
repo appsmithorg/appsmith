@@ -1,25 +1,19 @@
-import TenantApi from "@appsmith/api/TenantApi";
 import {
-  ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ApiResponse } from "api/ApiResponses";
-import { call, put } from "redux-saga/effects";
-import { validateResponse } from "sagas/ErrorSagas";
+import { PERMISSION_TYPE } from "pages/Applications/permissionHelpers";
+import { put } from "redux-saga/effects";
 
+// On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
   try {
-    const response: ApiResponse = yield call(
-      TenantApi.fetchCurrentTenantConfig,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
-        payload: response.data,
-      });
-    }
+    yield put({
+      type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
+      payload: {
+        userPermissions: [PERMISSION_TYPE.CREATE_WORKSPACE],
+      },
+    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR,
