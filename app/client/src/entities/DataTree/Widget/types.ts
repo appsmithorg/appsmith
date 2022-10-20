@@ -27,7 +27,7 @@ export type PropertyOverrideDependency = Record<
   }
 >;
 
-export interface WidgetEntityConfig extends Partial<WidgetConfig> {
+export interface WidgetEntityConfig extends WidgetConfig {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;

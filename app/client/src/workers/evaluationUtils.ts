@@ -19,6 +19,7 @@ import {
   EvalTreeEntity,
   EvalTree,
   EntityConfigCollection,
+  DataTreeEntityConfig,
 } from "entities/DataTree/DataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -371,7 +372,7 @@ export const addDependantsOfNestedPropertyPaths = (
 };
 
 export function isWidget(
-  entity: Partial<EvalTreeEntity> | WidgetEntityConfig,
+  entity: Partial<EvalTreeEntity> | Partial<DataTreeEntityConfig>,
 ): entity is WidgetEvalTree {
   return (
     typeof entity === "object" &&
@@ -577,6 +578,7 @@ export function getValidatedTree(
           addErrorToEntityProperty(
             evalErrors,
             tree,
+            entityConfigCollection,
             getEvalErrorPath(`${entityKey}.${property}`, {
               isPopulated: false,
               fullPath: false,
@@ -673,14 +675,15 @@ export function getSafeToRenderDataTree(
 export const addErrorToEntityProperty = (
   errors: EvaluationError[],
   dataTree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
   fullPropertyPath: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
   );
-  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
-    entityName
-  ];
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(
+    entityConfigCollection,
+  )[entityName];
   const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const existingErrors = _.get(
@@ -743,7 +746,11 @@ export const findDatatype = (value: unknown) => {
     .toLowerCase();
 };
 
-export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
+export const isDynamicLeaf = (
+  unEvalTree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
+  propertyPath: string,
+) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
   // Framework feature: Top level items are never leaves
   if (entityName === propertyPath) return false;
@@ -755,8 +762,9 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    relativePropertyPath in entity.reactivePaths ||
-    (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
+    relativePropertyPath in entityConfigCollection.reactivePaths ||
+    (isWidget(entity) &&
+      relativePropertyPath in entityConfigCollection.triggerPaths)
   );
 };
 
@@ -764,7 +772,7 @@ export const addWidgetPropertyDependencies = ({
   entity,
   entityName,
 }: {
-  entity: DataTreeWidget;
+  entity: WidgetEntityConfig;
   entityName: string;
 }) => {
   const dependencies: DependencyMap = {};
@@ -820,11 +828,12 @@ export const getAllPrivateWidgetsInDataTree = (
 };
 
 export const getDataTreeWithoutPrivateWidgets = (
-  dataTree: DataTree,
-): DataTree => {
-  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
+  entityConfigCollection: EntityConfigCollection,
+  evalTree: EvalTree,
+): EvalTree => {
+  const privateWidgets = getAllPrivateWidgetsInDataTree(entityConfigCollection);
   const privateWidgetNames = Object.keys(privateWidgets);
-  const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
+  const treeWithoutPrivateWidgets = _.omit(evalTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
 /**
@@ -843,25 +852,35 @@ export const getDataTreeWithoutPrivateWidgets = (
  * @return {*}
  */
 export const overrideWidgetProperties = (params: {
-  entity: DataTreeWidget;
+  entity: EvalTree;
+  widgetConfig: WidgetEntityConfig;
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
   evalMetaUpdates: EvalMetaUpdates;
 }) => {
-  const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
+  const {
+    currentTree,
+    entity,
+    evalMetaUpdates,
+    propertyPath,
+    value,
+    widgetConfig,
+  } = params;
   const clonedValue = klona(value);
-  if (propertyPath in entity.overridingPropertyPaths) {
+  if (propertyPath in widgetConfig.overridingPropertyPaths) {
     const overridingPropertyPaths =
-      entity.overridingPropertyPaths[propertyPath];
+      widgetConfig.overridingPropertyPaths[propertyPath];
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
+
       _.set(
         currentTree,
-        [entity.widgetName, ...overriddenPropertyPathArray],
+        [widgetConfig.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+
       // evalMetaUpdates has all updates from property which overrides meta values.
       if (
         propertyPath.split(".")[0] !== "meta" &&
@@ -869,7 +888,7 @@ export const overrideWidgetProperties = (params: {
       ) {
         const metaPropertyPath = overriddenPropertyPathArray.slice(1);
         evalMetaUpdates.push({
-          widgetId: entity.widgetId,
+          widgetId: widgetConfig.widgetId,
           metaPropertyPath,
           value: clonedValue,
         });
@@ -882,7 +901,7 @@ export const overrideWidgetProperties = (params: {
     // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
     // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
-      entity.propertyOverrideDependency[propertyPath];
+      widgetConfig.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
       const clonedDefaultValue = klona(defaultValue);
@@ -890,7 +909,7 @@ export const overrideWidgetProperties = (params: {
         const propertyPathArray = propertyPath.split(".");
         _.set(
           currentTree,
-          [entity.widgetName, ...propertyPathArray],
+          [widgetConfig.widgetName, ...propertyPathArray],
           clonedDefaultValue,
         );
 

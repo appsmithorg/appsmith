@@ -144,9 +144,11 @@ const generateDataTreeWidgetWithoutMeta = (
   );
 
   return {
+    // @ts-expect-error: fix types
     dataTreeWidgetWithoutMetaProps,
     overridingMetaPropsMap,
     defaultMetaProps,
+    // @ts-expect-error: fix types
     entityConfig: {
       logBlackList: {
         ...widget.logBlackList,
