@@ -170,7 +170,7 @@ export const generatePositioningConfig = (
     controlType: "DROP_DOWN",
     defaultValue: value,
     options: [
-      { label: "Fixed", value: Positioning.Fixed },
+      // { label: "Fixed", value: Positioning.Fixed },
       { label: "Horizontal stack", value: Positioning.Horizontal },
       { label: "Vertical stack", value: Positioning.Vertical },
     ],
