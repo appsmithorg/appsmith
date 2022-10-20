@@ -2,7 +2,7 @@ const dsl = require("../../../../fixtures/dynamicHeightContainerdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation", function () {
-    it("Validate change in auto height width for widgets", function () {
+    it("Validate change with auto height width for widgets", function () {
         cy.addDsl(dsl);
         cy.wait(3000); //for dsl to settle
         cy.openPropertyPane("containerwidget");
@@ -13,7 +13,7 @@ describe("Dynamic Height Width validation", function () {
             .then((height) => {
                 cy.get(".t--widget-checkboxgroupwidget").invoke("css", "height")
                     .then((checkboxheight) => {
-                        cy.get(".t--property-control-options-add").click();
+                        cy.get(commonlocators.addOption).click();
                         cy.wait("@updateLayout").should(
                             "have.nested.property",
                             "response.body.responseMeta.status",

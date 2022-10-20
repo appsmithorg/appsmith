@@ -1,7 +1,7 @@
 const dsl = require("../../../../fixtures/multipleContainerdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Dynamic Height Width validation for multipple container", function () {
+describe("Dynamic Height Width validation for multiple container", function () {
     it("Validate change in auto height width with multiple containers", function () {
         cy.addDsl(dsl);
         cy.wait(3000); //for dsl to settle
@@ -20,7 +20,7 @@ describe("Dynamic Height Width validation for multipple container", function () 
                     .then((mheight) => {
                         cy.get(".t--widget-containerwidget").eq(2).invoke("css", "height")
                             .then((iheight) => {
-                                cy.get(".t--property-control-options-add").click();
+                                cy.get(commonlocators.addOption).click({ force: true });
                                 cy.get(".t--widget-checkboxgroupwidget").invoke("css", "height")
                                     .then((checkboxheight) => {
                                         cy.wait("@updateLayout").should(

@@ -195,6 +195,11 @@
   "fixed": "[data-cy='t--dropdown-option-Fixed']",
   "autoHeight": "[data-cy='t--dropdown-option-Auto Height']",
   "autoHeightWithLimits": "[data-cy='t--dropdown-option-Auto Height with limits']",
-  "minHeight": ".t--property-control-minheight(inrows)",
-  "maxHeight": ".t--property-control-maxheight(inrows)"
+  "minHeight": "minheight\\(inrows\\)",
+  "maxHeight": "maxheight\\(inrows\\)",
+  "overlayMin": "[data-cy='t--auto-height-overlay-min']",
+  "overlayMax": "[data-cy='t--auto-height-overlay-max']",
+  "addOption": ".t--property-control-options-add",
+  "showTabsControl": ".t--property-control-showtabs .bp3-control-indicator",
+  "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator"
 }

@@ -9,20 +9,20 @@ describe("Dynamic Height Width validation with limits", function () {
         cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
         cy.wait(3000); //for dsl to settle
         cy.contains("4");
-        cy.checkDefaultValue("minheight\\(inrows\\)",0,"4")
-        cy.testJsontext("minheight\\(inrows\\)", "5");
-        cy.get("[data-cy='t--auto-height-overlay-min']").should("be.visible");
-        cy.get("[data-cy='t--auto-height-overlay-min']").should(
+        cy.checkDefaultValue(commonlocators.minHeight, 0, "4")
+        cy.testJsontext(commonlocators.minHeight, "5");
+        cy.get(commonlocators.overlayMin).should("be.visible");
+        cy.get(commonlocators.overlayMin).should(
             "have.css",
             "background-color",
             "rgba(243, 43, 139, 0.1)",
         );
         cy.contains("Min-height: 5 rows");
         cy.contains("40");
-        cy.checkDefaultValue("maxheight\\(inrows\\)",1,"40")
-        cy.testJsontext("maxheight\\(inrows\\)", "60");
-        cy.get("[data-cy='t--auto-height-overlay-max']").should("be.visible");
-        cy.get("[data-cy='t--auto-height-overlay-max']").should(
+        cy.checkDefaultValue(commonlocators.maxHeight, 1, "40")
+        cy.testJsontext(commonlocators.maxHeight, "60");
+        cy.get(commonlocators.overlayMax).should("be.visible");
+        cy.get(commonlocators.overlayMax).should(
             "have.css",
             "background-color",
             "rgba(243, 43, 139, 0.1)",
@@ -30,7 +30,7 @@ describe("Dynamic Height Width validation with limits", function () {
         cy.contains("Max-height: 60 rows");
         cy.changeLayoutHeight(commonlocators.fixed);
         cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
-        cy.checkDefaultValue("minheight\\(inrows\\)",0,"4")
-        cy.checkDefaultValue("maxheight\\(inrows\\)",1,"40")
+        cy.checkDefaultValue(commonlocators.minHeight, 0, "5")
+        cy.checkDefaultValue(commonlocators.maxHeight, 1, "60")
     });
 });

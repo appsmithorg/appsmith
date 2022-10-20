@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/invisbleWidgetdsl.json");
+const dsl = require("../../../../fixtures/invisibleWidgetdsl.json");
 
-describe("Dynamic Height Width validation for Invisiblity", function () {
+describe("Dynamic Height Width validation for Visibility", function () {
     before(() => {
         cy.addDsl(dsl);
     });
@@ -12,7 +12,7 @@ describe("Dynamic Height Width validation for Invisiblity", function () {
         cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
         cy.get(".t--widget-containerwidget").invoke("css", "height")
             .then((theight) => {
-                cy.get(".t--draggable-checkboxwidget .bp3-control-indicator").click({ force: true })
+                cy.get(commonlocators.checkboxIndicator).click({ force: true })
                 cy.get(".t--widget-containerwidget").invoke("css", "height")
                     .then((tnewheight) => {
                         expect(theight).to.equal(tnewheight);

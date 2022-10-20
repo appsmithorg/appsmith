@@ -46,7 +46,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
                     .then((tnewheight) => {
                         expect(theight).to.equal(tnewheight);
                         cy.get(
-                            ".t--property-control-showtabs .bp3-control-indicator",
+                            commonlocators.showTabsControl,
                         ).click({ force: true });
                         cy.wait("@updateLayout").should(
                             "have.nested.property",
