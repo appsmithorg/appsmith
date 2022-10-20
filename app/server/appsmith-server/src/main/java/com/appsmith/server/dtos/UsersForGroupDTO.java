@@ -3,7 +3,9 @@ package com.appsmith.server.dtos;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -15,6 +17,8 @@ import static java.lang.Boolean.TRUE;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class UsersForGroupDTO {
 
     @NotNull

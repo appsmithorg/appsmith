@@ -1,16 +1,18 @@
 package com.appsmith.server.services.ee;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
@@ -19,6 +21,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +46,7 @@ import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
@@ -76,6 +80,9 @@ public class PermissionGroupServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserWorkspaceService userWorkspaceService;
 
     User api_user = null;
 
@@ -497,6 +504,23 @@ public class PermissionGroupServiceTest {
     @WithUserDetails(value = "api_user")
     @DirtiesContext
     public void testBulkAssignUnAssignMultipleGroupsToMultipleRoles() {
+
+        // Create a workspace and then leave the workspace. We shall later associate the default created roles and check
+        // access to this workspace.
+        Workspace workspace = new Workspace();
+        workspace.setName("testBulkAssignUnAssignMultipleGroupsToMultipleRoles workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        List<PermissionGroup> defaultRoles = permissionGroupService.findAllByIds(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+        PermissionGroup adminRole = defaultRoles.stream().filter(role -> role.getName().startsWith(ADMINISTRATOR)).findFirst().get();
+
+        User usertest = userService.findByEmail("usertest@usertest.com").block();
+        userService.inviteUsers(new InviteUsersDTO(List.of("usertest@usertest.com"), adminRole.getId()), "origin").block();
+        userWorkspaceService.leaveWorkspace(createdWorkspace.getId()).block();
+
+        // After leaving the workspace, user should not be able to access this.
+        Workspace shouldBeNullWorkspace = workspaceService.findById(createdWorkspace.getId(), READ_WORKSPACES).block();
+        assertThat(shouldBeNullWorkspace).isNull();
+
         String name = "testBulkAssignUnAssignMultipleGroupsToMultipleRoles Test Role 1";
         PermissionGroup mockPermissionGroup = new PermissionGroup();
         mockPermissionGroup.setName(name);
@@ -524,7 +548,7 @@ public class PermissionGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup1 = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup1 = userGroupService.createGroup(userGroup).block();
 
         userGroup = new UserGroup();
         name = "Test Group 2 : testBulkAssignMultipleGroupsToMultipleRoles";
@@ -532,18 +556,19 @@ public class PermissionGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        User usertest = userService.findByEmail("usertest@usertest.com").block();
-        User api_user = userService.findByEmail("api_user").block();
+        UserGroupDTO createdGroup2 = userGroupService.createGroup(userGroup).block();
 
-        UserGroup createdGroup2 = userGroupService.create(userGroup).block();
+        // Add user api_user to group2
+        userGroupService.inviteUsers(new UsersForGroupDTO(Set.of("api_user"), Set.of(createdGroup2.getId())), "origin").block();
+
+
 
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
 
         // First associate the createdPermissionGroup3 with the groups and users
         updateRoleAssociationDTO.setUsers(
                 Set.of(
-                        new UserCompactDTO(usertest.getId(), usertest.getName(), usertest.getEmail()),
-                        new UserCompactDTO(api_user.getId(), api_user.getName(), api_user.getEmail())
+                        new UserCompactDTO(usertest.getId(), usertest.getName(), usertest.getEmail())
                 )
         );
 
@@ -562,11 +587,12 @@ public class PermissionGroupServiceTest {
 
         permissionGroupService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
-        // Now associate the createdPermissionGroup1 and createdPermissionGroup2 with the groups and users and remove
+        // Now associate the created workspcae default role, createdPermissionGroup1 and createdPermissionGroup2 with the groups and users and remove
         // createdPermissionGroup3 from the groups and users
 
         updateRoleAssociationDTO.setRolesAdded(
                 Set.of(
+                        new PermissionGroupCompactDTO(createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get(), ""),
                         new PermissionGroupCompactDTO(createdPermissionGroup1.getId(), createdPermissionGroup1.getName()),
                         new PermissionGroupCompactDTO(createdPermissionGroup2.getId(), createdPermissionGroup2.getName())
                 )
@@ -581,10 +607,21 @@ public class PermissionGroupServiceTest {
         permissionGroupService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
 
+        Mono<Workspace> workspaceMonoWithPermission = workspaceService.findById(createdWorkspace.getId(), READ_WORKSPACES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
+
+        StepVerifier.create(workspaceMonoWithPermission)
+                .assertNext(workspace1 -> {
+                    assertThat(workspace1).isNotNull();
+                    assertThat(workspace1.getName()).isEqualTo(createdWorkspace.getName());
+                })
+                .verifyComplete();
+
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
-                permissionGroupService.findById(createdPermissionGroup1.getId(), ASSIGN_PERMISSION_GROUPS),
-                permissionGroupService.findById(createdPermissionGroup2.getId(), ASSIGN_PERMISSION_GROUPS)
+                permissionGroupService.findById(createdPermissionGroup1.getId(), READ_PERMISSION_GROUPS),
+                permissionGroupService.findById(createdPermissionGroup2.getId(), READ_PERMISSION_GROUPS)
         );
+
 
         StepVerifier.create(permissionGroupsPostUpdateMono)
                 .assertNext(tuple -> {
