@@ -3,7 +3,7 @@ import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants/ast";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
-
+import { jsObjectDeclaration } from "./jsObject/index";
 /*
  * Valuable links:
  *
@@ -271,13 +271,10 @@ export const entityRefactorFromCode = (
   invalidIdentifiers?: Record<string, unknown>
 ): EntityRefactorResponse => {
   //If script is a JSObject then replace export default to decalartion.
-  if(isJSObject) script = script.replace(/export default/g, "let chandanbalajibp =");
+  if (isJSObject) script = jsObjectToCode(script);
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
   let refactorScript = script;
-  //Handle if a different datatypes is sent by server
-  oldName = typeof oldName === "string" ? oldName : String(oldName);
-  newName = typeof newName === "string" ? newName : String(newName);
   //Difference in length of oldName and newName
   let nameLengthDiff: number = newName.length - oldName.length;
   //Offset index used for deciding location of oldName.
@@ -320,7 +317,7 @@ export const entityRefactorFromCode = (
       }
     });
     //If script is a JSObject then revert decalartion to export default.
-    if(isJSObject) refactorScript = refactorScript.replace("let chandanbalajibp =", "export default");
+    if (isJSObject) refactorScript = jsCodeToObject(refactorScript);
     return {
       isSuccess: true,
       body: { script: refactorScript, refactorCount },
@@ -611,4 +608,16 @@ const ancestorWalk = (ast: Node): NodeList => {
     variableDeclarations,
     identifierList,
   };
+};
+
+//Replace export default by a variable declaration.
+//This is required for acorn to parse code into AST.
+const jsObjectToCode = (script: string) => {
+  return script.replace(/export default/g, jsObjectDeclaration);
+};
+
+//Revert the string replacement from 'jsObjectToCode'.
+//variable declaration is replaced back by export default.
+const jsCodeToObject = (script: string) => {
+  return script.replace(jsObjectDeclaration, "export default");
 };
