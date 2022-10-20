@@ -194,8 +194,8 @@ public class PermissionGroupServiceTest {
 
         StepVerifier.create(listMono)
                 .assertNext(list -> {
-                    // 3 default roles per user (user@test, api_user, and new user created in setup) + 1 super admin role
-                    assertThat(list.size()).isEqualTo(10);
+                    // 3 default roles per user (user@test, api_user created in setup) + 1 super admin role
+                    assertThat(list.size()).isEqualTo(7);
 
                     // Assert that instance admin roles are returned
                     assertThat(list.stream()
@@ -208,15 +208,15 @@ public class PermissionGroupServiceTest {
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
                             .collect(Collectors.toSet()))
-                            .hasSize(3);
+                            .hasSize(2);
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
                             .collect(Collectors.toSet()))
-                            .hasSize(3);
+                            .hasSize(2);
                     assertThat(list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
                             .collect(Collectors.toSet()))
-                            .hasSize(3);
+                            .hasSize(2);
 
                     // Assert that user permissions is returned for all the permission groups
                     list.stream()

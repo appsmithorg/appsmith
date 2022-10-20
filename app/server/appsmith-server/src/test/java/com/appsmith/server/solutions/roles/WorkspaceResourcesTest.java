@@ -162,9 +162,12 @@ public class WorkspaceResourcesTest {
         Flux<Workspace> workspaceFlux = dataFromRepositoryForAllTabs.getWorkspaceFlux();
         StepVerifier.create(workspaceFlux.collectList())
                 .assertNext(workspaces -> {
-                    // user's apps created from SeedMongo + workspace created during setup
-                    assertThat(workspaces.size()).isEqualTo(2);
-                    Workspace workspace1 = workspaces.stream().filter(workspace -> workspace.getName().equals(createdWorkspace.getName())).findFirst().get();
+                    // assert only 1 workspace created during setup
+                    assertThat(workspaces.size()).isEqualTo(1);
+                    Workspace workspace1 = workspaces.stream()
+                            .filter(workspace -> workspace.getName().equals(createdWorkspace.getName()))
+                            .findFirst().
+                            get();
                     assertThat(workspace1.getId()).isEqualTo(createdWorkspace.getId());
                 })
                 .verifyComplete();

@@ -19,6 +19,7 @@ import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DirtiesContext
+@Slf4j
 public class TenantResourcesTest {
 
     @Autowired
@@ -142,8 +144,7 @@ public class TenantResourcesTest {
         }
 
         UserGroup userGroup = new UserGroup();
-        String groupName = UUID.randomUUID().toString();
-        userGroup.setName(groupName);
+        userGroup.setName("groupsRolesTabTest_SuperAdminPermissionGroupId Group");
         UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
@@ -172,10 +173,12 @@ public class TenantResourcesTest {
                     assertThat(groupsTopView.getEnabled()).isEqualTo(perms);
                     assertThat(groupsTopView.getChildren().size()).isEqualTo(1);
 
-                    // Assert that only one user group is returned in the view
+                    // Assert that the created group is returned in the view
                     List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream().findFirst().get().getEntities();
-                    assertThat(groupEntities.size()).isEqualTo(1);
-                    BaseView createdGroupView = groupEntities.get(0);
+                    BaseView createdGroupView = groupEntities.stream()
+                            .filter(groupEntity -> groupEntity.getId().equals(createdGroup.getId()))
+                            .findFirst()
+                            .get();
                     assertThat(createdGroupView.getName()).isEqualTo(createdGroup.getName());
                     assertThat(createdGroupView.getId()).isEqualTo(createdGroup.getId());
                     // Assert that create and assocaite roles are disabled. The rest of the permissions are enabled for the group

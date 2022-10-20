@@ -81,8 +81,11 @@ public class UserManagementServiceTest {
                     UserForManagementDTO apiUserDto = users.stream().filter(user -> user.getUsername().equals("api_user")).findFirst().get();
                     assertThat(apiUserDto.getId()).isEqualTo(api_user.getId());
                     assertThat(apiUserDto.getGroups().size()).isEqualTo(0);
-                    assertThat(apiUserDto.getRoles().size()).isEqualTo(1);
-                    assertThat(apiUserDto.getRoles().get(0).getName()).isEqualTo("Instance Administrator Role");
+                    assertThat(apiUserDto.getRoles().size()).isEqualTo(2);
+
+                    boolean adminRole = apiUserDto.getRoles().stream()
+                            .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
+                    assertThat(adminRole).isTrue();
 
                     // Also assert that anonymous user is not returned inside the list of users
                     Optional<UserForManagementDTO> anonymousUserOptional = users.stream().filter(user -> user.getUsername().equals(ANONYMOUS_USER)).findFirst();
@@ -118,8 +121,11 @@ public class UserManagementServiceTest {
 
                     assertThat(user.getId()).isEqualTo(api_user.getId());
                     assertThat(user.getGroups().size()).isEqualTo(0);
-                    assertThat(user.getRoles().size()).isEqualTo(1);
-                    assertThat(user.getRoles().get(0).getName()).isEqualTo("Instance Administrator Role");
+                    assertThat(user.getRoles().size()).isEqualTo(2);
+
+                    boolean adminRole = user.getRoles().stream()
+                            .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
+                    assertThat(adminRole).isTrue();
 
                     // Assert that name is also returned.
                     assertThat(user.getName()).isEqualTo("api_user");
