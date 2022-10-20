@@ -4,14 +4,14 @@ import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
+import { ENTITY_TYPE } from "../dataTreeFactory";
+import { setOverridingProperty } from "./utils";
 import {
-  DataTreeWidget,
-  ENTITY_TYPE,
+  WidgetEntityConfig,
+  PropertyOverrideDependency,
   OverridingPropertyPaths,
   OverridingPropertyType,
-  PropertyOverrideDependency,
-} from "./dataTreeFactory";
-import { setOverridingProperty } from "./utils";
+} from "./types";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
 // Widget changes only when dynamicBindingPathList changes.
@@ -19,10 +19,10 @@ import { setOverridingProperty } from "./utils";
 const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
-  dataTreeWidgetWithoutMetaProps: unknown;
+  dataTreeWidgetWithoutMetaProps: Record<string, unknown>;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
-  entityConfig: DataTreeWidget;
+  entityConfig: WidgetEntityConfig;
 } => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
@@ -147,9 +147,6 @@ const generateDataTreeWidgetWithoutMeta = (
     overridingMetaPropsMap,
     defaultMetaProps,
     entityConfig: {
-      defaultProps,
-      defaultMetaProps: Object.keys(defaultMetaProps),
-      dynamicBindingPathList,
       logBlackList: {
         ...widget.logBlackList,
         ...blockedDerivedProps,
@@ -165,6 +162,9 @@ const generateDataTreeWidgetWithoutMeta = (
       privateWidgets: {
         ...widget.privateWidgets,
       },
+      defaultProps,
+      dynamicBindingPathList,
+      defaultMetaProps: Object.keys(defaultMetaProps),
     },
   };
 };
@@ -219,6 +219,7 @@ export const generateDataTreeWidget = (
     dataTreeWidget[key] = value;
   });
 
-  dataTreeWidget["meta"] = meta;
+  _.merge(dataTreeWidget, { meta, ENTITY_TYPE: ENTITY_TYPE.WIDGET });
+
   return { dataTree: dataTreeWidget, entityConfig };
 };

@@ -10,7 +10,7 @@ import { PluginType } from "entities/Action";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
 import { sortObjectWithArray } from "../utils/treeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {

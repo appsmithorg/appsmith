@@ -1,16 +1,17 @@
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import { DataTreeAction, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,
 } from "entities/Action/actionProperties";
+import { ActionEntityConfig, ActionEntityEvalTree } from "./types";
 
 export const generateDataTreeAction = (
   action: ActionData,
   editorConfig: any[],
   dependencyConfig: DependencyMap = {},
-): { dataTree: unknown; entityConfig: DataTreeAction } => {
+): { dataTree: ActionEntityEvalTree; entityConfig: ActionEntityConfig } => {
   let dynamicBindingPathList: DynamicPath[] = [];
   let datasourceUrl = "";
 
@@ -55,6 +56,7 @@ export const generateDataTreeAction = (
         isExecutionSuccess: action.data?.isExecutionSuccess || false,
         headers: action.data?.headers,
       },
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
     },
     entityConfig: {
       actionId: action.config.id,

@@ -1,5 +1,5 @@
 import { PluginType } from "entities/Action";
-import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
+import { generateDataTreeJSAction } from "entities/DataTree/JSAction/dataTreeJSAction";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 describe("generateDataTreeJSAction", () => {
@@ -134,68 +134,73 @@ describe("generateDataTreeJSAction", () => {
       },
     };
     const expected = {
-      myVar1: [],
-      myVar2: {},
-      name: "JSObject2",
-      actionId: "1234",
-      pluginType: "JS",
-      ENTITY_TYPE: "JSACTION",
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
-      meta: {
+      dataTree: {
+        myVar1: [],
+        myVar2: {},
         myFun2: {
-          arguments: [],
-          isAsync: true,
-          confirmBeforeExecute: false,
+          data: {
+            users: [{ id: 1, name: "John" }],
+          },
         },
         myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
+          data: {},
         },
       },
-      bindingPaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
+      entityConfig: {
+        name: "JSObject2",
+        actionId: "1234",
+        pluginType: "JS",
+        ENTITY_TYPE: "JSACTION",
+
+        body:
+          "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+        meta: {
+          myFun2: {
+            arguments: [],
+            isAsync: true,
+            confirmBeforeExecute: false,
+          },
+          myFun1: {
+            arguments: [],
+            isAsync: false,
+            confirmBeforeExecute: false,
+          },
         },
-        {
-          key: "myVar1",
+        bindingPaths: {
+          body: "SMART_SUBSTITUTE",
+          myFun2: "SMART_SUBSTITUTE",
+          myFun1: "SMART_SUBSTITUTE",
+          myVar1: "SMART_SUBSTITUTE",
+          myVar2: "SMART_SUBSTITUTE",
         },
-        {
-          key: "myVar2",
+        dynamicBindingPathList: [
+          {
+            key: "body",
+          },
+          {
+            key: "myVar1",
+          },
+          {
+            key: "myVar2",
+          },
+          {
+            key: "myFun2",
+          },
+          {
+            key: "myFun1",
+          },
+        ],
+        variables: ["myVar1", "myVar2"],
+        dependencyMap: {
+          body: ["myFun2", "myFun1"],
         },
-        {
-          key: "myFun2",
+        reactivePaths: {
+          body: "SMART_SUBSTITUTE",
+          myFun1: "SMART_SUBSTITUTE",
+          myFun2: "SMART_SUBSTITUTE",
+          myVar1: "SMART_SUBSTITUTE",
+          myVar2: "SMART_SUBSTITUTE",
         },
-        {
-          key: "myFun1",
-        },
-      ],
-      variables: ["myVar1", "myVar2"],
-      dependencyMap: {
-        body: ["myFun2", "myFun1"],
-      },
-      myFun2: {
-        data: {
-          users: [{ id: 1, name: "John" }],
-        },
-      },
-      myFun1: {
-        data: {},
-      },
-      reactivePaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
       },
     };
     const result = generateDataTreeJSAction(jsCollection);
@@ -333,68 +338,72 @@ describe("generateDataTreeJSAction", () => {
     };
 
     const expected = {
-      myVar1: [],
-      myVar2: {},
-      name: "JSObject2",
-      actionId: "1234",
-      pluginType: "JS",
-      ENTITY_TYPE: "JSACTION",
-      body:
-        "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t return JSObject2.myFun2},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
-      meta: {
+      dataTree: {
+        myVar1: [],
+        myVar2: {},
         myFun2: {
-          arguments: [],
-          isAsync: true,
-          confirmBeforeExecute: false,
+          data: {
+            users: [{ id: 1, name: "John" }],
+          },
         },
         myFun1: {
-          arguments: [],
-          isAsync: false,
-          confirmBeforeExecute: false,
+          data: {},
         },
       },
-      bindingPaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
-      },
-      dynamicBindingPathList: [
-        {
-          key: "body",
+      entityConfig: {
+        name: "JSObject2",
+        actionId: "1234",
+        pluginType: "JS",
+        ENTITY_TYPE: "JSACTION",
+        body:
+          "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t return JSObject2.myFun2},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+        meta: {
+          myFun2: {
+            arguments: [],
+            isAsync: true,
+            confirmBeforeExecute: false,
+          },
+          myFun1: {
+            arguments: [],
+            isAsync: false,
+            confirmBeforeExecute: false,
+          },
         },
-        {
-          key: "myVar1",
+        bindingPaths: {
+          body: "SMART_SUBSTITUTE",
+          myFun2: "SMART_SUBSTITUTE",
+          myFun1: "SMART_SUBSTITUTE",
+          myVar1: "SMART_SUBSTITUTE",
+          myVar2: "SMART_SUBSTITUTE",
         },
-        {
-          key: "myVar2",
+        dynamicBindingPathList: [
+          {
+            key: "body",
+          },
+          {
+            key: "myVar1",
+          },
+          {
+            key: "myVar2",
+          },
+          {
+            key: "myFun2",
+          },
+          {
+            key: "myFun1",
+          },
+        ],
+        variables: ["myVar1", "myVar2"],
+        dependencyMap: {
+          body: ["myFun2", "myFun1"],
         },
-        {
-          key: "myFun2",
+        reactivePaths: {
+          body: "SMART_SUBSTITUTE",
+          myFun1: "SMART_SUBSTITUTE",
+          myFun2: "SMART_SUBSTITUTE",
+          myVar1: "SMART_SUBSTITUTE",
+          myVar2: "SMART_SUBSTITUTE",
         },
-        {
-          key: "myFun1",
-        },
-      ],
-      variables: ["myVar1", "myVar2"],
-      dependencyMap: {
-        body: ["myFun2", "myFun1"],
-      },
-      myFun2: {
-        data: {
-          users: [{ id: 1, name: "John" }],
-        },
-      },
-      myFun1: {
-        data: {},
-      },
-      reactivePaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-        myVar1: "SMART_SUBSTITUTE",
-        myVar2: "SMART_SUBSTITUTE",
       },
     };
 

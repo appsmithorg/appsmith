@@ -1,8 +1,8 @@
 import {
-  PropertyOverrideDependency,
   OverridingPropertyPaths,
   OverridingPropertyType,
-} from "./dataTreeFactory";
+  PropertyOverrideDependency,
+} from "./types";
 
 type SetOverridingPropertyParams = {
   key: string;

@@ -15,6 +15,8 @@ import {
   DataTreeAction,
   DataTreeWidget,
   DataTreeJSAction,
+  EvalTree,
+  EntityConfigCollection,
 } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
@@ -126,12 +128,14 @@ interface UpdateDependencyMap {
 }
 export const updateDependencyMap = ({
   dataTreeEvalRef,
+  entityConfigCollection,
   translatedDiffs,
   unEvalDataTree,
 }: {
   dataTreeEvalRef: DataTreeEvaluator;
   translatedDiffs: Array<DataTreeDiff>;
-  unEvalDataTree: DataTree;
+  unEvalDataTree: EvalTree;
+  entityConfigCollection: EntityConfigCollection;
 }): UpdateDependencyMap => {
   const diffCalcStart = performance.now();
   let didUpdateDependencyMap = false;
@@ -148,7 +152,7 @@ export const updateDependencyMap = ({
     const { entityName } = getEntityNameAndPropertyPath(
       dataTreeDiff.payload.propertyPath,
     );
-    let entity = unEvalDataTree[entityName];
+    let entity = entityConfigCollection[entityName];
     if (dataTreeDiff.event === EvalTreeDiffEvent.DELETE) {
       entity = dataTreeEvalRef.oldUnEvalTree[entityName];
     }

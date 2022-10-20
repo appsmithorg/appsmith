@@ -504,13 +504,33 @@ export interface WidgetDataProps
     WidgetPositionProps,
     WidgetDisplayProps {}
 
+// Private widgets do not get evaluated
+// For example, for widget Button1 in a List widget List1, List1.template.Button1.text gets evaluated,
+// so there is no need to evaluate Button1.text
+export type PrivateWidgets = Record<string, true>;
+
 export interface WidgetProps
   extends WidgetDataProps,
     WidgetDynamicPathListProps,
     DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
+  logBlackList: Record<string, true>;
+  privateWidgets: PrivateWidgets;
+  defaultProps: Record<string, unknown>;
+}
+
+export interface WidgetEvalProps extends WidgetDisplayProps {
+  [key: string]: unknown;
+}
+export interface WidgetConfig
+  extends WidgetBaseProps,
+    WidgetPositionProps,
+    WidgetDynamicPathListProps {
+  logBlackList: Record<string, true>;
+  privateWidgets: PrivateWidgets;
+  defaultProps: Record<string, unknown>;
 }
 
 export interface WidgetCardProps {

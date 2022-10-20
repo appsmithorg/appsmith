@@ -17,13 +17,15 @@ export interface ActionData {
   data?: ActionResponse;
 }
 
-export interface ActionDataWithMeta extends ActionData {
+export interface ActionResponseMeta {
   responseMeta: {
     headers?: unknown;
     isExecutionSuccess: boolean;
     statusCode?: string;
   };
 }
+
+export interface ActionDataWithMeta extends ActionResponseMeta, ActionData {}
 
 export type ActionDataState = ActionData[];
 export interface PartialActionData {

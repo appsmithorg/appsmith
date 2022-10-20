@@ -1,7 +1,6 @@
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
 import {
-  DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
@@ -9,6 +8,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { DataTreeWidget } from "./types";
 
 // const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -155,7 +155,7 @@ describe("generateDataTreeWidget", () => {
   });
 
   it("generates enhanced widget with the right properties", () => {
-    const widget: FlattenedWidgetProps = {
+    const widget: Partial<FlattenedWidgetProps> = {
       bottomRow: 0,
       isLoading: false,
       leftColumn: 0,
@@ -207,93 +207,100 @@ describe("generateDataTreeWidget", () => {
       errorMessage: EvaluationSubstitutionType.TEMPLATE,
     };
 
-    const expected: DataTreeWidget = {
-      bindingPaths,
-      reactivePaths: {
-        ...bindingPaths,
-        isDirty: EvaluationSubstitutionType.TEMPLATE,
-        isFocused: EvaluationSubstitutionType.TEMPLATE,
-        isValid: EvaluationSubstitutionType.TEMPLATE,
-        text: EvaluationSubstitutionType.TEMPLATE,
-        value: EvaluationSubstitutionType.TEMPLATE,
-        "meta.text": EvaluationSubstitutionType.TEMPLATE,
-      },
-      meta: {
-        text: "Tester",
+    const expected = {
+      dataTree: {
+        value: "{{Input1.text}}",
         isDirty: true,
+        isFocused: false,
+        isValid: "{{true}}",
+        text: "Tester",
+        isLoading: false,
+        defaultText: "",
         deepObj: {
           level1: {
             metaValue: 10,
           },
         },
       },
-      triggerPaths: {
-        onSubmit: true,
-        onTextChanged: true,
-      },
-      validationPaths: {
-        defaultText: { type: ValidationTypes.TEXT },
-        errorMessage: { type: ValidationTypes.TEXT },
-        isDisabled: { type: ValidationTypes.BOOLEAN },
-        isRequired: { type: ValidationTypes.BOOLEAN },
-        isVisible: { type: ValidationTypes.BOOLEAN },
-        placeholderText: { type: ValidationTypes.TEXT },
-        regex: { type: ValidationTypes.REGEX },
-        resetOnSubmit: { type: ValidationTypes.BOOLEAN },
-      },
-      dynamicBindingPathList: [
-        {
-          key: "isValid",
+      entityConfig: {
+        bindingPaths,
+        reactivePaths: {
+          ...bindingPaths,
+          isDirty: EvaluationSubstitutionType.TEMPLATE,
+          isFocused: EvaluationSubstitutionType.TEMPLATE,
+          isValid: EvaluationSubstitutionType.TEMPLATE,
+          text: EvaluationSubstitutionType.TEMPLATE,
+          value: EvaluationSubstitutionType.TEMPLATE,
+          "meta.text": EvaluationSubstitutionType.TEMPLATE,
         },
-        {
-          key: "value",
+        meta: {
+          text: "Tester",
+          isDirty: true,
+          deepObj: {
+            level1: {
+              metaValue: 10,
+            },
+          },
         },
-      ],
-      logBlackList: {
-        isValid: true,
-        value: true,
-      },
-      value: "{{Input1.text}}",
-      isDirty: true,
-      isFocused: false,
-      isValid: "{{true}}",
-      text: "Tester",
-      bottomRow: 0,
-      isLoading: false,
-      leftColumn: 0,
-      parentColumnSpace: 0,
-      parentRowSpace: 0,
-      propertyOverrideDependency: {
-        text: {
-          DEFAULT: "defaultText",
-          META: "meta.text",
+        triggerPaths: {
+          onSubmit: true,
+          onTextChanged: true,
         },
-      },
-      renderMode: RenderModes.CANVAS,
-      rightColumn: 0,
-      topRow: 0,
-      type: "INPUT_WIDGET_V2",
-      version: 0,
-      widgetId: "123",
-      widgetName: "Input1",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-      defaultText: "",
-      defaultMetaProps: ["text", "isDirty", "isFocused"],
-      defaultProps: {
-        text: "defaultText",
-      },
-      overridingPropertyPaths: {
-        defaultText: ["text", "meta.text"],
-        "meta.text": ["text"],
-      },
-      privateWidgets: {},
-      deepObj: {
-        level1: {
-          metaValue: 10,
+        validationPaths: {
+          defaultText: { type: ValidationTypes.TEXT },
+          errorMessage: { type: ValidationTypes.TEXT },
+          isDisabled: { type: ValidationTypes.BOOLEAN },
+          isRequired: { type: ValidationTypes.BOOLEAN },
+          isVisible: { type: ValidationTypes.BOOLEAN },
+          placeholderText: { type: ValidationTypes.TEXT },
+          regex: { type: ValidationTypes.REGEX },
+          resetOnSubmit: { type: ValidationTypes.BOOLEAN },
         },
+        dynamicBindingPathList: [
+          {
+            key: "isValid",
+          },
+          {
+            key: "value",
+          },
+        ],
+        logBlackList: {
+          isValid: true,
+          value: true,
+        },
+
+        bottomRow: 0,
+
+        leftColumn: 0,
+        parentColumnSpace: 0,
+        parentRowSpace: 0,
+        propertyOverrideDependency: {
+          text: {
+            DEFAULT: "defaultText",
+            META: "meta.text",
+          },
+        },
+        renderMode: RenderModes.CANVAS,
+        rightColumn: 0,
+        topRow: 0,
+        type: "INPUT_WIDGET_V2",
+        version: 0,
+        widgetId: "123",
+        widgetName: "Input1",
+        defaultMetaProps: ["text", "isDirty", "isFocused"],
+        defaultProps: {
+          text: "defaultText",
+        },
+        overridingPropertyPaths: {
+          defaultText: ["text", "meta.text"],
+          "meta.text": ["text"],
+        },
+        privateWidgets: {},
+        ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       },
     };
 
+    // @ts-expect-error: fix types
     const result = generateDataTreeWidget(widget, widgetMetaProps);
     expect(result).toStrictEqual(expected);
   });

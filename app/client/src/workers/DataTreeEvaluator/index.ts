@@ -157,7 +157,11 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, entityConfigCollection);
+    const parsedCollections = parseJSActions(
+      this,
+      clonedUnEvalTree,
+      entityConfigCollection,
+    );
     jsUpdates = parsedCollections.jsUpdates;
 
     // TODO: Remove this method
@@ -354,6 +358,7 @@ export default class DataTreeEvaluator {
       dataTreeEvalRef: this,
       translatedDiffs,
       unEvalDataTree: localUnEvalTree,
+      entityConfigCollection,
     });
 
     const updateDependenciesStop = performance.now();

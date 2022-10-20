@@ -1,17 +1,14 @@
-import {
-  DataTreeJSAction,
-  ENTITY_TYPE,
-  MetaArgs,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
+import { JSActionEntityConfig, JSActionEvalTree, MetaArgs } from "./types";
 
 const reg = /this\./g;
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
-): { dataTree: unknown; entityConfig: DataTreeJSAction } => {
+): { dataTree: JSActionEvalTree; entityConfig: JSActionEntityConfig } => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
@@ -56,6 +53,7 @@ export const generateDataTreeJSAction = (
     dataTree: {
       ...variableList,
       ...actionsData,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     },
     entityConfig: {
       name: js.config.name,

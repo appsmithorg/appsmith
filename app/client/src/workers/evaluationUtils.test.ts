@@ -29,7 +29,7 @@ import _, { get, flatten } from "lodash";
 import { overrideWidgetProperties, findDatatype } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
 import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
 import InputWidget, {
   CONFIG as InputWidgetV2Config,

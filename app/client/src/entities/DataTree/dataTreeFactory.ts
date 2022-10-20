@@ -1,29 +1,27 @@
-import {
-  ActionDataState,
-  ActionDataWithMeta,
-} from "reducers/entityReducers/actionsReducer";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ActionResponse } from "api/ActionAPI";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MetaState } from "reducers/entityReducers/metaReducer";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
-import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
-import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+import { generateDataTreeAction } from "entities/DataTree/Action/dataTreeAction";
+import { generateDataTreeJSAction } from "entities/DataTree/JSAction/dataTreeJSAction";
+import { generateDataTreeWidget } from "entities/DataTree/Widget/dataTreeWidget";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { ValidationConfig } from "constants/PropertyControlConstants";
-import { Variable } from "entities/JSCollection";
-import {
-  ActionDescription,
-  ClearPluginActionDescription,
-  RunPluginActionDescription,
-} from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { AppTheme } from "entities/AppTheming";
-import { PluginId } from "api/PluginApi";
 import log from "loglevel";
+import {
+  DataTreeJSAction,
+  JSActionEntityConfig,
+  JSActionEvalTree,
+} from "./JSAction/types";
+import { DataTreeWidget, WidgetEntityConfig } from "./Widget/types";
+import {
+  ActionEntityConfig,
+  ActionEntityEvalTree,
+  DataTreeAction,
+} from "./Action/types";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -42,85 +40,6 @@ export enum EvaluationSubstitutionType {
   SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
 }
 
-// Private widgets do not get evaluated
-// For example, for widget Button1 in a List widget List1, List1.template.Button1.text gets evaluated,
-// so there is no need to evaluate Button1.text
-export type PrivateWidgets = Record<string, true>;
-
-export interface DataTreeAction
-  extends Omit<ActionDataWithMeta, "data" | "config"> {
-  data: ActionResponse["body"];
-  actionId: string;
-  config: Partial<ActionConfig>;
-  pluginType: PluginType;
-  pluginId: PluginId;
-  name: string;
-  run: ActionDispatcher | RunPluginActionDescription | Record<string, unknown>;
-  clear:
-    | ActionDispatcher
-    | ClearPluginActionDescription
-    | Record<string, unknown>;
-  dynamicBindingPathList: DynamicPath[];
-  bindingPaths: Record<string, EvaluationSubstitutionType>;
-  reactivePaths: Record<string, EvaluationSubstitutionType>;
-  ENTITY_TYPE: ENTITY_TYPE.ACTION;
-  dependencyMap: DependencyMap;
-  logBlackList: Record<string, true>;
-  datasourceUrl: string;
-}
-
-export interface DataTreeJSAction {
-  pluginType: PluginType.JS;
-  name: string;
-  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
-  body: string;
-  [propName: string]: any;
-  meta: Record<string, MetaArgs>;
-  dynamicBindingPathList: DynamicPath[];
-  bindingPaths: Record<string, EvaluationSubstitutionType>;
-  reactivePaths: Record<string, EvaluationSubstitutionType>;
-  variables: Array<string>;
-  dependencyMap: DependencyMap;
-}
-
-export interface MetaArgs {
-  arguments: Variable[];
-  isAsync: boolean;
-  confirmBeforeExecute: boolean;
-}
-/**
- *  Map of overriding property as key and overridden property as values
- */
-export type OverridingPropertyPaths = Record<string, string[]>;
-
-export enum OverridingPropertyType {
-  META = "META",
-  DEFAULT = "DEFAULT",
-}
-/**
- *  Map of property name as key and value as object with defaultPropertyName and metaPropertyName which it depends on.
- */
-export type PropertyOverrideDependency = Record<
-  string,
-  {
-    DEFAULT: string | undefined;
-    META: string | undefined;
-  }
->;
-
-export interface DataTreeWidget extends WidgetProps {
-  bindingPaths: Record<string, EvaluationSubstitutionType>;
-  reactivePaths: Record<string, EvaluationSubstitutionType>;
-  triggerPaths: Record<string, boolean>;
-  validationPaths: Record<string, ValidationConfig>;
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
-  logBlackList: Record<string, true>;
-  propertyOverrideDependency: PropertyOverrideDependency;
-  overridingPropertyPaths: OverridingPropertyPaths;
-  privateWidgets: PrivateWidgets;
-  meta: Record<string, unknown>;
-}
-
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
@@ -132,17 +51,31 @@ export type DataTreeObjectEntity =
   | DataTreeWidget
   | DataTreeAppsmith;
 
-export type DataTreeEntity = DataTreeObjectEntity | Page[] | ActionDispatcher;
+export type DataTreeEntity = DataTreeObjectEntity;
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
 };
 
+export type DataTreeEntityConfig =
+  | WidgetEntityConfig
+  | ActionEntityConfig
+  | JSActionEntityConfig
+  | DataTreeAppsmith;
+
 export type EntityConfigCollection = {
-  [entityName: string]: DataTreeEntity;
+  [entityName: string]: DataTreeEntityConfig;
 };
 
-export type EvalTree = Record<string, unknown>;
+export type EvalTreeEntity =
+  | JSActionEvalTree
+  | ActionEntityEvalTree
+  | JSActionEvalTree
+  | DataTreeAppsmith;
+
+export type EvalTree = {
+  [entityName: string]: EvalTreeEntity;
+};
 
 type DataTreeSeed = {
   actions: ActionDataState;
@@ -150,7 +83,7 @@ type DataTreeSeed = {
   pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
-  pageList: Page[];
+  // pageList: Page[];
   appData: AppDataState;
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];
@@ -162,14 +95,16 @@ export class DataTreeFactory {
     appData,
     editorConfigs,
     jsActions,
-    pageList,
     pluginDependencyConfig,
     theme,
     widgets,
     widgetsMeta,
-  }: DataTreeSeed): { dataTree: unknown; entityConfigCollection: DataTree } {
-    const dataTree: Record<string, unknown> = {};
-    const entityConfigCollection: DataTree = {};
+  }: DataTreeSeed): {
+    unEvalDataTree: EvalTree;
+    entityConfigCollection: EntityConfigCollection;
+  } {
+    const dataTree: EvalTree = {};
+    const entityConfigCollection: EntityConfigCollection = {};
     const start = performance.now();
     const startActions = performance.now();
 
@@ -207,7 +142,9 @@ export class DataTreeFactory {
     });
     const endWidgets = performance.now();
 
-    dataTree.pageList = pageList;
+    // remove pageList
+    // dataTree.pageList = pageList;
+
     dataTree.appsmith = {
       ...appData,
       // combine both persistent and transient state with the transient state
@@ -230,6 +167,6 @@ export class DataTreeFactory {
 
     log.debug("### Create unevalTree timing", out);
 
-    return { unEvalDataTree, entityConfigCollection };
+    return { unEvalDataTree: dataTree, entityConfigCollection };
   }
 }
