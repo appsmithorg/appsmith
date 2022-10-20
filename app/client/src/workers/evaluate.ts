@@ -13,6 +13,9 @@ import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import overrideTimeout from "./TimeoutOverride";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 export type EvalResult = {
   result: any;
@@ -114,6 +117,8 @@ export function setupEvaluationEnvironment() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
+  userLogs.overrideConsoleAPI();
+  overrideTimeout();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
@@ -159,6 +164,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
       dataTree,
       context?.requestId,
       skipEntityFunctions,
+      context?.eventType,
     );
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
@@ -218,6 +224,8 @@ export type EvaluateContext = {
   thisContext?: Record<string, any>;
   globalContext?: Record<string, any>;
   requestId?: string;
+  eventType?: EventType;
+  triggerMeta?: TriggerMeta;
 };
 
 export const getUserScriptToEvaluate = (
@@ -327,6 +335,11 @@ export async function evaluateAsync(
     let logs;
     /**** Setting the eval context ****/
     userLogs.resetLogs();
+    userLogs.setCurrentRequestInfo({
+      requestId,
+      eventType: context?.eventType,
+      triggerMeta: context?.triggerMeta,
+    });
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,

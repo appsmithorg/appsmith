@@ -599,7 +599,9 @@ public class WorkspaceServiceTest {
         Mono<Workspace> createWorkspace = workspaceService.create(workspace);
         String[] validWebsites = {"https://www.valid.website.com", "http://www.valid.website.com",
                 "https://valid.website.com", "http://valid.website.com", "www.valid.website.com", "valid.website.com",
-                "valid-website.com", "valid.12345.com", "12345.com"};
+                "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
+                "http://www.valid.website.com/", "https://valid.website.complete/", "http://valid.website.com/",
+                "www.valid.website.com/", "valid.website.com/", "valid-website.com/", "valid.12345.com/", "12345.com/"};
         for (String validWebsite: validWebsites) {
             Mono<Workspace> updateWorkspace = createWorkspace
                     .flatMap(t -> {

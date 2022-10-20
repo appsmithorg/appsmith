@@ -40,7 +40,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
                             .one()
-                            .map(obj -> setUserPermissionsInObject(obj, permissionGroups));
+                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
                 });
     }
 }

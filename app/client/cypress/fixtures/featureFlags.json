@@ -1,0 +1,19 @@
+{
+    "responseMeta": {
+        "status": 200,
+        "success": true
+    },
+    "data": {
+        "LINTING": true,
+        "MULTIPLAYER": false,
+        "GIT": true,
+        "APP_TEMPLATE": true,
+        "TEMPLATES_PHASE_2": true,
+        "RBAC": true,
+        "PROPERTY_PANE_GROUPING": true,
+        "AUDIT_LOGS": true,
+        "JS_EDITOR": true,
+        "GIT_IMPORT": true,
+        "CONTEXT_SWITCHING": true
+    }
+}
