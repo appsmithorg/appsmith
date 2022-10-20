@@ -62,9 +62,10 @@ describe("Canvas context Property Pane", function() {
   });
 
   it("DropDown Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
-    const propertyControlClickSelector = `.t--property-control-buttonvariant div:nth-child(2) .bp3-popover-target div`;
+    const propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
     const propertyControlVerifySelector =
-      ".t--property-control-buttonvariant .ur--has-border";
+      ".t--property-control-googlerecaptchaversion .ur--has-border";
+
     verifyPropertyPaneContext(
       () => {
         cy.get(propertyControlClickSelector)
@@ -74,7 +75,6 @@ describe("Canvas context Property Pane", function() {
       () => {
         cy.get(propertyControlVerifySelector).should("be.focused");
       },
-      true,
     );
   });
 

@@ -1183,8 +1183,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
+                    List<Param> paramsList = executeActionDto.getParams();
+                    if (paramsList == null) {
+                        paramsList = new ArrayList<>();
+                    }
+                    String executionRequestQuery = "";
+                    if (actionExecutionResult != null &&
+                            actionExecutionResult.getRequest() != null &&
+                            actionExecutionResult.getRequest().getQuery() != null) {
+                        executionRequestQuery = actionExecutionResult.getRequest().getQuery();
+                    }
 
-                    List<String> executionParams =  executeActionDto.getParams().stream().map(param -> param.getValue()).collect(Collectors.toList());
+                    List<String> executionParams =  paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
@@ -1192,7 +1202,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams,
-                            FieldName.ACTION_EXECUTION_QUERY, actionExecutionResult.getRequest().getQuery(),
+                            FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery,
                             FieldName.APPLICATION, application,
                             FieldName.PLUGIN, plugin
                     );
