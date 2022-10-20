@@ -22,6 +22,7 @@ import {
   getCurrentApplicationId,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
+import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import { checkRegex } from "utils/validation/CheckRegex";
@@ -78,14 +79,24 @@ function PageSettings(props: { page: Page }) {
   const applicationVersion = useSelector(selectApplicationVersion);
   const isPageLoading = useSelector(getPageLoadingState(page.pageId));
 
+  const updatingEntity = useSelector(getUpdatingEntity);
+  const isUpdatingEntity = updatingEntity === page.pageId;
+
   const appNeedsUpdate = applicationVersion < ApplicationVersion.SLUG_URL;
 
   const [pageName, setPageName] = useState(page.pageName);
+  const [isPageNameSaving, setIsPageNameSaving] = useState(false);
   const [isPageNameValid, setIsPageNameValid] = useState(true);
+
   const [customSlug, setCustomSlug] = useState(page.customSlug);
   const [isCustomSlugValid, setIsCustomSlugValid] = useState(true);
+  const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
+
   const [isShown, setIsShown] = useState(!!!page.isHidden);
+  const [isShownSaving, setIsShownSaving] = useState(false);
+
   const [isDefault, setIsDefault] = useState(page.isDefault);
+  const [isDefaultSaving, setIsDefaultSaving] = useState(false);
 
   const pathPreview = useCallback(getUrlPreview, [
     page.pageId,
@@ -102,12 +113,28 @@ function PageSettings(props: { page: Page }) {
     setIsDefault(!!page.isDefault);
   }, [page, page.pageName, page.customSlug, page.isHidden, page.isDefault]);
 
+  useEffect(() => {
+    if (!isPageLoading) {
+      isPageNameSaving && setIsPageNameSaving(false);
+      isCustomSlugSaving && setIsCustomSlugSaving(false);
+      isShownSaving && setIsShownSaving(false);
+    }
+  }, [isPageLoading]);
+
+  useEffect(() => {
+    console.log(isUpdatingEntity);
+    if (!isUpdatingEntity) {
+      isDefaultSaving && setIsDefaultSaving(false);
+    }
+  }, [isUpdatingEntity]);
+
   const savePageName = useCallback(() => {
     if (!isPageNameValid || page.pageName === pageName) return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       name: pageName,
     };
+    setIsPageNameSaving(true);
     dispatch(updatePage(payload));
   }, [page.pageId, page.pageName, pageName, isPageNameValid]);
 
@@ -117,15 +144,17 @@ function PageSettings(props: { page: Page }) {
       id: page.pageId,
       customSlug: customSlug || "",
     };
+    setIsCustomSlugSaving(true);
     dispatch(updatePage(payload));
   }, [page.pageId, page.customSlug, customSlug, isCustomSlugValid]);
 
-  const saveIsHidden = useCallback(
-    (isHidden: boolean) => {
+  const saveIsShown = useCallback(
+    (isShown: boolean) => {
       const payload: UpdatePageRequest = {
         id: page.pageId,
-        isHidden,
+        isHidden: !isShown,
       };
+      setIsShownSaving(true);
       dispatch(updatePage(payload));
     },
     [page.pageId, isShown],
@@ -137,7 +166,7 @@ function PageSettings(props: { page: Page }) {
         {PAGE_SETTINGS_PAGE_NAME_LABEL()}
       </div>
       <div className="pb-2.5 relative">
-        {isPageLoading && <TextLoaderIcon />}
+        {isPageNameSaving && <TextLoaderIcon />}
         <TextInput
           fill
           onBlur={savePageName}
@@ -174,7 +203,7 @@ function PageSettings(props: { page: Page }) {
         </div>
       )}
       <div className="pb-1 relative">
-        {isPageLoading && <TextLoaderIcon />}
+        {isCustomSlugSaving && <TextLoaderIcon />}
         <TextInput
           fill
           onBlur={saveCustomSlug}
@@ -226,11 +255,11 @@ function PageSettings(props: { page: Page }) {
           <AdsSwitch
             checked={isShown}
             className="mb-0"
-            disabled={isPageLoading}
+            disabled={isShownSaving}
             large
             onChange={() => {
               setIsShown(!isShown);
-              saveIsHidden(isShown);
+              saveIsShown(!isShown);
             }}
           />
         </SwitchWrapper>
@@ -244,10 +273,11 @@ function PageSettings(props: { page: Page }) {
           <AdsSwitch
             checked={isDefault}
             className="mb-0"
-            disabled={isPageLoading || page.isDefault}
+            disabled={isDefaultSaving || page.isDefault}
             large
             onChange={() => {
               setIsDefault(!isDefault);
+              setIsDefaultSaving(true);
               dispatch(setPageAsDefault(page.pageId, applicationId));
             }}
           />

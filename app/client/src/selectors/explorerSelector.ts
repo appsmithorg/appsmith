@@ -29,3 +29,7 @@ export const getExplorerWidth = (state: AppState) => {
 export const getExplorerActive = (state: AppState) => {
   return state.ui.explorer.active;
 };
+
+export const getUpdatingEntity = (state: AppState) => {
+  return state.ui.explorer.entity.updatingEntity;
+};
