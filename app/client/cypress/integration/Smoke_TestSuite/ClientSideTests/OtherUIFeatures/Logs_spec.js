@@ -395,6 +395,38 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessageOccurence, "5");
   });
 
+  it("18. Console log should not mutate the passed object", function() {
+    ee.NavigateToSwitcher("explorer");
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: () => {
+  	      let data = [];
+          console.log("start:", data);
+          for(let i=0; i<5; i++)
+            data.push(i);
+          console.log("end:", data);
+          return data;
+        },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: true,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+    agHelper.GetNClick(jsEditor._logsTab);
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, "start: []");
+    agHelper.GetNAssertContains(
+      locator._debuggerLogMessage,
+      "end: [ 0, 1, 2, 3, 4 ]",
+    );
+  });
+
   // it("Api headers need to be shown as headers in logs", function() {
   //   // TODO
   // });
