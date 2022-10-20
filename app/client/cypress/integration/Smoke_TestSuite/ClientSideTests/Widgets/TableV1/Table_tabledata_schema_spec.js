@@ -16,6 +16,7 @@ describe("Table Widget", function() {
       201,
     );
     cy.addDsl(dsl);
+    cy.wait(3000); //for dsl to settle
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 500 });
     cy.wait(1000);
