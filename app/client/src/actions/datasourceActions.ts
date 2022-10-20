@@ -286,7 +286,7 @@ export const deleteTempDSFromDraft = () => {
     payload: {
       id: TEMP_DATASOURCE_ID,
     },
-};
+  };
 };
 
 export const toggleSaveActionFlag = (isDSSaved: boolean) => {

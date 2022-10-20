@@ -168,12 +168,6 @@ function DatasourceAuth({
     }
   }, [authType]);
 
-  useEffect(() => {
-    if (!!triggerSave && triggerSave) {
-      handleDefaultAuthDatasourceSave();
-    }
-  }, [triggerSave]);
-
   // selectors
   const {
     datasources: { isDeleting, isTesting, loading: isSaving },
@@ -182,6 +176,16 @@ function DatasourceAuth({
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasourceId),
   );
+
+  useEffect(() => {
+    if (!!triggerSave && triggerSave) {
+      if (pluginType === "SAAS") {
+        handleOauthDatasourceSave();
+      } else {
+        handleDefaultAuthDatasourceSave();
+      }
+    }
+  }, [triggerSave]);
 
   // to check if saving during import flow
   const isReconnectModelOpen: boolean = useSelector(
@@ -228,6 +232,7 @@ function DatasourceAuth({
 
   // Handles Oauth datasource saving
   const handleOauthDatasourceSave = () => {
+    dispatch(toggleSaveActionFlag(true));
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(
         createDatasourceFromForm(

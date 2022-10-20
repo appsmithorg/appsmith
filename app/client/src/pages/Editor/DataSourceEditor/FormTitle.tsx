@@ -44,14 +44,12 @@ function FormTitle(props: FormTitleProps) {
   const saveStatus: {
     isSaving: boolean;
     error: boolean;
-    name: string;
   } = useSelector((state: AppState) => {
     const id = currentDatasource ? currentDatasource.id : "";
 
     return {
       isSaving: state.ui.datasourceName.isSaving[id],
       error: state.ui.datasourceName.errors[id],
-      name: state.ui.datasourceName.name[id],
     };
   });
 
@@ -91,7 +89,8 @@ function FormTitle(props: FormTitleProps) {
         currentDatasource.name !== name
       ) {
         // if the currentDatasource id equals the temp datasource id,
-        // it means that you are about to create a new datasource hence saveDatasourceName would be dispatch
+        // it means that you are about to create a new datasource hence
+        // saveDatasourceName would be dispatch
         if (currentDatasource.id === TEMP_DATASOURCE_ID) {
           dispatch(
             saveDatasourceName({
@@ -107,7 +106,6 @@ function FormTitle(props: FormTitleProps) {
             }),
           );
         }
-        dispatch(saveDatasourceName({ id: currentDatasource?.id ?? "", name }));
       }
     },
     [dispatch, isInvalidDatasourceName, currentDatasource],

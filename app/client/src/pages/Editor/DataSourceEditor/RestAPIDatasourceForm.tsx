@@ -27,6 +27,7 @@ import {
   createDatasourceFromForm,
   deleteDatasource,
   redirectAuthorizationCode,
+  toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -89,6 +90,8 @@ interface DatasourceRestApiEditorProps {
     data: Datasource,
     onSuccess?: ReduxAction<unknown>,
   ) => void;
+  toggleSaveActionFlag: (flag: boolean) => void;
+  triggerSave?: boolean;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -185,7 +188,7 @@ class DatasourceRestAPIEditor extends React.Component<
     );
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
     if (!this.props.formData) return;
 
     if (this.state.confirmDelete) {
@@ -203,6 +206,14 @@ class DatasourceRestAPIEditor extends React.Component<
       this.ensureOAuthDefaultsAreCorrect();
     } else if (authType === AuthType.apiKey) {
       this.ensureAPIKeyDefaultsAreCorrect();
+    }
+
+    // if trigger save changed, save datasource
+    if (
+      prevProps.triggerSave !== this.props.triggerSave &&
+      this.props.triggerSave
+    ) {
+      this.save();
     }
   }
 
@@ -284,6 +295,7 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
+    this.props.toggleSaveActionFlag(true);
     const normalizedValues = formValuesToDatasource(
       this.props.datasource,
       this.props.formData,
@@ -1218,7 +1230,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
-    datasourceName: state.ui.datasourceName.name[props.datasourceId],
+    datasourceName: datasource?.name ?? "",
   };
 };
 
@@ -1231,6 +1243,8 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
     createDatasource: (formData: any) =>
       dispatch(createDatasourceFromForm(formData)),
+    toggleSaveActionFlag: (flag: boolean) =>
+      dispatch(toggleSaveActionFlag(flag)),
   };
 };
 

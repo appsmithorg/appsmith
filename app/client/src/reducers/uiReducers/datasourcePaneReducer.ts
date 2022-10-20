@@ -46,6 +46,7 @@ const datasourcePaneReducer = createReducer(initialState, {
   ) => ({
     ...state,
     drafts: _.omit(state.drafts, action.payload.id),
+    newDatasource: "",
   }),
   [ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE]: (
     state: DatasourcePaneReduxState,

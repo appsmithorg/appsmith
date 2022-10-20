@@ -216,7 +216,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasource,
     datasourceButtonConfiguration,
     isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
-    datasourceName: state.ui.datasourceName.name[props.datasourceId],
+    datasourceName: datasource?.name ?? "",
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
   };

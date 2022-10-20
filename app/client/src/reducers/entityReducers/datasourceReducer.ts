@@ -13,6 +13,7 @@ import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
+import { isNumber } from "lodash";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -28,7 +29,6 @@ export interface DatasourceDataState {
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
   unconfiguredList: Datasource[];
-  datasourceSequence: number;
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
 }
@@ -47,7 +47,6 @@ const initialState: DatasourceDataState = {
   executingDatasourceQuery: false,
   isReconnectingModalOpen: false,
   unconfiguredList: [],
-  datasourceSequence: 1,
   isDatasourceBeingSaved: false,
   isDatasourceBeingSavedFromPopup: false,
 };
@@ -168,20 +167,10 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<Datasource[]>,
   ) => {
-    let sequence = Math.max(
-      ...action.payload
-        .filter((ele) => ele.name.includes(DATASOURCE_NAME_DEFAULT_PREFIX))
-        .map((ele) => parseInt(ele.name.split(" ")[2]))
-        .filter((ele) => !isNaN(ele)),
-    );
-    if (sequence === Number.NEGATIVE_INFINITY) {
-      sequence = 0;
-    }
     return {
       ...state,
       loading: false,
       list: action.payload,
-      datasourceSequence: sequence + 1,
     };
   },
   [ReduxActionTypes.TEST_DATASOURCE_SUCCESS]: (
@@ -242,17 +231,10 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
   ) => {
-    let newSequence = undefined;
-    if (action.payload?.name.includes(DATASOURCE_NAME_DEFAULT_PREFIX)) {
-      newSequence = parseInt(action.payload.name.split(" ")[2]);
-    }
     return {
       ...state,
       loading: false,
       list: state.list.concat(action.payload),
-      datasourceSequence: !!newSequence
-        ? newSequence + 1
-        : state.datasourceSequence,
       isDatasourceBeingSaved: false,
       isDatasourceBeingSavedFromPopup: false,
     };
@@ -293,6 +275,21 @@ const datasourceReducer = createReducer(initialState, {
 
         return datasource;
       }),
+    };
+  },
+  [ReduxActionTypes.SAVE_DATASOURCE_NAME]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    const list = state.list.map((datasource) => {
+      if (datasource.id === action.payload.id) {
+        return { ...datasource, name: action.payload.name };
+      }
+      return datasource;
+    });
+    return {
+      ...state,
+      list: list,
     };
   },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
@@ -431,7 +428,10 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<{ isDSSavedFromPopup: boolean }>,
   ) => {
-    return { ...state, isDatasourceBeingSavedFromPopup: action.payload.isDSSavedFromPopup };
+    return {
+      ...state,
+      isDatasourceBeingSavedFromPopup: action.payload.isDSSavedFromPopup,
+    };
   },
 });
 

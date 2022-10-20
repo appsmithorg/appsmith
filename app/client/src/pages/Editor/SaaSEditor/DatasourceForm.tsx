@@ -31,6 +31,13 @@ import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  deleteTempDSFromDraft,
+  removeTempDatasource,
+  toggleSaveActionFlag,
+  toggleSaveActionFromPopupFlag,
+} from "actions/datasourceActions";
+import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -47,9 +54,19 @@ interface StateProps extends JSONtoFormProps {
   pageId?: string; // for reconnect modal
   pluginPackageName: string; // for reconnect modal
   datasourceName: string;
+  viewMode: boolean;
+  isDatasourceBeingSaved: boolean;
+  isDatasourceBeingSavedFromPopup: boolean;
+}
+interface DatasourceFormFunctions {
+  discardTempDatasource: () => void;
+  deleteTempDSFromDraft: () => void;
+  toggleSaveActionFlag: (flag: boolean) => void;
+  toggleSaveActionFromPopupFlag: (flag: boolean) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
+  DatasourceFormFunctions &
   RouteComponentProps<{
     datasourceId: string;
     pageId: string;
@@ -69,7 +86,77 @@ const EditDatasourceButton = styled(AdsButton)`
   }
 `;
 
-class DatasourceSaaSEditor extends JSONtoForm<Props> {
+type State = {
+  showDialog: boolean;
+  unblock(): void;
+  navigation(): void;
+};
+
+class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      showDialog: false,
+      unblock: () => {
+        return undefined;
+      },
+      navigation: () => {
+        return undefined;
+      },
+    };
+    this.closeDialog = this.closeDialog.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.onDiscard = this.onDiscard.bind(this);
+  }
+
+  componentDidUpdate() {
+    // When save button is clicked in DS form, routes should be unblocked
+    if (this.props.isDatasourceBeingSaved) {
+      this.closeDialogAndUnblockRoutes();
+    }
+  }
+
+  componentDidMount() {
+    // Block all routes from this page until the data is either saved or discarded
+    if (!this.props.viewMode) {
+      this.setState({
+        unblock: this.props.history.block((tx: any) => {
+          this.setState({
+            navigation: () => this.props.history.push(tx.pathname),
+            showDialog: true,
+          });
+          return false;
+        }),
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.discardTempDatasource();
+    this.props.deleteTempDSFromDraft();
+    this.state.unblock();
+  }
+
+  closeDialog() {
+    this.setState({ showDialog: false });
+  }
+
+  onSave() {
+    this.props.toggleSaveActionFromPopupFlag(true);
+  }
+
+  onDiscard() {
+    this.closeDialogAndUnblockRoutes();
+    this.state.navigation();
+  }
+
+  closeDialogAndUnblockRoutes() {
+    this.closeDialog();
+    this.state.unblock();
+    this.props.toggleSaveActionFlag(false);
+    this.props.toggleSaveActionFromPopupFlag(false);
+  }
+
   render() {
     const { formConfig, pluginId } = this.props;
     if (!pluginId) {
@@ -101,61 +188,70 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
     return (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
-        {!hiddenHeader && (
-          <Header>
-            <FormTitleContainer>
-              <PluginImage alt="Datasource" src={this.props.pluginImage} />
-              <FormTitle focusOnMount={this.props.isNewDatasource} />
-            </FormTitleContainer>
+      <>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          {!hiddenHeader && (
+            <Header>
+              <FormTitleContainer>
+                <PluginImage alt="Datasource" src={this.props.pluginImage} />
+                <FormTitle focusOnMount={this.props.isNewDatasource} />
+              </FormTitleContainer>
 
-            {viewMode && (
-              <EditDatasourceButton
-                category={Category.tertiary}
-                className="t--edit-datasource"
-                onClick={() => {
-                  this.props.history.replace(
-                    saasEditorDatasourceIdURL({
-                      pageId: pageId || "",
-                      pluginPackageName,
-                      datasourceId,
-                      params: {
-                        viewMode: false,
-                      },
-                    }),
-                  );
-                }}
-                text="EDIT"
-              />
-            )}
-          </Header>
-        )}
-        {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
-          <>
-            {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection)
-              : null}
-            {""}
-          </>
-        )}
-        {viewMode && <Connected />}
-        {/* Render datasource form call-to-actions */}
-        {datasource && (
-          <DatasourceAuth
-            datasource={datasource}
-            datasourceButtonConfiguration={datasourceButtonConfiguration}
-            formData={formData}
-            getSanitizedFormData={_.memoize(this.getSanitizedData)}
-            isInvalid={this.validate()}
-            pageId={pageId}
-            shouldRender={!viewMode}
-          />
-        )}
-      </form>
+              {viewMode && (
+                <EditDatasourceButton
+                  category={Category.tertiary}
+                  className="t--edit-datasource"
+                  onClick={() => {
+                    this.props.history.replace(
+                      saasEditorDatasourceIdURL({
+                        pageId: pageId || "",
+                        pluginPackageName,
+                        datasourceId,
+                        params: {
+                          viewMode: false,
+                        },
+                      }),
+                    );
+                  }}
+                  text="EDIT"
+                />
+              )}
+            </Header>
+          )}
+          {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
+            <>
+              {!_.isNil(sections)
+                ? _.map(sections, this.renderMainSection)
+                : null}
+              {""}
+            </>
+          )}
+          {viewMode && <Connected />}
+          {/* Render datasource form call-to-actions */}
+          {datasource && (
+            <DatasourceAuth
+              datasource={datasource}
+              datasourceButtonConfiguration={datasourceButtonConfiguration}
+              formData={formData}
+              getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              isInvalid={this.validate()}
+              pageId={pageId}
+              shouldRender={!viewMode}
+              triggerSave={this.props.isDatasourceBeingSavedFromPopup}
+            />
+          )}
+        </form>
+        <SaveOrDiscardDatasourceModal
+          isOpen={this.state.showDialog}
+          onClose={this.closeDialog}
+          onDiscard={this.onDiscard}
+          onSave={this.onSave}
+        />
+      </>
     );
   };
 }
@@ -198,12 +294,30 @@ const mapStateToProps = (state: AppState, props: any) => {
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
     applicationId: getCurrentApplicationId(state),
-    datasourceName:
-      state.ui.datasourceName.name[props.match.params.datasourceId],
+    datasourceName: datasource?.name ?? "",
+    viewMode:
+      datasourcePane.viewMode[datasource?.id ?? ""] ?? !props.fromImporting,
+    isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
+    isDatasourceBeingSavedFromPopup:
+      state.entities.datasources.isDatasourceBeingSavedFromPopup,
   };
 };
 
-export default connect(mapStateToProps)(
+const mapDispatchToProps = (
+  dispatch: any,
+  ownProps: any,
+): DatasourceFormFunctions => ({
+  discardTempDatasource: () => dispatch(removeTempDatasource()),
+  deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
+  toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
+  toggleSaveActionFromPopupFlag: (flag) =>
+    dispatch(toggleSaveActionFromPopupFlag(flag)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm<Datasource, DatasourceSaaSEditorProps>({
     form: DATASOURCE_SAAS_FORM,
     enableReinitialize: true,

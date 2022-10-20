@@ -42,6 +42,8 @@ import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
+import { getFormData } from "selectors/formSelectors";
+import shallowEqual from "shallowequal";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -63,6 +65,7 @@ interface ReduxStateProps {
   pageSlug: string;
   fromImporting?: boolean;
   isDatasourceBeingSaved: boolean;
+  triggerSave: boolean;
 }
 
 type Props = ReduxStateProps &
@@ -78,22 +81,7 @@ type State = {
   navigation(): void;
 };
 
-class DataSourceEditor extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      showDialog: false,
-      unblock: () => {
-        return undefined;
-      },
-      navigation: () => {
-        return undefined;
-      },
-    };
-    this.closeDialog = this.closeDialog.bind(this);
-    this.onSave = this.onSave.bind(this);
-    this.onDiscard = this.onDiscard.bind(this);
-  }
+class DataSourceEditor extends React.Component<Props> {
   componentDidUpdate(prevProps: Props) {
     //Fix to prevent restapi datasource from being set in DatasourceDBForm in view mode
     //TODO: Needs cleanup
@@ -103,11 +91,6 @@ class DataSourceEditor extends React.Component<Props, State> {
       this.props.datasourceId !== prevProps.datasourceId
     ) {
       this.props.switchDatasource(this.props.datasourceId);
-    }
-
-    // When save button is clicked in DS form, routes should be unblocked
-    if (this.props.isDatasourceBeingSaved) {
-      this.closeDialogAndUnblockRoutes();
     }
   }
   componentDidMount() {
@@ -143,43 +126,6 @@ class DataSourceEditor extends React.Component<Props, State> {
         });
       }
     }
-
-    // Block all routes from this page until the data is either saved or discarded
-    this.setState({
-      unblock: this.props.history.block((tx: any) => {
-        this.setState({
-          navigation: () => this.props.history.push(tx.pathname),
-          showDialog: true,
-        });
-        return false;
-      }),
-    });
-  }
-
-  componentWillUnmount() {
-    this.props.discardTempDatasource();
-    this.props.deleteTempDSFromDraft();
-    this.state.unblock();
-  }
-
-  closeDialog() {
-    this.setState({ showDialog: false });
-  }
-
-  onSave() {
-    this.props.toggleSaveActionFromPopupFlag(true);
-  }
-
-  onDiscard() {
-    this.closeDialogAndUnblockRoutes();
-    this.state.navigation();
-  }
-
-  closeDialogAndUnblockRoutes() {
-    this.closeDialog();
-    this.state.unblock();
-    this.props.toggleSaveActionFlag(false);
-    this.props.toggleSaveActionFromPopupFlag(false);
   }
 
   render() {
@@ -202,32 +148,24 @@ class DataSourceEditor extends React.Component<Props, State> {
     } = this.props;
 
     return (
-      <div className="form--element">
-        <DataSourceEditorForm
-          applicationId={this.props.applicationId}
-          datasourceId={datasourceId}
-          formConfig={formConfig}
-          formData={formData}
-          formName={DATASOURCE_DB_FORM}
-          hiddenHeader={fromImporting}
-          isDeleting={isDeleting}
-          isNewDatasource={isNewDatasource}
-          isSaving={isSaving}
-          isTesting={isTesting}
-          openOmnibarReadMore={openOmnibarReadMore}
-          pageId={pageId}
-          pluginImage={pluginImages[pluginId]}
-          pluginType={pluginType}
-          setDatasourceEditorMode={setDatasourceEditorMode}
-          viewMode={viewMode && !fromImporting}
-        />
-        <SaveOrDiscardDatasourceModal
-          isOpen={this.state.showDialog}
-          onClose={this.closeDialog}
-          onDiscard={this.onDiscard}
-          onSave={this.onSave}
-        />
-      </div>
+      <DataSourceEditorForm
+        applicationId={this.props.applicationId}
+        datasourceId={datasourceId}
+        formConfig={formConfig}
+        formData={formData}
+        formName={DATASOURCE_DB_FORM}
+        hiddenHeader={fromImporting}
+        isDeleting={isDeleting}
+        isNewDatasource={isNewDatasource}
+        isSaving={isSaving}
+        isTesting={isTesting}
+        openOmnibarReadMore={openOmnibarReadMore}
+        pageId={pageId}
+        pluginImage={pluginImages[pluginId]}
+        pluginType={pluginType}
+        setDatasourceEditorMode={setDatasourceEditorMode}
+        viewMode={viewMode && !fromImporting}
+      />
     );
   }
 }
@@ -265,6 +203,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     applicationSlug,
     pageSlug,
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
+    triggerSave: datasources.isDatasourceBeingSavedFromPopup,
   };
 };
 
@@ -299,7 +238,90 @@ export interface DatasourcePaneFunctions {
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
 }
 
-class DatasourceEditorRouter extends React.Component<Props> {
+class DatasourceEditorRouter extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      showDialog: false,
+      unblock: () => {
+        return undefined;
+      },
+      navigation: () => {
+        return undefined;
+      },
+    };
+    this.closeDialog = this.closeDialog.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.onDiscard = this.onDiscard.bind(this);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    // When save button is clicked in DS form, routes should be unblocked
+    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+      console.log("ViewMode updated: ");
+      this.blockRoutes();
+    }
+
+    if (this.props.isDatasourceBeingSaved) {
+      this.closeDialogAndUnblockRoutes();
+    }
+  }
+
+  componentDidMount() {
+    // Block all routes from this page until the data is either saved or discarded
+    if (!this.props.viewMode) {
+      this.blockRoutes();
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.discardTempDatasource();
+    this.props.deleteTempDSFromDraft();
+    this.state.unblock();
+  }
+
+  blockRoutes() {
+    this.setState({
+      unblock: this.props.history.block((tx: any) => {
+        this.setState({
+          navigation: () => this.props.history.push(tx.pathname),
+          showDialog: true,
+        });
+        return false;
+      }),
+    });
+  }
+
+  closeDialog() {
+    this.setState({ showDialog: false });
+  }
+
+  onSave() {
+    this.props.toggleSaveActionFromPopupFlag(true);
+  }
+
+  onDiscard() {
+    this.closeDialogAndUnblockRoutes();
+    this.state.navigation();
+  }
+
+  closeDialogAndUnblockRoutes() {
+    this.closeDialog();
+    this.state.unblock();
+    this.props.toggleSaveActionFlag(false);
+    this.props.toggleSaveActionFromPopupFlag(false);
+  }
+
+  renderSaveDisacardModal() {
+    return (
+      <SaveOrDiscardDatasourceModal
+        isOpen={this.state.showDialog}
+        onClose={this.closeDialog}
+        onDiscard={this.onDiscard}
+        onSave={this.onSave}
+      />
+    );
+  }
   render() {
     const {
       datasourceId,
@@ -326,17 +348,21 @@ class DatasourceEditorRouter extends React.Component<Props> {
     // Check for specific form types first
     if (pluginDatasourceForm === "RestAPIDatasourceForm" && !shouldViewMode) {
       return (
-        <RestAPIDatasourceForm
-          applicationId={this.props.applicationId}
-          datasourceId={datasourceId}
-          hiddenHeader={fromImporting}
-          isDeleting={isDeleting}
-          isNewDatasource={isNewDatasource}
-          isSaving={isSaving}
-          location={location}
-          pageId={pageId}
-          pluginImage={pluginImages[pluginId]}
-        />
+        <>
+          <RestAPIDatasourceForm
+            applicationId={this.props.applicationId}
+            datasourceId={datasourceId}
+            hiddenHeader={fromImporting}
+            isDeleting={isDeleting}
+            isNewDatasource={isNewDatasource}
+            isSaving={isSaving}
+            location={location}
+            pageId={pageId}
+            pluginImage={pluginImages[pluginId]}
+            triggerSave={this.props.triggerSave}
+          />
+          {this.renderSaveDisacardModal()}
+        </>
       );
     }
     // for saas form
@@ -365,11 +391,14 @@ class DatasourceEditorRouter extends React.Component<Props> {
     // Default to old flow
     // Todo: later refactor to make this "AutoForm"
     return (
-      <DataSourceEditor
-        {...this.props}
-        datasourceId={datasourceId}
-        pageId={pageId}
-      />
+      <>
+        <DataSourceEditor
+          {...this.props}
+          datasourceId={datasourceId}
+          pageId={pageId}
+        />
+        {this.renderSaveDisacardModal()}
+      </>
     );
   }
 }
