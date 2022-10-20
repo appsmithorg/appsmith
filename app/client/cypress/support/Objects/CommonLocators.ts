@@ -51,15 +51,8 @@ export class CommonLocators {
   _createNew = ".t--entity-add-btn.group.files";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
-  _debuggerIcon = ".t--debugger svg";
   _errorTab = "[data-cy=t--tab-ERROR]";
   _responseTab = "[data-cy=t--tab-response]";
-  _debugErrorMsg = ".t--debugger-message";
-  _debuggerLogState = ".t--debugger-log-state";
-  _debuggerLogMessage = ".t--debugger-log-message";
-  _debuggerLogMessageOccurence = ".t--debugger-log-message-occurence";
-  _debuggerClearLogs = ".t--debugger-clear-logs";
-  _debuggerLabel = "span.debugger-label";
   _modal = ".t--modal-widget";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
@@ -154,8 +147,10 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
-    "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" + dropdownOption + "']";
-  _dropDownMultiTreeSelect = ".rc-tree-select-multiple"
-  _debuggerList = ".debugger-list";
+    "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
+    dropdownOption +
+    "']";
+  _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
 }
