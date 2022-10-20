@@ -1,14 +1,14 @@
 import * as Sentry from "@sentry/react";
-import React, { useState } from "react";
+import React from "react";
 
-import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
-import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
-import { LayoutDirection, Positioning } from "components/constants";
+// import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
+// import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+// import { LayoutDirection, Positioning } from "components/constants";
 import { Colors } from "constants/Colors";
-import { Dropdown, DropdownOption, RenderOption } from "design-system";
-import { useDispatch } from "react-redux";
-import { getWidgets } from "sagas/selectors";
-import { useSelector } from "store";
+// import { Dropdown, DropdownOption, RenderOption } from "design-system";
+// import { useDispatch } from "react-redux";
+// import { getWidgets } from "sagas/selectors";
+// import { useSelector } from "store";
 import styled from "styled-components";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
