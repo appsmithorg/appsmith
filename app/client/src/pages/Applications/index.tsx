@@ -106,6 +106,10 @@ import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`

@@ -4,5 +4,3 @@ import { PERMISSION_TYPE as CE_PERMISSION_TYPE } from "ce/utils/permissionHelper
 export const PERMISSION_TYPE = {
   ...CE_PERMISSION_TYPE,
 };
-
-export type PERMISSION_TYPE = typeof PERMISSION_TYPE[keyof typeof PERMISSION_TYPE];
