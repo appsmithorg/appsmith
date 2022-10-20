@@ -64,8 +64,11 @@ describe("Undo/Redo functionality", function() {
     // cy.wait(2000);
     // cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(2000);
+    cy.get("body").click(0, 0);
+    cy.get("body").type(`{${modifierKey}}z`);
     cy.get(apiwidget.headers).should("have.class", "react-tabs__tab--selected");
     cy.get("body").type(`{${modifierKey}}z`);
+
     cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
       "have.text",
       "https://mock-api.appsmith.com/users",
@@ -113,7 +116,6 @@ describe("Undo/Redo functionality", function() {
       });
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
-    cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get(".CodeMirror-code").should("have.text", "{{FirstAPI}}");
     // undo/redo through app menu
