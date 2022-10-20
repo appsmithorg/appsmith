@@ -39,7 +39,8 @@ export function CanvasPropertyPane() {
             position={PopoverPosition.BOTTOM}
           >
             <Button
-              className={`!bg-white !border-[${Colors.DOVE_GRAY2.toLowerCase()}] !text-[${Colors.DOVE_GRAY2.toLowerCase()}]`}
+              category={Category.tertiary}
+              className={`!border-[${Colors.DOVE_GRAY2}]`}
               fill
               onClick={openAppSettingsPane}
               size={Size.medium}
