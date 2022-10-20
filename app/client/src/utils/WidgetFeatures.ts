@@ -1,10 +1,12 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import {
+  PropertyPaneConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
-import { OverflowTypes } from "widgets/TextWidget/constants";
 
 import { AutocompleteDataType } from "./autocomplete/TernServer";
 import EventEmitter from "./EventEmitter";
@@ -48,9 +50,63 @@ export const WidgetFeaturePropertyEnhancements: Record<
     const newProperties: Partial<WidgetProps> = {};
     if (config.isCanvas) {
       newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
-      newProperties.shouldScrollContents = false;
+      newProperties.shouldScrollContents = true;
     }
+    if (config.defaults.overflow) newProperties.overflow = "NONE";
     return newProperties;
+  },
+};
+
+function findAndUpdatePropertyPaneControlConfig(
+  config: PropertyPaneConfig[],
+  propertyPaneUpdates: Record<string, Record<string, unknown>>,
+): PropertyPaneConfig[] {
+  return config.map((sectionConfig: PropertyPaneConfig) => {
+    if (
+      Array.isArray(sectionConfig.children) &&
+      sectionConfig.children.length > 0
+    ) {
+      Object.keys(propertyPaneUpdates).forEach((propertyName: string) => {
+        const controlConfigIndex:
+          | number
+          | undefined = sectionConfig.children?.findIndex(
+          (controlConfig: PropertyPaneConfig) =>
+            (controlConfig as PropertyPaneControlConfig).propertyName ===
+            propertyName,
+        );
+        if (
+          controlConfigIndex &&
+          controlConfigIndex > -1 &&
+          sectionConfig.children
+        ) {
+          sectionConfig.children[controlConfigIndex] = {
+            ...sectionConfig.children[controlConfigIndex],
+            ...propertyPaneUpdates[propertyName],
+          };
+        }
+      });
+    }
+    return sectionConfig;
+  });
+}
+
+export const WidgetFeaturePropertyPaneEnhancements: Record<
+  RegisteredWidgetFeatures,
+  (config: PropertyPaneConfig[]) => PropertyPaneConfig[]
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (config: PropertyPaneConfig[]) => {
+    function hideWhenDynamicHeightIsEnabled(props: WidgetProps) {
+      return (
+        props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS ||
+        props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
+      );
+    }
+    return findAndUpdatePropertyPaneControlConfig(config, {
+      shouldScrollContents: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+      },
+      overflow: { hidden: hideWhenDynamicHeightIsEnabled },
+    });
   },
 };
 
@@ -139,7 +195,8 @@ function updateMinMaxDynamicHeight(
     const maxDynamicHeight = parseInt(props.maxDynamicHeight, 10);
     if (
       isNaN(maxDynamicHeight) ||
-      maxDynamicHeight > props.bottomRow - props.topRow
+      maxDynamicHeight === WidgetHeightLimits.MAX_HEIGHT_IN_ROWS ||
+      maxDynamicHeight <= WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
     ) {
       updates.push({
         propertyPath: "maxDynamicHeight",
@@ -167,6 +224,7 @@ function updateMinMaxDynamicHeight(
     );
   }
 
+  // The following are updates which apply to specific widgets.
   if (
     (propertyValue === DynamicHeight.AUTO_HEIGHT ||
       propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
@@ -178,10 +236,14 @@ function updateMinMaxDynamicHeight(
     });
   }
 
-  if (props.type === "TEXT_WIDGET") {
+  if (
+    (propertyValue === DynamicHeight.AUTO_HEIGHT ||
+      propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
+    props.overflow !== undefined
+  ) {
     updates.push({
       propertyPath: "overflow",
-      propertyValue: OverflowTypes.NONE,
+      propertyValue: "NONE",
     });
   }
 
@@ -221,6 +283,7 @@ export const PropertyPaneConfigTemplates: Record<
         "minDynamicHeight",
         "bottomRow",
         "topRow",
+        "overflow",
       ],
       updateHook: updateMinMaxDynamicHeight,
       options: [
