@@ -193,7 +193,7 @@ function CanvasContainer() {
     >
       {appLayout?.type === "FLUID" && (
         <>
-          <div
+          <span
             className="resizer-left"
             draggable={false}
             ref={leftResizer as any}
@@ -202,14 +202,14 @@ function CanvasContainer() {
               position: "sticky",
               cursor: "col-resize",
               width: "16px",
-              height: "30px",
+              height: "0px",
               left: "16px",
               top: "50%",
             }}
           >
             <Icon icon={"drawer-right-filled"} />
-          </div>
-          <div
+          </span>
+          <span
             className="resizer-right"
             draggable={false}
             style={{
@@ -217,13 +217,13 @@ function CanvasContainer() {
               position: "sticky",
               cursor: "col-resize",
               width: "16px",
-              height: "30px",
+              height: "0px",
               left: "calc(100% - 32px)",
               top: "50%",
             }}
           >
             <Icon icon={"drawer-left-filled"} />
-          </div>
+          </span>
         </>
       )}
       <WidgetGlobaStyles

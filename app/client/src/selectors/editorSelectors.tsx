@@ -197,7 +197,9 @@ export const getViewModePageList = createSelector(
 );
 
 export const getCurrentApplicationLayout = (state: AppState) =>
-  state.ui.applications.currentApplication?.appLayout;
+  state.ui.applications.currentApplication?.appLayout || {
+    type: "FLUID",
+  };
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 
