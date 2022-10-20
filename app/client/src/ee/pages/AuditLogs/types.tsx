@@ -72,6 +72,7 @@ export type AuditLogType = {
   resource?: ResourceType;
   application?: ApplicationType;
   workspace?: WorkspaceType;
+  instanceSettings?: any[];
   isOpen?: boolean;
   page?: PageType;
   userPermissions?: string[];

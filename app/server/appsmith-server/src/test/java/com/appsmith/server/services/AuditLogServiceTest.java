@@ -51,6 +51,7 @@ import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.UserSignup;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -100,6 +101,16 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_SECRET;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_HIDE_WATERMARK;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PASSWORD;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PORT;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_GOOGLE_MAPS_API_KEY;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_CUSTOM_DOMAIN;
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -107,6 +118,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
+@Slf4j
 public class AuditLogServiceTest {
     /**
      * Temporarily using configuration value to control logging.
@@ -2672,7 +2684,6 @@ public class AuditLogServiceTest {
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), ""
         );
-
         Map<String, String> nonEmptyEnvChanges = Map.of(
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), "testClientSecret"
@@ -2688,10 +2699,8 @@ public class AuditLogServiceTest {
                     // We are looking for the first event since Audit Logs sort order is DESC
                     assertThat(auditLogs).isNotEmpty();
                     AuditLog auditLog = auditLogs.get(0);
-
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
-
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
                     assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
@@ -2701,12 +2710,10 @@ public class AuditLogServiceTest {
                     // Instance setting validation
                     assertThat(auditLog.getAuthentication().getMode()).isEqualTo(FieldName.GOOGLE);
                     assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Added");
-
                     // Metadata validation
                     //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
                     assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
-
                     // Misc. fields validation
                     assertThat(auditLog.getResource()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
@@ -2715,20 +2722,16 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getInvitedUsers()).isNull();
                 })
                 .verifyComplete();
-
         // Test removing configuration
         envManager.applyChanges(emptyEnvChanges).block();
-
         StepVerifier
                 .create(auditLogService.get(params))
                 .assertNext(auditLogs -> {
                     // We are looking for the first event since Audit Logs sort order is DESC
                     assertThat(auditLogs).isNotEmpty();
                     AuditLog auditLog = auditLogs.get(0);
-
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
-
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
                     assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
@@ -2738,12 +2741,10 @@ public class AuditLogServiceTest {
                     // Instance setting validation
                     assertThat(auditLog.getAuthentication().getMode()).isEqualTo(FieldName.GOOGLE);
                     assertThat(auditLog.getAuthentication().getAction()).isEqualTo("Removed");
-
                     // Metadata validation
                     //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
                     assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
-
                     // Misc. fields validation
                     assertThat(auditLog.getResource()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
@@ -3100,6 +3101,62 @@ public class AuditLogServiceTest {
 
                     // Misc. fields validation
                     assertThat(auditLog.getAuthentication()).isNull();
+                    assertThat(auditLog.getInvitedUsers()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    // Test case to validate instance setting update - General Admin Settings
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void logEvent_InstanceSettingUpdated_GeneralAdminSettings_success() {
+        Map<String, String> envChanges = Map.ofEntries(
+                entry(APPSMITH_INSTANCE_NAME.name(), "testInstanceName"),
+                entry(APPSMITH_HIDE_WATERMARK.name(), "true"),
+                entry(APPSMITH_DISABLE_TELEMETRY.name(), "true"),
+                entry(APPSMITH_MAIL_FROM.name(), "testemail@test.com"),
+                entry(APPSMITH_MAIL_PASSWORD.name(), "testPassword"),
+                entry(APPSMITH_MAIL_PORT.name(), "25"),
+                entry(APPSMITH_REPLY_TO.name(), "testemail@test.com"),
+                entry(APPSMITH_GOOGLE_MAPS_API_KEY.name(), "testGoogleMapsAPIKey"),
+                entry(APPSMITH_CUSTOM_DOMAIN.name(), "testCustomDomain")
+        );
+
+        envManager.applyChanges(envChanges).block();
+
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "instance_setting.updated", null, null, null, null, null, null, null);
+
+        StepVerifier
+                .create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    // We are looking for the first event since Audit Logs sort order is DESC
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+
+                    // User validation
+                    assertThat(auditLog.getUser().getId()).isNotNull();
+                    assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
+                    assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
+                    //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
+
+                    // Instance setting validation
+                    assertThat(auditLog.getInstanceSettings()).isEqualTo(envChanges.keySet());
+
+                    // Metadata validation
+                    //assertThat(auditLog.getMetadata().getIpAddress()).isNotEmpty();
+                    assertThat(auditLog.getMetadata().getAppsmithVersion()).isNotEmpty();
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    // Misc. fields validation
+                    assertThat(auditLog.getResource()).isNull();
+                    assertThat(auditLog.getAuthentication()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
                 })
                 .verifyComplete();

@@ -11,6 +11,7 @@ export function dbToLogs(serverLogs: any[]): AuditLogType[] {
     application: serverLog.application || {},
     workspace: serverLog.workspace || {},
     user: serverLog.user || {},
+    instanceSettings: serverLog.instanceSettings || [],
     metadata: serverLog.metadata || {},
     userPermissions: serverLog.userPermissions || [],
     id: serverLog.id || -1 /* mongodb record id */,

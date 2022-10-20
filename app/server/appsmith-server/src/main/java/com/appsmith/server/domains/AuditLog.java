@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Set;
 
 @Data
 @ToString
@@ -34,4 +35,6 @@ public class AuditLog extends BaseDomain {
 
     // Invited users list for user.invited event
     ArrayList<String> invitedUsers;
+
+    Set<String> instanceSettings;
 }
