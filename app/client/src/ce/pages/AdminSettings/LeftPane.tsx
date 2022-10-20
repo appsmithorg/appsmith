@@ -33,7 +33,9 @@ export const CategoryList = styled.ul`
   width: 264px;
 `;
 
-export const CategoryItem = styled.li``;
+export const CategoryItem = styled.li`
+  width: 80%;
+`;
 
 export const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
