@@ -235,6 +235,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       srcDoc,
       title,
       widgetId,
+      widgetName,
     } = this.props;
 
     return (
@@ -252,6 +253,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         srcDoc={srcDoc}
         title={title}
         widgetId={widgetId}
+        widgetName={widgetName}
       />
     );
   }
