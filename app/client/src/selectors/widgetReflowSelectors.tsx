@@ -18,20 +18,24 @@ export const getReflowSelector = (widgetId: string) => {
   });
 };
 
+const drawingReflow = (state: AppState) => state.ui.widgetDragResize.isDrawing;
+
 export const getIsReflowEffectedSelector = (
   widgetId: string | undefined,
   reflowed: boolean,
 ) => {
   return createSelector(
     (state: AppState) => state.ui.widgetDragResize.dragDetails,
+    drawingReflow,
     getIsResizing,
-    (dragDetails, isResizing) => {
+    (dragDetails, isDrawing, isResizing) => {
       return (
         ((widgetId &&
           dragDetails &&
           !!dragDetails.draggedOn &&
           dragDetails.draggedOn === widgetId) ||
-          isResizing) &&
+          isResizing ||
+          isDrawing) &&
         reflowed
       );
     },

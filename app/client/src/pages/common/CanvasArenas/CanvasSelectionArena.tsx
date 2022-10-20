@@ -240,10 +240,28 @@ export function CanvasSelectionArena({
         }
       };
 
+      const drawWidgetDimensions = () => {
+        const { height, left, top, width } = getSelectionDimensions();
+
+        const leftColumn = Math.floor(left / snapColumnSpace);
+        const topRow = Math.floor(top / snapRowSpace);
+
+        return {
+          rows: Math.floor(height / snapRowSpace),
+          topRow,
+          columns: Math.floor(width / snapColumnSpace),
+          leftColumn,
+          right: Math.floor(leftColumn + width / snapColumnSpace),
+          bottom: Math.floor(topRow + height / snapRowSpace),
+        };
+      };
+
       let rectWidth = 0,
         rectHeight = 0;
 
-      const triggerReflow = (selectionDimensions: SelectedArenaDimensions) => {
+      const getReflowDirection = (
+        selectionDimensions: SelectedArenaDimensions,
+      ) => {
         const strokeWidth = 1;
         let direction: ReflowDirection = ReflowDirection.UNSET;
 
@@ -290,21 +308,20 @@ export function CanvasSelectionArena({
           canvasCtx.setLineDash([5]);
           canvasCtx.strokeStyle = "rgba(125,188,255,1)";
 
-          const snappedXY = getSnappedXY(
-            snapColumnSpace,
-            snapRowSpace,
-            {
-              x: selectionDimensions.left,
-              y: selectionDimensions.top,
-            },
-            {
-              x: 0,
-              y: 0,
-            },
-          );
-
           if (isDrawingModeEnabled) {
-            const direction = triggerReflow(selectionDimensions);
+            const snappedXY = getSnappedXY(
+              snapColumnSpace,
+              snapRowSpace,
+              {
+                x: selectionDimensions.left,
+                y: selectionDimensions.top,
+              },
+              {
+                x: 0,
+                y: 0,
+              },
+            );
+            const direction = getReflowDirection(selectionDimensions);
 
             canvasCtx.strokeRect(
               snappedXY.X - leftOffset - strokeWidth - CONTAINER_GRID_PADDING,
@@ -315,31 +332,25 @@ export function CanvasSelectionArena({
             );
 
             if (direction !== ReflowDirection.UNSET && reflow.current) {
-              const topRow = Math.floor(selectionDimensions.top / snapRowSpace);
-              const leftColumn = Math.floor(
-                selectionDimensions.left / snapColumnSpace,
-              );
+              const {
+                bottom,
+                leftColumn,
+                right,
+                topRow,
+              } = drawWidgetDimensions();
+
               const resizedPositions = [
                 {
                   left: leftColumn,
-                  right: Math.floor(
-                    leftColumn + selectionDimensions.width / snapColumnSpace,
-                  ),
+                  right,
                   top: topRow,
-                  bottom: Math.floor(
-                    topRow + selectionDimensions.height / snapRowSpace,
-                  ),
+                  bottom,
                   id: "1",
                   parentId: widgetId,
                 },
               ];
 
-              console.log("REFLOW DIRECTION", direction);
-              console.log("REFLOW RESIZED POSITION", resizedPositions);
-              const {
-                isIdealToJumpContainer,
-                movementLimitMap,
-              } = reflow.current(resizedPositions, direction);
+              reflow.current(resizedPositions, direction);
             }
           } else {
             canvasCtx.strokeRect(
@@ -460,7 +471,7 @@ export function CanvasSelectionArena({
         if (
           isNotRightClick &&
           slidingArenaRef.current &&
-          (!isDraggableParent || e.ctrlKey || e.metaKey)
+          (!isDraggableParent || e.ctrlKey || e.metaKey || isDrawingModeEnabled)
         ) {
           dispatch(setCanvasSelectionStateAction(true, widgetId));
 
@@ -473,7 +484,6 @@ export function CanvasSelectionArena({
       const onMouseUp = () => {
         if (isDragging && slidingArenaRef.current && stickyCanvasRef.current) {
           isDragging = false;
-          const { height, left, top, width } = getSelectionDimensions();
           canvasCtx.clearRect(
             0,
             0,
@@ -483,12 +493,16 @@ export function CanvasSelectionArena({
           stickyCanvasRef.current.style.zIndex = "";
           slidingArenaRef.current.style.zIndex = "";
           slidingArenaRef.current.style.cursor = "";
-          if (isDrawingModeEnabled && isDrawing) {
-            const rows = Math.floor(height / snapRowSpace);
-            const topRow = Math.floor(top / snapRowSpace);
 
-            const columns = Math.floor(width / snapColumnSpace);
-            const leftColumn = Math.floor(left / snapColumnSpace);
+          // Draw Widget on the Canvas
+          if (isDrawingModeEnabled && isDrawing) {
+            const {
+              columns,
+              leftColumn,
+              rows,
+              topRow,
+            } = drawWidgetDimensions();
+
             dispatch(
               drawWidget({
                 rows,
