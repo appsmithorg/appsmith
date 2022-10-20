@@ -78,7 +78,8 @@ export default [
         helpText: "Sets the label position of the widget",
         propertyName: "labelPosition",
         label: "Position",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         options: [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
