@@ -16,8 +16,8 @@ import {
   textGetter,
   textSetter,
 } from "../utils";
-import store from "../../../../store";
-import { getPageList } from "../../../../selectors/entitiesSelector";
+import store from "store";
+import { getPageList } from "selectors/entitiesSelector";
 import { ACTION_TRIGGER_REGEX } from "../regex";
 import { TreeDropdownOption } from "design-system";
 

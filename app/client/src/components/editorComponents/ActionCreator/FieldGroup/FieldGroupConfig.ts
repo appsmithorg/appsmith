@@ -17,7 +17,7 @@ import {
   STOP_WATCH_GEO_LOCATION,
   STORE_VALUE,
   WATCH_GEO_LOCATION,
-} from "../../../../ce/constants/messages";
+} from "ce/constants/messages";
 import { FieldGroupConfig } from "../types";
 
 export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
