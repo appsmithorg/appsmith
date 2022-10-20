@@ -12,7 +12,7 @@ import {
   ADD_ENTITY,
   REMOVE_ENTITY,
 } from "@appsmith/constants/messages";
-import { ActiveAllGroupsProps } from "./types";
+import { ActiveAllGroupsProps, BaseAclProps } from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
 
 const ActiveGroups = styled.div``;
@@ -34,7 +34,6 @@ const Title = styled.span`
   letter-spacing: -0.461538px;
   color: var(--appsmith-color-black-700);
   margin: 0 8px;
-  text-transform: capitalize;
 `;
 
 const EachGroup = styled.div`
@@ -124,7 +123,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
           </Title>
         </TitleWrapper>
         {activeGroups && activeGroups.length > 0 ? (
-          activeGroups.map((group: any) => {
+          activeGroups.map((group: BaseAclProps) => {
             const removedGroup =
               getFilteredData(removedActiveGroups, group, true).length > 0;
             return (
@@ -166,7 +165,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             />
             <Title>{createMessage(ALL_ENTITIES, entityName)}</Title>
           </TitleWrapper>
-          {allGroups?.map((group: any) => {
+          {allGroups?.map((group: BaseAclProps) => {
             const addedGroup = addedAllGroups
               ? getFilteredData(addedAllGroups, group, true).length > 0
               : false;

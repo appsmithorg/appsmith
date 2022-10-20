@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router";
-import { Variant } from "components/ads";
-import { MenuItemProps, TabComponent, TabProp, Toaster } from "design-system";
+import { MenuItemProps, TabComponent, TabProp } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import RolesTree from "./RolesTree";
 import {
   createMessage,
-  DELETE_ROLE,
-  RENAME_ROLE,
-  RENAME_SUCCESSFUL,
+  ACL_DELETE,
+  ACL_RENAME,
   SEARCH_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
@@ -86,10 +84,6 @@ export function RoleAddEdit(props: RoleEditProps) {
           name,
         }),
       );
-      Toaster.show({
-        text: createMessage(RENAME_SUCCESSFUL),
-        variant: Variant.success,
-      });
     }
   };
 
@@ -97,14 +91,14 @@ export function RoleAddEdit(props: RoleEditProps) {
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: createMessage(RENAME_ROLE),
+      text: createMessage(ACL_RENAME),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
-      text: createMessage(DELETE_ROLE),
+      text: createMessage(ACL_DELETE),
       label: "delete",
     },
   ];

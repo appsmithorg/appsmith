@@ -22,9 +22,9 @@ import {
 import {
   createMessage,
   ADD_GROUP,
-  GROUP_DELETED,
-  EDIT_GROUP,
-  DELETE_GROUP,
+  ACL_DELETED_SUCCESS,
+  ACL_EDIT,
+  ACL_DELETE,
   SEARCH_GROUPS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import {
@@ -107,7 +107,7 @@ export function GroupListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/groups/${key}`);
       },
-      text: createMessage(EDIT_GROUP),
+      text: createMessage(ACL_EDIT),
     },
     {
       label: "delete",
@@ -116,7 +116,7 @@ export function GroupListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_GROUP),
+      text: createMessage(ACL_DELETE),
     },
   ];
 
@@ -156,7 +156,7 @@ export function GroupListing() {
   }, 300);
 
   const onDeleteHandler = (id: string) => {
-    dispatch(deleteGroup(id));
+    dispatch(deleteGroup({ id }));
     /* for jest tests */
     const updatedData = data.filter((userGroup) => {
       return userGroup.id !== id;
@@ -164,7 +164,7 @@ export function GroupListing() {
     setData(updatedData);
     /* for jest tests */
     Toaster.show({
-      text: createMessage(GROUP_DELETED),
+      text: createMessage(ACL_DELETED_SUCCESS),
       variant: Variant.success,
     });
   };

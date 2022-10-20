@@ -26,7 +26,7 @@ import {
 import {
   ARE_YOU_SURE,
   createMessage,
-  DELETE_USER,
+  ACL_DELETE,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
@@ -149,14 +149,21 @@ export function UserEdit(props: UserEditProps) {
   useEffect(() => {
     const saving =
       removedActiveUserGroups.length > 0 ||
-      removedActivePermissionGroups.length > 0;
+      addedAllUserGroups.length > 0 ||
+      removedActivePermissionGroups.length > 0 ||
+      addedAllPermGroups.length > 0;
     dispatch({
       type: ReduxActionTypes.ACL_IS_SAVING,
       payload: {
         isSaving: saving,
       },
     });
-  }, [removedActiveUserGroups, removedActivePermissionGroups]);
+  }, [
+    removedActiveUserGroups,
+    removedActivePermissionGroups,
+    addedAllPermGroups,
+    addedAllUserGroups,
+  ]);
 
   const onAddGroup = (group: BaseAclProps) => {
     if (selectedTabIndex === 0) {
@@ -253,6 +260,8 @@ export function UserEdit(props: UserEditProps) {
     }
     setRemovedActiveUserGroups([]);
     setRemovedActivePermissionGroups([]);
+    setAddedAllUserGroups([]);
+    setAddedAllPermGroups([]);
     Toaster.show({
       text: createMessage(SUCCESSFULLY_SAVED),
       variant: Variant.success,
@@ -334,13 +343,14 @@ export function UserEdit(props: UserEditProps) {
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={userGroups.groups}
+          addedAllGroups={addedAllUserGroups}
           allGroups={userGroups.allGroups}
           entityName="group"
           onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveUserGroups}
           searchValue={searchValue}
-          title={`${selectedUser.name}'s Groups`}
+          title={`${selectedUser.name}'s groups`}
         />
       ),
     },
@@ -351,13 +361,14 @@ export function UserEdit(props: UserEditProps) {
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissionGroups.roles}
+          addedAllGroups={addedAllPermGroups}
           allGroups={permissionGroups.allRoles}
           entityName="role"
           onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActivePermissionGroups}
           searchValue={searchValue}
-          title={`${selectedUser.name}'s Roles`}
+          title={`${selectedUser.name}'s roles`}
         />
       ),
     },
@@ -370,7 +381,7 @@ export function UserEdit(props: UserEditProps) {
       onSelect: () => {
         onDeleteHandler();
       },
-      text: createMessage(DELETE_USER),
+      text: createMessage(ACL_DELETE),
     },
   ];
 

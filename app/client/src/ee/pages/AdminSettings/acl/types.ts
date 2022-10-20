@@ -41,15 +41,15 @@ export type RoleTreeProps = {
 };
 
 export type ActiveAllGroupsProps = {
-  activeGroups: Array<any>;
-  allGroups?: Array<any>;
+  activeGroups: Array<BaseAclProps>;
+  allGroups?: Array<BaseAclProps>;
   activeOnly?: boolean;
   title?: string;
   searchValue?: string;
   addedAllGroups?: Array<any>;
   removedActiveGroups: Array<any>;
-  onAddGroup?: (group: any) => void;
-  onRemoveGroup: (group: any) => void;
+  onAddGroup?: (group: BaseAclProps) => void;
+  onRemoveGroup: (group: BaseAclProps) => void;
   entityName: string;
 };
 
@@ -62,6 +62,7 @@ export type GroupProps = BaseAclProps & {
   users: UsersInGroup[];
   roles: BaseAclProps[];
   allRoles: BaseAclProps[];
+  userPermissions?: string[];
 };
 
 export type GroupEditProps = {
@@ -114,7 +115,7 @@ export type UserProps = BaseAclProps & {
   allGroups: BaseAclProps[];
   allRoles: BaseAclProps[];
   username: string;
-  roleName?: string;
+  userPermissions?: string[];
 };
 
 export type UserEditProps = {

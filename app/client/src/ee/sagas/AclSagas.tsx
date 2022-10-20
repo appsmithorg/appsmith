@@ -51,7 +51,10 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_ACL_USER_SUCCESS,
-        payload: response.data,
+        payload: {
+          data: response.data,
+          id: action.payload.id,
+        },
       });
     } else {
       yield put({
@@ -65,20 +68,43 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
   }
 }
 
-export function* fetchAclUserSagaById(
+export function* fetchAclUserByIdSaga(
   action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
-    const response: ApiResponse = yield AclApi.fetchSingleAclUser(
-      action.payload,
-    );
+    const response: ApiResponse[] = yield all([
+      AclApi.fetchSingleAclUser(action.payload),
+      AclApi.fetchRolesForInvite(),
+      AclApi.fetchGroupsForInvite(),
+    ]);
 
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse1: boolean = yield validateResponse(response[0]);
 
-    if (isValidResponse) {
+    if (isValidResponse1) {
+      const data: any = response[0].data;
       yield put({
         type: ReduxActionTypes.FETCH_ACL_USER_BY_ID_SUCCESS,
-        payload: response.data,
+        payload: {
+          ...data,
+          allRoles: Array.isArray(response[1]?.data)
+            ? response[1]?.data?.filter((all) => {
+                return data?.roles?.length > 0
+                  ? data?.roles?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
+              })
+            : [],
+          allGroups: Array.isArray(response[2]?.data)
+            ? response[2]?.data?.filter((all) => {
+                return data?.groups?.length > 0
+                  ? data?.groups?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
+              })
+            : [],
+        },
       });
     } else {
       yield put({
@@ -104,7 +130,7 @@ export function* updateGroupsInUserSaga(
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.UPDATE_GROUPS_IN_USER,
+        type: ReduxActionTypes.UPDATE_GROUPS_IN_USER_SUCCESS,
       });
       yield put({
         type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
@@ -188,19 +214,20 @@ export function* fetchAclGroupSagaById(
     ]);
 
     const isValidResponse1: boolean = yield validateResponse(response[0]);
-    const isValidResponse2: boolean = yield validateResponse(response[1]);
 
-    if (isValidResponse1 && isValidResponse2) {
+    if (isValidResponse1) {
       const data: any = response[0].data;
       yield put({
         type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_SUCCESS,
         payload: {
           ...data,
-          allRoles: Array.isArray(response[1].data)
-            ? response[1].data.filter((all) => {
-                return data?.roles?.every((active: any) => {
-                  return active.id !== all.id;
-                });
+          allRoles: Array.isArray(response[1]?.data)
+            ? response[1]?.data?.filter((all) => {
+                return data?.roles?.length > 0
+                  ? data?.roles?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
               })
             : [],
         },
@@ -225,21 +252,20 @@ export function* createAclGroupSaga(action: ReduxAction<any>) {
     ]);
 
     const isValidResponse1: boolean = yield validateResponse(response[0]);
-    const isValidResponse2: boolean = yield validateResponse(response[1]);
 
-    if (isValidResponse1 && isValidResponse2) {
+    if (isValidResponse1) {
       const data: any = response[0].data;
       yield put({
         type: ReduxActionTypes.CREATE_ACL_GROUP_SUCCESS,
         payload: {
           ...data,
-          allRoles: Array.isArray(response[1].data)
-            ? response[1].data.filter((all) => {
-                return (
-                  data?.roles?.every((active: any) => {
-                    return active.id !== all.id;
-                  }) || true
-                );
+          allRoles: Array.isArray(response[1]?.data)
+            ? response[1]?.data?.filter((all) => {
+                return data?.roles?.length > 0
+                  ? data?.roles?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
               })
             : [],
         },
@@ -582,25 +608,32 @@ export function* cloneRoleSaga(action: ReduxAction<any>) {
   }
 }
 
-export function* fetchRolesForInviteSaga() {
+export function* fetchRolesGroupsForInviteSaga() {
   try {
-    const response: ApiResponse = yield AclApi.fetchRolesForInvite();
+    const response: ApiResponse[] = yield all([
+      AclApi.fetchRolesForInvite(),
+      AclApi.fetchGroupsForInvite(),
+    ]);
 
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse1: boolean = yield validateResponse(response[0]);
+    const isValidResponse2: boolean = yield validateResponse(response[1]);
 
-    if (isValidResponse) {
+    if (isValidResponse1 && isValidResponse2) {
       yield put({
-        type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE_SUCCESS,
-        payload: response.data,
+        type: ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE_SUCCESS,
+        payload: {
+          roles: response[0].data,
+          groups: response[1].data,
+        },
       });
     } else {
       yield put({
-        type: ReduxActionErrorTypes.FETCH_ROLES_FOR_INVITE_ERROR,
+        type: ReduxActionErrorTypes.FETCH_ROLES_GROUPS_FOR_INVITE_ERROR,
       });
     }
   } catch (e) {
     yield put({
-      type: ReduxActionErrorTypes.FETCH_ROLES_FOR_INVITE_ERROR,
+      type: ReduxActionErrorTypes.FETCH_ROLES_GROUPS_FOR_INVITE_ERROR,
     });
   }
 }
@@ -666,7 +699,7 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_USERS, fetchAclUsersSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserSagaById),
+      takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserByIdSaga),
       takeLatest(
         ReduxActionTypes.UPDATE_GROUPS_IN_USER,
         updateGroupsInUserSaga,
@@ -695,8 +728,8 @@ export function* InitAclSaga(action: ReduxAction<User>) {
       takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
       takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE, updateRoleSaga),
       takeLatest(
-        ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
-        fetchRolesForInviteSaga,
+        ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,
+        fetchRolesGroupsForInviteSaga,
       ),
       takeLatest(
         ReduxActionTypes.FETCH_ICON_LOCATIONS,

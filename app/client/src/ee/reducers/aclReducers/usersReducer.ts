@@ -2,6 +2,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { UserProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const userReducers = {
   [ReduxActionTypes.FETCH_ACL_USERS]: (state: any) => ({
@@ -79,25 +80,30 @@ export const userReducers = {
   }),
   [ReduxActionTypes.DELETE_ACL_USER_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    users: action.payload,
+    users: state.users.filter(
+      (user: UserProps) => user.id !== action.payload.id,
+    ),
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE]: (state: any) => ({
+  [ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionErrorTypes.FETCH_ROLES_FOR_INVITE_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ROLES_GROUPS_FOR_INVITE_ERROR]: (
+    state: any,
+  ) => ({
     ...state,
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE_SUCCESS]: (
+  [ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE_SUCCESS]: (
     state: any,
     action: any,
   ) => ({
     ...state,
     inviteOptions: {
       ...state.inviteOptions,
-      roles: action.payload,
+      roles: action.payload.roles,
+      groups: action.payload.groups,
     },
     isLoading: false,
   }),

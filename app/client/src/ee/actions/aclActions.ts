@@ -12,9 +12,9 @@ export const getUserById = (payload: FetchSingleDataPayload) => ({
   payload,
 });
 
-export const deleteAclUser = (id: string) => ({
+export const deleteAclUser = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.DELETE_ACL_USER,
-  payload: id,
+  payload,
 });
 
 export const updateGroupsInUser = (
@@ -53,9 +53,9 @@ export const updateGroupName = (payload: BaseAclProps) => ({
   payload,
 });
 
-export const deleteGroup = (id: string) => ({
+export const deleteGroup = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.DELETE_ACL_GROUP,
-  payload: id,
+  payload,
 });
 
 export const cloneGroup = (payload: GroupProps) => ({
@@ -78,9 +78,9 @@ export const updateRoleName = (payload: BaseAclProps) => ({
   payload,
 });
 
-export const deleteRole = (id: string) => ({
+export const deleteRole = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.DELETE_ACL_ROLE,
-  payload: id,
+  payload,
 });
 
 export const cloneRole = (payload: RoleProps) => ({
@@ -128,7 +128,7 @@ export const updateRoleById = (
   roleId: string,
 ) => ({
   type: ReduxActionTypes.UPDATE_ACL_ROLE,
-  paylod: {
+  payload: {
     tabName,
     entitiesChanged,
     roleId,

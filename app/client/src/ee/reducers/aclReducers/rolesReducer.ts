@@ -89,7 +89,12 @@ export const rolesReducers = {
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    selectedRole: action.payload,
+    selectedRole: {
+      ...state.selectedRole,
+      tabs: action.payload.tabs,
+      userPermissions:
+        action.payload.userPermissions ?? state.selectedRole.userPermissions,
+    },
     isSaving: false,
   }),
   [ReduxActionTypes.DELETE_ACL_ROLE]: (state: any) => ({

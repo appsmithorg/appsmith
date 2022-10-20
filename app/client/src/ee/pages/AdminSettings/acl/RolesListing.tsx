@@ -27,9 +27,9 @@ import {
 import {
   ADD_ROLE,
   createMessage,
-  DELETE_ROLE,
-  EDIT_ROLE,
-  GROUP_DELETED,
+  ACL_DELETE,
+  ACL_EDIT,
+  ACL_DELETED_SUCCESS,
   SEARCH_ROLES_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import {
@@ -113,7 +113,7 @@ export function RolesListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/roles/${key}`);
       },
-      text: createMessage(EDIT_ROLE),
+      text: createMessage(ACL_EDIT),
       label: "edit",
     },
     {
@@ -123,7 +123,7 @@ export function RolesListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_ROLE),
+      text: createMessage(ACL_DELETE),
     },
   ];
 
@@ -161,7 +161,7 @@ export function RolesListing() {
   }, 300);
 
   const onDeleteHandler = (id: string) => {
-    dispatch(deleteRole(id));
+    dispatch(deleteRole({ id }));
     /* for jest tests */
     const updatedData = data.filter((role) => {
       return role.id !== id;
@@ -169,7 +169,7 @@ export function RolesListing() {
     setData(updatedData);
     /* for jest tests */
     Toaster.show({
-      text: createMessage(GROUP_DELETED),
+      text: createMessage(ACL_DELETED_SUCCESS),
       variant: Variant.success,
     });
   };

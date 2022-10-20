@@ -35,13 +35,12 @@ import {
   ADD_USERS,
   ARE_YOU_SURE,
   createMessage,
-  DELETE_GROUP,
+  ACL_DELETE,
   NO_USERS_MESSAGE,
-  RENAME_GROUP,
+  ACL_RENAME,
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
-  GROUP_UPDATED_SUCCESS,
-  RENAME_SUCCESSFUL,
+  SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
@@ -183,10 +182,10 @@ export function GroupAddEdit(props: GroupEditProps) {
         );
       setUsers(userResults);
       permissionResults = permissions && {
-        roles: permissions.roles.filter((permission) =>
+        roles: permissions.roles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
-        allRoles: permissions.allRoles.filter((permission: any) =>
+        allRoles: permissions.allRoles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
       };
@@ -223,11 +222,11 @@ export function GroupAddEdit(props: GroupEditProps) {
     dispatch(
       updateRolesInGroup(
         { id: selected.id, name: selected.name },
-        addedAllGroups.map((group: any) => ({
+        addedAllGroups.map((group: BaseAclProps) => ({
           id: group.id,
           name: group.name,
         })),
-        removedActiveGroups.map((group: any) => ({
+        removedActiveGroups.map((group: BaseAclProps) => ({
           id: group.id,
           name: group.name,
         })),
@@ -236,7 +235,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
     Toaster.show({
-      text: createMessage(GROUP_UPDATED_SUCCESS),
+      text: createMessage(SUCCESSFULLY_SAVED),
       variant: Variant.success,
     });
   };
@@ -254,10 +253,6 @@ export function GroupAddEdit(props: GroupEditProps) {
           name,
         }),
       );
-      Toaster.show({
-        text: createMessage(RENAME_SUCCESSFUL),
-        variant: Variant.success,
-      });
     }
   };
 
@@ -411,14 +406,14 @@ export function GroupAddEdit(props: GroupEditProps) {
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: createMessage(RENAME_GROUP),
+      text: createMessage(ACL_RENAME),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
-      text: createMessage(DELETE_GROUP),
+      text: createMessage(ACL_DELETE),
       label: "delete",
     },
   ];

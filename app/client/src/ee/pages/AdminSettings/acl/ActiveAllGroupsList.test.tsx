@@ -6,7 +6,7 @@ import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import { createMessage, ACTIVE_ENTITIES } from "@appsmith/constants/messages";
-import { ActiveAllGroupsProps } from "./types";
+import { ActiveAllGroupsProps, BaseAclProps } from "./types";
 
 let container: any = null;
 
@@ -79,12 +79,12 @@ describe("<ActiveAllGroupsList />", () => {
       <ActiveAllGroupsList {...props} title="Roles assigned to Design" />,
     );
     const activeGroups = getAllByTestId("t--active-group-row");
-    props.activeGroups.forEach((group: any, index: any) => {
+    props.activeGroups.forEach((group: BaseAclProps, index: number) => {
       expect(activeGroups[index]).toHaveTextContent(group.name);
     });
 
     const allGroups = getAllByTestId("t--all-group-row");
-    props?.allGroups?.forEach((group: any, index: any) => {
+    props?.allGroups?.forEach((group: BaseAclProps, index: number) => {
       expect(allGroups[index]).toHaveTextContent(group.name);
     });
   });

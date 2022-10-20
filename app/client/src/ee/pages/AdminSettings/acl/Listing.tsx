@@ -18,6 +18,7 @@ const ListingWrapper = styled.div`
   overflow: auto;
   table {
     border-collapse: separate;
+    table-layout: fixed;
     thead {
       background: var(--appsmith-color-black-0);
       tr {
@@ -31,6 +32,10 @@ const ListingWrapper = styled.div`
           letter-spacing: -0.24px;
           cursor: initial;
           padding: 32px 20px 8px;
+
+          &:last-child {
+            width: 10%;
+          }
 
           &:hover {
             color: var(--appsmith-color-black-700);

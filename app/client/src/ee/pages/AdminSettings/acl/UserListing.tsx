@@ -30,7 +30,7 @@ import {
   ACL_INVITE_MODAL_MESSAGE,
   ACL_INVITE_MODAL_TITLE,
   createMessage,
-  DELETE_USER,
+  ACL_DELETE,
   SHOW_LESS_GROUPS,
   SHOW_MORE_GROUPS,
 } from "@appsmith/constants/messages";
@@ -39,6 +39,7 @@ import {
   getAclIsLoading,
   getAclIsSaving,
   getAllAclUsers,
+  getGroupsForInvite,
   getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
@@ -103,6 +104,7 @@ export function UserListing() {
   const isLoading = useSelector(getAclIsLoading);
   const isSaving = useSelector(getAclIsSaving);
   const inviteViaRoles = useSelector(getRolesForInvite);
+  const inviteViaGroups = useSelector(getGroupsForInvite);
 
   const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -127,7 +129,7 @@ export function UserListing() {
       dispatch(
         inviteUsersViaGroups(
           values.users ? values.users.split(",") : [],
-          values.options.map((option: any) => option.value).join(","),
+          values.options.map((option: any) => option.value),
           values.selectedTab,
         ),
       );
@@ -188,7 +190,7 @@ export function UserListing() {
           <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.roles.map((group: BaseAclProps) => (
+                {cellProps.cell.row.values.roles?.map((group: BaseAclProps) => (
                   <div key={group.id}>{group.name}</div>
                 ))}
                 <ShowLess
@@ -200,10 +202,10 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.roles?.[0].name}
-                {cellProps.cell.row.values.roles?.[0].name.length < 40 ? (
+                {cellProps.cell.row.values.roles?.[0]?.name}
+                {cellProps.cell.row.values.roles?.[0]?.name.length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.roles?.[1].name}
+                    , {cellProps.cell.row.values.roles?.[1]?.name}
                     {cellProps.cell.row.values.roles?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
@@ -224,7 +226,7 @@ export function UserListing() {
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values?.roles.length - 1,
+                        cellProps.cell.row.values.roles?.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -244,9 +246,11 @@ export function UserListing() {
           <CellContainer data-testid="user-listing-groupCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.groups.map((group: BaseAclProps) => (
-                  <div key={group.id}>{group.name}</div>
-                ))}
+                {cellProps.cell.row.values.groups?.map(
+                  (group: BaseAclProps) => (
+                    <div key={group.id}>{group.name}</div>
+                  ),
+                )}
                 <ShowLess
                   data-testid="t--show-less"
                   onClick={() => setShowAllGroups(false)}
@@ -256,10 +260,10 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.groups?.[0].name}
-                {cellProps.cell.row.values.groups?.[0].name.length < 40 ? (
+                {cellProps.cell.row.values.groups?.[0]?.name}
+                {cellProps.cell.row.values.groups?.[0]?.name.length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.groups?.[1].name}
+                    , {cellProps.cell.row.values.groups?.[1]?.name}
                     {cellProps.cell.row.values.groups?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
@@ -312,7 +316,7 @@ export function UserListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_USER),
+      text: createMessage(ACL_DELETE),
     },
   ];
 
@@ -332,7 +336,7 @@ export function UserListing() {
       key: INVITE_USERS_TAB_ID.VIA_ROLES,
       title: "via roles",
       component: WorkspaceInviteUsersForm,
-      options: inviteViaRoles.map((role: any) => ({
+      options: inviteViaRoles.map((role: BaseAclProps) => ({
         label: role.name,
         value: role.id,
         id: role.id,
@@ -350,23 +354,11 @@ export function UserListing() {
       key: INVITE_USERS_TAB_ID.VIA_GROUPS,
       title: "via groups",
       component: WorkspaceInviteUsersForm,
-      options: [
-        {
-          label: "Administrator",
-          value: "1",
-          id: "1",
-        },
-        {
-          label: "App Viewer",
-          value: "2",
-          id: "2",
-        },
-        {
-          label: "Developer",
-          value: "3",
-          id: "3",
-        },
-      ],
+      options: inviteViaGroups.map((group: BaseAclProps) => ({
+        label: group.name,
+        value: group.id,
+        id: group.id,
+      })),
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
@@ -381,7 +373,7 @@ export function UserListing() {
   const onButtonClick = () => {
     setShowModal(true);
     dispatch({
-      type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
+      type: ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,
     });
   };
 
@@ -401,7 +393,7 @@ export function UserListing() {
   }, 300);
 
   const onDeleteHandler = (userId: string) => {
-    dispatch(deleteAclUser(userId));
+    dispatch(deleteAclUser({ id: userId }));
     const updatedData = data.filter((user) => {
       return user.id !== userId;
     });

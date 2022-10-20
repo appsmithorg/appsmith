@@ -73,44 +73,33 @@ export class AclApi extends Api {
   static roles = "/v1/roles";
   static userGroups = "/v1/user-groups";
   static inviteViaRoles = "/v1/roles/assign";
+  static inviteViaGroups = "/v1/user-groups/for-invite";
   static iconLocation = "/v1/plugins/icon-location";
 
   static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(AclApi.users);
+    const response = await Api.get(`${AclApi.users}/manage/all`);
     return response;
   }
 
   static async fetchSingleAclUser(
     payload: FetchSingleDataPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const res = await Api.get(`${AclApi.users}/${payload.id}`);
-    return res;
+    const response = await Api.get(`${AclApi.users}/manage/${payload.id}`);
+    return response;
   }
 
-  static createAclUser(request: any): AxiosPromise<ApiResponse> {
-    return Api.post(AclApi.users, request);
+  static async deleteAclUser(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.users}/id/${payload.id}`);
+    return response;
   }
 
-  static updateAclUser(request: any): AxiosPromise<ApiResponse> {
-    return Api.patch(AclApi.users, request);
-  }
-
-  static deleteAclUser(id: string): Promise<ApiResponse> {
-    // return Api.delete(AclApi.aclUsersURL, id);
-    const response = Api.get(AclApi.users, "");
-    const result = response.then((data) => {
-      const user = data.data.filter((user: any) => user?.id !== id);
-      return { responseMeta: { status: 200, success: true }, data: user };
-    });
-    return result;
-  }
-
-  /* Updated */
   static async updateGroupsInUser(
     payload: UpdateGroupsInUserRequestPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.put(
-      `${AclApi.userGroups}/user/${payload.userId}`,
+      `${AclApi.userGroups}/users/${payload.userId}`,
       {
         groupsAdded: payload.groupsAdded,
         groupsRemoved: payload.groupsRemoved,
@@ -145,7 +134,7 @@ export class AclApi extends Api {
       `${AclApi.roles}/configure/${payload.roleId}`,
       {
         tabName: payload.tabName,
-        entitiesChange: payload.entitiesChanged,
+        entitiesChanged: payload.entitiesChanged,
       },
     );
     return response;
@@ -165,8 +154,10 @@ export class AclApi extends Api {
     return response;
   }
 
-  static async deleteAclRole(id: string): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.delete(`${AclApi.roles}/${id}`);
+  static async deleteAclRole(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.roles}/${payload.id}`);
     return response;
   }
 
@@ -217,8 +208,10 @@ export class AclApi extends Api {
     return response;
   }
 
-  static async deleteAclGroup(id: string): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.delete(`${AclApi.userGroups}/${id}`);
+  static async deleteAclGroup(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.userGroups}/${payload.id}`);
     return response;
   }
 
@@ -253,6 +246,11 @@ export class AclApi extends Api {
 
   static async fetchRolesForInvite(): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.get(AclApi.inviteViaRoles);
+    return response;
+  }
+
+  static async fetchGroupsForInvite(): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.inviteViaGroups);
     return response;
   }
 
