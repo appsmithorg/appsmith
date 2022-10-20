@@ -138,6 +138,12 @@ export type DataTree = {
   [entityName: string]: DataTreeEntity;
 };
 
+export type EntityConfigCollection = {
+  [entityName: string]: DataTreeEntity;
+};
+
+export type EvalTree = Record<string, unknown>;
+
 type DataTreeSeed = {
   actions: ActionDataState;
   editorConfigs: Record<string, any[]>;

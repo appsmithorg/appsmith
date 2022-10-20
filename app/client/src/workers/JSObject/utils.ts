@@ -1,6 +1,7 @@
 import {
   DataTree,
   DataTreeJSAction,
+  EvalTree,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -18,10 +19,12 @@ import { unset, set, get } from "lodash";
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
   jsCollection: DataTreeJSAction,
-  unEvalTree: DataTree,
+  unEvalTree: EvalTree,
+  entityConfigCollection: DataTree,
 ) => {
+  // we make changes to reactivePaths, dynamicBindingPathList, dependencyMap in entityConfigCollection
   // jsCollection here means unEvalTree JSObject
-  const modifiedUnEvalTree = unEvalTree;
+
   const functionsList: Array<string> = [];
   const varList: Array<string> = jsCollection.variables;
   Object.keys(jsCollection.meta).forEach((action) => {
@@ -34,21 +37,17 @@ export const updateJSCollectionInUnEvalTree = (
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
           const data = get(
-            modifiedUnEvalTree,
+            unEvalTree,
             `${jsCollection.name}.${action.name}.data`,
             {},
           );
           set(
-            modifiedUnEvalTree,
+            unEvalTree,
             `${jsCollection.name}.${action.name}`,
             new String(action.body),
           );
 
-          set(
-            modifiedUnEvalTree,
-            `${jsCollection.name}.${action.name}.data`,
-            data,
-          );
+          set(unEvalTree, `${jsCollection.name}.${action.name}.data`, data);
         }
       } else {
         const reactivePaths = jsCollection.reactivePaths;
@@ -57,21 +56,21 @@ export const updateJSCollectionInUnEvalTree = (
         reactivePaths[`${action.name}.data`] =
           EvaluationSubstitutionType.TEMPLATE;
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.reactivePaths`,
           reactivePaths,
         );
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
         const dependencyMap = jsCollection.dependencyMap;
         dependencyMap["body"].push(action.name);
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.dependencyMap`,
           dependencyMap,
         );
@@ -81,22 +80,18 @@ export const updateJSCollectionInUnEvalTree = (
           isAsync: false,
           confirmBeforeExecute: false,
         };
-        set(modifiedUnEvalTree, `${jsCollection.name}.meta`, meta);
+        set(unEvalTree, `${jsCollection.name}.meta`, meta);
         const data = get(
-          modifiedUnEvalTree,
+          unEvalTree,
           `${jsCollection.name}.${action.name}.data`,
           {},
         );
         set(
-          modifiedUnEvalTree,
+          unEvalTree,
           `${jsCollection.name}.${action.name}`,
           new String(action.body.toString()),
         );
-        set(
-          modifiedUnEvalTree,
-          `${jsCollection.name}.${action.name}.data`,
-          data,
-        );
+        set(unEvalTree, `${jsCollection.name}.${action.name}.data`, data);
       }
     }
   }
@@ -110,7 +105,7 @@ export const updateJSCollectionInUnEvalTree = (
         const reactivePaths = jsCollection.reactivePaths;
         delete reactivePaths[oldActionName];
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.reactivePaths`,
           reactivePaths,
         );
@@ -119,7 +114,7 @@ export const updateJSCollectionInUnEvalTree = (
           (path) => path["key"] !== oldActionName,
         );
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
@@ -130,16 +125,16 @@ export const updateJSCollectionInUnEvalTree = (
             (item) => item !== oldActionName,
           );
           set(
-            modifiedUnEvalTree,
+            entityConfigCollection,
             `${jsCollection.name}.dependencyMap.body`,
             updatedDMap,
           );
         }
         const meta = jsCollection.meta;
         delete meta[oldActionName];
-        set(modifiedUnEvalTree, `${jsCollection.name}.meta`, meta);
-        unset(modifiedUnEvalTree[jsCollection.name], oldActionName);
-        unset(modifiedUnEvalTree[jsCollection.name], `${oldActionName}.data`);
+        set(unEvalTree, `${jsCollection.name}.meta`, meta);
+        unset(unEvalTree[jsCollection.name], oldActionName);
+        unset(unEvalTree[jsCollection.name], `${oldActionName}.data`);
       }
     }
   }
@@ -154,11 +149,7 @@ export const updateJSCollectionInUnEvalTree = (
             (newVar.value && newVar.value.toString()) ||
           (!existedVarVal && !!newVar)
         ) {
-          set(
-            modifiedUnEvalTree,
-            `${jsCollection.name}.${newVar.name}`,
-            newVar.value,
-          );
+          set(unEvalTree, `${jsCollection.name}.${newVar.name}`, newVar.value);
         }
       } else {
         varList.push(newVar.name);
@@ -166,24 +157,20 @@ export const updateJSCollectionInUnEvalTree = (
         reactivePaths[newVar.name] =
           EvaluationSubstitutionType.SMART_SUBSTITUTE;
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.reactivePaths`,
           reactivePaths,
         );
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: newVar.name });
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
 
-        set(modifiedUnEvalTree, `${jsCollection.name}.variables`, varList);
-        set(
-          modifiedUnEvalTree,
-          `${jsCollection.name}.${newVar.name}`,
-          newVar.value,
-        );
+        set(entityConfigCollection, `${jsCollection.name}.variables`, varList);
+        set(unEvalTree, `${jsCollection.name}.${newVar.name}`, newVar.value);
       }
     }
     let newVarList: Array<string> = varList;
@@ -196,7 +183,7 @@ export const updateJSCollectionInUnEvalTree = (
         const reactivePaths = jsCollection.reactivePaths;
         delete reactivePaths[varListItem];
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.reactivePaths`,
           reactivePaths,
         );
@@ -206,20 +193,19 @@ export const updateJSCollectionInUnEvalTree = (
           (path) => path["key"] !== varListItem,
         );
         set(
-          modifiedUnEvalTree,
+          entityConfigCollection,
           `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
 
         newVarList = newVarList.filter((item) => item !== varListItem);
-        unset(modifiedUnEvalTree[jsCollection.name], varListItem);
+        unset(unEvalTree[jsCollection.name], varListItem);
       }
     }
     if (newVarList.length) {
-      set(modifiedUnEvalTree, `${jsCollection.name}.variables`, newVarList);
+      set(entityConfigCollection, `${jsCollection.name}.variables`, newVarList);
     }
   }
-  return modifiedUnEvalTree;
 };
 
 /**
@@ -230,20 +216,20 @@ export const updateJSCollectionInUnEvalTree = (
  * @returns
  */
 export const removeFunctionsAndVariableJSCollection = (
-  unEvalTree: DataTree,
+  unEvalTree: EvalTree,
+  entityConfigCollection: DataTree,
   entity: DataTreeJSAction,
 ) => {
-  const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
   Object.keys(entity.meta).forEach((action) => {
     functionsList.push(action);
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entity.name}.variables`, []);
+  set(entityConfigCollection, `${entity.name}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
-    unset(modifiedDataTree[entity.name], varName);
+    unset(unEvalTree[entity.name], varName);
   }
   //remove functions
   let dynamicBindingPathList = entity.dynamicBindingPathList;
@@ -254,19 +240,22 @@ export const removeFunctionsAndVariableJSCollection = (
     const actionName = functionsList[i];
     delete reactivePaths[actionName];
     delete meta[actionName];
-    unset(modifiedDataTree[entity.name], actionName);
+    unset(unEvalTree[entity.name], actionName);
     dynamicBindingPathList = dynamicBindingPathList.filter(
       (path: any) => path["key"] !== actionName,
     );
     dependencyMap = dependencyMap.filter((item: any) => item !== actionName);
   }
-  set(modifiedDataTree, `${entity.name}.reactivePaths`, reactivePaths);
+  set(entityConfigCollection, `${entity.name}.reactivePaths`, reactivePaths);
   set(
-    modifiedDataTree,
+    entityConfigCollection,
     `${entity.name}.dynamicBindingPathList`,
     dynamicBindingPathList,
   );
-  set(modifiedDataTree, `${entity.name}.dependencyMap.body`, dependencyMap);
-  set(modifiedDataTree, `${entity.name}.meta`, meta);
-  return modifiedDataTree;
+  set(
+    entityConfigCollection,
+    `${entity.name}.dependencyMap.body`,
+    dependencyMap,
+  );
+  set(entityConfigCollection, `${entity.name}.meta`, meta);
 };

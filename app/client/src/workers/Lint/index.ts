@@ -1,4 +1,8 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeEntity,
+  EntityConfigCollection,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { get, union } from "lodash";
 import { EvaluationError, getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
@@ -19,9 +23,10 @@ import { getJSToLint, getLintingErrors, pathRequiresLinting } from "./utils";
 
 interface LintTreeArgs {
   extraPathsToLint: string[];
-  unEvalTree: DataTree;
-  evalTree: DataTree;
+  unEvalTree: EvalTree;
+  evalTree: EvalTree;
   sortedDependencies: string[];
+  entityConfigCollection: EntityConfigCollection;
 }
 
 export const lintTree = (args: LintTreeArgs) => {

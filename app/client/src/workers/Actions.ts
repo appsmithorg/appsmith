@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeEntity,
+  EntityConfigCollection,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import {
@@ -270,12 +274,13 @@ export const DATA_TREE_FUNCTIONS: Record<
 };
 
 export const enhanceDataTreeWithFunctions = (
-  dataTree: Readonly<DataTree>,
+  entityConfigCollection: EntityConfigCollection,
+  dataTree: Readonly<EvalTree>,
   requestId = "",
   // Whether not to add functions like "run", "clear" to entity
   skipEntityFunctions = false,
   eventType?: EventType,
-): DataTree => {
+): EvalTree => {
   const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
@@ -284,25 +289,27 @@ export const enhanceDataTreeWithFunctions = (
       "qualifier" in funcOrFuncCreator
     ) {
       !skipEntityFunctions &&
-        Object.entries(dataTree).forEach(([entityName, entity]) => {
-          if (funcOrFuncCreator.qualifier(entity)) {
-            const func = funcOrFuncCreator.func(entity);
-            const funcName = `${funcOrFuncCreator.path ||
-              `${entityName}.${name}`}`;
-            _.set(
-              clonedDT,
-              funcName,
-              pusher.bind(
-                {
-                  TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-                  REQUEST_ID: requestId,
-                  EVENT_TYPE: eventType,
-                },
-                func,
-              ),
-            );
-          }
-        });
+        Object.entries(entityConfigCollection).forEach(
+          ([entityName, entity]) => {
+            if (funcOrFuncCreator.qualifier(entity)) {
+              const func = funcOrFuncCreator.func(entity);
+              const funcName = `${funcOrFuncCreator.path ||
+                `${entityName}.${name}`}`;
+              _.set(
+                clonedDT,
+                funcName,
+                pusher.bind(
+                  {
+                    TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+                    REQUEST_ID: requestId,
+                    EVENT_TYPE: eventType,
+                  },
+                  func,
+                ),
+              );
+            }
+          },
+        );
     } else {
       _.set(
         clonedDT,

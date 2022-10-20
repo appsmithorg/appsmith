@@ -19,6 +19,8 @@ import {
   DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
+  EntityConfigCollection,
+  EvalTree,
   EvaluationSubstitutionType,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
@@ -86,22 +88,30 @@ import {
 import { lintTree } from "workers/Lint";
 
 export default class DataTreeEvaluator {
-  dependencyMap: DependencyMap = {};
-  sortedDependencies: Array<string> = [];
-  inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
-  evalTree: DataTree = {};
+
+  evalTree: EvalTree = {};
+  oldUnEvalTree: EvalTree = {};
+
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
-  oldUnEvalTree: DataTree = {};
+
   errors: EvalError[] = [];
+  logs: unknown[] = [];
+
+  userLogs: UserLogObject[] = [];
+
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
-  logs: unknown[] = [];
-  userLogs: UserLogObject[] = [];
+
   allActionValidationConfig?: {
     [actionId: string]: ActionValidationConfigMap;
   };
+
+  dependencyMap: DependencyMap = {};
+  sortedDependencies: Array<string> = [];
+  inverseDependencyMap: DependencyMap = {};
+
   triggerFieldDependencyMap: DependencyMap = {};
   /**  Keeps track of all invalid references in bindings throughout the Application
    * Eg. For binding {{unknownEntity.name + Api1.name}} in Button1.text, where Api1 is present in dataTree but unknownEntity is not,
@@ -111,7 +121,9 @@ export default class DataTreeEvaluator {
    * }
    */
   invalidReferencesMap: DependencyMap = {};
+
   public hasCyclicalDependency = false;
+
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
     allActionValidationConfig?: {
@@ -128,15 +140,15 @@ export default class DataTreeEvaluator {
    * 2. Creates dependencyMap, sorted dependencyMap
    * 3. Generates inverseDependencyTree
    * 4. Finally, evaluates the unEvalTree and returns that with JSUpdates
-   *
-   * @param {DataTree} unEvalTree
-   * @return {*}
-   * @memberof DataTreeEvaluator
+
    */
-  createFirstTree(unEvalTree: unknown, entityConfigCollection: DataTree) {
+  createFirstTree(
+    unEvalTree: EvalTree,
+    entityConfigCollection: EntityConfigCollection,
+  ) {
     const totalStart = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
-    let localUnEvalTree = klona(unEvalTree);
+    const clonedUnEvalTree = klona(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -146,12 +158,14 @@ export default class DataTreeEvaluator {
     jsUpdates = parsedCollections.jsUpdates;
 
     // TODO: Remove this method
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
+    // This currently mutates localUnEvalTree & entityConfigCollection
+    getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
-      localUnEvalTree,
+      clonedUnEvalTree,
+      entityConfigCollection,
     );
     // set All keys
-    this.allKeys = getAllPaths(localUnEvalTree);
+    this.allKeys = getAllPaths(clonedUnEvalTree);
     // Create dependency map
     const createDependencyStart = performance.now();
     const {
@@ -183,14 +197,15 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = klona(clonedUnEvalTree);
     // Lint
     const lintStart = performance.now();
     lintTree({
-      unEvalTree: localUnEvalTree,
+      unEvalTree: clonedUnEvalTree,
       evalTree: this.evalTree,
       sortedDependencies: this.sortedDependencies,
       extraPathsToLint: [],
+      entityConfigCollection,
     });
     const lintStop = performance.now();
     const totalEnd = performance.now();
@@ -222,7 +237,11 @@ export default class DataTreeEvaluator {
     };
   }
 
-  isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
+  isJSObjectFunction(
+    dataTree: EntityConfigCollection,
+    jsObjectName: string,
+    key: string,
+  ) {
     const entity = dataTree[jsObjectName];
     if (isJSAction(entity)) {
       return entity.meta.hasOwnProperty(key);
@@ -230,7 +249,7 @@ export default class DataTreeEvaluator {
     return false;
   }
 
-  updateLocalUnEvalTree(dataTree: DataTree) {
+  updateLocalUnEvalTree(dataTree: EntityConfigCollection) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
@@ -249,7 +268,7 @@ export default class DataTreeEvaluator {
   }
 
   updateDataTree(
-    unEvalTree: DataTree,
+    unEvalTree: EvalTree,
   ): {
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];

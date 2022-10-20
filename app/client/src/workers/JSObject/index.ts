@@ -1,4 +1,8 @@
-import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeJSAction,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -25,31 +29,33 @@ import {
  */
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
-  localUnEvalTree: DataTree,
+  localUnEvalTree: EvalTree,
+  entityConfigCollection: DataTree,
 ) => {
   if (!isEmpty(jsUpdates)) {
     Object.keys(jsUpdates).forEach((jsEntity) => {
-      const entity = localUnEvalTree[jsEntity];
+      const entity = entityConfigCollection[jsEntity];
       const parsedBody = jsUpdates[jsEntity].parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
-          localUnEvalTree = updateJSCollectionInUnEvalTree(
+          updateJSCollectionInUnEvalTree(
             parsedBody,
             entity,
             localUnEvalTree,
+            entityConfigCollection,
           );
         } else {
           //if parse error remove functions and variables from dataTree
-          localUnEvalTree = removeFunctionsAndVariableJSCollection(
+          removeFunctionsAndVariableJSCollection(
             localUnEvalTree,
+            entityConfigCollection,
             entity,
           );
         }
       }
     });
   }
-  return localUnEvalTree;
 };
 
 const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
