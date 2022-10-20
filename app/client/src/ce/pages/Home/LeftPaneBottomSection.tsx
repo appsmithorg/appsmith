@@ -21,7 +21,7 @@ import { Colors } from "constants/Colors";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
-} from "../common/CustomizedDropdown/dropdownHelpers";
+} from "../../../pages/common/CustomizedDropdown/dropdownHelpers";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import { getCurrentUser } from "selectors/usersSelectors";
 
