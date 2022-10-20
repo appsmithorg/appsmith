@@ -25,6 +25,7 @@ import {
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import { checkRegex } from "utils/validation/CheckRegex";
+import TextLoaderIcon from "../Components/TextLoaderIcon";
 import { getUrlPreview, specialCharacterCheckRegex } from "../Utils";
 
 const SwitchWrapper = styled.div`
@@ -135,7 +136,8 @@ function PageSettings(props: { page: Page }) {
       <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
         {PAGE_SETTINGS_PAGE_NAME_LABEL()}
       </div>
-      <div className="pb-2.5">
+      <div className="pb-2.5 relative">
+        {isPageLoading && <TextLoaderIcon />}
         <TextInput
           fill
           onBlur={savePageName}
@@ -146,7 +148,6 @@ function PageSettings(props: { page: Page }) {
             }
           }}
           placeholder="Page name"
-          readOnly={isPageLoading}
           type="input"
           validator={checkRegex(
             specialCharacterCheckRegex,
@@ -172,7 +173,8 @@ function PageSettings(props: { page: Page }) {
           {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3()}
         </div>
       )}
-      <div className="pb-1">
+      <div className="pb-1 relative">
+        {isPageLoading && <TextLoaderIcon />}
         <TextInput
           fill
           onBlur={saveCustomSlug}
@@ -183,7 +185,7 @@ function PageSettings(props: { page: Page }) {
             }
           }}
           placeholder="Page URL"
-          readOnly={appNeedsUpdate || isPageLoading}
+          readOnly={appNeedsUpdate}
           type="input"
           validator={checkRegex(
             specialCharacterCheckRegex,

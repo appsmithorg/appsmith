@@ -18,6 +18,7 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { checkRegex } from "utils/validation/CheckRegex";
+import TextLoaderIcon from "../Components/TextLoaderIcon";
 import { specialCharacterCheckRegex } from "../Utils";
 
 const IconSelectorWrapper = styled.div`
@@ -76,19 +77,21 @@ function GeneralSettings() {
       <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
         {GENERAL_SETTINGS_APP_NAME_LABEL()}
       </div>
-      <div className="pb-2.5">
+      <div className="pb-2.5 relative">
+        {isSavingAppName && <TextLoaderIcon />}
         <TextInput
           fill
           // undefined sent implicitly - parameter "icon"
           onBlur={() => updateAppSettings()}
-          onChange={setApplicationName}
+          onChange={(value: string) =>
+            !isSavingAppName && setApplicationName(value)
+          }
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               updateAppSettings();
             }
           }}
           placeholder="App name"
-          readOnly={isSavingAppName}
           type="input"
           validator={checkRegex(
             specialCharacterCheckRegex,
