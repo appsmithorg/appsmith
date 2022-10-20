@@ -1,4 +1,8 @@
-import { AuditLogType, DescriptionDataType } from "../types";
+import {
+  AuditLogType,
+  AuthenticationType,
+  DescriptionDataType,
+} from "../types";
 import { EVENT_ICON_MAP, IconInfo } from "./icons";
 import { splitJoin } from "./splitJoin";
 import { titleCase } from "./titleCase";
@@ -74,15 +78,15 @@ export function generateDescription(log: AuditLogType) {
     const invitees = log?.invitedUsers?.map((user) => ellipsis(user)) || [];
     return invited(invitees);
   }
-  if (event === "instance_setting.updated") {
+  const authUpdated =
+    event === "instance_setting.updated" &&
+    log?.authentication?.action &&
+    log?.authentication?.mode;
+  if (authUpdated) {
     /* Special case: authentication:
      * {mode} authentication {action}
      */
-    const authentication = log.authentication || {
-      action: "(No action)",
-      mode: "(No mode)",
-    };
-    const { action, mode } = authentication;
+    const { action, mode } = log.authentication as AuthenticationType;
     return `${mode} authentication ${action.toLowerCase()}`;
   }
 

@@ -172,7 +172,7 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @return Logged event as an Audit Log
      */
     public Mono<AuditLog> logEvent(AnalyticsEvents event, Object resource, Map<String, Object> properties) {
-        boolean isInstanceSettingEvent = AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event);
+        boolean isInstanceSettingEvent = AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event) || AnalyticsEvents.INSTANCE_SETTING_UPDATED.equals(event) ;
         String resourceClassName = isInstanceSettingEvent ? AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName() : resource.getClass().getSimpleName();
         boolean isLogEvent = !commonConfig.isCloudHosting() && AuditLogEvents.eventMap.containsKey(event.getEventName()) && AuditLogEvents.resourceMap.containsKey(resourceClassName);
         AuditLog auditLog = new AuditLog();
@@ -414,6 +414,12 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
 
         // Instance setting events
+        boolean isInstanceSettingUpdated = AnalyticsEvents.INSTANCE_SETTING_UPDATED.equals(event)
+                && properties.containsKey(FieldName.UPDATED_INSTANCE_SETTINGS);
+        if (isInstanceSettingUpdated) {
+            setUpdatedInstanceSettings(auditLog, (Set) properties.get(FieldName.UPDATED_INSTANCE_SETTINGS));
+            auditLogMono = Mono.just(auditLog);
+        }
         // Authentication method configuration
         boolean isAuthenticationMethodConfigured = AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event)
                 && properties.containsKey(FieldName.PROVIDER)
@@ -426,6 +432,21 @@ public class AuditLogServiceImpl implements AuditLogService {
         return auditLogMono;
     }
 
+    /**
+     * To set the names of updated admin settings for instance_setting.updated events
+     * @param auditLog auditLog
+     * @param updatedInstanceSettings names of env variables changed in the admin setting update
+     */
+    private void setUpdatedInstanceSettings(AuditLog auditLog, Set<String> updatedInstanceSettings) {
+        auditLog.setInstanceSettings(updatedInstanceSettings);
+    }
+
+    /**
+     * To set authentication for Authentication method added/removed events
+     * @param auditLog auditLog
+     * @param authAction the auth action - added/removed
+     * @param provider provider of the authentication method
+     */
     private void setAuthentication(AuditLog auditLog, String authAction, String provider) {
         AuditLogAuthenticationMetadata auditLogAuthenticationMetadata = new AuditLogAuthenticationMetadata();
         auditLogAuthenticationMetadata.setMode(AuditLogEvents.authenticationMethodsMap.get(provider));
