@@ -34,15 +34,17 @@ public class CustomEnvironmentVariableRepositoryImpl extends CustomEnvironmentVa
     @Override
     public Flux<EnvironmentVariable> findByEnvironmentId(String envId, AclPermission aclPermission) {
         Criteria environmentIdCriteria = Criteria.where(fieldName(QEnvironmentVariable.environmentVariable.environmentId)).is(envId);
+        Criteria isDeletedCriteria = Criteria.where(fieldName(QEnvironmentVariable.environmentVariable.deletedAt)).is(null);
 
-        return queryAll(List.of(environmentIdCriteria), aclPermission);
+        return queryAll(List.of(environmentIdCriteria, isDeletedCriteria), aclPermission);
     }
 
     @Override
     public Flux<EnvironmentVariable> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
         Criteria environmentIdCriteria = Criteria.where(fieldName(QEnvironmentVariable.environmentVariable.environmentId)).is(workspaceId);
+        Criteria isDeletedCriteria = Criteria.where(fieldName(QEnvironmentVariable.environmentVariable.deletedAt)).is(null);
 
-        return queryAll(List.of(environmentIdCriteria), aclPermission);
+        return queryAll(List.of(environmentIdCriteria, isDeletedCriteria), aclPermission);
     }
 
 }

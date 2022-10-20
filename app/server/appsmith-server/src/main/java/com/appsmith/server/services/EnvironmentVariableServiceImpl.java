@@ -54,8 +54,7 @@ public class EnvironmentVariableServiceImpl extends EnvironmentVariableServiceCE
 
     @Override
     public Flux<EnvironmentVariable> findEnvironmentVariableByEnvironmentId(String envId) {
-        return  findByEnvironmentId(envId, AclPermission.MANAGE_ENVIRONMENT_VARIABLES)
-                .filter(envVar -> !envVar.isDeleted());
+        return  findByEnvironmentId(envId, AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
     }
 
     @Override
@@ -65,8 +64,7 @@ public class EnvironmentVariableServiceImpl extends EnvironmentVariableServiceCE
 
     @Override
     public Flux<EnvironmentVariable> findEnvironmentVariableByWorkspaceId(String workspaceId) {
-        return findByWorkspaceId(workspaceId, AclPermission.READ_ENVIRONMENT_VARIABLES)
-                .filter(envVar -> !envVar.isDeleted());
+        return findByWorkspaceId(workspaceId, AclPermission.READ_ENVIRONMENT_VARIABLES);
     }
 
     // Write

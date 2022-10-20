@@ -119,11 +119,16 @@ public enum AclPermission {
     READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
+
     MANAGE_ENVIRONMENT_VARIABLES("manage:environmentVariables", EnvironmentVariable.class),
     READ_ENVIRONMENT_VARIABLES("read:environmentVariables", EnvironmentVariable.class),
+    DELETE_ENVIRONMENT_VARIABLES("delete:environmentVariables", EnvironmentVariable.class),
+    CREATE_ENVIRONMENT_VARIABLES("create:environmentVariables", EnvironmentVariable.class),
     MANAGE_ENVIRONMENTS("manage:environments", Environment.class),
     READ_ENVIRONMENTS("read:environments", Environment.class),
     EXECUTE_ENVIRONMENTS("execute:environments", Environment.class),
+    CREATE_ENVIRONMENTS("create:environments", Environment.class),
+    DELETE_ENVIRONMENTS("delete:environments", Environment.class),
     ;
 
 

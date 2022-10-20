@@ -30,7 +30,7 @@ public class EnvironmentVariableController extends EnvironmentVariableController
     }
 
 
-    @GetMapping("/workspace/{workspaceId}")
+    @GetMapping("/workspaces/{workspaceId}")
     public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByWorkspaceId(@PathVariable String workspaceId) {
 
         return environmentVariableService.findEnvironmentVariableByWorkspaceId(workspaceId)
@@ -38,7 +38,7 @@ public class EnvironmentVariableController extends EnvironmentVariableController
                 .map(envVarList -> new ResponseDTO(HttpStatus.OK.value(), envVarList, null));
     }
 
-    @GetMapping("/environment/{environmentId}")
+    @GetMapping("/environments/{environmentId}")
     public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByEnvironmentId(@PathVariable String environmentId) {
 
         return environmentVariableService.findEnvironmentVariableByEnvironmentId(environmentId)
