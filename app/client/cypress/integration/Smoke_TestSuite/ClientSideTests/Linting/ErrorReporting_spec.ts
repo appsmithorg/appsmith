@@ -6,7 +6,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   apiPage = ObjectsRegistry.ApiPage,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Lint error reporting", () => {
   before(() => {
@@ -37,18 +38,14 @@ describe("Lint error reporting", () => {
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
     agHelper.PressEscape();
     agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains(
+    debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",
-      "not.exist",
-      locator._debuggerList,
     );
 
     agHelper.RefreshPage();
     agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains(
+    debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",
-      "not.exist",
-      locator._debuggerList,
     );
   });
 
