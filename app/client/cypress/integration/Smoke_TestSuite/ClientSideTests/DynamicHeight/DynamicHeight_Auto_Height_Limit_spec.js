@@ -9,7 +9,7 @@ describe("Dynamic Height Width validation with limits", function () {
         cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
         cy.wait(3000); //for dsl to settle
         cy.contains("4");
-        cy.checkDefaultValue(commonlocators.minHeight, 0, "4")
+        cy.checkMinDefaultValue(commonlocators.minHeight,"4")
         cy.testJsontext(commonlocators.minHeight, "5");
         cy.get(commonlocators.overlayMin).should("be.visible");
         cy.get(commonlocators.overlayMin).should(
@@ -19,7 +19,7 @@ describe("Dynamic Height Width validation with limits", function () {
         );
         cy.contains("Min-height: 5 rows");
         cy.contains("40");
-        cy.checkDefaultValue(commonlocators.maxHeight, 1, "40")
+        cy.checkMaxDefaultValue(commonlocators.maxHeight,"40")
         cy.testJsontext(commonlocators.maxHeight, "60");
         cy.get(commonlocators.overlayMax).should("be.visible");
         cy.get(commonlocators.overlayMax).should(
@@ -30,7 +30,7 @@ describe("Dynamic Height Width validation with limits", function () {
         cy.contains("Max-height: 60 rows");
         cy.changeLayoutHeight(commonlocators.fixed);
         cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
-        cy.checkDefaultValue(commonlocators.minHeight, 0, "5")
-        cy.checkDefaultValue(commonlocators.maxHeight, 1, "60")
+        cy.checkMinDefaultValue(commonlocators.minHeight,"5")
+        cy.checkMaxDefaultValue(commonlocators.maxHeight,"60")
     });
 });
