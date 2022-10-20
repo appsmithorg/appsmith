@@ -21,8 +21,8 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { TreeDropdownOption } from "design-system";
+import { getDatasource } from "selectors/entitiesSelector";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -43,17 +43,19 @@ export function DataSourceContextMenu(props: {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  const datasource = useSelector((state: AppState) =>
+    getDatasource(state, props.datasourceId),
   );
 
+  const datasourcePermissions = datasource?.userPermissions || [];
+
   const canDeleteDatasource = isPermitted(
-    userWorkspacePermissions,
+    datasourcePermissions,
     PERMISSION_TYPE.DELETE_DATASOURCES,
   );
 
   const canManageDatasource = isPermitted(
-    userWorkspacePermissions,
+    datasourcePermissions,
     PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 

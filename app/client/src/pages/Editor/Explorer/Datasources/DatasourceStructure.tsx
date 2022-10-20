@@ -16,9 +16,9 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
+import { getDatasource } from "selectors/entitiesSelector";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -58,12 +58,14 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   const [active, setActive] = useState(false);
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  const datasource = useSelector((state: AppState) =>
+    getDatasource(state, props.datasourceId),
   );
 
+  const datasourcePermissions = datasource?.userPermissions || [];
+
   const canManageDatasources = isPermitted(
-    userWorkspacePermissions,
+    datasourcePermissions,
     PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 

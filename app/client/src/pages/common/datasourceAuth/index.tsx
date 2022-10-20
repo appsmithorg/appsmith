@@ -42,7 +42,6 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import {
   isPermitted,
@@ -116,17 +115,15 @@ function DatasourceAuth({
   const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
+  const datasourcePermissions = datasource.userPermissions || [];
 
   const canManageDatasource = isPermitted(
-    userWorkspacePermissions,
+    datasourcePermissions,
     PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const canDeleteDatasource = isPermitted(
-    userWorkspacePermissions,
+    datasourcePermissions,
     PERMISSION_TYPE.DELETE_DATASOURCES,
   );
 

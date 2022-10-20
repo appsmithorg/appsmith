@@ -91,8 +91,10 @@ function ApiAuthentication(props: Props): JSX.Element {
     PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
+  const datasourcePermissions = datasource.userPermissions || [];
+
   const canManageDatasource = isPermitted(
-    userWorkspacePermissions,
+    datasourcePermissions,
     PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
