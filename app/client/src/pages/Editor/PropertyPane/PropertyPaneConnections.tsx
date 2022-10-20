@@ -19,14 +19,13 @@ import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
-  DEBUGGER_TAB_KEYS,
   doesEntityHaveErrors,
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { setCurrentTab, showDebugger } from "actions/debuggerActions";
+import { showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
@@ -258,8 +257,6 @@ function OptionNode(props: any) {
     if (entityInfo?.hasError) {
       if (entityInfo?.type === ENTITY_TYPE.WIDGET) {
         dispatch(showDebugger(true));
-      } else {
-        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
       }
     }
     navigateToEntity(props.option.label);

@@ -16,6 +16,7 @@ export default {
     {
       propertyName: "horizontalAlignment",
       label: "Horizontal Alignment",
+      helpText: "Sets the horizontal alignment of the content in the column",
       controlType: "ICON_TABS",
       options: [
         {
@@ -60,6 +61,7 @@ export default {
     {
       propertyName: "verticalAlignment",
       label: "Vertical Alignment",
+      helpText: "Sets the vertical alignment of the content in the column",
       controlType: "ICON_TABS",
       options: [
         {

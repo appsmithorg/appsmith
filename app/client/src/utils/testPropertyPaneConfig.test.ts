@@ -9,7 +9,10 @@ import { isFunction } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { ALL_WIDGETS_AND_CONFIG, registerWidgets } from "./WidgetRegistry";
 
-function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
+function validatePropertyPaneConfig(
+  config: PropertyPaneConfig[],
+  isWidgetHidden: boolean,
+) {
   for (const sectionOrControlConfig of config) {
     const sectionConfig = sectionOrControlConfig as PropertyPaneSectionConfig;
     if (sectionConfig.sectionName && isFunction(sectionConfig.sectionName)) {
@@ -19,6 +22,7 @@ function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
       for (const propertyControlConfig of sectionOrControlConfig.children) {
         const propertyControlValidation = validatePropertyControl(
           propertyControlConfig,
+          isWidgetHidden,
         );
         if (propertyControlValidation !== true)
           return propertyControlValidation;
@@ -29,12 +33,24 @@ function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
   return true;
 }
 
-function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
+function validatePropertyControl(
+  config: PropertyPaneConfig,
+  isWidgetHidden: boolean,
+): boolean | string {
   const _config = config as PropertyPaneControlConfig;
   const controls = ["INPUT_TEXT"];
 
   if (_config.label && isFunction(_config.label)) {
     return `${_config.propertyName}: Label should be a string and not a function. Search won't work for functions at the moment`;
+  }
+
+  if (
+    !isWidgetHidden &&
+    _config.label &&
+    !_config.invisible &&
+    !_config.helpText
+  ) {
+    return `${_config.propertyName} (${_config.label}): Help text is mandatory for property controls`;
   }
 
   if (
@@ -69,23 +85,30 @@ function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
   }
   if (_config.children) {
     for (const child of _config.children) {
-      const res = validatePropertyControl(child);
+      const res = validatePropertyControl(child, isWidgetHidden);
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
   }
   if (_config.panelConfig) {
     if (_config.panelConfig.children) {
-      const res = validatePropertyPaneConfig(_config.panelConfig.children);
+      const res = validatePropertyPaneConfig(
+        _config.panelConfig.children,
+        isWidgetHidden,
+      );
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
     if (_config.panelConfig.contentChildren) {
       const res = validatePropertyPaneConfig(
         _config.panelConfig.contentChildren,
+        isWidgetHidden,
       );
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
     if (_config.panelConfig.styleChildren) {
-      const res = validatePropertyPaneConfig(_config.panelConfig.styleChildren);
+      const res = validatePropertyPaneConfig(
+        _config.panelConfig.styleChildren,
+        isWidgetHidden,
+      );
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
   }
@@ -118,17 +141,23 @@ describe("Tests all widget's propertyPane config", () => {
     const [widget, config]: any = widgetAndConfig;
     it(`Checks ${widget.getWidgetType()}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
-      expect(validatePropertyPaneConfig(propertyPaneConfig)).toStrictEqual(
-        true,
-      );
+      expect(
+        validatePropertyPaneConfig(propertyPaneConfig, config.hideCard),
+      ).toStrictEqual(true);
       const propertyPaneContentConfig = widget.getPropertyPaneContentConfig();
       expect(
-        validatePropertyPaneConfig(propertyPaneContentConfig),
+        validatePropertyPaneConfig(
+          propertyPaneContentConfig,
+          config.isDeprecated,
+        ),
       ).toStrictEqual(true);
       const propertyPaneStyleConfig = widget.getPropertyPaneStyleConfig();
-      expect(validatePropertyPaneConfig(propertyPaneStyleConfig)).toStrictEqual(
-        true,
-      );
+      expect(
+        validatePropertyPaneConfig(
+          propertyPaneStyleConfig,
+          config.isDeprecated,
+        ),
+      ).toStrictEqual(true);
     });
     it(`Check if ${widget.getWidgetType()}'s dimensions are always integers`, () => {
       expect(isNotFloat(config.defaults.rows)).toBe(true);

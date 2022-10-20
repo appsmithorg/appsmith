@@ -26,9 +26,8 @@ import {
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
-import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import { IconSize } from "design-system";
+import { BannerMessage, IconSize } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
@@ -62,6 +61,7 @@ function PropertyPaneView(
     getWidgetPropsForPropertyPaneView,
     equal,
   );
+
   const doActionsExist = useSelector(actionsExist);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {

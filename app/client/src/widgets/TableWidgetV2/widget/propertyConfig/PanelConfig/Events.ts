@@ -30,6 +30,7 @@ export default {
     {
       propertyName: "onClick",
       label: "onClick",
+      helpText: "Triggers an action when user clicks on an image",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -44,6 +45,8 @@ export default {
     {
       propertyName: "onSubmit",
       label: "onSubmit",
+      helpText:
+        "Triggers an action when the user presses enter or clicks outside the input box",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -63,6 +66,7 @@ export default {
     {
       propertyName: "onOptionChange",
       label: "onOptionChange",
+      helpText: "Triggers an action when user changes an option",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -78,6 +82,7 @@ export default {
     {
       propertyName: "onCheckChange",
       label: "onChange",
+      helpText: "Triggers an action when the check state is changed",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.SWITCH]);
@@ -90,6 +95,7 @@ export default {
     {
       propertyName: "onCheckChange",
       label: "onCheckChange",
+      helpText: "Triggers an action when the check state is changed",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
