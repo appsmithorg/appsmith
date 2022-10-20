@@ -940,7 +940,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 }
 
-                                Iterator<ApplicationPage> publishedPagesItr = publishedPages.iterator();
+                                Iterator<ApplicationPage> publishedPagesItr;
+                                // Remove the newly added pages from merge app flow. Keep only the existing page from the old app
+                                if(appendToApp) {
+                                    List<String> existingPagesId = savedApp.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
+                                    publishedPagesItr = publishedPages.stream().filter(applicationPage -> existingPagesId.contains(applicationPage.getId())).iterator();
+                                } else {
+                                    publishedPagesItr = publishedPages.iterator();
+                                }
                                 while (publishedPagesItr.hasNext()) {
                                     ApplicationPage applicationPage = publishedPagesItr.next();
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
