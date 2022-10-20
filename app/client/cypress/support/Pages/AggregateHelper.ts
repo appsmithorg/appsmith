@@ -402,6 +402,10 @@ export class AggregateHelper {
     cy.get("body").type("{esc}");
   }
 
+  public PressEnter() {
+    cy.get("body").type("{enter}");
+  }
+
   public PressDelete() {
     cy.get("body").type(`{del}`, { force: true });
   }

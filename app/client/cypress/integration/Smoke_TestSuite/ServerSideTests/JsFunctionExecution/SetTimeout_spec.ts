@@ -6,7 +6,7 @@ const deployMode = ObjectsRegistry.DeployMode;
 const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Tests setTimeout API", function() {
-  it("Executes showAlert after 3 seconds and uses default value", () => {
+  it("1. Executes showAlert after 3 seconds and uses default value", () => {
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -30,7 +30,8 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(3000);
     agHelper.AssertContains("Hello world - default", "exist");
   });
-  it("Executes all three alerts in parallel after 3 seconds", () => {
+
+  it("2. Executes all three alerts in parallel after 3 seconds", () => {
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -62,7 +63,8 @@ describe("Tests setTimeout API", function() {
     agHelper.AssertContains("Hello world - 2", "exist");
     agHelper.AssertContains("Hello world - 3", "exist");
   });
-  it("Resolves promise after 3 seconds and shows alert", () => {
+
+  it("3. Resolves promise after 3 seconds and shows alert", () => {
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -116,7 +118,7 @@ describe("Tests setTimeout API", function() {
     debuggerHelper.DoesConsoleLogExist("Working!");
   });
 
-  it("Resolves promise after 3 seconds and shows alert", () => {
+  it("4. Resolves promise after 3 seconds and shows alert", () => {
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -140,7 +142,8 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(3000);
     agHelper.AssertContains("resolved");
   });
-  it("Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
+
+  it("5. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
     apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
     jsEditor.CreateJSObject(
       `export default {
@@ -182,7 +185,8 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(3000);
     agHelper.AssertContains("Barty Crouch");
   });
-  it("Verifies whether setTimeout executes on page load", () => {
+
+  it("6. Verifies whether setTimeout executes on page load", () => {
     apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
     jsEditor.CreateJSObject(
       `export default {
