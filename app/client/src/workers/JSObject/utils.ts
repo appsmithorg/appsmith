@@ -1,11 +1,14 @@
 import {
-  DataTree,
-  DataTreeJSAction,
+  EntityConfigCollection,
   EvalTree,
   EvaluationSubstitutionType,
 } from "entities/DataTree/DataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
+import {
+  JSActionEntityConfig,
+  JSActionEvalTree,
+} from "entities/DataTree/JSAction/types";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -18,9 +21,10 @@ import { unset, set, get } from "lodash";
  */
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
-  jsCollection: DataTreeJSAction,
+  jsCollection: JSActionEntityConfig,
+  jsActionEntity: JSActionEvalTree,
   unEvalTree: EvalTree,
-  entityConfigCollection: DataTree,
+  entityConfigCollection: EntityConfigCollection,
 ) => {
   // we make changes to reactivePaths, dynamicBindingPathList, dependencyMap in entityConfigCollection
   // jsCollection here means unEvalTree JSObject
@@ -34,8 +38,8 @@ export const updateJSCollectionInUnEvalTree = (
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
-      if (jsCollection.hasOwnProperty(action.name)) {
-        if (jsCollection[action.name] !== action.body) {
+      if (jsActionEntity.hasOwnProperty(action.name)) {
+        if (jsActionEntity[action.name] !== action.body) {
           const data = get(
             unEvalTree,
             `${jsCollection.name}.${action.name}.data`,
@@ -143,7 +147,7 @@ export const updateJSCollectionInUnEvalTree = (
       const newVar = parsedBody.variables[i];
       const existedVar = varList.indexOf(newVar.name);
       if (existedVar > -1) {
-        const existedVarVal = jsCollection[newVar.name];
+        const existedVarVal = jsActionEntity[newVar.name];
         if (
           (!!existedVarVal && existedVarVal.toString()) !==
             (newVar.value && newVar.value.toString()) ||
@@ -217,8 +221,8 @@ export const updateJSCollectionInUnEvalTree = (
  */
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: EvalTree,
-  entityConfigCollection: DataTree,
-  entity: DataTreeJSAction,
+  entityConfigCollection: EntityConfigCollection,
+  entity: JSActionEntityConfig,
 ) => {
   const functionsList: Array<string> = [];
   Object.keys(entity.meta).forEach((action) => {

@@ -18,6 +18,10 @@ import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/JSObject/utils";
+import {
+  JSActionEntityConfig,
+  JSActionEvalTree,
+} from "entities/DataTree/JSAction/types";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -29,16 +33,21 @@ import {
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
   localUnEvalTree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
 ) => {
   if (!isEmpty(jsUpdates)) {
     Object.keys(jsUpdates).forEach((jsEntity) => {
-      const entity = localUnEvalTree[jsEntity];
+      const entity = localUnEvalTree[jsEntity] as JSActionEvalTree;
+      const entityConfig = entityConfigCollection[
+        jsEntity
+      ] as JSActionEntityConfig;
       const parsedBody = jsUpdates[jsEntity].parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
           updateJSCollectionInUnEvalTree(
             parsedBody,
+            entityConfig,
             entity,
             localUnEvalTree,
             entityConfigCollection,
@@ -48,7 +57,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
           removeFunctionsAndVariableJSCollection(
             localUnEvalTree,
             entityConfigCollection,
-            entity,
+            entityConfig,
           );
         }
       }

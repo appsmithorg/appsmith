@@ -138,7 +138,7 @@ function* evaluateTreeSaga(
     unEvalDataTree,
   }: {
     unEvalDataTree: unknown;
-    entityConfigCollection: DataTree;
+    entityConfigCollection: EntityConfigCollection;
   } = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
@@ -513,7 +513,7 @@ export function* validateProperty(
   const {
     entityConfigCollection,
   }: {
-    entityConfigCollection: DataTree;
+    entityConfigCollection: EntityConfigCollection;
   } = yield select(getUnevaluatedDataTree);
 
   const entity = entityConfigCollection[props.widgetName];
