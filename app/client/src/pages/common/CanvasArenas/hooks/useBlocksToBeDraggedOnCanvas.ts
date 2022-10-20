@@ -323,6 +323,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
         alignment: dropPayload.alignment,
       },
     };
+    setTimeout(() => {
+      selectWidget(widgetPayload.newWidgetId);
+    }, 100);
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
