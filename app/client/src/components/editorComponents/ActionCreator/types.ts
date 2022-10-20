@@ -38,6 +38,7 @@ export type KeyValueViewProps = ViewProps;
 export type TextViewProps = ViewProps & {
   index?: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  toolTip?: string;
 };
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
