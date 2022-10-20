@@ -7,11 +7,9 @@ describe("Binding the list widget with text widget", function() {
   });
 
   it("1. Validate that list widget doesn't execute code", function() {
-    cy.PublishtheApp();
-    cy.wait(5000);
     cy.get(".t--widget-inputwidgetv2 input")
       .eq(1)
-      .type("'+(function() { while(true) {} })()+'", {
+      .type("'+(function() { return 3; })()+'", {
         parseSpecialCharSequences: false,
       });
     cy.wait(1000);
@@ -19,7 +17,37 @@ describe("Binding the list widget with text widget", function() {
       .eq(0)
       .click();
     cy.get(commonlocators.toastmsg).contains(
-      "'+(function() { while(true) {} })()+'",
+      "'+(function() { return 3; })()+'",
+    );
+
+    cy.get(".t--widget-inputwidgetv2 input")
+      .eq(1)
+      .clear()
+      .type("`+(function() { return 3; })()+`", {
+        parseSpecialCharSequences: false,
+      });
+    cy.wait(1000);
+    cy.get(".t--widget-buttonwidget")
+      .eq(0)
+      .click();
+    cy.get(commonlocators.toastmsg).should(
+      "contain",
+      "`+(function() { return 3; })()+`",
+    );
+
+    cy.get(".t--widget-inputwidgetv2 input")
+      .eq(1)
+      .clear()
+      .type('"+(function() { return 3; })()+"', {
+        parseSpecialCharSequences: false,
+      });
+    cy.wait(1000);
+    cy.get(".t--widget-buttonwidget")
+      .eq(0)
+      .click();
+    cy.get(commonlocators.toastmsg).should(
+      "contain",
+      '"+(function() { return 3; })()+"',
     );
   });
 });
