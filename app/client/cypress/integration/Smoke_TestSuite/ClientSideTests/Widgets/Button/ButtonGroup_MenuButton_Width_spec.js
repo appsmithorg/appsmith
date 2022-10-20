@@ -60,7 +60,7 @@ describe("In a button group widget, menu button width", function() {
     const menuButtonId = "groupButton1";
     // Change the first button type to menu
     cy.editColumn(menuButtonId);
-    cy.selectDropdownValue(".t--property-control-buttontype", "Menu");
+    cy.get(".t--button-tab-MENU").click({ force: true });
     cy.get(".t--add-menu-item-btn").click();
     // Get the newly converted menu button
     cy.get(`.appsmith_widget_${widgetId} div.t--buttongroup-widget`)
@@ -126,7 +126,7 @@ describe("In a button group widget, menu button width", function() {
       .click();
     cy.moveToStyleTab();
     // Change its orientation to vetical
-    cy.selectDropdownValue(".t--property-control-orientation", "Vertical");
+    cy.get(".t--button-tab-vertical").click({ force: true });
     // Get the default menu button
     cy.get(`.appsmith_widget_${widgetId} div.t--buttongroup-widget`)
       .children()
