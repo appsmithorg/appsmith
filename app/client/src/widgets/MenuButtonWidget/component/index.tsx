@@ -306,7 +306,7 @@ function PopoverContent(props: PopoverContentProps) {
 
   if (!items) return <StyledMenu />;
 
-  const listItems = items.map((menuItem: any) => {
+  const listItems = items.map((menuItem: any, index: number) => {
     const {
       backgroundColor,
       iconAlign,
@@ -327,7 +327,7 @@ function PopoverContent(props: PopoverContentProps) {
           isCompact={isCompact}
           key={id}
           labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick)}
+          onClick={() => onItemClicked(onClick, index)}
           text={label}
           textColor={textColor}
         />
@@ -341,7 +341,7 @@ function PopoverContent(props: PopoverContentProps) {
         icon={<Icon color={iconColor} icon={iconName} />}
         isCompact={isCompact}
         key={id}
-        onClick={() => onItemClicked(onClick)}
+        onClick={() => onItemClicked(onClick, index)}
         text={label}
         textColor={textColor}
       />

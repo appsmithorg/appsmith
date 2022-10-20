@@ -250,6 +250,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                           type: ValidationTypes.TEXT,
                         },
                       },
+                      dependencies: ["menuItemsSource", "sourceData"],
                     },
                     {
                       propertyName: "isVisible",
@@ -297,7 +298,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: true,
-                      customJSControl: "MENU_COMPUTE_VALUE",
                     },
                   ],
                 },
@@ -605,14 +605,17 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     ];
   }
 
-  menuItemClickHandler = (onClick: string | undefined) => {
+  menuItemClickHandler = (onClick: string | undefined, index: number) => {
     if (onClick) {
+      const currentItem = this.props.sourceData?.[index];
+
       super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: onClick,
         event: {
           type: EventType.ON_CLICK,
         },
+        globalContext: { currentItem, currentIndex: index },
       });
     }
   };

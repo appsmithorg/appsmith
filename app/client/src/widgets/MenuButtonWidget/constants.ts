@@ -90,7 +90,7 @@ export interface MenuButtonComponentProps {
   boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
-  onItemClicked: (onClick: string | undefined) => void;
+  onItemClicked: (onClick: string | undefined, index: number) => void;
   backgroundColor?: string;
   placement?: ButtonPlacement;
   width: number;
@@ -135,7 +135,7 @@ export interface PopoverContentProps {
       onClick?: string;
     }
   >;
-  onItemClicked: (onClick: string | undefined) => void;
+  onItemClicked: (onClick: string | undefined, index: number) => void;
   isCompact?: boolean;
   borderRadius?: string;
   backgroundColor?: string;
