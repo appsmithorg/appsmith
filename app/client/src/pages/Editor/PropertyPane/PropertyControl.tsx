@@ -52,7 +52,7 @@ import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
 import { AppState } from "@appsmith/reducers";
-import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
+import { getShouldFocusPropertyPath } from "selectors/editorContextSelectors";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
@@ -91,7 +91,7 @@ const PropertyControl = memo((props: Props) => {
   let hasDispatchedPropertyFocus = false;
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
-      getshouldFocusPropertyPath(
+      getShouldFocusPropertyPath(
         state,
         dataTreePath,
         hasDispatchedPropertyFocus,

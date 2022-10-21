@@ -1,6 +1,7 @@
 import { AppState } from "@appsmith/reducers";
 import {
   CodeEditorHistory,
+  CursorPosition,
   EvaluatedPopupState,
 } from "reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
@@ -38,7 +39,26 @@ export const getIsCodeEditorFocused = createSelector(
   },
 );
 
-export const getshouldFocusPropertyPath = createSelector(
+export const getCodeEditorLastCursorPosition = createSelector(
+  [
+    getCurrentPageId,
+    getCodeEditorHistory,
+    (state: AppState, key: string | undefined) => key,
+  ],
+  (
+    pageId: string,
+    codeEditorHistory: CodeEditorHistory,
+    key: string | undefined,
+  ): CursorPosition | undefined => {
+    if (key === undefined) return;
+    const propertyFieldKey = generatePropertyKey(key, pageId);
+    if (propertyFieldKey && propertyFieldKey in codeEditorHistory) {
+      return codeEditorHistory[propertyFieldKey].cursorPosition;
+    }
+  },
+);
+
+export const getShouldFocusPropertyPath = createSelector(
   [
     getFocusableField,
     getCurrentPageId,

@@ -84,7 +84,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import { startingEntityUpdation } from "actions/editorActions";
+import { startingEntityUpdate } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -100,8 +100,14 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
-import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
+import {
+  getCodeEditorLastCursorPosition,
+  getIsCodeEditorFocused,
+} from "selectors/editorContextSelectors";
+import {
+  CodeEditorFocusState,
+  generateKeyAndSetCodeEditorLastFocus,
+} from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 
@@ -343,7 +349,12 @@ class CodeEditor extends Component<Props, State> {
         this.lintCode(editor);
 
         if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
-          editor.focus();
+          if (this.codeEditorTarget.current) {
+            this.codeEditorTarget.current.focus();
+          }
+        }
+        if (this.props.editorLastCursorPosition) {
+          editor.setCursor(this.props.editorLastCursorPosition);
         }
       }.bind(this);
 
@@ -380,7 +391,12 @@ class CodeEditor extends Component<Props, State> {
       this.props.editorIsFocused &&
       shouldFocusOnPropertyControl()
     ) {
-      this.editor.focus();
+      if (this.codeEditorTarget.current) {
+        this.codeEditorTarget.current.focus();
+      }
+    }
+    if (this.props.editorLastCursorPosition) {
+      this.editor.setCursor(this.props.editorLastCursorPosition);
     }
     this.editor.operation(() => {
       if (this.state.isFocused) return;
@@ -432,6 +448,23 @@ class CodeEditor extends Component<Props, State> {
   };
 
   componentWillUnmount() {
+    if (document.activeElement === this.codeEditorTarget.current) {
+      const cursorPosition = { ch: 0, line: 0 };
+      if (this.props.editorLastCursorPosition) {
+        const { ch, line } = this.props.editorLastCursorPosition;
+        cursorPosition.ch = ch;
+        cursorPosition.line = line;
+      }
+      if (this.editor) {
+        const { ch, line } = this.editor.getCursor();
+        cursorPosition.ch = ch;
+        cursorPosition.line = line;
+      }
+      this.props.setCodeEditorLastFocus({
+        key: this.props.dataTreePath,
+        cursorPosition,
+      });
+    }
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
     if (this.highlightedUrlElement) {
       removeEventFromHighlightedElement(this.highlightedUrlElement, [
@@ -543,9 +576,9 @@ class CodeEditor extends Component<Props, State> {
         EditorModes.GRAPHQL_WITH_BINDING,
       ].includes(mode.name)
     ) {
-      this.editor.setOption("matchBrackets", true);
+      cm.setOption("matchBrackets", true);
     } else {
-      this.editor.setOption("matchBrackets", false);
+      cm.setOption("matchBrackets", false);
     }
   };
 
@@ -576,7 +609,14 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
-    this.props.setCodeEditorLastFocus(this.props.dataTreePath);
+    const cursor = this.editor.getCursor();
+    this.props.setCodeEditorLastFocus({
+      key: this.props.dataTreePath,
+      cursorPosition: {
+        ch: cursor.ch,
+        line: cursor.line,
+      },
+    });
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
@@ -614,7 +654,10 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleChange = (instance?: any, changeObj?: any) => {
+  handleChange = (
+    instance?: CodeMirror.Editor,
+    changeObj?: CodeMirror.EditorChangeLinkedList,
+  ) => {
     const value = this.editor?.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
@@ -632,12 +675,17 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.input.onChange(value);
     }
-    CodeEditor.updateMarkings(this.editor, this.props.marking);
+    if (this.editor) {
+      CodeEditor.updateMarkings(this.editor, this.props.marking);
+    }
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
 
-  startChange = (instance?: any, changeObj?: any) => {
+  startChange = (
+    instance: CodeMirror.Editor,
+    changeObj: CodeMirror.EditorChangeLinkedList,
+  ) => {
     /* This action updates the status of the savingEntity to true so that any
       shortcut commands do not execute before updating the entity in the store */
     const value = this.editor.getValue() || "";
@@ -651,7 +699,7 @@ class CodeEditor extends Component<Props, State> {
       this.setState({
         changeStarted: true,
       });
-      this.props.startingEntityUpdation();
+      this.props.startingEntityUpdate();
     }
     this.handleDebouncedChange(instance, changeObj);
   };
@@ -1006,14 +1054,18 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
   editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
+  editorLastCursorPosition: getCodeEditorLastCursorPosition(
+    state,
+    props.dataTreePath,
+  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
-  startingEntityUpdation: () => dispatch(startingEntityUpdation()),
-  setCodeEditorLastFocus: (key: string | undefined) =>
-    dispatch(generateKeyAndSetCodeEditorLastFocus(key)),
+  startingEntityUpdate: () => dispatch(startingEntityUpdate()),
+  setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
+    dispatch(generateKeyAndSetCodeEditorLastFocus(payload)),
 });
 
 export default Sentry.withProfiler(

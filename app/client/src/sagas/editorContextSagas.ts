@@ -6,6 +6,7 @@ import { EvaluatedPopupState } from "reducers/uiReducers/editorContextReducer";
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { generatePropertyKey } from "utils/editorContextUtils";
+import { CodeEditorFocusState } from "actions/editorContextActions";
 
 /**
  * This method appends the PageId along with the focusable propertyPath
@@ -36,20 +37,18 @@ function* generateKeyAndSetFocusablePropertyFieldSaga(
  * @param action
  */
 function* generateKeyAndSetFocusableEditor(
-  action: ReduxAction<{
-    key: string | undefined;
-  }>,
+  action: ReduxAction<CodeEditorFocusState>,
 ) {
   const currentPageId: string = yield select(getCurrentPageId);
 
-  const { key } = action.payload;
+  const { cursorPosition, key } = action.payload;
 
   const propertyFieldKey = generatePropertyKey(key, currentPageId);
 
   if (propertyFieldKey) {
     yield put({
       type: ReduxActionTypes.SET_CODE_EDITOR_FOCUS,
-      payload: { key: propertyFieldKey },
+      payload: { key: propertyFieldKey, cursorPosition },
     });
   }
 }

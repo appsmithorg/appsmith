@@ -1,5 +1,11 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { CodeEditorFocusState } from "actions/editorContextActions";
+
+export type CursorPosition = {
+  line: number;
+  ch: number;
+};
 
 export type EvaluatedPopupState = {
   type: boolean;
@@ -8,6 +14,7 @@ export type EvaluatedPopupState = {
 };
 
 export type CodeEditorContext = {
+  cursorPosition?: CursorPosition;
   evalPopupState?: EvaluatedPopupState;
 };
 
@@ -44,11 +51,13 @@ export const editorContextReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_CODE_EDITOR_FOCUS]: (
     state: EditorContextState,
     action: {
-      payload: { key: string };
+      payload: CodeEditorFocusState;
     },
   ) => {
-    const { key } = action.payload;
+    const { cursorPosition, key } = action.payload;
     if (!key) return;
+    if (!state.codeEditorHistory[key]) state.codeEditorHistory[key] = {};
+    state.codeEditorHistory[key].cursorPosition = cursorPosition;
     state.focusableField = key;
   },
   [ReduxActionTypes.SET_EVAL_POPUP_STATE]: (
