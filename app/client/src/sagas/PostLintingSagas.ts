@@ -2,7 +2,7 @@ import {
   createMessage,
   JS_OBJECT_BODY_INVALID,
 } from "@appsmith/constants/messages";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
@@ -23,14 +23,17 @@ export function logLatestLintPropertyErrors(
     const entity = dataTree[entityName];
     // only log lint errors in JSObjects
     if (!isJSAction(entity)) continue;
-    const lintErrorInPath = errors[path];
-    const lintErrorMessagesInPath = lintErrorInPath.map((error) => ({
+    // only log lint errors (not warnings)
+    const lintErrorsInPath = errors[path].filter(
+      (error) => error.severity === Severity.ERROR,
+    );
+    const lintErrorMessagesInPath = lintErrorsInPath.map((error) => ({
       type: error.errorType,
       message: error.errorMessage,
     }));
     const debuggerKey = entity.actionId + propertyPath + "-lint";
 
-    if (isEmpty(lintErrorInPath)) {
+    if (isEmpty(lintErrorsInPath)) {
       AppsmithConsole.deleteError(debuggerKey);
       continue;
     }
