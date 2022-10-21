@@ -144,6 +144,7 @@ export function PageHeader(props: PageHeaderProps) {
                 defaultValue={title ?? pageTitle}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 isEditingDefault={isEditing}
+                isInvalid={(name) => !name || name.trim().length === 0}
                 onBlur={() => setIsEditing(false)}
                 onTextChanged={(name) => onEditTitle?.(name)}
                 placeholder={createMessage(ENTER_GROUP_NAME)}
