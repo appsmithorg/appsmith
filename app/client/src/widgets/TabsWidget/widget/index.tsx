@@ -125,6 +125,7 @@ class TabsWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependentPaths: ["tabsObj", "tabs"],
             },
             dependencies: ["tabsObj", "tabs"],
           },
