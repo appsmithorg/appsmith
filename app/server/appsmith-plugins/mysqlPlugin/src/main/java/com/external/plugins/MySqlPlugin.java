@@ -75,6 +75,7 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static io.r2dbc.pool.PoolingConnectionFactoryProvider.MAX_SIZE;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
 import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
@@ -656,11 +657,12 @@ public class MySqlPlugin extends BasePlugin {
             ConnectionFactory cf = ConnectionFactories.get(ConnectionFactoryOptions.builder()
                     .option(DRIVER,"pool")
                     .option(PROTOCOL,"mysql") // driver identifier, PROTOCOL is delegated as DRIVER by the pool.
-                    .option(HOST, "test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com")
-                    .option(PORT, 3306)
-                    .option(USER, "admin")
-                    .option(PASSWORD,"Appsmith2020#")
-                    .option(DATABASE,"testdb")
+                    .option(HOST, datasourceConfiguration.getEndpoints().get(0).getHost())
+                    .option(PORT, datasourceConfiguration.getEndpoints().get(0).getPort().intValue())
+                    .option(USER, authentication.getUsername())
+                    .option(PASSWORD, authentication.getPassword())
+                    .option(DATABASE,authentication.getDatabaseName())
+                    .option(MAX_SIZE, 3)
                     .build());
 
             ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(cf)
