@@ -39,7 +39,7 @@ import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { noop } from "utils/AppsmithUtils";
 
 export const Container = styled.div`

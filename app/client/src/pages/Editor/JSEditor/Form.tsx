@@ -63,7 +63,7 @@ import { EventLocation } from "utils/AnalyticsUtil";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { executeCommandAction } from "../../../actions/apiPaneActions";
 import { SlashCommand } from "../../../entities/Action";
 

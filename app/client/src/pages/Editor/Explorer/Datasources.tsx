@@ -39,7 +39,7 @@ import { AppState } from "@appsmith/reducers";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;

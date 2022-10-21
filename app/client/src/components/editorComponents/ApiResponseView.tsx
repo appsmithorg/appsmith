@@ -36,6 +36,7 @@ import {
   Category,
   Icon,
   Size,
+  TAB_MIN_HEIGHT,
   Text,
   TextType,
 } from "design-system";
@@ -74,10 +75,6 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
-
-  .react-tabs__tab-panel > * {
-    padding-bottom: 10px;
-  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -91,8 +88,8 @@ const ResponseMetaWrapper = styled.div`
   align-items: center;
   display: flex;
   position: absolute;
-  right: ${(props) => props.theme.spaces[12]}px;
-  top: ${(props) => props.theme.spaces[4]}px;
+  right: ${(props) => props.theme.spaces[17] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 1}px;
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -108,12 +105,13 @@ const TabbedViewWrapper = styled.div`
   &&& {
     ul.react-tabs__tab-list {
       margin: 0px ${(props) => props.theme.spaces[11]}px;
+      height: ${TAB_MIN_HEIGHT};
     }
   }
 
   & {
     .react-tabs__tab-panel {
-      height: calc(100% - 32px);
+      height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
 `;
@@ -181,7 +179,6 @@ const HelpSection = styled.div`
 `;
 
 const ResponseBodyContainer = styled.div`
-  padding-top: 10px;
   overflow-y: auto;
   height: 100%;
   display: grid;
@@ -371,9 +368,21 @@ function ApiResponseView(props: Props) {
     });
   };
 
+  let filteredResponseDataTypes: { key: string; title: string }[] = [
+    ...responseDataTypes,
+  ];
+  if (!!response.body && !isArray(response.body)) {
+    filteredResponseDataTypes = responseDataTypes.filter(
+      (item) => item.key !== API_RESPONSE_TYPE_OPTIONS.TABLE,
+    );
+    if (responseDisplayFormat.title === API_RESPONSE_TYPE_OPTIONS.TABLE) {
+      onResponseTabSelect(filteredResponseDataTypes[0]?.title);
+    }
+  }
+
   const selectedTabIndex =
-    responseDataTypes &&
-    responseDataTypes.findIndex(
+    filteredResponseDataTypes &&
+    filteredResponseDataTypes.findIndex(
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
@@ -388,8 +397,8 @@ function ApiResponseView(props: Props) {
   }, []);
 
   const responseTabs =
-    responseDataTypes &&
-    responseDataTypes.map((dataType, index) => {
+    filteredResponseDataTypes &&
+    filteredResponseDataTypes.map((dataType, index) => {
       return {
         index: index,
         key: dataType.key,
@@ -546,7 +555,7 @@ function ApiResponseView(props: Props) {
   ];
 
   return (
-    <ResponseContainer ref={panelRef}>
+    <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
       <Resizer
         initialHeight={responsePaneHeight}
         onResizeComplete={(height: number) => {
@@ -624,6 +633,8 @@ function ApiResponseView(props: Props) {
           </ResponseMetaWrapper>
         )}
         <EntityBottomTabs
+          containerRef={panelRef}
+          expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={updateSelectedResponseTab}
           selectedTabKey={selectedResponseTab}
           tabs={tabs}

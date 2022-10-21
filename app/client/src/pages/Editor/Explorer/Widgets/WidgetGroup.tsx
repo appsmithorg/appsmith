@@ -23,7 +23,7 @@ import { noop } from "lodash";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 type ExplorerWidgetGroupProps = {
   step: number;
