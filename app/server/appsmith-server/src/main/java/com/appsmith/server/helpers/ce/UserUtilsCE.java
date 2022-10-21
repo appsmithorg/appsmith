@@ -146,6 +146,7 @@ public class UserUtilsCE {
     private Mono<PermissionGroup> createInstanceAdminPermissionGroupWithoutPermissions() {
         PermissionGroup instanceAdminPermissionGroup = new PermissionGroup();
         instanceAdminPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
+        instanceAdminPermissionGroup.setDefaultWorkspaceId(FieldName.DEFAULT);
 
         return permissionGroupRepository.save(instanceAdminPermissionGroup)
                 .flatMap(savedPermissionGroup -> {
