@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class InviteUsersCE_DTO {
-    
+
     List<String> usernames;
 
     @NotNull
