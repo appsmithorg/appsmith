@@ -163,6 +163,7 @@ function* startEvaluationProcess(
     evalOrder,
     jsUpdates,
     lintOrder,
+    nonDynamicFieldValidationOrder,
     uncaughtError,
     unEvalUpdates,
   }: UpdateDependencyResponseData = yield call(
@@ -181,6 +182,7 @@ function* startEvaluationProcess(
     unEvalUpdates,
     unevalTree,
     uncaughtError,
+    nonDynamicFieldValidationOrder,
   });
 
   // Linting
@@ -201,10 +203,12 @@ function* evaluateTreeSaga(arg: {
   theme: AppTheme;
   widgets: CanvasWidgetsReduxState;
   uncaughtError: unknown;
+  nonDynamicFieldValidationOrder: string[];
 }) {
   const {
     evalOrder,
     jsUpdates,
+    nonDynamicFieldValidationOrder,
     postEvalActions,
     shouldReplay = true,
     uncaughtError,
@@ -217,6 +221,7 @@ function* evaluateTreeSaga(arg: {
     shouldReplay,
     uncaughtError,
     unEvalUpdates,
+    nonDynamicFieldValidationOrder,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(

@@ -81,7 +81,8 @@ export default [
         propertyName: "inlineEditingSaveOption",
         helpText: "Choose the save experience to save the edited cell",
         label: "Update Mode",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => {
@@ -100,11 +101,11 @@ export default [
         ],
         options: [
           {
-            label: "Row level",
+            label: "Single Row",
             value: InlineEditingSaveOptions.ROW_LEVEL,
           },
           {
-            label: "Custom",
+            label: "Multi Row",
             value: InlineEditingSaveOptions.CUSTOM,
           },
         ],
@@ -207,6 +208,7 @@ export default [
       {
         propertyName: "enableClientSideSearch",
         label: "Client Side Search",
+        helpText: "Searches all results only on the data which is loaded",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -216,6 +218,7 @@ export default [
       {
         propertyName: "defaultSearchText",
         label: "Default Search Text",
+        helpText: "Adds a search text by default",
         controlType: "INPUT_TEXT",
         placeholderText: "{{appsmith.user.name}}",
         isBindProperty: true,
@@ -227,6 +230,7 @@ export default [
       {
         propertyName: "onSearchTextChanged",
         label: "onSearchTextChanged",
+        helpText: "Triggers an action when search text is modified by the user",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
@@ -297,6 +301,7 @@ export default [
       {
         propertyName: "multiRowSelection",
         label: "Enable Multi-row Selection",
+        helpText: "Allows users to select multiple rows",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,

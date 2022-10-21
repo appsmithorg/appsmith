@@ -140,10 +140,16 @@ describe("DataTreeEvaluator", () => {
     });
 
     it("initial dependencyMap computation", () => {
-      const { evalOrder } = dataTreeEvaluator.setupUpdateTree(
+      const {
+        evalOrder,
+        nonDynamicFieldValidationOrder,
+      } = dataTreeEvaluator.setupUpdateTree(
         (unEvalTree as unknown) as DataTree,
       );
-      dataTreeEvaluator.evalAndValidateSubTree(evalOrder);
+      dataTreeEvaluator.evalAndValidateSubTree(
+        evalOrder,
+        nonDynamicFieldValidationOrder,
+      );
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
         "Button2.text": ["Button1.text"],
@@ -228,10 +234,16 @@ describe("DataTreeEvaluator", () => {
         // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [{...}, {...}, {...}]
-          const { evalOrder } = dataTreeEvaluator.setupUpdateTree(
+          const {
+            evalOrder,
+            nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder1,
+          } = dataTreeEvaluator.setupUpdateTree(
             arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           );
-          dataTreeEvaluator.evalAndValidateSubTree(evalOrder);
+          dataTreeEvaluator.evalAndValidateSubTree(
+            evalOrder,
+            nonDynamicFieldValidationOrder1,
+          );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
           ]);
@@ -246,10 +258,16 @@ describe("DataTreeEvaluator", () => {
           ]);
 
           // failure: response -> {}
-          const { evalOrder: order } = dataTreeEvaluator.setupUpdateTree(
+          const {
+            evalOrder: order,
+            nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
+          } = dataTreeEvaluator.setupUpdateTree(
             arrayAccessorCyclicDependency.apiFailureUnEvalTree,
           );
-          dataTreeEvaluator.evalAndValidateSubTree(order);
+          dataTreeEvaluator.evalAndValidateSubTree(
+            order,
+            nonDynamicFieldValidationOrder2,
+          );
 
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
@@ -269,16 +287,28 @@ describe("DataTreeEvaluator", () => {
       // when Text1.text has a binding Api1.data[2].id
       it("on API response array length change", () => {
         // success: response -> [{...}, {...}, {...}]
-        const { evalOrder: order1 } = dataTreeEvaluator.setupUpdateTree(
+        const {
+          evalOrder: order1,
+          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
+        } = dataTreeEvaluator.setupUpdateTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
         );
-        dataTreeEvaluator.evalAndValidateSubTree(order1);
+        dataTreeEvaluator.evalAndValidateSubTree(
+          order1,
+          nonDynamicFieldValidationOrder3,
+        );
 
         // success: response -> [{...}, {...}]
-        const { evalOrder: order2 } = dataTreeEvaluator.setupUpdateTree(
+        const {
+          evalOrder: order2,
+          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder4,
+        } = dataTreeEvaluator.setupUpdateTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
         );
-        dataTreeEvaluator.evalAndValidateSubTree(order2);
+        dataTreeEvaluator.evalAndValidateSubTree(
+          order2,
+          nonDynamicFieldValidationOrder4,
+        );
 
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
           "Api1.data",
@@ -297,10 +327,16 @@ describe("DataTreeEvaluator", () => {
         // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-          const { evalOrder: order } = dataTreeEvaluator.setupUpdateTree(
+          const {
+            evalOrder: order,
+            nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder5,
+          } = dataTreeEvaluator.setupUpdateTree(
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           );
-          dataTreeEvaluator.evalAndValidateSubTree(order);
+          dataTreeEvaluator.evalAndValidateSubTree(
+            order,
+            nonDynamicFieldValidationOrder5,
+          );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
           ]);
@@ -318,10 +354,16 @@ describe("DataTreeEvaluator", () => {
           ]);
 
           // failure: response -> {}
-          const { evalOrder: order1 } = dataTreeEvaluator.setupUpdateTree(
+          const {
+            evalOrder: order1,
+            nonDynamicFieldValidationOrder,
+          } = dataTreeEvaluator.setupUpdateTree(
             nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
           );
-          dataTreeEvaluator.evalAndValidateSubTree(order1);
+          dataTreeEvaluator.evalAndValidateSubTree(
+            order1,
+            nonDynamicFieldValidationOrder,
+          );
           expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
             "Api1.data",
           ]);
@@ -343,16 +385,28 @@ describe("DataTreeEvaluator", () => {
       // when Text1.text has a binding Api1.data[2][2].id
       it("on API response array length change", () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-        const { evalOrder: order } = dataTreeEvaluator.setupUpdateTree(
+        const {
+          evalOrder: order,
+          nonDynamicFieldValidationOrder,
+        } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
         );
-        dataTreeEvaluator.evalAndValidateSubTree(order);
+        dataTreeEvaluator.evalAndValidateSubTree(
+          order,
+          nonDynamicFieldValidationOrder,
+        );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-        const { evalOrder: order1 } = dataTreeEvaluator.setupUpdateTree(
+        const {
+          evalOrder: order1,
+          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
+        } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
         );
-        dataTreeEvaluator.evalAndValidateSubTree(order1);
+        dataTreeEvaluator.evalAndValidateSubTree(
+          order1,
+          nonDynamicFieldValidationOrder2,
+        );
 
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
           "Api1.data",
@@ -370,16 +424,28 @@ describe("DataTreeEvaluator", () => {
       // when Text1.text has a binding Api1.data[2][2].id
       it("on API response nested array length change", () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-        const { evalOrder: order } = dataTreeEvaluator.setupUpdateTree(
+        const {
+          evalOrder: order,
+          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
+        } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
         );
-        dataTreeEvaluator.evalAndValidateSubTree(order);
+        dataTreeEvaluator.evalAndValidateSubTree(
+          order,
+          nonDynamicFieldValidationOrder2,
+        );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
-        const { evalOrder: order1 } = dataTreeEvaluator.setupUpdateTree(
+        const {
+          evalOrder: order1,
+          nonDynamicFieldValidationOrder,
+        } = dataTreeEvaluator.setupUpdateTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
         );
-        dataTreeEvaluator.evalAndValidateSubTree(order1);
+        dataTreeEvaluator.evalAndValidateSubTree(
+          order1,
+          nonDynamicFieldValidationOrder,
+        );
         expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
           "Api1.data",
         ]);
@@ -415,8 +481,14 @@ describe("DataTreeEvaluator", () => {
       const newUnEvalTree = ({ ...lintingUnEvalTree } as unknown) as DataTree;
       // delete Api2
       delete newUnEvalTree["Api2"];
-      const { evalOrder } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
-      dataTreeEvaluator.evalAndValidateSubTree(evalOrder);
+      const {
+        evalOrder,
+        nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      dataTreeEvaluator.evalAndValidateSubTree(
+        evalOrder,
+        nonDynamicFieldValidationOrder2,
+      );
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Button2.text"],
         "Button2.onClick": [],
@@ -425,10 +497,14 @@ describe("DataTreeEvaluator", () => {
       // Add Api2
       // @ts-expect-error: Types are not available
       newUnEvalTree["Api2"] = { ...lintingUnEvalTree }["Api2"];
-      const { evalOrder: order1 } = dataTreeEvaluator.setupUpdateTree(
-        newUnEvalTree,
+      const {
+        evalOrder: order1,
+        nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      dataTreeEvaluator.evalAndValidateSubTree(
+        order1,
+        nonDynamicFieldValidationOrder3,
       );
-      dataTreeEvaluator.evalAndValidateSubTree(order1);
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Button2.text", "Api2.run"],
         "Button2.onClick": ["Api2.run"],
@@ -439,17 +515,25 @@ describe("DataTreeEvaluator", () => {
       newButton2.onClick = "{{Api2.run(); AbsentEntity.run(); Button2}}";
       // @ts-expect-error: Types are not available
       newUnEvalTree["Button2"] = newButton2;
-      const { evalOrder: order2 } = dataTreeEvaluator.setupUpdateTree(
-        newUnEvalTree,
+      const {
+        evalOrder: order2,
+        nonDynamicFieldValidationOrder,
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      dataTreeEvaluator.evalAndValidateSubTree(
+        order2,
+        nonDynamicFieldValidationOrder,
       );
-      dataTreeEvaluator.evalAndValidateSubTree(order2);
 
       // delete Button2
       delete newUnEvalTree["Button2"];
-      const { evalOrder: order3 } = dataTreeEvaluator.setupUpdateTree(
-        newUnEvalTree,
+      const {
+        evalOrder: order3,
+        nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder4,
+      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree);
+      dataTreeEvaluator.evalAndValidateSubTree(
+        order3,
+        nonDynamicFieldValidationOrder4,
       );
-      dataTreeEvaluator.evalAndValidateSubTree(order3);
 
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Api2.run"],

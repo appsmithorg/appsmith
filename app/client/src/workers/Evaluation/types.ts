@@ -35,6 +35,7 @@ export interface UpdateDependencyResponseData {
   jsUpdates: Record<string, JSUpdate>;
   unEvalUpdates: DataTreeDiff[];
   uncaughtError: unknown;
+  nonDynamicFieldValidationOrder: string[];
 }
 
 export interface EvalTreeRequestData {
@@ -42,6 +43,7 @@ export interface EvalTreeRequestData {
   shouldReplay: boolean;
   unEvalUpdates: DataTreeDiff[];
   uncaughtError: unknown;
+  nonDynamicFieldValidationOrder: string[];
 }
 
 export interface EvalTreeResponseData {

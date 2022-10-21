@@ -11,7 +11,6 @@ import {
   CrashingError,
   DataTreeDiff,
   removeFunctions,
-  validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
@@ -35,6 +34,7 @@ import evaluate, {
   setupEvaluationEnvironment,
 } from "./evaluate";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 
 const CANVAS = "canvas";
 
@@ -95,6 +95,7 @@ function eventRequestHandler({
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
       const {
         evalOrder,
+        nonDynamicFieldValidationOrder,
         shouldReplay,
         uncaughtError,
       } = requestData as EvalTreeRequestData;
@@ -132,6 +133,7 @@ function eventRequestHandler({
             dataTree = {};
             const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
               evalOrder,
+              nonDynamicFieldValidationOrder,
             );
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
             // evalMetaUpdates can have moment object as value which will cause DataCloneError
@@ -211,8 +213,14 @@ function eventRequestHandler({
       if (!dataTreeEvaluator) {
         return { triggers: [], errors: [] };
       }
-      const { evalOrder } = dataTreeEvaluator.setupUpdateTree(dataTree);
-      dataTreeEvaluator.evalAndValidateSubTree(evalOrder);
+      const {
+        evalOrder,
+        nonDynamicFieldValidationOrder,
+      } = dataTreeEvaluator.setupUpdateTree(dataTree);
+      dataTreeEvaluator.evalAndValidateSubTree(
+        evalOrder,
+        nonDynamicFieldValidationOrder,
+      );
       const evalTree = dataTreeEvaluator.evalTree;
       const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
@@ -310,6 +318,7 @@ function eventRequestHandler({
       let jsUpdates: Record<string, JSUpdate> = {};
       let unEvalUpdates: DataTreeDiff[] = [];
       let uncaughtError: unknown = false;
+      let nonDynamicFieldValidationOrder: string[] = [];
 
       const {
         allActionValidationConfig,
@@ -377,6 +386,8 @@ function eventRequestHandler({
           lintOrder = setupUpdateTreeResponse.lintOrder;
           unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
           jsUpdates = setupUpdateTreeResponse.jsUpdates;
+          nonDynamicFieldValidationOrder =
+            setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
         }
       } catch (error) {
         console.error("ERROR IN UPDATING DEPENDENCY", error);
@@ -392,6 +403,7 @@ function eventRequestHandler({
         jsUpdates,
         unEvalUpdates,
         uncaughtError,
+        nonDynamicFieldValidationOrder,
       } as UpdateDependencyResponseData;
     }
     default: {
