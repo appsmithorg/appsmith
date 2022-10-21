@@ -191,14 +191,29 @@ public class SeedMongoData {
                 .cache();
 
         Flux<User> userFlux = Flux.just(userData)
-                .map(array -> {
+                .flatMap(array -> {
                     log.debug("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
                     user.setEmail((String) array[1]);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
-                    return user;
+                    return userRepository.save(user);
+                })
+                .flatMap(user -> {
+                    PermissionGroup permissionGroupUser = new PermissionGroup();
+                    permissionGroupUser.setPermissions(Set.of(new Permission(user.getId(), MANAGE_USERS)));
+                    permissionGroupUser.setName(user.getId() + "User Name");
+                    permissionGroupUser.setAssignedToUserIds(Set.of(user.getId()));
+                    return permissionGroupRepository.save(permissionGroupUser)
+                            .flatMap(savedPermissionGroup -> {
+                                Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                                        user.getId());
+
+                                User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, user);
+
+                                return userRepository.save(updatedWithPolicies);
+                            });
                 })
                 .collectList()
                 .zipWith(defaultTenantId)
@@ -272,21 +287,6 @@ public class SeedMongoData {
                                     .map(u -> {
                                         log.debug("Saved the workspace to user. User: {}", u);
                                         return u;
-                                    });
-                        })
-                        .flatMap(user -> {
-                            PermissionGroup permissionGroupUser = new PermissionGroup();
-                            permissionGroupUser.setPermissions(Set.of(new Permission(user.getId(), MANAGE_USERS)));
-                            permissionGroupUser.setName(user.getId() + "User Name");
-                            permissionGroupUser.setAssignedToUserIds(Set.of(user.getId()));
-                            return permissionGroupRepository.save(permissionGroupUser)
-                                    .flatMap(savedPermissionGroup -> {
-                                        Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
-                                                user.getId());
-
-                                        User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, user);
-
-                                        return userRepository.save(updatedWithPolicies);
                                     });
                         })
                 );
