@@ -64,7 +64,7 @@ function LeftPaneBottomSection() {
   const tenantPermissions = useSelector(getTenantPermissions);
   return (
     <Wrapper>
-      {user?.isSuperUser && user?.isConfigurable && !isFetchingApplications && (
+      {/* user?.isSuperUser && user?.isConfigurable && */ !isFetchingApplications && (
         <MenuItem
           className="admin-settings-menu-option"
           icon="setting"

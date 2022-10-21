@@ -118,7 +118,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
       </ProfileSection>
       <Section>
         <h4>ACCOUNT</h4>
-        {user?.isSuperUser && user?.isConfigurable && (
+        {/* user?.isSuperUser && */ user?.isConfigurable && (
           <StyledMenuItem
             className="admin-settings-menu-option"
             icon="setting"
