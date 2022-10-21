@@ -33,6 +33,7 @@ export function* closeSettingsPaneSaga(
   // select multiple widgets is triggered also on canvas click
   // checking widgets length to ensure widgets were selected
   if (
+    action?.type === ReduxActionTypes.SELECT_MULTIPLE_WIDGETS &&
     (action as ReduxAction<SelectMultipleWidgetsActionPayload>)?.payload
       ?.widgetIds?.length === 0
   )
@@ -40,7 +41,10 @@ export function* closeSettingsPaneSaga(
 
   // select widget is also triggered on route change
   // checking widget id to ensure a widget was selected
-  if (!(action as ReduxAction<SelectWidgetActionPayload>)?.payload?.widgetId)
+  if (
+    action?.type === ReduxActionTypes.SELECT_WIDGET &&
+    !(action as ReduxAction<SelectWidgetActionPayload>)?.payload?.widgetId
+  )
     return;
 
   const reopenExplorer: boolean = yield select(
