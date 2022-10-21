@@ -451,8 +451,3 @@ export const StyledDividerContainer = styled.div`
 export const StyledNavigateToFieldsContainer = styled.div`
   width: 95%;
 `;
-
-export const ToolTipWrapper = styled.div`
-  width: max-content;
-  color: ${Colors.GRAY_700};
-`;
