@@ -40,7 +40,7 @@ export function CanvasPropertyPane() {
           >
             <Button
               category={Category.tertiary}
-              className={`!border-[${Colors.GREY_8}]`}
+              className={`!border-[#716E6E]`}
               fill
               onClick={openAppSettingsPane}
               size={Size.medium}

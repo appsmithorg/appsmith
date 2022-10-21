@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {
       lineHeight: {
-        "extra-tight": "1.17",
+        "extra-tight": 1.17,
       },
       screens: {
         xs: "320px",

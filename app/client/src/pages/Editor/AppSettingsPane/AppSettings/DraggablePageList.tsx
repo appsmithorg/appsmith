@@ -19,12 +19,11 @@ function PageListHeader(props: {
   const DragIcon = ControlIcons.DRAG_CONTROL;
   const dragContainerRef = useRef(null);
 
-  const bgColor = `bg-[${Colors.GRAY_200.toLowerCase()}]`;
   return (
     <div
       className={classNames({
-        "h-9 flex items-center cursor-pointer": true,
-        [bgColor]: props.selectedPage === props.page.pageId,
+        "h-9 flex items-center cursor-pointer hover:bg-[#E7E7E7]": true,
+        "bg-[#E7E7E7]": props.selectedPage === props.page.pageId,
       })}
       onClick={() => {
         props.onPageSelect(props.page.pageId);

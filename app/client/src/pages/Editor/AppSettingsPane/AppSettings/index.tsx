@@ -40,10 +40,6 @@ const SectionContent = styled.div`
   box-shadow: -1px 0 0 0 ${Colors.GRAY_300};
 `;
 
-const HeaderText = styled.div`
-  height: 48px;
-`;
-
 const ThemeContentWrapper = styled.div`
   height: calc(100% - 48px);
   overflow-y: overlay;
@@ -99,12 +95,10 @@ function AppSettings() {
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
         ))}
-        <div
-          className={`border-t-[1px] border-[${Colors.GRAY_300.toLowerCase()}]`}
-        />
-        <HeaderText className="leading-[3rem] font-medium px-4">
+        <div className={`border-t-[1px] border-[#D7D7D7]`} />
+        <div className="font-medium px-4 py-[10px]">
           {PAGE_SETTINGS_SECTION_HEADER()}
-        </HeaderText>
+        </div>
         <DraggablePageList
           onPageSelect={(pageId: string) =>
             setSelectedTab({
@@ -122,9 +116,9 @@ function AppSettings() {
             case AppSettingsTabs.General:
               return (
                 <div className="px-4">
-                  <HeaderText className="leading-[3rem] font-medium">
+                  <div className="pt-3 pb-1 font-medium text-[#393939]">
                     {GENERAL_SETTINGS_SECTION_CONTENT_HEADER()}
-                  </HeaderText>
+                  </div>
                   <GeneralSettings />
                 </div>
               );
@@ -132,9 +126,9 @@ function AppSettings() {
               return (
                 <>
                   <div className="px-4">
-                    <HeaderText className="leading-[3rem] font-medium">
+                    <div className="pt-3 pb-1 font-medium text-[#393939]">
                       {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
-                    </HeaderText>
+                    </div>
                   </div>
                   <ThemeContentWrapper>
                     <ThemePropertyPane />
@@ -145,11 +139,11 @@ function AppSettings() {
               return (
                 selectedTab.page && (
                   <div className="px-4">
-                    <HeaderText className="leading-[3rem] font-medium text-ellipsis whitespace-nowrap overflow-hidden">
+                    <div className="pt-3 pb-1 font-medium text-[#393939] text-ellipsis whitespace-nowrap overflow-hidden">
                       {selectedTab.page.pageName +
                         " " +
                         PAGE_SETTINGS_SECTION_CONTENT_HEADER()}
-                    </HeaderText>
+                    </div>
                     <PageSettings page={selectedTab.page} />
                   </div>
                 )

@@ -13,8 +13,9 @@ import {
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
+import classNames from "classnames";
 import { Colors } from "constants/Colors";
-import { TextInput } from "design-system";
+import { Text, TextInput, TextType } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
@@ -163,10 +164,8 @@ function PageSettings(props: { page: Page }) {
 
   return (
     <>
-      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
-        {PAGE_SETTINGS_PAGE_NAME_LABEL()}
-      </div>
-      <div className="pb-2.5 relative">
+      <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_NAME_LABEL()}</Text>
+      <div className="pt-1 pb-2.5 relative">
         {isPageNameSaving && <TextLoaderIcon />}
         <TextInput
           fill
@@ -189,21 +188,26 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
-        {PAGE_SETTINGS_PAGE_URL_LABEL()}
-      </div>
+      <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_URL_LABEL()}</Text>
       {appNeedsUpdate && (
-        <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
+        <div className={`pt-1 text-[#575757] text-[13px] leading-extra-tight`}>
           {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1()}{" "}
           <ManualUpgrades inline>
             <a>
-              <u>{PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2()}</u>
+              <u className="text-[#191919]">
+                {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2()}
+              </u>
             </a>
           </ManualUpgrades>{" "}
           {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3()}
         </div>
       )}
-      <div className="pb-1 relative">
+      <div
+        className={classNames({
+          "py-1 relative": true,
+          "pb-2": appNeedsUpdate,
+        })}
+      >
         {isCustomSlugSaving && <TextLoaderIcon />}
         <TextInput
           fill
@@ -227,31 +231,29 @@ function PageSettings(props: { page: Page }) {
         />
       </div>
 
-      <UrlPreviewWrapper className={`pb-2 bg-[#f1f1f1]`}>
-        <UrlPreviewScroll
-          className={`py-1 pl-2 mr-0.5 text-[${Colors.GRAY_700.toLowerCase()}] text-xs leading-extra-tight break-all`}
-        >
-          {location.protocol}
-          {"//"}
-          {window.location.hostname}
-          {Array.isArray(pathPreview) && (
-            <>
-              {pathPreview[0]}
-              <strong className={`text-[${Colors.GRAY_800.toLowerCase()}]`}>
-                {pathPreview[1]}
-              </strong>
-              {pathPreview[2]}
-              {pathPreview[3]}
-            </>
-          )}
-          {!Array.isArray(pathPreview) && pathPreview}
-        </UrlPreviewScroll>
-      </UrlPreviewWrapper>
+      {!appNeedsUpdate && (
+        <UrlPreviewWrapper className={`mb-2 bg-[#f1f1f1]`}>
+          <UrlPreviewScroll
+            className={`py-1 pl-2 mr-0.5 text-[#575757] text-xs leading-extra-tight break-all`}
+          >
+            {location.protocol}
+            {"//"}
+            {window.location.hostname}
+            {Array.isArray(pathPreview) && (
+              <>
+                {pathPreview[0]}
+                <strong className={`text-[#393939]`}>{pathPreview[1]}</strong>
+                {pathPreview[2]}
+                {pathPreview[3]}
+              </>
+            )}
+            {!Array.isArray(pathPreview) && pathPreview}
+          </UrlPreviewScroll>
+        </UrlPreviewWrapper>
+      )}
 
       <div className="pb-2 flex justify-between content-center">
-        <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
-          {PAGE_SETTINGS_SHOW_PAGE_NAV()}
-        </div>
+        <Text type={TextType.P1}>{PAGE_SETTINGS_SHOW_PAGE_NAV()}</Text>
         <SwitchWrapper>
           <AdsSwitch
             checked={isShown}
@@ -266,8 +268,8 @@ function PageSettings(props: { page: Page }) {
         </SwitchWrapper>
       </div>
 
-      <div className="pb-4 flex justify-between content-center">
-        <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
+      <div className="flex justify-between content-center">
+        <div className={`text-[#575757]`}>
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
             tooltip={PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP()}

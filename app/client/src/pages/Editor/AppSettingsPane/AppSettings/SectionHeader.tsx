@@ -18,8 +18,8 @@ const StyledWrapper = styled.div`
 
 class SectionHeader extends React.Component<SectionHeaderProps> {
   render(): React.ReactNode {
-    const hoverBgColor = `hover:bg-[${Colors.GREY_200.toLowerCase()}]`;
-    const bgColor = `bg-[${Colors.GREY_200.toLowerCase()}]`;
+    const hoverBgColor = `hover:bg-[#E7E7E7]`;
+    const bgColor = `bg-[#E7E7E7]`;
     return (
       <StyledWrapper
         className={classNames({

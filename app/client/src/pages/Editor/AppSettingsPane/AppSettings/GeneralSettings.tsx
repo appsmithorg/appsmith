@@ -6,7 +6,13 @@ import {
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import { Colors } from "constants/Colors";
-import { AppIconName, TextInput, IconSelector } from "design-system";
+import {
+  AppIconName,
+  TextInput,
+  IconSelector,
+  Text,
+  TextType,
+} from "design-system";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
@@ -74,10 +80,8 @@ function GeneralSettings() {
 
   return (
     <>
-      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
-        {GENERAL_SETTINGS_APP_NAME_LABEL()}
-      </div>
-      <div className="pb-2.5 relative">
+      <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_NAME_LABEL()}</Text>
+      <div className="pt-1 pb-2.5 relative">
         {isSavingAppName && <TextLoaderIcon />}
         <TextInput
           fill
@@ -103,10 +107,8 @@ function GeneralSettings() {
         />
       </div>
 
-      <div className={`pb-1 text-[${Colors.GRAY_700.toLowerCase()}]`}>
-        {GENERAL_SETTINGS_APP_ICON_LABEL()}
-      </div>
-      <IconSelectorWrapper className="pb-4">
+      <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
+      <IconSelectorWrapper className="pt-1">
         <IconSelector
           className="icon-selector"
           fill
