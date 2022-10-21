@@ -1281,6 +1281,8 @@ export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
   "your app URL to new readable format to change this*";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
+  "You must set a homepage. Set another page to disable this";
 
 export const URL_FIELD_SPECIAL_CHARACTER_ERROR = () =>
   "No special characters allowed (except -)";

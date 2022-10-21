@@ -10,12 +10,14 @@ import {
   PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3,
   PAGE_SETTINGS_SET_AS_HOMEPAGE,
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
+  PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { TextInput } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
+import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -122,7 +124,6 @@ function PageSettings(props: { page: Page }) {
   }, [isPageLoading]);
 
   useEffect(() => {
-    console.log(isUpdatingEntity);
     if (!isUpdatingEntity) {
       isDefaultSaving && setIsDefaultSaving(false);
     }
@@ -267,7 +268,10 @@ function PageSettings(props: { page: Page }) {
 
       <div className="pb-4 flex justify-between content-center">
         <div className={`text-[${Colors.GRAY_700.toLowerCase()}]`}>
-          {PAGE_SETTINGS_SET_AS_HOMEPAGE()}
+          <PropertyHelpLabel
+            label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
+            tooltip={PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP()}
+          />
         </div>
         <SwitchWrapper>
           <AdsSwitch
