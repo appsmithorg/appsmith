@@ -706,19 +706,25 @@ export const useCanvasDragging = (
                 drawBlockOnCanvas(each);
               });
               if (payload) {
+                const topOffset = getAbsolutePixels(
+                  stickyCanvasRef.current.style.top,
+                );
+                const leftOffset = getAbsolutePixels(
+                  stickyCanvasRef.current.style.left,
+                );
                 canvasCtx.fillStyle = "rgba(223, 158, 206, 0.6)";
                 payload.highlights.forEach((each) => {
                   canvasCtx.fillRect(
-                    each.posX,
-                    each.posY,
+                    each.posX - leftOffset,
+                    each.posY - topOffset,
                     each.width,
                     each.height,
                   );
                 });
                 canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
                 canvasCtx.fillRect(
-                  payload.selectedHighlight.posX,
-                  payload.selectedHighlight.posY,
+                  payload.selectedHighlight.posX - leftOffset,
+                  payload.selectedHighlight.posY - topOffset,
                   payload.selectedHighlight.width *
                     (payload.selectedHighlight.isVertical ? 1.5 : 1),
                   payload.selectedHighlight.height *
