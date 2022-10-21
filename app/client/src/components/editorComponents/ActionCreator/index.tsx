@@ -308,23 +308,43 @@ function useModalDropdownList() {
   return finalList;
 }
 
-function getIntegrationOptionsWithChildren(
+function getQueriesAndJsActionOptionsWithChildren(
   pageId: string,
   applicationId: string,
   plugins: any,
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
-  createIntegrationOption: TreeDropdownOption,
   dispatch: any,
 ) {
-  const createJSObject: TreeDropdownOption = {
-    label: "New JS Object",
-    value: "JSObject",
+  // this function gets a list of all the queries/apis and attaches it to actionList
+  getQueryOptions(pageId, applicationId, plugins, actions, jsActions, dispatch);
+
+  // this function gets a list of all the JS objects and attaches it to actionList
+  getJSOptions(pageId, applicationId, plugins, actions, jsActions, dispatch);
+
+  return actionList;
+}
+
+function getQueryOptions(
+  pageId: string,
+  applicationId: string,
+  plugins: any,
+  actions: ActionDataState,
+  jsActions: Array<JSCollectionData>,
+  dispatch: any,
+) {
+  const createQueryObject: TreeDropdownOption = {
+    label: "New Query",
+    value: "datasources",
     id: "create",
     icon: "plus",
-    className: "t--create-js-object-btn",
+    className: "t--create-datasources-query-btn",
     onSelect: () => {
-      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
+      dispatch(
+        setGlobalSearchCategory(
+          filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
+        ),
+      );
     },
   };
 
@@ -343,7 +363,7 @@ function getIntegrationOptionsWithChildren(
     (action) => action.value === AppsmithFunction.integration,
   );
   if (integrationOption) {
-    integrationOption.children = [createIntegrationOption];
+    integrationOption.children = [createQueryObject];
 
     apis.forEach((api) => {
       (integrationOption.children as TreeDropdownOption[]).push({
@@ -372,10 +392,31 @@ function getIntegrationOptionsWithChildren(
       } as TreeDropdownOption);
     });
   }
+}
+
+function getJSOptions(
+  pageId: string,
+  applicationId: string,
+  plugins: any,
+  actions: ActionDataState,
+  jsActions: Array<JSCollectionData>,
+  dispatch: any,
+) {
+  const createJSObject: TreeDropdownOption = {
+    label: "New JS Object",
+    value: "JSObject",
+    id: "create",
+    icon: "plus",
+    className: "t--create-js-object-btn",
+    onSelect: () => {
+      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
+    },
+  };
 
   const jsOption = actionList.find(
     (action) => action.value === AppsmithFunction.jsFunction,
   );
+
   if (jsOption) {
     jsOption.children = [createJSObject];
 
@@ -434,10 +475,9 @@ function getIntegrationOptionsWithChildren(
       }
     });
   }
-  return actionList;
 }
 
-function useIntegrationsOptionTree() {
+function useQueriesAndJsActionOptions() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const dispatch = useDispatch();
@@ -448,26 +488,13 @@ function useIntegrationsOptionTree() {
   const actions = useSelector(getActionsForCurrentPage);
   const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
-  return getIntegrationOptionsWithChildren(
+  // this function gets all the Queries/API's/JS objects and attaches it to actionList
+  return getQueriesAndJsActionOptionsWithChildren(
     pageId,
     applicationId,
     pluginGroups,
     actions,
     jsActions,
-    {
-      label: "New Query",
-      value: "datasources",
-      id: "create",
-      icon: "plus",
-      className: "t--create-datasources-query-btn",
-      onSelect: () => {
-        dispatch(
-          setGlobalSearchCategory(
-            filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
-          ),
-        );
-      },
-    },
     dispatch,
   );
 }
@@ -495,7 +522,7 @@ const ActionCreator = React.forwardRef(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
     const dataTree = useSelector(getDataTree);
-    const integrationOptionTree = useIntegrationsOptionTree();
+    const integrationOptionTree = useQueriesAndJsActionOptions();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const fields = getFieldFromValue(
