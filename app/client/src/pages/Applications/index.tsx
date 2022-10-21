@@ -97,16 +97,16 @@ import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -404,7 +404,7 @@ function LeftPane() {
   const tenantPermissions = useSelector(getTenantPermissions);
   const canCreateWorkspace = isPermitted(
     tenantPermissions,
-    PERMISSION_TYPE.CREATE_WORKSPACES,
+    PERMISSION_TYPE.CREATE_WORKSPACE,
   );
 
   const location = useLocation();

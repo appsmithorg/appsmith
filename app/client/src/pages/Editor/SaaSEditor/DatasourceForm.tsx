@@ -30,7 +30,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -186,11 +185,10 @@ const mapStateToProps = (state: AppState, props: any) => {
     formData?.pluginId,
   );
 
-  const userWorkspacePermissions =
-    getCurrentAppWorkspace(state).userPermissions ?? [];
+  const datsourcePermissions = datasource?.userPermissions || [];
 
   const canManageDatasource = isPermitted(
-    userWorkspacePermissions,
+    datsourcePermissions,
     PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 

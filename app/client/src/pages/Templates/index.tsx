@@ -32,7 +32,7 @@ import { getAllApplications } from "actions/applicationActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";

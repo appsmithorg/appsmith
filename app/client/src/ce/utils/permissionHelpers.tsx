@@ -1,6 +1,6 @@
 export enum PERMISSION_TYPE {
   /* Workspace permissions */
-  CREATE_WORKSPACE = "create:workspaces",
+  CREATE_WORKSPACE = "createWorkspaces:tenant",
   MANAGE_WORKSPACE = "manage:workspaces",
   READ_WORKSPACE = "read:workspaces",
   INVITE_USER_TO_WORKSPACE = "inviteUsers:workspace",
@@ -8,8 +8,12 @@ export enum PERMISSION_TYPE {
   CREATE_APPLICATION = "manage:workspaceApplications",
   MANAGE_APPLICATION = "manage:applications",
   EXPORT_APPLICATION = "export:applications",
+  DELETE_WORKSPACE_APPLICATIONS = "delete:workspaceApplications",
+  READ_WORKSPACE_APPLICATIONS = "read:workspaceApplications",
+  // EXPORT_APPLICATION = "export:workspaceApplications",
   READ_APPLICATION = "read:applications",
   MAKE_PUBLIC_APPLICATION = "makePublic:applications",
+  // MAKE_PUBLIC_APPLICATION = "makePublic:workspaceApplications",
   PUBLISH_APPLICATION = "publish:workspaceApplications",
   /* Datasource permissions */
   CREATE_DATASOURCES = "create:datasources",
@@ -18,6 +22,8 @@ export enum PERMISSION_TYPE {
   DELETE_DATASOURCES = "delete:datasources",
   MANAGE_DATASOURCES = "manage:datasources",
   EXECUTE_WORKSPACE_DATASOURCES = "execute:workspaceDatasources",
+  MANAGE_WORKSPACE_DATASOURCES = "manage:workspaceDatasources",
+  READ_WORKSPACE_DATASOURCES = "read:workspaceDatasources",
   /* Page permissions */
   CREATE_PAGES = "create:pages",
   MANAGE_PAGES = "manage:pages",

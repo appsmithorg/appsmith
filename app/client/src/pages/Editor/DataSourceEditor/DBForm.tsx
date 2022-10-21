@@ -27,7 +27,6 @@ import {
 } from "./JSONtoForm";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -214,11 +213,10 @@ const mapStateToProps = (state: AppState, props: any) => {
     props?.formData?.pluginId,
   );
 
-  const userWorkspacePermissions =
-    getCurrentAppWorkspace(state).userPermissions ?? [];
+  const datasourcePermissions = datasource.userPermissions || [];
 
   const canManageDatasource = isPermitted(
-    userWorkspacePermissions,
+    datasourcePermissions,
     PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
