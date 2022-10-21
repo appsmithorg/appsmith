@@ -344,7 +344,7 @@ const StyledPagination = styled(Pagination)<{
 interface ListPaginationProps {
   current: number;
   total: number;
-  perPage: number;
+  pageSize: number;
   disabled?: boolean;
   onChange: (page: number) => void;
   borderRadius: string;
@@ -362,7 +362,7 @@ function ListPagination(props: ListPaginationProps) {
       disabled={props.disabled}
       locale={locale}
       onChange={props.onChange}
-      pageSize={props.perPage}
+      pageSize={props.pageSize}
       total={props.total}
     />
   );

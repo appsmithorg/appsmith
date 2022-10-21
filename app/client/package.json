@@ -21,6 +21,7 @@
     "@manaflair/redux-batch": "^1.0.0",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
+    "@tanstack/virtual-core": "^3.0.0-beta.18",
     "@tinymce/tinymce-react": "^3.13.0",
     "@uppy/core": "^1.16.0",
     "@uppy/dashboard": "^1.16.0",

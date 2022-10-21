@@ -2679,6 +2679,11 @@
     "@svgr/plugin-svgo" "^5.5.0"
     loader-utils "^2.0.0"
 
+"@tanstack/virtual-core@^3.0.0-beta.18":
+  version "3.0.0-beta.18"
+  resolved "https://registry.yarnpkg.com/@tanstack/virtual-core/-/virtual-core-3.0.0-beta.18.tgz#d4b0738c1d0aada922063c899675ff4df9f696b2"
+  integrity sha512-tcXutY05NpN9lp3+AXI9Sn85RxSPV0EJC0XMim9oeQj/E7bjXoL0qZ4Er4wwnvIbv/hZjC91EmbIQGjgdr6nZg==
+
 "@testing-library/dom@^8.0.0":
   version "8.13.0"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.13.0.tgz#bc00bdd64c7d8b40841e27a70211399ad3af46f5"

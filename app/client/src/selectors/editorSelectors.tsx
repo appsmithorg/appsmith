@@ -220,10 +220,10 @@ export const getMetaWidgetChildrenStructure = (
 
     const structure: CanvasWidgetStructure[] = [];
 
-    Object.values(metaWidgets).forEach(({ parentId, widgetId }) => {
-      if (parentId === parentWidgetId) {
+    Object.values(metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.parentId === parentWidgetId) {
         structure.push(
-          denormalize(widgetId, metaWidgets, {
+          denormalize(metaWidget.widgetId, metaWidgets, {
             widgetTypeForHaltingRecursion: type,
           }),
         );
