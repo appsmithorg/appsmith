@@ -172,8 +172,12 @@ class CurrencyInputWidget extends BaseInputWidget<
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
+              validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, max: 2 },
+              },
             },
-          ],
+          ],  
         },
         {
           sectionName: "Label",
